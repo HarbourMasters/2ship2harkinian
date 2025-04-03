@@ -1,5 +1,6 @@
 #include <libultraship/libultraship.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
 
 extern "C" {
@@ -97,7 +98,7 @@ void RegisterEndOfCycleSaveHooks() {
         }
     });
 
-    COND_HOOK(AfterEndOfCycleSave, CVAR_SWORD, []() {
+    COND_HOOK(AfterEndOfCycleSave, CVAR_SWORD || IS_RANDO, []() {
         u8 curSword = (saveInfoCopy.equips.equipment & gEquipMasks[EQUIP_TYPE_SWORD]) >> gEquipShifts[EQUIP_TYPE_SWORD];
 
         // Check for razor sword equipped, stolen, or turned into the smithy
@@ -117,4 +118,4 @@ void RegisterEndOfCycleSaveHooks() {
 
 static RegisterShipInitFunc initFunc(RegisterEndOfCycleSaveHooks,
                                      { CVAR_NAME_RUPEES, CVAR_NAME_CONSUME, CVAR_NAME_BOTTLE, CVAR_NAME_SWORD,
-                                       CVAR_NAME_TIME });
+                                       CVAR_NAME_TIME, "IS_RANDO" });

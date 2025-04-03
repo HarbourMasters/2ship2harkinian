@@ -2,6 +2,7 @@
 #define BenJsonConversions_hpp
 
 #include <nlohmann/json.hpp>
+#include "build.h"
 
 extern "C" {
 #include "z64save.h"
@@ -24,16 +25,82 @@ void from_json(const json& j, DpadSaveInfo& dpadEquips) {
     }
 }
 
+void to_json(json& j, const RandoSaveCheck& randoSaveCheck) {
+    j = json{
+        { "randoItemId", randoSaveCheck.randoItemId },
+        { "eligible", randoSaveCheck.eligible },
+        { "cycleObtained", randoSaveCheck.cycleObtained },
+        { "obtained", randoSaveCheck.obtained },
+        { "shuffled", randoSaveCheck.shuffled },
+        { "skipped", randoSaveCheck.skipped },
+        { "price", randoSaveCheck.price },
+    };
+}
+
+void from_json(const json& j, RandoSaveCheck& randoSaveCheck) {
+    j.at("randoItemId").get_to(randoSaveCheck.randoItemId);
+    j.at("eligible").get_to(randoSaveCheck.eligible);
+    j.at("cycleObtained").get_to(randoSaveCheck.cycleObtained);
+    j.at("obtained").get_to(randoSaveCheck.obtained);
+    j.at("shuffled").get_to(randoSaveCheck.shuffled);
+    j.at("skipped").get_to(randoSaveCheck.skipped);
+    j.at("price").get_to(randoSaveCheck.price);
+}
+
+void to_json(json& j, const RandoSaveInfo& rando) {
+    j = json{
+        { "randoInf", rando.randoInf },
+        { "randoEvents", rando.randoEvents },
+        { "randoSaveChecks", rando.randoSaveChecks },
+        { "finalSeed", rando.finalSeed },
+        { "randoSaveOptions", rando.randoSaveOptions },
+        { "foundDungeonKeys", rando.foundDungeonKeys },
+    };
+}
+
+void from_json(const json& j, RandoSaveInfo& rando) {
+    j.at("randoInf").get_to(rando.randoInf);
+    j.at("randoEvents").get_to(rando.randoEvents);
+    j.at("randoSaveChecks").get_to(rando.randoSaveChecks);
+    j.at("finalSeed").get_to(rando.finalSeed);
+    j.at("randoSaveOptions").get_to(rando.randoSaveOptions);
+    j.at("foundDungeonKeys").get_to(rando.foundDungeonKeys);
+}
+
 void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
+    uint8_t commitHash[8];
+    memcpy(commitHash, shipSaveInfo.commitHash, sizeof(commitHash));
+
     j = json {
         { "dpadEquips", shipSaveInfo.dpadEquips },
         { "pauseSaveEntrance", shipSaveInfo.pauseSaveEntrance },
+        { "saveType", shipSaveInfo.saveType },
+        { "fileCreatedAt", shipSaveInfo.fileCreatedAt },
+        { "fileCompletedAt", shipSaveInfo.fileCompletedAt },
+        { "commitHash", commitHash },
     };
+
+    if (shipSaveInfo.saveType == SAVETYPE_RANDO) {
+        j["rando"] = shipSaveInfo.rando;
+    }
 }
 
 void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("dpadEquips").get_to(shipSaveInfo.dpadEquips);
     j.at("pauseSaveEntrance").get_to(shipSaveInfo.pauseSaveEntrance);
+    j.at("saveType").get_to(shipSaveInfo.saveType);
+    j.at("fileCreatedAt").get_to(shipSaveInfo.fileCreatedAt);
+    j.at("fileCompletedAt").get_to(shipSaveInfo.fileCompletedAt);
+    j.at("commitHash").get_to(shipSaveInfo.commitHash);
+
+    if (shipSaveInfo.saveType == SAVETYPE_RANDO) {
+        if (strcmp(shipSaveInfo.commitHash, gGitCommitHash) != 0) {
+            SPDLOG_ERROR("Randomizer saves cannot be loaded from a different version.");
+            throw new std::runtime_error("Randomizer saves cannot be loaded from a different version.");
+        }
+
+        j.at("rando").get_to(shipSaveInfo.rando);
+    }
 }
 
 void to_json(json& j, const ItemEquips& itemEquips) {

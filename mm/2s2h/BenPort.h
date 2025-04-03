@@ -99,8 +99,8 @@ Vtx* ResourceMgr_LoadVtxByCRC(uint64_t crc);
 char* ResourceMgr_LoadVtxArrayByName(const char* path);
 size_t ResourceMgr_GetVtxArraySizeByName(const char* path);
 Vtx* ResourceMgr_LoadVtxByName(char* path);
+SequenceData* ResourceMgr_LoadSeqPtrByName(const char* path);
 Mtx* ResourceMgr_LoadMtxByName(char* path);
-
 KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path);
 KeyFrameAnimation* ResourceMgr_LoadKeyFrameAnimByName(const char* path);
 
@@ -137,12 +137,14 @@ void Controller_UnblockGameInput();
 void Overlay_DisplayText(float duration, const char* text);
 void Overlay_DisplayText_Seconds(int seconds, const char* text);
 uint32_t Ship_GetInterpolationFPS();
+uint32_t Ship_GetInterpolationFrameCount();
 
 void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement);
 void Gfx_UnregisterBlendedTexture(const char* name);
 void Gfx_TextureCacheDelete(const uint8_t* texAddr);
 void CheckTracker_OnMessageClose();
 
+void Messagebox_ShowErrorBox(char* title, char* body);
 bool Ship_HandleConsoleCrashAsReset();
 
 int32_t GetGIID(uint32_t itemID);

@@ -6,6 +6,7 @@
 
 #include "z_dm_hina.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -150,7 +151,7 @@ void func_80A1F9AC(DmHina* this, PlayState* play) {
                          this->actor.world.pos.z, MTXMODE_NEW);
         Matrix_ReplaceRotation(&play->billboardMtxF);
         Matrix_Scale(this->unk14C * 20.0f, this->unk14C * 20.0f, this->unk14C * 20.0f, MTXMODE_APPLY);
-        Matrix_RotateZF(Rand_ZeroFloat(2 * M_PI), MTXMODE_APPLY);
+        Matrix_RotateZF(Rand_ZeroFloat(2 * M_PIf), MTXMODE_APPLY);
 
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_XLU_DISP++, gLightOrbModelDL);
@@ -170,25 +171,27 @@ void DmHina_Draw(Actor* thisx, PlayState* play) {
         Matrix_RotateZYX(0, play->gameplayFrames * 0x3E8, 0, MTXMODE_APPLY);
         scale = this->unk148 * (1.0f - this->unk14C) * this->unk15C;
         Matrix_Scale(scale, scale, scale, MTXMODE_APPLY);
-        switch (this->actor.params) {
-            case 0:
-                GetItem_Draw(play, GID_REMAINS_ODOLWA);
-                break;
+        if (GameInteractor_Should(VB_DRAW_BOSS_REMAINS, true, this)) {
+            switch (this->actor.params) {
+                case 0:
+                    GetItem_Draw(play, GID_REMAINS_ODOLWA);
+                    break;
 
-            case 1:
-                GetItem_Draw(play, GID_REMAINS_GOHT);
-                break;
+                case 1:
+                    GetItem_Draw(play, GID_REMAINS_GOHT);
+                    break;
 
-            case 2:
-                GetItem_Draw(play, GID_REMAINS_GYORG);
-                break;
+                case 2:
+                    GetItem_Draw(play, GID_REMAINS_GYORG);
+                    break;
 
-            case 3:
-                GetItem_Draw(play, GID_REMAINS_TWINMOLD);
-                break;
+                case 3:
+                    GetItem_Draw(play, GID_REMAINS_TWINMOLD);
+                    break;
 
-            default:
-                break;
+                default:
+                    break;
+            }
         }
         func_80A1F9AC(this, play);
     }

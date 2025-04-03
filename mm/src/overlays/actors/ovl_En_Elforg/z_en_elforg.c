@@ -5,6 +5,7 @@
  */
 
 #include "z_en_elforg.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_10)
 
@@ -80,7 +81,7 @@ void EnElforg_Init(Actor* thisx, PlayState* play) {
 
     switch (STRAY_FAIRY_TYPE(thisx)) {
         case STRAY_FAIRY_TYPE_CLOCK_TOWN:
-            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_08_80)) {
+            if (GameInteractor_Should(VB_KILL_CLOCK_TOWN_STRAY_FAIRY, CHECK_WEEKEVENTREG(WEEKEVENTREG_08_80), this)) {
                 Actor_Kill(thisx);
                 return;
             }
@@ -487,27 +488,30 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
                     break;
             }
 
-            if (STRAY_FAIRY_TYPE(&this->actor) == STRAY_FAIRY_TYPE_CLOCK_TOWN) {
-                player->actor.freezeTimer = 100;
-                player->stateFlags1 |= PLAYER_STATE1_20000000;
-                // Bring me back to North Clock Town!
-                Message_StartTextbox(play, 0x579, NULL);
-                this->actionFunc = EnElforg_ClockTownFairyCollected;
-                CutsceneManager_Queue(CS_ID_GLOBAL_TALK);
-                return;
-            }
+            if (GameInteractor_Should(VB_GIVE_ITEM_FROM_ELFORG, true, this)) {
+                if (STRAY_FAIRY_TYPE(&this->actor) == STRAY_FAIRY_TYPE_CLOCK_TOWN) {
+                    player->actor.freezeTimer = 100;
+                    player->stateFlags1 |= PLAYER_STATE1_20000000;
+                    // Bring me back to North Clock Town!
+                    Message_StartTextbox(play, 0x579, NULL);
+                    this->actionFunc = EnElforg_ClockTownFairyCollected;
+                    CutsceneManager_Queue(CS_ID_GLOBAL_TALK);
+                    return;
+                }
 
-            if (Map_IsInDungeonOrBossArea(play)) {
-                gSaveContext.save.saveInfo.inventory.strayFairies[gSaveContext.dungeonIndex]++;
-                // You found a Stray Fairy!
-                Message_StartTextbox(play, 0x11, NULL);
-                if (gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonIndex] >=
-                    STRAY_FAIRY_SCATTERED_TOTAL) {
-                    Audio_PlayFanfare(NA_BGM_GET_ITEM | 0x900);
+                if (Map_IsInDungeonOrBossArea(play)) {
+                    gSaveContext.save.saveInfo.inventory.strayFairies[gSaveContext.dungeonIndex]++;
+                    // You found a Stray Fairy!
+                    Message_StartTextbox(play, 0x11, NULL);
+                    if (gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonIndex] >=
+                        STRAY_FAIRY_SCATTERED_TOTAL) {
+                        // BENTODO This had | 0x900 which interfered with the 16 bit sequence IDs. Removing it doesn't
+                        // seem to do anything bad.
+                        Audio_PlayFanfare(NA_BGM_GET_ITEM);
+                    }
                 }
             }
         }
-
         Actor_UpdateBgCheckInfo(play, &this->actor, 20.0f, 20.0f, 20.0f,
                                 UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_2 | UPDBGCHECKINFO_FLAG_4);
         func_80ACCBB8(this, play);
@@ -549,7 +553,9 @@ void EnElforg_TrappedByEnemy(EnElforg* this, PlayState* play) {
     if (this->enemy->update == NULL) {
         EnElforg_InitializeParams(this);
         this->actionFunc = EnElforg_FreeFloating;
-        this->actor.draw = EnElforg_Draw;
+        if (GameInteractor_Should(VB_SET_DRAW_FOR_SAVED_STRAY_FAIRY, true, this)) {
+            this->actor.draw = EnElforg_Draw;
+        }
         Actor_PlaySfx(&this->actor, NA_SE_EV_CHIBI_FAIRY_SAVED);
     } else {
         // The enemy is still alive, so have the Stray Fairy
@@ -581,7 +587,9 @@ void EnElforg_HiddenByCollider(EnElforg* this, PlayState* play) {
     if (this->collider.base.acFlags & AC_HIT) {
         EnElforg_InitializeParams(this);
         this->actionFunc = EnElforg_FreeFloating;
-        this->actor.draw = EnElforg_Draw;
+        if (GameInteractor_Should(VB_SET_DRAW_FOR_SAVED_STRAY_FAIRY, true, this)) {
+            this->actor.draw = EnElforg_Draw;
+        }
         this->actor.world.pos.y += 40.0f;
         this->actor.home.pos.y += 40.0f;
         Actor_PlaySfx(&this->actor, NA_SE_EV_CHIBI_FAIRY_SAVED);

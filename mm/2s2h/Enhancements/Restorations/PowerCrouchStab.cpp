@@ -7,6 +7,12 @@
 
 void RegisterPowerCrouchStab() {
     COND_VB_SHOULD(VB_PATCH_POWER_CROUCH_STAB, CVAR, { *should = false; });
+
+    COND_ID_HOOK(OnActorInit, ACTOR_PLAYER, CVAR == 2, [](Actor* actor) {
+        Player* player = (Player*)actor;
+        player->meleeWeaponQuads[0].info.toucher.dmgFlags = 512; // Kokiri Sword
+        player->meleeWeaponQuads[1].info.toucher.dmgFlags = 512; // Kokiri Sword
+    });
 }
 
 static RegisterShipInitFunc initFunc(RegisterPowerCrouchStab, { CVAR_NAME });

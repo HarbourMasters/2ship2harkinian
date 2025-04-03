@@ -151,9 +151,9 @@ void Register3DItemDrops() {
 
         while (actor != NULL) {
             if (actor->id == ACTOR_EN_ITEM00) {
-                if (CVarGetInteger("gEnhancements.Graphics.3DItemDrops", 0)) {
+                if (CVAR && (actor->draw == EnItem00_Draw)) {
                     actor->draw = EnItem00_3DItemsDraw;
-                } else {
+                } else if (actor->draw == EnItem00_3DItemsDraw) {
                     actor->draw = EnItem00_Draw;
 
                     // Reset rotation for bill-boarded sprites
@@ -167,11 +167,15 @@ void Register3DItemDrops() {
         }
     }
 
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_ITEM00, CVAR, [](Actor* actor) { actor->draw = EnItem00_3DItemsDraw; });
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_ITEM00, CVAR, [](Actor* actor) {
+        if (actor->draw == EnItem00_Draw) {
+            actor->draw = EnItem00_3DItemsDraw;
+        }
+    });
 
     COND_ID_HOOK(OnActorUpdate, ACTOR_EN_ITEM00, CVAR, [](Actor* actor) {
         // Add spin to normally bill-boarded items
-        if (ItemShouldSpinWhen3D(actor)) {
+        if (actor->draw == EnItem00_3DItemsDraw && ItemShouldSpinWhen3D(actor)) {
             actor->shape.rot.y += 0x3C0;
         }
     });

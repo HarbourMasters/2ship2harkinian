@@ -5,8 +5,8 @@
 #include "UIWidgets.hpp"
 #include "Menu.h"
 #include "2s2h/Enhancements/Enhancements.h"
-#include "graphic/Fast3D/gfx_rendering_api.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "graphic/Fast3D/gfx_rendering_api.h"
 
 namespace BenGui {
 
@@ -91,6 +91,19 @@ static const std::unordered_map<int32_t, const char*> dekuGuardSearchBallsOption
     { DEKU_GUARD_SEARCH_BALLS_ALWAYS, "Always" },
 };
 
+static const std::unordered_map<int32_t, const char*> skipGetItemCutscenesOptions = {
+    { 0, "Never" },
+    { 1, "Junk Items Only" },
+    { 2, "Everything But Major" },
+    { 3, "Always" },
+};
+
+static const std::unordered_map<int32_t, const char*> powerCrouchStabOptions = {
+    { 0, "Patched (US/EU)" },
+    { 1, "Unpatched (JP)" },
+    { 2, "Unpatched (OoT)" },
+};
+
 static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
     { 0, "1x" }, { 1, "2x" }, { 2, "4x" }, { 3, "8x" }, { 4, "16x" }, { 10, "1 Hit KO" },
 };
@@ -117,6 +130,8 @@ class BenMenu : public Ship::Menu {
     std::vector<std::string> enhancementsOrder;
     std::unordered_map<std::string, SidebarEntry> devToolsSidebar;
     std::vector<std::string> devToolsOrder;
+    std::unordered_map<std::string, SidebarEntry> randoSidebar;
+    std::vector<std::string> randoOrder;
 };
 } // namespace BenGui
 

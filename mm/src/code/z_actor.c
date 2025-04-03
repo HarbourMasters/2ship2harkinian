@@ -25,6 +25,8 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/BenPort.h"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/ActorExtension/ActorExtension.h"
+#include "2s2h/ActorExtension/ActorListIndex.h"
 
 // bss
 // FaultClient sActorFaultClient; // 2 funcs
@@ -905,6 +907,15 @@ void Flags_ClearWeekEventReg(s32 flag) {
     }
 }
 
+void Flags_SetWeekEventRegHorseRace(u8 state) {
+    u8 previousState = GET_WEEKEVENTREG_HORSE_RACE_STATE;
+    WEEKEVENTREG(92) &= (u8)~WEEKEVENTREG_HORSE_RACE_STATE_MASK;
+    WEEKEVENTREG(92) = WEEKEVENTREG(92) | (u8)((WEEKEVENTREG(92) & ~WEEKEVENTREG_HORSE_RACE_STATE_MASK) | (state));
+    if (previousState != state) {
+        GameInteractor_ExecuteOnFlagSet(FLAG_WEEK_EVENT_REG_HORSE_RACE, state);
+    }
+}
+
 void Flags_SetEventInf(s32 flag) {
     u8 previouslyOff = !CHECK_EVENTINF(flag);
     gSaveContext.eventInf[(flag) >> 4] |= (1 << ((flag)&0xF));
@@ -918,6 +929,28 @@ void Flags_ClearEventInf(s32 flag) {
     gSaveContext.eventInf[(flag) >> 4] &= (u8) ~(1 << ((flag)&0xF));
     if (previouslyOn) {
         GameInteractor_ExecuteOnFlagUnset(FLAG_EVENT_INF, flag);
+    }
+}
+// #endregion
+
+// #region 2S2H Our rando_inf flags
+s32 Flags_GetRandoInf(s32 flag) {
+    return gSaveContext.save.shipSaveInfo.rando.randoInf[(flag) >> 4] & (1 << ((flag)&0xF));
+}
+
+void Flags_SetRandoInf(s32 flag) {
+    u8 previouslyOff = !Flags_GetRandoInf(flag);
+    gSaveContext.save.shipSaveInfo.rando.randoInf[flag >> 4] |= (1 << (flag & 0xF));
+    if (previouslyOff) {
+        GameInteractor_ExecuteOnFlagSet(FLAG_RANDO_INF, flag);
+    }
+}
+
+void Flags_ClearRandoInf(s32 flag) {
+    u8 previouslyOn = Flags_GetRandoInf(flag);
+    gSaveContext.save.shipSaveInfo.rando.randoInf[flag >> 4] &= ~(1 << (flag & 0xF));
+    if (previouslyOn) {
+        GameInteractor_ExecuteOnFlagUnset(FLAG_RANDO_INF, flag);
     }
 }
 // #endregion
@@ -2251,7 +2284,9 @@ s32 Actor_OfferGetItem(Actor* actor, PlayState* play, GetItemId getItemId, f32 x
                 s16 yawDiff = actor->yawTowardsPlayer - player->actor.shape.rot.y;
                 s32 absYawDiff = ABS_ALT(yawDiff);
 
-                if ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)) {
+                if (GameInteractor_Should(VB_GIVE_ITEM_FROM_OFFER,
+                                          ((getItemId != GI_NONE) || (player->getItemDirection < absYawDiff)),
+                                          &getItemId, actor)) {
                     player->getItemId = getItemId;
                     player->interactRangeActor = actor;
                     player->getItemDirection = absYawDiff;
@@ -2555,6 +2590,9 @@ void Actor_SpawnSetupActors(PlayState* play, ActorContext* actorCtx) {
         shiftedHalfDaysBit = (actorCtx->halfDaysBit << 1) & (HALFDAYBIT_ALL & ~HALFDAYBIT_DAY0_NIGHT);
 
         for (i = 0; i < play->numSetupActors; i++) {
+            // 2S2H [ActorExtension] store the actor's index to be used for identification
+            currentActorListIndex = i;
+
             actorEntryHalfDayBit = ((actorEntry->rot.x & 7) << 7) | (actorEntry->rot.z & 0x7F);
             if (actorEntryHalfDayBit == 0) {
                 actorEntryHalfDayBit = HALFDAYBIT_ALL;
@@ -2567,6 +2605,8 @@ void Actor_SpawnSetupActors(PlayState* play, ActorContext* actorCtx) {
             }
             actorEntry++;
         }
+        // 2S2H [ActorExtension] Reset the currentActorListIndex
+        currentActorListIndex = -1;
 
         // Prevents re-spawning the setup actors
         play->numSetupActors = -play->numSetupActors;
@@ -3552,6 +3592,12 @@ Actor* Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s1
         return NULL;
     }
 
+    // #region 2S2H [ActorExtension]
+    ActorExtension_Alloc(actor, actorInit->id);
+    SetActorListIndex(actor, currentActorListIndex);
+    currentActorListIndex = -1;
+    // #endregion
+
     overlayEntry = &gActorOverlayTable[index];
     // #region 2S2H [Port] Our actors are always loaded and have no vramStart
     // but we want to simulate them being unloaded to execute our actor reset funcs
@@ -3711,6 +3757,11 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
     Actor_Destroy(actor, play);
 
     newHead = Actor_RemoveFromCategory(play, actorCtx, actor);
+
+    // #region 2S2H [ActorExtension]
+    ActorExtension_Free(actor);
+    // #endregion
+
     ZeldaArena_Free(actor);
 
     // #region 2S2H [Port] Our actors are always loaded and have no vramStart
@@ -4283,7 +4334,7 @@ void Actor_DrawDoorLock(PlayState* play, s32 frame, s32 type) {
         if ((i % 2) != 0) {
             rotZStep = 2.0f * entry->chainAngle;
         } else {
-            rotZStep = M_PI - (2.0f * entry->chainAngle);
+            rotZStep = M_PIf - (2.0f * entry->chainAngle);
         }
 
         chainRotZ += rotZStep;
@@ -5164,11 +5215,11 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                     Matrix_Scale(frozenScale, frozenScale, frozenScale, MTXMODE_APPLY);
 
                     if (bodyPartIndex & 1) {
-                        Matrix_RotateYF(M_PI, MTXMODE_APPLY);
+                        Matrix_RotateYF(M_PIf, MTXMODE_APPLY);
                     }
 
                     if (bodyPartIndex & 2) {
-                        Matrix_RotateZF(M_PI, MTXMODE_APPLY);
+                        Matrix_RotateZF(M_PIf, MTXMODE_APPLY);
                     }
 
                     gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
@@ -5250,7 +5301,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                                Gfx_TwoTexScroll(play->state.gfxCtx, 0, 0, 0, 32, 64, 1, 0,
                                                 ((bodyPartIndex * 10 + gameplayFrames) * -20) & 0x1FF, 32, 128));
 
-                    Matrix_RotateYF(M_PI, MTXMODE_APPLY);
+                    Matrix_RotateYF(M_PIf, MTXMODE_APPLY);
                     currentMatrix->mf[3][0] = bodyPartsPos->x;
                     currentMatrix->mf[3][1] = bodyPartsPos->y;
                     currentMatrix->mf[3][2] = bodyPartsPos->z;
@@ -5294,7 +5345,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                 // Apply and draw a light orb over each body part of frozen actor
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
                     FrameInterpolation_RecordOpenChild(bodyPartsPos, type);
-                    Matrix_RotateZF(Rand_CenteredFloat(2 * M_PI), MTXMODE_APPLY);
+                    Matrix_RotateZF(Rand_CenteredFloat(2 * M_PIf), MTXMODE_APPLY);
                     currentMatrix->mf[3][0] = bodyPartsPos->x;
                     currentMatrix->mf[3][1] = bodyPartsPos->y;
                     currentMatrix->mf[3][2] = bodyPartsPos->z;
@@ -5335,8 +5386,8 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
                     FrameInterpolation_RecordOpenChild(bodyPartsPos, type);
                     // first electric spark
-                    Matrix_RotateXFApply(Rand_ZeroFloat(2 * M_PI));
-                    Matrix_RotateZF(Rand_ZeroFloat(2 * M_PI), MTXMODE_APPLY);
+                    Matrix_RotateXFApply(Rand_ZeroFloat(2 * M_PIf));
+                    Matrix_RotateZF(Rand_ZeroFloat(2 * M_PIf), MTXMODE_APPLY);
                     currentMatrix->mf[3][0] = Rand_CenteredFloat((f32)sREG(24) + 30.0f) + bodyPartsPos->x;
                     currentMatrix->mf[3][1] = Rand_CenteredFloat((f32)sREG(24) + 30.0f) + bodyPartsPos->y;
                     currentMatrix->mf[3][2] = Rand_CenteredFloat((f32)sREG(24) + 30.0f) + bodyPartsPos->z;
@@ -5347,8 +5398,8 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                     gSPDisplayList(POLY_XLU_DISP++, gElectricSparkModelDL);
 
                     // second electric spark
-                    Matrix_RotateXFApply(Rand_ZeroFloat(2 * M_PI));
-                    Matrix_RotateZF(Rand_ZeroFloat(2 * M_PI), MTXMODE_APPLY);
+                    Matrix_RotateXFApply(Rand_ZeroFloat(2 * M_PIf));
+                    Matrix_RotateZF(Rand_ZeroFloat(2 * M_PIf), MTXMODE_APPLY);
                     currentMatrix->mf[3][0] = Rand_CenteredFloat((f32)sREG(24) + 30.0f) + bodyPartsPos->x;
                     currentMatrix->mf[3][1] = Rand_CenteredFloat((f32)sREG(24) + 30.0f) + bodyPartsPos->y;
                     currentMatrix->mf[3][2] = Rand_CenteredFloat((f32)sREG(24) + 30.0f) + bodyPartsPos->z;

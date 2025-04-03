@@ -56,7 +56,7 @@ u64 aspMainDataEnd[100];
 
 u8 sNumSeqRequests[5];
 u32 sAudioSeqCmds[0x100];
-ActiveSequence gActiveSeqs[5];
+
 u8 sResetAudioHeapTimer;
 u16 sResetAudioHeapFadeReverbVolume;
 u16 sResetAudioHeapFadeReverbVolumeStep;
@@ -134,9 +134,6 @@ void Audio_osInvalDCache(void* buf, s32 size) {
 void Audio_osWritebackDCache(void* mem, s32 size) {
 }
 
-void Audio_SetBGM(u32 bgmId) {
-}
-
 OSPiHandle* osDriveRomInit() {
 }
 
@@ -168,6 +165,27 @@ void gSPSegment(void* value, int segNum, uintptr_t target) {
     }
 
     __gSPSegment(value, segNum, target);
+}
+
+void gSPSegmentInterp(void* value, int segNum, uintptr_t target) {
+    char* imgData = (char*)target;
+
+    int res = ResourceMgr_OTRSigCheck(imgData);
+
+    // OTRTODO: Disabled for now to fix an issue with HD Textures.
+    // With HD textures, we need to pass the path to F3D, not the raw texture data.
+    // Otherwise the needed metadata is not available for proper rendering...
+    // This should *not* cause any crashes, but some testing may be needed...
+    // UPDATE: To maintain compatability it will still do the old behavior if the resource is a display list.
+    // That should not affect HD textures.
+    if (res) {
+        uintptr_t desiredTarget = (uintptr_t)ResourceMgr_LoadIfDListByName(imgData);
+
+        if (desiredTarget != NULL)
+            target = desiredTarget;
+    }
+
+    __gSPSegmentInterp(value, segNum, target);
 }
 
 void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target) {
@@ -231,8 +249,6 @@ void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr) {
     __gSPInvalidateTexCache(pkt, texAddr);
 }
 
-u16 func_801A5100(void) {
-}
 void __osDispatchThread(void) {
 }
 
@@ -754,7 +770,7 @@ void guLookAt(Mtx* m, f32 xEye, f32 yEye, f32 zEye, f32 xAt, f32 yAt, f32 zAt, f
     // guMtxF2L(mf, m);
 }
 void guRotateF(float m[4][4], float a, float x, float y, float z) {
-    static float D_80097F90 = M_PI / 180.0f;
+    static float D_80097F90 = M_PIf / 180.0f;
     float sine;
     float cosine;
     float ab;
