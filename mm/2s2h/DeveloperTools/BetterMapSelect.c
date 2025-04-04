@@ -4,6 +4,7 @@
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/gamestates/ovl_select/z_select.h"
 #include <libultraship/bridge.h>
+#include "BenPort.h"
 
 void BetterMapSelect_LoadGame(MapSelectState* mapSelectState, u32 entrance, s32 spawn);
 void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState);
@@ -227,7 +228,11 @@ void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState) {
     CVarSave();
     gSaveContext.gameMode = GAMEMODE_FILE_SELECT;
     STOP_GAMESTATE(&mapSelectState->state);
-    SET_NEXT_GAMESTATE(&mapSelectState->state, FileSelect_Init, sizeof(FileSelectState));
+    if (ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN) {
+        SET_NEXT_GAMESTATE(&mapSelectState->state, FileSelect_JP_Init, sizeof(FileSelectState));
+    } else {
+        SET_NEXT_GAMESTATE(&mapSelectState->state, FileSelect_Init, sizeof(FileSelectState));
+    }
 }
 
 void BetterMapSelect_Init(MapSelectState* mapSelectState) {

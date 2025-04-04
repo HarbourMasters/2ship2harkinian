@@ -526,6 +526,7 @@ void Font_LoadChar(PlayState* play, u16 codePointIndex, s32 offset);
 void Font_LoadCharNES(PlayState* play, u8 codePointIndex, s32 offset);
 void Font_LoadMessageBoxEndIcon(Font* font, u16 icon);
 void Font_LoadOrderedFont(Font* font);
+void Font_LoadOrderedFont_JP(Font* font);
 
 void Lib_GetControlStickData(f32* outMagnitude, s16* outAngle, Input* input);
 void Actor_ProcessInitChain(Actor* actor, InitChainEntry* ichain);
@@ -1319,6 +1320,10 @@ u8 AudioSeq_UpdateAudioHeapReset(void);
 u8 AudioSeq_ResetReverb(void);
 void AudioSeq_ResetActiveSequences(void);
 void AudioSeq_ResetActiveSequencesAndVolume(void);
+
+// #region 2S2H [JP]
+s32 Kanji_OffsetFromShiftJIS(u32);
+// #endregion
 
 // #region 2S2H [Port] Made Available via C++
 s32 osContInit(OSMesgQueue* mq, u8* controllerBits, OSContStatus* status);

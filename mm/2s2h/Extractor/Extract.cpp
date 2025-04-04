@@ -53,16 +53,19 @@ extern "C" uint32_t CRC32C(unsigned char* data, size_t dataSize);
 
 static constexpr uint32_t MM_US_10 = 0x5354631C;
 static constexpr uint32_t MM_US_GC = 0xB443EB08;
+static constexpr uint32_t MM_JP_GC = 0x8473D0C1;
 
 static const std::unordered_map<uint32_t, const char*> verMap = {
     { MM_US_10, "US 1.0" },
     { MM_US_GC, "US GC" },
+    { MM_JP_GC, "JP GC" },
 };
 
 // TODO only check the first 54MB of the rom.
 static constexpr std::array<const uint32_t, 10> goodCrcs = {
     0x96F49400, // MM US 1.0 32MB
-    0xBB434787, // MM GC
+    0xBB434787, // MM US GC
+    0x2BD099FA, // MM JP GC
 };
 
 enum class ButtonId : int {
@@ -497,6 +500,8 @@ const char* Extractor::GetZapdVerStr() const {
             return "N64_US";
         case MM_US_GC:
             return "GC_US";
+        case MM_JP_GC:
+            return "GC_JP";
         default:
             // We should never be in a state where this path happens.
             UNREACHABLE;
