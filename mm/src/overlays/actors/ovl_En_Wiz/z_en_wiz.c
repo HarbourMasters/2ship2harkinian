@@ -8,7 +8,6 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "overlays/actors/ovl_En_Wiz_Brock/z_en_wiz_brock.h"
-#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS                                                                                                  \
     (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_IGNORE_QUAKE | \
@@ -833,10 +832,6 @@ void EnWiz_Dance(EnWiz* this, PlayState* play) {
 }
 
 void EnWiz_SetupSecondPhaseCutscene(EnWiz* this, PlayState* play) {
-    if (!GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-        return;
-    }
-
     s16 secondPhaseCsId = CutsceneManager_GetAdditionalCsId(this->actor.csId);
 
     if (!CutsceneManager_IsNext(secondPhaseCsId)) {

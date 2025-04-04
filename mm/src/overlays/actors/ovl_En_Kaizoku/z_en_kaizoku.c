@@ -6,7 +6,6 @@
 
 #include "z_en_kaizoku.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
-#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_100000)
 
@@ -758,24 +757,22 @@ void func_80B86B74(EnKaizoku* this, PlayState* play) {
     s32 textId;
     f32 curFrame = this->skelAnime.curFrame;
 
-    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-        if (this->unk_59C < 2) {
-            Math_SmoothStepToS(&this->picto.actor.shape.rot.y, this->picto.actor.yawTowardsPlayer, 1, 0xFA0, 1);
-            player->actor.world.pos.x = this->picto.actor.home.pos.x + 90.0f;
-            player->actor.world.pos.z = this->picto.actor.home.pos.z + 30.0f;
-            this->picto.actor.world.pos.x = this->picto.actor.home.pos.x;
-            this->picto.actor.world.pos.z = this->picto.actor.home.pos.z;
-            this->unk_5C8.x = player->actor.world.pos.x + 39.0f;
-            this->unk_5C8.y = player->actor.world.pos.y + 4.0f;
-            this->unk_5C8.z = player->actor.world.pos.z - 41.0f;
-            this->unk_5D4.x = player->actor.world.pos.x - 150.0f;
-            this->unk_5D4.y = player->actor.world.pos.y + 60.0f;
-            this->unk_5D4.z = player->actor.world.pos.z + 50.0f;
-        }
-
-        player->actor.shape.rot.y = player->actor.world.rot.y =
-            Math_Vec3f_Yaw(&player->actor.world.pos, &this->picto.actor.world.pos);
+    if (this->unk_59C < 2) {
+        Math_SmoothStepToS(&this->picto.actor.shape.rot.y, this->picto.actor.yawTowardsPlayer, 1, 0xFA0, 1);
+        player->actor.world.pos.x = this->picto.actor.home.pos.x + 90.0f;
+        player->actor.world.pos.z = this->picto.actor.home.pos.z + 30.0f;
+        this->picto.actor.world.pos.x = this->picto.actor.home.pos.x;
+        this->picto.actor.world.pos.z = this->picto.actor.home.pos.z;
+        this->unk_5C8.x = player->actor.world.pos.x + 39.0f;
+        this->unk_5C8.y = player->actor.world.pos.y + 4.0f;
+        this->unk_5C8.z = player->actor.world.pos.z - 41.0f;
+        this->unk_5D4.x = player->actor.world.pos.x - 150.0f;
+        this->unk_5D4.y = player->actor.world.pos.y + 60.0f;
+        this->unk_5D4.z = player->actor.world.pos.z + 50.0f;
     }
+
+    player->actor.shape.rot.y = player->actor.world.rot.y =
+        Math_Vec3f_Yaw(&player->actor.world.pos, &this->picto.actor.world.pos);
     switch (this->unk_59C) {
         case 0:
             EnKaizoku_ChangeAnim(this, EN_KAIZOKU_ANIM_17);
@@ -1728,29 +1725,27 @@ void func_80B8971C(EnKaizoku* this, PlayState* play) {
         }
 
         Math_Vec3f_Copy(&this->unk_3C4, &gZeroVec3f);
-        if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-            player->actor.world.pos.x = this->picto.actor.home.pos.x + 90.0f;
-            player->actor.world.pos.z = this->picto.actor.home.pos.z + 30.0f;
-            this->picto.actor.world.pos.x = this->picto.actor.home.pos.x;
-            this->picto.actor.world.pos.z = this->picto.actor.home.pos.z;
+        player->actor.world.pos.x = this->picto.actor.home.pos.x + 90.0f;
+        player->actor.world.pos.z = this->picto.actor.home.pos.z + 30.0f;
+        this->picto.actor.world.pos.x = this->picto.actor.home.pos.x;
+        this->picto.actor.world.pos.z = this->picto.actor.home.pos.z;
 
-            this->subCamEye.x = this->unk_5C8.x = player->actor.world.pos.x + 39.0f;
-            this->subCamEye.y = this->unk_5C8.y = player->actor.world.pos.y + 4.0f;
-            this->subCamEye.z = this->unk_5C8.z = player->actor.world.pos.z - 41.0f;
+        this->subCamEye.x = this->unk_5C8.x = player->actor.world.pos.x + 39.0f;
+        this->subCamEye.y = this->unk_5C8.y = player->actor.world.pos.y + 4.0f;
+        this->subCamEye.z = this->unk_5C8.z = player->actor.world.pos.z - 41.0f;
 
-            this->subCamAt.x = this->unk_5D4.x = player->actor.world.pos.x - 150.0f;
-            this->subCamAt.y = this->unk_5D4.y = player->actor.world.pos.y + 60.0f;
-            this->subCamAt.z = this->unk_5D4.z = player->actor.world.pos.z + 50.0f;
+        this->subCamAt.x = this->unk_5D4.x = player->actor.world.pos.x - 150.0f;
+        this->subCamAt.y = this->unk_5D4.y = player->actor.world.pos.y + 60.0f;
+        this->subCamAt.z = this->unk_5D4.z = player->actor.world.pos.z + 50.0f;
 
-            player->actor.shape.rot.y = player->actor.world.rot.y =
-                Math_Vec3f_Yaw(&player->actor.world.pos, &this->picto.actor.world.pos);
+        player->actor.shape.rot.y = player->actor.world.rot.y =
+            Math_Vec3f_Yaw(&player->actor.world.pos, &this->picto.actor.world.pos);
 
-            if (this->subCamId != SUB_CAM_ID_DONE) {
-                this->subCamUp.x = 0.0f;
-                this->subCamUp.y = 1.0f;
-                this->subCamUp.z = 0.0f;
-                Play_SetCameraAtEyeUp(play, this->subCamId, &this->subCamAt, &this->subCamEye, &this->subCamUp);
-            }
+        if (this->subCamId != SUB_CAM_ID_DONE) {
+            this->subCamUp.x = 0.0f;
+            this->subCamUp.y = 1.0f;
+            this->subCamUp.z = 0.0f;
+            Play_SetCameraAtEyeUp(play, this->subCamId, &this->subCamAt, &this->subCamEye, &this->subCamUp);
         }
     }
 
