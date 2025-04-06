@@ -1,9 +1,12 @@
 #ifndef MENU_H
 #define MENU_H
 
+#include "GuiWindow.h"
 #include "UIWidgets.hpp"
-#include "graphic/Fast3D/gfx_rendering_api.h"
 #include "MenuTypes.h"
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace Ship {
 class Menu : public GuiWindow {

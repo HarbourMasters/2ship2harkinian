@@ -152,7 +152,7 @@ void BenMenu::AddSettings() {
     AddWidget(path, "Alt Assets Tab hotkey", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Mods.AlternateAssetsHotkey")
         .Options(
-            CheckboxOptions().Tooltip("Allows pressing the Tab key to toggle alternate assets").DefaultValue(true));
+            CheckboxOptions().Tooltip("Allows pressing the Tab key to toggle alternate assets.").DefaultValue(true));
     AddWidget(path, "Open App Files Folder", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) {
             std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
@@ -217,24 +217,11 @@ void BenMenu::AddSettings() {
     AddWidget(path, "Audio API", WIDGET_AUDIO_BACKEND);
 
     // Graphics Settings
-    static int32_t maxFps;
-    const char* tooltip = "";
-    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
-        maxFps = 360;
-        tooltip = "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
-                  "purely visual and does not impact game logic, execution of glitches etc.\n\nA higher target "
-                  "FPS than your monitor's refresh rate will waste resources, and might give a worse result.";
-    } else {
-        maxFps = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
-        tooltip = "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
-                  "purely visual and does not impact game logic, execution of glitches etc.";
-    }
     path.sidebarName = "Graphics";
     AddSidebarEntry("Settings", "Graphics", 3);
-    AddWidget(path, "Toggle Fullscreen", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.Fullscreen")
+    AddWidget(path, "Toggle Fullscreen", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) { Ship::Context::GetInstance()->GetWindow()->ToggleFullscreen(); })
-        .Options(CheckboxOptions().Tooltip("Toggles Fullscreen On/Off."));
+        .Options(ButtonOptions().Tooltip("Toggles Fullscreen On/Off."));
     AddWidget(path, "Internal Resolution: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_INTERNAL_RESOLUTION)
         .Callback([](WidgetInfo& info) {
@@ -289,37 +276,21 @@ void BenMenu::AddSettings() {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_MATCH_REFRESH_RATE_ON).active)
                 info.activeDisables.push_back(DISABLE_FOR_MATCH_REFRESH_RATE_ON);
         })
-        .Options(IntSliderOptions().Tooltip(tooltip).Min(20).Max(maxFps).DefaultValue(20));
-    AddWidget(path, "Match Refresh Rate", WIDGET_BUTTON)
-        .Callback([](WidgetInfo& info) {
-            int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
-            if (hz >= 20 && hz <= 360) {
-                CVarSetInteger("gInterpolationFPS", hz);
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-            }
-        })
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active; })
-        .Options(ButtonOptions().Tooltip("Matches interpolation value to the current game's window refresh rate."));
+        .Options(IntSliderOptions().Min(20).Max(360).DefaultValue(20).Tooltip(
+            "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. "
+            "This is purely visual and does not impact game logic, execution of glitches etc.\n\n"
+            "A higher target FPS than your monitor's refresh rate will waste resources, and might give a worse "
+            "result."));
     AddWidget(path, "Match Refresh Rate", WIDGET_CVAR_CHECKBOX)
         .CVar("gMatchRefreshRate")
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DIRECTX).active; })
-        .Options(CheckboxOptions().Tooltip("Matches interpolation value to the current game's window refresh rate."));
-    AddWidget(path, "Jitter fix : >= % d FPS", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gExtraLatencyThreshold")
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active; })
-        .Options(IntSliderOptions()
-                     .Tooltip("When Interpolation FPS setting is at least this threshold, add one frame of input "
-                              "lag (e.g. 16.6 ms for 60 FPS) in order to avoid jitter. This setting allows the "
-                              "CPU to work on one frame while GPU works on the previous frame.\nThis setting "
-                              "should be used when your computer is too slow to do CPU + GPU work in time.")
-                     .Min(0)
-                     .Max(360)
-                     .DefaultValue(80));
+        .Options(CheckboxOptions().Tooltip("Matches interpolation value to the refresh rate of your display."));
     AddWidget(path, "Renderer API (Needs reload)", WIDGET_VIDEO_BACKEND);
     AddWidget(path, "Enable Vsync", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_VSYNC_ENABLED)
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NO_VSYNC).active; })
-        .Options(CheckboxOptions().Tooltip("Enables Vsync."));
+        .Options(CheckboxOptions()
+                     .Tooltip("Removes tearing, but clamps your max FPS to your displays refresh rate.")
+                     .DefaultValue(true));
     AddWidget(path, "Windowed Fullscreen", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_SDL_WINDOWED_FULLSCREEN)
         .PreFunc([](WidgetInfo& info) {
@@ -529,7 +500,7 @@ void BenMenu::AddEnhancements() {
                 info.activeDisables.push_back(DISABLE_FOR_DEBUG_CAM_ON);
         })
         .Options(CheckboxOptions().Tooltip(
-            "Enables free look camera control\nNote: You must remap C buttons off of the right "
+            "Enables free look camera control.\nNote: You must remap C buttons off of the right "
             "stick in the controller config menu, and map the camera stick to the right stick."));
     AddWidget(path, "Camera Distance: %d", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Camera.FreeLook.MaxCameraDistance")
@@ -647,7 +618,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Easy Frame Advance", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.EasyFrameAdvance")
         .Options(CheckboxOptions().Tooltip(
-            "Continue holding START button when unpausing to only advance a single frame and then re-pause"));
+            "Continue holding START button when unpausing to only advance a single frame and then re-pause."));
     AddWidget(path, "Longer Deku Flower Glide", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.LongerFlowerGlide")
         .Options(CheckboxOptions().Tooltip(
@@ -663,13 +634,13 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Allows all Forms to use all Items."));
     AddWidget(path, "Hookshot Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.HookshotAnywhere")
-        .Options(CheckboxOptions().Tooltip("Allows most surfaces to be hookshot-able"));
+        .Options(CheckboxOptions().Tooltip("Allows most surfaces to be hookshot-able."));
     AddWidget(path, "Moon Jump on L", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.MoonJumpOnL")
         .Options(CheckboxOptions().Tooltip("Holding L makes you float into the air."));
     AddWidget(path, "Elegy of Emptiness Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.ElegyAnywhere")
-        .Options(CheckboxOptions().Tooltip("Allows Elegy of Emptiness outside of Ikana"));
+        .Options(CheckboxOptions().Tooltip("Allows Elegy of Emptiness outside of Ikana."));
     AddWidget(path, "Stop Time in Dungeons", WIDGET_CVAR_COMBOBOX)
         .CVar("gCheats.TempleTimeStop")
         .Options(
@@ -688,7 +659,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Deku Flower Launch", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.FastFlowerLaunch")
         .Options(CheckboxOptions().Tooltip("Speeds up the time it takes to be able to get maximum height from"
-                                           "launching out of a deku flower"));
+                                           "launching out of a Deku Flower."));
     AddWidget(path, "Infinite Deku Hopping", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.InfiniteDekuHopping")
         .Options(CheckboxOptions().Tooltip("Allows Deku Link to hop indefinitely in water without drowning. This also "
@@ -714,10 +685,10 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Prevents Link from automatically diving over bodies of water."));
     AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.ManualJump")
-        .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack"));
+        .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
-        .Options(CheckboxOptions().Tooltip("Allows you to equip items to your d-pad"));
+        .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));
     AddWidget(path, "Fast Magic Arrow Equip Animation", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.MagicArrowEquipSpeed")
         .Options(CheckboxOptions().Tooltip("Removes the animation for equipping Magic Arrows."));
@@ -736,11 +707,11 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Arrow Type Cycling", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.PlayerActions.ArrowCycle")
         .Options(CheckboxOptions().Tooltip(
-            "While aiming the bow, use L to cycle between Normal, Fire, Ice and Light arrows."));
+            "While aiming the bow, use R to cycle between Normal, Fire, Ice and Light arrows."));
     AddWidget(path, "Bombchu Drops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.ChuDrops")
         .Options(
-            CheckboxOptions().Tooltip("When a bomb drop is spawned, it has a 50% chance to be a bombchu instead."));
+            CheckboxOptions().Tooltip("When a bomb drop is spawned, it has a 50% chance to be a Bombchu instead."));
 
     path.column = 2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
@@ -751,7 +722,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gModes.HyruleWarriorsStyledLink")
         .Options(CheckboxOptions().Tooltip(
             "When acquired, places the Keaton and Fierce Deity masks on Link similarly to how he "
-            "wears them in Hyrule Warriors"));
+            "wears them in Hyrule Warriors."));
     AddWidget(path, "Time Moves when you Move", WIDGET_CVAR_CHECKBOX)
         .CVar("gModes.TimeMovesWhenYouMove")
         .Options(CheckboxOptions().Tooltip("Time only moves when Link is not standing still."));
@@ -916,25 +887,25 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Time Cycle", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Do not reset Bottle content", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.DoNotResetBottleContent")
-        .Options(CheckboxOptions().Tooltip("Playing the Song Of Time will not reset the bottles' content."));
+        .Options(CheckboxOptions().Tooltip("Playing the Song of Time will not reset the bottles' content."));
     AddWidget(path, "Do not reset Consumables", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.DoNotResetConsumables")
-        .Options(CheckboxOptions().Tooltip("Playing the Song Of Time will not reset the consumables."));
+        .Options(CheckboxOptions().Tooltip("Playing the Song of Time will not reset the consumables."));
     AddWidget(path, "Do not reset Razor Sword", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.DoNotResetRazorSword")
-        .Options(CheckboxOptions().Tooltip("Playing the Song Of Time will not reset the Sword back to Kokiri Sword."));
+        .Options(CheckboxOptions().Tooltip("Playing the Song of Time will not reset the Sword back to Kokiri Sword."));
     AddWidget(path, "Do not reset Rupees", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.DoNotResetRupees")
-        .Options(CheckboxOptions().Tooltip("Playing the Song Of Time will not reset the your rupees."));
+        .Options(CheckboxOptions().Tooltip("Playing the Song of Time will not reset the your rupees."));
     AddWidget(path, "Do not reset Time Speed", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.DoNotResetTimeSpeed")
         .Options(CheckboxOptions().Tooltip(
-            "Playing the Song Of Time will not reset the current time speed set by Inverted Song of Time."));
+            "Playing the Song of Time will not reset the current time speed set by Inverted Song of Time."));
     AddWidget(path, "Keep Express Mail", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.KeepExpressMail")
         .Options(CheckboxOptions().Tooltip(
             "Allows the player to keep the Express Mail in their inventory after delivering it "
-            "the first time, so that both deliveries can be done within one cycle"));
+            "the first time, so that both deliveries can be done within one cycle."));
     AddWidget(path, "Stop Oceanside Spider House squatter", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.StopOceansideSpiderHouseSquatter")
         .Options(
@@ -945,7 +916,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Saving.DisableSaveDelay")
         .Options(CheckboxOptions().Tooltip(
             "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
-            "cause issues when attempting the 0th Day Glitch"));
+            "cause issues when attempting the 0th Day Glitch."));
 
     //// Graphics Enhancements
     path = { "Enhancements", "Graphics", 1 };
@@ -957,7 +928,7 @@ void BenMenu::AddEnhancements() {
             ComboboxOptions().Tooltip("Swaps between Graphical and Text only Clock types.").ComboMap(clockTypeOptions));
     AddWidget(path, "24 Hours Clock", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.24HoursClock")
-        .Options(CheckboxOptions().Tooltip("Changes from a 12 Hour to a 24 Hour Clock"));
+        .Options(CheckboxOptions().Tooltip("Changes from a 12 Hour to a 24 Hour Clock."));
     AddWidget(path, "Mods", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Use Alternate Assets", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Mods.AlternateAssets")
@@ -973,8 +944,9 @@ void BenMenu::AddEnhancements() {
                      .ComboMap(motionBlurOptions));
     AddWidget(path, "Interpolate", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.MotionBlur.Interpolate")
-        .PreFunc(
-            [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value == 1; })
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value == MOTION_BLUR_ALWAYS_OFF;
+        })
         .Options(CheckboxOptions().Tooltip(
             "Change motion blur capture to also happen on interpolated frames instead of only on game frames.\n"
             "This notably reduces the overall motion blur strength but smooths out the trails."));
@@ -982,13 +954,13 @@ void BenMenu::AddEnhancements() {
         .ValuePointer((bool*)&R_MOTION_BLUR_ENABLED)
         .PreFunc([](WidgetInfo& info) {
             info.valuePointer = (bool*)&R_MOTION_BLUR_ENABLED;
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 0;
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_DYNAMIC;
         });
     AddWidget(path, "Strength", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Graphics.MotionBlur.Strength")
         .Options(IntSliderOptions().Tooltip("Motion Blur strength.").Min(0).Max(255).DefaultValue(180))
         .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 2;
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_ALWAYS_ON;
         });
     AddWidget(path, "Strength", WIDGET_SLIDER_INT)
         .Options(IntSliderOptions().Tooltip("Motion Blur strength.").Min(0).Max(255).DefaultValue(180))
@@ -996,7 +968,7 @@ void BenMenu::AddEnhancements() {
         .Callback([](WidgetInfo& info) { R_MOTION_BLUR_ALPHA = motionBlurStrength; })
         .PreFunc([](WidgetInfo& info) {
             motionBlurStrength = R_MOTION_BLUR_ALPHA;
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 0 ||
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_DYNAMIC ||
                             mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_OFF).active;
         });
 
@@ -1008,19 +980,19 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Authentic Logo", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.AuthenticLogo")
         .Options(CheckboxOptions().Tooltip("Hide the game version and build details and display the authentic "
-                                           "model and texture on the boot logo start screen"));
+                                           "model and texture on the boot logo start screen."));
     AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.BowReticle")
         .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
     AddWidget(path, "Disable Black Bar Letterboxes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.DisableBlackBars")
         .Options(CheckboxOptions().Tooltip(
-            "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
-            "minor visual glitches that were covered up by the black bars\nPlease disable this "
+            "Disables Black Bar Letterboxes during cutscenes and Z-targeting.\nNote: There may be "
+            "minor visual glitches that were covered up by the black bars.\nPlease disable this "
             "setting before reporting a bug."));
     AddWidget(path, "Enemy Health Bars", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.EnemyHealthBars")
-        .Options(CheckboxOptions().Tooltip("Renders a health bar for enemies and bosses when Z-Targeted"));
+        .Options(CheckboxOptions().Tooltip("Renders a health bar for enemies and bosses when Z-targeted."));
     AddWidget(path, "Unstable", WIDGET_SEPARATOR_TEXT).Options(WidgetOptions{ .color = Colors::Orange });
     AddWidget(path, "Disable Scene Geometry Distance Check", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck")
@@ -1076,16 +1048,16 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "When playing the Song of Double Time, you can now choose the exact time you want to go "
             "to, similar to the 3DS version.\n\n"
-            "Holding Z allows decreasing the time adjustment factor, while holding R will increase the factor"));
+            "Holding Z allows decreasing the time adjustment factor, while holding R will increase the factor."));
     AddWidget(path, "Enable Sun's Song", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.EnableSunsSong")
         .Options(CheckboxOptions().Tooltip(
             "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
             "This song will make time move very fast until either Link moves to a different scene, "
             "or when the time switches to a new time period."));
-    AddWidget(path, "Dpad Ocarina", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "D-pad Ocarina", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Playback.DpadOcarina")
-        .Options(CheckboxOptions().Tooltip("Enables using the Dpad for Ocarina playback."));
+        .Options(CheckboxOptions().Tooltip("Enables using the D-pad for Ocarina playback."));
     AddWidget(path, "Pause Owl Warp", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.PauseOwlWarp")
         .Options(CheckboxOptions().Tooltip(
@@ -1096,13 +1068,13 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Zora Eggs For Bossa Nova", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Songs.ZoraEggCount")
         .Options(IntSliderOptions()
-                     .Tooltip("The number of eggs required to unlock new wave bossa nova.")
+                     .Tooltip("The number of eggs required to unlock New Wave Bossa Nova.")
                      .Min(1)
                      .Max(7)
                      .DefaultValue(7));
     AddWidget(path, "Prevent Dropped Ocarina Inputs", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Playback.NoDropOcarinaInput")
-        .Options(CheckboxOptions().Tooltip("Prevent dropping inputs when playing the ocarina quickly."));
+        .Options(CheckboxOptions().Tooltip("Prevent dropping inputs when playing the Ocarina quickly."));
     AddWidget(path, "Skip Scarecrow Song", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Playback.SkipScarecrowSong")
         .Options(CheckboxOptions().Tooltip("Pierre appears when the Ocarina is pulled out."));
@@ -1111,7 +1083,7 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Speeds up the playback of songs."));
     AddWidget(path, "Skip Song of Time cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.SkipSoTCutscenes")
-        .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs"));
+        .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs."));
 
     // Time Savers
     path = { "Enhancements", "Time Savers", 1 };
@@ -1138,7 +1110,11 @@ void BenMenu::AddEnhancements() {
             "When starting a game you will be taken straight to South Clock Town as Deku Link."));
     AddWidget(path, "Skip First Cycle", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipFirstCycle")
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active; })
+        .PreFunc([](WidgetInfo& info) {
+            if (mBenMenu->disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active) {
+                info.activeDisables.push_back(DISABLE_FOR_INTRO_SKIP_OFF);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "When starting a game you will be taken straight to South Clock Town as Human Link "
             "with Deku Mask, Ocarina, Song of Time, and Song of Healing."));
@@ -1153,7 +1129,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Item Get Cutscene", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Cutscenes.SkipGetItemCutscenes")
         .Options(ComboboxOptions()
-                     .Tooltip("Note: This only works in Randomizer currently")
+                     .Tooltip("Note: This only works in Randomizer currently.")
                      .ComboMap(skipGetItemCutscenesOptions));
 
     // Dialogue Enhancements
@@ -1211,7 +1187,7 @@ void BenMenu::AddEnhancements() {
             "This fixes a bug where Epona can steal your sword when you mount her without a bow in your inventory."));
     AddWidget(path, "Fix Fierce Deity Z-Target movement", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Fixes.FierceDeityZTargetMovement")
-        .Options(CheckboxOptions().Tooltip("Fixes Fierce Deity movement being choppy when Z-targeting"));
+        .Options(CheckboxOptions().Tooltip("Fixes Fierce Deity movement being choppy when Z-targeting."));
     AddWidget(path, "Fix Text Control Characters", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Fixes.ControlCharacters")
         .Options(CheckboxOptions().Tooltip("Fixes certain control characters not functioning properly "
@@ -1220,11 +1196,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gFixes.FixIkanaGreatFairyFountainColor")
         .Options(CheckboxOptions().Tooltip(
             "Fixes a bug that results in the Ikana Great Fairy fountain looking green instead of "
-            "yellow, this was fixed in the EU version"));
+            "yellow, this was fixed in the EU version."));
     AddWidget(path, "Fix Texture overflow OOB", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Fixes.FixTexturesOOB")
         .Options(CheckboxOptions()
-                     .Tooltip("Fixes textures that normally overflow to be patched with the correct size or format")
+                     .Tooltip("Fixes textures that normally overflow to be patched with the correct size or format.")
                      .DefaultValue(true))
         .Callback([](WidgetInfo& info) { GfxPatcher_ApplyOverflowTexturePatches(); });
     AddWidget(path, "Fix Completed Heart Container Audio", WIDGET_CVAR_CHECKBOX)
@@ -1245,10 +1221,10 @@ void BenMenu::AddEnhancements() {
         .Options(
             ComboboxOptions()
                 .Tooltip("Crouch stabs will use the power of Link's previous melee attack.\n"
-                         "- Patched: Crouch stabs will always do the same damage as a slash with your current weapon\n"
+                         "- Patched: Crouch stabs will always do the same damage as a slash with your current weapon.\n"
                          "- Unpatched (JP): Glitch restored, and your initial damage is 0 (Can be useful to get ISG on "
-                         "pots)\n"
-                         "- Unpatched (OoT): Glitch restored, and your initial damage is 1 (a kokiri sword slash).")
+                         "  pots).\n"
+                         "- Unpatched (OoT): Glitch restored, and your initial damage is 1 (a Kokiri Sword slash).")
                 .DefaultIndex(0)
                 .ComboMap(powerCrouchStabOptions));
     AddWidget(path, "Side Rolls", WIDGET_CVAR_CHECKBOX)
@@ -1264,11 +1240,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Restorations.WoodfallMountainAppearance")
         .Options(CheckboxOptions().Tooltip("Restores the appearance of Woodfall mountain to not look poisoned "
                                            "when viewed from Termina Field after clearing Woodfall Temple\n\n"
-                                           "Requires a scene reload to take effect"));
+                                           "Requires a scene reload to take effect."));
     AddWidget(path, "Simulated Input Lag", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_SIMULATED_INPUT_LAG)
         .Options(IntSliderOptions()
-                     .Tooltip("Buffers your inputs to be executed a specified amount of frames later")
+                     .Tooltip("Buffers your inputs to be executed a specified amount of frames later.")
                      .Min(0)
                      .Max(6)
                      .DefaultValue(0));
@@ -1276,7 +1252,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Restorations.PauseBufferWindow")
         .Options(IntSliderOptions()
                      .Tooltip("Amount of time in frames you have to buffer an input while unpausing the game. Original "
-                              "hardware is around 20")
+                              "hardware is around 20.")
                      .Min(0)
                      .Max(40)
                      .DefaultValue(0));
@@ -1293,8 +1269,8 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.DifficultyOptions.DekuGuardSearchBalls")
         .Options(
             ComboboxOptions()
-                .Tooltip("Choose when to show the Deku Palace Guards' search balls\n"
-                         "- Never: Never show the search balls. This matches Majora's Mask 3D behaviour\n"
+                .Tooltip("Choose when to show the Deku Palace Guards' search balls:\n"
+                         "- Never: Never show the search balls. This matches Majora's Mask 3D behaviour.\n"
                          "- Night Only: Only show the search balls at night. This matches original N64 behaviour.\n"
                          "- Always: Always show the search balls.")
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
@@ -1309,12 +1285,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.DifficultyOptions.GibdoTradeSequence")
         .Options(
             ComboboxOptions()
-                .Tooltip(
-                    "Changes the way the Gibdo Trade Sequence works\n"
-                    "-Vanilla: Works normally\n"
-                    "-MM3D: Gibdos will only take one quantity of the item they request, as they do in MM3D. The Gibdo "
-                    "requesting a blue potion will also accept a red potion.\n"
-                    "-No trade: Gibdos will vanish without taking items")
+                .Tooltip("Changes the way the Gibdo Trade Sequence works:\n"
+                         "- Vanilla: Works normally.\n"
+                         "- MM3D: Gibdos will only take one quantity of the item they request, as they do in MM3D. "
+                         "  The Gibdo requesting a blue potion will also accept a red potion.\n"
+                         "- No trade: Gibdos will vanish without taking items.")
                 .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
                 .ComboMap(gibdoTradeSequenceOptions));
 
@@ -1353,7 +1328,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gWindows.HudEditor")
         .WindowName("HUD Editor")
         .Options(ButtonOptions()
-                     .Tooltip("Enables the HUD Editor window, allowing you to modify your HUD")
+                     .Tooltip("Enables the HUD Editor window, allowing you to modify your HUD.")
                      .Size(Sizes::Inline));
 
     // Cosmetics Editor
@@ -1363,7 +1338,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gWindows.CosmeticEditor")
         .WindowName("Cosmetic Editor")
         .Options(ButtonOptions()
-                     .Tooltip("Enables the Cosmetic Editor window, allowing you to modify various colors in the game")
+                     .Tooltip("Enables the Cosmetic Editor window, allowing you to modify various colors in the game.")
                      .Size(Sizes::Inline));
 
     // Item Tracker Settings
@@ -1387,73 +1362,13 @@ void BenMenu::AddDevTools() {
     AddWidget(path, "Popout Menu", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.Menu.Popout")
         .Options(CheckboxOptions().Tooltip("Changes the menu display from overlay to windowed."));
-    AddWidget(path, "Set Warp Point", WIDGET_BUTTON)
-        .Options(ButtonOptions().Tooltip("Creates warp point that you can teleport to later"))
-        .Callback([](WidgetInfo& info) {
-            Player* player = GET_PLAYER(gPlayState);
-
-            CVarSetInteger(WARP_POINT_CVAR "Entrance", gSaveContext.save.entrance);
-            CVarSetInteger(WARP_POINT_CVAR "Room", gPlayState->roomCtx.curRoom.num);
-            CVarSetFloat(WARP_POINT_CVAR "X", player->actor.world.pos.x);
-            CVarSetFloat(WARP_POINT_CVAR "Y", player->actor.world.pos.y);
-            CVarSetFloat(WARP_POINT_CVAR "Z", player->actor.world.pos.z);
-            CVarSetFloat(WARP_POINT_CVAR "Rotation", player->actor.shape.rot.y);
-            CVarSetInteger(WARP_POINT_CVAR "Saved", 1);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        })
-        .PreFunc(
-            [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active; });
-    AddWidget(path, "Scene Room ID", WIDGET_TEXT).PreFunc([](WidgetInfo& info) {
-        u32 sceneId =
-            Entrance_GetSceneIdAbsolute(CVarGetInteger(WARP_POINT_CVAR "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)));
-        info.name = fmt::format("{} Room {}", warpPointSceneList[sceneId], CVarGetInteger(WARP_POINT_CVAR "Room", 0));
-        info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                        mBenMenu->disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
-    });
-    AddWidget(path, ICON_FA_TIMES, WIDGET_BUTTON)
-        .Options(ButtonOptions().Tooltip("Clear warp point").Size(Sizes::Inline))
-        .Callback([](WidgetInfo& info) {
-            CVarClear(WARP_POINT_CVAR "Entrance");
-            CVarClear(WARP_POINT_CVAR "Room");
-            CVarClear(WARP_POINT_CVAR "X");
-            CVarClear(WARP_POINT_CVAR "Y");
-            CVarClear(WARP_POINT_CVAR "Z");
-            CVarClear(WARP_POINT_CVAR "Rotation");
-            CVarClear(WARP_POINT_CVAR "Saved");
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        })
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                            mBenMenu->disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
-        })
-        .SameLine(true);
-    AddWidget(path, "Warp", WIDGET_BUTTON)
-        .Options(ButtonOptions().Tooltip("Teleport to the set warp point").Size(Sizes::Inline))
-        .Callback([](WidgetInfo& info) { Warp(); })
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                            mBenMenu->disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
-        })
-        .SameLine(true);
     AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.DebugEnabled")
-        .Options(CheckboxOptions().Tooltip("Enables Debug Mode, allowing you to select maps with L + R + Z."))
-        .Callback([](WidgetInfo& info) {
-            if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
-                CVarClear("gDeveloperTools.DebugSaveFileMode");
-                CVarClear("gDeveloperTools.PreventActorUpdate");
-                CVarClear("gDeveloperTools.PreventActorDraw");
-                CVarClear("gDeveloperTools.PreventActorInit");
-                CVarClear("gDeveloperTools.DisableObjectDependency");
-                if (gPlayState != NULL) {
-                    gPlayState->frameAdvCtx.enabled = false;
-                }
-                RegisterDebugSaveCreate();
-                RegisterPreventActorUpdateHooks();
-                RegisterPreventActorDrawHooks();
-                RegisterPreventActorInitHooks();
-            }
-        });
+        .Options(CheckboxOptions().Tooltip("Enables Debug Mode, allowing the following:\n\n"
+                                           "- Open debug warp menu with L + R + Z\n"
+                                           "- Enable debug no-clip mode with L + D-Right\n"
+                                           "- Open built-in debug inventory editor when paused with L\n"
+                                           "- Saves created will inherit inventory from \"Debug Save File Mode\""));
     AddWidget(path, "Better Map Select", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.BetterMapSelect.Enabled")
         .Options(CheckboxOptions().Tooltip(
@@ -1463,26 +1378,22 @@ void BenMenu::AddDevTools() {
         .CVar("gDeveloperTools.DebugSaveFileMode")
         .Options(ComboboxOptions()
                      .Tooltip("Change the behavior of creating saves while debug mode is enabled:\n\n"
-                              "- Empty Save: The default 3 heart save file in first cycle\n"
-                              "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
-                              "- 100\% Save: All items, equipment, mask, quest status and bombers notebook complete")
+                              "- Empty Save: The default 3 heart save file in first cycle.\n"
+                              "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks).\n"
+                              "- 100\% Save: All items, equipment, mask, quest status and Bombers' Notebook complete.")
                      .ComboMap(debugSaveOptions))
-        .Callback([](WidgetInfo& info) { RegisterDebugSaveCreate(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Update", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorUpdate")
         .Options(CheckboxOptions().Tooltip("Prevents Actors from updating."))
-        .Callback([](WidgetInfo& info) { RegisterPreventActorUpdateHooks(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Draw", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorDraw")
         .Options(CheckboxOptions().Tooltip("Prevents Actors from drawing."))
-        .Callback([](WidgetInfo& info) { RegisterPreventActorDrawHooks(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Init", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorInit")
         .Options(CheckboxOptions().Tooltip("Prevents Actors from initializing."))
-        .Callback([](WidgetInfo& info) { RegisterPreventActorInitHooks(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Disable Object Dependency", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.DisableObjectDependency")
@@ -1492,7 +1403,7 @@ void BenMenu::AddDevTools() {
         .CVar("gDeveloperTools.LogLevel")
         .Options(ComboboxOptions()
                      .Tooltip("The log level determines which messages are printed to the "
-                              "console. This does not affect the log file output")
+                              "console. This does not affect the log file output.")
                      .ComboMap(logLevels))
         .Callback([](WidgetInfo& info) {
             Ship::Context::GetInstance()->GetLogger()->set_level(
@@ -1532,13 +1443,15 @@ void BenMenu::AddDevTools() {
             }
         })
         .SameLine(true);
+    path.column = 2;
+    AddWidget(path, "Warp Point", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { RenderWarpPointSection(); });
 
     // dev tools windows
     path = { "Dev Tools", "Collision Viewer", 1 };
     AddSidebarEntry("Dev Tools", "Collision Viewer", 1);
     AddWidget(path, "Popout Collision Viewer", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.CollisionViewer")
-        .Options(ButtonOptions().Tooltip("Makes collision visible on screen").Size(Sizes::Inline))
+        .Options(ButtonOptions().Tooltip("Makes collision visible on screen.").Size(Sizes::Inline))
         .WindowName("Collision Viewer");
 
     path = { "Dev Tools", "Stats", 1 };
@@ -1546,7 +1459,7 @@ void BenMenu::AddDevTools() {
     AddWidget(path, "Popout Stats", WIDGET_WINDOW_BUTTON)
         .CVar("gOpenWindows.Stats")
         .Options(ButtonOptions().Tooltip(
-            "Shows the stats window, with your FPS and frametimes, and the OS you're playing on"))
+            "Shows the Stats window, with your FPS and frametimes, and the OS you're playing on."))
         .WindowName("Stats");
 
     path = { "Dev Tools", "Console", 1 };
@@ -1554,7 +1467,7 @@ void BenMenu::AddDevTools() {
     AddWidget(path, "Popout Console", WIDGET_WINDOW_BUTTON)
         .CVar("gOpenWindows.Console")
         .Options(ButtonOptions().Tooltip(
-            "Enables the console window, allowing you to input commands. Type help for some examples"))
+            "Enables the Console window, allowing you to input commands. Type help for some examples."))
         .WindowName("Console");
 
     path = { "Dev Tools", "Gfx Debugger", 1 };
@@ -1562,21 +1475,21 @@ void BenMenu::AddDevTools() {
     AddWidget(path, "Popout Gfx Debugger", WIDGET_WINDOW_BUTTON)
         .CVar("gOpenWindows.GfxDebugger")
         .Options(ButtonOptions().Tooltip(
-            "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples"))
+            "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples."))
         .WindowName("GfxDebuggerWindow");
 
     path = { "Dev Tools", "Hook Debugger", 1 };
     AddSidebarEntry("Dev Tools", "Hook Debugger", 1);
     AddWidget(path, "Popout Hook Debugger", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.HookDebugger")
-        .Options(ButtonOptions().Tooltip("Enables the Hook Debugger window, for viewing info about registered hooks"))
+        .Options(ButtonOptions().Tooltip("Enables the Hook Debugger window, for viewing info about registered hooks."))
         .WindowName("Hook Debugger");
 
     path = { "Dev Tools", "Save Editor", 1 };
     AddSidebarEntry("Dev Tools", "Save Editor", 1);
     AddWidget(path, "Popout Save Editor", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.SaveEditor")
-        .Options(ButtonOptions().Tooltip("Enables the Save Editor window, allowing you to edit your save file"))
+        .Options(ButtonOptions().Tooltip("Enables the Save Editor window, allowing you to edit your save file."))
         .WindowName("Save Editor");
 
     path = { "Dev Tools", "Actor Viewer", 1 };
@@ -1590,7 +1503,7 @@ void BenMenu::AddDevTools() {
     AddSidebarEntry("Dev Tools", "Event Log", 1);
     AddWidget(path, "Popout Event Log", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.EventLog")
-        .Options(ButtonOptions().Tooltip("Enables the event log window"))
+        .Options(ButtonOptions().Tooltip("Enables the Event Log window."))
         .WindowName("Event Log");
 }
 
@@ -1654,7 +1567,7 @@ void BenMenu::InitElement() {
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); },
             "AutoSave is Disabled" } },
         { DISABLE_FOR_NULL_PLAY_STATE,
-          { [](disabledInfo& info) -> bool { return gPlayState == NULL; }, "Save Not Loaded" } },
+          { [](disabledInfo& info) -> bool { return gPlayState == NULL; }, "Not in game" } },
         { DISABLE_FOR_DEBUG_MODE_OFF,
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gDeveloperTools.DebugEnabled", 0); },
             "Debug Mode is Disabled" } },
@@ -1695,13 +1608,10 @@ void BenMenu::InitElement() {
            },
             "Motion Blur Mode mismatch" } },
         { DISABLE_FOR_MOTION_BLUR_OFF,
-          { [](disabledInfo& info) -> bool { return !R_MOTION_BLUR_ENABLED; }, "Motion Blur is Disabled" } },
+          { [](disabledInfo& info) -> bool { return !R_MOTION_BLUR_ENABLED; }, "Motion Blur is disabled" } },
         { DISABLE_FOR_FRAME_ADVANCE_OFF,
           { [](disabledInfo& info) -> bool { return !(gPlayState != nullptr && gPlayState->frameAdvCtx.enabled); },
             "Frame Advance is Disabled" } },
-        { DISABLE_FOR_WARP_POINT_NOT_SET,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger(WARP_POINT_CVAR "Saved", 0); },
-            "Warp Point Not Saved" } },
         { DISABLE_FOR_INTRO_SKIP_OFF,
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0); },
             "Intro Skip Not Selected" } },
@@ -1714,7 +1624,7 @@ void BenMenu::InitElement() {
            },
             "Vertical Resolution Toggle Enabled" } },
         { DISABLE_FOR_LOW_RES_MODE_ON,
-          { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_LOW_RES_MODE, 0); }, "N64 Mode Enabled" } },
+          { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_LOW_RES_MODE, 0); }, "N64 Mode is enabled" } },
     };
 }
 

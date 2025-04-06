@@ -407,8 +407,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
             -Wno-missing-braces
             $<$<COMPILE_LANGUAGE:C>:
                 #-Werror-implicit-function-declaration
-                -Wno-discarded-array-qualifiers
-                -Wno-discarded-qualifiers
+                -Wno-ignored-qualifiers
                 -Wno-incompatible-pointer-types
                 -Wno-int-conversion
             >
