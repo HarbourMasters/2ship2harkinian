@@ -56,7 +56,7 @@ u64 aspMainDataEnd[100];
 
 u8 sNumSeqRequests[5];
 u32 sAudioSeqCmds[0x100];
-ActiveSequence gActiveSeqs[5];
+
 u8 sResetAudioHeapTimer;
 u16 sResetAudioHeapFadeReverbVolume;
 u16 sResetAudioHeapFadeReverbVolumeStep;
@@ -132,9 +132,6 @@ void Audio_osInvalDCache(void* buf, s32 size) {
 }
 
 void Audio_osWritebackDCache(void* mem, s32 size) {
-}
-
-void Audio_SetBGM(u32 bgmId) {
 }
 
 OSPiHandle* osDriveRomInit() {
@@ -231,8 +228,6 @@ void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr) {
     __gSPInvalidateTexCache(pkt, texAddr);
 }
 
-u16 func_801A5100(void) {
-}
 void __osDispatchThread(void) {
 }
 
@@ -754,7 +749,7 @@ void guLookAt(Mtx* m, f32 xEye, f32 yEye, f32 zEye, f32 xAt, f32 yAt, f32 zAt, f
     // guMtxF2L(mf, m);
 }
 void guRotateF(float m[4][4], float a, float x, float y, float z) {
-    static float D_80097F90 = M_PI / 180.0f;
+    static float D_80097F90 = M_PIf / 180.0f;
     float sine;
     float cosine;
     float ab;

@@ -25,8 +25,6 @@ void Rando::MiscBehavior::InitOfferGetItemBehavior() {
             switch (actor->id) {
                 case ACTOR_EN_PST:
                     actor->flags |= ACTOR_FLAG_TALK_REQUESTED; // Prevent softlock
-                    [[fallthrough]];
-                case ACTOR_EN_NB:
                     func_80832558(gPlayState, player, func_80837B60);
                     *should = false;
                     return;
@@ -55,11 +53,11 @@ void Rando::MiscBehavior::InitOfferGetItemBehavior() {
                 actor->textId = 0x2AD1;
                 [[fallthrough]];
             case ACTOR_EN_DNO:
-            case ACTOR_EN_INVADEPOH:
             case ACTOR_EN_JS:
             case ACTOR_EN_KENDO_JS:
             case ACTOR_EN_GURUGURU:
             case ACTOR_EN_HS:
+            case ACTOR_EN_MINIFROG:
             case ACTOR_EN_MM3:
             case ACTOR_EN_STH:
             case ACTOR_EN_ZOS:

@@ -126,6 +126,40 @@ inline std::string LogicString(std::string condition) {
     return condition;
 }
 
+inline bool CanAccessDungeon(DungeonIndex dungeonIndex) {
+    bool hasSongAccess = false;
+    bool hasFormAccess = false;
+    switch (dungeonIndex) {
+        case DUNGEON_INDEX_WOODFALL_TEMPLE:
+            hasSongAccess = CAN_PLAY_SONG(SONATA);
+            hasFormAccess = CAN_BE_DEKU && HAS_ITEM(ITEM_OCARINA_OF_TIME);
+            break;
+        case DUNGEON_INDEX_SNOWHEAD_TEMPLE:
+            hasSongAccess = CAN_PLAY_SONG(LULLABY);
+            hasFormAccess = CAN_BE_GORON && HAS_ITEM(ITEM_OCARINA_OF_TIME);
+            break;
+        case DUNGEON_INDEX_GREAT_BAY_TEMPLE:
+            hasSongAccess = CAN_PLAY_SONG(BOSSA_NOVA);
+            hasFormAccess = CAN_BE_ZORA && HAS_ITEM(ITEM_OCARINA_OF_TIME);
+            break;
+        default:
+            break;
+    }
+    switch (RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS]) {
+        case RO_ACCESS_DUNGEONS_FORM_OR_SONG:
+            return hasSongAccess || hasFormAccess;
+        case RO_ACCESS_DUNGEONS_FORM_ONLY:
+            return hasFormAccess;
+        case RO_ACCESS_DUNGEONS_SONG_ONLY:
+            return hasSongAccess;
+        case RO_ACCESS_DUNGEONS_OPEN:
+            return true;
+        case RO_ACCESS_DUNGEONS_FORM_AND_SONG:
+        default:
+            return hasSongAccess && hasFormAccess;
+    }
+}
+
 inline uint32_t MoonMaskCount() {
     uint32_t count = 0;
     for (int i = ITEM_MASK_TRUTH; i <= ITEM_MASK_GIANT; i++) {
@@ -178,6 +212,8 @@ inline bool CanKillEnemy(ActorId EnemyId) {
             return (CAN_USE_SWORD || CAN_BE_ZORA);
         case ACTOR_EN_PAMETFROG: // Swamp Gekko
             return (HAS_ITEM(ITEM_BOW) && (CAN_BE_DEKU || CAN_USE_EXPLOSIVE || CAN_BE_GORON));
+        case ACTOR_EN_BIGSLIME: // Great Bay Gekko
+            return (CAN_USE_MAGIC_ARROW(ICE));
         case ACTOR_EN_SW: // Gold Skulltula
             return (CAN_USE_PROJECTILE || CAN_BE_DEKU || CAN_BE_GORON || CAN_USE_HUMAN_SWORD || CAN_USE_EXPLOSIVE);
         case ACTOR_EN_DINOFOS: // Dinofos
@@ -206,6 +242,8 @@ inline bool CanKillEnemy(ActorId EnemyId) {
         case ACTOR_EN_DEKUBABA: // Neck bending Deku Baba
             return (CAN_USE_HUMAN_SWORD || CAN_BE_DEKU || CAN_BE_GORON || CAN_BE_ZORA || HAS_ITEM(ITEM_BOW) ||
                     CAN_USE_EXPLOSIVE || HAS_ITEM(ITEM_DEKU_STICK));
+        case ACTOR_OBJ_SNOWBALL: // Large Snowball
+            return (CAN_USE_EXPLOSIVE || CAN_BE_GORON || CAN_USE_MAGIC_ARROW(FIRE));
         default: // Incorrect actor ID inputed.
             assert(false);
             return false;

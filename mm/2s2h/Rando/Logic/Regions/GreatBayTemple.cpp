@@ -55,6 +55,9 @@ static RegisterShipInitFunc initFunc([]() {
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ZORA_CAPE, 9),                             ONE_WAY_EXIT, true),
         },
+        .events = {
+            EVENT(RE_CLEARED_GREAT_BAY_TEMPLE, CanKillEnemy(ACTOR_BOSS_03)),
+        },
         .oneWayEntrances = {
             ENTRANCE(GYORGS_LAIR, 0), // Great Bay Temple Pre Boss Room
         },
@@ -154,7 +157,10 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_TEMPLE_GEKKO_SMALL_CRATE_16, true),
         },
         .connections = {
-            CONNECTION(RR_GREAT_BAY_TEMPLE_COMPASS_ROOM_WITH_BOSS_KEY_CHEST,    CAN_USE_MAGIC_ARROW(ICE)),
+            CONNECTION(RR_GREAT_BAY_TEMPLE_COMPASS_ROOM_WITH_BOSS_KEY_CHEST,    CanKillEnemy(ACTOR_EN_BIGSLIME)),
+        },
+        .events = {
+            EVENT(RE_ACCESS_FROG_PINK, CanKillEnemy(ACTOR_EN_BIGSLIME)),
         },
     };
     Regions[RR_GREAT_BAY_TEMPLE_GREEN_PIPE_1] = RandoRegion{ .sceneId = SCENE_SEA,

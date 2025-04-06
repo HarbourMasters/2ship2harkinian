@@ -122,6 +122,7 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_GREAT_BAY_COAST] = RandoRegion{ .sceneId = SCENE_30GYOSON,
         .checks = {
+            CHECK(RC_GREAT_BAY_COAST_FISHERMAN_MINIGAME, RANDO_EVENTS[RE_CLEARED_GREAT_BAY_TEMPLE] && (HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_MAGIC_ARROW(ICE))),
             CHECK(RC_GREAT_BAY_COAST_OWL_STATUE, CAN_USE_SWORD),
             CHECK(RC_GREAT_BAY_COAST_MIKAU, CAN_PLAY_SONG(HEALING)),
             CHECK(RC_GREAT_BAY_COAST_PIECE_OF_HEART, CAN_HOOK_SCARECROW && CAN_GROW_BEAN_PLANT),
@@ -161,6 +162,9 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_GREAT_BAY_COAST_COW_GROTTO, CAN_HOOK_SCARECROW && CAN_GROW_BEAN_PLANT), // TODO: Grotto mapping
             CONNECTION(RR_GREAT_BAY_COAST_FISHERMAN_GROTTO, true), // TODO: Grotto mapping
         },
+        .events = {
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+        },
         .oneWayEntrances = {
             ENTRANCE(GREAT_BAY_COAST, 11), // From Song of Soaring
             ENTRANCE(GREAT_BAY_COAST, 12), // From being captured in Pirate Fortress Moat
@@ -193,20 +197,20 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_PINNACLE_ROCK_INNER] = RandoRegion{ .name = "Inner", .sceneId = SCENE_SINKAI,
         .checks = {
-            CHECK(RC_PINNACLE_ROCK_CHEST_01,     CAN_BE_ZORA),
-            CHECK(RC_PINNACLE_ROCK_CHEST_02,     CAN_BE_ZORA && HAS_MAGIC),
-            CHECK(RC_PINNACLE_ROCK_POT_01,      CAN_BE_ZORA && HAS_MAGIC),
-            CHECK(RC_PINNACLE_ROCK_POT_02,      CAN_BE_ZORA && HAS_MAGIC),
-            CHECK(RC_PINNACLE_ROCK_POT_03,      CAN_BE_ZORA && HAS_MAGIC),
-            CHECK(RC_PINNACLE_ROCK_POT_04,      CAN_BE_ZORA && HAS_MAGIC),
-            CHECK(RC_PINNACLE_ROCK_POT_05,      CAN_BE_ZORA && HAS_MAGIC),
-            CHECK(RC_PINNACLE_ROCK_POT_06,      CAN_BE_ZORA),
-            CHECK(RC_PINNACLE_ROCK_POT_07,      CAN_BE_ZORA),
-            CHECK(RC_PINNACLE_ROCK_POT_08,      CAN_BE_ZORA),
-            CHECK(RC_PINNACLE_ROCK_POT_09,      CAN_BE_ZORA),
-            CHECK(RC_PINNACLE_ROCK_POT_10,      CAN_BE_ZORA),
-            CHECK(RC_PINNACLE_ROCK_POT_11,      CAN_BE_ZORA),
-            // TODO: Missing HP check to add here later.
+            CHECK(RC_PINNACLE_ROCK_CHEST_01,          CAN_BE_ZORA),
+            CHECK(RC_PINNACLE_ROCK_CHEST_02,          CAN_BE_ZORA && HAS_MAGIC),
+            CHECK(RC_PINNACLE_ROCK_POT_01,            CAN_BE_ZORA && HAS_MAGIC),
+            CHECK(RC_PINNACLE_ROCK_POT_02,            CAN_BE_ZORA && HAS_MAGIC),
+            CHECK(RC_PINNACLE_ROCK_POT_03,            CAN_BE_ZORA && HAS_MAGIC),
+            CHECK(RC_PINNACLE_ROCK_POT_04,            CAN_BE_ZORA && HAS_MAGIC),
+            CHECK(RC_PINNACLE_ROCK_POT_05,            CAN_BE_ZORA && HAS_MAGIC),
+            CHECK(RC_PINNACLE_ROCK_POT_06,            CAN_BE_ZORA),
+            CHECK(RC_PINNACLE_ROCK_POT_07,            CAN_BE_ZORA),
+            CHECK(RC_PINNACLE_ROCK_POT_08,            CAN_BE_ZORA),
+            CHECK(RC_PINNACLE_ROCK_POT_09,            CAN_BE_ZORA),
+            CHECK(RC_PINNACLE_ROCK_POT_10,            CAN_BE_ZORA),
+            CHECK(RC_PINNACLE_ROCK_POT_11,            CAN_BE_ZORA),
+            CHECK(RC_PINNACLE_ROCK_REUNITE_SEAHORSE,  CAN_BE_ZORA && HAS_MAGIC && RANDO_EVENTS[RE_ACCESS_SEAHORSE]),
         },
         .connections = {
             CONNECTION(RR_PINNACLE_ROCK_ENTRANCE, true)
@@ -236,7 +240,7 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ZORA_HALL,        1),             ENTRANCE(ZORA_CAPE, 2), true),
-            EXIT(ENTRANCE(GREAT_BAY_TEMPLE, 0),             ENTRANCE(ZORA_CAPE, 7), CAN_BE_ZORA && HAS_ITEM(ITEM_HOOKSHOT) && (CAN_PLAY_SONG(BOSSA_NOVA) || RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS] == RO_ACCESS_DUNGEONS_FORM_ONLY)),
+            EXIT(ENTRANCE(GREAT_BAY_TEMPLE, 0),             ENTRANCE(ZORA_CAPE, 7), HAS_ITEM(ITEM_HOOKSHOT) && CanAccessDungeon(DUNGEON_INDEX_GREAT_BAY_TEMPLE)),
         },
         .connections = {
             CONNECTION(RR_ZORA_CAPE, CAN_BE_ZORA),

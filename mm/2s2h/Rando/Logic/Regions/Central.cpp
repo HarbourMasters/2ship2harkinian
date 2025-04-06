@@ -134,6 +134,9 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(SOUTH_CLOCK_TOWN, 6),             ENTRANCE(LAUNDRY_POOL, 0), true),
             EXIT(ENTRANCE(CURIOSITY_SHOP, 1),               ENTRANCE(LAUNDRY_POOL, 1), Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI))
         },
+        .events = {
+            EVENT(RE_ACCESS_FROG_WHITE, true),
+        }
     };
     Regions[RR_CLOCK_TOWN_NORTH] = RandoRegion{ .sceneId = SCENE_BACKTOWN,
         .checks = {
@@ -153,7 +156,11 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(DEKU_SCRUB_PLAYGROUND, 0),        ENTRANCE(NORTH_CLOCK_TOWN, 4), CAN_BE_DEKU),
         },
         .events = {
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)), // Only in the day
+            // Refer to z_en_suttari's damage table for more info. Damage effect 0xF stops him nonlethally, while 0xE kills.
+            // FD sword beams can also kill him, but currently FD is not logically considered.
             EVENT(RE_SAVE_BOMB_SHOP_LADY, CAN_USE_SWORD || CAN_BE_ZORA || CAN_BE_GORON),
+            EVENT(RE_KILL_SAKON, HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA || CAN_USE_EXPLOSIVE),
         },
     };
     Regions[RR_CLOCK_TOWN_SOUTH] = RandoRegion{ .sceneId = SCENE_CLOCKTOWER,
@@ -216,7 +223,7 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_CURIOSITY_SHOP_FRONT] = RandoRegion{ .name = "Front", .sceneId = SCENE_AYASHIISHOP,
         .checks = {
             CHECK(RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM, CAN_AFFORD(RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM)),
-            CHECK(RC_CURIOSITY_SHOP_SPECIAL_ITEM, CAN_AFFORD(RC_CURIOSITY_SHOP_SPECIAL_ITEM) && (RANDO_EVENTS[RE_SAVE_BOMB_SHOP_LADY] || CHECK_WEEKEVENTREG(WEEKEVENTREG_SAKON_DEAD))),
+            CHECK(RC_CURIOSITY_SHOP_SPECIAL_ITEM, CAN_AFFORD(RC_CURIOSITY_SHOP_SPECIAL_ITEM) && (RANDO_EVENTS[RE_SAVE_BOMB_SHOP_LADY] || RANDO_EVENTS[RE_KILL_SAKON])),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(WEST_CLOCK_TOWN, 4),              ENTRANCE(CURIOSITY_SHOP, 0), true)
@@ -438,6 +445,7 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3] = RandoRegion{ .name = "Termina Field Gossip Stone #3", .sceneId = SCENE_KAKUSIANA,
         .checks = {
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO, (CAN_BE_DEKU && CAN_PLAY_SONG(SONATA)) || (CAN_BE_GORON && CAN_PLAY_SONG(LULLABY)) || (CAN_BE_ZORA && CAN_PLAY_SONG(BOSSA_NOVA))),
             CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_01, true),
             CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_02, true),
             CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_03, true),
@@ -867,7 +875,10 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_TREASURE_SHOP] = RandoRegion{ .sceneId = SCENE_TAKARAYA,
         .checks = {
-            // TODO : Add check for each form(minus FD)
+            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_DEKU,  CAN_BE_DEKU),
+            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_GORON, CAN_BE_GORON),
+            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_HUMAN, true), // can be human
+            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_ZORA,  CAN_BE_ZORA),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(EAST_CLOCK_TOWN, 4),              ENTRANCE(TREASURE_CHEST_SHOP, 0), true),

@@ -156,16 +156,16 @@ typedef enum {
     VB_PASS_INTEREST_BANK_THRESHOLD,
     VB_PASS_SECOND_BANK_THRESHOLD,
     VB_PASS_SECOND_BANK_THRESHOLD_ALT,
-    VB_CLEAR_B_BUTTON_FOR_HORSEBACK,
+    VB_CLEAR_B_BUTTON_FOR_NO_BOW,
     VB_NOT_AFFORD_TINGLE_MAP,
     VB_ALREADY_HAVE_TINGLE_MAP,
     VB_TINGLE_GIVE_MAP_UNLOCK,
     VB_OWL_STATUE_ACTIVATE,
     VB_OWL_STATUE_BE_ACTIVE,
     VB_HAVE_HEALED_PAMELAS_FATHER,
-    VB_WIN_MALON_PRACTICE,
-    VB_MALON_CONSIDER_EPONA_SONG_GIVEN,
-    VB_GIVE_ITEM_FROM_MALON,
+    VB_WIN_ROMANI_PRACTICE,
+    VB_ROMANI_CONSIDER_EPONA_SONG_GIVEN,
+    VB_GIVE_ITEM_FROM_ROMANI,
     VB_DOOR_HEALTH_CHECK_FAIL,
     VB_GIVE_LOTTERY_WINNINGS,
     VB_GIVE_HONEY_DARLING_REWARD,
@@ -231,8 +231,12 @@ typedef enum {
     VB_GOHT_UNFREEZE,
     VB_PERFORM_AC_COLLISION,
     VB_GIVE_ITEM_FROM_GK_LULLABY,
+    VB_BUY_GORMAN_MILK,
     VB_PLAY_LOW_HP_ALARM,
     VB_PLAY_GORON_CHILD_CRY,
+    VB_SNOWBALL_DROP_COLLECTIBLE,
+    VB_SNOWBALL_SET_FLAG,
+    VB_START_JUMPSLASH,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -692,6 +696,7 @@ void GameInteractor_ExecuteOnFileSelectSaveLoad(s16 fileNum, bool isOwlSave, Sav
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
 void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
+void GameInteractor_ExecuteOnInterfaceDrawStart();
 void GameInteractor_ExecuteAfterInterfaceClockDraw();
 void GameInteractor_ExecuteBeforeInterfaceClockDraw();
 

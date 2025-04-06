@@ -8,7 +8,7 @@
 
 void LoadGuiTextures();
 std::string convertEnumToReadableName(const std::string& input);
-extern std::vector<const char*> digitList;
+extern std::array<const char*, 11> digitList;
 
 extern "C" {
 #endif
