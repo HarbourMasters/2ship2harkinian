@@ -80,10 +80,8 @@ void RegisterSkipEnemyIntros() {
     });
 
     // Gomess
-    COND_ID_HOOK(ShouldActorInit, ACTOR_EN_DEATH, CVAR, [](Actor* actor, bool* should) {
-        gSaveContext.eventInf[6] |= 8;
-        skipSetCamera = true;
-    });
+    COND_ID_HOOK(ShouldActorInit, ACTOR_EN_DEATH, CVAR,
+                 [](Actor* actor, bool* should) { gSaveContext.eventInf[6] |= 8; });
 
     // Stone Tower Temple Garo Master
     COND_ID_HOOK(ShouldActorInit, ACTOR_EN_JSO2, CVAR, [](Actor* actor, bool* should) {
@@ -128,7 +126,6 @@ void RegisterSkipEnemyIntros() {
         EnBigslime_GekkoSfxOutsideBigslime(enBigslime, NA_SE_EN_FROG_GREET);
         enBigslime->callTimer = 0;
         enBigslime->actionFunc = EnBigslime_CallMinislime;
-        skipSetCamera = true;
     });
 
     // Gerudo Pirate
@@ -255,21 +252,21 @@ void RegisterSkipEnemyCutscenes() {
         }
     });
 
-    // Camera control pair functions. Ensure skipSetCamera is reset to false when actor is destroyed
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_PAMETFROG, CVAR, [](Actor* actor) { skipSetCamera = true; });
-    COND_ID_HOOK(OnActorDestroy, ACTOR_EN_PAMETFROG, CVAR, [](Actor* actor) { skipSetCamera = false; });
+    // Camera control pair functions. Enable skipSetCamera before running the actor's update func, then disable it after
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_PAMETFROG, CVAR, [](Actor* actor, bool* should) { skipSetCamera = true; });
+    COND_ID_HOOK(OnActorUpdate, ACTOR_EN_PAMETFROG, CVAR, [](Actor* actor) { skipSetCamera = false; });
 
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_EGOL, CVAR, [](Actor* actor) { skipSetCamera = true; });
-    COND_ID_HOOK(OnActorDestroy, ACTOR_EN_EGOL, CVAR, [](Actor* actor) { skipSetCamera = false; });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_EGOL, CVAR, [](Actor* actor, bool* should) { skipSetCamera = true; });
+    COND_ID_HOOK(OnActorUpdate, ACTOR_EN_EGOL, CVAR, [](Actor* actor) { skipSetCamera = false; });
 
-    // Init already handled by intro skip
-    COND_ID_HOOK(OnActorDestroy, ACTOR_EN_DEATH, CVAR, [](Actor* actor) { skipSetCamera = false; });
+    // OnActorUpdate hook already exists for handling other Gomess behavior, including disabling the camera skip.
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_DEATH, CVAR, [](Actor* actor, bool* should) { skipSetCamera = true; });
 
-    // Init already handled by intro skip
-    COND_ID_HOOK(OnActorDestroy, ACTOR_EN_BIGSLIME, CVAR, [](Actor* actor) { skipSetCamera = false; });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_BIGSLIME, CVAR, [](Actor* actor, bool* should) { skipSetCamera = true; });
+    COND_ID_HOOK(OnActorUpdate, ACTOR_EN_BIGSLIME, CVAR, [](Actor* actor) { skipSetCamera = false; });
 
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_IK, CVAR, [](Actor* actor) { skipSetCamera = true; });
-    COND_ID_HOOK(OnActorDestroy, ACTOR_EN_IK, CVAR, [](Actor* actor) { skipSetCamera = false; });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_IK, CVAR, [](Actor* actor, bool* should) { skipSetCamera = true; });
+    COND_ID_HOOK(OnActorUpdate, ACTOR_EN_IK, CVAR, [](Actor* actor) { skipSetCamera = false; });
 
     // Prevent enemies from locking player for skipped cutscenes
     COND_VB_SHOULD(VB_PLAYER_CUTSCENE_ACTION, CVAR, {
@@ -399,6 +396,7 @@ void RegisterSkipEnemyCutscenes() {
                 actor->world.pos.y = y;
             }
         }
+        skipSetCamera = false;
     });
 }
 
