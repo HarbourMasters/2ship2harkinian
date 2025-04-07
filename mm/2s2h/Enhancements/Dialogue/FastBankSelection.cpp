@@ -49,6 +49,10 @@ void OnEnGinkoManUpdate(Actor* actor) {
                     maxWallet = (99 - currentRupees);
                     break;
             }
+
+            uint32_t bankRupees = HS_GET_BANK_RUPEES();
+            maxWallet = bankRupees < maxWallet ? bankRupees : maxWallet;
+
             if (maxWallet != 0 && gPlayState->msgCtx.bankRupeesSelected != maxWallet) {
                 char firstChar = (maxWallet / 100) + '0';
                 char secondChar = ((maxWallet / 10) % 10) + '0';
