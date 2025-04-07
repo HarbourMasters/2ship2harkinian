@@ -686,6 +686,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.ManualJump")
         .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack."));
+    AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.FasterSceneTransitions")
+        .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));

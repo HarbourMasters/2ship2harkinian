@@ -650,7 +650,7 @@ void Play_UpdateTransition(PlayState* this) {
                 }
             }
 
-            if (!D_801D0D54) {
+            if (!D_801D0D54 && GameInteractor_Should(VB_SETUP_TRANSITION, true)) {
                 Play_SetupTransition(this, Play_ChooseDynamicTransition(this, this->transitionType));
             }
 
