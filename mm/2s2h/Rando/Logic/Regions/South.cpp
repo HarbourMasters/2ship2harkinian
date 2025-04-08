@@ -303,6 +303,7 @@ static RegisterShipInitFunc initFunc([]() {
             EVENT(RE_ACCESS_SPRING_WATER, true),
             EVENT(RE_ACCESS_BEANS_REFILL, CAN_BE_DEKU && HAS_ITEM(ITEM_MAGIC_BEANS)),
             EVENT(RE_SOUTHERN_SWAMP_KILL_OCTOROK, (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA)),
+            EVENT(RE_ACCESS_PICTOGRAPH_BIG_OCTO, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
             EVENT(RE_ACCESS_FROG_BLUE, true),
         },
         .oneWayEntrances = {
@@ -345,7 +346,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 1),      ENTRANCE(TOURIST_INFORMATION, 0), true),
         },
         .events = {
-            EVENT(RE_SOUTHERN_SWAMP_KILL_OCTOROK, RANDO_EVENTS[RE_SAVED_KOUME]),
+            EVENT(RE_SOUTHERN_SWAMP_KILL_OCTOROK, RANDO_EVENTS[RE_SAVED_KOUME] || CAN_ACCESS(PICTOGRAPH_BIG_OCTO)),
         },
     };
     Regions[RR_WOODFALL_GREAT_FAIRY_FOUNTAIN] = RandoRegion{ .name = "Woodfall", .sceneId = SCENE_YOUSEI_IZUMI,
