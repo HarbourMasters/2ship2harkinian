@@ -160,9 +160,6 @@ static RegisterShipInitFunc initFunc([]() {
         .connections = {
             CONNECTION(RR_GREAT_BAY_TEMPLE_COMPASS_ROOM_WITH_BOSS_KEY_CHEST,    CanKillEnemy(ACTOR_EN_BIGSLIME)),
         },
-        .events = {
-            EVENT(RE_ACCESS_FROG_PINK, CanKillEnemy(ACTOR_EN_BIGSLIME)), // remove?
-        },
     };
     Regions[RR_GREAT_BAY_TEMPLE_GREEN_PIPE_1] = RandoRegion{ .sceneId = SCENE_SEA,
         .checks = {

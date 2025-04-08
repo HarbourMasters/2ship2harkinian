@@ -10,8 +10,6 @@ void EnMinifrog_Jump(EnMinifrog* enMinifrog);
 void EnMinifrog_JumpTimer(EnMinifrog* enMinifrog);
 }
 
-// TODOs: logic, check for persisting over cycle, verify non-shuffle behaivor/logic still work
-
 RandoCheckId GetFrogCheck(s16 index) {
     switch (index) {
         case 1:
@@ -35,6 +33,7 @@ void MiniFrog_DrawCustom(Actor* thisx, PlayState* play) {
 
     RandoItemId frogItem = RANDO_SAVE_CHECKS[frogCheck].randoItemId;
 
+    Matrix_Translate(0.0f, 25.0f, 0.0f, MTXMODE_APPLY);
     Rando::DrawItem(Rando::ConvertItem(frogItem, frogCheck), thisx);
 }
 
@@ -87,6 +86,5 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
         actor->shape.shadowDraw = NULL;
         actor->flags &= ~ACTOR_FLAG_TARGETABLE;
         Actor_SetScale(&enMinifrog->actor, 0.4f);
-        enMinifrog->actor.world.pos.y += 20; // not sure if this ends up doing anything
     });
 }

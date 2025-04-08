@@ -174,7 +174,7 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_KEATON_QUIZ,                                   HAS_ITEM(ITEM_MASK_KEATON)),
             CHECK(RC_MOUNTAIN_VILLAGE_DON_GERO_MASK,                RANDO_EVENTS[RE_SPAWN_SIRLOIN]), // TODO: For entrance rando we need to find a way to ensure the Rock Sirloin can be "walked" here
-            CHECK(RC_MOUNTAIN_VILLAGE_FROG_CHOIR,                   HAS_ITEM(ITEM_MASK_DON_GERO) && RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE] && HAS_FROG_CYAN && HAS_FROG_BLUE && HAS_FROG_WHITE && HAS_FROG_PINK),
+            CHECK(RC_MOUNTAIN_VILLAGE_FROG_CHOIR,                   HAS_ITEM(ITEM_MASK_DON_GERO) && RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE] && FOUND_ALL_FROGS),
             CHECK(RC_MOUNTAIN_VILLAGE_OWL_STATUE,                   CAN_USE_SWORD),
             CHECK(RC_MOUNTAIN_VILLAGE_WATERFALL_CHEST,              RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE] && HAS_ITEM(ITEM_LENS_OF_TRUTH) && HAS_MAGIC),
             CHECK(RC_MOUNTAIN_VILLAGE_WINTER_POT,                   CAN_HOOK_SCARECROW),

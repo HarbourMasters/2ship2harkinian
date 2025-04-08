@@ -305,7 +305,6 @@ static RegisterShipInitFunc initFunc([]() {
             EVENT(RE_ACCESS_SPRING_WATER, true),
             EVENT(RE_ACCESS_BEANS_REFILL, CAN_BE_DEKU && HAS_ITEM(ITEM_MAGIC_BEANS)),
             EVENT(RE_SOUTHERN_SWAMP_KILL_OCTOROK, (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA)),
-            EVENT(RE_ACCESS_FROG_BLUE, true), // remove?
         },
         .oneWayEntrances = {
             ENTRANCE(SOUTHERN_SWAMP_POISONED, 9), // From river in Ikana
