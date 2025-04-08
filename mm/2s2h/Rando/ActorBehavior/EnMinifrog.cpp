@@ -59,7 +59,6 @@ void MiniFrog_UpdateCustom(Actor* thisx, PlayState* play) {
 }
 
 void Rando::ActorBehavior::InitEnMinifrogBehavior() {
-
     COND_VB_SHOULD(VB_SPAWN_FROG, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], {
         EnMinifrog* enMinifrog = va_arg(args, EnMinifrog*);
         RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
