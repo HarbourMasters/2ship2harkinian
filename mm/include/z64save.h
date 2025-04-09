@@ -398,6 +398,8 @@ typedef struct ShipSaveInfo {
     uint64_t fileCompletedAt; // For now this is always Majora final blow, has the potential to be something else later on
     char commitHash[8];
     RandoSaveInfo rando;
+    // Achievements - bit packed array where each bit represents whether an achievement is unlocked
+    u32 achievements[8];
 } ShipSaveInfo;
 // #endregion
 

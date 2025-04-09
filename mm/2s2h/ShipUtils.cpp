@@ -1,6 +1,7 @@
 #include "ShipUtils.h"
 #include <libultraship/libultraship.h>
 #include "assets/2s2h_assets.h"
+#include "Enhancements/Achievements/Achievements.h"
 #include <string>
 #include <random>
 #include <boost/random/mersenne_twister.hpp>
@@ -197,6 +198,17 @@ void LoadGuiTextures() {
     }
     for (const auto entry : digitList) {
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(entry, entry, ImVec4(1, 1, 1, 1));
+    }
+
+    // Load achievement icons
+    if (AchievementSystem::Instance) {
+        const auto& achievements = AchievementSystem::Instance->GetAchievements();
+        for (const auto& achievement : achievements) {
+            if (!achievement->iconPath.empty()) {
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(
+                    achievement->iconPath, achievement->iconPath, ImVec4(1, 1, 1, 1));
+            }
+        }
     }
 }
 

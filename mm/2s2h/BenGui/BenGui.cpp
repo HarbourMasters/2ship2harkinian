@@ -27,6 +27,8 @@
 #include "Enhancements/Trackers/ItemTrackerSettings.h"
 #include "Enhancements/Trackers/DisplayOverlay.h"
 #include "BenMenu.h"
+#include "2s2h/Enhancements/Achievements/AchievementsWindow.h"
+#include "2s2h/DeveloperTools/AchievementEditor.h"
 
 namespace BenGui {
 // MARK: - Delegates
@@ -46,6 +48,7 @@ std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
 std::shared_ptr<AudioEditor> mAudioEditorWindow;
+std::shared_ptr<AchievementEditorWindow> mAchievementEditorWindow;
 std::shared_ptr<BenMenu> mBenMenu;
 std::shared_ptr<Notification::Window> mNotificationWindow;
 std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
@@ -53,6 +56,7 @@ std::shared_ptr<Rando::CheckTracker::SettingsWindow> mRandoCheckTrackerSettingsW
 std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
+std::shared_ptr<AchievementsWindow> mAchievementsWindow;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -123,6 +127,13 @@ void SetupGuiElements() {
     mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor", ImVec2(520, 600));
     gui->AddGuiWindow(mAudioEditorWindow);
 
+    mAchievementEditorWindow =
+        std::make_shared<AchievementEditorWindow>("gWindows.AchievementEditor", "Achievements", ImVec2(480, 600));
+    gui->AddGuiWindow(mAchievementEditorWindow);
+
+    mAchievementsWindow = std::make_shared<AchievementsWindow>("gOpenWindows.Achievements", "Achievements");
+    gui->AddGuiWindow(mAchievementsWindow);
+
     mItemTrackerWindow = std::make_shared<ItemTrackerWindow>("gWindows.ItemTracker", "Item Tracker");
     gui->AddGuiWindow(mItemTrackerWindow);
 
@@ -168,6 +179,8 @@ void Destroy() {
     mCosmeticEditorWindow = nullptr;
     mActorViewerWindow = nullptr;
     mAudioEditorWindow = nullptr;
+    mAchievementEditorWindow = nullptr;
+    mAchievementsWindow = nullptr;
     mItemTrackerWindow = nullptr;
     mItemTrackerSettingsWindow = nullptr;
 }

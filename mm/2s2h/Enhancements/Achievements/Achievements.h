@@ -1,0 +1,207 @@
+#pragma once
+
+// Standard Library Includes
+#include <string>
+#include <vector>
+#include <unordered_map>
+#include <memory>
+#include <queue>
+
+// Forward Declarations
+namespace Ship {
+class GuiWindow;
+}
+
+/**
+ * @enum AchievementState
+ * @brief Represents the state of an achievement
+ */
+enum class AchievementState { LOCKED, UNLOCKED };
+
+/**
+ * @enum AchievementNotificationType
+ * @brief Determines the visual style of achievement notifications
+ */
+enum class AchievementNotificationType {
+    SIMPLE,  // Simple notification
+    ENHANCED // Enhanced notification with animations
+};
+
+/**
+ * @struct Achievement
+ * @brief Data structure representing a single achievement
+ */
+struct Achievement {
+    std::string id;
+    std::string name;
+    std::string description;
+    std::string iconPath;
+    AchievementState state;
+    bool isSecret;
+    int gamerscore; // Optional gamerscore value
+
+    /**
+     * @brief Constructs an Achievement
+     * @param id Unique identifier for the achievement
+     * @param name Display name of the achievement
+     * @param description Text description of the achievement
+     * @param iconPath Path to the achievement's icon
+     * @param isSecret Whether the achievement is hidden until unlocked
+     * @param gamerscore Point value associated with the achievement
+     */
+    Achievement(std::string id, std::string name, std::string description, std::string iconPath, bool isSecret = false,
+                int gamerscore = 0);
+};
+
+/**
+ * @class AchievementSystem
+ * @brief Manages the registration, unlocking, and persistence of achievements
+ */
+class AchievementSystem {
+  public:
+    static AchievementSystem* Instance;
+
+    AchievementSystem();
+    ~AchievementSystem();
+
+    /**
+     * @brief Initializes the achievement system
+     */
+    void Initialize();
+
+    /**
+     * @brief Registers all available achievements
+     */
+    void RegisterAchievements();
+
+    /**
+     * @brief Registers a single achievement with the system
+     * @param achievement The achievement to register
+     */
+    void RegisterAchievement(std::shared_ptr<Achievement> achievement);
+
+    /**
+     * @brief Gets an achievement by its ID
+     * @param id Unique identifier of the achievement
+     * @return Pointer to the achievement if found, nullptr otherwise
+     */
+    std::shared_ptr<Achievement> GetAchievement(const std::string& id);
+
+    /**
+     * @brief Unlocks an achievement and shows a notification
+     * @param id Unique identifier of the achievement to unlock
+     */
+    void UnlockAchievement(const std::string& id);
+
+    /**
+     * @brief Queues an achievement to be unlocked during gameplay
+     * @param id Unique identifier of the achievement to queue for unlock
+     */
+    void QueueAchievementUnlock(const std::string& id);
+
+    /**
+     * @brief Processes any queued achievement unlocks
+     */
+    void ProcessQueuedAchievements();
+
+    /**
+     * @brief Checks if an achievement is unlocked
+     * @param id Unique identifier of the achievement to check
+     * @return true if the achievement is unlocked, false otherwise
+     */
+    bool IsAchievementUnlocked(const std::string& id);
+
+    /**
+     * @brief Gets all registered achievements
+     * @return Vector of all achievements
+     */
+    const std::vector<std::shared_ptr<Achievement>>& GetAchievements() const;
+
+    /**
+     * @brief Gets the count of unlocked achievements
+     * @return Number of unlocked achievements
+     */
+    size_t GetUnlockedAchievementsCount() const;
+
+    /**
+     * @brief Shows a simple achievement notification
+     * @param achievementName Name of the achievement to display
+     */
+    void ShowNotification(const std::string& achievementName);
+
+    /**
+     * @brief Shows an enhanced achievement notification with icon and animation
+     * @param achievement The achievement to display
+     */
+    void ShowEnhancedNotification(const std::shared_ptr<Achievement>& achievement);
+
+    /**
+     * @brief Creates a window to display achievements
+     * @return Shared pointer to the created window
+     */
+    std::shared_ptr<Ship::GuiWindow> CreateAchievementsWindow();
+
+    /**
+     * @brief Loads achievement states from save context
+     */
+    void LoadFromSaveContext();
+
+    /**
+     * @brief Saves achievement states to save context
+     */
+    void SaveToSaveContext();
+
+    /**
+     * @brief Synchronizes achievement states between memory and save context
+     */
+    void SyncWithSaveContext();
+
+  private:
+    // Achievement Storage
+    std::vector<std::shared_ptr<Achievement>> mAchievements;
+    std::unordered_map<std::string, std::shared_ptr<Achievement>> mAchievementsMap;
+
+    // Queue for pending achievement unlocks
+    std::queue<std::string> mPendingAchievements;
+    bool mProcessingEnabled;
+
+    /**
+     * @brief Gets the bit index for an achievement in the save context
+     * @param id Unique identifier of the achievement
+     * @return Bit index for the achievement
+     */
+    unsigned int GetAchievementBitIndex(const std::string& id) const;
+
+    /**
+     * @brief Gets the value of a bit in the save context
+     * @param bitIndex Index of the bit to check
+     * @return Value of the bit (true or false)
+     */
+    bool GetBitInSaveContext(unsigned int bitIndex) const;
+
+    /**
+     * @brief Sets the value of a bit in the save context
+     * @param bitIndex Index of the bit to set
+     * @param value New value for the bit
+     */
+    void SetBitInSaveContext(unsigned int bitIndex, bool value);
+};
+
+/**
+ * @brief Initializes the achievement system singleton
+ */
+void InitializeAchievementSystem();
+
+// C Interface for Integration with Game Code
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/**
+ * @brief Saves achievement states to the save context
+ */
+void SaveAchievementsToSaveContext(void);
+
+#ifdef __cplusplus
+}
+#endif

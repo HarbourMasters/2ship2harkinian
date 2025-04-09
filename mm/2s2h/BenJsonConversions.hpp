@@ -78,6 +78,7 @@ void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
         { "fileCreatedAt", shipSaveInfo.fileCreatedAt },
         { "fileCompletedAt", shipSaveInfo.fileCompletedAt },
         { "commitHash", commitHash },
+        { "achievements", shipSaveInfo.achievements },
     };
 
     if (shipSaveInfo.saveType == SAVETYPE_RANDO) {
@@ -92,6 +93,13 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("fileCreatedAt").get_to(shipSaveInfo.fileCreatedAt);
     j.at("fileCompletedAt").get_to(shipSaveInfo.fileCompletedAt);
     j.at("commitHash").get_to(shipSaveInfo.commitHash);
+    
+    if (j.contains("achievements")) {
+        j.at("achievements").get_to(shipSaveInfo.achievements);
+    } else {
+        // Initialize achievements to all 0 if not present
+        memset(shipSaveInfo.achievements, 0, sizeof(shipSaveInfo.achievements));
+    }
 
     if (shipSaveInfo.saveType == SAVETYPE_RANDO) {
         if (strcmp(shipSaveInfo.commitHash, gGitCommitHash) != 0) {

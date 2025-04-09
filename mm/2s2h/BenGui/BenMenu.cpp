@@ -1361,6 +1361,29 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Popout Audio Editor", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.AudioEditor")
         .WindowName("Audio Editor");
+
+    // Achievements Menu Section
+    WidgetPath achievementsPath = { "Enhancements", "Achievements", 1 };
+    AddSidebarEntry("Enhancements", "Achievements", 1);
+
+    // Add compact header with brief instructions
+    AddWidget(achievementsPath,
+              "Track your progress through Termina by completing achievements. Each achievement awards Harbour Mastery "
+              "(HM) points, reflecting your mastery of the game's challenges.",
+              WIDGET_TEXT);
+
+    AddWidget(achievementsPath, "Settings", WIDGET_SEPARATOR_TEXT);
+
+    // Enable/Disable Achievements
+    AddWidget(achievementsPath, "Enable Achievements", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Achievements.Enabled")
+        .Options(CheckboxOptions().Tooltip("Enables the achievement system to track and display progress."));
+
+    // Popout Window Button
+    AddWidget(achievementsPath, "Popout Achievements", WIDGET_WINDOW_BUTTON)
+        .CVar("gOpenWindows.Achievements")
+        .Options(ButtonOptions().Tooltip("Opens the Achievements window to view your progress."))
+        .WindowName("Achievements");
 }
 
 void BenMenu::AddDevTools() {
@@ -1512,6 +1535,14 @@ void BenMenu::AddDevTools() {
         .CVar("gWindows.EventLog")
         .Options(ButtonOptions().Tooltip("Enables the Event Log window."))
         .WindowName("Event Log");
+
+    path = { "Dev Tools", "Achievements", 1 };
+    AddSidebarEntry("Dev Tools", "Achievements", 1);
+    AddWidget(path, "Popout Achievements", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.AchievementEditor")
+        .Options(
+            ButtonOptions().Tooltip("Enables the Achievements window, allowing you to manage and test achievements."))
+        .WindowName("Achievements");
 }
 
 BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name)

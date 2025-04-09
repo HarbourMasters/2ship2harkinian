@@ -7,6 +7,11 @@
 
 namespace Notification {
 
+enum class NotificationStyle {
+    DEFAULT,
+    ENHANCED // Enhanced notification with animations (formerly Xbox360)
+};
+
 struct Options {
     uint32_t id = 0;
     const char* itemIcon = nullptr;
@@ -17,6 +22,9 @@ struct Options {
     std::string suffix = "";
     ImVec4 suffixColor = ImVec4(1.0f, 0.5f, 0.5f, 1.0f);
     float remainingTime = 0.0f; // Seconds
+    NotificationStyle style = NotificationStyle::DEFAULT;
+    float animationProgress = 0.0f; // Used for animation (0.0 to 1.0)
+    int soundId = -1;               // Sound to play (-1 for default)
 };
 
 class Window : public Ship::GuiWindow {
@@ -27,9 +35,15 @@ class Window : public Ship::GuiWindow {
     void DrawElement() override{};
     void Draw() override;
     void UpdateElement() override;
+
+  private:
+    void DrawDefaultNotification(const Options& notification, ImVec2 notificationPos);
+    void DrawEnhancedNotification(const Options& notification, ImVec2 notificationPos);
 };
 
 void Emit(Options notification);
+void EmitWithSound(Options notification, int soundId);
+void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore = 0);
 
 } // namespace Notification
 

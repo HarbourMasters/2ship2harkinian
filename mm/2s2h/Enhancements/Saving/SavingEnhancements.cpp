@@ -1,6 +1,7 @@
 #include <libultraship/libultraship.h>
 #include "BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/Achievements/Achievements.h"
 
 extern "C" {
 #include <variables.h>
@@ -131,6 +132,12 @@ void HandleAutoSave() {
         // Reset timestamp, set icon timer to show autosave icon for 5 seconds (100 frames)
         lastSaveTimestamp = GetUnixTimestamp();
         iconTimer = 100;
+
+        // Update achievements before saving
+        if (AchievementSystem::Instance) {
+            AchievementSystem::Instance->SaveToSaveContext();
+            SPDLOG_INFO("Saved achievement states for autosave");
+        }
 
         // Create owl save
         gSaveContext.save.isOwlSave = true;

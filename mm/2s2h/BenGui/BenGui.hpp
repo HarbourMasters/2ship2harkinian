@@ -8,6 +8,7 @@
 #include "DeveloperTools/CollisionViewer.h"
 #include "DeveloperTools/EventLog.h"
 #include "DeveloperTools/HookDebugger.h"
+#include "DeveloperTools/AchievementEditor.h"
 #include "BenInputEditorWindow.h"
 
 namespace BenGui {
