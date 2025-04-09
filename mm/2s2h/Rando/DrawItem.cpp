@@ -20,7 +20,6 @@ extern "C" {
 
     Gfx*
     ResourceMgr_LoadGfxByName(const char* path);
-// void EnMinifrog_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* enMini);
 s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMini);
 }
 
@@ -359,8 +358,6 @@ void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
     Mtx* mtxHead = (Mtx*)GRAPH_ALLOC(gPlayState->state.gfxCtx, 23 * sizeof(Mtx));
     gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gFrogIrisOpenTex);
     gSPSegment(POLY_OPA_DISP++, 0x09, (uintptr_t)gFrogIrisOpenTex);
-    // SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, FROG_LIMB_MAX, NULL, NULL,
-    //                       NULL); // TODO: Restore and fix
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, FROG_LIMB_MAX,
                           EnMinifrog_OverrideLimbDraw, EnMinifrogPostLimbDraw, actor);
 

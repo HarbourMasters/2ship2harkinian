@@ -95,7 +95,6 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
     ((RANDO_SAVE_CHECKS[rc].price < 100) || (RANDO_SAVE_CHECKS[rc].price <= 200 && CUR_UPG_VALUE(UPG_WALLET) >= 1) || \
      (CUR_UPG_VALUE(UPG_WALLET) >= 2))
 #define HAS_ALL_STRAY_FAIRIES(dungeonIndex) (gSaveContext.save.saveInfo.inventory.strayFairies[dungeonIndex] >= 15)
-// Probably a way to do this in one
 #define FOUND_ALL_FROGS                                                                  \
     (CHECK_WEEKEVENTREG(WEEKEVENTREG_33_01) && CHECK_WEEKEVENTREG(WEEKEVENTREG_32_40) && \
      CHECK_WEEKEVENTREG(WEEKEVENTREG_32_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_33_02))
