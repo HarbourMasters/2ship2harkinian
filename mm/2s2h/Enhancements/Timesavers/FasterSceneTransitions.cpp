@@ -13,7 +13,7 @@ void Play_SetupTransition(PlayState* playState, s32 transitionType);
 #define CVAR_NAME "gEnhancements.Timesavers.FasterSceneTransitions"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-static void SetupFastExitFade() {
+static void SetupFasterSceneTransition() {
     auto transitionType = gPlayState->transitionType;
 
     switch (transitionType) {
@@ -41,14 +41,20 @@ static void SetupFastExitFade() {
     gPlayState->transitionType = transitionType;
 }
 
-void RegisterFastExitFade() {
+void RegisterFasterSceneTransitions() {
     COND_VB_SHOULD(VB_SETUP_TRANSITION, CVAR, {
-        if (gPlayState->sceneId != SCENE_SPOT00 && gPlayState->sceneId != SCENE_KAKUSIANA) {
-            SetupFastExitFade();
-            Play_SetupTransition(gPlayState, gPlayState->transitionType);
-            *should = false;
+        switch (gPlayState->sceneId) {
+            case SCENE_SPOT00:
+            case SCENE_KAKUSIANA:
+            case SCENE_HAKASHITA:
+                break;
+
+            default:
+                SetupFasterSceneTransition();
+                Play_SetupTransition(gPlayState, gPlayState->transitionType);
+                *should = false;
         }
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFastExitFade, { CVAR_NAME });
+static RegisterShipInitFunc initFunc(RegisterFasterSceneTransitions, { CVAR_NAME });
