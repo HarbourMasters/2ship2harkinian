@@ -686,9 +686,6 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.ManualJump")
         .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack."));
-    AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.FasterSceneTransitions")
-        .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));
@@ -1163,6 +1160,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Dampe Flame Digging", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.DampeDiggingSkip")
         .Options(CheckboxOptions().Tooltip("Only requires digging up one flame to spawn the big poe."));
+    AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
+        .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
 
     // Fixes
     path = { "Enhancements", "Fixes", 1 };

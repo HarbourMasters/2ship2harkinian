@@ -10,7 +10,7 @@ extern "C" {
 void Play_SetupTransition(PlayState* playState, s32 transitionType);
 };
 
-#define CVAR_NAME "gEnhancements.Player.FasterSceneTransitions"
+#define CVAR_NAME "gEnhancements.Timesavers.FasterSceneTransitions"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 static void SetupFastExitFade() {
