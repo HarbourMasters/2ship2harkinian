@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/ActorExtension/ActorExtension.h"
 
 extern "C" {
@@ -92,6 +92,7 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitEnGsBehavior();
     Rando::ActorBehavior::InitEnHgBehavior();
     Rando::ActorBehavior::InitEnInBehavior();
+    Rando::ActorBehavior::InitEnInvadepohBehavior();
     Rando::ActorBehavior::InitEnItem00Behavior();
     Rando::ActorBehavior::InitEnJgameTsnBehavior();
     Rando::ActorBehavior::InitEnJgBehavior();
@@ -121,6 +122,7 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitEnStoneheishiBehavior();
     Rando::ActorBehavior::InitEnSyatekiManBehavior();
     Rando::ActorBehavior::InitEnTabBehavior();
+    Rando::ActorBehavior::InitEnTakarayaBehavior();
     Rando::ActorBehavior::InitEnTalkBehavior();
     Rando::ActorBehavior::InitEnTotoBehavior();
     Rando::ActorBehavior::InitEnTrtBehavior();
@@ -129,6 +131,7 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitEnZotBehavior();
     Rando::ActorBehavior::InitEnZowBehavior();
     Rando::ActorBehavior::InitItemBHeartBehavior();
+    Rando::ActorBehavior::InitItemGetBehavior();
     Rando::ActorBehavior::InitObjKibakoBehavior();
     Rando::ActorBehavior::InitObjMoonStoneBehavior();
     Rando::ActorBehavior::InitObjSnowballBehavior();
