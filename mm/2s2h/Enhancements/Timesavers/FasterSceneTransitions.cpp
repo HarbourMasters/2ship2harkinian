@@ -43,7 +43,7 @@ static void SetupFastExitFade() {
 
 void RegisterFastExitFade() {
     COND_VB_SHOULD(VB_SETUP_TRANSITION, CVAR, {
-        if (gPlayState->sceneId != SCENE_SPOT00 && GET_PLAYER(gPlayState)->stateFlags1 & PLAYER_STATE1_20000000) {
+        if (gPlayState->sceneId != SCENE_SPOT00 && gPlayState->sceneId != SCENE_KAKUSIANA) {
             SetupFastExitFade();
             Play_SetupTransition(gPlayState, gPlayState->transitionType);
             *should = false;
