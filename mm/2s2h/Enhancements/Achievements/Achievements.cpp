@@ -438,28 +438,88 @@ void AchievementSystem::RegisterAchievements() {
                          }());
 
     // Event achievements
+    REGISTER_ACHIEVEMENT("eavesdropper", "Eavesdropper", "Listen in on Anju and her Mothers conversation",
+                         (const char*)gItemIcons[ITEM_ROOM_KEY], true, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_85_04));
+
+    REGISTER_ACHIEVEMENT("unlimited_power", "Unlimited Power!", "Drink Chateau Romani",
+                         (const char*)gItemIcons[ITEM_CHATEAU], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI));
+
     REGISTER_ACHIEVEMENT("defeat_aliens", "Flatwoods Buster", "Defend Ranch from Alien threat",
                          (const char*)gItemIcons[ITEM_MILK_BOTTLE], false, 10, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_DEFENDED_AGAINST_THEM));
 
-    REGISTER_ACHIEVEMENT("deku_champion", "Playground Champ", "Beat all 3 Deku Playground challenges",
-                         (const char*)gItemIcons[ITEM_DEKU_NUT], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_DEKU_PLAYGROUND_HEART_PIECE));
-
     REGISTER_ACHIEVEMENT("hags_hero", "Hag's Hero", "Save Koume",
                          (const char*)gItemIcons[ITEM_POTION_RED], false, 10, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_SAVED_KOUME));
+
+    REGISTER_ACHIEVEMENT("speed_demon", "Speed Demon", "Win the Goron race",
+                         (const char*)gItemIcons[ITEM_GOLD_DUST], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_41_08));
 
     // Heart piece achievements
     REGISTER_ACHIEVEMENT("collect_heart_container", "Heart of a Hero", "Collect your first Heart Container",
                          (const char*)gItemIcons[ITEM_HEART_CONTAINER], false, 10, OnActorInit,
                          gSaveContext.save.saveInfo.playerData.healthCapacity > 0x30);
 
+    REGISTER_ACHIEVEMENT("laborious_swimmer", "Laborious Swimmer", "Win the Beaver race Heart Piece",
+                         (const char*)gItemIcons[ITEM_MASK_ZORA], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_25_01));
+
+    REGISTER_ACHIEVEMENT("town_sharkshooter", "Town Sharpshooter", "Win the Town Shooting Gallery Heart Piece",
+                         (const char*)gItemIcons[ITEM_BOW], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_TOWN_SHOOTING_GALLERY_HEART_PIECE));
+
+    REGISTER_ACHIEVEMENT("swamp_sharkshooter", "Swamp Sharpshooter", "Win the Swamp Shooting Gallery Heart Piece",
+                         (const char*)gItemIcons[ITEM_BOW], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_SWAMP_SHOOTING_GALLERY_HEART_PIECE));
+
+    REGISTER_ACHIEVEMENT("honey_and_darling_showstopper", "Honey and Darling Showstopper", "Win the Honey & Darling Heart Piece",
+                         (const char*)gItemIcons[ITEM_BOW], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_22_80));
+
+    REGISTER_ACHIEVEMENT("deku_champion", "Playground Champ", "Win the Deku Playground Heart Piece",
+                         (const char*)gItemIcons[ITEM_DEKU_NUT], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_DEKU_PLAYGROUND_HEART_PIECE));
+
+    REGISTER_ACHIEVEMENT("swamp_tourist", "Swamp Tourist", "Win the Boat Tour minigame Heart Piece",
+                         (const char*)gItemIcons[ITEM_DEED_SWAMP], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_26_40));
+
+    REGISTER_ACHIEVEMENT("island_hopper", "Island Hopper", "Win the Greatbay Island minigame Heart Piece",
+                         (const char*)gItemIcons[ITEM_DEED_OCEAN], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_26_40));
+
+    REGISTER_ACHIEVEMENT("deku_land_trader", "Deku real estate tycoon", "Trade in the last Title Deed",
+                         (const char*)gItemIcons[ITEM_DEED_LAND], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_62_20)); //TODO maybe put all of the event deed checks
+
+    REGISTER_ACHIEVEMENT("poebuster", "Poebuster", "Win the Spirit House Heart Piece",
+                         (const char*)gItemIcons[ITEM_BIG_POE], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_54_40));
+
     REGISTER_ACHIEVEMENT("max_health", "Full of Heart", "Obtain maximum health (20 hearts)",
                          (const char*)gItemIcons[ITEM_HEART_CONTAINER], true, 30, OnActorInit,
                          gSaveContext.save.saveInfo.playerData.healthCapacity >= 0x140);
 
     // Fairy achievements
+    REGISTER_ACHIEVEMENT("collect_magic", "Novice Magician", "Obtained Magic",
+                         (const char*)gItemIcons[ITEM_MAGIC_JAR_SMALL], true, 5, OnActorInit,
+                         gSaveContext.save.saveInfo.playerData.isMagicAcquired == true);
+
+    REGISTER_ACHIEVEMENT("collect_great_spin", "Master Spinner", "Obtain the Great Spin",
+                         (const char*)gItemIcons[ITEM_SWORD_KOKIRI], true, 20, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_OBTAINED_GREAT_SPIN_ATTACK));
+
+    REGISTER_ACHIEVEMENT("collect_double_magic", "Adept Magician", "Obtained Double Magic",
+                         (const char*)gItemIcons[ITEM_MAGIC_JAR_BIG], true, 20, OnActorInit,
+                         gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired == true);
+
+    REGISTER_ACHIEVEMENT("collect_double_defense", "Thick as Iron", "Obtained Double Defense",
+                         (const char*)gItemIcons[ITEM_HEART_CONTAINER], true, 20, OnActorInit,
+                         gSaveContext.save.saveInfo.playerData.doubleDefense == true);
+
     REGISTER_ACHIEVEMENT("collect_great_fairy_sword", "Fairy's Champion", "Obtain the Great Fairy's Sword",
                          (const char*)gItemIcons[ITEM_SWORD_GREAT_FAIRY], true, 20, OnActorInit,
                          INV_CONTENT(ITEM_SWORD_GREAT_FAIRY) == ITEM_SWORD_GREAT_FAIRY);
@@ -472,6 +532,38 @@ void AchievementSystem::RegisterAchievements() {
     REGISTER_ACHIEVEMENT("learn_song_of_healing", "Soul Healer", "Learn the Song of Healing",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
                          CHECK_QUEST_ITEM(QUEST_SONG_HEALING));
+
+    REGISTER_ACHIEVEMENT("learn_eponas_song", "Horse Whisperer", "Learn Epona's Song",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
+                         CHECK_QUEST_ITEM(QUEST_SONG_EPONA));
+
+    REGISTER_ACHIEVEMENT("learn_soaring", "Fly like a Owl", "Learn the Song of Soaring",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
+                         CHECK_QUEST_ITEM(QUEST_SONG_SOARING));
+
+    REGISTER_ACHIEVEMENT("learn_storms", "Song of Brotherly Love", "Learn the Song of Storms",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
+                         CHECK_QUEST_ITEM(QUEST_SONG_STORMS));
+
+    REGISTER_ACHIEVEMENT("learn_sonata", "A small misunderstanding", "Learn the Sonata of Awakening",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
+                         CHECK_QUEST_ITEM(QUEST_SONG_SONATA));
+
+    REGISTER_ACHIEVEMENT("learn_lullaby", "Silence...at last!", "Learn the Goron Lullaby",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
+                         CHECK_QUEST_ITEM(QUEST_SONG_LULLABY));
+
+    REGISTER_ACHIEVEMENT("learn_bossa_nova", "Miracle of Life", "Learn the New Wave Bossa Nova",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
+                         CHECK_QUEST_ITEM(QUEST_SONG_BOSSA_NOVA));
+
+    REGISTER_ACHIEVEMENT("learn_elegy", "Sunshine in Ikana", "Learn the Elegy of Emptiness",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
+                         CHECK_QUEST_ITEM(QUEST_SONG_ELEGY));
+
+    REGISTER_ACHIEVEMENT("learn_oath", "To me, my Giants!", "Learn the Oath to Order",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
+                         CHECK_QUEST_ITEM(QUEST_SONG_OATH));
 
     REGISTER_ACHIEVEMENT("learn_all_songs", "Musician of Termina", "Learn all the songs",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 30, OnActorInit, [this]() {
