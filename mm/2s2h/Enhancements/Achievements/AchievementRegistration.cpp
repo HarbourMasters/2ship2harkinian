@@ -177,7 +177,7 @@ void AchievementSystem::RegisterAchievements() {
                          (const char*)gItemIcons[ITEM_BOW], false, 10, AchievementCategory::BOTH, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_TOWN_SHOOTING_GALLERY_HEART_PIECE));
 
-    REGISTER_ACHIEVEMENT("swamp_sharkshooter", "Swamp Sharpshooter", "Win the final Shooting Gallery reward",
+    REGISTER_ACHIEVEMENT("swamp_sharkshooter", "Swamp Sharpshooter", "Win the final Swamp Shooting Gallery reward",
                          (const char*)gItemIcons[ITEM_BOW], false, 10, AchievementCategory::BOTH, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_SWAMP_SHOOTING_GALLERY_HEART_PIECE));
 
