@@ -10,7 +10,7 @@ void AchievementEditorWindow::InitElement() {
 
 void AchievementEditorWindow::DrawElement() {
     if (ImGui::BeginTabBar("AchievementEditorTabBar", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
-        if (ImGui::BeginTabItem("Achievements")) {
+        if (ImGui::BeginTabItem("Achievement List")) {
             DrawAchievementList();
             ImGui::EndTabItem();
         }

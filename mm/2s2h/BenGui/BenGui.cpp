@@ -128,7 +128,7 @@ void SetupGuiElements() {
     gui->AddGuiWindow(mAudioEditorWindow);
 
     mAchievementEditorWindow =
-        std::make_shared<AchievementEditorWindow>("gWindows.AchievementEditor", "Achievements", ImVec2(480, 600));
+        std::make_shared<AchievementEditorWindow>("gWindows.AchievementEditor", "Achievement Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mAchievementEditorWindow);
 
     mAchievementsWindow = std::make_shared<AchievementsWindow>("gOpenWindows.Achievements", "Achievements");

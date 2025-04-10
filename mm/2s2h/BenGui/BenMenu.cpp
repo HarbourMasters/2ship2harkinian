@@ -1536,13 +1536,13 @@ void BenMenu::AddDevTools() {
         .Options(ButtonOptions().Tooltip("Enables the Event Log window."))
         .WindowName("Event Log");
 
-    path = { "Dev Tools", "Achievements", 1 };
-    AddSidebarEntry("Dev Tools", "Achievements", 1);
-    AddWidget(path, "Popout Achievements", WIDGET_WINDOW_BUTTON)
+    path = { "Dev Tools", "Achievement Editor", 1 };
+    AddSidebarEntry("Dev Tools", "Achievement Editor", 1);
+    AddWidget(path, "Popout Achievement Editor", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.AchievementEditor")
-        .Options(
-            ButtonOptions().Tooltip("Enables the Achievements window, allowing you to manage and test achievements."))
-        .WindowName("Achievements");
+        .Options(ButtonOptions().Tooltip(
+            "Enables the Achievement Editor window, allowing you to manage and test achievements."))
+        .WindowName("Achievement Editor");
 }
 
 BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name)
