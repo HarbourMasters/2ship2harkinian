@@ -344,6 +344,86 @@ void AchievementSystem::RegisterAchievements() {
                          (const char*)gItemIcons[ITEM_MASK_ZORA], false, 10, OnActorInit,
                          INV_CONTENT(ITEM_MASK_ZORA) == ITEM_MASK_ZORA);
 
+    REGISTER_ACHIEVEMENT("collect_postman_hat", "Delivery for a Link?", "Obtain the Postman's Hat",
+                         (const char*)gItemIcons[ITEM_MASK_POSTMAN], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_POSTMAN) == ITEM_MASK_POSTMAN);
+
+    REGISTER_ACHIEVEMENT("collect_allnight_mask", "Up for 24h/3d", "Obtain the All-Night Mask",
+                         (const char*)gItemIcons[ITEM_MASK_ALL_NIGHT], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_ALL_NIGHT) == ITEM_MASK_ALL_NIGHT);
+
+    REGISTER_ACHIEVEMENT("collect_blast_mask", "Face bomber", "Obtain the Blast Mask",
+                         (const char*)gItemIcons[ITEM_MASK_BLAST], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_BLAST) == ITEM_MASK_BLAST);
+
+    REGISTER_ACHIEVEMENT("collect_stone_mask", "I got a rock...", "Obtain the Stone Mask",
+                         (const char*)gItemIcons[ITEM_MASK_STONE], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_STONE) == ITEM_MASK_STONE);
+
+    REGISTER_ACHIEVEMENT("collect_greatfairy_mask", "Fairy collector", "Obtain the Great Fairy Mask",
+                         (const char*)gItemIcons[ITEM_MASK_GREAT_FAIRY], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_GREAT_FAIRY) == ITEM_MASK_GREAT_FAIRY);
+
+    REGISTER_ACHIEVEMENT("collect_keaton_mask", "Two-Tailed deceiver", "Obtain the Keaton Mask",
+                         (const char*)gItemIcons[ITEM_MASK_KEATON], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_KEATON) == ITEM_MASK_KEATON);
+
+    REGISTER_ACHIEVEMENT("collect_bremen_mask", "Leader of Animals", "Obtain the Bremen Mask",
+                         (const char*)gItemIcons[ITEM_MASK_BREMEN], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_BREMEN) == ITEM_MASK_BREMEN);
+
+    REGISTER_ACHIEVEMENT("collect_bunny_hood", "Speedy as a Hare", "Obtain the Bunny Hood",
+                         (const char*)gItemIcons[ITEM_MASK_BUNNY], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_BUNNY) == ITEM_MASK_BUNNY);
+                        
+    REGISTER_ACHIEVEMENT("collect_dongero_mask", "*Kero Kero*", "Obtain the Dongero Mask",
+                         (const char*)gItemIcons[ITEM_MASK_DON_GERO], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_DON_GERO) == ITEM_MASK_DON_GERO);
+
+    REGISTER_ACHIEVEMENT("collect_mask_of_scents", "Sniffer of many things", "Obtain the Mask of Scents",
+                         (const char*)gItemIcons[ITEM_MASK_SCENTS], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_SCENTS) == ITEM_MASK_SCENTS);
+
+    REGISTER_ACHIEVEMENT("collect_romani_mask", "Mark of maturity", "Obtain the Romani Mask",
+                         (const char*)gItemIcons[ITEM_MASK_ROMANI], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_ROMANI) == ITEM_MASK_ROMANI);
+
+    REGISTER_ACHIEVEMENT("collect_circus_leader_mask", "Troupe leader", "Obtain the Circus Leader's Mask",
+                         (const char*)gItemIcons[ITEM_MASK_CIRCUS_LEADER], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_CIRCUS_LEADER) == ITEM_MASK_CIRCUS_LEADER);
+
+    REGISTER_ACHIEVEMENT("collect_kafei_mask", "Town detective", "Obtain the Kafei Mask",
+                         (const char*)gItemIcons[ITEM_MASK_KAFEIS_MASK], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_KAFEIS_MASK) == ITEM_MASK_KAFEIS_MASK);
+
+    REGISTER_ACHIEVEMENT("collect_couples_mask", "Witness of union", "Obtain the Couple's Mask",
+                         (const char*)gItemIcons[ITEM_MASK_COUPLE], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_COUPLE) == ITEM_MASK_COUPLE);
+
+    REGISTER_ACHIEVEMENT("collect_mask_of_truth", "Seer of Truth", "Obtain the Mask of Truth",
+                         (const char*)gItemIcons[ITEM_MASK_TRUTH], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_TRUTH) == ITEM_MASK_TRUTH);
+
+    REGISTER_ACHIEVEMENT("collect_kamaro_mask", "Lord of the Dance", "Obtain the Kamaro Mask",
+                         (const char*)gItemIcons[ITEM_MASK_KAMARO], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_KAMARO) == ITEM_MASK_KAMARO);
+
+    REGISTER_ACHIEVEMENT("collect_gibdo_mask", "Mummified Taskmaster", "Obtain the Gibdo Mask",
+                         (const char*)gItemIcons[ITEM_MASK_GIBDO], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_GIBDO) == ITEM_MASK_GIBDO);
+
+    REGISTER_ACHIEVEMENT("collect_garo_mask", "Ninja Master", "Obtain the Garo Mask",
+                         (const char*)gItemIcons[ITEM_MASK_GARO], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_GARO) == ITEM_MASK_GARO);
+    
+    REGISTER_ACHIEVEMENT("collect_captains_hat", "I'm the Captain now!", "Obtain the Captain's Hat",
+                         (const char*)gItemIcons[ITEM_MASK_CAPTAIN], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_CAPTAIN) == ITEM_MASK_CAPTAIN);
+
+    REGISTER_ACHIEVEMENT("collect_giants_hat", "5th Giant", "Obtain the Giant's Mask",
+                         (const char*)gItemIcons[ITEM_MASK_GIANT], false, 10, OnActorInit,
+                         INV_CONTENT(ITEM_MASK_GIANT) == ITEM_MASK_GIANT);
+
     REGISTER_ACHIEVEMENT("collect_fierce_deity", "God of War", "Obtain the Fierce Deity Mask",
                          (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 30, OnActorInit,
                          INV_CONTENT(ITEM_MASK_FIERCE_DEITY) == ITEM_MASK_FIERCE_DEITY);
