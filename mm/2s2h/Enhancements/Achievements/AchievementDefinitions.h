@@ -34,19 +34,21 @@
  * @param iconPath Path to the achievement's icon
  * @param isSecret Whether the achievement should be hidden until unlocked
  * @param gamerscore Point value associated with the achievement
+ * @param category Category determining which game mode the achievement belongs to
  * @param hookType Event hook type to use (OnSceneInit, OnActorInit, etc.)
  * @param condition The condition to check for unlocking the achievement
  */
-#define REGISTER_ACHIEVEMENT(id, name, description, iconPath, isSecret, gamerscore, hookType, condition)         \
-    {                                                                                                            \
-        auto achievement = std::make_shared<Achievement>(id, name, description, iconPath, isSecret, gamerscore); \
-        AchievementSystem::Instance->RegisterAchievement(achievement);                                           \
-                                                                                                                 \
-        COND_HOOK(hookType, CVAR_ACHIEVEMENTS, [this](auto... args) {                                            \
-            if (condition && !IsAchievementUnlocked(id)) {                                                       \
-                QueueAchievementUnlock(id);                                                                      \
-            }                                                                                                    \
-        });                                                                                                      \
+#define REGISTER_ACHIEVEMENT(id, name, description, iconPath, isSecret, gamerscore, category, hookType, condition) \
+    {                                                                                                              \
+        auto achievement =                                                                                         \
+            std::make_shared<Achievement>(id, name, description, iconPath, isSecret, gamerscore, category);        \
+        AchievementSystem::Instance->RegisterAchievement(achievement);                                             \
+                                                                                                                   \
+        COND_HOOK(hookType, CVAR_ACHIEVEMENTS, [this](auto... args) {                                              \
+            if (IsAchievementRelevantForGameMode(id, IS_RANDO) && condition && !IsAchievementUnlocked(id)) {       \
+                QueueAchievementUnlock(id);                                                                        \
+            }                                                                                                      \
+        });                                                                                                        \
     }
 
 // Example usage:
@@ -58,6 +60,7 @@ REGISTER_ACHIEVEMENT(
     (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], // icon
     false,                           // isSecret
     10,                              // gamerscore
+    AchievementCategory::BOTH,      // category
     OnSceneInit,                     // hook type
     (std::get<0>(std::forward_as_tuple(args...)) != 0x00 &&
      std::get<0>(std::forward_as_tuple(args...)) != 0x02) // hook condition

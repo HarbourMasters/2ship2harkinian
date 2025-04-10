@@ -19,6 +19,16 @@ class GuiWindow;
 enum class AchievementState { LOCKED, UNLOCKED };
 
 /**
+ * @enum AchievementCategory
+ * @brief Categorizes achievements by game mode
+ */
+enum class AchievementCategory {
+    VANILLA,    // Standard game achievements
+    RANDOMIZER, // Randomizer mode specific achievements
+    BOTH        // Achievements applicable to both modes
+};
+
+/**
  * @enum AchievementNotificationType
  * @brief Determines the visual style of achievement notifications
  */
@@ -38,7 +48,8 @@ struct Achievement {
     std::string iconPath;
     AchievementState state;
     bool isSecret;
-    int gamerscore; // Optional gamerscore value
+    int gamerscore;               // Optional gamerscore value
+    AchievementCategory category; // Category for game mode specific achievements
 
     /**
      * @brief Constructs an Achievement
@@ -48,9 +59,10 @@ struct Achievement {
      * @param iconPath Path to the achievement's icon
      * @param isSecret Whether the achievement is hidden until unlocked
      * @param gamerscore Point value associated with the achievement
+     * @param category Category determining which game mode the achievement belongs to
      */
     Achievement(std::string id, std::string name, std::string description, std::string iconPath, bool isSecret = false,
-                int gamerscore = 0);
+                int gamerscore = 0, AchievementCategory category = AchievementCategory::BOTH);
 };
 
 /**
@@ -85,7 +97,7 @@ class AchievementSystem {
      * @param id Unique identifier of the achievement
      * @return Pointer to the achievement if found, nullptr otherwise
      */
-    std::shared_ptr<Achievement> GetAchievement(const std::string& id);
+    std::shared_ptr<Achievement> GetAchievement(const std::string& id) const;
 
     /**
      * @brief Unlocks an achievement and shows a notification
@@ -100,7 +112,8 @@ class AchievementSystem {
     void QueueAchievementUnlock(const std::string& id);
 
     /**
-     * @brief Processes any queued achievement unlocks
+     * @brief Processes any queued achievement unlocks during gameplay
+     * This ensures notifications only appear when the player is in a playable state
      */
     void ProcessQueuedAchievements();
 
@@ -116,6 +129,21 @@ class AchievementSystem {
      * @return Vector of all achievements
      */
     const std::vector<std::shared_ptr<Achievement>>& GetAchievements() const;
+
+    /**
+     * @brief Gets all achievements for a specific category
+     * @param category The category to filter by
+     * @return Vector of achievements matching the category
+     */
+    std::vector<std::shared_ptr<Achievement>> GetAchievementsByCategory(AchievementCategory category) const;
+
+    /**
+     * @brief Checks if an achievement is relevant for the current game mode
+     * @param id Unique identifier of the achievement to check
+     * @param isRandomizer Whether the current game mode is randomizer
+     * @return true if the achievement is applicable to the current game mode
+     */
+    bool IsAchievementRelevantForGameMode(const std::string& id, bool isRandomizer) const;
 
     /**
      * @brief Gets the count of unlocked achievements

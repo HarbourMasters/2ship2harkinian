@@ -25,6 +25,8 @@ namespace Notification {
 
 static uint32_t nextId = 0;
 static std::vector<Options> notifications = {};
+static std::queue<Options> achievementQueue = {}; // Queue for achievement notifications
+static bool processingAchievementQueue = false;
 
 void Window::Draw() {
     auto vp = ImGui::GetMainViewport();
@@ -249,8 +251,15 @@ void Window::DrawEnhancedNotification(const Options& notification, ImVec2 notifi
 void Window::UpdateElement() {
     float deltaTime = ImGui::GetIO().DeltaTime;
 
+    // First, update existing notifications
+    bool hasAchievementNotification = false;
     for (int index = 0; index < notifications.size(); ++index) {
         auto& notification = notifications[index];
+
+        // Check if there's already an achievement notification showing
+        if (!notification.prefix.empty() && notification.prefix == "Achievement Unlocked") {
+            hasAchievementNotification = true;
+        }
 
         // For enhanced notifications, update animation progress.
         if (notification.style == NotificationStyle::ENHANCED && notification.animationProgress < 1.0f) {
@@ -268,6 +277,18 @@ void Window::UpdateElement() {
             notifications.erase(notifications.begin() + index);
             --index;
         }
+    }
+
+    // If we have queued achievement notifications and no achievement notification is currently showing,
+    // dequeue the next one
+    if (!achievementQueue.empty() && !hasAchievementNotification) {
+        Options nextAchievement = achievementQueue.front();
+        achievementQueue.pop();
+        notifications.push_back(nextAchievement);
+
+        // Play sound for achievement
+        AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
+                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     }
 }
 
@@ -310,10 +331,29 @@ void EmitAchievement(const char* iconPath, const std::string& achievementName, i
     }
 
     notification.remainingTime = CVarGetFloat("gNotifications.Duration", 10.0f);
-    notifications.push_back(notification);
 
-    AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                     &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+    // Instead of showing immediately, queue the achievement notification
+    achievementQueue.push(notification);
+
+    // If there are no other notifications, immediately show this one
+    bool hasAchievementNotification = false;
+    for (const auto& n : notifications) {
+        if (!n.prefix.empty() && n.prefix == "Achievement Unlocked") {
+            hasAchievementNotification = true;
+            break;
+        }
+    }
+
+    // If no achievement notification is currently showing, dequeue and show
+    if (!hasAchievementNotification && achievementQueue.size() == 1) {
+        Options nextNotification = achievementQueue.front();
+        achievementQueue.pop();
+        notifications.push_back(nextNotification);
+
+        // Play achievement sound
+        AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
+                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+    }
 }
 
 } // namespace Notification
