@@ -437,6 +437,19 @@ void AchievementSystem::RegisterAchievements() {
                              return true;
                          }());
 
+    // Event achievements
+    REGISTER_ACHIEVEMENT("defeat_aliens", "Flatwoods Buster", "Defend Ranch from Alien threat",
+                         (const char*)gItemIcons[ITEM_MILK_BOTTLE], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_DEFENDED_AGAINST_THEM));
+
+    REGISTER_ACHIEVEMENT("deku_champion", "Playground Champ", "Beat all 3 Deku Playground challenges",
+                         (const char*)gItemIcons[ITEM_DEKU_NUT], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_DEKU_PLAYGROUND_HEART_PIECE));
+
+    REGISTER_ACHIEVEMENT("hags_hero", "Hag's Hero", "Save Koume",
+                         (const char*)gItemIcons[ITEM_POTION_RED], false, 10, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_SAVED_KOUME));
+
     // Heart piece achievements
     REGISTER_ACHIEVEMENT("collect_heart_container", "Heart of a Hero", "Collect your first Heart Container",
                          (const char*)gItemIcons[ITEM_HEART_CONTAINER], false, 10, OnActorInit,
