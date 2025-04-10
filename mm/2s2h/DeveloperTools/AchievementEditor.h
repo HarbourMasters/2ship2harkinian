@@ -2,6 +2,7 @@
 
 #include <libultraship/libultraship.h>
 #include "2s2h/Enhancements/Achievements/Achievements.h"
+#include "2s2h/Rando/Rando.h" // Include for IS_RANDO and randomizer types
 
 /**
  * @class AchievementEditorWindow
@@ -53,4 +54,9 @@ class AchievementEditorWindow : public Ship::GuiWindow {
      * @brief Draws the achievement statistics section
      */
     void DrawAchievementStats();
+
+    /**
+     * @brief Draws diagnostic information about achievements and randomizer
+     */
+    void DrawDiagnostics();
 };

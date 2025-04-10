@@ -3,6 +3,8 @@
 #ifdef __cplusplus
 
 #include <string>
+#include <vector>
+#include <queue>
 #include <libultraship/libultraship.h>
 
 namespace Notification {

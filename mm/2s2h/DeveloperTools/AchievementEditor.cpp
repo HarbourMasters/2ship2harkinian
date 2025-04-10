@@ -4,6 +4,10 @@
 #include "2s2h/BenGui/Notification.h"
 #include <spdlog/spdlog.h>
 
+extern "C" {
+#include <variables.h> // Include for gSaveContext
+}
+
 void AchievementEditorWindow::InitElement() {
     // Initialize any necessary state here
 }
@@ -22,6 +26,11 @@ void AchievementEditorWindow::DrawElement() {
 
         if (ImGui::BeginTabItem("Stats")) {
             DrawAchievementStats();
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Diagnostics")) {
+            DrawDiagnostics();
             ImGui::EndTabItem();
         }
 
@@ -187,5 +196,144 @@ void AchievementEditorWindow::DrawAchievementStats() {
                 ImGui::BulletText("%s", achievement->name.c_str());
             }
         }
+    }
+}
+
+void AchievementEditorWindow::DrawDiagnostics() {
+    if (!AchievementSystem::Instance) {
+        ImGui::Text("Achievement system not initialized");
+        return;
+    }
+
+    ImGui::Text("Achievement System Diagnostics");
+    ImGui::Separator();
+
+    // Determine if we're in randomizer mode
+    bool isRandomizerMode = IS_RANDO;
+
+    // Show randomizer status
+    ImGui::Text("Randomizer Mode: %s", isRandomizerMode ? "TRUE" : "FALSE");
+    ImGui::Text("IS_RANDO Macro: %s", IS_RANDO ? "TRUE" : "FALSE");
+    ImGui::Text("Save Type: %d", gSaveContext.save.shipSaveInfo.saveType);
+
+    ImGui::Separator();
+
+    // Show achievement counts by category
+    const auto& achievements = AchievementSystem::Instance->GetAchievements();
+    size_t totalAchievements = achievements.size();
+
+    auto bothAchievements = AchievementSystem::Instance->GetAchievementsByCategory(AchievementCategory::BOTH);
+    auto vanillaAchievements = AchievementSystem::Instance->GetAchievementsByCategory(AchievementCategory::VANILLA);
+    auto randomizerAchievements =
+        AchievementSystem::Instance->GetAchievementsByCategory(AchievementCategory::RANDOMIZER);
+
+    ImGui::Text("Total Achievements: %zu", totalAchievements);
+    ImGui::Text("BOTH Category: %zu", bothAchievements.size());
+    ImGui::Text("VANILLA Category: %zu", vanillaAchievements.size());
+    ImGui::Text("RANDOMIZER Category: %zu", randomizerAchievements.size());
+
+    // Show visible achievements count
+    size_t visibleCount = 0;
+    for (const auto& achievement : achievements) {
+        if (AchievementSystem::Instance->IsAchievementRelevantForGameMode(achievement->id, isRandomizerMode)) {
+            visibleCount++;
+        }
+    }
+    ImGui::Text("Achievements Visible: %zu", visibleCount);
+
+    ImGui::Separator();
+
+    // Detailed achievement status (collapsible)
+    if (ImGui::CollapsingHeader("Randomizer Achievements Status")) {
+        ImGui::Indent(10.0f);
+
+        ImGui::Columns(3, "rando_achievements_columns", true);
+        ImGui::Text("Achievement ID");
+        ImGui::NextColumn();
+        ImGui::Text("Status");
+        ImGui::NextColumn();
+        ImGui::Text("Relevant");
+        ImGui::NextColumn();
+        ImGui::Separator();
+
+        for (const auto& achievement : randomizerAchievements) {
+            ImGui::Text("%s", achievement->id.c_str());
+            ImGui::NextColumn();
+            ImGui::Text("%s", achievement->state == AchievementState::UNLOCKED ? "Unlocked" : "Locked");
+            ImGui::NextColumn();
+            ImGui::Text("%s",
+                        AchievementSystem::Instance->IsAchievementRelevantForGameMode(achievement->id, isRandomizerMode)
+                            ? "Yes"
+                            : "No");
+            ImGui::NextColumn();
+        }
+
+        ImGui::Columns(1);
+        ImGui::Unindent(10.0f);
+    }
+
+    // Show info about randomizer checks
+    if (ImGui::CollapsingHeader("Randomizer Checks Status")) {
+        ImGui::Indent(10.0f);
+
+        // Display first few check flags
+        ImGui::Text("RANDO_SAVE_CHECKS Initialized: %s", IS_RANDO ? "Yes" : "No");
+
+        if (IS_RANDO) {
+            int obtainedChecks = 0;
+            for (size_t i = 0; i < RC_MAX && i < 50; i++) { // Limit to first 50 for performance
+                if (RANDO_SAVE_CHECKS[i].obtained) {
+                    obtainedChecks++;
+                }
+            }
+            ImGui::Text("First 50 Checks - Obtained: %d", obtainedChecks);
+
+            if (ImGui::CollapsingHeader("Specific Rando Achievement Conditions")) {
+                // Show specific checks for certain achievements
+                bool firstItemCondition = false;
+                for (size_t i = 0; i < RC_MAX; i++) {
+                    if (RANDO_SAVE_CHECKS[i].obtained) {
+                        firstItemCondition = true;
+                        break;
+                    }
+                }
+                ImGui::Text("rando_first_item condition met: %s", firstItemCondition ? "Yes" : "No");
+
+                // Check if all masks are collected for rando_all_masks
+                bool allMasksCondition = true;
+                for (u8 i = ITEM_MASK_DEKU; i <= ITEM_MASK_GIANT; i++) {
+                    if (INV_CONTENT(i) == ITEM_NONE) {
+                        allMasksCondition = false;
+                        break;
+                    }
+                }
+                ImGui::Text("rando_all_masks condition met: %s", allMasksCondition ? "Yes" : "No");
+
+                // Check if any transformation mask is in inventory for rando_playas
+                bool transformMaskCondition =
+                    (INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU || INV_CONTENT(ITEM_MASK_GORON) == ITEM_MASK_GORON ||
+                     INV_CONTENT(ITEM_MASK_ZORA) == ITEM_MASK_ZORA);
+                ImGui::Text("rando_playas condition met: %s", transformMaskCondition ? "Yes" : "No");
+
+                // Check location count for rando_impossible
+                int checkedLocations = 0;
+                for (size_t i = 0; i < RC_MAX; i++) {
+                    if (RANDO_SAVE_CHECKS[i].obtained) {
+                        checkedLocations++;
+                    }
+                }
+                ImGui::Text("rando_impossible locations found: %d/100", checkedLocations);
+
+                // Check boss rush condition for rando_first_try
+                bool hasAllRemains = CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) && CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
+                                     CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) && CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD);
+                bool isFirstCycle = gSaveContext.save.isFirstCycle;
+                ImGui::Text("rando_first_try (has all remains): %s", hasAllRemains ? "Yes" : "No");
+                ImGui::Text("rando_first_try (is first cycle): %s", isFirstCycle ? "Yes" : "No");
+                ImGui::Text("rando_first_try condition met: %s", (hasAllRemains && isFirstCycle) ? "Yes" : "No");
+            }
+        }
+
+        ImGui::Unindent(10.0f);
     }
 }

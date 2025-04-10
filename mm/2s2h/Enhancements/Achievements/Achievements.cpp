@@ -22,9 +22,9 @@ AchievementSystem* AchievementSystem::Instance = nullptr;
 
 // Achievement implementation
 Achievement::Achievement(std::string id, std::string name, std::string description, std::string iconPath, bool isSecret,
-                         int gamerscore)
+                         int gamerscore, AchievementCategory category)
     : id(id), name(name), description(description), iconPath(iconPath), state(AchievementState::LOCKED),
-      isSecret(isSecret), gamerscore(gamerscore) {
+      isSecret(isSecret), gamerscore(gamerscore), category(category) {
 }
 
 // Achievement System implementation
@@ -58,7 +58,7 @@ void AchievementSystem::RegisterAchievement(std::shared_ptr<Achievement> achieve
     SPDLOG_DEBUG("Registered achievement: {}", achievement->id);
 }
 
-std::shared_ptr<Achievement> AchievementSystem::GetAchievement(const std::string& id) {
+std::shared_ptr<Achievement> AchievementSystem::GetAchievement(const std::string& id) const {
     auto it = mAchievementsMap.find(id);
     if (it != mAchievementsMap.end()) {
         return it->second;
@@ -94,7 +94,7 @@ void AchievementSystem::QueueAchievementUnlock(const std::string& id) {
 }
 
 void AchievementSystem::ProcessQueuedAchievements() {
-    // Only show one achievement notification per frame
+    // Only process one achievement per frame (to avoid overwhelming the player)
     if (!mPendingAchievements.empty()) {
         std::string id = mPendingAchievements.front();
         mPendingAchievements.pop();
@@ -103,7 +103,8 @@ void AchievementSystem::ProcessQueuedAchievements() {
         if (achievement) {
             SPDLOG_INFO("Processing queued achievement: {}", achievement->name);
 
-            // Show notification
+            // Show notification using the enhanced notification system
+            // The notification system will handle queueing multiple notifications
             ShowEnhancedNotification(achievement);
         }
 
@@ -138,6 +139,35 @@ const std::vector<std::shared_ptr<Achievement>>& AchievementSystem::GetAchieveme
     return mAchievements;
 }
 
+std::vector<std::shared_ptr<Achievement>>
+AchievementSystem::GetAchievementsByCategory(AchievementCategory category) const {
+    std::vector<std::shared_ptr<Achievement>> filteredAchievements;
+
+    for (const auto& achievement : mAchievements) {
+        if (achievement->category == category || achievement->category == AchievementCategory::BOTH) {
+            filteredAchievements.push_back(achievement);
+        }
+    }
+
+    return filteredAchievements;
+}
+
+bool AchievementSystem::IsAchievementRelevantForGameMode(const std::string& id, bool isRandomizer) const {
+    auto achievement = GetAchievement(id);
+    if (!achievement) {
+        return false;
+    }
+
+    // BOTH category is always relevant
+    if (achievement->category == AchievementCategory::BOTH) {
+        return true;
+    }
+
+    // Otherwise, check if category matches game mode
+    return (isRandomizer && achievement->category == AchievementCategory::RANDOMIZER) ||
+           (!isRandomizer && achievement->category == AchievementCategory::VANILLA);
+}
+
 size_t AchievementSystem::GetUnlockedAchievementsCount() const {
     size_t count = 0;
     for (const auto& achievement : mAchievements) {
@@ -165,6 +195,8 @@ void AchievementSystem::ShowEnhancedNotification(const std::shared_ptr<Achieveme
     }
 
     // Emit enhanced style achievement notification
+    // The notification system will automatically queue this if another achievement notification
+    // is already being displayed, ensuring achievements appear one at a time
     Notification::EmitAchievement(iconPath, achievement->name, achievement->gamerscore);
 }
 
@@ -300,280 +332,6 @@ void AchievementSystem::SyncWithSaveContext() {
     if (achievementsChanged) {
         SPDLOG_INFO("Achievement states synchronized with save context");
     }
-}
-
-// Define all achievements
-void AchievementSystem::RegisterAchievements() {
-    // Starting achievements
-    REGISTER_ACHIEVEMENT(
-        "first_steps", "First Steps", "Begin your adventure in Termina", (const char*)gItemIcons[ITEM_OCARINA_OF_TIME],
-        false, 10, OnSceneInit,
-        (std::get<0>(std::forward_as_tuple(args...)) != 0x00 && std::get<0>(std::forward_as_tuple(args...)) != 0x02));
-
-    // Boss achievements
-    REGISTER_ACHIEVEMENT("defeat_odolwa", "Jungle Warrior", "Defeat Odolwa, Masked Jungle Warrior",
-                         (const char*)gItemIcons[ITEM_REMAINS_ODOLWA], false, 20, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA));
-
-    REGISTER_ACHIEVEMENT("defeat_goht", "Mountain Racer", "Defeat Goht, Masked Mechanical Monster",
-                         (const char*)gItemIcons[ITEM_REMAINS_GOHT], false, 20, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT));
-
-    REGISTER_ACHIEVEMENT("defeat_gyorg", "Ocean Conqueror", "Defeat Gyorg, Gargantuan Masked Fish",
-                         (const char*)gItemIcons[ITEM_REMAINS_GYORG], false, 20, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG));
-
-    REGISTER_ACHIEVEMENT("defeat_twinmold", "Desert Exterminator", "Defeat Twinmold, Giant Masked Insects",
-                         (const char*)gItemIcons[ITEM_REMAINS_TWINMOLD], false, 20, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD));
-
-    REGISTER_ACHIEVEMENT("defeat_majora", "Savior of Termina", "Defeat Majora and save Termina",
-                         (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], false, 50, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_77_01));
-
-    // Mask achievements
-    REGISTER_ACHIEVEMENT("collect_deku_mask", "Wooden Face", "Obtain the Deku Mask",
-                         (const char*)gItemIcons[ITEM_MASK_DEKU], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU);
-
-    REGISTER_ACHIEVEMENT("collect_goron_mask", "Stone Face", "Obtain the Goron Mask",
-                         (const char*)gItemIcons[ITEM_MASK_GORON], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_GORON) == ITEM_MASK_GORON);
-
-    REGISTER_ACHIEVEMENT("collect_zora_mask", "Scale Face", "Obtain the Zora Mask",
-                         (const char*)gItemIcons[ITEM_MASK_ZORA], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_ZORA) == ITEM_MASK_ZORA);
-
-    REGISTER_ACHIEVEMENT("collect_postman_hat", "Delivery for a Link?", "Obtain the Postman's Hat",
-                         (const char*)gItemIcons[ITEM_MASK_POSTMAN], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_POSTMAN) == ITEM_MASK_POSTMAN);
-
-    REGISTER_ACHIEVEMENT("collect_allnight_mask", "Up for 24h/3d", "Obtain the All-Night Mask",
-                         (const char*)gItemIcons[ITEM_MASK_ALL_NIGHT], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_ALL_NIGHT) == ITEM_MASK_ALL_NIGHT);
-
-    REGISTER_ACHIEVEMENT("collect_blast_mask", "Face bomber", "Obtain the Blast Mask",
-                         (const char*)gItemIcons[ITEM_MASK_BLAST], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_BLAST) == ITEM_MASK_BLAST);
-
-    REGISTER_ACHIEVEMENT("collect_stone_mask", "I got a rock...", "Obtain the Stone Mask",
-                         (const char*)gItemIcons[ITEM_MASK_STONE], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_STONE) == ITEM_MASK_STONE);
-
-    REGISTER_ACHIEVEMENT("collect_greatfairy_mask", "Fairy collector", "Obtain the Great Fairy Mask",
-                         (const char*)gItemIcons[ITEM_MASK_GREAT_FAIRY], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_GREAT_FAIRY) == ITEM_MASK_GREAT_FAIRY);
-
-    REGISTER_ACHIEVEMENT("collect_keaton_mask", "Two-Tailed deceiver", "Obtain the Keaton Mask",
-                         (const char*)gItemIcons[ITEM_MASK_KEATON], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_KEATON) == ITEM_MASK_KEATON);
-
-    REGISTER_ACHIEVEMENT("collect_bremen_mask", "Leader of Animals", "Obtain the Bremen Mask",
-                         (const char*)gItemIcons[ITEM_MASK_BREMEN], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_BREMEN) == ITEM_MASK_BREMEN);
-
-    REGISTER_ACHIEVEMENT("collect_bunny_hood", "Speedy as a Hare", "Obtain the Bunny Hood",
-                         (const char*)gItemIcons[ITEM_MASK_BUNNY], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_BUNNY) == ITEM_MASK_BUNNY);
-                        
-    REGISTER_ACHIEVEMENT("collect_dongero_mask", "*Kero Kero*", "Obtain the Dongero Mask",
-                         (const char*)gItemIcons[ITEM_MASK_DON_GERO], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_DON_GERO) == ITEM_MASK_DON_GERO);
-
-    REGISTER_ACHIEVEMENT("collect_mask_of_scents", "Sniffer of many things", "Obtain the Mask of Scents",
-                         (const char*)gItemIcons[ITEM_MASK_SCENTS], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_SCENTS) == ITEM_MASK_SCENTS);
-
-    REGISTER_ACHIEVEMENT("collect_romani_mask", "Mark of maturity", "Obtain the Romani Mask",
-                         (const char*)gItemIcons[ITEM_MASK_ROMANI], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_ROMANI) == ITEM_MASK_ROMANI);
-
-    REGISTER_ACHIEVEMENT("collect_circus_leader_mask", "Troupe leader", "Obtain the Circus Leader's Mask",
-                         (const char*)gItemIcons[ITEM_MASK_CIRCUS_LEADER], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_CIRCUS_LEADER) == ITEM_MASK_CIRCUS_LEADER);
-
-    REGISTER_ACHIEVEMENT("collect_kafei_mask", "Town detective", "Obtain the Kafei Mask",
-                         (const char*)gItemIcons[ITEM_MASK_KAFEIS_MASK], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_KAFEIS_MASK) == ITEM_MASK_KAFEIS_MASK);
-
-    REGISTER_ACHIEVEMENT("collect_couples_mask", "Witness of union", "Obtain the Couple's Mask",
-                         (const char*)gItemIcons[ITEM_MASK_COUPLE], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_COUPLE) == ITEM_MASK_COUPLE);
-
-    REGISTER_ACHIEVEMENT("collect_mask_of_truth", "Seer of Truth", "Obtain the Mask of Truth",
-                         (const char*)gItemIcons[ITEM_MASK_TRUTH], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_TRUTH) == ITEM_MASK_TRUTH);
-
-    REGISTER_ACHIEVEMENT("collect_kamaro_mask", "Lord of the Dance", "Obtain the Kamaro Mask",
-                         (const char*)gItemIcons[ITEM_MASK_KAMARO], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_KAMARO) == ITEM_MASK_KAMARO);
-
-    REGISTER_ACHIEVEMENT("collect_gibdo_mask", "Mummified Taskmaster", "Obtain the Gibdo Mask",
-                         (const char*)gItemIcons[ITEM_MASK_GIBDO], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_GIBDO) == ITEM_MASK_GIBDO);
-
-    REGISTER_ACHIEVEMENT("collect_garo_mask", "Ninja Master", "Obtain the Garo Mask",
-                         (const char*)gItemIcons[ITEM_MASK_GARO], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_GARO) == ITEM_MASK_GARO);
-    
-    REGISTER_ACHIEVEMENT("collect_captains_hat", "I'm the Captain now!", "Obtain the Captain's Hat",
-                         (const char*)gItemIcons[ITEM_MASK_CAPTAIN], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_CAPTAIN) == ITEM_MASK_CAPTAIN);
-
-    REGISTER_ACHIEVEMENT("collect_giants_hat", "5th Giant", "Obtain the Giant's Mask",
-                         (const char*)gItemIcons[ITEM_MASK_GIANT], false, 10, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_GIANT) == ITEM_MASK_GIANT);
-
-    REGISTER_ACHIEVEMENT("collect_fierce_deity", "God of War", "Obtain the Fierce Deity Mask",
-                         (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 30, OnActorInit,
-                         INV_CONTENT(ITEM_MASK_FIERCE_DEITY) == ITEM_MASK_FIERCE_DEITY);
-
-    REGISTER_ACHIEVEMENT("collect_all_masks", "Mask Collector", "Collect all 24 masks",
-                         (const char*)gItemIcons[ITEM_MASK_TRUTH], true, 50, OnActorInit, [this]() {
-                             for (u8 i = ITEM_MASK_DEKU; i <= ITEM_MASK_GIANT; i++) {
-                                 if (INV_CONTENT(i) == ITEM_NONE)
-                                     return false;
-                             }
-                             return true;
-                         }());
-
-    // Event achievements
-    REGISTER_ACHIEVEMENT("eavesdropper", "Eavesdropper", "Listen in on Anju and her Mothers conversation",
-                         (const char*)gItemIcons[ITEM_ROOM_KEY], true, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_85_04));
-
-    REGISTER_ACHIEVEMENT("unlimited_power", "Unlimited Power!", "Drink Chateau Romani",
-                         (const char*)gItemIcons[ITEM_CHATEAU], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI));
-
-    REGISTER_ACHIEVEMENT("defeat_aliens", "Flatwoods Buster", "Defend Ranch from Alien threat",
-                         (const char*)gItemIcons[ITEM_MILK_BOTTLE], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_DEFENDED_AGAINST_THEM));
-
-    REGISTER_ACHIEVEMENT("hags_hero", "Hag's Hero", "Save Koume",
-                         (const char*)gItemIcons[ITEM_POTION_RED], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_SAVED_KOUME));
-
-    REGISTER_ACHIEVEMENT("speed_demon", "Speed Demon", "Win the Goron race",
-                         (const char*)gItemIcons[ITEM_GOLD_DUST], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_41_08));
-
-    // Heart piece achievements
-    REGISTER_ACHIEVEMENT("collect_heart_container", "Heart of a Hero", "Collect your first Heart Container",
-                         (const char*)gItemIcons[ITEM_HEART_CONTAINER], false, 10, OnActorInit,
-                         gSaveContext.save.saveInfo.playerData.healthCapacity > 0x30);
-
-    REGISTER_ACHIEVEMENT("laborious_swimmer", "Laborious Swimmer", "Win the Beaver race Heart Piece",
-                         (const char*)gItemIcons[ITEM_MASK_ZORA], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_25_01));
-
-    REGISTER_ACHIEVEMENT("town_sharkshooter", "Town Sharpshooter", "Win the Town Shooting Gallery Heart Piece",
-                         (const char*)gItemIcons[ITEM_BOW], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_TOWN_SHOOTING_GALLERY_HEART_PIECE));
-
-    REGISTER_ACHIEVEMENT("swamp_sharkshooter", "Swamp Sharpshooter", "Win the Swamp Shooting Gallery Heart Piece",
-                         (const char*)gItemIcons[ITEM_BOW], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_SWAMP_SHOOTING_GALLERY_HEART_PIECE));
-
-    REGISTER_ACHIEVEMENT("honey_and_darling_showstopper", "Honey and Darling Showstopper", "Win the Honey & Darling Heart Piece",
-                         (const char*)gItemIcons[ITEM_BOW], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_22_80));
-
-    REGISTER_ACHIEVEMENT("deku_champion", "Playground Champ", "Win the Deku Playground Heart Piece",
-                         (const char*)gItemIcons[ITEM_DEKU_NUT], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_DEKU_PLAYGROUND_HEART_PIECE));
-
-    REGISTER_ACHIEVEMENT("swamp_tourist", "Swamp Tourist", "Win the Boat Tour minigame Heart Piece",
-                         (const char*)gItemIcons[ITEM_DEED_SWAMP], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_26_40));
-
-    REGISTER_ACHIEVEMENT("island_hopper", "Island Hopper", "Win the Greatbay Island minigame Heart Piece",
-                         (const char*)gItemIcons[ITEM_DEED_OCEAN], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_26_40));
-
-    REGISTER_ACHIEVEMENT("deku_land_trader", "Deku real estate tycoon", "Trade in the last Title Deed",
-                         (const char*)gItemIcons[ITEM_DEED_LAND], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_62_20)); //TODO maybe put all of the event deed checks
-
-    REGISTER_ACHIEVEMENT("poebuster", "Poebuster", "Win the Spirit House Heart Piece",
-                         (const char*)gItemIcons[ITEM_BIG_POE], false, 10, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_54_40));
-
-    REGISTER_ACHIEVEMENT("max_health", "Full of Heart", "Obtain maximum health (20 hearts)",
-                         (const char*)gItemIcons[ITEM_HEART_CONTAINER], true, 30, OnActorInit,
-                         gSaveContext.save.saveInfo.playerData.healthCapacity >= 0x140);
-
-    // Fairy achievements
-    REGISTER_ACHIEVEMENT("collect_magic", "Novice Magician", "Obtained Magic",
-                         (const char*)gItemIcons[ITEM_MAGIC_JAR_SMALL], true, 5, OnActorInit,
-                         gSaveContext.save.saveInfo.playerData.isMagicAcquired == true);
-
-    REGISTER_ACHIEVEMENT("collect_great_spin", "Master Spinner", "Obtain the Great Spin",
-                         (const char*)gItemIcons[ITEM_SWORD_KOKIRI], true, 20, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_OBTAINED_GREAT_SPIN_ATTACK));
-
-    REGISTER_ACHIEVEMENT("collect_double_magic", "Adept Magician", "Obtained Double Magic",
-                         (const char*)gItemIcons[ITEM_MAGIC_JAR_BIG], true, 20, OnActorInit,
-                         gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired == true);
-
-    REGISTER_ACHIEVEMENT("collect_double_defense", "Thick as Iron", "Obtained Double Defense",
-                         (const char*)gItemIcons[ITEM_HEART_CONTAINER], true, 20, OnActorInit,
-                         gSaveContext.save.saveInfo.playerData.doubleDefense == true);
-
-    REGISTER_ACHIEVEMENT("collect_great_fairy_sword", "Fairy's Champion", "Obtain the Great Fairy's Sword",
-                         (const char*)gItemIcons[ITEM_SWORD_GREAT_FAIRY], true, 20, OnActorInit,
-                         INV_CONTENT(ITEM_SWORD_GREAT_FAIRY) == ITEM_SWORD_GREAT_FAIRY);
-
-    // Song achievements
-    REGISTER_ACHIEVEMENT("learn_song_of_time", "Time Traveler", "Learn the Song of Time",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_TIME));
-
-    REGISTER_ACHIEVEMENT("learn_song_of_healing", "Soul Healer", "Learn the Song of Healing",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_HEALING));
-
-    REGISTER_ACHIEVEMENT("learn_eponas_song", "Horse Whisperer", "Learn Epona's Song",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_EPONA));
-
-    REGISTER_ACHIEVEMENT("learn_soaring", "Fly like a Owl", "Learn the Song of Soaring",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_SOARING));
-
-    REGISTER_ACHIEVEMENT("learn_storms", "Song of Brotherly Love", "Learn the Song of Storms",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_STORMS));
-
-    REGISTER_ACHIEVEMENT("learn_sonata", "A small misunderstanding", "Learn the Sonata of Awakening",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_SONATA));
-
-    REGISTER_ACHIEVEMENT("learn_lullaby", "Silence...at last!", "Learn the Goron Lullaby",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_LULLABY));
-
-    REGISTER_ACHIEVEMENT("learn_bossa_nova", "Miracle of Life", "Learn the New Wave Bossa Nova",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_BOSSA_NOVA));
-
-    REGISTER_ACHIEVEMENT("learn_elegy", "Sunshine in Ikana", "Learn the Elegy of Emptiness",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_ELEGY));
-
-    REGISTER_ACHIEVEMENT("learn_oath", "To me, my Giants!", "Learn the Oath to Order",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_SONG_OATH));
-
-    REGISTER_ACHIEVEMENT("learn_all_songs", "Musician of Termina", "Learn all the songs",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 30, OnActorInit, [this]() {
-                             u32 allSongsBits =
-                                 (1 << QUEST_SONG_SONATA) | (1 << QUEST_SONG_LULLABY) | (1 << QUEST_SONG_BOSSA_NOVA) |
-                                 (1 << QUEST_SONG_ELEGY) | (1 << QUEST_SONG_OATH) | (1 << QUEST_SONG_SARIA) |
-                                 (1 << QUEST_SONG_TIME) | (1 << QUEST_SONG_HEALING) | (1 << QUEST_SONG_EPONA) |
-                                 (1 << QUEST_SONG_SOARING) | (1 << QUEST_SONG_STORMS) | (1 << QUEST_SONG_SUN);
-                             return (GET_SAVE_INVENTORY_QUEST_ITEMS & allSongsBits) == allSongsBits;
-                         }());
 }
 
 // Initialize achievement system

@@ -9,6 +9,11 @@
 #include <libultraship/bridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h" // Include for game state access
 #include "../../BenGui/UIWidgets.hpp"           // Include for UIWidgets
+#include "2s2h/Rando/Rando.h"                   // Include for IS_RANDO
+
+extern "C" {
+#include <variables.h> // Include for gSaveContext
+}
 
 // Define static member
 ImGuiTextFilter AchievementsWindow::sAchievementFilter;
@@ -34,6 +39,12 @@ void AchievementsWindow::InitElement() {
 }
 
 void AchievementsWindow::UpdateElement() {
+    // Get the achievements from the achievement system
+    mAchievements = AchievementSystem::Instance->GetAchievements();
+
+    // Determine if we're in randomizer mode
+    mIsRandomizerMode = IsRandomizerMode();
+
     // Check if the visibility CVar changed
     bool shouldBeVisible = CVarGetInteger("gOpenWindows.Achievements", 0) != 0;
     if (shouldBeVisible && !IsVisible()) {
@@ -184,6 +195,16 @@ void AchievementsWindow::DrawAchievementList() {
             continue;
         }
 
+        // Automatically filter achievements based on game mode
+        if (!AchievementSystem::Instance->IsAchievementRelevantForGameMode(achievement->id, mIsRandomizerMode)) {
+            continue;
+        }
+
+        // Don't display secret achievements in search results unless they're unlocked
+        if (achievement->isSecret && achievement->state == AchievementState::LOCKED && sAchievementFilter.IsActive()) {
+            continue;
+        }
+
         // Apply search filter
         if (!sAchievementFilter.PassFilter(achievement->name.c_str()) &&
             !sAchievementFilter.PassFilter(achievement->description.c_str())) {
@@ -291,4 +312,9 @@ void AchievementsWindow::DrawNotInGameMessage() {
     ImGui::SetCursorPos(ImVec2((windowSize.x - ImGui::CalcTextSize("Achievements can only be viewed in-game").x) * 0.5f,
                                windowSize.y * 0.5f - ImGui::GetTextLineHeight() * 0.5f));
     ImGui::TextColored(GRAY_COLOR, "Achievements can only be viewed in-game");
+}
+
+bool AchievementsWindow::IsRandomizerMode() const {
+    // Check if the game is in randomizer mode using the IS_RANDO macro
+    return IS_RANDO;
 }

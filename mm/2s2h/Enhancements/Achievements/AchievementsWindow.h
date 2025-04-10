@@ -63,6 +63,7 @@ class AchievementsWindow : public Ship::GuiWindow {
     // UI State
     bool mShowLockedOnly = false;
     bool mShowUnlockedOnly = false;
+    bool mIsRandomizerMode = false; // Current game mode
     static ImGuiTextFilter sAchievementFilter;
 
     /**
@@ -112,6 +113,12 @@ class AchievementsWindow : public Ship::GuiWindow {
      * @brief Draws a message indicating the player is not in game
      */
     void DrawNotInGameMessage();
+
+    /**
+     * @brief Checks if the current game is in randomizer mode
+     * @return true if the game is in randomizer mode
+     */
+    bool IsRandomizerMode() const;
 
     // Constants
     static constexpr float PROGRESS_BAR_HEIGHT = 24.0f;
