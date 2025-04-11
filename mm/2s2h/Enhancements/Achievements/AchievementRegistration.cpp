@@ -20,19 +20,19 @@ void AchievementSystem::RegisterAchievements() {
     // Boss achievements
     REGISTER_ACHIEVEMENT("defeat_odolwa", "Jungle Warrior", "Defeat Odolwa, Masked Jungle Warrior",
                          (const char*)gItemIcons[ITEM_REMAINS_ODOLWA], false, 20, AchievementCategory::BOTH,
-                         OnActorInit, CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA));
+                         OnActorInit, CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE));
 
     REGISTER_ACHIEVEMENT("defeat_goht", "Mountain Racer", "Defeat Goht, Masked Mechanical Monster",
                          (const char*)gItemIcons[ITEM_REMAINS_GOHT], false, 20, AchievementCategory::BOTH, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT));
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE));
 
     REGISTER_ACHIEVEMENT("defeat_gyorg", "Ocean Conqueror", "Defeat Gyorg, Gargantuan Masked Fish",
                          (const char*)gItemIcons[ITEM_REMAINS_GYORG], false, 20, AchievementCategory::BOTH, OnActorInit,
-                         CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG));
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE));
 
     REGISTER_ACHIEVEMENT("defeat_twinmold", "Desert Exterminator", "Defeat Twinmold, Giant Masked Insects",
                          (const char*)gItemIcons[ITEM_REMAINS_TWINMOLD], false, 20, AchievementCategory::BOTH,
-                         OnActorInit, CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD));
+                         OnActorInit, CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE));
 
     REGISTER_ACHIEVEMENT("defeat_majora", "Savior of Termina", "Defeat Majora and save Termina",
                          (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], false, 50, AchievementCategory::BOTH,
@@ -169,15 +169,15 @@ void AchievementSystem::RegisterAchievements() {
                          (const char*)gItemIcons[ITEM_HEART_CONTAINER], false, 10, AchievementCategory::BOTH,
                          OnActorInit, gSaveContext.save.saveInfo.playerData.healthCapacity > 0x30);
 
-    REGISTER_ACHIEVEMENT("laborious_swimmer", "Laborious Swimmer", "Win the Beaver race Heart Piece",
+    REGISTER_ACHIEVEMENT("laborious_swimmer", "Laborious Swimmer", "Win the final Beaver race reward",
                          (const char*)gItemIcons[ITEM_MASK_ZORA], false, 10, AchievementCategory::BOTH, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_25_01));
 
-    REGISTER_ACHIEVEMENT("town_sharkshooter", "Town Sharpshooter", "Win the Town Shooting Gallery Heart Piece",
+    REGISTER_ACHIEVEMENT("town_sharkshooter", "Town Sharpshooter", "Win the final Town Shooting Gallery reward",
                          (const char*)gItemIcons[ITEM_BOW], false, 10, AchievementCategory::BOTH, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_TOWN_SHOOTING_GALLERY_HEART_PIECE));
 
-    REGISTER_ACHIEVEMENT("swamp_sharkshooter", "Swamp Sharpshooter", "Win the Swamp Shooting Gallery Heart Piece",
+    REGISTER_ACHIEVEMENT("swamp_sharkshooter", "Swamp Sharpshooter", "Win the final Swamp Shooting Gallery reward",
                          (const char*)gItemIcons[ITEM_BOW], false, 10, AchievementCategory::BOTH, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_SWAMP_SHOOTING_GALLERY_HEART_PIECE));
 
@@ -185,25 +185,32 @@ void AchievementSystem::RegisterAchievements() {
                          "Win the Honey & Darling Heart Piece", (const char*)gItemIcons[ITEM_BOW], false, 10,
                          AchievementCategory::BOTH, OnActorInit, CHECK_WEEKEVENTREG(WEEKEVENTREG_22_80));
 
-    REGISTER_ACHIEVEMENT("deku_champion", "Playground Champ", "Win the Deku Playground Heart Piece",
+    REGISTER_ACHIEVEMENT("deku_champion", "Playground Champ", "Win final Deku Playground reward",
                          (const char*)gItemIcons[ITEM_DEKU_NUT], false, 10, AchievementCategory::BOTH, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_DEKU_PLAYGROUND_HEART_PIECE));
 
-    REGISTER_ACHIEVEMENT("swamp_tourist", "Swamp Tourist", "Win the Boat Tour minigame Heart Piece",
+    REGISTER_ACHIEVEMENT("swamp_tourist", "Swamp Tourist", "Win the final Boat Tour minigame reward",
                          (const char*)gItemIcons[ITEM_DEED_SWAMP], false, 10, AchievementCategory::BOTH, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_26_40));
 
-    REGISTER_ACHIEVEMENT("island_hopper", "Island Hopper", "Win the Greatbay Island minigame Heart Piece",
+    REGISTER_ACHIEVEMENT("island_hopper", "Island Hopper", "Win the Greatbay Island minigame reward",
                          (const char*)gItemIcons[ITEM_DEED_OCEAN], false, 10, AchievementCategory::BOTH, OnActorInit,
                          CHECK_WEEKEVENTREG(WEEKEVENTREG_26_40));
 
-    REGISTER_ACHIEVEMENT("deku_land_trader", "Deku real estate tycoon", "Trade in the last Title Deed",
+    REGISTER_ACHIEVEMENT("deku_land_trader", "Deku real estate tycoon", "Trade all Deku Title Deeds",
                          (const char*)gItemIcons[ITEM_DEED_LAND], false, 10, AchievementCategory::BOTH, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_62_20)); // TODO maybe put all of the event deed checks
+                         [this]() {
+                             return (CHECK_WEEKEVENTREG(WEEKEVENTREG_17_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_61_10) &&
+                                     CHECK_WEEKEVENTREG(WEEKEVENTREG_61_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_62_04) &&
+                                     CHECK_WEEKEVENTREG(WEEKEVENTREG_62_20));
+                         }());
 
-    REGISTER_ACHIEVEMENT("poebuster", "Poebuster", "Win the Spirit House Heart Piece",
-                         (const char*)gItemIcons[ITEM_BIG_POE], false, 10, AchievementCategory::BOTH, OnActorInit,
-                         CHECK_WEEKEVENTREG(WEEKEVENTREG_54_40));
+    REGISTER_ACHIEVEMENT("poebuster", "Poebuster", "Win the Spirit House reward", (const char*)gItemIcons[ITEM_BIG_POE],
+                         false, 10, AchievementCategory::BOTH, OnActorInit, CHECK_WEEKEVENTREG(WEEKEVENTREG_54_40));
+
+    REGISTER_ACHIEVEMENT("seacrossed_reunion", "Seacrossed Reunion", "Reunite the Seahorses",
+                         (const char*)gItemIcons[ITEM_SEAHORSE], false, 10, AchievementCategory::BOTH, OnActorInit,
+                         CHECK_WEEKEVENTREG(WEEKEVENTREG_32_01));
 
     REGISTER_ACHIEVEMENT("max_health", "Full of Heart", "Obtain maximum health (20 hearts)",
                          (const char*)gItemIcons[ITEM_HEART_CONTAINER], true, 30, AchievementCategory::BOTH,
@@ -281,6 +288,17 @@ void AchievementSystem::RegisterAchievements() {
             return (GET_SAVE_INVENTORY_QUEST_ITEMS & allSongsBits) == allSongsBits;
         }());
 
+    // Time-Loop Related Achievements
+    REGISTER_ACHIEVEMENT("groundhog_day", "Groundhog Day", "Reset the time cycle 10 times",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, AchievementCategory::BOTH,
+                         OnActorInit,
+                         [this]() { return gSaveContext.save.saveInfo.playerData.threeDayResetCount >= 10; }());
+
+    REGISTER_ACHIEVEMENT("trapped_in_time", "Trapped in Time", "Reset the time cycle 999 times",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 50, AchievementCategory::BOTH,
+                         OnActorInit,
+                         [this]() { return gSaveContext.save.saveInfo.playerData.threeDayResetCount == 999; }());
+
     // Randomizer-specific achievements
     REGISTER_ACHIEVEMENT("rando_first_item", "The Journey Begins", "Collect your first randomized item",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, AchievementCategory::RANDOMIZER,
@@ -307,8 +325,9 @@ void AchievementSystem::RegisterAchievements() {
                     INV_CONTENT(ITEM_MASK_ZORA) == ITEM_MASK_ZORA);
         }());
 
-    REGISTER_ACHIEVEMENT("rando_impossible", "Location Hunter", "Obtain items from at least 100 different locations",
-                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 30, AchievementCategory::RANDOMIZER,
+    REGISTER_ACHIEVEMENT("novice_check_hunter", "Novice Check Hunter",
+                         "Obtain items from at least 100 different checks",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 10, AchievementCategory::RANDOMIZER,
                          OnActorInit, [this]() {
                              // Skip this check if the randomizer save data isn't initialized yet
                              if (!IS_RANDO) {
@@ -325,18 +344,76 @@ void AchievementSystem::RegisterAchievements() {
                              return checkedLocations >= 100;
                          }());
 
-    REGISTER_ACHIEVEMENT("rando_first_try", "Boss Rush", "Defeat all four temple bosses in a single three-day cycle",
-                         (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 50, AchievementCategory::RANDOMIZER,
+    REGISTER_ACHIEVEMENT("adept_check_hunter", "Adept Check Hunter", "Obtain items from at least 1000 different checks",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 30, AchievementCategory::RANDOMIZER,
+                         OnActorInit, [this]() {
+                             // Skip this check if the randomizer save data isn't initialized yet
+                             if (!IS_RANDO) {
+                                 return false;
+                             }
+
+                             // Count how many checks have been completed
+                             int checkedLocations = 0;
+                             for (size_t i = 0; i < RC_MAX; i++) {
+                                 if (RANDO_SAVE_CHECKS[i].obtained) {
+                                     checkedLocations++;
+                                 }
+                             }
+                             return checkedLocations >= 1000;
+                         }());
+
+    REGISTER_ACHIEVEMENT("all_done", "All Done!", "Obtain all checks in a seed.",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 30, AchievementCategory::RANDOMIZER,
+                         OnActorInit, [this]() {
+                             // Skip this check if the randomizer save data isn't initialized yet
+                             if (!IS_RANDO) {
+                                 return false;
+                             }
+
+                             int check_count = 0;
+                             int checkedLocations = 0;
+                             for (size_t i = 0; i < RC_MAX; i++) {
+                                 // Count how many checks have been completed
+                                 if (RANDO_SAVE_CHECKS[i].obtained) {
+                                     checkedLocations++;
+                                 }
+                                 // Get the number of checks in the current seed.
+                                 if (RANDO_SAVE_CHECKS[i].shuffled) {
+                                     check_count++;
+                                 }
+                             }
+                             return checkedLocations >= check_count;
+                         }());
+
+    REGISTER_ACHIEVEMENT("rando_master", "Rando Master", "Obtain all checks in a max sanity.",
+                         (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 50, AchievementCategory::RANDOMIZER,
+                         OnActorInit, [this]() {
+                             // Skip this check if the randomizer save data isn't initialized yet
+                             if (!IS_RANDO) {
+                                 return false;
+                             }
+
+                             // Count how many checks have been completed
+                             int checkedLocations = 0;
+                             for (size_t i = 0; i < RC_MAX; i++) {
+                                 if (RANDO_SAVE_CHECKS[i].obtained) {
+                                     checkedLocations++;
+                                 }
+                             }
+                             return checkedLocations >= RC_MAX;
+                         }());
+
+    REGISTER_ACHIEVEMENT("rando_first_try", "Boss Rush", "Defeat all four temple bosses in first cycle outside of Clock Town",
+                         (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 50, AchievementCategory::BOTH,
                          OnActorInit, [this]() {
                              // Check if player has defeated all bosses in this cycle
                              // This checks if all remains are in the inventory
-                             bool hasAllRemains =
-                                 CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) && CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
-                                 CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) && CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD);
+                             bool hasAllRemains = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE) &&
+                                                  CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE) &&
+                                                  CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE) &&
+                                                  CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
 
                              // Check if player is in first cycle (before using Song of Time)
-                             bool isFirstCycle = gSaveContext.save.isFirstCycle;
-
-                             return hasAllRemains && isFirstCycle;
+                             return hasAllRemains && (gSaveContext.save.saveInfo.playerData.threeDayResetCount <= 1);
                          }());
 }
