@@ -53,6 +53,7 @@ void RegisterFasterSceneTransitions() {
                 SetupFasterSceneTransition();
                 Play_SetupTransition(gPlayState, gPlayState->transitionType);
                 *should = false;
+                break;
         }
     });
 }
