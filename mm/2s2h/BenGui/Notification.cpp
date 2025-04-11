@@ -353,13 +353,13 @@ void EmitAchievement(const char* iconPath, const std::string& achievementName, i
 
             // Play achievement sound
             AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                            &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+                             &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         }
     } else {
         // Show notification immediately without queuing
         notifications.push_back(notification);
         AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                        &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     }
 }
 
