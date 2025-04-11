@@ -45,7 +45,7 @@ class Window : public Ship::GuiWindow {
 
 void Emit(Options notification);
 void EmitWithSound(Options notification, int soundId);
-void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore = 0);
+void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore, bool shouldQueue = true);
 
 } // namespace Notification
 

@@ -403,17 +403,17 @@ void AchievementSystem::RegisterAchievements() {
                              return checkedLocations >= RC_MAX;
                          }());
 
-    REGISTER_ACHIEVEMENT("rando_first_try", "Boss Rush", "Defeat all four temple bosses in first cycle outside of Clock Town",
-                         (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 50, AchievementCategory::BOTH,
-                         OnActorInit, [this]() {
-                             // Check if player has defeated all bosses in this cycle
-                             // This checks if all remains are in the inventory
-                             bool hasAllRemains = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE) &&
-                                                  CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE) &&
-                                                  CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE) &&
-                                                  CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
+    REGISTER_ACHIEVEMENT(
+        "rando_first_try", "Boss Rush", "Defeat all four temple bosses in first cycle outside of Clock Town",
+        (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 50, AchievementCategory::BOTH, OnActorInit, [this]() {
+            // Check if player has defeated all bosses in this cycle
+            // This checks if all remains are in the inventory
+            bool hasAllRemains = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE) &&
+                                 CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE) &&
+                                 CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE) &&
+                                 CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
 
-                             // Check if player is in first cycle (before using Song of Time)
-                             return hasAllRemains && (gSaveContext.save.saveInfo.playerData.threeDayResetCount <= 1);
-                         }());
+            // Check if player is in first cycle (before using Song of Time)
+            return hasAllRemains && (gSaveContext.save.saveInfo.playerData.threeDayResetCount <= 1);
+        }());
 }

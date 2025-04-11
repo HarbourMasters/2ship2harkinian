@@ -160,8 +160,9 @@ class AchievementSystem {
     /**
      * @brief Shows an enhanced achievement notification with icon and animation
      * @param achievement The achievement to display
+     * @param shouldQueue Whether the notification should be queued for later display
      */
-    void ShowEnhancedNotification(const std::shared_ptr<Achievement>& achievement);
+    void ShowEnhancedNotification(const std::shared_ptr<Achievement>& achievement, bool shouldQueue = true);
 
     /**
      * @brief Creates a window to display achievements

@@ -185,7 +185,7 @@ void AchievementSystem::ShowNotification(const std::string& achievementName) {
     }
 }
 
-void AchievementSystem::ShowEnhancedNotification(const std::shared_ptr<Achievement>& achievement) {
+void AchievementSystem::ShowEnhancedNotification(const std::shared_ptr<Achievement>& achievement, bool shouldQueue) {
     // Default icon if none specified
     const char* iconPath = (const char*)gItemIcons[ITEM_SKULL_TOKEN]; // Gold skulltula token
 
@@ -195,9 +195,7 @@ void AchievementSystem::ShowEnhancedNotification(const std::shared_ptr<Achieveme
     }
 
     // Emit enhanced style achievement notification
-    // The notification system will automatically queue this if another achievement notification
-    // is already being displayed, ensuring achievements appear one at a time
-    Notification::EmitAchievement(iconPath, achievement->name, achievement->gamerscore);
+    Notification::EmitAchievement(iconPath, achievement->name, achievement->gamerscore, shouldQueue);
 }
 
 std::shared_ptr<Ship::GuiWindow> AchievementSystem::CreateAchievementsWindow() {

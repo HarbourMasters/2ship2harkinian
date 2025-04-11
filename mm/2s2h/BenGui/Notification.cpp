@@ -315,7 +315,7 @@ void EmitWithSound(Options notification, int soundId) {
     }
 }
 
-void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore) {
+void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore, bool shouldQueue) {
     Options notification;
     notification.id = nextId++;
     notification.style = NotificationStyle::ENHANCED;
@@ -332,27 +332,34 @@ void EmitAchievement(const char* iconPath, const std::string& achievementName, i
 
     notification.remainingTime = CVarGetFloat("gNotifications.Duration", 10.0f);
 
-    // Instead of showing immediately, queue the achievement notification
-    achievementQueue.push(notification);
+    if (shouldQueue) {
+        // Queue the achievement notification
+        achievementQueue.push(notification);
 
-    // If there are no other notifications, immediately show this one
-    bool hasAchievementNotification = false;
-    for (const auto& n : notifications) {
-        if (!n.prefix.empty() && n.prefix == "Achievement Unlocked") {
-            hasAchievementNotification = true;
-            break;
+        // If there are no other notifications, immediately show this one
+        bool hasAchievementNotification = false;
+        for (const auto& n : notifications) {
+            if (!n.prefix.empty() && n.prefix == "Achievement Unlocked") {
+                hasAchievementNotification = true;
+                break;
+            }
         }
-    }
 
-    // If no achievement notification is currently showing, dequeue and show
-    if (!hasAchievementNotification && achievementQueue.size() == 1) {
-        Options nextNotification = achievementQueue.front();
-        achievementQueue.pop();
-        notifications.push_back(nextNotification);
+        // If no achievement notification is currently showing, dequeue and show
+        if (!hasAchievementNotification && achievementQueue.size() == 1) {
+            Options nextNotification = achievementQueue.front();
+            achievementQueue.pop();
+            notifications.push_back(nextNotification);
 
-        // Play achievement sound
+            // Play achievement sound
+            AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
+                            &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+        }
+    } else {
+        // Show notification immediately without queuing
+        notifications.push_back(notification);
         AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+                        &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     }
 }
 
