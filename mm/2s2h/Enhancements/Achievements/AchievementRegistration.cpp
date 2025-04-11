@@ -403,8 +403,8 @@ void AchievementSystem::RegisterAchievements() {
                              return checkedLocations >= RC_MAX;
                          }());
 
-    REGISTER_ACHIEVEMENT("rando_first_try", "Boss Rush", "Defeat all four temple bosses in first cycle",
-                         (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 50, AchievementCategory::RANDOMIZER,
+    REGISTER_ACHIEVEMENT("rando_first_try", "Boss Rush", "Defeat all four temple bosses in first cycle outside of Clock Town",
+                         (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 50, AchievementCategory::BOTH,
                          OnActorInit, [this]() {
                              // Check if player has defeated all bosses in this cycle
                              // This checks if all remains are in the inventory
@@ -414,21 +414,6 @@ void AchievementSystem::RegisterAchievements() {
                                                   CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
 
                              // Check if player is in first cycle (before using Song of Time)
-                             bool isFirstCycle = false;
-                             bool firstCycleSkipEnabled = CVarGetInteger("gEnhancements.Cutscenes.SkipFirstCycle", 0);
-
-                             if (gSaveContext.save.saveInfo.playerData.threeDayResetCount == 1 &&
-                                 (IS_RANDO || firstCycleSkipEnabled)) {
-                                 // Rando starts in cycle 1, 1st cycle skip also starts at cycle 1
-                                 isFirstCycle = true;
-                             }
-
-                             if (gSaveContext.save.saveInfo.playerData.threeDayResetCount == 0 &&
-                                 (!IS_RANDO && !firstCycleSkipEnabled)) {
-                                 // Vanilla starts in cycle 0 without 1st cycle skip
-                                 isFirstCycle = true;
-                             }
-
-                             return hasAllRemains && isFirstCycle;
+                             return hasAllRemains && (gSaveContext.save.saveInfo.playerData.threeDayResetCount <= 1);
                          }());
 }
