@@ -44,9 +44,9 @@ static void SetupFasterSceneTransition() {
 void RegisterFasterSceneTransitions() {
     COND_VB_SHOULD(VB_SETUP_TRANSITION, CVAR, {
         switch (gPlayState->sceneId) {
-            case SCENE_SPOT00:      // Prevent glitch going into the save file select
-            case SCENE_KAKUSIANA:   // Falling into grottos causes fall damage with fast transitions
-            case SCENE_HAKASHITA:   // Similar but falling into a grave
+            case SCENE_SPOT00:    // Prevent glitch going into the save file select
+            case SCENE_KAKUSIANA: // Falling into grottos causes fall damage with fast transitions
+            case SCENE_HAKASHITA: // Similar but falling into a grave
                 break;
 
             default:
