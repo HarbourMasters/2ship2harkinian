@@ -1451,17 +1451,8 @@ void Message_DecodeNES(PlayState* play) {
             msgCtx->unk120C4 = charTexIndex;
 
             for (i = 0; i < 5; i++) {
-                // 2S2H [Enhancement] Automatically fill in the Bombers' code once you've got the notebook
-                // msgCtx->unk12054[i] = 1;
-                // Message_LoadCharNES(play, '1', &charTexIndex, &spA4, decodedBufPos);
-                if (CVarGetInteger("gEnhancements.Dialogue.AutoBombersCode", 0) &&
-                    CHECK_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK)) {
-                    msgCtx->unk12054[i] = gSaveContext.save.saveInfo.bomberCode[i];
-                } else {
-                    msgCtx->unk12054[i] = 1;
-                }
-
-                Message_LoadCharNES(play, '0' + msgCtx->unk12054[i], &charTexIndex, &spA4, decodedBufPos);
+                msgCtx->unk12054[i] = 1;
+                Message_LoadCharNES(play, '1', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
             }
             decodedBufPos--;
