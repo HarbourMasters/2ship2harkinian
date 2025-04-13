@@ -607,10 +607,10 @@ void DetectArchiveVersion(std::string fileName, bool isO2rType) {
 
         if (Extractor::ShowYesNoBox("Old O2R File Found", msgBuf) == IDYES) {
             std::string installPath = Ship::Context::GetAppBundlePath();
-            if (!std::filesystem::exists(installPath + "/assets/extractor")) {
+            if (!std::filesystem::exists(installPath + "/assets")) {
                 Extractor::ShowErrorBox(
                     "Extractor assets not found",
-                    "Unable to regenerate. Missing assets/extractor folder needed to generate O2R file.\n\nExiting...");
+                    "Unable to regenerate. Missing assets folder needed to generate O2R file.\n\nExiting...");
                 exit(1);
             }
 
@@ -693,10 +693,10 @@ extern "C" void InitOTR() {
     if (!std::filesystem::exists(mmPathO2R) && !std::filesystem::exists(mmPathZIP) &&
         !std::filesystem::exists(mmPathOtr)) {
         std::string installPath = Ship::Context::GetAppBundlePath();
-        if (!std::filesystem::exists(installPath + "/assets/extractor")) {
+        if (!std::filesystem::exists(installPath + "/assets")) {
             Extractor::ShowErrorBox(
                 "Extractor assets not found",
-                "No game O2R file found. Missing assets/extractor folder needed to generate O2R file. Exiting...");
+                "No game O2R file found. Missing assets folder needed to generate O2R file. Exiting...");
             exit(1);
         }
 
