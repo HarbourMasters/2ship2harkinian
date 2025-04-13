@@ -69,8 +69,7 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
 // Be careful here, as some checks require you to play the song as a specific form
 #define CAN_PLAY_SONG(song) (HAS_ITEM(ITEM_OCARINA_OF_TIME) && CHECK_QUEST_ITEM(QUEST_SONG_##song))
 #define CAN_RIDE_EPONA (CAN_PLAY_SONG(EPONA))
-#define GBT_REGULAR_WATER_FLOW (CAN_BE_ZORA) // Keeping for the sake of check tracker clarity
-#define GBT_REVERSE_WATER_FLOW                                                             \
+#define GBT_CAN_REVERSE_WATER_FLOW                                                         \
     (RANDO_EVENTS[RE_GREAT_BAY_RED_SWITCH_1] && RANDO_EVENTS[RE_GREAT_BAY_RED_SWITCH_2] && \
      HAS_ITEM(ITEM_HOOKSHOT)) // Keeping for the sake of check tracker clarity
 #define GBT_GREEN_SWITCH_FLOW                                                                  \
