@@ -3,14 +3,15 @@
 #include "2s2h/BenPort.h"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/Rando/Types.h"
+#include "2s2h/ShipInit.hpp"
 #include <libultraship/libultraship.h>
 
 // Define the achievements configuration
 #define CVAR_NAME_ACHIEVEMENTS "gEnhancements.Achievements.Enabled"
 #define CVAR_ACHIEVEMENTS CVarGetInteger(CVAR_NAME_ACHIEVEMENTS, 1)
 
-// Define all achievements
-void AchievementSystem::RegisterAchievements() {
+// Wrap registration in RegisterShipInitFunc
+static RegisterShipInitFunc initFunc([]() {
     // Starting achievements
     REGISTER_ACHIEVEMENT(
         "first_steps", "First Steps", "Begin your adventure in Termina", (const char*)gItemIcons[ITEM_OCARINA_OF_TIME],
@@ -137,7 +138,7 @@ void AchievementSystem::RegisterAchievements() {
 
     REGISTER_ACHIEVEMENT("collect_all_masks", "Mask Collector", "Collect all 24 masks",
                          (const char*)gItemIcons[ITEM_MASK_TRUTH], true, 50, AchievementCategory::BOTH, OnActorInit,
-                         [this]() {
+                         []() {
                              for (u8 i = ITEM_MASK_DEKU; i <= ITEM_MASK_GIANT; i++) {
                                  if (INV_CONTENT(i) == ITEM_NONE)
                                      return false;
@@ -199,7 +200,7 @@ void AchievementSystem::RegisterAchievements() {
 
     REGISTER_ACHIEVEMENT("deku_land_trader", "Deku real estate tycoon", "Trade all Deku Title Deeds",
                          (const char*)gItemIcons[ITEM_DEED_LAND], false, 10, AchievementCategory::BOTH, OnActorInit,
-                         [this]() {
+                         []() {
                              return (CHECK_WEEKEVENTREG(WEEKEVENTREG_17_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_61_10) &&
                                      CHECK_WEEKEVENTREG(WEEKEVENTREG_61_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_62_04) &&
                                      CHECK_WEEKEVENTREG(WEEKEVENTREG_62_20));
@@ -280,7 +281,7 @@ void AchievementSystem::RegisterAchievements() {
 
     REGISTER_ACHIEVEMENT(
         "learn_all_songs", "Musician of Termina", "Learn all the songs", (const char*)gItemIcons[ITEM_OCARINA_OF_TIME],
-        true, 30, AchievementCategory::BOTH, OnActorInit, [this]() {
+        true, 30, AchievementCategory::BOTH, OnActorInit, []() {
             u32 allSongsBits = (1 << QUEST_SONG_SONATA) | (1 << QUEST_SONG_LULLABY) | (1 << QUEST_SONG_BOSSA_NOVA) |
                                (1 << QUEST_SONG_ELEGY) | (1 << QUEST_SONG_OATH) | (1 << QUEST_SONG_SARIA) |
                                (1 << QUEST_SONG_TIME) | (1 << QUEST_SONG_HEALING) | (1 << QUEST_SONG_EPONA) |
@@ -292,17 +293,17 @@ void AchievementSystem::RegisterAchievements() {
     REGISTER_ACHIEVEMENT("groundhog_day", "Groundhog Day", "Reset the time cycle 10 times",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, AchievementCategory::BOTH,
                          OnActorInit,
-                         [this]() { return gSaveContext.save.saveInfo.playerData.threeDayResetCount >= 10; }());
+                         []() { return gSaveContext.save.saveInfo.playerData.threeDayResetCount >= 10; }());
 
     REGISTER_ACHIEVEMENT("trapped_in_time", "Trapped in Time", "Reset the time cycle 999 times",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 50, AchievementCategory::BOTH,
                          OnActorInit,
-                         [this]() { return gSaveContext.save.saveInfo.playerData.threeDayResetCount == 999; }());
+                         []() { return gSaveContext.save.saveInfo.playerData.threeDayResetCount == 999; }());
 
     // Randomizer-specific achievements
     REGISTER_ACHIEVEMENT("rando_first_item", "The Journey Begins", "Collect your first randomized item",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 10, AchievementCategory::RANDOMIZER,
-                         OnActorInit, [this]() {
+                         OnActorInit, []() {
                              // Skip this check if the randomizer save data isn't initialized yet
                              if (!IS_RANDO) {
                                  return false;
@@ -319,7 +320,7 @@ void AchievementSystem::RegisterAchievements() {
 
     REGISTER_ACHIEVEMENT(
         "rando_playas", "Play as Rando", "Play as a non-default form in randomizer mode",
-        (const char*)gItemIcons[ITEM_MASK_DEKU], false, 20, AchievementCategory::RANDOMIZER, OnActorInit, [this]() {
+        (const char*)gItemIcons[ITEM_MASK_DEKU], false, 20, AchievementCategory::RANDOMIZER, OnActorInit, []() {
             // Check if player has transformed - this checks if any transformation mask is in inventory
             return (INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU || INV_CONTENT(ITEM_MASK_GORON) == ITEM_MASK_GORON ||
                     INV_CONTENT(ITEM_MASK_ZORA) == ITEM_MASK_ZORA);
@@ -328,7 +329,7 @@ void AchievementSystem::RegisterAchievements() {
     REGISTER_ACHIEVEMENT("novice_check_hunter", "Novice Check Hunter",
                          "Obtain items from at least 100 different checks",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 10, AchievementCategory::RANDOMIZER,
-                         OnActorInit, [this]() {
+                         OnActorInit, []() {
                              // Skip this check if the randomizer save data isn't initialized yet
                              if (!IS_RANDO) {
                                  return false;
@@ -346,7 +347,7 @@ void AchievementSystem::RegisterAchievements() {
 
     REGISTER_ACHIEVEMENT("adept_check_hunter", "Adept Check Hunter", "Obtain items from at least 1000 different checks",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 30, AchievementCategory::RANDOMIZER,
-                         OnActorInit, [this]() {
+                         OnActorInit, []() {
                              // Skip this check if the randomizer save data isn't initialized yet
                              if (!IS_RANDO) {
                                  return false;
@@ -364,7 +365,7 @@ void AchievementSystem::RegisterAchievements() {
 
     REGISTER_ACHIEVEMENT("all_done", "All Done!", "Obtain all checks in a seed.",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 30, AchievementCategory::RANDOMIZER,
-                         OnActorInit, [this]() {
+                         OnActorInit, []() {
                              // Skip this check if the randomizer save data isn't initialized yet
                              if (!IS_RANDO) {
                                  return false;
@@ -387,7 +388,7 @@ void AchievementSystem::RegisterAchievements() {
 
     REGISTER_ACHIEVEMENT("rando_master", "Rando Master", "Obtain all checks in a max sanity.",
                          (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], true, 50, AchievementCategory::RANDOMIZER,
-                         OnActorInit, [this]() {
+                         OnActorInit, []() {
                              // Skip this check if the randomizer save data isn't initialized yet
                              if (!IS_RANDO) {
                                  return false;
@@ -405,7 +406,7 @@ void AchievementSystem::RegisterAchievements() {
 
     REGISTER_ACHIEVEMENT(
         "rando_first_try", "Boss Rush", "Defeat all four temple bosses in first cycle outside of Clock Town",
-        (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 50, AchievementCategory::BOTH, OnActorInit, [this]() {
+        (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], true, 50, AchievementCategory::BOTH, OnActorInit, []() {
             // Check if player has defeated all bosses in this cycle
             // This checks if all remains are in the inventory
             bool hasAllRemains = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE) &&
@@ -416,4 +417,5 @@ void AchievementSystem::RegisterAchievements() {
             // Check if player is in first cycle (before using Song of Time)
             return hasAllRemains && (gSaveContext.save.saveInfo.playerData.threeDayResetCount <= 1);
         }());
-}
+
+}, { CVAR_NAME_ACHIEVEMENTS }); // Depend on the main achievement CVar

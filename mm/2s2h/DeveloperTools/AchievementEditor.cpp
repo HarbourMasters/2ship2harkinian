@@ -20,7 +20,7 @@ AchievementEditor::AchievementEditor(const std::string& consoleVariable, const s
 void AchievementEditor::InitElement() {
     // We get the instance pointer dynamically in DrawElement as it might not be ready at initialization.
     mAchievementSystem = nullptr;
-        }
+}
 
 // UpdateElement: Called periodically for updates (can be empty if not needed)
 void AchievementEditor::UpdateElement() {
@@ -30,8 +30,8 @@ void AchievementEditor::UpdateElement() {
 
 // DrawElement: Main drawing function called every frame the window is visible
 void AchievementEditor::DrawElement() {
-    // Always try to get the current instance
-    mAchievementSystem = AchievementSystem::Instance;
+    // Always try to get the current instance using the getter
+    mAchievementSystem = &AchievementSystem::Instance(); // Use '&' to get pointer from reference
 
     if (!mAchievementSystem) {
         ImGui::Text("Achievement System instance is not available.");

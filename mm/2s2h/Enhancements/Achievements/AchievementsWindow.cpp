@@ -21,9 +21,7 @@ ImGuiTextFilter AchievementsWindow::sAchievementFilter;
 AchievementsWindow::AchievementsWindow(const std::string& consoleVariable, const std::string& name)
     : Ship::GuiWindow(consoleVariable, name, ImVec2(500, 600)) {
 
-    if (AchievementSystem::Instance) {
-        mAchievements = AchievementSystem::Instance->GetAchievements();
-    }
+    mAchievements = AchievementSystem::Instance().GetAchievements();
 
     // Set initial visibility based on CVar value
     bool shouldBeVisible = CVarGetInteger(consoleVariable.c_str(), 0) != 0;
@@ -40,7 +38,7 @@ void AchievementsWindow::InitElement() {
 
 void AchievementsWindow::UpdateElement() {
     // Get the achievements from the achievement system
-    mAchievements = AchievementSystem::Instance->GetAchievements();
+    mAchievements = AchievementSystem::Instance().GetAchievements();
 
     // Determine if we're in randomizer mode
     mIsRandomizerMode = IsRandomizerMode();
@@ -55,8 +53,8 @@ void AchievementsWindow::UpdateElement() {
 
     // Only update achievements if the system is enabled
     bool achievementsEnabled = CVarGetInteger("gEnhancements.Achievements.Enabled", 1) != 0;
-    if (achievementsEnabled && AchievementSystem::Instance) {
-        mAchievements = AchievementSystem::Instance->GetAchievements();
+    if (achievementsEnabled) {
+        mAchievements = AchievementSystem::Instance().GetAchievements();
     }
 }
 
@@ -101,14 +99,12 @@ void AchievementsWindow::DrawProgressBar() {
     int totalGamerscore = 0;
     int unlockedGamerscore = 0;
 
-    if (AchievementSystem::Instance) {
-        unlockedCount = AchievementSystem::Instance->GetUnlockedAchievementsCount();
+    unlockedCount = AchievementSystem::Instance().GetUnlockedAchievementsCount();
 
-        for (const auto& achievement : mAchievements) {
-            totalGamerscore += achievement->gamerscore;
-            if (achievement->state == AchievementState::UNLOCKED) {
-                unlockedGamerscore += achievement->gamerscore;
-            }
+    for (const auto& achievement : mAchievements) {
+        totalGamerscore += achievement->gamerscore;
+        if (achievement->state == AchievementState::UNLOCKED) {
+            unlockedGamerscore += achievement->gamerscore;
         }
     }
 
@@ -196,7 +192,7 @@ void AchievementsWindow::DrawAchievementList() {
         }
 
         // Automatically filter achievements based on game mode
-        if (!AchievementSystem::Instance->IsAchievementRelevantForGameMode(achievement->id, mIsRandomizerMode)) {
+        if (!AchievementSystem::Instance().IsAchievementRelevantForGameMode(achievement->id, mIsRandomizerMode)) {
             continue;
         }
 

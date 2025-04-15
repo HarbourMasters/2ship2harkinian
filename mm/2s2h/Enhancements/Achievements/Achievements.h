@@ -71,20 +71,12 @@ struct Achievement {
  */
 class AchievementSystem {
   public:
-    static AchievementSystem* Instance;
-
-    AchievementSystem();
-    ~AchievementSystem();
+    static AchievementSystem& Instance();
 
     /**
      * @brief Initializes the achievement system
      */
     void Initialize();
-
-    /**
-     * @brief Registers all available achievements
-     */
-    void RegisterAchievements();
 
     /**
      * @brief Registers a single achievement with the system
@@ -181,6 +173,9 @@ class AchievementSystem {
     void LoadFromSaveContext();
 
   private:
+    AchievementSystem();
+    ~AchievementSystem();
+
     // Achievement Storage
     std::vector<std::shared_ptr<Achievement>> mAchievements;
     std::unordered_map<std::string, std::shared_ptr<Achievement>> mAchievementsMap;

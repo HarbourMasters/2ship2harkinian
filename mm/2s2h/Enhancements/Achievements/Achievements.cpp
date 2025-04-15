@@ -19,7 +19,13 @@ extern "C" {
 #define CVAR_ACHIEVEMENTS CVarGetInteger(CVAR_NAME_ACHIEVEMENTS, 1)
 
 // Singleton instance
-AchievementSystem* AchievementSystem::Instance = nullptr;
+// AchievementSystem* AchievementSystem::Instance = nullptr; // Removed old global instance
+
+// Meyers' Singleton implementation
+AchievementSystem& AchievementSystem::Instance() {
+    static AchievementSystem instance; // Function-local static instance
+    return instance;
+}
 
 // Achievement implementation
 Achievement::Achievement(std::string id, std::string name, std::string description, std::string iconPath, bool isSecret,
@@ -30,31 +36,33 @@ Achievement::Achievement(std::string id, std::string name, std::string descripti
 
 // Achievement System implementation
 AchievementSystem::AchievementSystem() {
-    Instance = this;
+    // Constructor logic (if any) can go here.
+    // Instance = this; // No longer needed
     mProcessingEnabled = false;
 }
 
 AchievementSystem::~AchievementSystem() {
-    if (Instance == this) {
-        Instance = nullptr;
-    }
+    // Destructor logic (if any) can go here.
+    // if (Instance == this) { // No longer needed
+    //     Instance = nullptr;
+    // }
 }
 
 void AchievementSystem::Initialize() {
-    SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM INITIALIZATION STARTED ===");
-    SPDLOG_CRITICAL("Current instance pointer: {}", (void*)Instance);
-    SPDLOG_CRITICAL("This instance pointer: {}", (void*)this);
-
-    // Register all achievements
-    RegisterAchievements();
+    // This function's purpose might change slightly.
+    // It's called by InitializeAchievementSystem, which is triggered by ShipInit.
+    // It no longer needs to call RegisterAchievements.
+    SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM CORE INITIALIZATION STARTED ===");
 
     // Check if the number of registered achievements exceeds the max defined in save structure
+    // Note: This check might run before all achievements are registered via ShipInit.
+    // Consider moving this check to a post-initialization step if needed.
     if (mAchievements.size() > MAX_ACHIEVEMENTS) {
         SPDLOG_ERROR("Number of registered achievements ({}) exceeds MAX_ACHIEVEMENTS ({})!", mAchievements.size(), MAX_ACHIEVEMENTS);
         // Handle error appropriately, e.g., disable achievements or assert
     }
 
-    SPDLOG_CRITICAL("Achievement System initialized with {} achievements", mAchievements.size());
+    SPDLOG_CRITICAL("Achievement System core initialized. Registered achievement count: {}", mAchievements.size());
     SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM INITIALIZATION COMPLETED ===");
 }
 
@@ -264,92 +272,59 @@ std::shared_ptr<Ship::GuiWindow> AchievementSystem::CreateAchievementsWindow() {
 
 // Renamed from GetAchievementBitIndex
 unsigned int AchievementSystem::GetAchievementIndex(const std::string& id) const {
-    // Find the index of the achievement in our achievements list
-    for (size_t i = 0; i < mAchievements.size(); i++) {
+     for (size_t i = 0; i < mAchievements.size(); ++i) {
         if (mAchievements[i]->id == id) {
-            // Check bounds before returning
-            if (i >= MAX_ACHIEVEMENTS) {
-                 SPDLOG_ERROR("Achievement index {} is out of bounds for ID {} (Max: {})", i, id, MAX_ACHIEVEMENTS -1);
-                 return MAX_ACHIEVEMENTS; // Return an invalid index
-            }
-            return static_cast<unsigned int>(i);
+            return i;
         }
     }
-    // Achievement not found
-     SPDLOG_WARN("Achievement ID {} not found in registered list", id);
-    return MAX_ACHIEVEMENTS; // Return an invalid index
+    SPDLOG_WARN("Achievement index not found for id: {}", id);
+    return MAX_ACHIEVEMENTS; // Indicate not found/out of bounds
 }
 
 void AchievementSystem::LoadFromSaveContext() {
-    if (!&gSaveContext) {
-        SPDLOG_ERROR("Save context not available for achievement state loading");
-        return;
-    }
-
-    SPDLOG_INFO("Loading achievement states from save context");
-
-    // For each achievement, load its state from the save context's achievementData array
-    for (const auto& achievement : mAchievements) {
-        unsigned int index = GetAchievementIndex(achievement->id);
-
-        // Check if index is valid before accessing array
-        if (index < MAX_ACHIEVEMENTS) {
-            bool isUnlocked = gSaveContext.save.shipSaveInfo.achievementData[index].unlocked;
-
-            // Update the in-memory achievement state
-            if (isUnlocked) {
-                achievement->state = AchievementState::UNLOCKED;
-                SPDLOG_DEBUG("Loaded achievement {} ({}) as UNLOCKED", achievement->id, index);
+    if (&gSaveContext) {
+        SPDLOG_INFO("Loading achievement states from save context...");
+        for (size_t i = 0; i < mAchievements.size() && i < MAX_ACHIEVEMENTS; ++i) {
+            if (gSaveContext.save.shipSaveInfo.achievementData[i].unlocked) {
+                if (mAchievements[i]->state != AchievementState::UNLOCKED) {
+                    mAchievements[i]->state = AchievementState::UNLOCKED;
+                    SPDLOG_DEBUG("Loaded unlocked state for: {}", mAchievements[i]->id);
+                }
             } else {
-                achievement->state = AchievementState::LOCKED;
-                 SPDLOG_DEBUG("Loaded achievement {} ({}) as LOCKED", achievement->id, index);
+                if (mAchievements[i]->state != AchievementState::LOCKED) {
+                    mAchievements[i]->state = AchievementState::LOCKED;
+                     SPDLOG_DEBUG("Loaded locked state for: {}", mAchievements[i]->id);
+                }
             }
-        } else {
-            SPDLOG_ERROR("Failed to load state for achievement {}: Invalid index {}", achievement->id, index);
         }
+        SPDLOG_INFO("Achievement states loaded.");
+    } else {
+        SPDLOG_WARN("Attempted to load achievement states, but save context is not available.");
     }
 }
 
-// Initialize achievement system
 void InitializeAchievementSystem() {
-    static bool isInitialized = false;
+    // Ensure the singleton instance is created and initialized
+    AchievementSystem& achievementSystem = AchievementSystem::Instance();
 
-    SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM GLOBAL INITIALIZATION STARTED ===");
-    SPDLOG_CRITICAL("Current initialization state: {}", isInitialized);
-    SPDLOG_CRITICAL("Current instance pointer: {}", (void*)AchievementSystem::Instance);
-
-    // Prevent double initialization
-    if (isInitialized) {
-        SPDLOG_CRITICAL("Achievement System already initialized, skipping");
-        SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM GLOBAL INITIALIZATION SKIPPED ===");
-        return;
-    }
-
-    // Create console variable for achievements configuration
+    // Register CVars and necessary hooks here (things that MUST happen once)
     CVarRegisterInteger(CVAR_NAME_ACHIEVEMENTS, 1);
 
-    // Create and initialize the achievement system only
-    static AchievementSystem achievementSystem;
-    achievementSystem.Initialize();
-
-    // Load achievements from save context if available (this now reads the new structure)
-    if (&gSaveContext) {
-        achievementSystem.LoadFromSaveContext();
-        SPDLOG_INFO("Loaded initial achievement states from save context");
-    }
-
-    // Register event hook for save loading
+    // Hook for loading achievements on save load
     COND_HOOK(OnSaveLoad, CVAR_ACHIEVEMENTS, [](s16 fileNum) {
-        if (AchievementSystem::Instance) {
-            AchievementSystem::Instance->LoadFromSaveContext();
-            SPDLOG_INFO("Loaded achievement states after save file load");
-        }
+        AchievementSystem::Instance().LoadFromSaveContext();
     });
 
-    isInitialized = true;
-    SPDLOG_CRITICAL("Achievement System initialization complete");
-    SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM GLOBAL INITIALIZATION COMPLETED ===");
+    // Hook for potentially clearing achievement state on new file creation (Optional - uncomment if needed)
+    /*
+    COND_HOOK(OnNewFile, CVAR_ACHIEVEMENTS, []() {
+        AchievementSystem::Instance().ClearAllStates(); // Assuming such a method exists
+    });
+    */
+
+    // achievementSystem.Initialize(); // Removed: Core initialization logic moved/redundant
+    SPDLOG_INFO("Core Achievement System registered for initialization.");
 }
 
-// Register initialization function
+// This RegisterShipInitFunc ensures InitializeAchievementSystem runs during ShipInit
 static RegisterShipInitFunc initFunc(InitializeAchievementSystem, { CVAR_NAME_ACHIEVEMENTS });
