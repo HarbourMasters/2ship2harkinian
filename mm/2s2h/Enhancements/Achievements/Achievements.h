@@ -175,16 +175,6 @@ class AchievementSystem {
      */
     void LoadFromSaveContext();
 
-    /**
-     * @brief Saves achievement states to save context
-     */
-    void SaveToSaveContext();
-
-    /**
-     * @brief Synchronizes achievement states between memory and save context
-     */
-    void SyncWithSaveContext();
-
   private:
     // Achievement Storage
     std::vector<std::shared_ptr<Achievement>> mAchievements;
@@ -195,42 +185,14 @@ class AchievementSystem {
     bool mProcessingEnabled;
 
     /**
-     * @brief Gets the bit index for an achievement in the save context
+     * @brief Gets the index for an achievement in the save data array
      * @param id Unique identifier of the achievement
-     * @return Bit index for the achievement
+     * @return Index for the achievement, or MAX_ACHIEVEMENTS if not found/out of bounds
      */
-    unsigned int GetAchievementBitIndex(const std::string& id) const;
-
-    /**
-     * @brief Gets the value of a bit in the save context
-     * @param bitIndex Index of the bit to check
-     * @return Value of the bit (true or false)
-     */
-    bool GetBitInSaveContext(unsigned int bitIndex) const;
-
-    /**
-     * @brief Sets the value of a bit in the save context
-     * @param bitIndex Index of the bit to set
-     * @param value New value for the bit
-     */
-    void SetBitInSaveContext(unsigned int bitIndex, bool value);
+    unsigned int GetAchievementIndex(const std::string& id) const;
 };
 
 /**
  * @brief Initializes the achievement system singleton
  */
 void InitializeAchievementSystem();
-
-// C Interface for Integration with Game Code
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/**
- * @brief Saves achievement states to the save context
- */
-void SaveAchievementsToSaveContext(void);
-
-#ifdef __cplusplus
-}
-#endif

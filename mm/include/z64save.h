@@ -379,6 +379,14 @@ typedef struct RandoSaveCheck {
     u16 price; // Only applicable for shops/merchants
 } RandoSaveCheck;
 
+// #region 2S2H Achievements Save Data
+#define MAX_ACHIEVEMENTS 80 // Define the maximum number of achievements
+
+typedef struct AchievementSaveData {
+    bool unlocked;
+} AchievementSaveData;
+// #endregion
+
 typedef struct RandoSaveInfo {
     u16 randoInf[(RANDO_INF_MAX + 15) / 16];
     u8 randoEvents[RE_MAX]; // This is purely for logic tracking, not to be used for anything else
@@ -398,8 +406,8 @@ typedef struct ShipSaveInfo {
     uint64_t fileCompletedAt; // For now this is always Majora final blow, has the potential to be something else later on
     char commitHash[8];
     RandoSaveInfo rando;
-    // Achievements - bit packed array where each bit represents whether an achievement is unlocked
-    u32 achievements[8];
+    // Achievements - Array storing unlock state for each achievement
+    AchievementSaveData achievementData[MAX_ACHIEVEMENTS];
 } ShipSaveInfo;
 // #endregion
 

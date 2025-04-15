@@ -7,6 +7,7 @@
 #include <spdlog/spdlog.h>
 #include <libultraship/libultraship.h>
 #include "2s2h/BenPort.h"
+#include <z64save.h>
 
 extern "C" {
 #include <variables.h>
@@ -47,6 +48,12 @@ void AchievementSystem::Initialize() {
     // Register all achievements
     RegisterAchievements();
 
+    // Check if the number of registered achievements exceeds the max defined in save structure
+    if (mAchievements.size() > MAX_ACHIEVEMENTS) {
+        SPDLOG_ERROR("Number of registered achievements ({}) exceeds MAX_ACHIEVEMENTS ({})!", mAchievements.size(), MAX_ACHIEVEMENTS);
+        // Handle error appropriately, e.g., disable achievements or assert
+    }
+
     SPDLOG_CRITICAL("Achievement System initialized with {} achievements", mAchievements.size());
     SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM INITIALIZATION COMPLETED ===");
 }
@@ -73,8 +80,13 @@ void AchievementSystem::QueueAchievementUnlock(const std::string& id) {
         SPDLOG_INFO("Achievement queued for unlock: {}", achievement->name);
 
         // Save achievement state to save context immediately
-        unsigned int bitIndex = GetAchievementBitIndex(id);
-        SetBitInSaveContext(bitIndex, true);
+        unsigned int index = GetAchievementIndex(id);
+        if (index < MAX_ACHIEVEMENTS && &gSaveContext) {
+            gSaveContext.save.shipSaveInfo.achievementData[index].unlocked = true;
+            SPDLOG_DEBUG("Saved achievement {} state directly to save context", id);
+        } else {
+             SPDLOG_ERROR("Failed to save achievement {} state: Invalid index {} or no save context", id, index);
+        }
 
         // Queue for showing notification during gameplay
         mPendingAchievements.push(id);
@@ -122,8 +134,13 @@ void AchievementSystem::UnlockAchievement(const std::string& id) {
         SPDLOG_INFO("Achievement unlocked: {}", achievement->name);
 
         // Save achievement state to save context
-        unsigned int bitIndex = GetAchievementBitIndex(id);
-        SetBitInSaveContext(bitIndex, true);
+        unsigned int index = GetAchievementIndex(id);
+         if (index < MAX_ACHIEVEMENTS && &gSaveContext) {
+            gSaveContext.save.shipSaveInfo.achievementData[index].unlocked = true;
+            SPDLOG_DEBUG("Saved achievement {} state directly to save context", id);
+        } else {
+             SPDLOG_ERROR("Failed to save achievement {} state: Invalid index {} or no save context", id, index);
+        }
 
         // Show enhanced notification by default
         ShowEnhancedNotification(achievement);
@@ -131,8 +148,19 @@ void AchievementSystem::UnlockAchievement(const std::string& id) {
 }
 
 bool AchievementSystem::IsAchievementUnlocked(const std::string& id) {
+    // Check in-memory state first (might be unlocked but not yet saved if game hasn't loaded yet)
     auto achievement = GetAchievement(id);
-    return achievement && achievement->state == AchievementState::UNLOCKED;
+    if (achievement && achievement->state == AchievementState::UNLOCKED) {
+        return true;
+    }
+    // If not found in memory or locked, check save context (authoritative source after load)
+    if (&gSaveContext) {
+         unsigned int index = GetAchievementIndex(id);
+         if (index < MAX_ACHIEVEMENTS) {
+             return gSaveContext.save.shipSaveInfo.achievementData[index].unlocked;
+         }
+    }
+    return false;
 }
 
 const std::vector<std::shared_ptr<Achievement>>& AchievementSystem::GetAchievements() const {
@@ -170,9 +198,19 @@ bool AchievementSystem::IsAchievementRelevantForGameMode(const std::string& id, 
 
 size_t AchievementSystem::GetUnlockedAchievementsCount() const {
     size_t count = 0;
-    for (const auto& achievement : mAchievements) {
-        if (achievement->state == AchievementState::UNLOCKED) {
-            count++;
+     // Count based on the save context data as the authoritative source after load
+    if (&gSaveContext) {
+        for (size_t i = 0; i < mAchievements.size() && i < MAX_ACHIEVEMENTS; ++i) {
+            if (gSaveContext.save.shipSaveInfo.achievementData[i].unlocked) {
+                count++;
+            }
+        }
+    } else {
+        // Fallback to in-memory count if save context not available (e.g., before first load)
+        for (const auto& achievement : mAchievements) {
+            if (achievement->state == AchievementState::UNLOCKED) {
+                count++;
+            }
         }
     }
     return count;
@@ -203,62 +241,22 @@ std::shared_ptr<Ship::GuiWindow> AchievementSystem::CreateAchievementsWindow() {
         std::make_shared<AchievementsWindow>("gOpenWindows.Achievements", "Achievements"));
 }
 
-// Save Integration Methods
-unsigned int AchievementSystem::GetAchievementBitIndex(const std::string& id) const {
+// Renamed from GetAchievementBitIndex
+unsigned int AchievementSystem::GetAchievementIndex(const std::string& id) const {
     // Find the index of the achievement in our achievements list
     for (size_t i = 0; i < mAchievements.size(); i++) {
         if (mAchievements[i]->id == id) {
+            // Check bounds before returning
+            if (i >= MAX_ACHIEVEMENTS) {
+                 SPDLOG_ERROR("Achievement index {} is out of bounds for ID {} (Max: {})", i, id, MAX_ACHIEVEMENTS -1);
+                 return MAX_ACHIEVEMENTS; // Return an invalid index
+            }
             return static_cast<unsigned int>(i);
         }
     }
     // Achievement not found
-    return 0;
-}
-
-bool AchievementSystem::GetBitInSaveContext(unsigned int bitIndex) const {
-    if (!&gSaveContext) {
-        SPDLOG_ERROR("Save context not available for achievement state retrieval");
-        return false;
-    }
-
-    // Calculate which array element and bit position
-    unsigned int arrayIndex = bitIndex / 32;
-    unsigned int bitPosition = bitIndex % 32;
-
-    // Check if the index is valid
-    if (arrayIndex >= 8) {
-        SPDLOG_ERROR("Achievement bit index out of range: {}", bitIndex);
-        return false;
-    }
-
-    // Get the bit from the save context
-    return (gSaveContext.save.shipSaveInfo.achievements[arrayIndex] & (1 << bitPosition)) != 0;
-}
-
-void AchievementSystem::SetBitInSaveContext(unsigned int bitIndex, bool value) {
-    if (!&gSaveContext) {
-        SPDLOG_ERROR("Save context not available for achievement state storage");
-        return;
-    }
-
-    // Calculate which array element and bit position
-    unsigned int arrayIndex = bitIndex / 32;
-    unsigned int bitPosition = bitIndex % 32;
-
-    // Check if the index is valid
-    if (arrayIndex >= 8) {
-        SPDLOG_ERROR("Achievement bit index out of range: {}", bitIndex);
-        return;
-    }
-
-    // Set or clear the bit
-    if (value) {
-        // Set the bit
-        gSaveContext.save.shipSaveInfo.achievements[arrayIndex] |= (1 << bitPosition);
-    } else {
-        // Clear the bit
-        gSaveContext.save.shipSaveInfo.achievements[arrayIndex] &= ~(1 << bitPosition);
-    }
+     SPDLOG_WARN("Achievement ID {} not found in registered list", id);
+    return MAX_ACHIEVEMENTS; // Return an invalid index
 }
 
 void AchievementSystem::LoadFromSaveContext() {
@@ -269,66 +267,25 @@ void AchievementSystem::LoadFromSaveContext() {
 
     SPDLOG_INFO("Loading achievement states from save context");
 
-    // For each achievement, load its state from the save context
+    // For each achievement, load its state from the save context's achievementData array
     for (const auto& achievement : mAchievements) {
-        unsigned int bitIndex = GetAchievementBitIndex(achievement->id);
-        bool isUnlocked = GetBitInSaveContext(bitIndex);
+        unsigned int index = GetAchievementIndex(achievement->id);
 
-        // Update the achievement state
-        if (isUnlocked) {
-            achievement->state = AchievementState::UNLOCKED;
-            SPDLOG_DEBUG("Loaded achievement {} as UNLOCKED", achievement->id);
+        // Check if index is valid before accessing array
+        if (index < MAX_ACHIEVEMENTS) {
+            bool isUnlocked = gSaveContext.save.shipSaveInfo.achievementData[index].unlocked;
+
+            // Update the in-memory achievement state
+            if (isUnlocked) {
+                achievement->state = AchievementState::UNLOCKED;
+                SPDLOG_DEBUG("Loaded achievement {} ({}) as UNLOCKED", achievement->id, index);
+            } else {
+                achievement->state = AchievementState::LOCKED;
+                 SPDLOG_DEBUG("Loaded achievement {} ({}) as LOCKED", achievement->id, index);
+            }
         } else {
-            achievement->state = AchievementState::LOCKED;
-            SPDLOG_DEBUG("Loaded achievement {} as LOCKED", achievement->id);
+            SPDLOG_ERROR("Failed to load state for achievement {}: Invalid index {}", achievement->id, index);
         }
-    }
-}
-
-void AchievementSystem::SaveToSaveContext() {
-    if (!&gSaveContext) {
-        SPDLOG_ERROR("Save context not available for achievement state saving");
-        return;
-    }
-
-    SPDLOG_INFO("Saving achievement states to save context");
-
-    // For each achievement, save its state to the save context
-    for (const auto& achievement : mAchievements) {
-        unsigned int bitIndex = GetAchievementBitIndex(achievement->id);
-        bool isUnlocked = achievement->state == AchievementState::UNLOCKED;
-
-        // Update the save context
-        SetBitInSaveContext(bitIndex, isUnlocked);
-        SPDLOG_DEBUG("Saved achievement {} as {}", achievement->id, isUnlocked ? "UNLOCKED" : "LOCKED");
-    }
-}
-
-void AchievementSystem::SyncWithSaveContext() {
-    if (!&gSaveContext) {
-        SPDLOG_ERROR("Save context not available for achievement state synchronization");
-        return;
-    }
-
-    bool achievementsChanged = false;
-
-    // For each achievement, check if its state in memory differs from the save context
-    for (const auto& achievement : mAchievements) {
-        unsigned int bitIndex = GetAchievementBitIndex(achievement->id);
-        bool isUnlockedInSave = GetBitInSaveContext(bitIndex);
-        bool isUnlockedInMemory = achievement->state == AchievementState::UNLOCKED;
-
-        // If the states differ, update the save context
-        if (isUnlockedInMemory != isUnlockedInSave) {
-            SetBitInSaveContext(bitIndex, isUnlockedInMemory);
-            achievementsChanged = true;
-            SPDLOG_DEBUG("Synced achievement {} state to {}", achievement->id,
-                         isUnlockedInMemory ? "UNLOCKED" : "LOCKED");
-        }
-    }
-
-    if (achievementsChanged) {
-        SPDLOG_INFO("Achievement states synchronized with save context");
     }
 }
 
@@ -354,13 +311,13 @@ void InitializeAchievementSystem() {
     static AchievementSystem achievementSystem;
     achievementSystem.Initialize();
 
-    // Load achievements from save context if available
+    // Load achievements from save context if available (this now reads the new structure)
     if (&gSaveContext) {
         achievementSystem.LoadFromSaveContext();
-        SPDLOG_INFO("Loaded achievement states from save context");
+        SPDLOG_INFO("Loaded initial achievement states from save context");
     }
 
-    // Register event hooks for save integration using new COND_HOOK approach
+    // Register event hook for save loading
     COND_HOOK(OnSaveLoad, CVAR_ACHIEVEMENTS, [](s16 fileNum) {
         if (AchievementSystem::Instance) {
             AchievementSystem::Instance->LoadFromSaveContext();
@@ -368,76 +325,9 @@ void InitializeAchievementSystem() {
         }
     });
 
-    // Use OnGameStateUpdate for file save detection instead of BeforeFileSave (which doesn't exist)
-    COND_HOOK(OnGameStateUpdate, CVAR_ACHIEVEMENTS, []() {
-        if (AchievementSystem::Instance && gSaveContext.save.entrance != -1) {
-            // We don't have a direct "BeforeFileSave" hook, so we can update achievements
-            // periodically during gameplay to ensure they're saved on the next save
-            static uint64_t lastSyncTime = 0;
-            uint64_t currentTime = GetUnixTimestamp();
-
-            // Only sync achievements every 30 seconds to avoid unnecessary work
-            if (currentTime - lastSyncTime >= 30) {
-                AchievementSystem::Instance->SyncWithSaveContext();
-                lastSyncTime = currentTime;
-            }
-        }
-    });
-
-    // Register cycle change hooks
-    COND_HOOK(BeforeEndOfCycleSave, CVAR_ACHIEVEMENTS, []() {
-        if (AchievementSystem::Instance) {
-            // Save achievement state before cycle reset
-            AchievementSystem::Instance->SaveToSaveContext();
-            SPDLOG_INFO("Saved achievement states before cycle reset");
-        }
-    });
-
-    COND_HOOK(AfterEndOfCycleSave, CVAR_ACHIEVEMENTS, []() {
-        if (AchievementSystem::Instance) {
-            // Achievements should persist after cycle resets
-            AchievementSystem::Instance->SyncWithSaveContext();
-            SPDLOG_INFO("Synchronized achievement states after cycle reset");
-        }
-    });
-
-    // Handle moon crash reset
-    COND_HOOK(BeforeMoonCrashSaveReset, CVAR_ACHIEVEMENTS, []() {
-        if (AchievementSystem::Instance) {
-            // Save achievement state before moon crash
-            AchievementSystem::Instance->SaveToSaveContext();
-            SPDLOG_INFO("Saved achievement states before moon crash");
-        }
-    });
-
-    // We don't have direct hooks for owl statue or file creation, so we rely on other hooks
-    // and existing functionalities in the game code.
-    // We've added our SaveAchievementsToSaveContext C function that can be called from anywhere
-    // in the game code.
-
     isInitialized = true;
     SPDLOG_CRITICAL("Achievement System initialization complete");
     SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM GLOBAL INITIALIZATION COMPLETED ===");
-}
-
-// C-accessible function for saving achievements
-extern "C" void SaveAchievementsToSaveContext() {
-    if (AchievementSystem::Instance) {
-        // Check if this is a new save file by looking at health capacity (3 hearts is default)
-        bool isNewSaveFile = (gSaveContext.save.saveInfo.playerData.healthCapacity == 0x30 &&
-                              gSaveContext.save.saveInfo.playerData.threeDayResetCount <= 1);
-
-        if (isNewSaveFile) {
-            // Reset achievements for new save file
-            for (auto& achievement : AchievementSystem::Instance->GetAchievements()) {
-                achievement->state = AchievementState::LOCKED;
-            }
-            SPDLOG_INFO("Reset achievements for new save file");
-        }
-
-        AchievementSystem::Instance->SaveToSaveContext();
-        SPDLOG_INFO("Saved achievement states through C interface");
-    }
 }
 
 // Register initialization function

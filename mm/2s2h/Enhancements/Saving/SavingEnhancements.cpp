@@ -133,12 +133,6 @@ void HandleAutoSave() {
         lastSaveTimestamp = GetUnixTimestamp();
         iconTimer = 100;
 
-        // Update achievements before saving
-        if (AchievementSystem::Instance) {
-            AchievementSystem::Instance->SaveToSaveContext();
-            SPDLOG_INFO("Saved achievement states for autosave");
-        }
-
         // Create owl save
         gSaveContext.save.isOwlSave = true;
         gSaveContext.save.shipSaveInfo.pauseSaveEntrance = SavingEnhancements_GetSaveEntrance();

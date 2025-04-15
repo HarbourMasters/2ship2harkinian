@@ -47,6 +47,15 @@ void from_json(const json& j, RandoSaveCheck& randoSaveCheck) {
     j.at("price").get_to(randoSaveCheck.price);
 }
 
+// Define conversion for AchievementSaveData BEFORE ShipSaveInfo uses it
+void to_json(json& j, const AchievementSaveData& data) {
+    j = json{ { "unlocked", data.unlocked } };
+}
+
+void from_json(const json& j, AchievementSaveData& data) {
+    j.at("unlocked").get_to(data.unlocked);
+}
+
 void to_json(json& j, const RandoSaveInfo& rando) {
     j = json{
         { "randoInf", rando.randoInf },
@@ -78,7 +87,7 @@ void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
         { "fileCreatedAt", shipSaveInfo.fileCreatedAt },
         { "fileCompletedAt", shipSaveInfo.fileCompletedAt },
         { "commitHash", commitHash },
-        { "achievements", shipSaveInfo.achievements },
+        { "achievementData", shipSaveInfo.achievementData },
     };
 
     if (shipSaveInfo.saveType == SAVETYPE_RANDO) {
@@ -94,11 +103,17 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("fileCompletedAt").get_to(shipSaveInfo.fileCompletedAt);
     j.at("commitHash").get_to(shipSaveInfo.commitHash);
     
-    if (j.contains("achievements")) {
-        j.at("achievements").get_to(shipSaveInfo.achievements);
+    if (j.contains("achievementData") && j.at("achievementData").is_array()) {
+        const auto& j_achievements = j.at("achievementData");
+        for (size_t i = 0; i < MAX_ACHIEVEMENTS; ++i) {
+            if (i < j_achievements.size()) {
+                j_achievements.at(i).get_to(shipSaveInfo.achievementData[i]);
+            } else {
+                shipSaveInfo.achievementData[i].unlocked = false;
+            }
+        }
     } else {
-        // Initialize achievements to all 0 if not present
-        memset(shipSaveInfo.achievements, 0, sizeof(shipSaveInfo.achievements));
+        memset(&shipSaveInfo.achievementData, 0, sizeof(shipSaveInfo.achievementData));
     }
 
     if (shipSaveInfo.saveType == SAVETYPE_RANDO) {
