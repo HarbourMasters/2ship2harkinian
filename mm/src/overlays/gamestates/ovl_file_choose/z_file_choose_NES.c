@@ -18,6 +18,7 @@
 #include <string.h>
 #include "BenPort.h"
 #include "2s2h/BenGui/CosmeticEditor.h"
+#include "public/bridge/consolevariablebridge.h"
 
 s32 D_808144F10 = 100;
 f32 D_808144F14 = 8.0f;
@@ -2208,7 +2209,7 @@ void FileSelect_LoadGame(GameState* thisx) {
 
     gSaveContext.respawnFlag = 0;
     gSaveContext.respawn[RESPAWN_MODE_DOWN].entrance = ENTR_LOAD_OPENING;
-    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+    gSaveContext.seqId = NA_BGM_DISABLED;
     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
     gSaveContext.showTitleCard = true;
     gSaveContext.dogParams = 0;

@@ -9,8 +9,7 @@
 #include "z64view.h"
 #include "libc/alloca.h"
 #include "overlays/gamestates/ovl_title/z_title.h"
-
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/DeveloperTools/BetterMapSelect.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 
@@ -83,7 +82,7 @@ void MapSelect_LoadGame(MapSelectState* this, u32 entrance, s32 spawn) {
     }
 
     gSaveContext.respawn[RESPAWN_MODE_DOWN].entrance = 0xFFFF;
-    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+    gSaveContext.seqId = NA_BGM_DISABLED;
     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
     gSaveContext.showTitleCard = true;
     gSaveContext.respawnFlag = 0;

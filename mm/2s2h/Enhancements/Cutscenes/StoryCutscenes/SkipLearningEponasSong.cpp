@@ -1,8 +1,9 @@
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/Rando/Rando.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Ma4/z_en_ma4.h"
@@ -30,7 +31,7 @@ void RegisterSkipLearningEponasSong() {
             return;
         }
 
-        if (GameInteractor_Should(VB_GIVE_ITEM_FROM_MALON, true, enMa4)) {
+        if (GameInteractor_Should(VB_GIVE_ITEM_FROM_ROMANI, true, enMa4)) {
             GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
                 .showGetItemCutscene = true,
                 .giveItem =

@@ -1,4 +1,3 @@
-#include <libultraship/libultraship.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
@@ -32,6 +31,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(DEKU_PALACE, 2),                  ENTRANCE(DEKU_KINGS_CHAMBER, 0), true),
         },
         .events = {
+            EVENT(RE_ACCESS_PICTOGRAPH_DEKU_KING, HAS_ITEM(ITEM_PICTOGRAPH_BOX) && CAN_BE_DEKU),
             EVENT(RE_RETURN_DEKU_PRINCESS, HAS_BOTTLE && CAN_ACCESS(DEKU_PRINCESS)),
         }
     };
@@ -197,6 +197,9 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(GORMAN_TRACK, 3),                 ENTRANCE(MILK_ROAD, 2), CAN_PLAY_SONG(EPONA)),
             EXIT(ENTRANCE(GORMAN_TRACK, 0),                 ENTRANCE(MILK_ROAD, 3), true),
         },
+        .events = {
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+        },
         .oneWayEntrances = {
             ENTRANCE(MILK_ROAD, 4), // From Song of Soaring
         }
@@ -239,6 +242,7 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_ROAD_TO_SOUTHERN_SWAMP_GROTTO, true), // TODO: Grotto mapping
         },
         .events = {
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
             EVENT(RE_ACCESS_SPRING_WATER, true),
         },
     };
@@ -299,6 +303,8 @@ static RegisterShipInitFunc initFunc([]() {
             EVENT(RE_ACCESS_SPRING_WATER, true),
             EVENT(RE_ACCESS_BEANS_REFILL, CAN_BE_DEKU && HAS_ITEM(ITEM_MAGIC_BEANS)),
             EVENT(RE_SOUTHERN_SWAMP_KILL_OCTOROK, (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA)),
+            EVENT(RE_ACCESS_PICTOGRAPH_SWAMP_GENERIC, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+            EVENT(RE_ACCESS_FROG_BLUE, true),
         },
         .oneWayEntrances = {
             ENTRANCE(SOUTHERN_SWAMP_POISONED, 9), // From river in Ikana
@@ -319,6 +325,9 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_SOUTHERN_SWAMP_NORTH, (RANDO_EVENTS[RE_SOUTHERN_SWAMP_KILL_OCTOROK] || RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE])),
             CONNECTION(RR_SOUTHERN_SWAMP_GROTTO, CAN_BE_DEKU), // TODO: Grotto mapping
         },
+        .events = {
+            EVENT(RE_ACCESS_PICTOGRAPH_SWAMP_GENERIC, HAS_ITEM(ITEM_PICTOGRAPH_BOX)) //Adding here to future proof for later when map shuffle is in.
+        }
     };
     Regions[RR_SWAMP_SHOOTING_GALLERY] = RandoRegion{ .sceneId = SCENE_SYATEKI_MORI,
         .checks = {
@@ -333,13 +342,14 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             // Also requires poison to not be cleared
             CHECK(RC_TOURIST_INFORMATION_ARCHERY, RANDO_EVENTS[RE_SAVED_KOUME] && RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]),
+            CHECK(RC_TOURIST_INFORMATION_GOOD_PHOTO, CAN_ACCESS(PICTOGRAPH_TINGLE) || CAN_ACCESS(PICTOGRAPH_DEKU_KING)),
             CHECK(RC_TOURIST_INFORMATION_PICTOBOX, RANDO_EVENTS[RE_SAVED_KOUME]),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 1),      ENTRANCE(TOURIST_INFORMATION, 0), true),
         },
         .events = {
-            EVENT(RE_SOUTHERN_SWAMP_KILL_OCTOROK, RANDO_EVENTS[RE_SAVED_KOUME]),
+            EVENT(RE_SOUTHERN_SWAMP_KILL_OCTOROK, RANDO_EVENTS[RE_SAVED_KOUME] || CAN_ACCESS(PICTOGRAPH_SWAMP_GENERIC)),
         },
     };
     Regions[RR_WOODFALL_GREAT_FAIRY_FOUNTAIN] = RandoRegion{ .name = "Woodfall", .sceneId = SCENE_YOUSEI_IZUMI,

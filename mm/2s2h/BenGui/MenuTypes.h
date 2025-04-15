@@ -1,7 +1,6 @@
 #ifndef MENUTYPES_H
 #define MENUTYPES_H
 
-#include <libultraship/libultraship.h>
 #include "UIWidgets.hpp"
 
 typedef enum {
@@ -25,7 +24,6 @@ typedef enum {
     DISABLE_FOR_MOTION_BLUR_MODE,
     DISABLE_FOR_MOTION_BLUR_OFF,
     DISABLE_FOR_FRAME_ADVANCE_OFF,
-    DISABLE_FOR_WARP_POINT_NOT_SET,
     DISABLE_FOR_INTRO_SKIP_OFF,
     DISABLE_FOR_ADVANCED_RESOLUTION_ON,
     DISABLE_FOR_VERTICAL_RES_TOGGLE_ON,

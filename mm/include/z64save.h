@@ -475,7 +475,8 @@ typedef struct SaveContext {
     /* 0x3EF8 */ s16 timerX[TIMER_ID_MAX];              // "event_xp"
     /* 0x3F06 */ s16 timerY[TIMER_ID_MAX];              // "event_yp"
     /* 0x3F14 */ s16 unk_3F14;                          // "character_change"
-    /* 0x3F16 */ u8 seqId;                              // "old_bgm"
+    // 2S2H [Custom Audio]. Was originally u8 seqId. Made 16 bit to allow for more than 255 sequences.
+    /* 0x3F16 */ u16 seqId;                              // "old_bgm"
     /* 0x3F17 */ u8 ambienceId;                         // "old_env"
     /* 0x3F18 */ u8 buttonStatus[6];                    // "button_item"
     /* 0x3F1E */ u8 hudVisibilityForceButtonAlphasByStatus; // if btn alphas are updated through Interface_UpdateButtonAlphas, instead update them through Interface_UpdateButtonAlphasByStatus "ck_fg"
@@ -635,11 +636,11 @@ typedef enum {
 #define IS_HELD_DPAD(heldBtn) ((heldBtn >= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_RIGHT)) && (heldBtn <= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_UP)))
 
 #define BTN_DPAD_EQUIP (GameInteractor_Dpad(GI_DPAD_EQUIP, BTN_DPAD))
-#define CHECK_BTN_DPAD(input) (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) && \
-                              (CHECK_BTN_ALL(input, BTN_DRIGHT) || \
-                               CHECK_BTN_ALL(input, BTN_DLEFT)  || \
-                               CHECK_BTN_ALL(input, BTN_DDOWN)  || \
-                               CHECK_BTN_ALL(input, BTN_DUP)))
+
+#define CHECK_BTN_DPAD(input)                                                                                   \
+    (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&                                                      \
+     (CHECK_BTN_ALL(input, BTN_DRIGHT) || CHECK_BTN_ALL(input, BTN_DLEFT) || CHECK_BTN_ALL(input, BTN_DDOWN) || \
+      CHECK_BTN_ALL(input, BTN_DUP)))
 
 #define DPAD_BUTTON(btn) (btn) // Translates between equip slot enum and button, in case we change how enum works
 

@@ -53,7 +53,6 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DebugConsole.h"
-#include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/Rando/Spoiler/Spoiler.h"
 #include "2s2h/SaveManager/SaveManager.h"
@@ -106,9 +105,12 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/importer/KeyFrameFactory.h"
 #include "window/gui/resource/Font.h"
 #include "window/gui/resource/FontFactory.h"
+#include "2s2h/Enhancements/Audio/AudioCollection.h"
+#include "BenGui/BenInputEditorWindow.h"
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
+AudioCollection* AudioCollection::Instance;
 
 extern "C" char** cameraStrings;
 bool prevAltAssets = false;
@@ -246,14 +248,24 @@ OTRGlobals::OTRGlobals() {
                                     "Cutscene", static_cast<uint32_t>(SOH::ResourceType::SOH_Cutscene), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryTextMMV0>(), RESOURCE_FORMAT_BINARY,
                                     "TextMM", static_cast<uint32_t>(SOH::ResourceType::TSH_TextMM), 0);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSampleV2>(), RESOURCE_FORMAT_BINARY,
                                     "AudioSample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLAudioSampleV0>(), RESOURCE_FORMAT_XML,
+                                    "Sample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 0);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSoundFontV2>(),
                                     RESOURCE_FORMAT_BINARY, "AudioSoundFont",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSoundFontV0>(), RESOURCE_FORMAT_XML,
+                                    "SoundFont", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 0);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSequenceV2>(),
                                     RESOURCE_FORMAT_BINARY, "AudioSequence",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLAudioSequenceV0>(), RESOURCE_FORMAT_XML,
+                                    "Sequence", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 0);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryBackgroundV0>(), RESOURCE_FORMAT_BINARY,
                                     "Background", static_cast<uint32_t>(SOH::ResourceType::SOH_Background), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryTextureAnimationV0>(),
@@ -296,16 +308,14 @@ OTRGlobals::~OTRGlobals() {
 }
 
 uint32_t OTRGlobals::GetInterpolationFPS() {
-    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
-        return CVarGetInteger("gInterpolationFPS", 20);
-    }
-
     if (CVarGetInteger("gMatchRefreshRate", 0)) {
         return Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
+    } else if (CVarGetInteger(CVAR_VSYNC_ENABLED, 1) ||
+               !Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
+        return std::min<uint32_t>(Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate(),
+                                  CVarGetInteger("gInterpolationFPS", 20));
     }
-
-    return std::min<uint32_t>(Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate(),
-                              CVarGetInteger("gInterpolationFPS", 20));
+    return CVarGetInteger("gInterpolationFPS", 20);
 }
 
 extern "C" uint32_t Ship_GetInterpolationFPS() {
@@ -415,6 +425,12 @@ extern "C" void OTRAudio_Init() {
     }
 }
 
+extern "C" char** gSequenceMap;
+extern "C" size_t gSequenceMapSize;
+
+extern "C" char** gFontMap;
+extern "C" size_t gFontMapSize;
+
 extern "C" void OTRAudio_Exit() {
     // Tell the audio thread to stop
     {
@@ -425,6 +441,17 @@ extern "C" void OTRAudio_Exit() {
 
     // Wait until the audio thread quit
     audio.thread.join();
+    for (size_t i = 0; i < gSequenceMapSize; i++) {
+        free(gSequenceMap[i]);
+    }
+    free(gSequenceMap);
+
+    for (size_t i = 0; i < gFontMapSize; i++) {
+        free(gFontMap[i]);
+    }
+    free(gFontMap);
+    free(gAudioCtx.seqLoadStatus);
+    free(gAudioCtx.fontLoadStatus);
 }
 
 extern "C" void OTRExtScanner() {
@@ -485,7 +512,7 @@ ArchiveVersion ReadPortVersionFromArchive(std::string archivePath, bool isO2rTyp
         archive = make_shared<Ship::OtrArchive>(archivePath);
     }
     if (archive->Open()) {
-        auto t = archive->LoadFile("portVersion", std::make_shared<Ship::ResourceInitData>());
+        auto t = archive->LoadFile("portVersion");
         if (t != nullptr && t->IsLoaded) {
             auto stream = std::make_shared<Ship::MemoryStream>(t->Buffer->data(), t->Buffer->size());
             auto reader = std::make_shared<Ship::BinaryReader>(stream);
@@ -688,11 +715,11 @@ extern "C" void InitOTR() {
 
     OTRGlobals::Instance = new OTRGlobals();
     GameInteractor::Instance = new GameInteractor();
+    AudioCollection::Instance = new AudioCollection();
     LoadGuiTextures();
     BenGui::SetupGuiElements();
     ShipInit::InitAll();
     InitEnhancements();
-    InitDeveloperTools();
     Rando::Init();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
     DebugConsole_Init();
@@ -745,6 +772,7 @@ extern "C" void DeinitOTR() {
     BenGui::Destroy();
 
     OTRGlobals::Instance->context = nullptr;
+    delete AudioCollection::Instance;
 }
 
 #ifdef _WIN32
@@ -911,7 +939,7 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
 
     audio.cv_to_thread.notify_one();
     std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
-    int target_fps = CVarGetInteger("gInterpolationFPS", 20);
+    int target_fps = OTRGlobals::Instance->GetInterpolationFPS();
     static int last_fps;
     static int last_update_rate;
     static int time;
@@ -941,11 +969,8 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
 
     time -= fps;
 
-    int threshold = CVarGetInteger("gExtraLatencyThreshold", 80);
-
     if (wnd != nullptr) {
         wnd->SetTargetFps(fps);
-        wnd->SetMaximumFrameLatency(threshold > 0 && target_fps >= threshold ? 2 : 1);
     }
 
     // When the gfx debugger is active, only run with the final mtx
@@ -1345,6 +1370,10 @@ extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
     SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
     return *sequence;
 }
+extern "C" SequenceData* ResourceMgr_LoadSeqPtrByName(const char* path) {
+    SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
+    return sequence;
+}
 extern "C" KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path) {
     return (KeyFrameSkeleton*)ResourceGetDataByName(path);
 }
@@ -1415,9 +1444,14 @@ extern "C" SoundFontSample* ResourceMgr_LoadAudioSample(const char* path) {
 }
 #endif
 
-extern "C" SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path) {
+extern "C" SoundFont* ResourceMgr_LoadAudioSoundFontByName(const char* path) {
     return (SoundFont*)ResourceGetDataByName(path);
 }
+
+extern "C" SoundFont* ResourceMgr_LoadAudioSoundFontByCRC(uint64_t crc) {
+    return (SoundFont*)ResourceGetDataByCrc(crc);
+}
+
 extern "C" int ResourceMgr_OTRSigCheck(char* imgData) {
     uintptr_t i = (uintptr_t)(imgData);
 
@@ -1824,6 +1858,10 @@ extern "C" int Controller_ShouldRumble(size_t slot) {
 
     // rumble
     return 1;
+}
+
+extern "C" void Messagebox_ShowErrorBox(char* title, char* body) {
+    Extractor::ShowErrorBox(title, body);
 }
 
 // Helper to redirect the user to the boot screen in place of known console crash scenarios, and emits a notification

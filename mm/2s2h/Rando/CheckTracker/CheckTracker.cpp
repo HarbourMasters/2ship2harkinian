@@ -4,7 +4,6 @@
 #include "2s2h/ShipUtils.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/Rando/StaticData/StaticData.h"
-#include <sstream>
 #include <cstring>
 
 // Image Icons
@@ -78,6 +77,7 @@ std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_REMAINS*/ gItemIconBombersNotebookTex,
     /*RCTYPE_SHOP*/ gItemIconAdultsWalletTex,
     /*RCTYPE_SKULL_TOKEN*/ gQuestIconGoldSkulltulaTex,
+    /*RCTYPE_SNOWBALL*/ gMagicArrowEquipEffectTex,
     /*RCTYPE_SONG*/ gItemIconSongNoteTex,
     /*RCTYPE_STRAY_FAIRY*/ gStrayFairyGreatBayIconTex,
     /*RCTYPE_TINGLE_SHOP*/ gItemIconAdultsWalletTex,

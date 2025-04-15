@@ -1,8 +1,9 @@
 #include "MiscBehavior.h"
-#include <libultraship/libultraship.h>
 #include "Rando/Spoiler/Spoiler.h"
 #include "Rando/Logic/Logic.h"
 #include <boost_custom/container_hash/hash_32.hpp>
+#include "public/bridge/consolevariablebridge.h"
+#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "functions.h"
@@ -151,6 +152,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                         if (randoStaticCheck.randoCheckType == RCTYPE_FREESTANDING &&
                             RANDO_SAVE_OPTIONS[RO_SHUFFLE_FREESTANDING_ITEMS] == RO_GENERIC_NO) {
+                            continue;
+                        }
+
+                        if (randoStaticCheck.randoCheckType == RCTYPE_SNOWBALL &&
+                            RANDO_SAVE_OPTIONS[RO_SHUFFLE_SNOWBALL_DROPS] == RO_GENERIC_NO) {
                             continue;
                         }
 

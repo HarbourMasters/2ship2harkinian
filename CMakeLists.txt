@@ -68,6 +68,8 @@ set(GFX_DEBUG_DISASSEMBLER ON)
 # Tell LUS we're using F3DEX_GBI_2 (in a way that doesn't break libgfxd)
 set(GBI_UCODE F3DEX_GBI_2)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMake")
+
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.
 ################################################################################
@@ -98,22 +100,27 @@ elseif ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
 endif()
 
 vcpkg_bootstrap()
-vcpkg_install_packages(zlib bzip2 libzip libpng sdl2 sdl2-net glew glfw3 nlohmann-json tinyxml2 spdlog)
+vcpkg_install_packages(zlib bzip2 libzip libpng sdl2 sdl2-net glew glfw3 nlohmann-json tinyxml2 spdlog libogg libvorbis opus opusfile)
 endif()
 
 ################################################################################
 # Global configuration types
 ################################################################################
 if (CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
-set(CMAKE_C_FLAGS_DEBUG "-g -ffast-math -DDEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG "-g -ffast-math -DDEBUG")
-set(CMAKE_C_FLAGS_RELEASE "-O3 -ffast-math -DNDEBUG")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -DNDEBUG")
+    set(CMAKE_C_FLAGS_DEBUG "-g -ffast-math -DDEBUG")
+    set(CMAKE_CXX_FLAGS_DEBUG "-g -ffast-math -DDEBUG")
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -ffast-math -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -DNDEBUG")
+elseif(MSVC)
+    # We need to remove RTC1 as it is not compatible with O2, which we set for some files in DEBUG
+    string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG}")
+    string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
+    set(CMAKE_C_FLAGS_RELEASE "/O2 /DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "/O2 /DNDEBUG")
 else()
-set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
-set(CMAKE_C_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
-set(CMAKE_OBJCXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+    set(CMAKE_C_FLAGS_RELEASE "-O2 -DNDEBUG")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
+    set(CMAKE_OBJCXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 endif()
 
 if(NOT CMAKE_BUILD_TYPE )

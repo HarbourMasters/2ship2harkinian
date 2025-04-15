@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "z64vismono.h"
 #include "z64visfbuf.h"
+#include "public/bridge/consolevariablebridge.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 s16 sTransitionFillTimer;
@@ -633,13 +634,13 @@ void Play_UpdateTransition(PlayState* this) {
                     (!Environment_IsFinalHours(this) || (Entrance_GetSceneId(this->nextEntrance + sceneLayer) < 0) ||
                      (AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN) != NA_BGM_FINAL_HOURS))) {
                     Audio_MuteAllSeqExceptSystemAndOcarina(20);
-                    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                    gSaveContext.seqId = NA_BGM_DISABLED;
                     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                 }
 
                 if (Environment_IsForcedSequenceDisabled()) {
                     Audio_MuteAllSeqExceptSystemAndOcarina(20);
-                    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                    gSaveContext.seqId = NA_BGM_DISABLED;
                     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                 }
 
@@ -649,7 +650,7 @@ void Play_UpdateTransition(PlayState* this) {
                 }
             }
 
-            if (!D_801D0D54) {
+            if (!D_801D0D54 && GameInteractor_Should(VB_SETUP_TRANSITION, true)) {
                 Play_SetupTransition(this, Play_ChooseDynamicTransition(this, this->transitionType));
             }
 

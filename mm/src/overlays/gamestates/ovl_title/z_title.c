@@ -16,6 +16,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include <stdlib.h>
+#include "public/bridge/consolevariablebridge.h"
 
 #define dgShipLogoDL "__OTR__misc/nintendo_rogo_static/gShipLogoDL"
 static const ALIGN_ASSET(2) char gShipLogoDL[] = dgShipLogoDL;
@@ -210,7 +211,7 @@ void ConsoleLogo_Main(GameState* thisx) {
     FrameInterpolation_StopRecord();
 
     if (this->exit) {
-        gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+        gSaveContext.seqId = NA_BGM_DISABLED;
         gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
         gSaveContext.gameMode = GAMEMODE_TITLE_SCREEN;
 

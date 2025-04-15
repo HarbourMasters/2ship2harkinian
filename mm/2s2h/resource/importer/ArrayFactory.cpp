@@ -1,15 +1,16 @@
 #include "2s2h/resource/importer/ArrayFactory.h"
 #include "2s2h/resource/type/Array.h"
-#include "spdlog/spdlog.h"
 #include "graphic/Fast3D/lus_gbi.h"
 
 namespace SOH {
-std::shared_ptr<Ship::IResource> ResourceFactoryBinaryArrayV0::ReadResource(std::shared_ptr<Ship::File> file) {
-    if (!FileHasValidFormatAndReader(file)) {
+std::shared_ptr<Ship::IResource>
+ResourceFactoryBinaryArrayV0::ReadResource(std::shared_ptr<Ship::File> file,
+                                           std::shared_ptr<Ship::ResourceInitData> initData) {
+    if (!FileHasValidFormatAndReader(file, initData)) {
         return nullptr;
     }
 
-    auto array = std::make_shared<Array>(file->InitData);
+    auto array = std::make_shared<Array>(initData);
     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
 
     array->ArrayType = (ArrayResourceType)reader->ReadUInt32();

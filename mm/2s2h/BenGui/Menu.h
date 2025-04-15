@@ -1,12 +1,12 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include <libultraship/libultraship.h>
+#include "GuiWindow.h"
 #include "UIWidgets.hpp"
-#include "2s2h/Enhancements/Enhancements.h"
-#include "graphic/Fast3D/gfx_rendering_api.h"
-#include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "MenuTypes.h"
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 namespace Ship {
 uint32_t GetVectorIndexOf(std::vector<std::string>& vector, std::string value);

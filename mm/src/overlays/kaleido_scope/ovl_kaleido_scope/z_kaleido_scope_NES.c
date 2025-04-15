@@ -25,6 +25,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 
 #include "2s2h/Enhancements/Songs/Songs.h"
+#include "public/bridge/consolevariablebridge.h"
 
 // Page Textures (Background of Page):
 // Broken up into multiple textures.
@@ -3705,7 +3706,7 @@ void KaleidoScope_Update(PlayState* play) {
                             STOP_GAMESTATE(&play->state);
                             SET_NEXT_GAMESTATE(&play->state, TitleSetup_Init, sizeof(TitleSetupState));
                             Audio_MuteAllSeqExceptSystemAndOcarina(20);
-                            gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                            gSaveContext.seqId = NA_BGM_DISABLED;
                             gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                         }
                     }

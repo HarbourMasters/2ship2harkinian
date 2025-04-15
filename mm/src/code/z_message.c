@@ -16,6 +16,7 @@
 #include <string.h>
 
 #include "2s2h_assets.h"
+#include "public/bridge/consolevariablebridge.h"
 
 const char* gBombersNotebookPhotos[] = {
     gBombersNotebookPhotoAnjuTex,
@@ -4584,8 +4585,15 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                 bool vanillaOwnedSongCheck = (msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN) ||
                                              (msgCtx->ocarinaStaff->state == OCARINA_SONG_INVERTED_TIME) ||
                                              (msgCtx->ocarinaStaff->state == OCARINA_SONG_DOUBLE_TIME) ||
-                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO) ||
-                                             CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO);
+                // 0xFE means the staff is up but nothing has been played
+                // 0xFF means no staff is up
+                //! @bug states 0xFE and 0xFF will index CHECK_QUEST_ITEM Out of bounds, causing ASAN to crash.
+                // 2S2H [Port] Fix this OOB with a check.
+                if (msgCtx->ocarinaStaff->state != 0xFE && msgCtx->ocarinaStaff->state != 0xFF) {
+                    vanillaOwnedSongCheck =
+                        vanillaOwnedSongCheck || CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+                }
 
                 if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_SCARECROW_SPAWN) {
                     if (msgCtx->ocarinaStaff->state == OCARINA_SONG_EVAN_PART1) {

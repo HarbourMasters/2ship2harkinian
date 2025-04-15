@@ -6,10 +6,13 @@
 #include <span>
 #include <stdint.h>
 #include <imgui.h>
-#include <libultraship/libultraship.h>
 #include <unordered_map>
+#include <memory>
 #include "2s2h/ShipUtils.h"
 #include "2s2h/ShipInit.hpp"
+#include "GuiWindow.h"
+#include "Context.h"
+#include "public/bridge/consolevariablebridge.h"
 
 namespace UIWidgets {
 
@@ -311,7 +314,7 @@ namespace UIWidgets {
         }
         FloatSliderOptions& IsPercentage(bool isPercentage_ = true) {
             isPercentage = isPercentage_;
-            format = "%.0f";
+            format = "%.0f%%";
             min = 0.0f;
             max = 1.0f;
             return *this;

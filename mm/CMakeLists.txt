@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.26.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.26.0 FATAL_ERROR)
 
 set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
 
@@ -29,6 +29,14 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	endif()
 endif()
 
+
+FetchContent_Declare(
+    dr_libs
+    GIT_REPOSITORY https://github.com/mackron/dr_libs.git
+	GIT_TAG da35f9d6c7374a95353fd1df1d394d44ab66cf01
+)
+FetchContent_MakeAvailable(dr_libs)
+
 ################################################################################
 # Global configuration types
 ################################################################################
@@ -37,38 +45,6 @@ set(CMAKE_CONFIGURATION_TYPES
     "Release"
     CACHE STRING "" FORCE
 )
-
-################################################################################
-# Global compiler options
-################################################################################
-if(MSVC)
-    # remove default flags provided with CMake for MSVC
-    set(CMAKE_C_FLAGS "")
-    set(CMAKE_C_FLAGS_DEBUG "")
-    set(CMAKE_C_FLAGS_RELEASE "")
-    set(CMAKE_CXX_FLAGS "")
-    set(CMAKE_CXX_FLAGS_DEBUG "")
-    set(CMAKE_CXX_FLAGS_RELEASE "")
-endif()
-
-################################################################################
-# Global linker options
-################################################################################
-if(MSVC)
-    # remove default flags provided with CMake for MSVC
-    set(CMAKE_EXE_LINKER_FLAGS "")
-    set(CMAKE_MODULE_LINKER_FLAGS "")
-    set(CMAKE_SHARED_LINKER_FLAGS "")
-    set(CMAKE_STATIC_LINKER_FLAGS "")
-    set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS}")
-    set(CMAKE_MODULE_LINKER_FLAGS_DEBUG "${CMAKE_MODULE_LINKER_FLAGS}")
-    set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS}")
-    set(CMAKE_STATIC_LINKER_FLAGS_DEBUG "${CMAKE_STATIC_LINKER_FLAGS}")
-    set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS}")
-    set(CMAKE_MODULE_LINKER_FLAGS_RELEASE "${CMAKE_MODULE_LINKER_FLAGS}")
-    set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS}")
-    set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS}")
-endif()
 
 ################################################################################
 # Common utils
@@ -315,6 +291,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE assets
     ${SDL2-NET-INCLUDE}
     ${BOOST-INCLUDE}
 	${CMAKE_CURRENT_SOURCE_DIR}/assets/
+	${dr_libs_SOURCE_DIR}
 	.
 )
 
@@ -382,11 +359,11 @@ if(MSVC)
             /Od
         >
         $<$<CONFIG:Release>:
-            /Oi;
+            /Oi
             /Gy;
             /W3
         >
-		
+	
 		/wd4024 #different types for formal and actual parameter [x]. Usually seen along side 4047.
 		/wd4047 #'uintptr_t' differs in levels of indirection from 'Gfx *'. Usually caused by passing a uintptr_t into a function expecting a pointer-types
 		/wd4090 #'initializing': different 'const' qualifiers. Caused when initializing a non const struct member with a const char*.		
@@ -430,6 +407,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
             -Wno-missing-braces
             $<$<COMPILE_LANGUAGE:C>:
                 #-Werror-implicit-function-declaration
+                -Wno-ignored-qualifiers
                 -Wno-incompatible-pointer-types
                 -Wno-int-conversion
             >
@@ -504,8 +482,10 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
             -Wno-parentheses
             -Wno-narrowing
             -Wno-missing-braces
-            -Wno-int-conversion
             $<$<COMPILE_LANGUAGE:C>:
+                -Wno-discarded-qualifiers
+                -Wno-discarded-array-qualifiers
+                -Wno-int-conversion
                 #-Werror-implicit-function-declaration
                 -Wno-incompatible-pointer-types
             >
@@ -521,6 +501,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         )
     endif()
 endif()
+
+# This file contains a few SIMD functions. Those functions are much more inefficient without optimizations. MSVC and GCC allow for optimizing a single function, but clang does not.
+set_source_files_properties(2s2h/mixer.c PROPERTIES
+COMPILE_FLAGS "-O2"
+)
+
 ################################################################################
 # Pre build events
 ################################################################################
@@ -556,6 +542,17 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(glfw3 REQUIRED)
+
+    find_package(Ogg CONFIG REQUIRED)
+    link_libraries(Ogg::ogg)
+
+    find_package(Vorbis CONFIG REQUIRED)
+    link_libraries(Vorbis::vorbisfile)
+    find_package(Opus CONFIG REQUIRED)
+    link_libraries(Opus::opus)
+	find_package(OpusFile CONFIG REQUIRED)
+    link_libraries(OpusFile::opusfile CONFIG REQUIRED)
+
 	set(ADDITIONAL_LIBRARY_DEPENDENCIES
 		"libultraship;"
 		"ZAPDLib;"
@@ -567,7 +564,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		"winmm;"
 		"imm32;"
 		"version;"
-		"setupapi"
+		"setupapi;"
+        "Ogg::ogg"
+        "Opus::opus"
+        "Vorbis::vorbis"
+        "Vorbis::vorbisenc"
+        "Vorbis::vorbisfile"
+		"OpusFile::opusfile"
 	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     find_package(SDL2)
@@ -593,15 +596,27 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
 else()
     find_package(SDL2)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
+    
     find_package(Threads REQUIRED)
- 	set(ADDITIONAL_LIBRARY_DEPENDENCIES
+    find_package(Ogg REQUIRED)
+    find_package(Vorbis REQUIRED)
+    find_package(Opus REQUIRED)
+    find_package(OpusFile REQUIRED)
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
 		"ZAPDLib;"
+        "Ogg::ogg"
+        "Vorbis::vorbis"
+        "Vorbis::vorbisenc"
+        "Vorbis::vorbisfile"
+        "Opus::opus"
+        "Opusfile::Opusfile"
 		SDL2::SDL2
  #       "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
 		${CMAKE_DL_LIBS}
 		Threads::Threads
 	)
+
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin|NintendoSwitch|CafeOS")

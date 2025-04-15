@@ -163,9 +163,9 @@ typedef enum {
     VB_OWL_STATUE_ACTIVATE,
     VB_OWL_STATUE_BE_ACTIVE,
     VB_HAVE_HEALED_PAMELAS_FATHER,
-    VB_WIN_MALON_PRACTICE,
-    VB_MALON_CONSIDER_EPONA_SONG_GIVEN,
-    VB_GIVE_ITEM_FROM_MALON,
+    VB_WIN_ROMANI_PRACTICE,
+    VB_ROMANI_CONSIDER_EPONA_SONG_GIVEN,
+    VB_GIVE_ITEM_FROM_ROMANI,
     VB_DOOR_HEALTH_CHECK_FAIL,
     VB_GIVE_LOTTERY_WINNINGS,
     VB_GIVE_HONEY_DARLING_REWARD,
@@ -233,6 +233,10 @@ typedef enum {
     VB_BUY_GORMAN_MILK,
     VB_PLAY_LOW_HP_ALARM,
     VB_PLAY_GORON_CHILD_CRY,
+    VB_SNOWBALL_DROP_COLLECTIBLE,
+    VB_SNOWBALL_SET_FLAG,
+    VB_START_JUMPSLASH,
+    VB_SETUP_TRANSITION,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -268,14 +272,12 @@ typedef enum {
 
 #ifdef __cplusplus
 
-#include "2s2h/CustomMessage/CustomMessage.h"
 #include <vector>
 #include <functional>
 #include <map>
 #include <unordered_map>
 #include <cstdint>
 #include <algorithm>
-#include <variant>
 
 #include <version>
 #ifdef __cpp_lib_source_location
