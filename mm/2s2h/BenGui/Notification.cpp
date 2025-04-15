@@ -14,6 +14,7 @@
 
 #include "Notification.h"
 #include <libultraship/libultraship.h>
+#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "functions.h"
@@ -25,8 +26,6 @@ namespace Notification {
 
 static uint32_t nextId = 0;
 static std::vector<Options> notifications = {};
-static std::queue<Options> achievementQueue = {}; // Queue for achievement notifications
-static bool processingAchievementQueue = false;
 
 void Window::Draw() {
     auto vp = ImGui::GetMainViewport();
@@ -155,6 +154,13 @@ void Window::Draw() {
             ImGui::End();
             ImGui::PopStyleVar();
         }
+        // Remove expired notifications.
+        if (notification.remainingTime <= 0) {
+            if (notification.style == NotificationStyle::ENHANCED) {
+            }
+            notifications.erase(notifications.begin() + index);
+            --index;
+        }
     }
     ImGui::PopStyleVar(3);
     ImGui::PopStyleColor(2);
@@ -252,14 +258,8 @@ void Window::UpdateElement() {
     float deltaTime = ImGui::GetIO().DeltaTime;
 
     // First, update existing notifications
-    bool hasAchievementNotification = false;
     for (int index = 0; index < notifications.size(); ++index) {
         auto& notification = notifications[index];
-
-        // Check if there's already an achievement notification showing
-        if (!notification.prefix.empty() && notification.prefix == "Achievement Unlocked") {
-            hasAchievementNotification = true;
-        }
 
         // For enhanced notifications, update animation progress.
         if (notification.style == NotificationStyle::ENHANCED && notification.animationProgress < 1.0f) {
@@ -274,21 +274,11 @@ void Window::UpdateElement() {
 
         // Remove expired notifications.
         if (notification.remainingTime <= 0) {
+            if (notification.style == NotificationStyle::ENHANCED) {
+            }
             notifications.erase(notifications.begin() + index);
             --index;
         }
-    }
-
-    // If we have queued achievement notifications and no achievement notification is currently showing,
-    // dequeue the next one
-    if (!achievementQueue.empty() && !hasAchievementNotification) {
-        Options nextAchievement = achievementQueue.front();
-        achievementQueue.pop();
-        notifications.push_back(nextAchievement);
-
-        // Play sound for achievement
-        AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     }
 }
 
@@ -315,7 +305,7 @@ void EmitWithSound(Options notification, int soundId) {
     }
 }
 
-void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore, bool shouldQueue) {
+void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore) {
     Options notification;
     notification.id = nextId++;
     notification.style = NotificationStyle::ENHANCED;
@@ -332,35 +322,20 @@ void EmitAchievement(const char* iconPath, const std::string& achievementName, i
 
     notification.remainingTime = CVarGetFloat("gNotifications.Duration", 10.0f);
 
-    if (shouldQueue) {
-        // Queue the achievement notification
-        achievementQueue.push(notification);
+    // Show notification immediately
+    notifications.push_back(notification);
+    AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
+                     &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+}
 
-        // If there are no other notifications, immediately show this one
-        bool hasAchievementNotification = false;
-        for (const auto& n : notifications) {
-            if (!n.prefix.empty() && n.prefix == "Achievement Unlocked") {
-                hasAchievementNotification = true;
-                break;
-            }
+bool IsAchievementNotificationActive() {
+    for (const auto& notification : notifications) {
+        if (notification.style == NotificationStyle::ENHANCED && !notification.prefix.empty() &&
+            notification.prefix == "Achievement Unlocked") {
+            return true;
         }
-
-        // If no achievement notification is currently showing, dequeue and show
-        if (!hasAchievementNotification && achievementQueue.size() == 1) {
-            Options nextNotification = achievementQueue.front();
-            achievementQueue.pop();
-            notifications.push_back(nextNotification);
-
-            // Play achievement sound
-            AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                             &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
-        }
-    } else {
-        // Show notification immediately without queuing
-        notifications.push_back(notification);
-        AudioSfx_PlaySfx(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     }
+    return false;
 }
 
 } // namespace Notification

@@ -96,7 +96,7 @@ void AchievementEditorWindow::DrawAchievementDetails(std::shared_ptr<Achievement
 
     // Test notification
     if (ImGui::Button("Test Notification")) {
-        AchievementSystem::Instance->ShowEnhancedNotification(achievement, false);
+        AchievementSystem::Instance->ShowEnhancedNotification(achievement);
     }
 }
 
@@ -148,7 +148,7 @@ void AchievementEditorWindow::DrawAchievementControls() {
             // Create a temporary achievement for testing
             auto testAchievement = std::make_shared<Achievement>("test_achievement", testAchievementName,
                                                                  "This is a test achievement", "", false, 0);
-            AchievementSystem::Instance->ShowEnhancedNotification(testAchievement, false);
+            AchievementSystem::Instance->ShowEnhancedNotification(testAchievement);
         }
     }
 }

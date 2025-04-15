@@ -106,6 +106,11 @@ void AchievementSystem::QueueAchievementUnlock(const std::string& id) {
 }
 
 void AchievementSystem::ProcessQueuedAchievements() {
+    // Don't process if an achievement notification is already being shown
+    if (Notification::IsAchievementNotificationActive()) {
+        return;
+    }
+
     // Only process one achievement per frame (to avoid overwhelming the player)
     if (!mPendingAchievements.empty()) {
         std::string id = mPendingAchievements.front();
@@ -116,8 +121,7 @@ void AchievementSystem::ProcessQueuedAchievements() {
             SPDLOG_INFO("Processing queued achievement: {}", achievement->name);
 
             // Show notification using the enhanced notification system
-            // The notification system will handle queueing multiple notifications
-            ShowEnhancedNotification(achievement);
+            ShowEnhancedNotification(achievement); // This will now display immediately if no other notification is active
         }
 
         // Disable processing if we've processed all pending achievements
@@ -223,7 +227,7 @@ void AchievementSystem::ShowNotification(const std::string& achievementName) {
     }
 }
 
-void AchievementSystem::ShowEnhancedNotification(const std::shared_ptr<Achievement>& achievement, bool shouldQueue) {
+void AchievementSystem::ShowEnhancedNotification(const std::shared_ptr<Achievement>& achievement) {
     // Default icon if none specified
     const char* iconPath = (const char*)gItemIcons[ITEM_SKULL_TOKEN]; // Gold skulltula token
 
@@ -233,7 +237,7 @@ void AchievementSystem::ShowEnhancedNotification(const std::shared_ptr<Achieveme
     }
 
     // Emit enhanced style achievement notification
-    Notification::EmitAchievement(iconPath, achievement->name, achievement->gamerscore, shouldQueue);
+    Notification::EmitAchievement(iconPath, achievement->name, achievement->gamerscore);
 }
 
 std::shared_ptr<Ship::GuiWindow> AchievementSystem::CreateAchievementsWindow() {
