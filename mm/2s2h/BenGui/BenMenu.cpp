@@ -1342,7 +1342,7 @@ void BenMenu::AddEnhancements() {
         .WindowName("Item Tracker Settings");
 
     // Audio Editor
-    path = { "Enhancements", "Audio Editor", 1 };
+    path = { "Enhancements", "Audio Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Audio Editor", 1);
     AddWidget(path, "Popout Audio Editor", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.AudioEditor")
@@ -1437,7 +1437,7 @@ void BenMenu::AddDevTools() {
             }
         })
         .SameLine(true);
-    path.column = 2;
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Warp Point", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { RenderWarpPointSection(); });
 
     // dev tools windows
