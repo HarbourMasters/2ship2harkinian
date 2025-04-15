@@ -48,7 +48,7 @@ std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
 std::shared_ptr<AudioEditor> mAudioEditorWindow;
-std::shared_ptr<AchievementEditorWindow> mAchievementEditorWindow;
+std::shared_ptr<Ship::AchievementEditor> mAchievementEditorWindow;
 std::shared_ptr<BenMenu> mBenMenu;
 std::shared_ptr<Notification::Window> mNotificationWindow;
 std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
@@ -128,7 +128,7 @@ void SetupGuiElements() {
     gui->AddGuiWindow(mAudioEditorWindow);
 
     mAchievementEditorWindow =
-        std::make_shared<AchievementEditorWindow>("gWindows.AchievementEditor", "Achievement Editor", ImVec2(480, 600));
+        std::make_shared<Ship::AchievementEditor>("gWindows.AchievementEditor", "Achievement Editor");
     gui->AddGuiWindow(mAchievementEditorWindow);
 
     mAchievementsWindow = std::make_shared<AchievementsWindow>("gOpenWindows.Achievements", "Achievements");

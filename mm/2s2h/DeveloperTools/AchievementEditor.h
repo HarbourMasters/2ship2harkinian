@@ -3,6 +3,17 @@
 #include <libultraship/libultraship.h>
 #include "2s2h/Enhancements/Achievements/Achievements.h"
 #include "2s2h/Rando/Rando.h" // Include for IS_RANDO and randomizer types
+#include <string>
+#include <vector>
+#include <memory>
+#include <window/gui/GuiWindow.h>
+
+// Forward declare AchievementSystem and Achievement to avoid including the full header here if possible
+// If methods need the full definition, we'll include Achievements.h in the .cpp file.
+class AchievementSystem;
+struct Achievement;
+
+namespace Ship {
 
 /**
  * @class AchievementEditorWindow
@@ -14,9 +25,10 @@
  * - Viewing achievement statistics
  * - Mass unlocking/locking achievements
  */
-class AchievementEditorWindow : public Ship::GuiWindow {
+class AchievementEditor : public GuiWindow {
   public:
-    using GuiWindow::GuiWindow;
+    AchievementEditor(const std::string& consoleVariable, const std::string& name);
+    ~AchievementEditor() = default;
 
     /**
      * @brief Initializes the editor window
@@ -31,7 +43,7 @@ class AchievementEditorWindow : public Ship::GuiWindow {
     /**
      * @brief Updates the editor window (unused)
      */
-    void UpdateElement() override{};
+    void UpdateElement() override;
 
   private:
     /**
@@ -43,7 +55,7 @@ class AchievementEditorWindow : public Ship::GuiWindow {
      * @brief Draws the details for a specific achievement
      * @param achievement The achievement to display details for
      */
-    void DrawAchievementDetails(std::shared_ptr<Achievement> achievement);
+    void DrawDetailsPane();
 
     /**
      * @brief Draws the achievement system control section
@@ -59,4 +71,18 @@ class AchievementEditorWindow : public Ship::GuiWindow {
      * @brief Draws diagnostic information about achievements and randomizer
      */
     void DrawDiagnostics();
+
+    // Pointer to the achievement system instance (fetched in InitElement or DrawElement)
+    AchievementSystem* mAchievementSystem = nullptr;
+
+    // Store the ID of the currently selected achievement
+    std::string mSelectedAchievementId = "";
+
+    // Store the list of achievements (updated periodically)
+    std::vector<std::shared_ptr<Achievement>> mAchievementsList;
+
+    // Optional: Filter text
+    char mFilterText[256] = { 0 };
 };
+
+}

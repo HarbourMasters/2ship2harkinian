@@ -1,339 +1,205 @@
 #include "AchievementEditor.h"
-#include "2s2h/BenGui/UIWidgets.hpp"
-#include "2s2h/GameInteractor/GameInteractor.h"
-#include "2s2h/BenGui/Notification.h"
-#include <spdlog/spdlog.h>
+#include "2s2h/Enhancements/Achievements/Achievements.h" // Include the full definition
+#include <libultraship/libultraship.h> // For ImGui, Ship::Context, etc.
+#include <imgui.h>
+#include <string>
+#include <algorithm> // For case-insensitive search
 
-extern "C" {
-#include <variables.h> // Include for gSaveContext
+namespace Ship {
+
+// Constructor implementation
+AchievementEditor::AchievementEditor(const std::string& consoleVariable, const std::string& name)
+    : GuiWindow(consoleVariable, name) {
+    // Initialize member variables
+    mAchievementSystem = nullptr;
+    mSelectedAchievementId = "";
+    memset(mFilterText, 0, sizeof(mFilterText)); // Clear filter text buffer
 }
 
-void AchievementEditorWindow::InitElement() {
-    // Initialize any necessary state here
+// InitElement: Called once when the window is initialized
+void AchievementEditor::InitElement() {
+    // We get the instance pointer dynamically in DrawElement as it might not be ready at initialization.
+    mAchievementSystem = nullptr;
+        }
+
+// UpdateElement: Called periodically for updates (can be empty if not needed)
+void AchievementEditor::UpdateElement() {
+    // For this simple editor, we fetch data directly in DrawElement.
+    // This could be optimized later if performance is an issue.
 }
 
-void AchievementEditorWindow::DrawElement() {
-    if (ImGui::BeginTabBar("AchievementEditorTabBar", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
-        if (ImGui::BeginTabItem("Achievement List")) {
-            DrawAchievementList();
-            ImGui::EndTabItem();
-        }
+// DrawElement: Main drawing function called every frame the window is visible
+void AchievementEditor::DrawElement() {
+    // Always try to get the current instance
+    mAchievementSystem = AchievementSystem::Instance;
 
-        if (ImGui::BeginTabItem("Controls")) {
-            DrawAchievementControls();
-            ImGui::EndTabItem();
-        }
-
-        if (ImGui::BeginTabItem("Stats")) {
-            DrawAchievementStats();
-            ImGui::EndTabItem();
-        }
-
-        if (ImGui::BeginTabItem("Diagnostics")) {
-            DrawDiagnostics();
-            ImGui::EndTabItem();
-        }
-
-        ImGui::EndTabBar();
-    }
-}
-
-void AchievementEditorWindow::DrawAchievementList() {
-    if (!AchievementSystem::Instance) {
-        ImGui::Text("Achievement system not initialized");
+    if (!mAchievementSystem) {
+        ImGui::Text("Achievement System instance is not available.");
         return;
     }
 
-    const auto& achievements = AchievementSystem::Instance->GetAchievements();
-    static std::shared_ptr<Achievement> selectedAchievement = nullptr;
+    mAchievementsList = mAchievementSystem->GetAchievements();
 
-    // Split view into two columns
-    ImGui::Columns(2, "achievementColumns", true);
+    // --- Filter Input (Above the table) ---
+    ImGui::PushItemWidth(-1);
+    ImGui::InputTextWithHint("##AchievementFilter", "Search by ID or Title...", mFilterText, sizeof(mFilterText), ImGuiInputTextFlags_AutoSelectAll);
+    ImGui::PopItemWidth();
+    ImGui::Separator();
 
-    // Left column - Achievement list
-    ImGui::BeginChild("achievementList", ImVec2(0, 0), true);
-    for (const auto& achievement : achievements) {
-        bool isSelected = (selectedAchievement == achievement);
-        if (ImGui::Selectable(achievement->name.c_str(), isSelected)) {
-            selectedAchievement = achievement;
+    // --- Main Layout: Table | Details (Reverted to two columns) ---
+    if (ImGui::BeginTable("AchievementEditorLayout", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) { 
+        ImGui::TableSetupColumn("ListColumn", ImGuiTableColumnFlags_WidthStretch, 0.4f); // 40% width for list
+        ImGui::TableSetupColumn("DetailsColumn", ImGuiTableColumnFlags_WidthStretch, 0.6f); // 60% width for details
+
+        // --- Left Pane: Achievement List ---
+        ImGui::TableNextColumn();
+        ImGui::BeginChild("AchievementListPane", ImVec2(0, 0), ImGuiChildFlags_Border); 
+        DrawAchievementList();
+        ImGui::EndChild(); // End AchievementListPane
+
+        // --- Right Pane: Details ---
+        ImGui::TableNextColumn();
+        ImGui::BeginChild("DetailsPane", ImVec2(0, 0), ImGuiChildFlags_Border); 
+        DrawDetailsPane();
+        ImGui::EndChild(); // End DetailsPane
+
+        ImGui::EndTable();
+    }
+}
+
+// DrawAchievementList: Renders the scrollable, filterable list of achievement IDs
+void AchievementEditor::DrawAchievementList() {
+    if (!mAchievementSystem) return;
+
+    // Filter logic remains the same (searches ID and Title)
+    std::string filterLower = mFilterText;
+    std::transform(filterLower.begin(), filterLower.end(), filterLower.begin(),
+                   [](unsigned char c){ return std::tolower(c); });
+
+    std::vector<std::shared_ptr<Achievement>> filteredList;
+    for (const auto& achievement : mAchievementsList) {
+        if (!achievement) continue;
+        std::string idLower = achievement->id;
+        std::string nameLower = achievement->name;
+        std::transform(idLower.begin(), idLower.end(), idLower.begin(), ::tolower);
+        std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
+        if (filterLower.empty() || idLower.find(filterLower) != std::string::npos || nameLower.find(filterLower) != std::string::npos) {
+            filteredList.push_back(achievement);
         }
     }
-    ImGui::EndChild();
 
-    // Right column - Achievement details
-    ImGui::NextColumn();
-    ImGui::BeginChild("achievementDetails", ImVec2(0, 0), true);
-    if (selectedAchievement) {
-        DrawAchievementDetails(selectedAchievement);
+    // Use ImGuiListClipper
+    ImGuiListClipper clipper;
+    clipper.Begin(filteredList.size());
+    while (clipper.Step()) {
+        for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++) {
+             if (i < 0 || i >= filteredList.size()) continue; // Bounds check
+            const auto& achievement = filteredList[i];
+            if (!achievement) continue; 
+
+            bool isSelected = (mSelectedAchievementId == achievement->id);
+            // Display ONLY the ID in the Selectable, use ID for the unique ## label
+            if (ImGui::Selectable((achievement->id + "##" + achievement->id).c_str(), isSelected)) {
+                mSelectedAchievementId = achievement->id; 
+            }
+
+            if (isSelected) {
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+    }
+    clipper.End();
+}
+
+// DrawDetailsPane: Renders the details and action buttons for the selected achievement
+void AchievementEditor::DrawDetailsPane() {
+    // Check if an achievement is selected and the system is available
+    if (!mAchievementSystem || mSelectedAchievementId.empty()) {
+        ImGui::TextWrapped("Select an achievement from the list on the left to view its details and actions.");
+        return;
+    }
+
+    // Attempt to retrieve the selected achievement's data
+    auto selectedAchievement = mAchievementSystem->GetAchievement(mSelectedAchievementId);
+
+    // Handle case where the selected ID might be invalid (e.g., list changed)
+    if (!selectedAchievement) {
+        ImGui::Text("Error: Could not find details for the selected achievement (ID: %s).", mSelectedAchievementId.c_str());
+        ImGui::Text("It might have been removed or the list changed.");
+        if (ImGui::Button("Clear Selection")) {
+             mSelectedAchievementId = ""; // Allow user to clear the invalid selection
+        }
+        return;
+    }
+
+    // Display achievement details
+    ImGui::Text("Details for:"); ImGui::SameLine();
+    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s", selectedAchievement->id.c_str()); // Highlight ID
+    ImGui::Separator();
+
+    // --- Icon Display --- 
+    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    bool iconDrawn = false;
+    if (!selectedAchievement->iconPath.empty() && gui && gui->HasTextureByName(selectedAchievement->iconPath)) {
+        ImTextureID textureId = gui->GetTextureByName(selectedAchievement->iconPath);
+        ImVec2 iconSize = ImVec2(48, 48); // Define desired icon size
+        ImGui::Image(textureId, iconSize);
+        iconDrawn = true;
     } else {
-        ImGui::Text("Select an achievement to view details");
+        // Optional: Draw a placeholder if no icon or texture not found
+        ImGui::Dummy(ImVec2(48, 48)); // Reserve space even if no icon
     }
-    ImGui::EndChild();
-
-    ImGui::Columns(1);
-}
-
-void AchievementEditorWindow::DrawAchievementDetails(std::shared_ptr<Achievement> achievement) {
-    ImGui::Text("ID: %s", achievement->id.c_str());
-    ImGui::Text("Name: %s", achievement->name.c_str());
-    ImGui::Text("Description: %s", achievement->description.c_str());
-    ImGui::Text("State: %s", achievement->state == AchievementState::UNLOCKED ? "Unlocked" : "Locked");
-    ImGui::Text("Secret: %s", achievement->isSecret ? "Yes" : "No");
-    ImGui::Text("Gamerscore: %d", achievement->gamerscore);
-
-    ImGui::Separator();
-
-    // Achievement state controls
-    if (achievement->state == AchievementState::LOCKED) {
-        if (ImGui::Button("Unlock Achievement")) {
-            AchievementSystem::Instance->UnlockAchievement(achievement->id);
-        }
-    } else {
-        if (ImGui::Button("Lock Achievement")) {
-            achievement->state = AchievementState::LOCKED;
-        }
+    // Place subsequent elements on the same line if an icon was drawn, otherwise start on a new line
+    if (iconDrawn) {
+         ImGui::SameLine();
     }
+    // Use a group to keep Title and Description together, vertically aligned next to the icon
+    ImGui::BeginGroup(); 
+    // --- End Icon Display --- 
 
-    // Test notification
-    if (ImGui::Button("Test Notification")) {
-        AchievementSystem::Instance->ShowEnhancedNotification(achievement);
-    }
-}
+    ImGui::Text("Title:"); ImGui::SameLine();
+    ImGui::TextWrapped("%s", selectedAchievement->name.c_str());
+    // Removed separator after Title to keep it closer to Description when grouped
 
-void AchievementEditorWindow::DrawAchievementControls() {
-    if (!AchievementSystem::Instance) {
-        ImGui::Text("Achievement system not initialized");
-        return;
+    ImGui::Text("Description:"); ImGui::SameLine();
+    ImGui::TextWrapped("%s", selectedAchievement->description.c_str());
+    // End the group containing Title and Description
+    ImGui::EndGroup(); 
+    ImGui::Separator(); // Separator after the icon/text block
+
+    // Display Harbour Mastery (Gamerscore) if applicable
+    if (selectedAchievement->gamerscore > 0) {
+        ImGui::Text("Harbour Mastery (HM):"); ImGui::SameLine();
+        ImGui::Text("%d", selectedAchievement->gamerscore);
+        ImGui::Separator();
     }
 
-    ImGui::Text("Achievement System Controls");
-    ImGui::Separator();
-
-    // Mass unlock/lock controls
-    if (ImGui::Button("Unlock All Achievements")) {
-        const auto& achievements = AchievementSystem::Instance->GetAchievements();
-        for (const auto& achievement : achievements) {
-            if (achievement->state == AchievementState::LOCKED) {
-                AchievementSystem::Instance->UnlockAchievement(achievement->id);
-            }
-        }
-    }
-
-    ImGui::SameLine();
-
-    if (ImGui::Button("Lock All Achievements")) {
-        const auto& achievements = AchievementSystem::Instance->GetAchievements();
-        for (const auto& achievement : achievements) {
-            achievement->state = AchievementState::LOCKED;
-        }
-    }
-
-    ImGui::Separator();
-
-    // Notification test controls
-    static AchievementNotificationType notificationType = AchievementNotificationType::ENHANCED;
-    const char* notificationTypes[] = { "Simple", "Enhanced" };
-    if (ImGui::Combo("Notification Type", (int*)&notificationType, notificationTypes,
-                     IM_ARRAYSIZE(notificationTypes))) {
-        // Update notification type if needed
-    }
-
-    static char testAchievementName[128] = "Test Achievement";
-    ImGui::InputText("Test Achievement Name", testAchievementName, IM_ARRAYSIZE(testAchievementName));
-
-    if (ImGui::Button("Test Notification")) {
-        if (notificationType == AchievementNotificationType::SIMPLE) {
-            AchievementSystem::Instance->ShowNotification(testAchievementName);
-        } else {
-            // Create a temporary achievement for testing
-            auto testAchievement = std::make_shared<Achievement>("test_achievement", testAchievementName,
-                                                                 "This is a test achievement", "", false, 0);
-            AchievementSystem::Instance->ShowEnhancedNotification(testAchievement);
-        }
-    }
-}
-
-void AchievementEditorWindow::DrawAchievementStats() {
-    if (!AchievementSystem::Instance) {
-        ImGui::Text("Achievement system not initialized");
-        return;
-    }
-
-    const auto& achievements = AchievementSystem::Instance->GetAchievements();
-    size_t totalAchievements = achievements.size();
-    size_t unlockedAchievements = AchievementSystem::Instance->GetUnlockedAchievementsCount();
-    size_t lockedAchievements = totalAchievements - unlockedAchievements;
-
-    ImGui::Text("Achievement Statistics");
-    ImGui::Separator();
-
-    ImGui::Text("Total Achievements: %zu", totalAchievements);
-    ImGui::Text("Unlocked Achievements: %zu", unlockedAchievements);
-    ImGui::Text("Locked Achievements: %zu", lockedAchievements);
-
-    // Calculate completion percentage
-    float completionPercentage =
-        totalAchievements > 0 ? (static_cast<float>(unlockedAchievements) / totalAchievements) * 100.0f : 0.0f;
-    ImGui::Text("Completion: %.1f%%", completionPercentage);
-
-    // Progress bar
-    ImGui::ProgressBar(completionPercentage / 100.0f, ImVec2(-1.0f, 0.0f));
-
-    ImGui::Separator();
-
-    // List of achievements by state
-    if (ImGui::CollapsingHeader("Unlocked Achievements")) {
-        for (const auto& achievement : achievements) {
-            if (achievement->state == AchievementState::UNLOCKED) {
-                ImGui::BulletText("%s", achievement->name.c_str());
-            }
-        }
-    }
-
-    if (ImGui::CollapsingHeader("Locked Achievements")) {
-        for (const auto& achievement : achievements) {
-            if (achievement->state == AchievementState::LOCKED) {
-                ImGui::BulletText("%s", achievement->name.c_str());
-            }
-        }
-    }
-}
-
-void AchievementEditorWindow::DrawDiagnostics() {
-    if (!AchievementSystem::Instance) {
-        ImGui::Text("Achievement system not initialized");
-        return;
-    }
-
-    ImGui::Text("Achievement System Diagnostics");
-    ImGui::Separator();
-
-    // Determine if we're in randomizer mode
-    bool isRandomizerMode = IS_RANDO;
-
-    // Show randomizer status
-    ImGui::Text("Randomizer Mode: %s", isRandomizerMode ? "TRUE" : "FALSE");
-    ImGui::Text("IS_RANDO Macro: %s", IS_RANDO ? "TRUE" : "FALSE");
-    ImGui::Text("Save Type: %d", gSaveContext.save.shipSaveInfo.saveType);
-
-    ImGui::Separator();
-
-    // Show achievement counts by category
-    const auto& achievements = AchievementSystem::Instance->GetAchievements();
-    size_t totalAchievements = achievements.size();
-
-    auto bothAchievements = AchievementSystem::Instance->GetAchievementsByCategory(AchievementCategory::BOTH);
-    auto vanillaAchievements = AchievementSystem::Instance->GetAchievementsByCategory(AchievementCategory::VANILLA);
-    auto randomizerAchievements =
-        AchievementSystem::Instance->GetAchievementsByCategory(AchievementCategory::RANDOMIZER);
-
-    ImGui::Text("Total Achievements: %zu", totalAchievements);
-    ImGui::Text("BOTH Category: %zu", bothAchievements.size());
-    ImGui::Text("VANILLA Category: %zu", vanillaAchievements.size());
-    ImGui::Text("RANDOMIZER Category: %zu", randomizerAchievements.size());
-
-    // Show visible achievements count
-    size_t visibleCount = 0;
-    for (const auto& achievement : achievements) {
-        if (AchievementSystem::Instance->IsAchievementRelevantForGameMode(achievement->id, isRandomizerMode)) {
-            visibleCount++;
-        }
-    }
-    ImGui::Text("Achievements Visible: %zu", visibleCount);
-
-    ImGui::Separator();
-
-    // Detailed achievement status (collapsible)
-    if (ImGui::CollapsingHeader("Randomizer Achievements Status")) {
-        ImGui::Indent(10.0f);
-
-        ImGui::Columns(3, "rando_achievements_columns", true);
-        ImGui::Text("Achievement ID");
-        ImGui::NextColumn();
-        ImGui::Text("Status");
-        ImGui::NextColumn();
-        ImGui::Text("Relevant");
-        ImGui::NextColumn();
+    // Display current status and action buttons
+    bool isUnlocked = mAchievementSystem->IsAchievementUnlocked(selectedAchievement->id);
+    ImGui::Text("Status: %s", isUnlocked ? "Unlocked" : "Locked");
         ImGui::Separator();
 
-        for (const auto& achievement : randomizerAchievements) {
-            ImGui::Text("%s", achievement->id.c_str());
-            ImGui::NextColumn();
-            ImGui::Text("%s", achievement->state == AchievementState::UNLOCKED ? "Unlocked" : "Locked");
-            ImGui::NextColumn();
-            ImGui::Text("%s",
-                        AchievementSystem::Instance->IsAchievementRelevantForGameMode(achievement->id, isRandomizerMode)
-                            ? "Yes"
-                            : "No");
-            ImGui::NextColumn();
+    // Provide Lock/Unlock buttons based on current state
+    if (isUnlocked) {
+        // Display Lock button if currently unlocked
+        if (ImGui::Button("Lock Achievement", ImVec2(-1, 0))) { // Stretch button width
+            mAchievementSystem->LockAchievement(selectedAchievement->id);
+            // Note: The status text will update on the next frame automatically
         }
-
-        ImGui::Columns(1);
-        ImGui::Unindent(10.0f);
-    }
-
-    // Show info about randomizer checks
-    if (ImGui::CollapsingHeader("Randomizer Checks Status")) {
-        ImGui::Indent(10.0f);
-
-        // Display first few check flags
-        ImGui::Text("RANDO_SAVE_CHECKS Initialized: %s", IS_RANDO ? "Yes" : "No");
-
-        if (IS_RANDO) {
-            int obtainedChecks = 0;
-            for (size_t i = 0; i < RC_MAX && i < 50; i++) { // Limit to first 50 for performance
-                if (RANDO_SAVE_CHECKS[i].obtained) {
-                    obtainedChecks++;
-                }
-            }
-            ImGui::Text("First 50 Checks - Obtained: %d", obtainedChecks);
-
-            if (ImGui::CollapsingHeader("Specific Rando Achievement Conditions")) {
-                // Show specific checks for certain achievements
-                bool firstItemCondition = false;
-                for (size_t i = 0; i < RC_MAX; i++) {
-                    if (RANDO_SAVE_CHECKS[i].obtained) {
-                        firstItemCondition = true;
-                        break;
-                    }
-                }
-                ImGui::Text("rando_first_item condition met: %s", firstItemCondition ? "Yes" : "No");
-
-                // Check if all masks are collected for rando_all_masks
-                bool allMasksCondition = true;
-                for (u8 i = ITEM_MASK_DEKU; i <= ITEM_MASK_GIANT; i++) {
-                    if (INV_CONTENT(i) == ITEM_NONE) {
-                        allMasksCondition = false;
-                        break;
-                    }
-                }
-                ImGui::Text("rando_all_masks condition met: %s", allMasksCondition ? "Yes" : "No");
-
-                // Check if any transformation mask is in inventory for rando_playas
-                bool transformMaskCondition =
-                    (INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU || INV_CONTENT(ITEM_MASK_GORON) == ITEM_MASK_GORON ||
-                     INV_CONTENT(ITEM_MASK_ZORA) == ITEM_MASK_ZORA);
-                ImGui::Text("rando_playas condition met: %s", transformMaskCondition ? "Yes" : "No");
-
-                // Check location count for rando_impossible
-                int checkedLocations = 0;
-                for (size_t i = 0; i < RC_MAX; i++) {
-                    if (RANDO_SAVE_CHECKS[i].obtained) {
-                        checkedLocations++;
-                    }
-                }
-                ImGui::Text("rando_impossible locations found: %d/100", checkedLocations);
-
-                // Check boss rush condition for rando_first_try
-                bool hasAllRemains = CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) && CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
-                                     CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) && CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD);
-                bool isFirstCycle = gSaveContext.save.isFirstCycle;
-                ImGui::Text("rando_first_try (has all remains): %s", hasAllRemains ? "Yes" : "No");
-                ImGui::Text("rando_first_try (is first cycle): %s", isFirstCycle ? "Yes" : "No");
-                ImGui::Text("rando_first_try condition met: %s", (hasAllRemains && isFirstCycle) ? "Yes" : "No");
+        if (ImGui::IsItemHovered()){
+             ImGui::SetTooltip("Force-lock this achievement (for testing).");
+        }
+    } else {
+        // Display Unlock button if currently locked
+        if (ImGui::Button("Unlock Achievement", ImVec2(-1, 0))) { // Stretch button width
+            mAchievementSystem->UnlockAchievement(selectedAchievement->id);
+             // Note: The status text will update on the next frame automatically
+             // UnlockAchievement also triggers a notification by default.
+        }
+         if (ImGui::IsItemHovered()){
+             ImGui::SetTooltip("Force-unlock this achievement (for testing). This will trigger a notification.");
             }
         }
-
-        ImGui::Unindent(10.0f);
-    }
 }
+
+} // namespace Ship

@@ -106,6 +106,12 @@ class AchievementSystem {
     void UnlockAchievement(const std::string& id);
 
     /**
+     * @brief Locks an achievement (primarily for testing/debugging)
+     * @param id Unique identifier of the achievement to lock
+     */
+    void LockAchievement(const std::string& id);
+
+    /**
      * @brief Queues an achievement to be unlocked during gameplay
      * @param id Unique identifier of the achievement to queue for unlock
      */

@@ -151,6 +151,23 @@ void AchievementSystem::UnlockAchievement(const std::string& id) {
     }
 }
 
+void AchievementSystem::LockAchievement(const std::string& id) {
+    auto achievement = GetAchievement(id);
+    if (achievement && achievement->state != AchievementState::LOCKED) {
+        achievement->state = AchievementState::LOCKED;
+        SPDLOG_INFO("Achievement locked (debug): {}", achievement->name);
+
+        // Update achievement state in save context
+        unsigned int index = GetAchievementIndex(id);
+        if (index < MAX_ACHIEVEMENTS && &gSaveContext) {
+            gSaveContext.save.shipSaveInfo.achievementData[index].unlocked = false;
+            SPDLOG_DEBUG("Saved achievement {} locked state directly to save context", id);
+        } else {
+             SPDLOG_WARN("Failed to save achievement {} locked state: Invalid index {} or no save context", id, index);
+        }
+    }
+}
+
 bool AchievementSystem::IsAchievementUnlocked(const std::string& id) {
     // Check in-memory state first (might be unlocked but not yet saved if game hasn't loaded yet)
     auto achievement = GetAchievement(id);
