@@ -167,10 +167,14 @@ bool Camera_CanFreeLook(Camera* camera) {
         MouseCoords mouseDelta = Mouse_GetDelta();
         Player* player = GET_PLAYER(gPlayState);
         if (mouseDelta.x != 0 || mouseDelta.y != 0) {
-            if (
-                player->lockOnActor == NULL
-                || abs(mouseDelta.x) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) > 60.0f
-                || abs(mouseDelta.y) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f) > 60.0f
+            if (player->lockOnActor == NULL) {
+                sCanFreeLook = true;
+            } else if (
+                CVarGetInteger("gEnhancements.Camera.Mouse.ZTargetFreeLookEnabled", 1)
+                && (
+                    abs(mouseDelta.x) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) > 30.0f
+                    || abs(mouseDelta.y) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f) > 30.0f
+                )
             ) {
                 sCanFreeLook = true;
             }
