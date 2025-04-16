@@ -85,4 +85,4 @@ class AchievementEditor : public GuiWindow {
     char mFilterText[256] = { 0 };
 };
 
-}
+} // namespace Ship

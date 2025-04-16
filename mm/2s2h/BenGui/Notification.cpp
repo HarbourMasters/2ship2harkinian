@@ -156,8 +156,7 @@ void Window::Draw() {
         }
         // Remove expired notifications.
         if (notification.remainingTime <= 0) {
-            if (notification.style == NotificationStyle::ENHANCED) {
-            }
+            if (notification.style == NotificationStyle::ENHANCED) {}
             notifications.erase(notifications.begin() + index);
             --index;
         }
@@ -274,8 +273,7 @@ void Window::UpdateElement() {
 
         // Remove expired notifications.
         if (notification.remainingTime <= 0) {
-            if (notification.style == NotificationStyle::ENHANCED) {
-            }
+            if (notification.style == NotificationStyle::ENHANCED) {}
             notifications.erase(notifications.begin() + index);
             --index;
         }

@@ -48,24 +48,6 @@ AchievementSystem::~AchievementSystem() {
     // }
 }
 
-void AchievementSystem::Initialize() {
-    // This function's purpose might change slightly.
-    // It's called by InitializeAchievementSystem, which is triggered by ShipInit.
-    // It no longer needs to call RegisterAchievements.
-    SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM CORE INITIALIZATION STARTED ===");
-
-    // Check if the number of registered achievements exceeds the max defined in save structure
-    // Note: This check might run before all achievements are registered via ShipInit.
-    // Consider moving this check to a post-initialization step if needed.
-    if (mAchievements.size() > MAX_ACHIEVEMENTS) {
-        SPDLOG_ERROR("Number of registered achievements ({}) exceeds MAX_ACHIEVEMENTS ({})!", mAchievements.size(), MAX_ACHIEVEMENTS);
-        // Handle error appropriately, e.g., disable achievements or assert
-    }
-
-    SPDLOG_CRITICAL("Achievement System core initialized. Registered achievement count: {}", mAchievements.size());
-    SPDLOG_CRITICAL("=== ACHIEVEMENT SYSTEM INITIALIZATION COMPLETED ===");
-}
-
 void AchievementSystem::RegisterAchievement(std::shared_ptr<Achievement> achievement) {
     mAchievements.push_back(achievement);
     mAchievementsMap[achievement->id] = achievement;
@@ -93,7 +75,7 @@ void AchievementSystem::QueueAchievementUnlock(const std::string& id) {
             gSaveContext.save.shipSaveInfo.achievementData[index].unlocked = true;
             SPDLOG_DEBUG("Saved achievement {} state directly to save context", id);
         } else {
-             SPDLOG_ERROR("Failed to save achievement {} state: Invalid index {} or no save context", id, index);
+            SPDLOG_ERROR("Failed to save achievement {} state: Invalid index {} or no save context", id, index);
         }
 
         // Queue for showing notification during gameplay
@@ -129,7 +111,8 @@ void AchievementSystem::ProcessQueuedAchievements() {
             SPDLOG_INFO("Processing queued achievement: {}", achievement->name);
 
             // Show notification using the enhanced notification system
-            ShowEnhancedNotification(achievement); // This will now display immediately if no other notification is active
+            ShowEnhancedNotification(
+                achievement); // This will now display immediately if no other notification is active
         }
 
         // Disable processing if we've processed all pending achievements
@@ -147,11 +130,11 @@ void AchievementSystem::UnlockAchievement(const std::string& id) {
 
         // Save achievement state to save context
         unsigned int index = GetAchievementIndex(id);
-         if (index < MAX_ACHIEVEMENTS && &gSaveContext) {
+        if (index < MAX_ACHIEVEMENTS && &gSaveContext) {
             gSaveContext.save.shipSaveInfo.achievementData[index].unlocked = true;
             SPDLOG_DEBUG("Saved achievement {} state directly to save context", id);
         } else {
-             SPDLOG_ERROR("Failed to save achievement {} state: Invalid index {} or no save context", id, index);
+            SPDLOG_ERROR("Failed to save achievement {} state: Invalid index {} or no save context", id, index);
         }
 
         // Show enhanced notification by default
@@ -171,7 +154,7 @@ void AchievementSystem::LockAchievement(const std::string& id) {
             gSaveContext.save.shipSaveInfo.achievementData[index].unlocked = false;
             SPDLOG_DEBUG("Saved achievement {} locked state directly to save context", id);
         } else {
-             SPDLOG_WARN("Failed to save achievement {} locked state: Invalid index {} or no save context", id, index);
+            SPDLOG_WARN("Failed to save achievement {} locked state: Invalid index {} or no save context", id, index);
         }
     }
 }
@@ -184,10 +167,10 @@ bool AchievementSystem::IsAchievementUnlocked(const std::string& id) {
     }
     // If not found in memory or locked, check save context (authoritative source after load)
     if (&gSaveContext) {
-         unsigned int index = GetAchievementIndex(id);
-         if (index < MAX_ACHIEVEMENTS) {
-             return gSaveContext.save.shipSaveInfo.achievementData[index].unlocked;
-         }
+        unsigned int index = GetAchievementIndex(id);
+        if (index < MAX_ACHIEVEMENTS) {
+            return gSaveContext.save.shipSaveInfo.achievementData[index].unlocked;
+        }
     }
     return false;
 }
@@ -227,7 +210,7 @@ bool AchievementSystem::IsAchievementRelevantForGameMode(const std::string& id, 
 
 size_t AchievementSystem::GetUnlockedAchievementsCount() const {
     size_t count = 0;
-     // Count based on the save context data as the authoritative source after load
+    // Count based on the save context data as the authoritative source after load
     if (&gSaveContext) {
         for (size_t i = 0; i < mAchievements.size() && i < MAX_ACHIEVEMENTS; ++i) {
             if (gSaveContext.save.shipSaveInfo.achievementData[i].unlocked) {
@@ -272,16 +255,31 @@ std::shared_ptr<Ship::GuiWindow> AchievementSystem::CreateAchievementsWindow() {
 
 // Renamed from GetAchievementBitIndex
 unsigned int AchievementSystem::GetAchievementIndex(const std::string& id) const {
-     for (size_t i = 0; i < mAchievements.size(); ++i) {
+    for (size_t i = 0; i < mAchievements.size(); ++i) {
         if (mAchievements[i]->id == id) {
+            if (i >= MAX_ACHIEVEMENTS) {
+                SPDLOG_ERROR("Achievement index {} for ID '{}' is out of bounds (MAX_ACHIEVEMENTS = {})!", i, id,
+                             MAX_ACHIEVEMENTS);
+                return MAX_ACHIEVEMENTS; // Indicate out of bounds specifically
+            }
             return i;
         }
     }
-    SPDLOG_WARN("Achievement index not found for id: {}", id);
+    SPDLOG_WARN("Could not find achievement index for ID: {}", id);
     return MAX_ACHIEVEMENTS; // Indicate not found/out of bounds
 }
 
 void AchievementSystem::LoadFromSaveContext() {
+    // ADDED CHECK HERE: Ensure this runs *after* all achievements are registered via ShipInit.
+    if (mAchievements.size() > MAX_ACHIEVEMENTS) {
+        SPDLOG_ERROR("Number of registered achievements ({}) exceeds MAX_ACHIEVEMENTS ({})! Save data might be "
+                     "corrupted or inaccessible.",
+                     mAchievements.size(), MAX_ACHIEVEMENTS);
+        // Consider disabling the system or preventing load if this occurs?
+        // For now, just log the error. The subsequent loop is already guarded by MAX_ACHIEVEMENTS.
+    }
+    // END ADDED CHECK
+
     if (&gSaveContext) {
         SPDLOG_INFO("Loading achievement states from save context...");
         for (size_t i = 0; i < mAchievements.size() && i < MAX_ACHIEVEMENTS; ++i) {
@@ -293,7 +291,7 @@ void AchievementSystem::LoadFromSaveContext() {
             } else {
                 if (mAchievements[i]->state != AchievementState::LOCKED) {
                     mAchievements[i]->state = AchievementState::LOCKED;
-                     SPDLOG_DEBUG("Loaded locked state for: {}", mAchievements[i]->id);
+                    SPDLOG_DEBUG("Loaded locked state for: {}", mAchievements[i]->id);
                 }
             }
         }
@@ -311,9 +309,7 @@ void InitializeAchievementSystem() {
     CVarRegisterInteger(CVAR_NAME_ACHIEVEMENTS, 1);
 
     // Hook for loading achievements on save load
-    COND_HOOK(OnSaveLoad, CVAR_ACHIEVEMENTS, [](s16 fileNum) {
-        AchievementSystem::Instance().LoadFromSaveContext();
-    });
+    COND_HOOK(OnSaveLoad, CVAR_ACHIEVEMENTS, [](s16 fileNum) { AchievementSystem::Instance().LoadFromSaveContext(); });
 
     // Hook for potentially clearing achievement state on new file creation (Optional - uncomment if needed)
     /*

@@ -74,11 +74,6 @@ class AchievementSystem {
     static AchievementSystem& Instance();
 
     /**
-     * @brief Initializes the achievement system
-     */
-    void Initialize();
-
-    /**
      * @brief Registers a single achievement with the system
      * @param achievement The achievement to register
      */
