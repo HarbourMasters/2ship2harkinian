@@ -165,8 +165,15 @@ bool Camera_FreeLook(Camera* camera) {
 bool Camera_CanFreeLook(Camera* camera) {
     if (!sCanFreeLook && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
         MouseCoords mouseDelta = Mouse_GetDelta();
+        Player* player = GET_PLAYER(gPlayState);
         if (mouseDelta.x != 0 || mouseDelta.y != 0) {
-            sCanFreeLook = true;
+            if (
+                player->lockOnActor == NULL
+                || abs(mouseDelta.x) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) > 60.0f
+                || abs(mouseDelta.y) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f) > 60.0f
+            ) {
+                sCanFreeLook = true;
+            }
         }
     }
 
@@ -178,7 +185,7 @@ bool Camera_CanFreeLook(Camera* camera) {
         }
     }
 
-    // TODO: check Z target mode potential
+    // TODO: check persistent Z-target freelook variant
     // Pressing Z will "Reset" Camera
     if (CHECK_BTN_ALL(sCamPlayState->state.input[0].press.button, BTN_Z)) {
         sCanFreeLook = false;
