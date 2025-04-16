@@ -15330,7 +15330,6 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
     if (this->av2.actionVar2 != 0) {
         f32 xStick = sPlayerControlInput->rel.stick_x * -120;
         f32 yStick = sPlayerControlInput->rel.stick_y * 180;
-        s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
 
         bool mouseControl = (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0));
         if (mouseControl) {
@@ -15351,11 +15350,10 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         if (mouseControl) {
             // Plain shield movement instead of camera-relative one
             // TODO: control via cvar?
-            camRelativeCurrentYRot = 0;
-            // Simplification
             rotYTarget = xStick;
             rotXTarget = yStick;
         } else {
+            s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
             rotYTarget = (xStick * Math_CosS(camRelativeCurrentYRot)) - (yStick * Math_SinS(camRelativeCurrentYRot));
             rotXTarget = (yStick * Math_CosS(camRelativeCurrentYRot)) + (xStick * Math_SinS(camRelativeCurrentYRot));
         }
