@@ -2573,10 +2573,8 @@ static EntranceTableEntry* sCutsceneEntranceTable[] = {
 #define SCENE_ENTRANCE_NONE() \
     { 0, NULL, NULL }
 
-// 2Ship [Enhancement] Hijack the static keyword so that `sSceneEntranceTable` can be externed for BetterWarp menu
-#define static
-
-static SceneEntranceTableEntry sSceneEntranceTable[] = {
+// 2Ship [Enhancement] removing the static keyword so that `sSceneEntranceTable` can be externed for BetterWarp menu
+SceneEntranceTableEntry sSceneEntranceTable[] = {
     /* 0x00 */ SCENE_ENTRANCE(sMayorsResidenceEntranceTable, "Z2_SONCHONOIE"),
     /* 0x01 */ SCENE_ENTRANCE(sMajorasLairEntranceTable, "Z2_LAST_BS"),
     /* 0x02 */ SCENE_ENTRANCE(sMagicHagsPotionShopEntranceTable, "Z2_WITCH_SHOP"),
@@ -2688,8 +2686,6 @@ static SceneEntranceTableEntry sSceneEntranceTable[] = {
     /* 0x6C */ SCENE_ENTRANCE(sSouthClockTownEntranceTable, "Z2_CLOCKTOWER"),
     /* 0x6D */ SCENE_ENTRANCE(sLaundryPoolEntranceTable, "Z2_ALLEY"),
 };
-
-#undef static // 2Ship
 
 /**
  * Returns a pointer to an entrance table from a given entrance index.

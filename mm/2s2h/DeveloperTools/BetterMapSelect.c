@@ -278,23 +278,13 @@ void BetterMapSelect_Update(MapSelectState* mapSelectState) {
         return;
     }
 
-    static s32 sScene = -1;
+    static s32 sPrevScene = -1;
     Input* controller1 = CONTROLLER1(&mapSelectState->state);
 
-    if (sScene == -1) {
-        sScene = CVarGetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", 0);
-    }
-
-    // Reset entrance value when scene changes
-    if (sScene != mapSelectState->currentScene) {
-        sScene = mapSelectState->currentScene;
-        mapSelectState->opt = 0;
-    }
-
     // Clamp and wrap around the spawn value based on the supported entrances for that scene
-    if (sScene < ARRAY_COUNT(sBetterMapSelectInfo)) {
+    if (mapSelectState->currentScene < ARRAY_COUNT(sBetterMapSelectInfo)) {
         // Scenes from scene_table.h can be checked directly against `sSceneEntranceTable`
-        s32 entrSceneId = sBetterScenes[sScene].entrance >> 9;
+        s32 entrSceneId = sBetterScenes[mapSelectState->currentScene].entrance >> 9;
         SceneEntranceTableEntry entry = sSceneEntranceTable[entrSceneId];
 
         if (mapSelectState->opt >= entry.tableCount) {
@@ -302,10 +292,10 @@ void BetterMapSelect_Update(MapSelectState* mapSelectState) {
         } else if (mapSelectState->opt < 0) {
             mapSelectState->opt = entry.tableCount - 1;
         }
-
-    } else if (sScene == 102 || sScene == 103) { // Cheset/Cow special entries
-        s32 count =
-            sScene == 102 ? ARRAY_COUNT(sBetterMapSelectChestGrottoInfo) : ARRAY_COUNT(sBetterMapSelectCowGrottoInfo);
+    } else if (mapSelectState->currentScene == 102 || mapSelectState->currentScene == 103) {
+        // Cheset/Cow special entries
+        s32 count = mapSelectState->currentScene == 102 ? ARRAY_COUNT(sBetterMapSelectChestGrottoInfo)
+                                                        : ARRAY_COUNT(sBetterMapSelectCowGrottoInfo);
         if (mapSelectState->opt >= count) {
             mapSelectState->opt = 0;
         } else if (mapSelectState->opt < 0) {
