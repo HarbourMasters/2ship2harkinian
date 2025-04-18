@@ -4,6 +4,7 @@
 
 extern "C" {
 #include "overlays/actors/ovl_Bg_Dblue_Movebg/z_bg_dblue_movebg.h"
+#include "overlays/actors/ovl_Bg_Ikana_Block/z_bg_ikana_block.h"
 #include "overlays/actors/ovl_Obj_Oshihiki/z_obj_oshihiki.h"
 }
 
@@ -31,7 +32,17 @@ void RegisterFasterPushAndPull() {
 
     COND_VB_SHOULD(VB_SKATE_BLOCK_BEGIN_MOVE, CVAR, { *should = true; });
 
-    COND_VB_SHOULD(VB_BLOCK_BEGIN_MOVE, CVAR, { *should = true; });
+    COND_VB_SHOULD(VB_BLOCK_BEGIN_MOVE, CVAR, {
+        Actor* block = va_arg(args, Actor*);
+        // Cannot always allow the Ikana block to be moved, or it will move more than one space
+        if (block->id == ACTOR_BG_IKANA_BLOCK) {
+            if (((BgIkanaBlock*)block)->unk_17B > 0) {
+                *should = true;
+            }
+        } else {
+            *should = true;
+        }
+    });
 
     COND_VB_SHOULD(VB_BLOCK_BE_FINISHED_PULLING, CVAR, {
         f32* pValue = va_arg(args, f32*);

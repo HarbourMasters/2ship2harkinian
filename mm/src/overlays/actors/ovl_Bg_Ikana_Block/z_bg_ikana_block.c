@@ -7,6 +7,8 @@
 #include "z_bg_ikana_block.h"
 #include "objects/gameplay_dangeon_keep/gameplay_dangeon_keep.h"
 
+#include "2s2h/GameInteractor/GameInteractor.h"
+
 #define FLAGS (ACTOR_FLAG_10)
 
 #define THIS ((BgIkanaBlock*)thisx)
@@ -130,7 +132,8 @@ s32 func_80B7EB94(BgIkanaBlock* this, PlayState* play) {
 }
 
 s32 func_80B7ECFC(BgIkanaBlock* this, PlayState* play) {
-    return func_80B7EB64(this, play) && func_80B7EB7C(this, play) && func_80B7EB94(this, play);
+    return func_80B7EB64(this, play) && GameInteractor_Should(VB_BLOCK_BEGIN_MOVE, func_80B7EB7C(this, play), this) &&
+           func_80B7EB94(this, play);
 }
 
 void func_80B7ED54(BgIkanaBlock* this) {
@@ -290,7 +293,8 @@ void func_80B7F290(BgIkanaBlock* this, PlayState* play) {
 
     Math_StepToF(&this->unk_16C, 2.0f, 0.4f);
 
-    if (Math_StepToF(this->unk_164, this->unk_168, this->unk_16C)) {
+    if (GameInteractor_Should(VB_BLOCK_BE_FINISHED_PULLING, Math_StepToF(this->unk_164, this->unk_168, this->unk_16C),
+                              this->unk_164, this->unk_168, this->unk_16C, this->unk_16C)) {
         Player* player = GET_PLAYER(play);
 
         if (!func_80B7EB94(this, play)) {
