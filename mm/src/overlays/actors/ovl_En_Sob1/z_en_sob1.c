@@ -237,6 +237,8 @@ u16 EnSob1_GetWelcome(EnSob1* this, PlayState* play) {
             case PLAYER_MASK_POSTMAN:
                 return 0x644;
 
+            // 2SH2 [FD Enhancement] - Treat FD as any other non-human form
+            case PLAYER_MASK_FIERCE_DEITY:
             case PLAYER_MASK_GORON:
             case PLAYER_MASK_ZORA:
             case PLAYER_MASK_DEKU:
