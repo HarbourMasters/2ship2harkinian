@@ -3,6 +3,8 @@
 
 #include <nlohmann/json.hpp>
 #include "build.h"
+#include "Enhancements/Achievements/Achievements.h"
+#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "z64save.h"
@@ -47,15 +49,6 @@ void from_json(const json& j, RandoSaveCheck& randoSaveCheck) {
     j.at("price").get_to(randoSaveCheck.price);
 }
 
-// Define conversion for AchievementSaveData BEFORE ShipSaveInfo uses it
-void to_json(json& j, const AchievementSaveData& data) {
-    j = json{ { "unlocked", data.unlocked } };
-}
-
-void from_json(const json& j, AchievementSaveData& data) {
-    j.at("unlocked").get_to(data.unlocked);
-}
-
 void to_json(json& j, const RandoSaveInfo& rando) {
     j = json{
         { "randoInf", rando.randoInf },
@@ -80,6 +73,14 @@ void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
     uint8_t commitHash[8];
     memcpy(commitHash, shipSaveInfo.commitHash, sizeof(commitHash));
 
+    json j_achievements = json::object();
+    const auto& achievements = AchievementSystem::Instance().GetAchievements();
+    for (size_t i = 0; i < achievements.size() && i < MAX_ACHIEVEMENTS; ++i) {
+        const std::string& id = achievements[i]->id;
+        bool unlocked = shipSaveInfo.achievementData[i].unlocked;
+        j_achievements[id] = unlocked;
+    }
+
     j = json {
         { "dpadEquips", shipSaveInfo.dpadEquips },
         { "pauseSaveEntrance", shipSaveInfo.pauseSaveEntrance },
@@ -87,7 +88,7 @@ void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
         { "fileCreatedAt", shipSaveInfo.fileCreatedAt },
         { "fileCompletedAt", shipSaveInfo.fileCompletedAt },
         { "commitHash", commitHash },
-        { "achievementData", shipSaveInfo.achievementData },
+        { "achievementData", j_achievements },
     };
 
     if (shipSaveInfo.saveType == SAVETYPE_RANDO) {
@@ -102,18 +103,27 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("fileCreatedAt").get_to(shipSaveInfo.fileCreatedAt);
     j.at("fileCompletedAt").get_to(shipSaveInfo.fileCompletedAt);
     j.at("commitHash").get_to(shipSaveInfo.commitHash);
-    
-    if (j.contains("achievementData") && j.at("achievementData").is_array()) {
+
+    memset(&shipSaveInfo.achievementData, 0, sizeof(shipSaveInfo.achievementData));
+
+    if (j.contains("achievementData") && j.at("achievementData").is_object()) {
         const auto& j_achievements = j.at("achievementData");
-        for (size_t i = 0; i < MAX_ACHIEVEMENTS; ++i) {
-            if (i < j_achievements.size()) {
-                j_achievements.at(i).get_to(shipSaveInfo.achievementData[i]);
+        for (auto const& [id, unlocked_status] : j_achievements.items()) {
+            if (!unlocked_status.is_boolean()) {
+                SPDLOG_WARN("Achievement data for ID '{}' has non-boolean value, skipping.", id);
+                continue;
+            }
+
+            unsigned int index = AchievementSystem::Instance().GetAchievementIndex(id);
+            if (index < MAX_ACHIEVEMENTS) {
+                shipSaveInfo.achievementData[index].unlocked = unlocked_status.get<bool>();
             } else {
-                shipSaveInfo.achievementData[i].unlocked = false;
+                SPDLOG_WARN("Achievement ID '{}' from save file not found or index out of bounds ({} >= {}), skipping.",
+                            id, index, MAX_ACHIEVEMENTS);
             }
         }
-    } else {
-        memset(&shipSaveInfo.achievementData, 0, sizeof(shipSaveInfo.achievementData));
+    } else if (j.contains("achievementData")) {
+        SPDLOG_WARN("Found 'achievementData' in save file, but it was not the expected object format. Ignoring achievement data.");
     }
 
     if (shipSaveInfo.saveType == SAVETYPE_RANDO) {
@@ -136,7 +146,6 @@ void to_json(json& j, const ItemEquips& itemEquips) {
 
 void from_json(const json& j, ItemEquips& itemEquips) {
     j.at("equipment").get_to(itemEquips.equipment);
-    // buttonItems and cButtonSlots are arrays of arrays, so we need to manually parse them
     for (int i = 0; i < ARRAY_COUNT(itemEquips.buttonItems); i++) {
         j.at("buttonItems").at(i).get_to(itemEquips.buttonItems[i]);
         j.at("cButtonSlots").at(i).get_to(itemEquips.cButtonSlots[i]);
@@ -144,8 +153,6 @@ void from_json(const json& j, ItemEquips& itemEquips) {
 }
 
 void to_json(json& j, const Inventory& inventory) {
-    // Setup and copy u8 arrays to avoid json treating char[] as strings
-    // These char[] are not null-terminated, so saving as strings causes overflow/corruption
     uint8_t dekuPlaygroundPlayerName[3][8];
     memcpy(dekuPlaygroundPlayerName, inventory.dekuPlaygroundPlayerName, sizeof(dekuPlaygroundPlayerName));
 
@@ -171,7 +178,6 @@ void from_json(const json& j, Inventory& inventory) {
     j.at("dungeonKeys").get_to(inventory.dungeonKeys);
     j.at("defenseHearts").get_to(inventory.defenseHearts);
     j.at("strayFairies").get_to(inventory.strayFairies);
-    // dekuPlaygroundPlayerName is an array of arrays, so we need to manually parse it
     for (int i = 0; i < ARRAY_COUNT(inventory.dekuPlaygroundPlayerName); i++) {
         j.at("dekuPlaygroundPlayerName").at(i).get_to(inventory.dekuPlaygroundPlayerName[i]);
     }
@@ -200,8 +206,6 @@ void from_json(const json& j, PermanentSceneFlags& permanentSceneFlags) {
 }
 
 void to_json(json& j, const SavePlayerData& savePlayerData) {
-    // Setup and copy u8 arrays to avoid json treating char[] as strings
-    // These char[] are not null-terminated, so saving as strings causes overflow/corruption
     u8 newf[6];
     u8 playerName[8];
     memcpy(newf, savePlayerData.newf, sizeof(newf));
@@ -343,7 +347,6 @@ void from_json(const json& j, SaveInfo& saveInfo) {
     j.at("scarecrowSpawnSong").get_to(saveInfo.scarecrowSpawnSong);
     j.at("bombersCaughtNum").get_to(saveInfo.bombersCaughtNum);
     j.at("bombersCaughtOrder").get_to(saveInfo.bombersCaughtOrder);
-    // lotteryCodes is an array of arrays, so we need to manually parse it
     for (int i = 0; i < ARRAY_COUNT(saveInfo.lotteryCodes); i++) {
         j.at("lotteryCodes").at(i).get_to(saveInfo.lotteryCodes[i]);
     }

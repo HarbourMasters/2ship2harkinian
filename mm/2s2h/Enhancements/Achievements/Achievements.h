@@ -167,6 +167,14 @@ class AchievementSystem {
      */
     void LoadFromSaveContext();
 
+    /**
+     * @brief Gets the index for an achievement based on its registration order
+     * Needed externally for mapping save data IDs back to runtime indices.
+     * @param id Unique identifier of the achievement
+     * @return Index for the achievement, or MAX_ACHIEVEMENTS if not found/out of bounds
+     */
+    unsigned int GetAchievementIndex(const std::string& id) const;
+
   private:
     AchievementSystem();
     ~AchievementSystem();
@@ -178,13 +186,6 @@ class AchievementSystem {
     // Queue for pending achievement unlocks
     std::queue<std::string> mPendingAchievements;
     bool mProcessingEnabled;
-
-    /**
-     * @brief Gets the index for an achievement in the save data array
-     * @param id Unique identifier of the achievement
-     * @return Index for the achievement, or MAX_ACHIEVEMENTS if not found/out of bounds
-     */
-    unsigned int GetAchievementIndex(const std::string& id) const;
 };
 
 /**

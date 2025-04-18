@@ -459,5 +459,16 @@ static RegisterShipInitFunc initFunc(
                 // Check if player is in first cycle (before using Song of Time)
                 return hasAllRemains && (gSaveContext.save.saveInfo.playerData.threeDayResetCount <= 1);
             }());
+
+        /* TEST ACHIEVEMENTS FOR HOOK MACROS
+        ACHIEVEMENT_ID_HOOK("test_id_hook_enter_sct", "Test: Enter South Clock Town",
+                            "Entered South Clock Town scene.", (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], false, 1,
+                            AchievementCategory::BOTH, OnSceneInit, SCENE_CLOCKTOWER, true);
+
+        ACHIEVEMENT_VB_HOOK("test_vb_hook_low_hp", "Test: Low HP Alarm", "Triggered the low HP alarm sound.",
+                            (const char*)gItemIcons[ITEM_HEART_PIECE], false, 1, AchievementCategory::BOTH,
+                            VB_PLAY_LOW_HP_ALARM, true);
+        // END TEST ACHIEVEMENTS */
+
     },
     { CVAR_NAME_ACHIEVEMENTS }); // Depend on the main achievement CVar

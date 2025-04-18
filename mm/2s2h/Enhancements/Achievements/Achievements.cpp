@@ -85,8 +85,8 @@ void AchievementSystem::QueueAchievementUnlock(const std::string& id) {
         if (!mProcessingEnabled) {
             mProcessingEnabled = true;
 
-            // Register hook to process queued achievements during player updates
-            COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVAR_ACHIEVEMENTS, [this](Actor* actor) {
+            // Register hook to process queued achievements during the main game state update loop.
+            COND_HOOK(OnGameStateUpdate, CVAR_ACHIEVEMENTS, [this]() {
                 if (mProcessingEnabled && !mPendingAchievements.empty()) {
                     this->ProcessQueuedAchievements();
                 }
