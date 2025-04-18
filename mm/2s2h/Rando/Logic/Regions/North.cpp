@@ -288,7 +288,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_03, true),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(MOUNTAIN_VILLAGE_WINTER, 6),      ENTRANCE(PATH_TO_MOUNTAIN_VILLAGE, 1), true),
+            EXIT(ENTRANCE(TERMINA_FIELD, 3),                ENTRANCE(PATH_TO_MOUNTAIN_VILLAGE, 0), true),
         },
         .connections = {
             CONNECTION(RR_PATH_TO_MOUNTAIN_VILLAGE_UPPER, CAN_BE_GORON || CAN_USE_EXPLOSIVE || CAN_USE_MAGIC_ARROW(FIRE)),
@@ -306,7 +306,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_04, true),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(TERMINA_FIELD, 3),                ENTRANCE(PATH_TO_MOUNTAIN_VILLAGE, 0), true),
+            EXIT(ENTRANCE(MOUNTAIN_VILLAGE_WINTER, 6),      ENTRANCE(PATH_TO_MOUNTAIN_VILLAGE, 1), true),
         },
         .connections = {
             CONNECTION(RR_PATH_TO_MOUNTAIN_VILLAGE_LOWER, CAN_BE_GORON || CAN_USE_EXPLOSIVE || CAN_USE_MAGIC_ARROW(FIRE)),
