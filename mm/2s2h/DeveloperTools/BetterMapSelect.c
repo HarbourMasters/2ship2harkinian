@@ -46,6 +46,7 @@ static BetterMapSelectInfoEntry sBetterMapSelectInfo[102] = {
 #define STAGE_CURRENT_TIME 0x9000
 
 extern SceneSelectEntry sScenes[143];
+extern SceneEntranceTableEntry sSceneEntranceTable[ENTR_SCENE_MAX];
 
 static bool sIsBetterMapSelectEnabled = false;
 
@@ -273,6 +274,10 @@ void BetterMapSelect_Update(MapSelectState* mapSelectState) {
         BetterMapSelect_Init(mapSelectState);
     }
 
+    if (!sIsBetterMapSelectEnabled) {
+        return;
+    }
+
     static s32 sScene = -1;
     Input* controller1 = CONTROLLER1(&mapSelectState->state);
 
@@ -280,11 +285,33 @@ void BetterMapSelect_Update(MapSelectState* mapSelectState) {
         sScene = CVarGetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", 0);
     }
 
-    mapSelectState->opt = CLAMP_MIN(mapSelectState->opt, 0);
-
     // Reset entrance value when scene changes
     if (sScene != mapSelectState->currentScene) {
         sScene = mapSelectState->currentScene;
+        mapSelectState->opt = 0;
+    }
+
+    // Clamp and wrap around the spawn value based on the supported entrances for that scene
+    if (sScene < ARRAY_COUNT(sBetterMapSelectInfo)) {
+        // Scenes from scene_table.h can be checked directly against `sSceneEntranceTable`
+        s32 entrSceneId = sBetterScenes[sScene].entrance >> 9;
+        SceneEntranceTableEntry entry = sSceneEntranceTable[entrSceneId];
+
+        if (mapSelectState->opt >= entry.tableCount) {
+            mapSelectState->opt = 0;
+        } else if (mapSelectState->opt < 0) {
+            mapSelectState->opt = entry.tableCount - 1;
+        }
+
+    } else if (sScene == 102 || sScene == 103) { // Cheset/Cow special entries
+        s32 count =
+            sScene == 102 ? ARRAY_COUNT(sBetterMapSelectChestGrottoInfo) : ARRAY_COUNT(sBetterMapSelectCowGrottoInfo);
+        if (mapSelectState->opt >= count) {
+            mapSelectState->opt = 0;
+        } else if (mapSelectState->opt < 0) {
+            mapSelectState->opt = count - 1;
+        }
+    } else { // File Select/Title Screen
         mapSelectState->opt = 0;
     }
 
