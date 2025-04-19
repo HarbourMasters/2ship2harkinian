@@ -25,24 +25,18 @@ void RegisterFasterPushAndPull() {
     });
 
     COND_VB_SHOULD(VB_PUSH_BLOCK_SET_TIMER, CVAR, {
-        ObjOshihiki* objOshihiki = va_arg(args, ObjOshihiki*);
-        objOshihiki->timer = 2;
+        Actor* actor = va_arg(args, Actor*);
+        if (actor->id == ACTOR_OBJ_OSHIHIKI) {
+            ((ObjOshihiki*)actor)->timer = 2;
+        } else if (actor->id == ACTOR_BG_IKANA_BLOCK) {
+            ((BgIkanaBlock*)actor)->unk_17B = 11;
+        }
         *should = false;
     });
 
     COND_VB_SHOULD(VB_SKATE_BLOCK_BEGIN_MOVE, CVAR, { *should = true; });
 
-    COND_VB_SHOULD(VB_BLOCK_BEGIN_MOVE, CVAR, {
-        Actor* block = va_arg(args, Actor*);
-        // Cannot always allow the Ikana block to be moved, or it will move more than one space
-        if (block->id == ACTOR_BG_IKANA_BLOCK) {
-            if (((BgIkanaBlock*)block)->unk_17B > 0) {
-                *should = true;
-            }
-        } else {
-            *should = true;
-        }
-    });
+    COND_VB_SHOULD(VB_BLOCK_BEGIN_MOVE, CVAR, { *should = true; });
 
     COND_VB_SHOULD(VB_BLOCK_BE_FINISHED_PULLING, CVAR, {
         f32* pValue = va_arg(args, f32*);

@@ -72,8 +72,10 @@ void func_80B7EA60(BgIkanaBlock* this) {
 
 void func_80B7EB30(BgIkanaBlock* this) {
     if (this->unk_17A & (0x8 | 0x4 | 0x2 | 0x1)) {
-        if (this->unk_17B < 127) {
-            this->unk_17B++;
+        if (GameInteractor_Should(VB_PUSH_BLOCK_SET_TIMER, true, this)) {
+            if (this->unk_17B < 127) {
+                this->unk_17B++;
+            }
         }
     } else {
         this->unk_17B = 0;
@@ -132,8 +134,7 @@ s32 func_80B7EB94(BgIkanaBlock* this, PlayState* play) {
 }
 
 s32 func_80B7ECFC(BgIkanaBlock* this, PlayState* play) {
-    return func_80B7EB64(this, play) && GameInteractor_Should(VB_BLOCK_BEGIN_MOVE, func_80B7EB7C(this, play), this) &&
-           func_80B7EB94(this, play);
+    return func_80B7EB64(this, play) && func_80B7EB7C(this, play) && func_80B7EB94(this, play);
 }
 
 void func_80B7ED54(BgIkanaBlock* this) {
