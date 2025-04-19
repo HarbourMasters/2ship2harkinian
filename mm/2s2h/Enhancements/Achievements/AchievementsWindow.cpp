@@ -184,13 +184,15 @@ void AchievementsWindow::DrawAchievementList() {
             continue;
         }
 
-        // Don't display secret achievements in search results unless they're unlocked
-        if (achievement->isSecret() && !isUnlocked) {
-            continue;
-        }
+        // Text search filter: Check against displayed text
+        bool isSecret = achievement->isSecret();
+        bool checkAgainstPlaceholders = isSecret && !isUnlocked;
 
-        if (!sAchievementFilter.PassFilter(achievement->getName().c_str()) &&
-            !sAchievementFilter.PassFilter(achievement->getDescription().c_str())) {
+        const char* nameToCheck = checkAgainstPlaceholders ? "Secret Achievement" : achievement->getName().c_str();
+        const char* descToCheck = checkAgainstPlaceholders ? "Complete a hidden objective to unlock this achievement."
+                                                           : achievement->getDescription().c_str();
+
+        if (!sAchievementFilter.PassFilter(nameToCheck) && !sAchievementFilter.PassFilter(descToCheck)) {
             continue;
         }
 
@@ -260,18 +262,23 @@ void AchievementsWindow::DrawAchievementDetails(const std::shared_ptr<Achievemen
         ImGui::BeginGroup();
 
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::TextColored(isUnlocked ? GOLD_COLOR : ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s",
-                           achievement->getName().c_str());
+        // Combine name and [Secret] tag if applicable
+        std::string displayName = achievement->getName();
+        if (isSecret) {
+            displayName += " [Secret]";
+        }
+        ImGui::TextColored(isUnlocked ? GOLD_COLOR : ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s", displayName.c_str());
         ImGui::PopFont();
 
         ImGui::TextColored(isUnlocked ? ImVec4(0.9f, 0.9f, 0.9f, 1.0f) : GRAY_COLOR, "%s",
                            achievement->getDescription().c_str());
         ImGui::EndGroup();
     } else {
+        // For locked secret achievements, we still show "Secret Achievement" as the title
         ImGui::BeginGroup();
 
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::TextColored(GRAY_COLOR, "Secret Achievement");
+        ImGui::TextColored(GRAY_COLOR, "Secret Achievement"); // Keep this generic title when locked & secret
         ImGui::PopFont();
 
         ImGui::TextColored(DARK_GRAY_COLOR, "Complete a hidden objective to unlock this achievement.");

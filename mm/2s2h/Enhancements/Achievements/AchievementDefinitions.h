@@ -24,8 +24,8 @@
         AchievementSystem::Instance().RegisterAchievement(achievement);                                            \
                                                                                                                    \
         COND_HOOK(hookType, CVAR_ACHIEVEMENTS, [ach_id](auto... args) {                                            \
-            if (AchievementSystem::Instance().IsAchievementRelevantForGameMode(ach_id, IS_RANDO) && condition &&   \
-                !AchievementSystem::Instance().IsAchievementUnlocked(ach_id)) {                                    \
+            if (AchievementSystem::Instance().IsAchievementRelevantForGameMode(ach_id, IS_RANDO) &&                \
+                condition(args...) && !AchievementSystem::Instance().IsAchievementUnlocked(ach_id)) {              \
                 AchievementSystem::Instance().QueueAchievementUnlock(ach_id);                                      \
             }                                                                                                      \
         });                                                                                                        \
@@ -44,20 +44,20 @@
  * @param hookId The ID to register the hook for (actor ID, text ID, etc.)
  * @param condition The condition to check for unlocking the achievement
  */
-#define ACHIEVEMENT_ID_HOOK(id, name, description, iconPath, isSecret, gamerscore, category, hookType, hookId,   \
-                            condition)                                                                           \
-    {                                                                                                            \
-        const std::string ach_id = (id);                                                                         \
-        auto achievement =                                                                                       \
-            std::make_shared<Achievement>(ach_id, name, description, iconPath, isSecret, gamerscore, category);  \
-        AchievementSystem::Instance().RegisterAchievement(achievement);                                          \
-                                                                                                                 \
-        COND_ID_HOOK(hookType, hookId, CVAR_ACHIEVEMENTS, [ach_id](auto... args) {                               \
-            if (AchievementSystem::Instance().IsAchievementRelevantForGameMode(ach_id, IS_RANDO) && condition && \
-                !AchievementSystem::Instance().IsAchievementUnlocked(ach_id)) {                                  \
-                AchievementSystem::Instance().QueueAchievementUnlock(ach_id);                                    \
-            }                                                                                                    \
-        });                                                                                                      \
+#define ACHIEVEMENT_ID_HOOK(id, name, description, iconPath, isSecret, gamerscore, category, hookType, hookId,  \
+                            condition)                                                                          \
+    {                                                                                                           \
+        const std::string ach_id = (id);                                                                        \
+        auto achievement =                                                                                      \
+            std::make_shared<Achievement>(ach_id, name, description, iconPath, isSecret, gamerscore, category); \
+        AchievementSystem::Instance().RegisterAchievement(achievement);                                         \
+                                                                                                                \
+        COND_ID_HOOK(hookType, hookId, CVAR_ACHIEVEMENTS, [ach_id](auto... args) {                              \
+            if (AchievementSystem::Instance().IsAchievementRelevantForGameMode(ach_id, IS_RANDO) &&             \
+                condition(args...) && !AchievementSystem::Instance().IsAchievementUnlocked(ach_id)) {           \
+                AchievementSystem::Instance().QueueAchievementUnlock(ach_id);                                   \
+            }                                                                                                   \
+        });                                                                                                     \
     }
 
 /**

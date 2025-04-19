@@ -168,6 +168,13 @@ void AchievementEditor::DrawDetailsPane() {
     ImGui::TextColored(isUnlocked ? ImVec4(0.0f, 1.0f, 0.0f, 1.0f) : ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
                        isUnlocked ? "Unlocked" : "Locked");
 
+    // Display if the achievement is secret
+    bool isSecret = selectedAchievement->isSecret();
+    ImGui::Text("Secret:");
+    ImGui::SameLine();
+    ImGui::TextColored(isSecret ? ImVec4(1.0f, 0.5f, 0.0f, 1.0f) : ImVec4(0.7f, 0.7f, 0.7f, 1.0f),
+                       isSecret ? "Yes" : "No");
+
     ImGui::Separator();
     ImGui::Spacing();
 
