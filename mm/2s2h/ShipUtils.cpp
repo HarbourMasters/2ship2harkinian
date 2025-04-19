@@ -203,9 +203,10 @@ void LoadGuiTextures() {
     // Load achievement icons
     const auto& achievements = AchievementSystem::Instance().GetAchievements();
     for (const auto& achievement : achievements) {
-        if (!achievement->iconPath.empty()) {
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(
-                achievement->iconPath.c_str(), achievement->iconPath.c_str(), ImVec4(1, 1, 1, 1));
+        if (!achievement->getIconPath().empty()) {
+            auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+            gui->LoadGuiTexture(achievement->getIconPath().c_str(), achievement->getIconPath().c_str(),
+                                ImVec4(1, 1, 1, 1));
         }
     }
 }

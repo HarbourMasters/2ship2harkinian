@@ -74,10 +74,8 @@ void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
     memcpy(commitHash, shipSaveInfo.commitHash, sizeof(commitHash));
 
     json j_achievements = json::object();
-    const auto& achievements = AchievementSystem::Instance().GetAchievements();
-    for (size_t i = 0; i < achievements.size() && i < MAX_ACHIEVEMENTS; ++i) {
-        const std::string& id = achievements[i]->id;
-        bool unlocked = shipSaveInfo.achievementData[i].unlocked;
+    const auto& achievementStates = AchievementSystem::Instance().GetCurrentStates();
+    for (const auto& [id, unlocked] : achievementStates) {
         j_achievements[id] = unlocked;
     }
 
@@ -104,8 +102,7 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("fileCompletedAt").get_to(shipSaveInfo.fileCompletedAt);
     j.at("commitHash").get_to(shipSaveInfo.commitHash);
 
-    memset(&shipSaveInfo.achievementData, 0, sizeof(shipSaveInfo.achievementData));
-
+    std::unordered_map<std::string, bool> loadedAchievementStates;
     if (j.contains("achievementData") && j.at("achievementData").is_object()) {
         const auto& j_achievements = j.at("achievementData");
         for (auto const& [id, unlocked_status] : j_achievements.items()) {
@@ -113,15 +110,9 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
                 SPDLOG_WARN("Achievement data for ID '{}' has non-boolean value, skipping.", id);
                 continue;
             }
-
-            unsigned int index = AchievementSystem::Instance().GetAchievementIndex(id);
-            if (index < MAX_ACHIEVEMENTS) {
-                shipSaveInfo.achievementData[index].unlocked = unlocked_status.get<bool>();
-            } else {
-                SPDLOG_WARN("Achievement ID '{}' from save file not found or index out of bounds ({} >= {}), skipping.",
-                            id, index, MAX_ACHIEVEMENTS);
-            }
+            loadedAchievementStates[id] = unlocked_status.get<bool>();
         }
+        AchievementSystem::Instance().LoadFromSaveData(loadedAchievementStates);
     } else if (j.contains("achievementData")) {
         SPDLOG_WARN("Found 'achievementData' in save file, but it was not the expected object format. Ignoring achievement data.");
     }

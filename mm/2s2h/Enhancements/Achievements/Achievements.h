@@ -22,35 +22,20 @@ enum class AchievementState { LOCKED, UNLOCKED };
  * @enum AchievementCategory
  * @brief Categorizes achievements by game mode
  */
-enum class AchievementCategory {
-    VANILLA,    // Standard game achievements
-    RANDOMIZER, // Randomizer mode specific achievements
-    BOTH        // Achievements applicable to both modes
-};
+enum class AchievementCategory { VANILLA, RANDOMIZER, BOTH };
 
 /**
  * @enum AchievementNotificationType
  * @brief Determines the visual style of achievement notifications
  */
-enum class AchievementNotificationType {
-    SIMPLE,  // Simple notification
-    ENHANCED // Enhanced notification with animations
-};
+enum class AchievementNotificationType { SIMPLE, ENHANCED };
 
 /**
  * @struct Achievement
  * @brief Data structure representing a single achievement
  */
 struct Achievement {
-    std::string id;
-    std::string name;
-    std::string description;
-    std::string iconPath;
-    AchievementState state;
-    bool isSecret;
-    int gamerscore;               // Optional gamerscore value
-    AchievementCategory category; // Category for game mode specific achievements
-
+  public:
     /**
      * @brief Constructs an Achievement
      * @param id Unique identifier for the achievement
@@ -63,6 +48,44 @@ struct Achievement {
      */
     Achievement(std::string id, std::string name, std::string description, std::string iconPath, bool isSecret = false,
                 int gamerscore = 0, AchievementCategory category = AchievementCategory::BOTH);
+
+    // Public Getters
+    const std::string& getId() const {
+        return mId;
+    }
+    const std::string& getName() const {
+        return mName;
+    }
+    const std::string& getDescription() const {
+        return mDescription;
+    }
+    const std::string& getIconPath() const {
+        return mIconPath;
+    }
+    bool isSecret() const {
+        return mIsSecret;
+    }
+    int getGamerscore() const {
+        return mGamerscore;
+    }
+    AchievementCategory getCategory() const {
+        return mCategory;
+    }
+
+    // Allow AchievementSystem to modify state directly (friend or internal setter)
+    // Option 1: Friend class (simple for this case)
+    // friend class AchievementSystem;
+    // Option 2: Internal setter (if friend is undesirable)
+    // void setStateInternal(AchievementState newState) { mState = newState; }
+
+  private:
+    std::string mId;
+    std::string mName;
+    std::string mDescription;
+    std::string mIconPath;
+    bool mIsSecret;
+    int mGamerscore;               // Optional gamerscore value
+    AchievementCategory mCategory; // Category for game mode specific achievements
 };
 
 /**
@@ -145,6 +168,12 @@ class AchievementSystem {
     size_t GetUnlockedAchievementsCount() const;
 
     /**
+     * @brief Gets the current runtime state of all achievements
+     * @return A map of achievement ID to unlocked status (true/false)
+     */
+    const std::unordered_map<std::string, bool>& GetCurrentStates() const;
+
+    /**
      * @brief Shows a simple achievement notification
      * @param achievementName Name of the achievement to display
      */
@@ -163,17 +192,15 @@ class AchievementSystem {
     std::shared_ptr<Ship::GuiWindow> CreateAchievementsWindow();
 
     /**
-     * @brief Loads achievement states from save context
+     * @brief Loads achievement states from deserialized data map
+     * @param loadedStates Map of achievement ID to unlocked status from save file
      */
-    void LoadFromSaveContext();
+    void LoadFromSaveData(const std::unordered_map<std::string, bool>& loadedStates);
 
     /**
-     * @brief Gets the index for an achievement based on its registration order
-     * Needed externally for mapping save data IDs back to runtime indices.
-     * @param id Unique identifier of the achievement
-     * @return Index for the achievement, or MAX_ACHIEVEMENTS if not found/out of bounds
+     * @brief Resets all achievement states to LOCKED for a new game.
      */
-    unsigned int GetAchievementIndex(const std::string& id) const;
+    void ResetStatesForNewGame();
 
   private:
     AchievementSystem();
@@ -182,6 +209,7 @@ class AchievementSystem {
     // Achievement Storage
     std::vector<std::shared_ptr<Achievement>> mAchievements;
     std::unordered_map<std::string, std::shared_ptr<Achievement>> mAchievementsMap;
+    std::unordered_map<std::string, bool> mCurrentAchievementStates;
 
     // Queue for pending achievement unlocks
     std::queue<std::string> mPendingAchievements;

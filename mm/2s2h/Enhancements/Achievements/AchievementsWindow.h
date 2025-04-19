@@ -37,7 +37,8 @@ class AchievementsWindow : public Ship::GuiWindow {
      * @brief Destructor that clears achievement references
      */
     ~AchievementsWindow() {
-        mAchievements.clear();
+        // Cannot clear a const reference, and no need to as we don't own the data.
+        // mAchievements.clear();
     }
 
   protected:
@@ -58,7 +59,7 @@ class AchievementsWindow : public Ship::GuiWindow {
 
   private:
     // Achievement Data
-    std::vector<std::shared_ptr<Achievement>> mAchievements;
+    const std::vector<std::shared_ptr<Achievement>>& mAchievements;
 
     // UI State
     bool mShowLockedOnly = false;

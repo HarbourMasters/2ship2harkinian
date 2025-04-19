@@ -19,9 +19,8 @@ extern "C" {
 ImGuiTextFilter AchievementsWindow::sAchievementFilter;
 
 AchievementsWindow::AchievementsWindow(const std::string& consoleVariable, const std::string& name)
-    : Ship::GuiWindow(consoleVariable, name, ImVec2(500, 600)) {
-
-    mAchievements = AchievementSystem::Instance().GetAchievements();
+    : Ship::GuiWindow(consoleVariable, name, ImVec2(500, 600)),
+      mAchievements(AchievementSystem::Instance().GetAchievements()) {
 
     // Set initial visibility based on CVar value
     bool shouldBeVisible = CVarGetInteger(consoleVariable.c_str(), 0) != 0;
@@ -37,13 +36,8 @@ void AchievementsWindow::InitElement() {
 }
 
 void AchievementsWindow::UpdateElement() {
-    // Get the achievements from the achievement system
-    mAchievements = AchievementSystem::Instance().GetAchievements();
-
-    // Determine if we're in randomizer mode
     mIsRandomizerMode = IsRandomizerMode();
 
-    // Check if the visibility CVar changed
     bool shouldBeVisible = CVarGetInteger("gOpenWindows.Achievements", 0) != 0;
     if (shouldBeVisible && !IsVisible()) {
         Show();
@@ -51,22 +45,16 @@ void AchievementsWindow::UpdateElement() {
         Hide();
     }
 
-    // Only update achievements if the system is enabled
     bool achievementsEnabled = CVarGetInteger("gEnhancements.Achievements.Enabled", 1) != 0;
-    if (achievementsEnabled) {
-        mAchievements = AchievementSystem::Instance().GetAchievements();
-    }
 }
 
 void AchievementsWindow::DrawElement() {
-    // Check if achievements are enabled
     bool achievementsEnabled = CVarGetInteger("gEnhancements.Achievements.Enabled", 1) != 0;
     if (!achievementsEnabled) {
         DrawDisabledMessage();
         return;
     }
 
-    // Check if we're in actual gameplay
     extern PlayState* gPlayState;
     if (gPlayState == nullptr) {
         DrawNotInGameMessage();
@@ -76,17 +64,18 @@ void AchievementsWindow::DrawElement() {
     DrawHeader();
     DrawProgressBar();
     DrawFilters();
+
     DrawAchievementList();
 }
 
 void AchievementsWindow::DrawHeader() {
-    ImGui::Spacing(); // Add spacing above the title
+    ImGui::Spacing();
     ImGui::PushStyleColor(ImGuiCol_Text, GOLD_COLOR);
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-    ImGui::SetWindowFontScale(1.2f); // Make font size slightly bigger
+    ImGui::SetWindowFontScale(1.2f);
     ImGui::SetCursorPosX((ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("ACHIEVEMENTS").x) * 0.5f);
     ImGui::Text("ACHIEVEMENTS");
-    ImGui::SetWindowFontScale(1.0f); // Reset font scale
+    ImGui::SetWindowFontScale(1.0f);
     ImGui::PopFont();
     ImGui::PopStyleColor();
 
@@ -102,9 +91,9 @@ void AchievementsWindow::DrawProgressBar() {
     unlockedCount = AchievementSystem::Instance().GetUnlockedAchievementsCount();
 
     for (const auto& achievement : mAchievements) {
-        totalGamerscore += achievement->gamerscore;
-        if (achievement->state == AchievementState::UNLOCKED) {
-            unlockedGamerscore += achievement->gamerscore;
+        totalGamerscore += achievement->getGamerscore();
+        if (AchievementSystem::Instance().IsAchievementUnlocked(achievement->getId())) {
+            unlockedGamerscore += achievement->getGamerscore();
         }
     }
 
@@ -185,25 +174,23 @@ void AchievementsWindow::DrawAchievementList() {
     ImGui::BeginChild("AchievementsScrolling", ImVec2(0, 0), false, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
     for (const auto& achievement : mAchievements) {
-        // Apply state filters
-        if ((mShowLockedOnly && achievement->state == AchievementState::UNLOCKED) ||
-            (mShowUnlockedOnly && achievement->state == AchievementState::LOCKED)) {
+        bool isUnlocked = AchievementSystem::Instance().IsAchievementUnlocked(achievement->getId());
+
+        if ((mShowLockedOnly && isUnlocked) || (mShowUnlockedOnly && !isUnlocked)) {
             continue;
         }
 
-        // Automatically filter achievements based on game mode
-        if (!AchievementSystem::Instance().IsAchievementRelevantForGameMode(achievement->id, mIsRandomizerMode)) {
+        if (!AchievementSystem::Instance().IsAchievementRelevantForGameMode(achievement->getId(), mIsRandomizerMode)) {
             continue;
         }
 
         // Don't display secret achievements in search results unless they're unlocked
-        if (achievement->isSecret && achievement->state == AchievementState::LOCKED && sAchievementFilter.IsActive()) {
+        if (achievement->isSecret() && !isUnlocked) {
             continue;
         }
 
-        // Apply search filter
-        if (!sAchievementFilter.PassFilter(achievement->name.c_str()) &&
-            !sAchievementFilter.PassFilter(achievement->description.c_str())) {
+        if (!sAchievementFilter.PassFilter(achievement->getName().c_str()) &&
+            !sAchievementFilter.PassFilter(achievement->getDescription().c_str())) {
             continue;
         }
 
@@ -214,13 +201,13 @@ void AchievementsWindow::DrawAchievementList() {
 }
 
 void AchievementsWindow::DrawAchievementItem(const std::shared_ptr<Achievement>& achievement) {
-    ImGui::PushID(achievement->id.c_str());
+    ImGui::PushID(achievement->getId().c_str());
 
-    bool isUnlocked = (achievement->state == AchievementState::UNLOCKED);
+    bool isUnlocked = AchievementSystem::Instance().IsAchievementUnlocked(achievement->getId());
     ImGui::PushStyleColor(ImGuiCol_ChildBg,
                           isUnlocked ? ImVec4(0.25f, 0.22f, 0.15f, 1.0f) : ImVec4(0.18f, 0.18f, 0.18f, 1.0f));
 
-    ImGui::BeginChild(achievement->id.c_str(), ImVec2(0, 70), true);
+    ImGui::BeginChild(achievement->getId().c_str(), ImVec2(0, 70), true);
 
     DrawAchievementIcon(achievement);
     DrawAchievementDetails(achievement);
@@ -233,14 +220,14 @@ void AchievementsWindow::DrawAchievementItem(const std::shared_ptr<Achievement>&
 }
 
 void AchievementsWindow::DrawAchievementIcon(const std::shared_ptr<Achievement>& achievement) {
-    bool isUnlocked = (achievement->state == AchievementState::UNLOCKED);
-    bool isSecret = achievement->isSecret;
+    bool isUnlocked = AchievementSystem::Instance().IsAchievementUnlocked(achievement->getId());
+    bool isSecret = achievement->isSecret();
 
     if (isUnlocked) {
-        if (!achievement->iconPath.empty()) {
+        if (!achievement->getIconPath().empty()) {
             auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
-            if (gui->HasTextureByName(achievement->iconPath)) {
-                ImGui::Image(gui->GetTextureByName(achievement->iconPath), ImVec2(32, 32));
+            if (gui->HasTextureByName(achievement->getIconPath())) {
+                ImGui::Image(gui->GetTextureByName(achievement->getIconPath()), ImVec2(32, 32));
             } else {
                 ImGui::TextColored(GOLD_COLOR, "%s", ICON_FA_TROPHY);
             }
@@ -248,11 +235,11 @@ void AchievementsWindow::DrawAchievementIcon(const std::shared_ptr<Achievement>&
             ImGui::TextColored(GOLD_COLOR, "%s", ICON_FA_TROPHY);
         }
     } else {
-        if (!achievement->iconPath.empty() && !isSecret) {
+        if (!achievement->getIconPath().empty() && !isSecret) {
             auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
-            if (gui->HasTextureByName(achievement->iconPath)) {
+            if (gui->HasTextureByName(achievement->getIconPath())) {
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5f);
-                ImGui::Image(gui->GetTextureByName(achievement->iconPath), ImVec2(32, 32));
+                ImGui::Image(gui->GetTextureByName(achievement->getIconPath()), ImVec2(32, 32));
                 ImGui::PopStyleVar();
             } else {
                 ImGui::TextColored(DARK_GRAY_COLOR, "%s", ICON_FA_LOCK);
@@ -266,18 +253,19 @@ void AchievementsWindow::DrawAchievementIcon(const std::shared_ptr<Achievement>&
 }
 
 void AchievementsWindow::DrawAchievementDetails(const std::shared_ptr<Achievement>& achievement) {
-    bool isUnlocked = (achievement->state == AchievementState::UNLOCKED);
-    bool isSecret = achievement->isSecret;
+    bool isUnlocked = AchievementSystem::Instance().IsAchievementUnlocked(achievement->getId());
+    bool isSecret = achievement->isSecret();
 
     if (isUnlocked || !isSecret) {
         ImGui::BeginGroup();
 
         ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::TextColored(isUnlocked ? GOLD_COLOR : ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s", achievement->name.c_str());
+        ImGui::TextColored(isUnlocked ? GOLD_COLOR : ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s",
+                           achievement->getName().c_str());
         ImGui::PopFont();
 
         ImGui::TextColored(isUnlocked ? ImVec4(0.9f, 0.9f, 0.9f, 1.0f) : GRAY_COLOR, "%s",
-                           achievement->description.c_str());
+                           achievement->getDescription().c_str());
         ImGui::EndGroup();
     } else {
         ImGui::BeginGroup();
@@ -290,9 +278,9 @@ void AchievementsWindow::DrawAchievementDetails(const std::shared_ptr<Achievemen
         ImGui::EndGroup();
     }
 
-    if (achievement->gamerscore > 0) {
+    if (achievement->getGamerscore() > 0) {
         ImGui::SameLine(ImGui::GetContentRegionAvail().x - 40.0f);
-        ImGui::TextColored(isUnlocked ? GOLD_COLOR : DARK_GRAY_COLOR, "%d HM", achievement->gamerscore);
+        ImGui::TextColored(isUnlocked ? GOLD_COLOR : DARK_GRAY_COLOR, "%d HM", achievement->getGamerscore());
     }
 }
 
@@ -311,6 +299,5 @@ void AchievementsWindow::DrawNotInGameMessage() {
 }
 
 bool AchievementsWindow::IsRandomizerMode() const {
-    // Check if the game is in randomizer mode using the IS_RANDO macro
     return IS_RANDO;
 }

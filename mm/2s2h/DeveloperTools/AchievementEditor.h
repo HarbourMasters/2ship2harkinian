@@ -72,16 +72,9 @@ class AchievementEditor : public GuiWindow {
      */
     void DrawDiagnostics();
 
-    // Pointer to the achievement system instance (fetched in InitElement or DrawElement)
     AchievementSystem* mAchievementSystem = nullptr;
-
-    // Store the ID of the currently selected achievement
     std::string mSelectedAchievementId = "";
-
-    // Store the list of achievements (updated periodically)
     std::vector<std::shared_ptr<Achievement>> mAchievementsList;
-
-    // Optional: Filter text
     char mFilterText[256] = { 0 };
 };
 

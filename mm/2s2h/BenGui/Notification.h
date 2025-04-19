@@ -27,6 +27,7 @@ struct Options {
     NotificationStyle style = NotificationStyle::DEFAULT;
     float animationProgress = 0.0f; // Used for animation (0.0 to 1.0)
     int soundId = -1;               // Sound to play (-1 for default)
+    bool isAchievement = false;     // Flag to specifically identify achievement notifications
 };
 
 class Window : public Ship::GuiWindow {

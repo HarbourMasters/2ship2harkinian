@@ -30,29 +30,26 @@ AchievementSystem& AchievementSystem::Instance() {
 // Achievement implementation
 Achievement::Achievement(std::string id, std::string name, std::string description, std::string iconPath, bool isSecret,
                          int gamerscore, AchievementCategory category)
-    : id(id), name(name), description(description), iconPath(iconPath), state(AchievementState::LOCKED),
-      isSecret(isSecret), gamerscore(gamerscore), category(category) {
+    : mId(std::move(id)), mName(std::move(name)), mDescription(std::move(description)), mIconPath(std::move(iconPath)),
+      mIsSecret(isSecret), mGamerscore(gamerscore), mCategory(category) {
+    // Use std::move for string parameters passed by value
 }
 
 // Achievement System implementation
 AchievementSystem::AchievementSystem() {
-    // Constructor logic (if any) can go here.
-    // Instance = this; // No longer needed
     mProcessingEnabled = false;
 }
 
 AchievementSystem::~AchievementSystem() {
-    // Destructor logic (if any) can go here.
-    // if (Instance == this) { // No longer needed
-    //     Instance = nullptr;
-    // }
 }
 
 void AchievementSystem::RegisterAchievement(std::shared_ptr<Achievement> achievement) {
     mAchievements.push_back(achievement);
-    mAchievementsMap[achievement->id] = achievement;
+    mAchievementsMap[achievement->getId()] = achievement;
+    // Initialize runtime state to locked upon registration
+    mCurrentAchievementStates[achievement->getId()] = false;
 
-    SPDLOG_DEBUG("Registered achievement: {}", achievement->id);
+    SPDLOG_DEBUG("Registered achievement: {}", achievement->getId());
 }
 
 std::shared_ptr<Achievement> AchievementSystem::GetAchievement(const std::string& id) const {
@@ -65,33 +62,23 @@ std::shared_ptr<Achievement> AchievementSystem::GetAchievement(const std::string
 
 void AchievementSystem::QueueAchievementUnlock(const std::string& id) {
     auto achievement = GetAchievement(id);
-    if (achievement && achievement->state != AchievementState::UNLOCKED) {
-        achievement->state = AchievementState::UNLOCKED;
-        SPDLOG_INFO("Achievement queued for unlock: {}", achievement->name);
+    // Use mCurrentAchievementStates as the source of truth for unlock status
+    if (achievement && !mCurrentAchievementStates[id]) {
+        mCurrentAchievementStates[id] = true;
+        SPDLOG_INFO("Achievement queued for unlock: {}", achievement->getName());
 
-        // Save achievement state to save context immediately
-        unsigned int index = GetAchievementIndex(id);
-        if (index < MAX_ACHIEVEMENTS && &gSaveContext) {
-            gSaveContext.save.shipSaveInfo.achievementData[index].unlocked = true;
-            SPDLOG_DEBUG("Saved achievement {} state directly to save context", id);
-        } else {
-            SPDLOG_ERROR("Failed to save achievement {} state: Invalid index {} or no save context", id, index);
-        }
+        // Save context interaction removed - state is saved via GetCurrentStates() during serialization
 
-        // Queue for showing notification during gameplay
         mPendingAchievements.push(id);
 
-        // Enable processing if it's not already
-        if (!mProcessingEnabled) {
-            mProcessingEnabled = true;
+        mProcessingEnabled = true;
 
-            // Register hook to process queued achievements during the main game state update loop.
-            COND_HOOK(OnGameStateUpdate, CVAR_ACHIEVEMENTS, [this]() {
-                if (mProcessingEnabled && !mPendingAchievements.empty()) {
-                    this->ProcessQueuedAchievements();
-                }
-            });
-        }
+        // Register hook to process queued achievements during the main game state update loop.
+        COND_HOOK(OnGameStateUpdate, CVAR_ACHIEVEMENTS, [this]() {
+            if (mProcessingEnabled && !mPendingAchievements.empty()) {
+                this->ProcessQueuedAchievements();
+            }
+        });
     }
 }
 
@@ -108,9 +95,8 @@ void AchievementSystem::ProcessQueuedAchievements() {
 
         auto achievement = GetAchievement(id);
         if (achievement) {
-            SPDLOG_INFO("Processing queued achievement: {}", achievement->name);
+            SPDLOG_INFO("Processing queued achievement: {}", achievement->getName());
 
-            // Show notification using the enhanced notification system
             ShowEnhancedNotification(
                 achievement); // This will now display immediately if no other notification is active
         }
@@ -124,55 +110,30 @@ void AchievementSystem::ProcessQueuedAchievements() {
 
 void AchievementSystem::UnlockAchievement(const std::string& id) {
     auto achievement = GetAchievement(id);
-    if (achievement && achievement->state != AchievementState::UNLOCKED) {
-        achievement->state = AchievementState::UNLOCKED;
-        SPDLOG_INFO("Achievement unlocked: {}", achievement->name);
+    // Use mCurrentAchievementStates as the source of truth for unlock status
+    if (achievement && !mCurrentAchievementStates[id]) {
+        mCurrentAchievementStates[id] = true;
+        SPDLOG_INFO("Achievement unlocked: {}", achievement->getName());
 
-        // Save achievement state to save context
-        unsigned int index = GetAchievementIndex(id);
-        if (index < MAX_ACHIEVEMENTS && &gSaveContext) {
-            gSaveContext.save.shipSaveInfo.achievementData[index].unlocked = true;
-            SPDLOG_DEBUG("Saved achievement {} state directly to save context", id);
-        } else {
-            SPDLOG_ERROR("Failed to save achievement {} state: Invalid index {} or no save context", id, index);
-        }
+        // Save context interaction removed - state is saved via GetCurrentStates() during serialization
 
-        // Show enhanced notification by default
         ShowEnhancedNotification(achievement);
     }
 }
 
 void AchievementSystem::LockAchievement(const std::string& id) {
     auto achievement = GetAchievement(id);
-    if (achievement && achievement->state != AchievementState::LOCKED) {
-        achievement->state = AchievementState::LOCKED;
-        SPDLOG_INFO("Achievement locked (debug): {}", achievement->name);
+    // Use mCurrentAchievementStates as the source of truth for unlock status
+    if (achievement && mCurrentAchievementStates[id]) {
+        mCurrentAchievementStates[id] = false;
+        SPDLOG_INFO("Achievement locked (debug): {}", achievement->getName());
 
-        // Update achievement state in save context
-        unsigned int index = GetAchievementIndex(id);
-        if (index < MAX_ACHIEVEMENTS && &gSaveContext) {
-            gSaveContext.save.shipSaveInfo.achievementData[index].unlocked = false;
-            SPDLOG_DEBUG("Saved achievement {} locked state directly to save context", id);
-        } else {
-            SPDLOG_WARN("Failed to save achievement {} locked state: Invalid index {} or no save context", id, index);
-        }
+        // Save context interaction removed - state is saved via GetCurrentStates() during serialization
     }
 }
 
 bool AchievementSystem::IsAchievementUnlocked(const std::string& id) {
-    // Check in-memory state first (might be unlocked but not yet saved if game hasn't loaded yet)
-    auto achievement = GetAchievement(id);
-    if (achievement && achievement->state == AchievementState::UNLOCKED) {
-        return true;
-    }
-    // If not found in memory or locked, check save context (authoritative source after load)
-    if (&gSaveContext) {
-        unsigned int index = GetAchievementIndex(id);
-        if (index < MAX_ACHIEVEMENTS) {
-            return gSaveContext.save.shipSaveInfo.achievementData[index].unlocked;
-        }
-    }
-    return false;
+    return mCurrentAchievementStates.count(id) ? mCurrentAchievementStates.at(id) : false;
 }
 
 const std::vector<std::shared_ptr<Achievement>>& AchievementSystem::GetAchievements() const {
@@ -184,7 +145,7 @@ AchievementSystem::GetAchievementsByCategory(AchievementCategory category) const
     std::vector<std::shared_ptr<Achievement>> filteredAchievements;
 
     for (const auto& achievement : mAchievements) {
-        if (achievement->category == category || achievement->category == AchievementCategory::BOTH) {
+        if (achievement->getCategory() == category || achievement->getCategory() == AchievementCategory::BOTH) {
             filteredAchievements.push_back(achievement);
         }
     }
@@ -199,33 +160,27 @@ bool AchievementSystem::IsAchievementRelevantForGameMode(const std::string& id, 
     }
 
     // BOTH category is always relevant
-    if (achievement->category == AchievementCategory::BOTH) {
+    if (achievement->getCategory() == AchievementCategory::BOTH) {
         return true;
     }
 
-    // Otherwise, check if category matches game mode
-    return (isRandomizer && achievement->category == AchievementCategory::RANDOMIZER) ||
-           (!isRandomizer && achievement->category == AchievementCategory::VANILLA);
+    return (isRandomizer && achievement->getCategory() == AchievementCategory::RANDOMIZER) ||
+           (!isRandomizer && achievement->getCategory() == AchievementCategory::VANILLA);
 }
 
 size_t AchievementSystem::GetUnlockedAchievementsCount() const {
     size_t count = 0;
-    // Count based on the save context data as the authoritative source after load
-    if (&gSaveContext) {
-        for (size_t i = 0; i < mAchievements.size() && i < MAX_ACHIEVEMENTS; ++i) {
-            if (gSaveContext.save.shipSaveInfo.achievementData[i].unlocked) {
-                count++;
-            }
-        }
-    } else {
-        // Fallback to in-memory count if save context not available (e.g., before first load)
-        for (const auto& achievement : mAchievements) {
-            if (achievement->state == AchievementState::UNLOCKED) {
-                count++;
-            }
+    for (const auto& [id, unlocked] : mCurrentAchievementStates) {
+        if (unlocked) {
+            count++;
         }
     }
     return count;
+}
+
+// Added getter for serialization
+const std::unordered_map<std::string, bool>& AchievementSystem::GetCurrentStates() const {
+    return mCurrentAchievementStates;
 }
 
 void AchievementSystem::ShowNotification(const std::string& achievementName) {
@@ -237,15 +192,13 @@ void AchievementSystem::ShowNotification(const std::string& achievementName) {
 
 void AchievementSystem::ShowEnhancedNotification(const std::shared_ptr<Achievement>& achievement) {
     // Default icon if none specified
-    const char* iconPath = (const char*)gItemIcons[ITEM_SKULL_TOKEN]; // Gold skulltula token
+    const char* iconPath = (const char*)gItemIcons[ITEM_SKULL_TOKEN];
 
-    // Use achievement's icon if available
-    if (!achievement->iconPath.empty()) {
-        iconPath = achievement->iconPath.c_str();
+    if (!achievement->getIconPath().empty()) {
+        iconPath = achievement->getIconPath().c_str();
     }
 
-    // Emit enhanced style achievement notification
-    Notification::EmitAchievement(iconPath, achievement->name, achievement->gamerscore);
+    Notification::EmitAchievement(iconPath, achievement->getName(), achievement->getGamerscore());
 }
 
 std::shared_ptr<Ship::GuiWindow> AchievementSystem::CreateAchievementsWindow() {
@@ -253,72 +206,89 @@ std::shared_ptr<Ship::GuiWindow> AchievementSystem::CreateAchievementsWindow() {
         std::make_shared<AchievementsWindow>("gOpenWindows.Achievements", "Achievements"));
 }
 
-// Renamed from GetAchievementBitIndex
-unsigned int AchievementSystem::GetAchievementIndex(const std::string& id) const {
-    for (size_t i = 0; i < mAchievements.size(); ++i) {
-        if (mAchievements[i]->id == id) {
-            if (i >= MAX_ACHIEVEMENTS) {
-                SPDLOG_ERROR("Achievement index {} for ID '{}' is out of bounds (MAX_ACHIEVEMENTS = {})!", i, id,
-                             MAX_ACHIEVEMENTS);
-                return MAX_ACHIEVEMENTS; // Indicate out of bounds specifically
-            }
-            return i;
+// Renamed and refactored to use the ID-based map from deserialization
+void AchievementSystem::LoadFromSaveData(const std::unordered_map<std::string, bool>& loadedStates) {
+    // Prevent loading if we are currently in the process of resetting for a new game
+
+    SPDLOG_INFO("Loading achievement states from deserialized save data...");
+
+    // 1. Clear current runtime states before loading
+    mCurrentAchievementStates.clear();
+
+    // 2. Populate runtime states ONLY from the loaded data
+    for (const auto& [id, unlocked] : loadedStates) {
+        // Only add entries that are actually registered, warn about unknown IDs
+        if (mAchievementsMap.count(id)) {
+            mCurrentAchievementStates[id] = unlocked;
+        } else {
+            SPDLOG_WARN("Achievement ID '{}' found in save data but is no longer registered. Ignoring.", id);
         }
     }
-    SPDLOG_WARN("Could not find achievement index for ID: {}", id);
-    return MAX_ACHIEVEMENTS; // Indicate not found/out of bounds
+
+    // Log the state map JUST before synchronizing visual states
+    SPDLOG_DEBUG("Achievement state map after loading from save:");
+    for (const auto& [log_id, log_unlocked] : mCurrentAchievementStates) {
+        SPDLOG_DEBUG("  - ID: {}, Unlocked: {}", log_id, log_unlocked);
+    }
+
+    // 3. Synchronize ALL registered achievements with the loaded states (or default to locked)
+    for (auto& [id, achievement] : mAchievementsMap) {
+        bool isUnlocked = false;
+        if (mCurrentAchievementStates.count(id)) {
+            // State was present in the loaded map
+            isUnlocked = mCurrentAchievementStates.at(id);
+            if (isUnlocked) {
+                SPDLOG_DEBUG("Loaded unlocked state for: {}", id);
+            }
+        } else {
+            // Achievement registered but not found in save data map (treat as locked)
+            SPDLOG_INFO("Achievement '{}' not found in loaded save data map, forcing LOCKED state.",
+                        id);                       // Changed to INFO
+            mCurrentAchievementStates[id] = false; // Ensure it exists in the runtime map as locked
+            isUnlocked = false;
+        }
+        // Update the visual/struct state based on the definitive loaded state
+        // achievement->mState = isUnlocked ? AchievementState::UNLOCKED : AchievementState::LOCKED; // Removed: State
+        // managed solely by mCurrentAchievementStates
+    }
+
+    SPDLOG_INFO("Achievement states loaded and synchronized.");
 }
 
-void AchievementSystem::LoadFromSaveContext() {
-    // ADDED CHECK HERE: Ensure this runs *after* all achievements are registered via ShipInit.
-    if (mAchievements.size() > MAX_ACHIEVEMENTS) {
-        SPDLOG_ERROR("Number of registered achievements ({}) exceeds MAX_ACHIEVEMENTS ({})! Save data might be "
-                     "corrupted or inaccessible.",
-                     mAchievements.size(), MAX_ACHIEVEMENTS);
-        // Consider disabling the system or preventing load if this occurs?
-        // For now, just log the error. The subsequent loop is already guarded by MAX_ACHIEVEMENTS.
-    }
-    // END ADDED CHECK
+void AchievementSystem::ResetStatesForNewGame() {
+    SPDLOG_INFO("Resetting achievement states for new game...");
 
-    if (&gSaveContext) {
-        SPDLOG_INFO("Loading achievement states from save context...");
-        for (size_t i = 0; i < mAchievements.size() && i < MAX_ACHIEVEMENTS; ++i) {
-            if (gSaveContext.save.shipSaveInfo.achievementData[i].unlocked) {
-                if (mAchievements[i]->state != AchievementState::UNLOCKED) {
-                    mAchievements[i]->state = AchievementState::UNLOCKED;
-                    SPDLOG_DEBUG("Loaded unlocked state for: {}", mAchievements[i]->id);
-                }
-            } else {
-                if (mAchievements[i]->state != AchievementState::LOCKED) {
-                    mAchievements[i]->state = AchievementState::LOCKED;
-                    SPDLOG_DEBUG("Loaded locked state for: {}", mAchievements[i]->id);
-                }
-            }
-        }
-        SPDLOG_INFO("Achievement states loaded.");
-    } else {
-        SPDLOG_WARN("Attempted to load achievement states, but save context is not available.");
+    mCurrentAchievementStates.clear();
+
+    for (auto& [id, achievement] : mAchievementsMap) {
+        mCurrentAchievementStates[id] = false;
+        // Reset visual/struct state to locked (using friend access)
+        // State managed solely by mCurrentAchievementStates
     }
+
+    while (!mPendingAchievements.empty()) {
+        mPendingAchievements.pop();
+    }
+    mProcessingEnabled = false;
+
+    SPDLOG_INFO("Achievement states reset.");
 }
 
 void InitializeAchievementSystem() {
-    // Ensure the singleton instance is created and initialized
     AchievementSystem& achievementSystem = AchievementSystem::Instance();
 
     // Register CVars and necessary hooks here (things that MUST happen once)
     CVarRegisterInteger(CVAR_NAME_ACHIEVEMENTS, 1);
 
     // Hook for loading achievements on save load
-    COND_HOOK(OnSaveLoad, CVAR_ACHIEVEMENTS, [](s16 fileNum) { AchievementSystem::Instance().LoadFromSaveContext(); });
+    // NOTE: The actual call to LoadFromSaveData(map) must now happen within the
+    // save loading logic AFTER deserialization provides the map.
+    // This hook might need removal or modification depending on where the call is moved.
 
-    // Hook for potentially clearing achievement state on new file creation (Optional - uncomment if needed)
-    /*
-    COND_HOOK(OnNewFile, CVAR_ACHIEVEMENTS, []() {
-        AchievementSystem::Instance().ClearAllStates(); // Assuming such a method exists
-    });
-    */
+    // Hook for resetting achievement state on new file initialization
+    COND_HOOK(OnSaveInit, CVAR_ACHIEVEMENTS,
+              [](s16 fileNum) { AchievementSystem::Instance().ResetStatesForNewGame(); });
 
-    // achievementSystem.Initialize(); // Removed: Core initialization logic moved/redundant
     SPDLOG_INFO("Core Achievement System registered for initialization.");
 }
 
