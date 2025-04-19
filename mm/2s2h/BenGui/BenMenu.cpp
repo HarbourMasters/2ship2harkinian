@@ -920,6 +920,12 @@ void BenMenu::AddEnhancements() {
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
+    AddWidget(path, "Mouse Quickspin", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Mouse.Quickspin.Enable")
+        .Options(CheckboxOptions().DefaultValue(false))
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
+        });
 
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Cheats", 2);

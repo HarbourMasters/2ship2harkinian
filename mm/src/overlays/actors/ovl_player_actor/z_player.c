@@ -5630,6 +5630,10 @@ s32 Player_CanSpinAttack(Player* this) {
         return false;
     }
 
+    if (GameInteractor_Should(VB_SHOULD_QUICKSPIN, false, iter2, sp3C)) {
+        return true;
+    }
+
     iter = &this->controlStickSpinAngles[0];
     iter2 = &sp3C[0];
 
@@ -8545,7 +8549,7 @@ s32 Player_ActionHandler_11(Player* this, PlayState* play) {
                         anim = D_8085BE84[PLAYER_ANIMGROUP_defense][this->modelAnimType];
 
                         // FIXME: cursor reset on shield pull
-                        if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
+                        if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
                             u32 width = OTRGetCurrentWidth();
                             u32 height = OTRGetCurrentHeight();
                             Mouse_SetCursorPos(width / 2, height / 2);
@@ -13540,7 +13544,7 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
         stickY += leftStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityY", 1.0f);
     }
 
-    if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
+    if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
         MouseCoords mouseDelta = Mouse_GetDelta();
 
         // TODO: gyro?
@@ -15339,7 +15343,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         f32 xStick = sPlayerControlInput->rel.stick_x * -120;
         f32 yStick = sPlayerControlInput->rel.stick_y * 180;
 
-        bool mouseControl = (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0));
+        bool mouseControl = (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0));
         if (mouseControl) {
             MouseCoords mousePos = Mouse_GetPos();
             u32 width = OTRGetCurrentWidth();
