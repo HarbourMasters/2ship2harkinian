@@ -18,7 +18,6 @@
 
 extern "C" {
 #include "functions.h"
-#include "macros.h"
 #include "variables.h"
 }
 

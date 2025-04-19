@@ -236,6 +236,8 @@ typedef enum {
     VB_SNOWBALL_DROP_COLLECTIBLE,
     VB_SNOWBALL_SET_FLAG,
     VB_START_JUMPSLASH,
+    VB_SETUP_TRANSITION,
+    VB_BE_NEAR_DOOR,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -271,14 +273,12 @@ typedef enum {
 
 #ifdef __cplusplus
 
-#include "2s2h/CustomMessage/CustomMessage.h"
 #include <vector>
 #include <functional>
 #include <map>
 #include <unordered_map>
 #include <cstdint>
 #include <algorithm>
-#include <variant>
 
 #include <version>
 #ifdef __cpp_lib_source_location

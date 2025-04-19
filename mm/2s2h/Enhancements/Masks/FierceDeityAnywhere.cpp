@@ -1,5 +1,5 @@
-#include <libultraship/bridge.h>
 #include "2s2h/ActorExtension/ActorExtension.h"
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
@@ -195,6 +195,15 @@ void RegisterFierceDeityAnywhere() {
         if ((actor->params == CLEAR_TAG_SMALL_LIGHT_RAYS || actor->params == CLEAR_TAG_LARGE_LIGHT_RAYS) &&
             actor->world.rot.z == 0 && GET_PLAYER(gPlayState)->transformation == PLAYER_FORM_FIERCE_DEITY) {
             actor->world.rot.z = 3;
+        }
+    });
+
+    // Allow FD to open doors
+    COND_VB_SHOULD(VB_BE_NEAR_DOOR, CVAR, {
+        f32 playerZPosRelToDoor = *va_arg(args, f32*);
+        // Vanilla proximity is 50.0f, but FD cannot get that close to some doors
+        if (GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY && fabsf(playerZPosRelToDoor) < 60.0f) {
+            *should = true;
         }
     });
 }

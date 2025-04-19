@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 #include <queue>
-#include <libultraship/libultraship.h>
-
+#include <cstdint>
+#include <GuiWindow.h>
 namespace Notification {
 
 enum class NotificationStyle {

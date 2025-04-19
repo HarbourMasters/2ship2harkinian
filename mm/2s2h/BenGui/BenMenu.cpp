@@ -2,12 +2,8 @@
 #include "UIWidgets.hpp"
 #include "BenPort.h"
 #include "BenInputEditorWindow.h"
-#include "window/gui/GuiMenuBar.h"
-#include "window/gui/GuiElement.h"
 #include "DeveloperTools/SaveEditor.h"
-#include "DeveloperTools/ActorViewer.h"
 #include "DeveloperTools/CollisionViewer.h"
-#include "DeveloperTools/EventLog.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/PresetManager/PresetManager.h"
 #include "HudEditor.h"
@@ -15,16 +11,13 @@
 #include <variant>
 #include "StringHelper.h"
 #include <spdlog/fmt/fmt.h>
-#include "variables.h"
-#include <variant>
-#include <tuple>
-#include "ResolutionEditor.h"
 #include "2s2h/Rando/Rando.h"
 
 extern "C" {
 #include "z64.h"
 #include "functions.h"
 extern PlayState* gPlayState;
+extern SaveContext gSaveContext;
 }
 extern std::unordered_map<s16, const char*> warpPointSceneList;
 extern void Warp();
@@ -1151,6 +1144,9 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Dialogue.FastText")
         .Options(
             CheckboxOptions().Tooltip("Speeds up text rendering, and enables holding of B progress to next message."));
+    AddWidget(path, "Auto Bombers' Code", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Dialogue.AutoBombersCode")
+        .Options(CheckboxOptions().Tooltip("Automatically fill in the Bombers' code once you've got the notebook."));
     path.column = 3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Swamp Boat Timesaver", WIDGET_CVAR_CHECKBOX)
@@ -1167,6 +1163,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Dampe Flame Digging", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.DampeDiggingSkip")
         .Options(CheckboxOptions().Tooltip("Only requires digging up one flame to spawn the big poe."));
+    AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
+        .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
 
     // Fixes
     path = { "Enhancements", "Fixes", 1 };

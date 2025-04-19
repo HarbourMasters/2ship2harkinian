@@ -1,9 +1,8 @@
 
 #include "BetterMapSelect.h"
-
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/gamestates/ovl_select/z_select.h"
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
 
 void BetterMapSelect_LoadGame(MapSelectState* mapSelectState, u32 entrance, s32 spawn);
 void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState);
@@ -186,17 +185,21 @@ void BetterMapSelect_LoadGame(MapSelectState* mapSelectState, u32 entrance, s32 
             if (spawn >= 0 && spawn < ARRAY_COUNT(sBetterMapSelectGrottoInfo)) {
                 grotto = sBetterMapSelectGrottoInfo[spawn];
             }
-        } else if (entrance == ENTRANCE(GROTTOS, 4)) {
-            if (spawn >= 0 && spawn < ARRAY_COUNT(sBetterMapSelectChestGrottoInfo)) {
-                grotto = sBetterMapSelectChestGrottoInfo[spawn];
-            }
-        } else if (entrance == ENTRANCE(GROTTOS, 10)) {
-            if (spawn >= 0 && spawn < ARRAY_COUNT(sBetterMapSelectCowGrottoInfo)) {
-                grotto = sBetterMapSelectCowGrottoInfo[spawn];
+        } else {
+            // Chest/cow grotto selection uses a special list and changes the meaning of the `spawn` value,
+            // so we need to set entrance back to the value one
+            gSaveContext.save.entrance = entrance;
+
+            if (entrance == ENTRANCE(GROTTOS, 4)) { // Chests
+                if (spawn >= 0 && spawn < ARRAY_COUNT(sBetterMapSelectChestGrottoInfo)) {
+                    grotto = sBetterMapSelectChestGrottoInfo[spawn];
+                }
+            } else if (entrance == ENTRANCE(GROTTOS, 10)) { // Cows
+                if (spawn >= 0 && spawn < ARRAY_COUNT(sBetterMapSelectCowGrottoInfo)) {
+                    grotto = sBetterMapSelectCowGrottoInfo[spawn];
+                }
             }
         }
-
-        gSaveContext.save.entrance = entrance;
 
         // Set player void out location
         gSaveContext.respawn[RESPAWN_MODE_DOWN].data = grotto.downRespawn.data;

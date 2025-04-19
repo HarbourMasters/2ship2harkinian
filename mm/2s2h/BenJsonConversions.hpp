@@ -2,6 +2,7 @@
 #define BenJsonConversions_hpp
 
 #include <nlohmann/json.hpp>
+#include "spdlog/spdlog.h"
 #include "build.h"
 #include "Enhancements/Achievements/Achievements.h"
 #include <spdlog/spdlog.h>
