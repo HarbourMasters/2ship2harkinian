@@ -286,6 +286,9 @@ s32 CutsceneCamera_UpdateSplines(u8* script, CutsceneCamera* csCamera) {
             if (csCamera->splineNeedsInit == true) {
                 // Spline Header
                 spline = (CsCmdCamSpline*)&script[csCamera->cmdIndex];
+                if (spline->duration == -1) {
+                    goto done;
+                }
                 csCamera->atInterp.numEntries = csCamera->eyeInterp.numEntries = spline->numEntries;
                 csCamera->duration = spline->duration;
                 csCamera->cmdIndex += sizeof(CsCmdCamSpline);
@@ -333,6 +336,7 @@ s32 CutsceneCamera_UpdateSplines(u8* script, CutsceneCamera* csCamera) {
         csCamera->splineNeedsInit = true;
         spline = (CsCmdCamSpline*)&script[csCamera->cmdIndex];
         if (spline->numEntries == -1) {
+            done:
             csCamera->state = CS_CAM_STATE_DONE;
             return 0;
         }
