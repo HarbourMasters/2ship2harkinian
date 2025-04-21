@@ -286,6 +286,8 @@ s32 CutsceneCamera_UpdateSplines(u8* script, CutsceneCamera* csCamera) {
             if (csCamera->splineNeedsInit == true) {
                 // Spline Header
                 spline = (CsCmdCamSpline*)&script[csCamera->cmdIndex];
+                // 2S2H [Port] This was reading OOB because `spline->numEntries` was -1. We can either set the fields to
+                // 0 and continue, or goto an existing exit.
                 if (spline->duration == -1) {
                     goto done;
                 }
@@ -336,7 +338,7 @@ s32 CutsceneCamera_UpdateSplines(u8* script, CutsceneCamera* csCamera) {
         csCamera->splineNeedsInit = true;
         spline = (CsCmdCamSpline*)&script[csCamera->cmdIndex];
         if (spline->numEntries == -1) {
-            done:
+        done:
             csCamera->state = CS_CAM_STATE_DONE;
             return 0;
         }
