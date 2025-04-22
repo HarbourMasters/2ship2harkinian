@@ -368,7 +368,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 Audio_PlaySfx(NA_SE_SY_ATTENTION_SOUND);
             }
-            
+
             RANDO_SAVE_CHECKS[RC_STARTING_ITEM_DEKU_MASK].eligible = true;
             RANDO_SAVE_CHECKS[RC_STARTING_ITEM_SONG_OF_HEALING].eligible = true;
 
