@@ -237,6 +237,7 @@ typedef enum {
     VB_SNOWBALL_SET_FLAG,
     VB_START_JUMPSLASH,
     VB_SETUP_TRANSITION,
+    VB_BE_NEAR_DOOR,
 } GIVanillaBehavior;
 
 typedef enum {
