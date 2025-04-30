@@ -5633,6 +5633,9 @@ s32 Player_CanSpinAttack(Player* this) {
         return false;
     }
 
+    iter = &this->unk_ADF[0];
+    iter2 = &sp3C[0];
+
     if (GameInteractor_Should(VB_SHOULD_QUICKSPIN, false, iter2, sp3C)) {
         return true;
     }
