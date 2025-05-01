@@ -291,9 +291,8 @@ static void OnSaveLoadHandler(s16 fileNum) {
     SPDLOG_INFO("=============== ACHIEVEMENT SYSTEM OnSaveLoad FINISH (File: {}) ==============", fileNum);
 }
 
-// Handler for GameState Main Start (Called AFTER state transition)
-// Responsible for clearing the loading flag.
-static void OnGameStateMainStartHandler() {
+// Setup handler for when the main game state begins, needed for initializing achievements at startup
+void OnGameStateMainStartHandler() {
     AchievementSystem& system = AchievementSystem::Instance();
     bool isInPlayState = (gPlayState != nullptr);
 

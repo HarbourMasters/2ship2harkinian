@@ -36,7 +36,7 @@ class AchievementsWindow : public Ship::GuiWindow {
     /**
      * @brief Destructor that clears achievement references
      */
-    ~AchievementsWindow() {
+    virtual ~AchievementsWindow() {
         // Cannot clear a const reference, and no need to as we don't own the data.
         // mAchievements.clear();
     }
