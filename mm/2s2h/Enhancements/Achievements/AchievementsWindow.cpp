@@ -83,23 +83,26 @@ void AchievementsWindow::DrawHeader() {
 }
 
 void AchievementsWindow::DrawProgressBar() {
-    size_t totalAchievements = mAchievements.size();
     size_t unlockedCount = 0;
     int totalGamerscore = 0;
     int unlockedGamerscore = 0;
-
-    unlockedCount = AchievementSystem::Instance().GetUnlockedAchievementsCount();
+    size_t relevantTotalCount = 0;
 
     for (const auto& achievement : mAchievements) {
-        totalGamerscore += achievement->getGamerscore();
-        if (AchievementSystem::Instance().IsAchievementUnlocked(achievement->getId())) {
-            unlockedGamerscore += achievement->getGamerscore();
+        if (AchievementSystem::Instance().IsAchievementRelevantForGameMode(achievement->getId(), mIsRandomizerMode)) {
+            relevantTotalCount++;
+            totalGamerscore += achievement->getGamerscore();
+
+            if (AchievementSystem::Instance().IsAchievementUnlocked(achievement->getId())) {
+                unlockedCount++;
+                unlockedGamerscore += achievement->getGamerscore();
+            }
         }
     }
 
-    float progress = totalAchievements > 0 ? (float)unlockedCount / totalAchievements : 0.0f;
+    float progress = relevantTotalCount > 0 ? (float)unlockedCount / relevantTotalCount : 0.0f;
     char progressText[128];
-    sprintf(progressText, "%zu / %zu (%d%%) - %d/%d HM", unlockedCount, totalAchievements, (int)(progress * 100),
+    sprintf(progressText, "%zu / %zu (%d%%) - %d/%d HM", unlockedCount, relevantTotalCount, (int)(progress * 100),
             unlockedGamerscore, totalGamerscore);
 
     float textWidth = ImGui::CalcTextSize(progressText).x;
@@ -203,13 +206,17 @@ void AchievementsWindow::DrawAchievementList() {
 }
 
 void AchievementsWindow::DrawAchievementItem(const std::shared_ptr<Achievement>& achievement) {
-    ImGui::PushID(achievement->getId().c_str());
+    ImGui::PushID(achievement->getName().c_str());
 
     bool isUnlocked = AchievementSystem::Instance().IsAchievementUnlocked(achievement->getId());
+    // Log the state the UI sees
+    SPDLOG_TRACE("UI Draw: Achievement '{}', ID: {}, IsUnlocked Check: {}", achievement->getName(),
+                 (int)achievement->getId(), isUnlocked);
+
     ImGui::PushStyleColor(ImGuiCol_ChildBg,
                           isUnlocked ? ImVec4(0.25f, 0.22f, 0.15f, 1.0f) : ImVec4(0.18f, 0.18f, 0.18f, 1.0f));
 
-    ImGui::BeginChild(achievement->getId().c_str(), ImVec2(0, 70), true);
+    ImGui::BeginChild(achievement->getName().c_str(), ImVec2(0, 70), true);
 
     DrawAchievementIcon(achievement);
     DrawAchievementDetails(achievement);

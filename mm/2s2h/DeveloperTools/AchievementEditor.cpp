@@ -10,7 +10,7 @@ namespace Ship {
 AchievementEditor::AchievementEditor(const std::string& consoleVariable, const std::string& name)
     : GuiWindow(consoleVariable, name) {
     mAchievementSystem = nullptr;
-    mSelectedAchievementId = "";
+    mSelectedAchievementId = AID_UNKNOWN;
     memset(mFilterText, 0, sizeof(mFilterText));
 }
 
@@ -74,13 +74,10 @@ void AchievementEditor::DrawAchievementList() {
     for (const auto& achievement : mAchievementsList) {
         if (!achievement)
             continue;
-        std::string idLower = achievement->getId();
         std::string nameLower = achievement->getName();
-        std::transform(idLower.begin(), idLower.end(), idLower.begin(), ::tolower);
         std::transform(nameLower.begin(), nameLower.end(), nameLower.begin(), ::tolower);
 
-        if (filterLower.empty() || idLower.find(filterLower) != std::string::npos ||
-            nameLower.find(filterLower) != std::string::npos) {
+        if (filterLower.empty() || nameLower.find(filterLower) != std::string::npos) {
             filteredList.push_back(achievement);
         }
     }
@@ -97,7 +94,8 @@ void AchievementEditor::DrawAchievementList() {
 
         bool isSelected = (mSelectedAchievementId == achievement->getId());
 
-        if (ImGui::Selectable((achievement->getId() + "##" + achievement->getId()).c_str(), isSelected)) {
+        std::string label = achievement->getName() + "##" + std::to_string(i);
+        if (ImGui::Selectable(label.c_str(), isSelected)) {
             mSelectedAchievementId = achievement->getId();
         }
         if (isSelected) {
@@ -107,7 +105,7 @@ void AchievementEditor::DrawAchievementList() {
 }
 
 void AchievementEditor::DrawDetailsPane() {
-    if (!mAchievementSystem || mSelectedAchievementId.empty()) {
+    if (!mAchievementSystem || mSelectedAchievementId == AID_UNKNOWN) {
         ImGui::TextWrapped("Select an achievement from the list on the left to view its details and actions.");
         return;
     }
@@ -115,10 +113,10 @@ void AchievementEditor::DrawDetailsPane() {
     auto selectedAchievement = mAchievementSystem->GetAchievement(mSelectedAchievementId);
 
     if (!selectedAchievement) {
-        ImGui::Text("Error: Could not find details for the selected achievement (ID: %s).",
-                    mSelectedAchievementId.c_str());
+        ImGui::Text("Error: Could not find details for the selected achievement (ID: %d).",
+                    (int)mSelectedAchievementId);
         if (ImGui::Button("Clear Selection")) {
-            mSelectedAchievementId = "";
+            mSelectedAchievementId = AID_UNKNOWN;
         }
         return;
     }
@@ -126,7 +124,7 @@ void AchievementEditor::DrawDetailsPane() {
     ImGui::Separator();
     ImGui::Text("ID:");
     ImGui::SameLine();
-    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s", selectedAchievement->getId().c_str());
+    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%d", (int)selectedAchievement->getId());
 
     ImGui::Separator();
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -185,8 +183,8 @@ void AchievementEditor::DrawDetailsPane() {
         }
         ImGui::SetTooltip("Force-lock this achievement (for testing).");
     } else {
-        if (ImGui::Button("Unlock Achievement", ImVec2(-1, 0))) {
-            mAchievementSystem->UnlockAchievement(selectedAchievement->getId());
+        if (ImGui::Button("Unlock Selected")) {
+            mAchievementSystem->DebugUnlockAchievement(selectedAchievement->getId());
         }
         ImGui::SetTooltip("Force-unlock this achievement (for testing). This will trigger a notification.");
     }

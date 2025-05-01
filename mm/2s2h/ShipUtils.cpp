@@ -197,16 +197,6 @@ void LoadGuiTextures() {
     for (const auto entry : digitList) {
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(entry, entry, ImVec4(1, 1, 1, 1));
     }
-
-    // Load achievement icons
-    const auto& achievements = AchievementSystem::Instance().GetAchievements();
-    for (const auto& achievement : achievements) {
-        if (!achievement->getIconPath().empty()) {
-            auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
-            gui->LoadGuiTexture(achievement->getIconPath().c_str(), achievement->getIconPath().c_str(),
-                                ImVec4(1, 1, 1, 1));
-        }
-    }
 }
 
 std::string convertEnumToReadableName(const std::string& input) {

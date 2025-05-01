@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <window/gui/GuiWindow.h>
+#include "2s2h/Enhancements/Achievements/AchievementTypes.h" // Include AchievementTypes
 
 // Forward declare AchievementSystem and Achievement to avoid including the full header here if possible
 // If methods need the full definition, we'll include Achievements.h in the .cpp file.
@@ -73,8 +74,8 @@ class AchievementEditor : public GuiWindow {
     void DrawDiagnostics();
 
     AchievementSystem* mAchievementSystem = nullptr;
-    std::string mSelectedAchievementId = "";
     std::vector<std::shared_ptr<Achievement>> mAchievementsList;
+    AchievementId mSelectedAchievementId;
     char mFilterText[256] = { 0 };
 };
 
