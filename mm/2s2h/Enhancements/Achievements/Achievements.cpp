@@ -1,6 +1,6 @@
 #include "Achievements.h"
 #include "AchievementsWindow.h"
-#include "AchievementDefinitions.h"
+#include "AchievementData.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/BenGui/Notification.h"
@@ -282,16 +282,7 @@ std::shared_ptr<Ship::GuiWindow> AchievementSystem::CreateAchievementsWindow() {
 
 // --- Initialization & Hooks ---
 
-// Handler for when a save is loaded into gSaveContext (Load Game from File Select or Owl Load)
-static void OnSaveLoadHandler(s16 fileNum) {
-    AchievementSystem& system = AchievementSystem::Instance();
-    SPDLOG_INFO("=============== ACHIEVEMENT SYSTEM OnSaveLoad (File: {}) ==============", fileNum);
-    system.StartLoadingOrInitializing();      // SET FLAG before any post-load processing
-    system.ResetStateAndQueueForLoadedSave(); // Ensure queue reflects the loaded save state
-    SPDLOG_INFO("=============== ACHIEVEMENT SYSTEM OnSaveLoad FINISH (File: {}) ==============", fileNum);
-}
-
-// Setup handler for when the main game state begins, needed for initializing achievements at startup
+// Handler for when the main game state begins, needed for initializing achievements at startup
 void OnGameStateMainStartHandler() {
     AchievementSystem& system = AchievementSystem::Instance();
     bool isInPlayState = (gPlayState != nullptr);
@@ -303,13 +294,8 @@ void OnGameStateMainStartHandler() {
         if (system.IsLoadingOrInitializing()) {
             // Just entered Play state after a normal load/select
             SPDLOG_INFO(
-                "Entering GAMESTATE_PLAY after load/select. Clearing loading flag and re-registering triggers.");
+                "Entering GAMESTATE_PLAY after load/select. Clearing loading flag.");
             system.FinishLoadingOrInitializing(); // CLEAR LOADING FLAG
-
-            // Re-register hooks now that the save is loaded and game state is active
-            if (CVAR_ACHIEVEMENTS) {
-                RegisterAllAchievementTriggers();
-            }
         }
     }
     SPDLOG_DEBUG("=============== ACHIEVEMENT SYSTEM OnGameStateMainStart FINISH (IsInPlay: {}) ==============",
@@ -317,15 +303,12 @@ void OnGameStateMainStartHandler() {
 }
 
 void AchievementSystem::Init() {
-    SPDLOG_INFO("=============== Initializing Achievement System ==============");
+    SPDLOG_INFO("=============== Initializing Core Achievement System Hooks ==============");
 
-    // Set flag and reset queue when a save is loaded
-    COND_HOOK(OnSaveLoad, CVAR_ACHIEVEMENTS, OnSaveLoadHandler);
-
-    // Clear flag when entering the fully playable state
+    // RETAINED - Hook to clear loading flag when entering playable state
     COND_HOOK(OnGameStateMainStart, CVAR_ACHIEVEMENTS, OnGameStateMainStartHandler);
 
-    // Hook to process the queue during normal gameplay
+    // RETAINED - Hook to process the queue during normal gameplay
     COND_HOOK(OnGameStateUpdate, CVAR_ACHIEVEMENTS, []() {
         // Only try processing if NOT loading/initializing
         if (!AchievementSystem::Instance().IsLoadingOrInitializing()) {
@@ -335,6 +318,5 @@ void AchievementSystem::Init() {
         }
     });
 
-    SPDLOG_INFO("Core Achievement System initialized. Using FileSelect/Load hooks for flag start, GameState hook for "
-                "flag end.");
+    SPDLOG_INFO("Core Achievement System hooks initialized. Using GameState hook for flag end and queue processing.");
 }
