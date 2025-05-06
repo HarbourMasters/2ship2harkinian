@@ -49,6 +49,7 @@ const ImVec4 DEFAULT_SUFFIX_COLOR = ImVec4(1.0f, 0.5f, 0.5f, 1.0f);
 const ImVec4 ENHANCED_PREFIX_COLOR = ImVec4(1.0f, 0.85f, 0.0f, 1.0f); // Achievement Gold
 const ImVec4 ENHANCED_MESSAGE_COLOR = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // White
 const ImVec4 ENHANCED_SUFFIX_COLOR = ImVec4(1.0f, 0.85f, 0.0f, 1.0f); // Achievement Gold
+const ImVec4 GRAY_COLOR = ImVec4(0.8f, 0.8f, 0.8f, 1.0f); // Added for progress notifications
 // --- End Constants ---
 
 static uint32_t nextId = 0;
@@ -238,7 +239,7 @@ void Window::DrawEnhancedNotification(const Options& notification, ImVec2 notifi
     // Set up style settings using constants
     ImGui::PushStyleVar(ImGuiStyleVar_Alpha, alpha);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ENHANCED_BG_COLOR);
-    ImGui::PushStyleColor(ImGuiCol_Border, ENHANCED_BORDER_COLOR);
+    ImGui::PushStyleColor(ImGuiCol_Border, notification.borderColor);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, ENHANCED_BORDER_SIZE);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, ENHANCED_ROUNDING);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(12.0f, 10.0f)); // Keep padding explicit for now
@@ -364,14 +365,30 @@ void EmitAchievement(const char* iconPath, const std::string& achievementName, i
                      &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
 }
 
-bool IsAchievementNotificationActive() {
-    for (const auto& notification : notifications) {
-        // Check the dedicated flag instead of style/prefix
-        if (notification.isAchievement) {
-            return true;
-        }
-    }
-    return false;
+// New function for progress updates
+void Notification::EmitAchievementProgress(const char* iconPath, const char* name, int current, int target) {
+    char progressText[128];
+    snprintf(progressText, sizeof(progressText), "%s: %d / %d", name, current, target);
+
+    Options notification;
+    notification.itemIcon = iconPath; 
+    notification.prefix = "Progress Update";
+    notification.prefixColor = GRAY_COLOR;
+    notification.message = progressText;
+    notification.messageColor = GRAY_COLOR;
+    notification.borderColor = GRAY_COLOR;
+    notification.style = NotificationStyle::ENHANCED;
+    notification.remainingTime = 3.0f;
+    notification.isAchievement = false;
+    
+    int soundId = NA_SE_SY_MESSAGE_PASS; 
+
+    EmitWithSound(notification, soundId);
+}
+
+// Add the definition for IsNotificationActive
+bool Notification::IsNotificationActive() {
+    return !notifications.empty();
 }
 
 } // namespace Notification

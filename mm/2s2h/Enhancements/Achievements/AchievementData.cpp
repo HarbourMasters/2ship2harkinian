@@ -191,14 +191,20 @@ std::map<AchievementId, AchievementStaticData> AllAchievementData = {
     { AID_COLLECT_ALL_MASKS, {
         .id = AID_COLLECT_ALL_MASKS, .name = "Mask Collector", .description = "Collect all 24 masks",
         .iconPath = (const char*)gItemIcons[ITEM_MASK_TRUTH], .isSecret = true, .gamerscore = 50, .category = AchievementCategory::BOTH,
-        .triggerType = AchievementTriggerType::OnItemGive, // Trigger on any mask give, check condition
-        .additionalCondition = []{
-             // Check if all masks are present in inventory (excluding Fierce Deity, matching original logic)
-             for (u8 i = ITEM_MASK_DEKU; i <= ITEM_MASK_GIANT; i++) {
-                 if (INV_CONTENT(i) == ITEM_NONE) return false;
-             }
-             return true; // No need to check Fierce Deity based on original macro
-        }
+        .triggerType = AchievementTriggerType::OnItemGive, 
+        .checkItemId = ITEM_NONE, // Indicates that itemCategoryFilter should be used
+        .itemCategoryFilter = [](u8 rcvItem){ return (rcvItem >= ITEM_MASK_DEKU && rcvItem <= ITEM_MASK_FIERCE_DEITY); },
+        .hasProgressTracking = true,
+        .targetProgress = 23, // Deku to Giant (23 masks, excluding Fierce Deity as per original logic)
+        .getCurrentProgress = []{
+            s32 count = 0;
+            for (u8 i = ITEM_MASK_DEKU; i <= ITEM_MASK_GIANT; i++) { // ITEM_MASK_DEKU to ITEM_MASK_GIANT is 23 masks
+                if (INV_CONTENT(i) != ITEM_NONE) count++;
+            }
+            return count;
+        },
+        .unlockOnTargetMet = true,
+        .additionalCondition = nullptr // All logic now in getCurrentProgress and targetProgress check
     }},
 
      // Event achievements (OnFlagSet)
@@ -287,12 +293,19 @@ std::map<AchievementId, AchievementStaticData> AllAchievementData = {
         .iconPath = (const char*)gItemIcons[ITEM_DEED_LAND], .isSecret = false, .gamerscore = 10, .category = AchievementCategory::BOTH,
         .triggerType = AchievementTriggerType::OnFlagSet,
         .checkFlagType = FLAG_WEEK_EVENT_REG,
-        .checkFlag = WEEKEVENTREG_62_20,
-        .additionalCondition = []{
-            return (CHECK_WEEKEVENTREG(WEEKEVENTREG_17_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_61_10) &&
-                    CHECK_WEEKEVENTREG(WEEKEVENTREG_61_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_62_04) &&
-                    CHECK_WEEKEVENTREG(WEEKEVENTREG_62_20));
-        }
+        .checkFlag = 0, // For progress tracking, type match is sufficient; specific flag value ignored by GetAchievementsFromFlagSet
+        .hasProgressTracking = true,
+        .targetProgress = 5,
+        .getCurrentProgress = []{
+            s32 count = 0;
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_17_80)) count++; // Clock Town Deed Used
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_61_10)) count++; // Swamp Deed Used
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_61_80)) count++; // Mountain Deed Used
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_62_04)) count++; // Ocean Deed Used
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_62_20)) count++; // Canyon Deed Used
+            return count;
+        },
+        .additionalCondition = nullptr
     }},
     { AID_POEBUSTER, {
         .id = AID_POEBUSTER, .name = "Poebuster", .description = "Win the Spirit House reward",
@@ -309,7 +322,8 @@ std::map<AchievementId, AchievementStaticData> AllAchievementData = {
     { AID_MAX_HEALTH, { // Changed trigger
         .id = AID_MAX_HEALTH, .name = "Full of Heart", .description = "Obtain maximum health (20 hearts)",
         .iconPath = (const char*)gItemIcons[ITEM_HEART_CONTAINER], .isSecret = true, .gamerscore = 30, .category = AchievementCategory::BOTH,
-        .triggerType = AchievementTriggerType::OnItemGive, // Trigger on getting HC or HP
+        .triggerType = AchievementTriggerType::OnItemGive, .checkItemId = ITEM_NONE, // Generic trigger, filter and condition do the work
+        .itemCategoryFilter = [](u8 rcvItem){ return (rcvItem == ITEM_HEART_CONTAINER || rcvItem == ITEM_HEART_PIECE); },
         .additionalCondition = []{ return gSaveContext.save.saveInfo.playerData.healthCapacity >= 0x140; }
     }},
 
@@ -363,11 +377,19 @@ std::map<AchievementId, AchievementStaticData> AllAchievementData = {
         .iconPath = (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], .isSecret = false, .gamerscore = 20, .category = AchievementCategory::BOTH,
         .triggerType = AchievementTriggerType::OnFlagSet,
         .checkFlagType = FLAG_WEEK_EVENT_REG,
-        .checkFlag = WEEKEVENTREG_82_04,
-        .additionalCondition = []{
-             return CHECK_WEEKEVENTREG(WEEKEVENTREG_30_20) && CHECK_WEEKEVENTREG(WEEKEVENTREG_30_40) &&
-                    CHECK_WEEKEVENTREG(WEEKEVENTREG_75_20) && CHECK_WEEKEVENTREG(WEEKEVENTREG_82_04);
-        }
+        .checkFlag = 0, // For progress tracking, type match is sufficient; specific flag value ignored by GetAchievementsFromFlagSet
+        .hasProgressTracking = true,
+        .targetProgress = 4,
+        .getCurrentProgress = []{
+            s32 count = 0;
+            // Re-evaluated logic: Goron, Zora, Pamela, Kamaro
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_30_20)) count++; // Goron Mask obtained
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_30_40)) count++; // Zora Mask obtained
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_75_20)) count++; // Pamela's Father healed
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_82_04)) count++; // Kamaro healed
+            return count;
+        },
+        .additionalCondition = nullptr
     }},
     { AID_LEARN_EPONAS_SONG, { // Changed trigger
         .id = AID_LEARN_EPONAS_SONG, .name = "Horse Whisperer", .description = "Learn Epona's Song",
@@ -480,80 +502,112 @@ std::map<AchievementId, AchievementStaticData> AllAchievementData = {
     { AID_RANDO_PLAYAS, {
         .id = AID_RANDO_PLAYAS, .name = "Play as Rando", .description = "Play as a non-default form in randomizer mode",
         .iconPath = (const char*)gItemIcons[ITEM_MASK_DEKU], .isSecret = false, .gamerscore = 20, .category = AchievementCategory::RANDOMIZER,
-        .triggerType = AchievementTriggerType::OnItemGive, // Check if item is a transformation mask
-        .checkItemId = ITEM_NONE // Logic moved to handler
+        .triggerType = AchievementTriggerType::OnItemGive, .checkItemId = ITEM_NONE, // Logic moved to itemCategoryFilter
+        .itemCategoryFilter = [](u8 rcvItem){ return (rcvItem == ITEM_MASK_DEKU || rcvItem == ITEM_MASK_GORON || rcvItem == ITEM_MASK_ZORA); }
+        // No additionalCondition needed as the category filter is sufficient.
     }},
     { AID_NOVICE_CHECK_HUNTER, {
         .id = AID_NOVICE_CHECK_HUNTER, .name = "Novice Check Hunter", .description = "Obtain items from at least 100 different checks",
         .iconPath = (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], .isSecret = true, .gamerscore = 10, .category = AchievementCategory::RANDOMIZER,
-        .triggerType = AchievementTriggerType::OnFlagSet,
-        .checkFlagType = FLAG_RANDO_INF, // Requires specific handling
-        .additionalCondition = []{
-            if (!IS_RANDO) return false;
-            int checkedLocations = 0;
+        .triggerType = AchievementTriggerType::OnFlagSet, // Specifically FLAG_RANDO_INF
+        .checkFlagType = FLAG_RANDO_INF, // For GetAchievementsFromFlagSet filtering
+        .checkFlag = 0, // Not relevant for RANDO_INF
+        .hasProgressTracking = true,
+        .targetProgress = 100,
+        .getCurrentProgress = []{
+            if (!IS_RANDO) return 0;
+            s32 count = 0;
             for (size_t i = 0; i < RC_MAX; i++) {
-                if (RANDO_SAVE_CHECKS[i].obtained) checkedLocations++;
+                if (RANDO_SAVE_CHECKS[i].obtained) count++;
             }
-            return checkedLocations >= 100;
-        }
+            return count;
+        },
+        .additionalCondition = nullptr // Condition is just progress >= target
     }},
     { AID_ADEPT_CHECK_HUNTER, {
         .id = AID_ADEPT_CHECK_HUNTER, .name = "Adept Check Hunter", .description = "Obtain items from at least 1000 different checks",
         .iconPath = (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], .isSecret = true, .gamerscore = 30, .category = AchievementCategory::RANDOMIZER,
         .triggerType = AchievementTriggerType::OnFlagSet,
-        .checkFlagType = FLAG_RANDO_INF, // Requires specific handling
-        .additionalCondition = []{
-             if (!IS_RANDO) return false;
-             int checkedLocations = 0;
+        .checkFlagType = FLAG_RANDO_INF,
+        .checkFlag = 0,
+        .hasProgressTracking = true,
+        .targetProgress = 1000,
+        .getCurrentProgress = []{
+             if (!IS_RANDO) return 0;
+             s32 count = 0;
              for (size_t i = 0; i < RC_MAX; i++) {
-                 if (RANDO_SAVE_CHECKS[i].obtained) checkedLocations++;
+                 if (RANDO_SAVE_CHECKS[i].obtained) count++;
              }
-             return checkedLocations >= 1000;
-        }
+             return count;
+        },
+        .additionalCondition = nullptr
     }},
     { AID_ALL_DONE, {
         .id = AID_ALL_DONE, .name = "All Done!", .description = "Obtain all checks in a seed.",
         .iconPath = (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], .isSecret = true, .gamerscore = 30, .category = AchievementCategory::RANDOMIZER,
         .triggerType = AchievementTriggerType::OnFlagSet,
-        .checkFlagType = FLAG_RANDO_INF, // Requires specific handling
-        .additionalCondition = []{
-            if (!IS_RANDO) return false;
-            int check_count = 0;
-            int checkedLocations = 0;
+        .checkFlagType = FLAG_RANDO_INF,
+        .checkFlag = 0,
+        .hasProgressTracking = true,
+        // Target is dynamic, so set fixed target to 0 (or -1) and use getTargetProgress
+        .targetProgress = 0,
+        .getCurrentProgress = []{
+            if (!IS_RANDO) return 0;
+            s32 count = 0;
             for (size_t i = 0; i < RC_MAX; i++) {
-                if (RANDO_SAVE_CHECKS[i].obtained) checkedLocations++;
-                if (RANDO_SAVE_CHECKS[i].shuffled) check_count++;
+                if (RANDO_SAVE_CHECKS[i].obtained) count++;
             }
-            return (check_count > 0 && checkedLocations >= check_count); // Avoid triggering if check_count is 0
-        }
+            return count;
+        },
+        .getTargetProgress = []{
+            if (!IS_RANDO) return 1; // Return 1 to prevent unlock if not rando
+            s32 shuffled_count = 0;
+            for (size_t i = 0; i < RC_MAX; i++) {
+                if (RANDO_SAVE_CHECKS[i].shuffled) shuffled_count++;
+            }
+            // Return at least 1 to ensure target > 0 check passes if there are shuffled checks
+            return (shuffled_count > 0) ? shuffled_count : 1;
+        },
+        .additionalCondition = nullptr
     }},
     { AID_RANDO_MASTER, {
         .id = AID_RANDO_MASTER, .name = "Rando Master", .description = "Obtain all checks in a max sanity.",
         .iconPath = (const char*)gItemIcons[ITEM_OCARINA_OF_TIME], .isSecret = true, .gamerscore = 50, .category = AchievementCategory::RANDOMIZER,
         .triggerType = AchievementTriggerType::OnFlagSet,
-        .checkFlagType = FLAG_RANDO_INF, // Requires specific handling
-        .additionalCondition = []{
-            if (!IS_RANDO) return false;
-            int checkedLocations = 0;
+        .checkFlagType = FLAG_RANDO_INF,
+        .checkFlag = 0,
+        .hasProgressTracking = true,
+        .targetProgress = RC_MAX,
+        .getCurrentProgress = []{
+            if (!IS_RANDO) return 0;
+            s32 count = 0;
             for (size_t i = 0; i < RC_MAX; i++) {
-                if (RANDO_SAVE_CHECKS[i].obtained) checkedLocations++;
+                if (RANDO_SAVE_CHECKS[i].obtained) count++;
             }
-            return checkedLocations >= RC_MAX;
-        }
+            return count;
+        },
+        .additionalCondition = nullptr
     }},
      { AID_RANDO_FIRST_TRY, {
         .id = AID_RANDO_FIRST_TRY, .name = "Boss Rush", .description = "Defeat all four temple bosses in first cycle outside of Clock Town",
-        .iconPath = (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], .isSecret = true, .gamerscore = 50, .category = AchievementCategory::BOTH, // Category BOTH is intentional from original
+        .iconPath = (const char*)gItemIcons[ITEM_MASK_FIERCE_DEITY], .isSecret = true, .gamerscore = 50, .category = AchievementCategory::BOTH,
         .triggerType = AchievementTriggerType::OnFlagSet,
-        .checkFlagType = FLAG_WEEK_EVENT_REG, // Added specific trigger flag
-        .checkFlag = WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE, // Added specific trigger flag (last boss)
+        .checkFlagType = FLAG_WEEK_EVENT_REG, 
+        .checkFlag = 0, // For progress tracking, type match is sufficient; specific flag value ignored by GetAchievementsFromFlagSet
+        .hasProgressTracking = true,
+        .targetProgress = 4,
+        .getCurrentProgress = []{
+            s32 count = 0;
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE)) count++;
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE)) count++;
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE)) count++;
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE)) count++;
+            return count;
+        },
+        .unlockOnTargetMet = true,
         .additionalCondition = []{
-            bool hasAllRemains = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE) &&
-                                 CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE) &&
-                                 CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE) &&
-                                 CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
             // reset count is 0 initially, 1 after first reset. Need <= 1.
-            return hasAllRemains && (gSaveContext.save.saveInfo.playerData.threeDayResetCount <= 1);
+            return (gSaveContext.save.saveInfo.playerData.threeDayResetCount <= 1);
         }
     }},
 
@@ -563,70 +617,70 @@ std::map<AchievementId, AchievementStaticData> AllAchievementData = {
 
 // --- Helper Function Definitions ---
 
-// Helper to get AchievementStaticData based on flag type and value
-// Mirrors Rando's StaticData::GetCheckFromFlag
-AchievementStaticData GetAchievementFromFlagSet(FlagType flagType, u32 flag) {
+// Helper to get all AchievementStaticData relevant to a specific FlagSet event
+std::vector<AchievementStaticData> GetAchievementsFromFlagSet(FlagType flagType, u32 flag) {
+    std::vector<AchievementStaticData> relevantAchievements;
     for (auto const& [key, val] : AllAchievementData) {
-        if (val.triggerType == AchievementTriggerType::OnFlagSet) {
-            // Handle specific RANDO_INF case - return first match for now
-            // More complex handling might be needed if multiple achievements use RANDO_INF
-            if (flagType == FLAG_RANDO_INF && val.checkFlagType == FLAG_RANDO_INF) {
-                return val;
+        if (val.triggerType != AchievementTriggerType::OnFlagSet) {
+            continue; // Only interested in OnFlagSet achievements
+        }
+
+        // Handle specific RANDO_INF case
+        if (flagType == FLAG_RANDO_INF && val.checkFlagType == FLAG_RANDO_INF) {
+            relevantAchievements.push_back(val);
+            continue; // Added, move to next achievement
+        }
+
+        // Handle non-RANDO_INF cases
+        if (val.checkFlagType == flagType) {
+            // For progress tracking achievements, matching the type is enough to trigger an update check
+            if (val.hasProgressTracking) {
+                relevantAchievements.push_back(val);
+                continue; // Added, move to next achievement
             }
-            // Standard check for other flag types (e.g., FLAG_WEEK_EVENT_REG)
-            if (val.checkFlagType == flagType && val.checkFlag == flag) {
-                return val;
+            // For non-progress tracking, require an exact flag match
+            else if (val.checkFlag == flag) { // Combined !val.hasProgressTracking implicitly
+                relevantAchievements.push_back(val);
+                // No continue needed here
             }
         }
     }
-    return {}; // Return default/invalid AchievementStaticData
+    return relevantAchievements;
 }
 
-// Helper to get AchievementStaticData based on item ID
-AchievementStaticData GetAchievementFromItemGive(u8 item) {
-     for (auto const& [key, val] : AllAchievementData) {
-         if (val.triggerType == AchievementTriggerType::OnItemGive) {
-            // Check if the trigger is specifically for this item
-            if (val.checkItemId == item) {
-                 return val;
-            }
-            // Handle cases like AID_COLLECT_ALL_MASKS or AID_RANDO_PLAYAS that trigger on a range or type of item
-            // These rely on additionalCondition, but we return the base struct here so the handler can check it.
-             if (val.id == AID_COLLECT_ALL_MASKS && item >= ITEM_MASK_DEKU && item <= ITEM_MASK_FIERCE_DEITY) {
-                 return val;
-             }
-             if (val.id == AID_MAX_HEALTH && (item == ITEM_HEART_CONTAINER || item == ITEM_HEART_PIECE)) {
-                 return val;
-             }
-              if (val.id == AID_RANDO_PLAYAS && (item == ITEM_MASK_DEKU || item == ITEM_MASK_GORON || item == ITEM_MASK_ZORA)) {
-                 return val;
-             }
-         }
-     }
-     return {}; // Return default/invalid
+// Helper to get all AchievementStaticData relevant to a specific ItemGive event
+std::vector<AchievementStaticData> GetAchievementsFromItemGive() {
+    std::vector<AchievementStaticData> relevantAchievements;
+    for (auto const& [key, val] : AllAchievementData) {
+        if (val.triggerType == AchievementTriggerType::OnItemGive) {
+            relevantAchievements.push_back(val);
+        }
+    }
+    return relevantAchievements;
 }
 
-// Helper to get AchievementStaticData based on Scene ID
-AchievementStaticData GetAchievementFromSceneInit(s16 sceneId) {
-     for (auto const& [key, val] : AllAchievementData) {
-         if (val.triggerType == AchievementTriggerType::OnSceneInit && val.checkSceneId == sceneId) {
-             return val;
-         }
-     }
-     return {}; // Return default/invalid
+// Helper to get all AchievementStaticData relevant to a specific SceneInit event
+std::vector<AchievementStaticData> GetAchievementsFromSceneInit(s16 sceneId) {
+    std::vector<AchievementStaticData> relevantAchievements;
+    for (auto const& [key, val] : AllAchievementData) {
+        if (val.triggerType == AchievementTriggerType::OnSceneInit && 
+            (val.checkSceneId == sceneId || val.checkSceneId == SCENE_ID_CHECK_ALWAYS)) {
+            relevantAchievements.push_back(val);
+        }
+    }
+    return relevantAchievements;
 }
 
 // Helper for AfterEndOfCycleSave (no params)
-AchievementStaticData GetAchievementFromEndOfCycleSave() {
-     // This trigger is less common, could potentially return multiple if needed later
-     for (auto const& [key, val] : AllAchievementData) {
-         if (val.triggerType == AchievementTriggerType::AfterEndOfCycleSave) {
-             return val; // Return first match for now
-         }
-     }
-     return {};
+std::vector<AchievementStaticData> GetAchievementsFromEndOfCycleSave() {
+    std::vector<AchievementStaticData> relevantAchievements;
+    for (auto const& [key, val] : AllAchievementData) {
+        if (val.triggerType == AchievementTriggerType::AfterEndOfCycleSave) {
+            relevantAchievements.push_back(val);
+        }
+    }
+    return relevantAchievements;
 }
-
 
 // Helper to get all AchievementStaticData relevant to a specific Vanilla Behavior hook ID
 std::vector<AchievementStaticData> GetAchievementsFromVanillaBehavior(GIVanillaBehavior vbHookId) {

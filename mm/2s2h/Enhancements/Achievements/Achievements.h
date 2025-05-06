@@ -7,6 +7,9 @@
 #include <queue>
 #include <cstdint>
 #include "AchievementTypes.h"
+#include <map>
+#include "libultraship/libultraship.h"
+#include <functional>
 
 // Forward declare handlers
 // void OnSaveInitHandler(int16_t fileNum);
@@ -57,6 +60,28 @@ struct Achievement {
     AchievementCategory mCategory;
 };
 
+// Enum to differentiate notification types in the queue
+enum class PendingNotificationType {
+    UNLOCK,
+    PROGRESS
+};
+
+// Struct to hold information for any pending notification
+struct PendingNotificationInfo {
+    PendingNotificationType type;
+    AchievementId id;
+    s32 currentProgress; // Relevant for PROGRESS type
+    s32 targetProgress;  // Relevant for PROGRESS type
+
+    // Constructor for UNLOCK type
+    PendingNotificationInfo(PendingNotificationType t, AchievementId aid)
+        : type(t), id(aid), currentProgress(0), targetProgress(0) {}
+
+    // Constructor for PROGRESS type
+    PendingNotificationInfo(PendingNotificationType t, AchievementId aid, s32 current, s32 target)
+        : type(t), id(aid), currentProgress(current), targetProgress(target) {}
+};
+
 class AchievementSystem {
   public:
     static AchievementSystem& Instance();
@@ -82,6 +107,9 @@ class AchievementSystem {
 
     size_t GetUnlockedAchievementsCount() const;
 
+    // Progress Tracking
+    void UpdateAchievementProgress(AchievementId id);
+
     std::shared_ptr<Ship::GuiWindow> CreateAchievementsWindow();
 
     void ResetStateAndQueueForLoadedSave();
@@ -97,6 +125,8 @@ class AchievementSystem {
     // Make new handlers friends if they need direct access (they will need to set the flag)
     friend void OnGameStateMainStartHandler();
 
+    void TryProcessQueueNow();
+
   private:
     AchievementSystem() = default;
     ~AchievementSystem();
@@ -104,13 +134,12 @@ class AchievementSystem {
     AchievementSystem& operator=(const AchievementSystem&) = delete;
 
     std::vector<std::shared_ptr<Achievement>> mAchievements;
-    std::unordered_map<AchievementId, std::shared_ptr<Achievement>> mAchievementsMap;
-    std::queue<AchievementId> mPendingAchievements;
+    std::map<AchievementId, std::shared_ptr<Achievement>> mAchievementsMap;
+    std::queue<PendingNotificationInfo> mPendingAchievements;
     bool mIsLoadingOrInitializing = false;
 
     void ProcessQueuedAchievements();
     void ShowEnhancedNotification(const std::shared_ptr<Achievement>& achievement);
-    void TryProcessQueueNow();
 
     // Friend declaration removed
     // friend void OnSaveLoadHandler(int16_t fileNum);

@@ -1,5 +1,6 @@
 #include "AchievementsWindow.h"
 #include "Enhancements/Achievements/Achievements.h"
+#include "Enhancements/Achievements/AchievementData.h"
 #include <libultraship/libultraship.h>
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -215,13 +216,16 @@ void AchievementsWindow::DrawAchievementItem(const std::shared_ptr<Achievement>&
 
     ImGui::PushStyleColor(ImGuiCol_ChildBg,
                           isUnlocked ? ImVec4(0.25f, 0.22f, 0.15f, 1.0f) : ImVec4(0.18f, 0.18f, 0.18f, 1.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(ImGui::GetStyle().WindowPadding.x, 4.0f)); // Reduce child window vertical padding
 
     ImGui::BeginChild(achievement->getName().c_str(), ImVec2(0, 70), true);
 
     DrawAchievementIcon(achievement);
+    ImGui::SameLine(); // Keep icon and details on the same line
     DrawAchievementDetails(achievement);
 
     ImGui::EndChild();
+    ImGui::PopStyleVar(); // Restore original WindowPadding
     ImGui::PopStyleColor();
 
     ImGui::Spacing();
@@ -265,37 +269,44 @@ void AchievementsWindow::DrawAchievementDetails(const std::shared_ptr<Achievemen
     bool isUnlocked = AchievementSystem::Instance().IsAchievementUnlocked(achievement->getId());
     bool isSecret = achievement->isSecret();
 
-    if (isUnlocked || !isSecret) {
-        ImGui::BeginGroup();
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(ImGui::GetStyle().ItemSpacing.x, 1.0f)); // Pack lines tighter
+    ImGui::BeginGroup(); // Group for icon + details column
 
-        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        // Combine name and [Secret] tag if applicable
-        std::string displayName = achievement->getName();
-        if (isSecret) {
-            displayName += " [Secret]";
-        }
-        ImGui::TextColored(isUnlocked ? GOLD_COLOR : ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s", displayName.c_str());
-        ImGui::PopFont();
-
-        ImGui::TextColored(isUnlocked ? ImVec4(0.9f, 0.9f, 0.9f, 1.0f) : GRAY_COLOR, "%s",
-                           achievement->getDescription().c_str());
-        ImGui::EndGroup();
-    } else {
-        // For locked secret achievements, we still show "Secret Achievement" as the title
-        ImGui::BeginGroup();
-
-        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-        ImGui::TextColored(GRAY_COLOR, "Secret Achievement"); // Keep this generic title when locked & secret
-        ImGui::PopFont();
-
-        ImGui::TextColored(DARK_GRAY_COLOR, "Complete a hidden objective to unlock this achievement.");
-        ImGui::EndGroup();
+    // First line: Name [Secret] ---aligned right--> Gamerscore
+    std::string displayName = achievement->getName();
+    if (isSecret && isUnlocked) { // Only show [Secret] tag if unlocked
+        displayName += " [Secret]";
     }
+    ImGui::TextColored(isUnlocked ? GOLD_COLOR : ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s", 
+                       (isSecret && !isUnlocked) ? "Secret Achievement" : displayName.c_str());
 
+    // Gamerscore aligned to the right on the same line
     if (achievement->getGamerscore() > 0) {
-        ImGui::SameLine(ImGui::GetContentRegionAvail().x - 40.0f);
-        ImGui::TextColored(isUnlocked ? GOLD_COLOR : DARK_GRAY_COLOR, "%d HM", achievement->getGamerscore());
+        char scoreText[16];
+        snprintf(scoreText, sizeof(scoreText), "%d HM", achievement->getGamerscore());
+        float scoreWidth = ImGui::CalcTextSize(scoreText).x;
+        ImGui::SameLine(ImGui::GetContentRegionAvail().x - scoreWidth);
+        ImGui::TextColored(isUnlocked ? GOLD_COLOR : DARK_GRAY_COLOR, "%s", scoreText);
     }
+
+    // Second line: Description (or placeholder)
+    ImGui::TextColored(isUnlocked ? ImVec4(0.9f, 0.9f, 0.9f, 1.0f) : GRAY_COLOR, "%s",
+                       (isSecret && !isUnlocked) ? "Keep playing to discover this achievement!" : achievement->getDescription().c_str());
+
+    // Third line: Progress (if applicable)
+    const auto& staticDataIt = AllAchievementData.find(achievement->getId());
+    if (staticDataIt != AllAchievementData.end()) {
+        const AchievementStaticData& staticData = staticDataIt->second;
+        bool isSecretAndLocked = isSecret && !isUnlocked; // Combine check
+        if (staticData.hasProgressTracking && !isSecretAndLocked) { // Only show progress if not secret+locked
+            s32 currentProgress = gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)achievement->getId()].currentProgress;
+            ImGui::TextColored(ImVec4(0.75f, 0.75f, 0.75f, 1.0f), "Progress: %d / %d", 
+                             currentProgress, staticData.targetProgress);
+        }
+    }
+
+    ImGui::EndGroup(); // End details group
+    ImGui::PopStyleVar(); // Restore original ItemSpacing
 }
 
 void AchievementsWindow::DrawDisabledMessage() {

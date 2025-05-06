@@ -380,10 +380,15 @@ typedef struct RandoSaveCheck {
     u16 price; // Only applicable for shops/merchants
 } RandoSaveCheck;
 
-typedef struct AchievementSaveData {
+// Structure to hold save data for a single achievement
+typedef struct {
     bool unlocked;
+    s32 currentProgress; // Default to 0
+    // Time unlocked? (Could be added later if needed)
+    // u32 unlockTimestamp;
 } AchievementSaveData;
 
+// Structure to hold all achievement-related save data
 typedef struct AllAchievementsInfo {
     // Use AID_MAX from the new enum
     AchievementSaveData achievementData[AID_MAX]; 

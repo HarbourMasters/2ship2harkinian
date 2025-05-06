@@ -50,6 +50,16 @@ struct AchievementStaticData {
     // u16 checkActorParams = 0xFFFF;               // For OnActorInit (if needing specific params check)
     GIVanillaBehavior checkVbHookId = (GIVanillaBehavior)-1; // For ShouldVanillaBehavior
 
+    // Optional: Filter for item categories when checkItemId is ITEM_NONE for OnItemGive triggers.
+    std::function<bool(u8 receivedItem)> itemCategoryFilter = nullptr;
+
+    // Progress Tracking Fields
+    bool hasProgressTracking = false;
+    s32 targetProgress = 0; // Value needed to unlock; 0 if not applicable or no progress. Used if getTargetProgress is null.
+    std::function<s32()> getCurrentProgress = nullptr; // Lambda to calculate current progress from live game state
+    std::function<s32()> getTargetProgress = nullptr; // Optional lambda to calculate dynamic target progress.
+    bool unlockOnTargetMet = true; // If true, meeting progress target (and additionalCondition if any) queues unlock
+
     // Optional additional condition lambda (use if trigger data alone isn't sufficient)
     // Can access global state like gSaveContext, gPlayState etc. but use with caution.
     // Should return true if the condition is met, false otherwise.
@@ -61,11 +71,12 @@ struct AchievementStaticData {
 extern std::map<AchievementId, AchievementStaticData> AllAchievementData;
 
 // Helper functions to find achievement data based on trigger parameters
-// Mirrors Rando's GetCheckFromFlag pattern
-AchievementStaticData GetAchievementFromFlagSet(FlagType flagType, u32 flag);
-AchievementStaticData GetAchievementFromItemGive(u8 item);
-AchievementStaticData GetAchievementFromSceneInit(s16 sceneId);
-// Note: ActorInit check is done via iteration + additionalCondition due to complexity
-// AchievementStaticData GetAchievementFromActorInit(s16 actorId, u16 params); // Example if needed later
-AchievementStaticData GetAchievementFromEndOfCycleSave(); // Since this trigger has no params
+// These functions return a vector of all achievements that primarily match the event.
+// The handler will then iterate this vector and apply common/secondary conditions.
+std::vector<AchievementStaticData> GetAchievementsFromFlagSet(FlagType flagType, u32 flag);
+std::vector<AchievementStaticData> GetAchievementsFromItemGive();
+std::vector<AchievementStaticData> GetAchievementsFromSceneInit(s16 sceneId);
+// Note: ActorInit check is done via iteration + additionalCondition due to complexity in its handler
+// std::vector<AchievementStaticData> GetAchievementsFromActorInit(s16 actorId, u16 params); // Example if needed later
+std::vector<AchievementStaticData> GetAchievementsFromEndOfCycleSave(); // Since this trigger has no params
 std::vector<AchievementStaticData> GetAchievementsFromVanillaBehavior(GIVanillaBehavior vbHookId); // Can return multiple 

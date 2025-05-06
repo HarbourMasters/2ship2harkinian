@@ -1,9 +1,14 @@
 #include "AchievementEditor.h"
 #include "2s2h/Enhancements/Achievements/Achievements.h"
+#include "2s2h/Enhancements/Achievements/AchievementData.h"
 #include <libultraship/libultraship.h>
 #include <imgui.h>
 #include <string>
 #include <algorithm>
+
+extern "C" {
+#include <variables.h>
+}
 
 namespace Ship {
 
@@ -148,8 +153,25 @@ void AchievementEditor::DrawDetailsPane() {
     ImGui::TextWrapped("%s", selectedAchievement->getName().c_str());
 
     ImGui::Separator();
-    ImGui::Text("Description:");
+    ImGui::TextWrapped("Description:");
     ImGui::TextWrapped("%s", selectedAchievement->getDescription().c_str());
+
+    // --- Add Progress Display for Editor --- 
+    const auto& staticDataIt = AllAchievementData.find(selectedAchievement->getId());
+    if (staticDataIt != AllAchievementData.end()) {
+        const AchievementStaticData& staticData = staticDataIt->second;
+        if (staticData.hasProgressTracking) {
+            s32* currentProgressPtr = &gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)selectedAchievement->getId()].currentProgress;
+            ImGui::Text("Progress: %d / %d", *currentProgressPtr, staticData.targetProgress);
+            ImGui::SameLine();
+            ImGui::PushItemWidth(100);
+            if (ImGui::InputInt("##SetProgress", currentProgressPtr, 1, 5)) {
+                SPDLOG_DEBUG("Achievement Editor: Set progress for ID {} to {}", (int)selectedAchievement->getId(), *currentProgressPtr);
+            }
+            ImGui::PopItemWidth();
+        }
+    }
+    // --- End Progress Display --- 
 
     ImGui::Separator();
     if (selectedAchievement->getGamerscore() > 0) {

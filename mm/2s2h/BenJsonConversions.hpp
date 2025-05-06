@@ -15,17 +15,14 @@ extern "C" {
 using json = nlohmann::json;
 
 void to_json(json& j, const AchievementSaveData& achievement) {
-    j = json{
-        { "unlocked", achievement.unlocked },
-    };
+    j = json::object();
+    j["unlocked"] = achievement.unlocked;
+    j["currentProgress"] = achievement.currentProgress;
 }
 
 void from_json(const json& j, AchievementSaveData& achievement) {
-    if (j.contains("unlocked") && j.at("unlocked").is_boolean()) {
-        j.at("unlocked").get_to(achievement.unlocked);
-    } else {
-        achievement.unlocked = false;
-    }
+    achievement.unlocked = j.value("unlocked", false);
+    achievement.currentProgress = j.value("currentProgress", 0);
 }
 
 void to_json(json& j, const AllAchievementsInfo& allAchievements) {

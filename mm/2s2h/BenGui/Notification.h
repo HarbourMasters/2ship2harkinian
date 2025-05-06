@@ -28,6 +28,7 @@ struct Options {
     float animationProgress = 0.0f; // Used for animation (0.0 to 1.0)
     int soundId = -1;               // Sound to play (-1 for default)
     bool isAchievement = false;     // Flag to specifically identify achievement notifications
+    ImVec4 borderColor = ImVec4(1.0f, 0.85f, 0.0f, 1.0f); // Default to ENHANCED_BORDER_COLOR (Achievement Gold)
 };
 
 class Window : public Ship::GuiWindow {
@@ -47,7 +48,13 @@ class Window : public Ship::GuiWindow {
 void Emit(Options notification);
 void EmitWithSound(Options notification, int soundId);
 void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore);
-bool IsAchievementNotificationActive();
+
+void EmitQuestItem(const char* iconPath, const char* name);
+void EmitDungeonItem(const char* iconPath, const char* name);
+void EmitAchievement(const char* iconPath, const char* name, int score);
+void EmitAchievementProgress(const char* iconPath, const char* name, int current, int target);
+
+bool IsNotificationActive();
 
 } // namespace Notification
 
