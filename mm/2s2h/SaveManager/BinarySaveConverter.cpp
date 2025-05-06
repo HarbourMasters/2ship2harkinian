@@ -7,6 +7,7 @@
 #include <string>
 #include "spdlog/spdlog.h"
 #include "Context.h"
+#include "Window.h"
 
 extern "C" {
 #include "z64math.h"

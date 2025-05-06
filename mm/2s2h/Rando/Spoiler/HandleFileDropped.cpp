@@ -5,6 +5,7 @@
 #include <spdlog/spdlog.h>
 #include "BenPort.h"
 #include "public/bridge/consolevariablebridge.h"
+#include "Window.h"
 
 extern "C" {
 #include "sfx.h"
