@@ -1,9 +1,9 @@
 #include "Handlers.h"
-#include "../../AchievementData.h"       // For AllAchievementData
-#include "../../Achievements.h"          // For AchievementSystem singleton
+#include "../../AchievementData.h"              // For AllAchievementData
+#include "../../Achievements.h"                 // For AchievementSystem singleton
 #include "2s2h/GameInteractor/GameInteractor.h" // For GameInteractor, COND_HOOK
-#include "2s2h/Rando/Rando.h"       // For IS_RANDO
-#include "libultraship/libultraship.h" // For CVarGetInteger
+#include "2s2h/Rando/Rando.h"                   // For IS_RANDO
+#include "libultraship/libultraship.h"          // For CVarGetInteger
 #include <spdlog/spdlog.h>
 
 namespace Handlers {
@@ -19,7 +19,8 @@ void HandleActorInitTrigger(Actor* actor) {
             // Check common conditions (unlocked, relevant, loading, additional lambda)
             // The lambda itself is the primary trigger condition for OnActorInit achievements now.
             if (CheckCommonAchievementConditions(achData)) {
-                SPDLOG_DEBUG("[Achievements] ActorInit Triggered: Actor={}, Queuing Achievement: {}", (void*)actor, achData.name);
+                SPDLOG_DEBUG("[Achievements] ActorInit Triggered: Actor={}, Queuing Achievement: {}", (void*)actor,
+                             achData.name);
                 AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
                 // Note: No break; multiple achievements could potentially trigger on the same hook
             }
@@ -33,4 +34,4 @@ void InitActorInitHandlers() {
     COND_HOOK(OnActorInit, CVAR_ACHIEVEMENTS, HandleActorInitTrigger);
 }
 
-} // namespace Handlers 
+} // namespace Handlers

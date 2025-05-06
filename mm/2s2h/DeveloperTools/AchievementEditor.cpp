@@ -156,22 +156,25 @@ void AchievementEditor::DrawDetailsPane() {
     ImGui::TextWrapped("Description:");
     ImGui::TextWrapped("%s", selectedAchievement->getDescription().c_str());
 
-    // --- Add Progress Display for Editor --- 
+    // --- Add Progress Display for Editor ---
     const auto& staticDataIt = AllAchievementData.find(selectedAchievement->getId());
     if (staticDataIt != AllAchievementData.end()) {
         const AchievementStaticData& staticData = staticDataIt->second;
         if (staticData.hasProgressTracking) {
-            s32* currentProgressPtr = &gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)selectedAchievement->getId()].currentProgress;
+            s32* currentProgressPtr =
+                &gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)selectedAchievement->getId()]
+                     .currentProgress;
             ImGui::Text("Progress: %d / %d", *currentProgressPtr, staticData.targetProgress);
             ImGui::SameLine();
             ImGui::PushItemWidth(100);
             if (ImGui::InputInt("##SetProgress", currentProgressPtr, 1, 5)) {
-                SPDLOG_DEBUG("Achievement Editor: Set progress for ID {} to {}", (int)selectedAchievement->getId(), *currentProgressPtr);
+                SPDLOG_DEBUG("Achievement Editor: Set progress for ID {} to {}", (int)selectedAchievement->getId(),
+                             *currentProgressPtr);
             }
             ImGui::PopItemWidth();
         }
     }
-    // --- End Progress Display --- 
+    // --- End Progress Display ---
 
     ImGui::Separator();
     if (selectedAchievement->getGamerscore() > 0) {

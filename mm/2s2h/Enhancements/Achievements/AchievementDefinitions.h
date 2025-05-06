@@ -4,7 +4,8 @@ SPDLOG_INFO("Achievement System Initialized (Refactored).");
 // --- SaveLoad Handler --- Registered via ShipInit below
 // Calls the trigger module's OnFileLoad function to manage hooks.
 static void OnAchievementSaveLoadHandler(s16 fileNum) {
-    SPDLOG_DEBUG("OnAchievementSaveLoadHandler called for file {}. Calling AchievementTriggers::OnFileLoad().", fileNum);
+    SPDLOG_DEBUG("OnAchievementSaveLoadHandler called for file {}. Calling AchievementTriggers::OnFileLoad().",
+                 fileNum);
     // ... existing code ...
 }
 
@@ -16,4 +17,4 @@ static RegisterShipInitFunc initFunc(InitializeAchievementSystem); // No longer 
 
 void AchievementSystem::StartLoadingOrInitializing() {
     isLoadingOrInitializing = true;
-} 
+}

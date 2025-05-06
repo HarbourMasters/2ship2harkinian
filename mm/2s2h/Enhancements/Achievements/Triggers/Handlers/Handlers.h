@@ -10,10 +10,10 @@
 #define CVAR_ACHIEVEMENTS CVarGetInteger(CVAR_NAME_ACHIEVEMENTS, 1)
 
 // Includes needed for the helper function
-#include "../../Achievements.h"          // For AchievementSystem singleton
-#include "../../AchievementData.h"       // For AchievementStaticData
-#include "2s2h/Rando/Rando.h"       // For IS_RANDO
-#include <spdlog/spdlog.h> // Potentially needed if logging is added here later
+#include "../../Achievements.h"    // For AchievementSystem singleton
+#include "../../AchievementData.h" // For AchievementStaticData
+#include "2s2h/Rando/Rando.h"      // For IS_RANDO
+#include <spdlog/spdlog.h>         // Potentially needed if logging is added here later
 
 namespace Handlers {
 
@@ -51,4 +51,4 @@ void InitVanillaBehaviorHandlers();
 
 // Add declarations for new handlers here
 
-} // namespace Handlers 
+} // namespace Handlers

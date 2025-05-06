@@ -1,6 +1,6 @@
 #include "Achievements.h"
 // #include "AchievementDefinitions.h" // No longer needed
-#include "AchievementData.h" // Include the new static data definitions
+#include "AchievementData.h"              // Include the new static data definitions
 #include "Triggers/AchievementTriggers.h" // Include the trigger module
 #include "2s2h/BenPort.h"
 #include "2s2h/Rando/Rando.h"
@@ -48,7 +48,8 @@ void InitializeAchievementSystem() {
 // --- SaveLoad Handler --- Registered with GameInteractor
 // Calls the trigger module's OnFileLoad function to manage hooks.
 static void OnAchievementSaveLoadHandler(s16 fileNum) {
-    SPDLOG_DEBUG("OnAchievementSaveLoadHandler called for file {}. Calling AchievementTriggers::OnFileLoad().", fileNum);
+    SPDLOG_DEBUG("OnAchievementSaveLoadHandler called for file {}. Calling AchievementTriggers::OnFileLoad().",
+                 fileNum);
     // AchievementTriggers::OnFileLoad() will check CVAR_ACHIEVEMENTS and register/unregister hooks accordingly.
     AchievementTriggers::OnFileLoad();
 }

@@ -49,7 +49,7 @@ const ImVec4 DEFAULT_SUFFIX_COLOR = ImVec4(1.0f, 0.5f, 0.5f, 1.0f);
 const ImVec4 ENHANCED_PREFIX_COLOR = ImVec4(1.0f, 0.85f, 0.0f, 1.0f); // Achievement Gold
 const ImVec4 ENHANCED_MESSAGE_COLOR = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // White
 const ImVec4 ENHANCED_SUFFIX_COLOR = ImVec4(1.0f, 0.85f, 0.0f, 1.0f); // Achievement Gold
-const ImVec4 GRAY_COLOR = ImVec4(0.8f, 0.8f, 0.8f, 1.0f); // Added for progress notifications
+const ImVec4 GRAY_COLOR = ImVec4(0.8f, 0.8f, 0.8f, 1.0f);             // Added for progress notifications
 // --- End Constants ---
 
 static uint32_t nextId = 0;
@@ -366,12 +366,12 @@ void EmitAchievement(const char* iconPath, const std::string& achievementName, i
 }
 
 // New function for progress updates
-void Notification::EmitAchievementProgress(const char* iconPath, const char* name, int current, int target) {
+void EmitAchievementProgress(const char* iconPath, const char* name, int current, int target) {
     char progressText[128];
     snprintf(progressText, sizeof(progressText), "%s: %d / %d", name, current, target);
 
     Options notification;
-    notification.itemIcon = iconPath; 
+    notification.itemIcon = iconPath;
     notification.prefix = "Progress Update";
     notification.prefixColor = GRAY_COLOR;
     notification.message = progressText;
@@ -380,14 +380,14 @@ void Notification::EmitAchievementProgress(const char* iconPath, const char* nam
     notification.style = NotificationStyle::ENHANCED;
     notification.remainingTime = 3.0f;
     notification.isAchievement = false;
-    
-    int soundId = NA_SE_SY_MESSAGE_PASS; 
+
+    int soundId = NA_SE_SY_MESSAGE_PASS;
 
     EmitWithSound(notification, soundId);
 }
 
 // Add the definition for IsNotificationActive
-bool Notification::IsNotificationActive() {
+bool IsNotificationActive() {
     return !notifications.empty();
 }
 

@@ -1,10 +1,10 @@
 #include "Handlers.h"
-#include "../../AchievementData.h"       // For AllAchievementData -> GetAchievementsFromFlagSet
-#include "../../Achievements.h"          // For AchievementSystem singleton
+#include "../../AchievementData.h"              // For AllAchievementData -> GetAchievementsFromFlagSet
+#include "../../Achievements.h"                 // For AchievementSystem singleton
 #include "2s2h/GameInteractor/GameInteractor.h" // For GameInteractor, COND_HOOK
-#include "2s2h/Rando/Rando.h"       // For IS_RANDO
-#include "libultraship/libultraship.h" // For CVarGetInteger
-#include <spdlog/spdlog.h>            // For logging
+#include "2s2h/Rando/Rando.h"                   // For IS_RANDO
+#include "libultraship/libultraship.h"          // For CVarGetInteger
+#include <spdlog/spdlog.h>                      // For logging
 
 namespace Handlers {
 
@@ -20,15 +20,16 @@ void HandleFlagSetTrigger(FlagType flagType, u32 flag) {
             !AchievementSystem::Instance().IsAchievementRelevantForGameMode(achData.id, IS_RANDO)) {
             // Skip
         } else {
-             if (achData.hasProgressTracking) {
-                 AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
-             } else {
-                 // Not progress-tracked, so check additionalCondition directly for unlock
-                 if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
-                     SPDLOG_DEBUG("[Achievements] FlagSet (Direct): Type={}, Flag={}, Queuing Achievement: {}", (int)flagType, flag, achData.name);
-                     AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
-                 }
-             }
+            if (achData.hasProgressTracking) {
+                AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
+            } else {
+                // Not progress-tracked, so check additionalCondition directly for unlock
+                if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
+                    SPDLOG_DEBUG("[Achievements] FlagSet (Direct): Type={}, Flag={}, Queuing Achievement: {}",
+                                 (int)flagType, flag, achData.name);
+                    AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
+                }
+            }
         }
     }
 }
@@ -38,4 +39,4 @@ void InitFlagSetHandlers() {
     COND_HOOK(OnFlagSet, CVAR_ACHIEVEMENTS, HandleFlagSetTrigger);
 }
 
-} // namespace Handlers 
+} // namespace Handlers

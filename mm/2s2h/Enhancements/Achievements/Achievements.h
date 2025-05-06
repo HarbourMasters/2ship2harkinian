@@ -61,10 +61,7 @@ struct Achievement {
 };
 
 // Enum to differentiate notification types in the queue
-enum class PendingNotificationType {
-    UNLOCK,
-    PROGRESS
-};
+enum class PendingNotificationType { UNLOCK, PROGRESS };
 
 // Struct to hold information for any pending notification
 struct PendingNotificationInfo {
@@ -75,11 +72,13 @@ struct PendingNotificationInfo {
 
     // Constructor for UNLOCK type
     PendingNotificationInfo(PendingNotificationType t, AchievementId aid)
-        : type(t), id(aid), currentProgress(0), targetProgress(0) {}
+        : type(t), id(aid), currentProgress(0), targetProgress(0) {
+    }
 
     // Constructor for PROGRESS type
     PendingNotificationInfo(PendingNotificationType t, AchievementId aid, s32 current, s32 target)
-        : type(t), id(aid), currentProgress(current), targetProgress(target) {}
+        : type(t), id(aid), currentProgress(current), targetProgress(target) {
+    }
 };
 
 class AchievementSystem {

@@ -25,9 +25,9 @@ struct Options {
     ImVec4 suffixColor = ImVec4(1.0f, 0.5f, 0.5f, 1.0f);
     float remainingTime = 0.0f; // Seconds
     NotificationStyle style = NotificationStyle::DEFAULT;
-    float animationProgress = 0.0f; // Used for animation (0.0 to 1.0)
-    int soundId = -1;               // Sound to play (-1 for default)
-    bool isAchievement = false;     // Flag to specifically identify achievement notifications
+    float animationProgress = 0.0f;                       // Used for animation (0.0 to 1.0)
+    int soundId = -1;                                     // Sound to play (-1 for default)
+    bool isAchievement = false;                           // Flag to specifically identify achievement notifications
     ImVec4 borderColor = ImVec4(1.0f, 0.85f, 0.0f, 1.0f); // Default to ENHANCED_BORDER_COLOR (Achievement Gold)
 };
 

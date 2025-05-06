@@ -1,9 +1,9 @@
 #include "Handlers.h"
-#include "../../AchievementData.h"      // For GetAchievementsFromItemGive
-#include "../../Achievements.h"         // For AchievementSystem singleton
+#include "../../AchievementData.h"              // For GetAchievementsFromItemGive
+#include "../../Achievements.h"                 // For AchievementSystem singleton
 #include "2s2h/GameInteractor/GameInteractor.h" // For GameInteractor, COND_HOOK
-#include "2s2h/Rando/Rando.h"       // For IS_RANDO
-#include "libultraship/libultraship.h" // For CVarGetInteger
+#include "2s2h/Rando/Rando.h"                   // For IS_RANDO
+#include "libultraship/libultraship.h"          // For CVarGetInteger
 #include <spdlog/spdlog.h>
 #include <z64item.h> // For ITEM_NONE, ITEM_MASK_DEKU etc.
 
@@ -40,7 +40,7 @@ void HandleItemGiveTrigger(u8 item) {
 
         if (eventParameterMatches) {
             // Basic pre-checks from CheckCommonAchievementConditions (excluding additionalCondition)
-            if (AchievementSystem::Instance().IsLoadingOrInitializing() || 
+            if (AchievementSystem::Instance().IsLoadingOrInitializing() ||
                 AchievementSystem::Instance().IsAchievementUnlocked(achData.id) ||
                 !AchievementSystem::Instance().IsAchievementRelevantForGameMode(achData.id, IS_RANDO)) {
                 // Skip if loading, already unlocked, or not relevant
@@ -50,7 +50,8 @@ void HandleItemGiveTrigger(u8 item) {
                 } else {
                     // Not progress-tracked, so check additionalCondition directly for unlock
                     if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
-                        SPDLOG_DEBUG("[Achievements] ItemGive (Direct): Item={}, Queuing Achievement: {}", item, achData.name);
+                        SPDLOG_DEBUG("[Achievements] ItemGive (Direct): Item={}, Queuing Achievement: {}", item,
+                                     achData.name);
                         AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
                     }
                 }

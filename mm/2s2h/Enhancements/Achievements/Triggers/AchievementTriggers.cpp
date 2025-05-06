@@ -19,4 +19,4 @@ void AchievementTriggers::OnFileLoad() {
     Handlers::InitEndOfCycleSaveHandlers();
     Handlers::InitVanillaBehaviorHandlers();
     // Add calls for other handlers if new trigger types are added.
-} 
+}

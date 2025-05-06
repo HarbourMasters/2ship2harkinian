@@ -216,7 +216,8 @@ void AchievementsWindow::DrawAchievementItem(const std::shared_ptr<Achievement>&
 
     ImGui::PushStyleColor(ImGuiCol_ChildBg,
                           isUnlocked ? ImVec4(0.25f, 0.22f, 0.15f, 1.0f) : ImVec4(0.18f, 0.18f, 0.18f, 1.0f));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(ImGui::GetStyle().WindowPadding.x, 4.0f)); // Reduce child window vertical padding
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding,
+                        ImVec2(ImGui::GetStyle().WindowPadding.x, 4.0f)); // Reduce child window vertical padding
 
     ImGui::BeginChild(achievement->getName().c_str(), ImVec2(0, 70), true);
 
@@ -277,7 +278,7 @@ void AchievementsWindow::DrawAchievementDetails(const std::shared_ptr<Achievemen
     if (isSecret && isUnlocked) { // Only show [Secret] tag if unlocked
         displayName += " [Secret]";
     }
-    ImGui::TextColored(isUnlocked ? GOLD_COLOR : ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s", 
+    ImGui::TextColored(isUnlocked ? GOLD_COLOR : ImVec4(0.8f, 0.8f, 0.8f, 1.0f), "%s",
                        (isSecret && !isUnlocked) ? "Secret Achievement" : displayName.c_str());
 
     // Gamerscore aligned to the right on the same line
@@ -291,21 +292,23 @@ void AchievementsWindow::DrawAchievementDetails(const std::shared_ptr<Achievemen
 
     // Second line: Description (or placeholder)
     ImGui::TextColored(isUnlocked ? ImVec4(0.9f, 0.9f, 0.9f, 1.0f) : GRAY_COLOR, "%s",
-                       (isSecret && !isUnlocked) ? "Keep playing to discover this achievement!" : achievement->getDescription().c_str());
+                       (isSecret && !isUnlocked) ? "Keep playing to discover this achievement!"
+                                                 : achievement->getDescription().c_str());
 
     // Third line: Progress (if applicable)
     const auto& staticDataIt = AllAchievementData.find(achievement->getId());
     if (staticDataIt != AllAchievementData.end()) {
         const AchievementStaticData& staticData = staticDataIt->second;
-        bool isSecretAndLocked = isSecret && !isUnlocked; // Combine check
+        bool isSecretAndLocked = isSecret && !isUnlocked;           // Combine check
         if (staticData.hasProgressTracking && !isSecretAndLocked) { // Only show progress if not secret+locked
-            s32 currentProgress = gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)achievement->getId()].currentProgress;
-            ImGui::TextColored(ImVec4(0.75f, 0.75f, 0.75f, 1.0f), "Progress: %d / %d", 
-                             currentProgress, staticData.targetProgress);
+            s32 currentProgress =
+                gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)achievement->getId()].currentProgress;
+            ImGui::TextColored(ImVec4(0.75f, 0.75f, 0.75f, 1.0f), "Progress: %d / %d", currentProgress,
+                               staticData.targetProgress);
         }
     }
 
-    ImGui::EndGroup(); // End details group
+    ImGui::EndGroup();    // End details group
     ImGui::PopStyleVar(); // Restore original ItemSpacing
 }
 

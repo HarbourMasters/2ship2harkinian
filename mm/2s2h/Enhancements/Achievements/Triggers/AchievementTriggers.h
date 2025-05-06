@@ -5,11 +5,11 @@
 
 namespace AchievementTriggers {
 
-    // Performs one-time setup for the trigger module.
-    void Init();
+// Performs one-time setup for the trigger module.
+void Init();
 
-    // Registers/unregisters hooks based on CVar state.
-    // Called via the OnSaveLoad hook.
-    void OnFileLoad();
+// Registers/unregisters hooks based on CVar state.
+// Called via the OnSaveLoad hook.
+void OnFileLoad();
 
-} // namespace AchievementTriggers 
+} // namespace AchievementTriggers

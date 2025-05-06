@@ -121,8 +121,8 @@ void AchievementSystem::ProcessQueuedAchievements() {
     if (!mPendingAchievements.empty()) {
         PendingNotificationInfo info = mPendingAchievements.front();
         mPendingAchievements.pop();
-        SPDLOG_DEBUG("ProcessQueuedAchievements: Processing ID={}, Type={}, New Queue Size={}", 
-                     (int)info.id, (info.type == PendingNotificationType::UNLOCK ? "UNLOCK" : "PROGRESS"), 
+        SPDLOG_DEBUG("ProcessQueuedAchievements: Processing ID={}, Type={}, New Queue Size={}", (int)info.id,
+                     (info.type == PendingNotificationType::UNLOCK ? "UNLOCK" : "PROGRESS"),
                      mPendingAchievements.size());
 
         auto achievement = GetAchievement(info.id);
@@ -133,21 +133,27 @@ void AchievementSystem::ProcessQueuedAchievements() {
                     SPDLOG_INFO("Showing UNLOCK notification for achievement: {}", achievement->getName());
                     ShowEnhancedNotification(achievement);
                 } else {
-                    SPDLOG_WARN("ProcessQueuedAchievements: UNLOCK for ID {} was in queue but is no longer marked unlocked. Notification skipped.", (int)info.id);
+                    SPDLOG_WARN("ProcessQueuedAchievements: UNLOCK for ID {} was in queue but is no longer marked "
+                                "unlocked. Notification skipped.",
+                                (int)info.id);
                 }
             } else if (info.type == PendingNotificationType::PROGRESS) {
                 // Don't show progress notifications for secret achievements that are still locked
-                if (achievement->isSecret() && !gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)info.id].unlocked) {
+                if (achievement->isSecret() &&
+                    !gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)info.id].unlocked) {
                     SPDLOG_DEBUG("Skipping PROGRESS notification for secret locked achievement: ID={}", (int)info.id);
                 } else {
-                    SPDLOG_INFO("Showing PROGRESS notification for achievement: {}: {}/{} ", 
-                                achievement->getName(), info.currentProgress, info.targetProgress);
-                    const char* iconPath = achievement->getIconPath().empty() ? (const char*)gItemIcons[ITEM_SKULL_TOKEN] : achievement->getIconPath().c_str();
-                    Notification::EmitAchievementProgress(iconPath, achievement->getName().c_str(), info.currentProgress, info.targetProgress);
+                    SPDLOG_INFO("Showing PROGRESS notification for achievement: {}: {}/{} ", achievement->getName(),
+                                info.currentProgress, info.targetProgress);
+                    const char* iconPath = achievement->getIconPath().empty()
+                                               ? (const char*)gItemIcons[ITEM_SKULL_TOKEN]
+                                               : achievement->getIconPath().c_str();
+                    Notification::EmitAchievementProgress(iconPath, achievement->getName().c_str(),
+                                                          info.currentProgress, info.targetProgress);
                 }
             }
             // Immediately try processing next after showing this one, regardless of type
-            TryProcessQueueNow(); 
+            TryProcessQueueNow();
         } else {
             SPDLOG_ERROR("ProcessQueuedAchievements: Could not find achievement for queued ID: {}", (int)info.id);
         }
@@ -274,10 +280,11 @@ bool AchievementSystem::IsAchievementRelevantForGameMode(AchievementId id, bool 
     return relevant;
 }
 
-// --- Progress Tracking --- NEW --- 
+// --- Progress Tracking --- NEW ---
 void AchievementSystem::UpdateAchievementProgress(AchievementId id) {
     if (mIsLoadingOrInitializing) {
-        SPDLOG_TRACE("[Achievements] UpdateAchievementProgress: Skipping update for ID {} during loading/init phase.", (int)id);
+        SPDLOG_TRACE("[Achievements] UpdateAchievementProgress: Skipping update for ID {} during loading/init phase.",
+                     (int)id);
         return;
     }
 
@@ -296,19 +303,24 @@ void AchievementSystem::UpdateAchievementProgress(AchievementId id) {
     const AchievementStaticData& staticData = itStaticData->second;
 
     if (!staticData.hasProgressTracking || staticData.getCurrentProgress == nullptr) {
-        SPDLOG_TRACE("[Achievements] UpdateAchievementProgress: Achievement ID {} does not support progress tracking or has no getCurrentProgress fn.", (int)id);
+        SPDLOG_TRACE("[Achievements] UpdateAchievementProgress: Achievement ID {} does not support progress tracking "
+                     "or has no getCurrentProgress fn.",
+                     (int)id);
         return;
     }
 
     // Check if already unlocked
     if (gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)id].unlocked) {
-        SPDLOG_TRACE("[Achievements] UpdateAchievementProgress: Achievement ID {} already unlocked. Progress not updated.", (int)id);
+        SPDLOG_TRACE(
+            "[Achievements] UpdateAchievementProgress: Achievement ID {} already unlocked. Progress not updated.",
+            (int)id);
         return;
     }
 
     // Check if relevant for game mode before updating progress
     if (!IsAchievementRelevantForGameMode(id, IS_RANDO)) {
-        SPDLOG_DEBUG("[Achievements] UpdateAchievementProgress: Achievement {} not relevant for current game mode (Rando: {}). Progress not updated.",
+        SPDLOG_DEBUG("[Achievements] UpdateAchievementProgress: Achievement {} not relevant for current game mode "
+                     "(Rando: {}). Progress not updated.",
                      achievement->getName(), IS_RANDO);
         return;
     }
@@ -319,32 +331,42 @@ void AchievementSystem::UpdateAchievementProgress(AchievementId id) {
 
     if (liveProgress != oldProgress) {
         gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)id].currentProgress = liveProgress;
-        SPDLOG_DEBUG("[Achievements] UpdateAchievementProgress: ID {} progress updated from {} to {}. Target: {}", 
-            (int)id, oldProgress, liveProgress, target);
-        
+        SPDLOG_DEBUG("[Achievements] UpdateAchievementProgress: ID {} progress updated from {} to {}. Target: {}",
+                     (int)id, oldProgress, liveProgress, target);
+
         // Queue progress notification if progress increased but target not yet met
         if (liveProgress < target && target > 0) { // Check target > 0 to avoid notification for invalid targets
-            mPendingAchievements.push(PendingNotificationInfo(PendingNotificationType::PROGRESS, id, liveProgress, target));
-            SPDLOG_DEBUG("[Achievements] UpdateAchievementProgress: Queued PROGRESS notification for ID {}. Queue size: {}", (int)id, mPendingAchievements.size());
+            mPendingAchievements.push(
+                PendingNotificationInfo(PendingNotificationType::PROGRESS, id, liveProgress, target));
+            SPDLOG_DEBUG(
+                "[Achievements] UpdateAchievementProgress: Queued PROGRESS notification for ID {}. Queue size: {}",
+                (int)id, mPendingAchievements.size());
             // Rely on OnGameStateUpdate hook to call TryProcessQueueNow for this new queued item
         }
     }
 
     // Check for unlock condition
     if (target <= 0) { // Avoid division by zero or nonsensical progress checks if target is invalid
-        SPDLOG_TRACE("[Achievements] UpdateAchievementProgress: ID {} has invalid or zero target progress ({}). Skipping unlock check.", (int)id, target);
+        SPDLOG_TRACE("[Achievements] UpdateAchievementProgress: ID {} has invalid or zero target progress ({}). "
+                     "Skipping unlock check.",
+                     (int)id, target);
         return;
     }
 
     if (staticData.unlockOnTargetMet && liveProgress >= target) {
-        SPDLOG_DEBUG("[Achievements] UpdateAchievementProgress: ID {} met progress target ({} / {}). Checking additional conditions.", 
-            (int)id, liveProgress, target);
+        SPDLOG_DEBUG("[Achievements] UpdateAchievementProgress: ID {} met progress target ({} / {}). Checking "
+                     "additional conditions.",
+                     (int)id, liveProgress, target);
         // Perform final additionalCondition check if it exists
         if (staticData.additionalCondition == nullptr || staticData.additionalCondition()) {
-            SPDLOG_INFO("[Achievements] UpdateAchievementProgress: ID {} met all conditions. Queuing for unlock.", (int)id);
-            QueueAchievementUnlock(id); // QueueAchievementUnlock already checks for CVAR_ACHIEVEMENTS and if it's relevant
+            SPDLOG_INFO("[Achievements] UpdateAchievementProgress: ID {} met all conditions. Queuing for unlock.",
+                        (int)id);
+            QueueAchievementUnlock(
+                id); // QueueAchievementUnlock already checks for CVAR_ACHIEVEMENTS and if it's relevant
         } else {
-            SPDLOG_DEBUG("[Achievements] UpdateAchievementProgress: ID {} met progress target but failed additionalCondition.", (int)id);
+            SPDLOG_DEBUG(
+                "[Achievements] UpdateAchievementProgress: ID {} met progress target but failed additionalCondition.",
+                (int)id);
         }
     }
 }
@@ -379,8 +401,7 @@ void OnGameStateMainStartHandler() {
     if (isInPlayState) {
         if (system.IsLoadingOrInitializing()) {
             // Just entered Play state after a normal load/select
-            SPDLOG_INFO(
-                "Entering GAMESTATE_PLAY after load/select. Clearing loading flag.");
+            SPDLOG_INFO("Entering GAMESTATE_PLAY after load/select. Clearing loading flag.");
             system.FinishLoadingOrInitializing(); // CLEAR LOADING FLAG
         }
     }
