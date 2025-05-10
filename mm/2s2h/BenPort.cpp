@@ -136,7 +136,7 @@ OTRGlobals::OTRGlobals() {
         }
     }
 
-    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.o2r");
+    std::string shipOtrPath = Ship::Context::LocateFileAcrossAppDirs("2ship.o2r");
     if (std::filesystem::exists(shipOtrPath)) {
         archiveFiles.push_back(shipOtrPath);
     }

@@ -12,15 +12,7 @@ if(EXISTS ${SOURCE_DIR}/mm/2ship.o2r)
     message(STATUS "Copied 2ship.o2r")
 endif()
 
-# Additionally for Windows, copy the otrs to the target dir, side by side with 2ship.exe
-if(SYSTEM_NAME MATCHES "Windows")
-    if(NOT ONLY2SHIPOTR AND EXISTS ${SOURCE_DIR}/mm/mm.o2r)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E copy mm.o2r ${TARGET_DIR}/mm.o2r)
-    endif()
-    if(EXISTS ${SOURCE_DIR}/OTRExporter/2ship.o2r)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E copy 2ship.o2r ${TARGET_DIR})
-    endif()
-endif()
+
 
 if(NOT ONLY2SHIPOTR AND (NOT EXISTS ${SOURCE_DIR}/mm.o2r))
     message(FATAL_ERROR "Failed to copy. No O2R files found.")
