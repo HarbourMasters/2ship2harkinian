@@ -35,7 +35,7 @@
 #include "PR/controller.h"
 #include "PR/os_motor.h"
 
-#include "2s2h/Enhancements/Camera/Mouse.h"
+#include "2s2h/Enhancements/Controls/Mouse/Mouse.h"
 #include "controller.h"
 #include "fault.h"
 #include <stdio.h>
