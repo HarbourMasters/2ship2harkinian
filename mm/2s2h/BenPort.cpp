@@ -29,7 +29,7 @@
 #include "build.h"
 
 #include <Fast3D/interpreter.h>
-#include <Fast3D/gfx_rendering_api.h>
+#include <Fast3D/backends/gfx_rendering_api.h>
 
 #ifdef __APPLE__
 #include <SDL_scancode.h>
