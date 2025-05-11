@@ -27,6 +27,8 @@ class BenMenu : public Ship::Menu {
 
   private:
     bool mMenuElementsInitialized = false;
+  protected:
+    void SetVisibility(bool visible) override;
 };
 } // namespace BenGui
 
