@@ -48,7 +48,7 @@
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
-#include "2s2h/Enhancements/Camera/Mouse.h"
+#include "2s2h/Enhancements/Controls/Mouse/Mouse.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 #define THIS ((Player*)thisx)
