@@ -4,8 +4,9 @@
 #include "ShipInit.hpp"
 #include "GameInteractor/GameInteractor.h"
 #include "public/bridge/consolevariablebridge.h"
+#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
-#define MOUSE_ENABLED (Ship::Context::GetInstance()->GetWindow()->IsMouseCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0))
+#define MOUSE_ENABLED (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0))
 
 static MouseCoords current;
 
@@ -78,6 +79,25 @@ bool HandleQuickspin(bool* should, s8* iter2, s8* sp3C) {
     return *should = true;
 }
 
+void HandlePauseCapture(PauseContext* pauseCtx) {
+    static bool buf = false;
+
+    switch (pauseCtx->state) {
+        case PAUSE_STATE_MAIN: {
+            std::shared_ptr<Ship::Window> window = Ship::Context::GetInstance()->GetWindow();
+            bool current = window->IsMouseCaptured();
+            buf = current;
+            if (current) {
+                window->SetMouseCapture(false);
+            }
+            break;
+        }
+        case PAUSE_STATE_UNPAUSE_SETUP:
+            Ship::Context::GetInstance()->GetWindow()->SetMouseCapture(buf);
+            return;
+    }
+}
+
 void RegisterQuickspinFunc() {
     COND_VB_SHOULD(
         VB_SHOULD_QUICKSPIN,
@@ -89,12 +109,17 @@ void RegisterQuickspinFunc() {
         MOUSE_ENABLED && CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
         UpdateQuickspinCount
     );
+
+    COND_HOOK(
+        OnKaleidoUpdate,
+        true,
+        HandlePauseCapture
+    );
 }
 
 // OnGameStateMainStart (capture toggle on start?)
-// OnKaleidoUpdate (forced disable capture in kaleido menu)
 
-static RegisterShipInitFunc initFunc(RegisterQuickspinFunc, { "gEnhancements.Mouse.Quickspin.Enable" });
+static RegisterShipInitFunc initFunc(RegisterQuickspinFunc, {});
 
 #ifdef __cplusplus
 } // extern "C"
