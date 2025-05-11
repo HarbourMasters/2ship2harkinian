@@ -5,7 +5,7 @@
 #include "Context.h"
 #include "ResourceManager.h"
 #include "resource/archive/Archive.h"
-#include "tinyxml2.h"
+#include <tinyxml2.h>
 
 namespace SOH {
 std::shared_ptr<Ship::IResource>

@@ -7,7 +7,7 @@
 #include "ResourceManager.h"
 
 #include <type_traits>
-#include "tinyxml2.h"
+#include <tinyxml2.h>
 
 namespace SOH {
 std::shared_ptr<Ship::IResource>
