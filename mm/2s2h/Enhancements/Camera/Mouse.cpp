@@ -52,9 +52,6 @@ bool HandleQuickspin(bool* should, s8* iter2, s8* sp3C) {
     s8 temp1;
     s8 temp2;
     s32 i;
-    if (!MOUSE_ENABLED) {
-        return *should = false;
-    }
 
     for (i = 0; i < 4; i++, iter2++) {
         f32 relY = mouseQuickspinY[i + 1] - mouseQuickspinY[i];
@@ -84,12 +81,12 @@ bool HandleQuickspin(bool* should, s8* iter2, s8* sp3C) {
 void RegisterQuickspinFunc() {
     COND_VB_SHOULD(
         VB_SHOULD_QUICKSPIN,
-        CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
+        MOUSE_ENABLED && CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
         { HandleQuickspin(should, va_arg(args, s8*), va_arg(args, s8*)); }
     );
     COND_HOOK(
         OnPassPlayerInputs,
-        CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
+        MOUSE_ENABLED && CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
         UpdateQuickspinCount
     );
 }
