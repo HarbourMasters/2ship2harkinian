@@ -2,7 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "CameraUtils.h"
-#include "Mouse.h"
+#include "2s2h/Enhancements/Controls/Mouse/Mouse.h"
 
 extern "C" {
 #include "macros.h"
