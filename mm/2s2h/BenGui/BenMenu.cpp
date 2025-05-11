@@ -909,7 +909,7 @@ void BenMenu::AddEnhancements() {
                      .Min(0.1f)
                      .Max(3.0f));
 
-    path.column = 3;
+    path.column = SECTION_COLUMN_3;
     AddWidget(path, "Mouse", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.Enabled")
@@ -1082,6 +1082,10 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Equipment.ChuDrops")
         .Options(
             CheckboxOptions().Tooltip("When a bomb drop is spawned, it has a 50% chance to be a Bombchu instead."));
+    AddWidget(path, "Invert Shield X Axis", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Equipment.InvertShieldX")
+        .Options(CheckboxOptions().Tooltip(
+            "Invert the X axis while holding the shield."));
     AddWidget(path, "Invert Shield Y Axis", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.InvertShieldY")
         .Options(CheckboxOptions().Tooltip(
