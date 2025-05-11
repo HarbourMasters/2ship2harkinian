@@ -23,6 +23,9 @@ class BenMenu : public Ship::Menu {
     void AddSettings();
     void AddEnhancements();
     void AddDevTools();
+
+  protected:
+    void SetVisibility(bool visible) override;
 };
 } // namespace BenGui
 
