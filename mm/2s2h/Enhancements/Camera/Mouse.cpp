@@ -103,7 +103,7 @@ void HandlePauseCapture(PauseContext* pauseCtx) {
     }
 }
 
-void RegisterQuickspinFunc() {
+void RegisterMouseRelatedHooks() {
     COND_VB_SHOULD(
         VB_SHOULD_QUICKSPIN,
         MOUSE_ENABLED && CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
@@ -124,7 +124,7 @@ void RegisterQuickspinFunc() {
 
 // OnGameStateMainStart (capture toggle on start?)
 
-static RegisterShipInitFunc initFunc(RegisterQuickspinFunc, {});
+static RegisterShipInitFunc initFunc(RegisterMouseRelatedHooks, {});
 
 #ifdef __cplusplus
 } // extern "C"
