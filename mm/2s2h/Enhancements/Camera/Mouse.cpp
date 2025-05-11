@@ -81,19 +81,24 @@ bool HandleQuickspin(bool* should, s8* iter2, s8* sp3C) {
 
 void HandlePauseCapture(PauseContext* pauseCtx) {
     static bool buf = false;
+    static bool paused = false;
 
     switch (pauseCtx->state) {
         case PAUSE_STATE_MAIN: {
+            if (paused) { return; }
+            paused = true;
+
             std::shared_ptr<Ship::Window> window = Ship::Context::GetInstance()->GetWindow();
             bool current = window->IsMouseCaptured();
             buf = current;
             if (current) {
                 window->SetMouseCapture(false);
             }
-            break;
+            return;
         }
         case PAUSE_STATE_UNPAUSE_SETUP:
             Ship::Context::GetInstance()->GetWindow()->SetMouseCapture(buf);
+            paused = false;
             return;
     }
 }
