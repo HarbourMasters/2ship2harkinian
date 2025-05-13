@@ -180,7 +180,7 @@ inline uint32_t RemainsCount() {
 }
 
 inline bool MeetsMoonRequirements() {
-    return CAN_PLAY_SONG(OATH) && RemainsCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT];
+    return RemainsCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT];
 }
 
 inline bool CanKillEnemy(ActorId EnemyId) {
