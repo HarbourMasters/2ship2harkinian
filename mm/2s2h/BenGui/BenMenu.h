@@ -51,9 +51,9 @@ static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
 };
 
 static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
-    { FILTER_THREE_POINT, "Three-Point" },
-    { FILTER_LINEAR, "Linear" },
-    { FILTER_NONE, "None" },
+    { Fast::FILTER_THREE_POINT, "Three-Point" },
+    { Fast::FILTER_LINEAR, "Linear" },
+    { Fast::FILTER_NONE, "None" },
 };
 
 static const std::unordered_map<int32_t, const char*> motionBlurOptions = {
