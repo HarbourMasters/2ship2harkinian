@@ -11,7 +11,7 @@ extern "C" {
 #include "sfx.h"
 }
 
-bool Rando::Spoiler::HandleFileDropped(std::string filePath) {
+bool Rando::Spoiler::HandleFileDropped(const std::string& filePath) {
     try {
         std::ifstream fileStream(filePath);
 
