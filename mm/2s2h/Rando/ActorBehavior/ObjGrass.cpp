@@ -1010,7 +1010,12 @@ RandoCheckId IdentifyGrass(Vec3f pos) {
         return randoCheckId;
     }
 
-    return innerIt->second;
+    randoCheckId = innerIt->second;
+    if (!RANDO_SAVE_CHECKS[randoCheckId].shuffled || RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
+      return RC_UNKNOWN;
+    }
+
+    return randoCheckId;
 }
 
 void SpawnGrassDrop(Vec3f pos, RandoCheckId randoCheckId) {
