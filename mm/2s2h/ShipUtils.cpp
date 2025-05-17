@@ -44,7 +44,7 @@ std::unordered_map<s16, const char*> sceneNames = {
 #undef DEFINE_SCENE_UNSET
 
 // These textures are not in existing lists that we iterate over.
-std::array<const char*, 18> miscellaneousTextures = {
+std::array<const char*, 19> miscellaneousTextures = {
     gArcheryScoreIconTex,
     gBarrelTrackerIcon,
     gChestTrackerIcon,
