@@ -1012,7 +1012,7 @@ RandoCheckId IdentifyGrass(Vec3f pos) {
 
     randoCheckId = innerIt->second;
     if (!RANDO_SAVE_CHECKS[randoCheckId].shuffled || RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
-      return RC_UNKNOWN;
+        return RC_UNKNOWN;
     }
 
     return randoCheckId;
