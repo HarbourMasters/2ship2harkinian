@@ -150,6 +150,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                             continue;
                         }
 
+                        if (randoStaticCheck.randoCheckType == RCTYPE_GRASS &&
+                            RANDO_SAVE_OPTIONS[RO_SHUFFLE_GRASS_DROPS] == RO_GENERIC_NO) {
+                            continue;
+                        }
+
                         if (randoStaticCheck.randoCheckType == RCTYPE_FREESTANDING &&
                             RANDO_SAVE_OPTIONS[RO_SHUFFLE_FREESTANDING_ITEMS] == RO_GENERIC_NO) {
                             continue;

@@ -8,6 +8,7 @@
 #include "objects/gameplay_field_keep/gameplay_field_keep.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "overlays/actors/ovl_Obj_Grass/z_obj_grass.h"
+#include "GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_800000)
 
@@ -287,7 +288,9 @@ void ObjGrassCarry_Fall(ObjGrassCarry* this, PlayState* play) {
     if ((this->actor.bgCheckFlags & (BGCHECKFLAG_GROUND | BGCHECKFLAG_GROUND_TOUCH | BGCHECKFLAG_WALL)) || atHit ||
         (this->fallTimer <= 0)) {
         ObjGrassCarry_SpawnFragments(&this->actor.world.pos, play);
-        ObjGrassCarry_DropCollectible(&this->actor.world.pos, this->dropTable, play);
+        if (GameInteractor_Should(VB_GRASS_DROP_COLLECTIBLE, true, ACTOR_OBJ_GRASS_CARRY, this)) {
+            ObjGrassCarry_DropCollectible(&this->actor.world.pos, this->dropTable, play);
+        }
 
         this->actor.draw = NULL;
         this->actor.shape.shadowDraw = NULL;

@@ -132,6 +132,7 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitItemBHeartBehavior();
     Rando::ActorBehavior::InitItemGetBehavior();
     Rando::ActorBehavior::InitObjKibakoBehavior();
+    Rando::ActorBehavior::InitObjGrassBehavior();
     Rando::ActorBehavior::InitObjMoonStoneBehavior();
     Rando::ActorBehavior::InitObjSnowballBehavior();
     Rando::ActorBehavior::InitObjTaruBehavior();
