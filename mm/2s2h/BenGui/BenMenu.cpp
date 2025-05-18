@@ -127,7 +127,6 @@ static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = 
     { 0, "1x" }, { 1, "2x" }, { 2, "4x" }, { 3, "8x" }, { 4, "16x" }, { 10, "1 Hit KO" },
 };
 
-
 namespace BenGui {
 extern std::shared_ptr<BenMenu> mBenMenu;
 void FreeLookPitchMinMax() {
