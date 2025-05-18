@@ -103,6 +103,13 @@ static const std::unordered_map<int32_t, const char*> powerCrouchStabOptions = {
     { 2, "Unpatched (OoT)" },
 };
 
+static const std::unordered_map<int32_t, const char*> maskOfTruthGrottoOptions = {
+    { HIDDEN_GROTTOS_VISIBLITY_OFF, "Off" },
+    { HIDDEN_GROTTOS_VISIBLITY_WEAR_MASK_OF_TRUTH, "Wear Mask of Truth" },
+    { HIDDEN_GROTTOS_VISIBLITY_HAVE_MASK_OF_TRUTH, "Have Mask of Truth" },
+    { HIDDEN_GROTTOS_VISIBLITY_ALWAYS, "Always" },
+};
+
 static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
     { 0, "1x" }, { 1, "2x" }, { 2, "4x" }, { 3, "8x" }, { 4, "16x" }, { 10, "1 Hit KO" },
 };

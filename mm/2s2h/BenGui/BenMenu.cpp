@@ -1295,6 +1295,18 @@ void BenMenu::AddEnhancements() {
                          "- No trade: Gibdos will vanish without taking items.")
                 .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
                 .ComboMap(gibdoTradeSequenceOptions));
+    AddWidget(path, "Hidden Grottos Visibility", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.HiddenGrottosVisibility")
+        .Options(
+            ComboboxOptions()
+                .Tooltip(
+                    "Enable visual markers for hidden grottos:\n"
+                    "- Off: No visual markers for hidden grottos. Vanilla behavior.\n"
+                    "- Wear Mask of Truth: Hidden grottos are visible when wearing the Mask of Truth. MM3D behavior.\n"
+                    "- Have Mask of Truth: Hidden grottos are visible once the Mask of Truth is obtained.\n"
+                    "- Always: Hidden grottos always have a visual marker.\n")
+                .DefaultIndex(HiddenGrottosVisibilityOptions::HIDDEN_GROTTOS_VISIBLITY_OFF)
+                .ComboMap(maskOfTruthGrottoOptions));
 
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
