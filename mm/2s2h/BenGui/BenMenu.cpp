@@ -106,7 +106,7 @@ void BenMenu::AddSettings() {
         .CVar("gSettings.Menu.Theme")
         .Options(ComboboxOptions()
                      .Tooltip("Changes the Theme of the Menu Widgets.")
-                     .ComboMap(menuThemeOptions)
+                     .ComboMap(&menuThemeOptions)
                      .DefaultIndex(Colors::LightBlue));
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
@@ -294,7 +294,7 @@ void BenMenu::AddSettings() {
             "Allows multiple windows to be opened at once. Requires a reload to take effect."));
     AddWidget(path, "Texture Filter (Needs reload)", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_TEXTURE_FILTER)
-        .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboMap(textureFilteringMap));
+        .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboVec(&textureFilteringMap));
 
     path.sidebarName = "Controls";
     AddSidebarEntry("Settings", "Controls", 1);
@@ -310,7 +310,7 @@ void BenMenu::AddSettings() {
         .CVar("gNotifications.Position")
         .Options(ComboboxOptions()
                      .Tooltip("Which corner of the screen notifications appear in.")
-                     .ComboMap(notificationPosition)
+                     .ComboVec(&notificationPosition)
                      .DefaultIndex(3));
     AddWidget(path, "Duration: %.0f seconds", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gNotifications.Duration")
@@ -640,7 +640,7 @@ void BenMenu::AddEnhancements() {
                          "- Temples: Stops time in Woodfall, Snowhead, Great Bay, and Stone Tower Temples.\n"
                          "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
                          "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.")
-                .ComboMap(timeStopOptions));
+                .ComboVec(&timeStopOptions));
 
     //// Gameplay Enhancements
     path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
@@ -744,7 +744,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
-        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboMap(alwaysWinDoggyraceOptions));
+        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboVec(&alwaysWinDoggyraceOptions));
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
         .Options(ComboboxOptions()
@@ -752,7 +752,7 @@ void BenMenu::AddEnhancements() {
                               "-Vanilla: Reward is Random\n"
                               "-Hug: Get the hugging cutscene\n"
                               "-Rupee: Get the rupee reward")
-                     .ComboMap(cremiaRewardOptions));
+                     .ComboVec(&cremiaRewardOptions));
     AddWidget(path, "Cucco Shack Cucco Count", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.CuccoShackCuccoCount")
         .Options(IntSliderOptions()
@@ -918,8 +918,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Clock", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Clock Type", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Graphics.ClockType")
-        .Options(
-            ComboboxOptions().Tooltip("Swaps between Graphical and Text only Clock types.").ComboMap(clockTypeOptions));
+        .Options(ComboboxOptions()
+                     .Tooltip("Swaps between Graphical and Text only Clock types.")
+                     .ComboVec(&clockTypeOptions));
     AddWidget(path, "24 Hours Clock", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.24HoursClock")
         .Options(CheckboxOptions().Tooltip("Changes from a 12 Hour to a 24 Hour Clock."));
@@ -935,7 +936,7 @@ void BenMenu::AddEnhancements() {
         .Options(ComboboxOptions()
                      .Tooltip("Selects the Mode for Motion Blur.")
                      .LabelPosition(LabelPosition::None)
-                     .ComboMap(motionBlurOptions));
+                     .ComboVec(&motionBlurOptions));
     AddWidget(path, "Interpolate", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.MotionBlur.Interpolate")
         .PreFunc([](WidgetInfo& info) {
@@ -1126,7 +1127,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Cutscenes.SkipGetItemCutscenes")
         .Options(ComboboxOptions()
                      .Tooltip("Note: This only works in Randomizer currently.")
-                     .ComboMap(skipGetItemCutscenesOptions));
+                     .ComboVec(&skipGetItemCutscenesOptions));
 
     // Dialogue Enhancements
     path.column = SECTION_COLUMN_2;
@@ -1229,7 +1230,7 @@ void BenMenu::AddEnhancements() {
                          "  pots).\n"
                          "- Unpatched (OoT): Glitch restored, and your initial damage is 1 (a Kokiri Sword slash).")
                 .DefaultIndex(0)
-                .ComboMap(powerCrouchStabOptions));
+                .ComboVec(&powerCrouchStabOptions));
     AddWidget(path, "Side Rolls", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Restorations.SideRoll")
         .Options(CheckboxOptions().Tooltip("Restores side rolling from OoT."));
@@ -1277,7 +1278,7 @@ void BenMenu::AddEnhancements() {
                          "- Night Only: Only show the search balls at night. This matches original N64 behaviour.\n"
                          "- Always: Always show the search balls.")
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
-                .ComboMap(dekuGuardSearchBallsOptions));
+                .ComboVec(&dekuGuardSearchBallsOptions));
     AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.LowerBankRewardThresholds")
         .Options(
@@ -1294,7 +1295,7 @@ void BenMenu::AddEnhancements() {
                          "  The Gibdo requesting a blue potion will also accept a red potion.\n"
                          "- No trade: Gibdos will vanish without taking items.")
                 .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
-                .ComboMap(gibdoTradeSequenceOptions));
+                .ComboVec(&gibdoTradeSequenceOptions));
 
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
@@ -1304,7 +1305,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
         .Options(ComboboxOptions()
                      .Tooltip("Adjusts the amount of damage Link takes from all sources.")
-                     .ComboMap(damageMultiplierOptions));
+                     .ComboMap(&damageMultiplierOptions));
     AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
         .Options(CheckboxOptions().Tooltip(
@@ -1385,7 +1386,7 @@ void BenMenu::AddDevTools() {
                               "- Empty Save: The default 3 heart save file in first cycle.\n"
                               "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks).\n"
                               "- 100\% Save: All items, equipment, mask, quest status and Bombers' Notebook complete.")
-                     .ComboMap(debugSaveOptions))
+                     .ComboVec(&debugSaveOptions))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Update", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorUpdate")
@@ -1408,7 +1409,7 @@ void BenMenu::AddDevTools() {
         .Options(ComboboxOptions()
                      .Tooltip("The log level determines which messages are printed to the "
                               "console. This does not affect the log file output.")
-                     .ComboMap(logLevels))
+                     .ComboVec(&logLevels))
         .Callback([](WidgetInfo& info) {
             Ship::Context::GetInstance()->GetLogger()->set_level(
                 (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));

@@ -26,81 +26,84 @@ static const std::unordered_map<int32_t, const char*> menuThemeOptions = {
     { UIWidgets::Colors::DarkGray, "Dark Gray" },
 };
 
-static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions = {
-    { ALWAYS_WIN_DOGGY_RACE_OFF, "Off" },
-    { ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH, "When owning Mask of Truth" },
-    { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
+static const std::vector<const char*> alwaysWinDoggyraceOptions = {
+    "Off",                       // ALWAYS_WIN_DOGGY_RACE_OFF
+    "When owning Mask of Truth", // ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH
+    "Always",                    // ALWAYS_WIN_DOGGY_RACE_ALWAYS
 };
 
-static const std::unordered_map<int32_t, const char*> cremiaRewardOptions = {
-    { CREMIA_REWARD_RANDOM, "Vanilla" },
-    { CREMIA_REWARD_ALWAYS_HUG, "Hug" },
-    { CREMIA_REWARD_ALWAYS_RUPEE, "Rupee" },
+static const std::vector<const char*> cremiaRewardOptions = {
+    "Vanilla", // CREMIA_REWARD_RANDOM
+    "Hug",     // CREMIA_REWARD_ALWAYS_HUG
+    "Rupee",   // CREMIA_REWARD_ALWAYS_RUPEE
 };
 
-static const std::unordered_map<int32_t, const char*> gibdoTradeSequenceOptions = {
-    { GIBDO_TRADE_SEQUENCE_VANILLA, "Vanilla" },
-    { GIBDO_TRADE_SEQUENCE_MM3D, "MM3D" },
-    { GIBDO_TRADE_SEQUENCE_NO_TRADE, "No trade" },
+static const std::vector<const char*> gibdoTradeSequenceOptions = {
+    "Vanilla",  // GIBDO_TRADE_SEQUENCE_VANILLA
+    "MM3D",     // GIBDO_TRADE_SEQUENCE_MM3D
+    "No trade", // GIBDO_TRADE_SEQUENCE_NO_TRADE
 };
 
-static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
-    { CLOCK_TYPE_ORIGINAL, "Original" },
-    { CLOCK_TYPE_3DS, "MM3D style" },
-    { CLOCK_TYPE_TEXT_BASED, "Text only" },
+static const std::vector<const char*> clockTypeOptions = {
+    "Original",   // CLOCK_TYPE_ORIGINAL
+    "MM3D style", // CLOCK_TYPE_3DS
+    "Text only",  // CLOCK_TYPE_TEXT_BASED
 };
 
-static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
-    { Fast::FILTER_THREE_POINT, "Three-Point" },
-    { Fast::FILTER_LINEAR, "Linear" },
-    { Fast::FILTER_NONE, "None" },
+static const std::vector<const char*> textureFilteringMap = {
+    "Three-Point", // Fast::FILTER_THREE_POINT,
+    "Linear",      // Fast::FILTER_LINEAR
+    "None",        // Fast::FILTER_NONE
 };
 
-static const std::unordered_map<int32_t, const char*> motionBlurOptions = {
-    { MOTION_BLUR_DYNAMIC, "Dynamic (default)" },
-    { MOTION_BLUR_ALWAYS_OFF, "Always Off" },
-    { MOTION_BLUR_ALWAYS_ON, "Always On" },
+static const std::vector<const char*> motionBlurOptions = {
+    "Dynamic (default)", // MOTION_BLUR_DYNAMIC
+    "Always Off",        // MOTION_BLUR_ALWAYS_OFF
+    "Always On",         // MOTION_BLUR_ALWAYS_ON
+};
+static const std::vector<const char*> debugSaveOptions = {
+    "100% save",          // DEBUG_SAVE_INFO_COMPLETE
+    "Vanilla debug save", // DEBUG_SAVE_INFO_VANILLA_DEBUG
+    "Empty save",         // DEBUG_SAVE_INFO_NONE
 };
 
-static const std::unordered_map<int32_t, const char*> debugSaveOptions = {
-    { DEBUG_SAVE_INFO_COMPLETE, "100\% save" },
-    { DEBUG_SAVE_INFO_VANILLA_DEBUG, "Vanilla debug save" },
-    { DEBUG_SAVE_INFO_NONE, "Empty save" },
+static const std::vector<const char*> logLevels = {
+    "Trace",    // DEBUG_LOG_TRACE
+    "Debug",    // DEBUG_LOG_DEBUG
+    "Info",     // DEBUG_LOG_INFO
+    "Warn",     // DEBUG_LOG_WARN
+    "Error",    // DEBUG_LOG_ERROR
+    "Critical", // DEBUG_LOG_CRITICAL
+    "Off",      // DEBUG_LOG_OFF
 };
 
-static const std::unordered_map<int32_t, const char*> logLevels = {
-    { DEBUG_LOG_TRACE, "Trace" }, { DEBUG_LOG_DEBUG, "Debug" }, { DEBUG_LOG_INFO, "Info" },
-    { DEBUG_LOG_WARN, "Warn" },   { DEBUG_LOG_ERROR, "Error" }, { DEBUG_LOG_CRITICAL, "Critical" },
-    { DEBUG_LOG_OFF, "Off" },
+static const std::vector<const char*> timeStopOptions = {
+    "Off",                     // TIME_STOP_OFF
+    "Temples",                 // TIME_STOP_TEMPLES
+    "Temples + Mini Dungeons", // TIME_STOP_TEMPLES_DUNGEONS
 };
 
-static const std::unordered_map<int32_t, const char*> timeStopOptions = {
-    { TIME_STOP_OFF, "Off" },
-    { TIME_STOP_TEMPLES, "Temples" },
-    { TIME_STOP_TEMPLES_DUNGEONS, "Temples + Mini Dungeons" },
+static const std::vector<const char*> notificationPosition = {
+    "Top Left", "Top Right", "Bottom Left", "Bottom Right", "Hidden",
 };
 
-static const std::unordered_map<int32_t, const char*> notificationPosition = {
-    { 0, "Top Left" }, { 1, "Top Right" }, { 2, "Bottom Left" }, { 3, "Bottom Right" }, { 4, "Hidden" },
+static const std::vector<const char*> dekuGuardSearchBallsOptions = {
+    "Never",      // DEKU_GUARD_SEARCH_BALLS_NEVER
+    "Night Only", // DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY
+    "Always",     // DEKU_GUARD_SEARCH_BALLS_ALWAYS
 };
 
-static const std::unordered_map<int32_t, const char*> dekuGuardSearchBallsOptions = {
-    { DEKU_GUARD_SEARCH_BALLS_NEVER, "Never" },
-    { DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY, "Night Only" },
-    { DEKU_GUARD_SEARCH_BALLS_ALWAYS, "Always" },
+static const std::vector<const char*> skipGetItemCutscenesOptions = {
+    "Never",
+    "Junk Items Only",
+    "Everything But Major",
+    "Always",
 };
 
-static const std::unordered_map<int32_t, const char*> skipGetItemCutscenesOptions = {
-    { 0, "Never" },
-    { 1, "Junk Items Only" },
-    { 2, "Everything But Major" },
-    { 3, "Always" },
-};
-
-static const std::unordered_map<int32_t, const char*> powerCrouchStabOptions = {
-    { 0, "Patched (US/EU)" },
-    { 1, "Unpatched (JP)" },
-    { 2, "Unpatched (OoT)" },
+static const std::vector<const char*> powerCrouchStabOptions = {
+    "Patched (US/EU)",
+    "Unpatched (JP)",
+    "Unpatched (OoT)",
 };
 
 static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
