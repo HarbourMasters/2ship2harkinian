@@ -1,5 +1,6 @@
 #include "WeirdAnimation.h"
 
+#include "ResourceManager.h"
 #include "Context.h"
 
 #include <cassert>

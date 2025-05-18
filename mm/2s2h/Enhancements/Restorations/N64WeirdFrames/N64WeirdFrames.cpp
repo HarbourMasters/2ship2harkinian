@@ -18,7 +18,8 @@ AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
 }
 
 #define CVAR_NAME "gEnhancements.Restorations.N64WeirdFrames"
-#define CVAR CVarGetInteger(CVAR_NAME, 0)
+// This CVAR is defaulted to on, because it is consistent with hardware, but able to be disabled if desired.
+#define CVAR CVarGetInteger(CVAR_NAME, 1)
 
 // A list of weird animations to contruct. These can either be an index out of bounds before
 // the start of the animation or past the end of it. In either case you add a list of animations'
