@@ -6,8 +6,9 @@
 // Mirrors the pattern of Rando::ActorBehavior calling Init*Behavior functions.
 
 // CVar Definitions (Centralized)
-#define CVAR_NAME_ACHIEVEMENTS "gEnhancements.Achievements.Enabled"
-#define CVAR_ACHIEVEMENTS CVarGetInteger(CVAR_NAME_ACHIEVEMENTS, 1)
+#define CVAR_ACHIEVEMENTS                         \
+    (CVarGetInteger(CVAR_NAME_ACHIEVEMENTS, 1) && \
+     (gSaveContext.save.shipSaveInfo.achievements.achievementsSystemEnabled))
 
 // Includes needed for the helper function
 #include "../../Achievements.h"    // For AchievementSystem singleton

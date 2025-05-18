@@ -18,17 +18,20 @@ void HandleFlagSetTrigger(FlagType flagType, u32 flag) {
         if (AchievementSystem::Instance().IsLoadingOrInitializing() ||
             AchievementSystem::Instance().IsAchievementUnlocked(achData.id) ||
             !AchievementSystem::Instance().IsAchievementRelevantForGameMode(achData.id, IS_RANDO)) {
-            // Skip
+            continue; // Skip if basic conditions not met
+        }
+
+        // If we reach here, basic pre-conditions are met.
+        if (achData.hasProgressTracking) {
+            SPDLOG_DEBUG("[Achievements] FlagSet: Updating progress for {}. Type={}, Flag={}", achData.name,
+                         (int)flagType, flag);
+            AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
         } else {
-            if (achData.hasProgressTracking) {
-                AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
-            } else {
-                // Not progress-tracked, so check additionalCondition directly for unlock
-                if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
-                    SPDLOG_DEBUG("[Achievements] FlagSet (Direct): Type={}, Flag={}, Queuing Achievement: {}",
-                                 (int)flagType, flag, achData.name);
-                    AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
-                }
+            // Not progress-tracked, so check additionalCondition directly for unlock
+            if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
+                SPDLOG_DEBUG("[Achievements] FlagSet: Queuing achievement {}. Type={}, Flag={}", achData.name,
+                             (int)flagType, flag);
+                AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
             }
         }
     }

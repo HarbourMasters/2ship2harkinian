@@ -36,6 +36,7 @@ struct AchievementStaticData {
     bool isSecret = false;
     int gamerscore = 0;
     AchievementCategory category = AchievementCategory::BOTH;
+    bool isInternal = false; // True if this achievement is for internal logic and not player-facing
 
     // Triggering Info
     AchievementTriggerType triggerType = AchievementTriggerType::MANUAL;

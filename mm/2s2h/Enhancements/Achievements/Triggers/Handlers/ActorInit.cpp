@@ -13,17 +13,29 @@ void HandleActorInitTrigger(Actor* actor) {
     // Iterate through all achievements, looking for those specifically triggered by OnActorInit
     for (auto const& [key, achData] : AllAchievementData) {
         if (achData.triggerType == AchievementTriggerType::OnActorInit) {
-            // Only process if it has an additional condition, as simple checks were moved
-            // Optional: Could add checks for achData.checkActorId if needed in the future
-
-            // Check common conditions (unlocked, relevant, loading, additional lambda)
-            // The lambda itself is the primary trigger condition for OnActorInit achievements now.
-            if (CheckCommonAchievementConditions(achData)) {
-                SPDLOG_DEBUG("[Achievements] ActorInit Triggered: Actor={}, Queuing Achievement: {}", (void*)actor,
-                             achData.name);
-                AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
-                // Note: No break; multiple achievements could potentially trigger on the same hook
+            // Basic pre-checks (moved these out of CheckCommonAchievementConditions for clarity here)
+            if (AchievementSystem::Instance().IsLoadingOrInitializing() ||
+                AchievementSystem::Instance().IsAchievementUnlocked(achData.id) ||
+                !AchievementSystem::Instance().IsAchievementRelevantForGameMode(achData.id, IS_RANDO)) {
+                continue; // Skip if basic conditions not met
             }
+
+            // Process based on tracking type
+            if (achData.hasProgressTracking) {
+                SPDLOG_DEBUG("[Achievements] ActorInit: Updating progress for {}. Actor: {}", achData.name,
+                             (void*)actor);
+                AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
+            } else {
+                // Not progress-based: check additionalCondition directly (which CheckCommonAchievementConditions does
+                // part of), then queue unlock. CheckCommonAchievementConditions effectively checks the remaining
+                // conditions. We've already done the loading, unlocked, and relevance checks above.
+                if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
+                    SPDLOG_DEBUG("[Achievements] ActorInit: Queuing achievement {}. Actor: {}", achData.name,
+                                 (void*)actor);
+                    AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
+                }
+            }
+            // Note: No break; multiple achievements could potentially trigger on the same actor init event
         }
     }
 }

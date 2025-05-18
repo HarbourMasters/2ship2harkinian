@@ -10,6 +10,7 @@
 #include "2s2h/BenPort.h"
 #include <z64save.h>
 #include "2s2h/Rando/Rando.h"
+#include "Triggers/AchievementTriggers.h"
 
 // Forward declaration
 void RegisterAllAchievementTriggers();
@@ -21,7 +22,6 @@ extern "C" {
 #include <z64.h>
 }
 
-#define CVAR_NAME_ACHIEVEMENTS "gEnhancements.Achievements.Enabled"
 #define CVAR_ACHIEVEMENTS CVarGetInteger(CVAR_NAME_ACHIEVEMENTS, 1)
 
 // --- Singleton Implementation ---
@@ -37,9 +37,9 @@ AchievementSystem::~AchievementSystem() {
 
 // --- Achievement Registration & Info ---
 Achievement::Achievement(AchievementId id, std::string name, std::string description, std::string iconPath,
-                         bool isSecret, int gamerscore, AchievementCategory category)
+                         bool isSecret, int gamerscore, AchievementCategory category, bool isInternal)
     : mId(id), mName(std::move(name)), mDescription(std::move(description)), mIconPath(std::move(iconPath)),
-      mIsSecret(isSecret), mGamerscore(gamerscore), mCategory(category) {
+      mIsSecret(isSecret), mGamerscore(gamerscore), mCategory(category), mIsInternal(isInternal) {
     SPDLOG_TRACE("Achievement constructor: ID={}, Name={}", (int)id, name);
 }
 
@@ -81,6 +81,16 @@ void AchievementSystem::QueueAchievementUnlock(AchievementId id) {
         return; // Don't queue anything during this phase
     }
 
+    // NEW CHECKS: System enabled in save AND global CVar is ON
+    if (!gSaveContext.save.shipSaveInfo.achievements.achievementsSystemEnabled) {
+        SPDLOG_DEBUG("Achievement system disabled for this save file, skipping queue for ID: {}.", (int)id);
+        return;
+    }
+    if (!CVarGetInteger(CVAR_NAME_ACHIEVEMENTS, 1)) {
+        SPDLOG_DEBUG("Achievement system globally disabled (CVar), skipping queue for ID: {}.", (int)id);
+        return;
+    }
+
     auto achievement = GetAchievement(id);
     if (!achievement) {
         SPDLOG_ERROR("QueueAchievementUnlock: Could not find achievement for ID: {}", (int)id);
@@ -90,12 +100,6 @@ void AchievementSystem::QueueAchievementUnlock(AchievementId id) {
     // Check if already unlocked in the current save context
     if (gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)id].unlocked) {
         SPDLOG_TRACE("QueueAchievementUnlock: Achievement ID {} already unlocked.", (int)id);
-        return;
-    }
-
-    // Check if achievement system is enabled
-    if (!CVAR_ACHIEVEMENTS) {
-        SPDLOG_DEBUG("Achievement system disabled, skipping queue for: {}", achievement->getName());
         return;
     }
 
@@ -112,6 +116,20 @@ void AchievementSystem::QueueAchievementUnlock(AchievementId id) {
     mPendingAchievements.push(PendingNotificationInfo(PendingNotificationType::UNLOCK, id));
     SPDLOG_INFO("Achievement queued for unlock: Name={}, ID={}, Queue Size={}", achievement->getName(), (int)id,
                 mPendingAchievements.size());
+
+    // NEW: Check if this unlock should trigger a progress update for any MANUAL achievements
+    for (const auto& pair : AllAchievementData) {
+        const AchievementId& dependentAchId = pair.first;
+        const AchievementStaticData& dependentAchStaticData = pair.second;
+
+        if (dependentAchId != id && // Don't update the achievement that just got unlocked by itself
+            dependentAchStaticData.triggerType == AchievementTriggerType::MANUAL &&
+            dependentAchStaticData.hasProgressTracking) {
+            SPDLOG_DEBUG("Unlocked achievement {} might affect MANUAL achievement {}. Updating progress.", (int)id,
+                         (int)dependentAchId);
+            UpdateAchievementProgress(dependentAchId);
+        }
+    }
 
     // Rely on OnGameStateUpdate hook to call TryProcessQueueNow
 }
@@ -139,8 +157,10 @@ void AchievementSystem::ProcessQueuedAchievements() {
                 }
             } else if (info.type == PendingNotificationType::PROGRESS) {
                 // Don't show progress notifications for secret achievements that are still locked
-                if (achievement->isSecret() &&
-                    !gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)info.id].unlocked) {
+                if (achievement->isInternal()) {
+                    SPDLOG_DEBUG("Skipping PROGRESS notification for internal achievement: ID={}", (int)info.id);
+                } else if (achievement->isSecret() &&
+                           !gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)info.id].unlocked) {
                     SPDLOG_DEBUG("Skipping PROGRESS notification for secret locked achievement: ID={}", (int)info.id);
                 } else {
                     SPDLOG_INFO("Showing PROGRESS notification for achievement: {}: {}/{} ", achievement->getName(),
@@ -175,6 +195,14 @@ void AchievementSystem::ShowEnhancedNotification(const std::shared_ptr<Achieveme
         SPDLOG_ERROR("ShowEnhancedNotification called with null achievement.");
         return;
     }
+
+    // Don't show notifications for internal achievements
+    if (achievement->isInternal()) {
+        SPDLOG_DEBUG("ShowEnhancedNotification: Skipping notification for internal achievement: {}",
+                     achievement->getName());
+        return;
+    }
+
     const char* iconPath = (const char*)gItemIcons[ITEM_SKULL_TOKEN]; // Default icon
 
     if (!achievement->getIconPath().empty()) {
@@ -196,6 +224,10 @@ void AchievementSystem::StartLoadingOrInitializing() {
 void AchievementSystem::FinishLoadingOrInitializing() {
     SPDLOG_DEBUG("FinishLoadingOrInitializing: Setting mIsLoadingOrInitializing to FALSE.");
     mIsLoadingOrInitializing = false;
+    // Attempt to process queue immediately after loading finishes, if game is in a suitable state
+    if (gPlayState != nullptr) { // Ensure we are in a playable state
+        TryProcessQueueNow();
+    }
 }
 
 void AchievementSystem::ResetStateAndQueueForLoadedSave() {
@@ -216,6 +248,10 @@ void AchievementSystem::DebugUnlockAchievement(AchievementId id) {
     auto achievement = GetAchievement(id);
 
     if (achievement && !gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)id].unlocked) {
+        // ADDED: Call QueueAchievementUnlock to trigger progress updates for MANUAL achievements
+        SPDLOG_DEBUG("Calling QueueAchievementUnlock for ID {} to trigger progress updates.", (int)id);
+        QueueAchievementUnlock(id);
+
         gSaveContext.save.shipSaveInfo.achievements.achievementData[(int)id].unlocked = true;
         SPDLOG_INFO("Achievement unlocked (debug): {}", achievement->getName());
         ShowEnhancedNotification(achievement); // Show immediately for debug
@@ -240,7 +276,7 @@ void AchievementSystem::LockAchievement(AchievementId id) {
     }
 }
 
-bool AchievementSystem::IsAchievementUnlocked(AchievementId id) {
+bool AchievementSystem::IsAchievementUnlocked(AchievementId id) const {
     if (id < 0 || id >= AID_MAX) {
         SPDLOG_WARN("IsAchievementUnlocked called with invalid ID: {}", (int)id);
         return false;
@@ -251,15 +287,21 @@ bool AchievementSystem::IsAchievementUnlocked(AchievementId id) {
 }
 
 // --- Getters & Window Creation ---
-const std::vector<std::shared_ptr<Achievement>>& AchievementSystem::GetAchievements() const {
-    return mAchievements;
+std::vector<std::shared_ptr<Achievement>> AchievementSystem::GetAchievements() const {
+    std::vector<std::shared_ptr<Achievement>> filteredAchievements;
+    for (const auto& achievement : mAchievements) {
+        if (achievement && !achievement->isInternal()) {
+            filteredAchievements.push_back(achievement);
+        }
+    }
+    return filteredAchievements;
 }
 
 std::vector<std::shared_ptr<Achievement>>
 AchievementSystem::GetAchievementsByCategory(AchievementCategory category) const {
     std::vector<std::shared_ptr<Achievement>> filteredAchievements;
     for (const auto& achievement : mAchievements) {
-        if (achievement &&
+        if (achievement && !achievement->isInternal() &&
             (achievement->getCategory() == category || achievement->getCategory() == AchievementCategory::BOTH)) {
             filteredAchievements.push_back(achievement);
         }
@@ -285,6 +327,20 @@ void AchievementSystem::UpdateAchievementProgress(AchievementId id) {
     if (mIsLoadingOrInitializing) {
         SPDLOG_TRACE("[Achievements] UpdateAchievementProgress: Skipping update for ID {} during loading/init phase.",
                      (int)id);
+        return;
+    }
+
+    // NEW CHECKS: System enabled in save AND global CVar is ON
+    if (!gSaveContext.save.shipSaveInfo.achievements.achievementsSystemEnabled) {
+        SPDLOG_TRACE(
+            "[Achievements] UpdateAchievementProgress: System disabled for this save file, skipping update for ID: {}.",
+            (int)id);
+        return;
+    }
+    if (!CVarGetInteger(CVAR_NAME_ACHIEVEMENTS, 1)) {
+        SPDLOG_TRACE(
+            "[Achievements] UpdateAchievementProgress: System globally disabled (CVar), skipping update for ID: {}.",
+            (int)id);
         return;
     }
 
@@ -373,12 +429,13 @@ void AchievementSystem::UpdateAchievementProgress(AchievementId id) {
 
 size_t AchievementSystem::GetUnlockedAchievementsCount() const {
     size_t count = 0;
-    for (int i = 0; i < AID_MAX; ++i) {
-        if (gSaveContext.save.shipSaveInfo.achievements.achievementData[i].unlocked) {
+    for (const auto& pair : mAchievementsMap) { // Iterate mAchievementsMap to easily access achievement objects
+        const auto& achievement = pair.second;
+        if (achievement && !achievement->isInternal() && IsAchievementUnlocked(achievement->getId())) {
             count++;
         }
     }
-    SPDLOG_TRACE("GetUnlockedAchievementsCount: Count={}", count);
+    SPDLOG_TRACE("GetUnlockedAchievementsCount (Player-Facing): Count={}", count);
     return count;
 }
 
@@ -426,4 +483,55 @@ void AchievementSystem::Init() {
     });
 
     SPDLOG_INFO("Core Achievement System hooks initialized. Using GameState hook for flag end and queue processing.");
+}
+
+// IMPLEMENT EnableAchievementsForCurrentSave
+EnableSaveStatus AchievementSystem::EnableAchievementsForCurrentSave() {
+    // Ensure gPlayState is valid as we'll be accessing gSaveContext through it.
+    // This also implicitly checks if a save is loaded.
+    if (gPlayState == nullptr) {
+        SPDLOG_WARN("EnableAchievementsForCurrentSave: Attempted but no save file (gPlayState is null).");
+        return EnableSaveStatus::NO_SAVE_LOADED;
+    }
+
+    if (!CVarGetInteger(CVAR_NAME_ACHIEVEMENTS, 1)) {
+        SPDLOG_INFO("EnableAchievementsForCurrentSave: Global achievement system (CVar) is disabled.");
+        return EnableSaveStatus::GLOBALLY_DISABLED;
+    }
+
+    if (gSaveContext.save.shipSaveInfo.achievements.achievementsSystemEnabled) {
+        SPDLOG_INFO("EnableAchievementsForCurrentSave: Achievements are already enabled for this save file.");
+        return EnableSaveStatus::ALREADY_ENABLED;
+    }
+
+    SPDLOG_INFO("Enabling achievements for current save and resetting progress...");
+
+    StartLoadingOrInitializing(); // Prevent immediate processing during state change
+
+    // Set the flag for the current save
+    gSaveContext.save.shipSaveInfo.achievements.achievementsSystemEnabled = true;
+
+    // Reset all achievement progress and unlock states for the current save
+    for (int i = 0; i < AID_MAX; ++i) {
+        gSaveContext.save.shipSaveInfo.achievements.achievementData[i].unlocked = false;
+        gSaveContext.save.shipSaveInfo.achievements.achievementData[i].currentProgress = 0;
+    }
+    SPDLOG_DEBUG("All achievement data reset for the current save.");
+
+    // Re-evaluate and register/unregister achievement trigger hooks based on the new state.
+    // OnFileLoad uses CVAR_ACHIEVEMENTS which now checks the save-specific flag too.
+    AchievementTriggers::OnFileLoad();
+    SPDLOG_DEBUG("AchievementTriggers::OnFileLoad() called to update hooks.");
+
+    FinishLoadingOrInitializing(); // Allow processing again
+
+    SPDLOG_INFO("Achievements successfully enabled for current save. Progress reset.");
+    return EnableSaveStatus::SUCCESS;
+}
+
+// ADDED: Implementation for GetAllAchievementsIncludingInternals
+std::vector<std::shared_ptr<Achievement>> AchievementSystem::GetAllAchievementsIncludingInternals() const {
+    // mAchievements already contains all registered achievements, including internal ones.
+    // Return a copy so the caller has their own list instance.
+    return mAchievements;
 }

@@ -14,12 +14,25 @@ void HandleEndOfCycleSaveTrigger() {
     std::vector<AchievementStaticData> potentialAchievements = GetAchievementsFromEndOfCycleSave();
 
     for (const auto& achData : potentialAchievements) {
-        // Check common conditions (unlocked, relevant, loading, additional lambda)
-        if (CheckCommonAchievementConditions(achData)) {
-            SPDLOG_DEBUG("[Achievements] EndOfCycleSave Triggered: Queuing Achievement: {}", achData.name);
-            AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
-            // Note: No break; multiple achievements could potentially trigger on the same hook
+        // Basic pre-checks
+        if (AchievementSystem::Instance().IsLoadingOrInitializing() ||
+            AchievementSystem::Instance().IsAchievementUnlocked(achData.id) ||
+            !AchievementSystem::Instance().IsAchievementRelevantForGameMode(achData.id, IS_RANDO)) {
+            continue; // Skip if basic conditions not met
         }
+
+        // If we reach here, basic pre-conditions are met.
+        if (achData.hasProgressTracking) {
+            SPDLOG_DEBUG("[Achievements] EndOfCycleSave: Updating progress for {}", achData.name);
+            AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
+        } else {
+            // Not progress-tracked, check additionalCondition directly
+            if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
+                SPDLOG_DEBUG("[Achievements] EndOfCycleSave: Queuing achievement {}", achData.name);
+                AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
+            }
+        }
+        // Note: No break; multiple achievements could potentially trigger on the same hook
     }
 }
 

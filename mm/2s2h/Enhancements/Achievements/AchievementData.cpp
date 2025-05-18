@@ -379,7 +379,7 @@ std::map<AchievementId, AchievementStaticData> AllAchievementData = {
                                                        AID_BN_WINDMILL_MAN };
             for (AchievementId id : bnAchievementIds) {
                 if (id > AID_UNKNOWN && id < AID_MAX) { // Basic bounds check
-                    if (gSaveContext.save.shipSaveInfo.achievements.achievementData[id].unlocked) {
+                    if (CHECK_ACHIEVEMENT_UNLOCKED(id)) {
                         progress++;
                     }
                 }
@@ -388,6 +388,54 @@ std::map<AchievementId, AchievementStaticData> AllAchievementData = {
         },
         .unlockOnTargetMet = true } },
     // End of Bomber's Notebook (Vanilla)
+
+    // --- Time Manipulation Achievements ---
+    { AID_INTERNAL_SONG_DOUBLE_TIME_PLAYED,
+      { .id = AID_INTERNAL_SONG_DOUBLE_TIME_PLAYED,
+        .name = "Internal - Played Song of Double Time",
+        .description = "Internal tracker: Player confirmed Song of Double Time action via ocarina.",
+        .isSecret = true,
+        .isInternal = true,
+        .triggerType = AchievementTriggerType::ShouldVanillaBehavior,
+        .checkVbHookId = VB_START_CUTSCENE,
+        .additionalCondition = []() -> bool {
+            return gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_APPLY_DOUBLE_SOT;
+        } } },
+
+    { AID_INTERNAL_SONG_REVERSE_TIME_PLAYED,
+      { .id = AID_INTERNAL_SONG_REVERSE_TIME_PLAYED,
+        .name = "Internal - Played Reverse Song of Time",
+        .description = "Internal tracker: Player confirmed Reverse Song of Time action via ocarina.",
+        .isSecret = true,
+        .isInternal = true,
+        .triggerType = AchievementTriggerType::ShouldVanillaBehavior,
+        .checkVbHookId = VB_START_CUTSCENE,
+        .additionalCondition = []() -> bool {
+            return gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_APPLY_INV_SOT_FAST ||
+                   gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_APPLY_INV_SOT_SLOW;
+        } } },
+
+    { AID_TIMELORD,
+      { .id = AID_TIMELORD,
+        .name = "Timelord",
+        .description = "Play the Song of Double Time and Reverse Song of Time.",
+        .iconPath = (const char*)gItemIcons[ITEM_OCARINA_OF_TIME],
+        .gamerscore = 20,
+        .category = AchievementCategory::VANILLA,
+        .triggerType = AchievementTriggerType::MANUAL,
+        .hasProgressTracking = true,
+        .targetProgress = 2,
+        .getCurrentProgress = []() -> s32 {
+            s32 progress = 0;
+            if (CHECK_ACHIEVEMENT_UNLOCKED(AID_INTERNAL_SONG_DOUBLE_TIME_PLAYED)) {
+                progress++;
+            }
+            if (CHECK_ACHIEVEMENT_UNLOCKED(AID_INTERNAL_SONG_REVERSE_TIME_PLAYED)) {
+                progress++;
+            }
+            return progress;
+        },
+        .unlockOnTargetMet = true } },
 
 };
 

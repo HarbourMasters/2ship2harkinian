@@ -16,15 +16,31 @@ void HandleVanillaBehaviorTrigger(GIVanillaBehavior hookEnumId, bool* should, va
     std::vector<AchievementStaticData> relevantAchievements = GetAchievementsFromVanillaBehavior(hookEnumId);
 
     for (const auto& achData : relevantAchievements) {
-        // Check common conditions (unlocked, relevant, loading, additional lambda)
-        // Note: Lambdas here need to be careful about accessing va_list or assuming gPlayState is valid
-        if (CheckCommonAchievementConditions(achData)) {
-            SPDLOG_DEBUG("[Achievements] VanillaBehavior Triggered: HookID={}, Queuing Achievement: {}",
-                         (int)hookEnumId, achData.name);
-            AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
-            // IMPORTANT: We never modify *should for achievements
-            // Do not break; multiple achievements could trigger on the same hook ID
+        // Basic pre-checks
+        if (AchievementSystem::Instance().IsLoadingOrInitializing() ||
+            AchievementSystem::Instance().IsAchievementUnlocked(achData.id) ||
+            !AchievementSystem::Instance().IsAchievementRelevantForGameMode(achData.id, IS_RANDO)) {
+            continue; // Skip if basic conditions not met
         }
+
+        // If we reach here, basic pre-conditions are met.
+        // Note: additionalCondition lambdas (type std::function<bool()>) for VB hooks do not receive the hook's va_list
+        // arguments. They are intended for checking general game state (e.g., via gPlayState, gSaveContext) or other
+        // conditions not directly part of the hook's parameters.
+        if (achData.hasProgressTracking) {
+            SPDLOG_DEBUG("[Achievements] VanillaBehavior: Updating progress for {}. HookID: {}", achData.name,
+                         (int)hookEnumId);
+            AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
+        } else {
+            // Not progress-tracked, check additionalCondition directly
+            if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
+                SPDLOG_DEBUG("[Achievements] VanillaBehavior: Queuing achievement {}. HookID: {}", achData.name,
+                             (int)hookEnumId);
+                AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
+            }
+        }
+        // IMPORTANT: We never modify *should for achievements
+        // Do not break; multiple achievements could trigger on the same hook ID
     }
 }
 

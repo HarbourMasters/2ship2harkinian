@@ -35,26 +35,27 @@ void HandleItemGiveTrigger(u8 item) {
                 eventParameterMatches = true;
             }
         }
-        // If achData.checkItemId is something else (not 'item' and not ITEM_NONE), then this specific 'item' event
-        // is not relevant for this achData, so eventParameterMatches remains false.
 
-        if (eventParameterMatches) {
-            // Basic pre-checks from CheckCommonAchievementConditions (excluding additionalCondition)
-            if (AchievementSystem::Instance().IsLoadingOrInitializing() ||
-                AchievementSystem::Instance().IsAchievementUnlocked(achData.id) ||
-                !AchievementSystem::Instance().IsAchievementRelevantForGameMode(achData.id, IS_RANDO)) {
-                // Skip if loading, already unlocked, or not relevant
-            } else {
-                if (achData.hasProgressTracking) {
-                    AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
-                } else {
-                    // Not progress-tracked, so check additionalCondition directly for unlock
-                    if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
-                        SPDLOG_DEBUG("[Achievements] ItemGive (Direct): Item={}, Queuing Achievement: {}", item,
-                                     achData.name);
-                        AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
-                    }
-                }
+        if (!eventParameterMatches) {
+            continue; // This item event is not relevant for this achievement's specific item/category checks
+        }
+
+        // Basic pre-checks
+        if (AchievementSystem::Instance().IsLoadingOrInitializing() ||
+            AchievementSystem::Instance().IsAchievementUnlocked(achData.id) ||
+            !AchievementSystem::Instance().IsAchievementRelevantForGameMode(achData.id, IS_RANDO)) {
+            continue; // Skip if basic conditions not met
+        }
+
+        // If we reach here, item matches and basic pre-conditions are met.
+        if (achData.hasProgressTracking) {
+            SPDLOG_DEBUG("[Achievements] ItemGive: Updating progress for {}. Item given: {}", achData.name, item);
+            AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
+        } else {
+            // Not progress-tracked, so check additionalCondition directly for unlock
+            if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
+                SPDLOG_DEBUG("[Achievements] ItemGive: Queuing achievement {}. Item given: {}", achData.name, item);
+                AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
             }
         }
     }

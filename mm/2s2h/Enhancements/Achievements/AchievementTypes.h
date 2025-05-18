@@ -27,6 +27,11 @@ typedef enum {
     AID_BN_WINDMILL_MAN,
     AID_BN_LOCAL_HERO,
 
+    // Time Manipulation
+    AID_INTERNAL_SONG_DOUBLE_TIME_PLAYED,
+    AID_INTERNAL_SONG_REVERSE_TIME_PLAYED,
+    AID_TIMELORD,
+
     AID_MAX, // Represents the total number of defined achievements + 1 (for UNKNOWN)
 } AchievementId;
 

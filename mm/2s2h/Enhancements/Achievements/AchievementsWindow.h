@@ -34,12 +34,9 @@ class AchievementsWindow : public Ship::GuiWindow {
     AchievementsWindow(const std::string& consoleVariable, const std::string& name);
 
     /**
-     * @brief Destructor that clears achievement references
+     * @brief Destructor
      */
-    virtual ~AchievementsWindow() {
-        // Cannot clear a const reference, and no need to as we don't own the data.
-        // mAchievements.clear();
-    }
+    virtual ~AchievementsWindow() = default; // Default destructor is fine
 
   protected:
     /**
@@ -58,8 +55,7 @@ class AchievementsWindow : public Ship::GuiWindow {
     void UpdateElement() override;
 
   private:
-    // Achievement Data
-    const std::vector<std::shared_ptr<Achievement>>& mAchievements;
+    // Achievement Data member mAchievements removed
 
     // UI State
     bool mShowLockedOnly = false;
@@ -68,14 +64,16 @@ class AchievementsWindow : public Ship::GuiWindow {
     static ImGuiTextFilter sAchievementFilter;
 
     /**
-     * @brief Draws the window header with title
+     * @brief Draws the header section of the achievements window
+     * @param achievements The list of achievements (currently unused by header but kept for consistency)
      */
-    void DrawHeader();
+    void DrawHeader(const std::vector<std::shared_ptr<Achievement>>& achievements);
 
     /**
      * @brief Draws the achievement progress bar and statistics
+     * @param achievements The list of achievements to process for the progress bar
      */
-    void DrawProgressBar();
+    void DrawProgressBar(const std::vector<std::shared_ptr<Achievement>>& achievements);
 
     /**
      * @brief Draws the filter controls for achievements
@@ -84,8 +82,9 @@ class AchievementsWindow : public Ship::GuiWindow {
 
     /**
      * @brief Draws the scrollable list of achievements
+     * @param achievements The list of achievements to display
      */
-    void DrawAchievementList();
+    void DrawAchievementList(const std::vector<std::shared_ptr<Achievement>>& achievements);
 
     /**
      * @brief Draws a single achievement item in the list
@@ -113,7 +112,7 @@ class AchievementsWindow : public Ship::GuiWindow {
     /**
      * @brief Draws a message indicating the player is not in game
      */
-    void DrawNotInGameMessage();
+    void DrawNotInGameMessage(const char* message);
 
     /**
      * @brief Checks if the current game is in randomizer mode

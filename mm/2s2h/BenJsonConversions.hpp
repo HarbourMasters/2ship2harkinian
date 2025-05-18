@@ -26,33 +26,45 @@ void from_json(const json& j, AchievementSaveData& achievement) {
 }
 
 void to_json(json& j, const AllAchievementsInfo& allAchievements) {
-    j = json::array();
+    j = json::object();
+    j["enabled"] = allAchievements.achievementsSystemEnabled;
+    j["data"] = json::array();
     for (int i = 0; i < AID_MAX; ++i) {
-        j.push_back(allAchievements.achievementData[i]);
+        j["data"].push_back(allAchievements.achievementData[i]);
     }
 }
 
 void from_json(const json& j, AllAchievementsInfo& allAchievements) {
-    if (!j.is_array()) {
-        SPDLOG_WARN("Expected a JSON array for achievements, but found different type. Initializing defaults.");
+    if (!j.is_object()) {
+        SPDLOG_WARN("Expected a JSON object for achievements, but found different type. Initializing defaults.");
+        allAchievements.achievementsSystemEnabled = false;
         for (int i = 0; i < AID_MAX; ++i) {
             allAchievements.achievementData[i] = {};
         }
         return;
     }
 
-    size_t count = std::min(j.size(), (size_t)AID_MAX);
-    for (size_t i = 0; i < count; ++i) {
-        if (j[i].is_object()) {
-            j.at(i).get_to(allAchievements.achievementData[i]);
-        } else {
-            SPDLOG_WARN("Skipping non-object element at index {} in achievements array.", i);
+    allAchievements.achievementsSystemEnabled = j.value("enabled", false);
+
+    if (j.contains("data") && j.at("data").is_array()) {
+        const json& dataArray = j.at("data");
+        size_t count = std::min(dataArray.size(), (size_t)AID_MAX);
+        for (size_t i = 0; i < count; ++i) {
+            if (dataArray[i].is_object()) {
+                dataArray.at(i).get_to(allAchievements.achievementData[i]);
+            } else {
+                SPDLOG_WARN("Skipping non-object element at index {} in achievements data array.", i);
+                allAchievements.achievementData[i] = {};
+            }
+        }
+        for (size_t i = count; i < AID_MAX; ++i) {
             allAchievements.achievementData[i] = {};
         }
-    }
-
-    for (size_t i = count; i < AID_MAX; ++i) {
-        allAchievements.achievementData[i] = {};
+    } else {
+        SPDLOG_WARN("Achievements 'data' array missing or invalid in JSON object. Initializing default data.");
+        for (int i = 0; i < AID_MAX; ++i) {
+            allAchievements.achievementData[i] = {};
+        }
     }
 }
 
@@ -140,13 +152,7 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("fileCompletedAt").get_to(shipSaveInfo.fileCompletedAt);
     j.at("commitHash").get_to(shipSaveInfo.commitHash);
 
-    // Load achievement data with defensive checks:
-    // This approach ensures achievements load gracefully even if the save file predates the system
-    // or if the data structure evolves in future updates. By checking for existence and correct type
-    // before parsing, and providing defaults otherwise, it prevents crashes when loading older saves.
-    // This differs from the Randomizer data, which uses a strict commit hash check and fails
-    // immediately if the version is mismatched.
-    if (j.contains("achievements") && j.at("achievements").is_array()) {
+    if (j.contains("achievements") && j.at("achievements").is_object()) {
         j.at("achievements").get_to(shipSaveInfo.achievements);
     } else {
         SPDLOG_WARN("Achievements data missing or invalid in save file. Initializing defaults.");

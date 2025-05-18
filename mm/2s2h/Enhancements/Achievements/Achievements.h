@@ -11,6 +11,12 @@
 #include "libultraship/libultraship.h"
 #include <functional>
 
+// ADD CVAR_NAME_ACHIEVEMENTS definition
+#define CVAR_NAME_ACHIEVEMENTS "gEnhancements.Achievements.Enabled"
+
+// ADD new macro for checking achievement status
+#define CHECK_ACHIEVEMENT_UNLOCKED(id) AchievementSystem::Instance().IsAchievementUnlocked(id)
+
 // Forward declare handlers
 // void OnSaveInitHandler(int16_t fileNum);
 // void OnSaveLoadHandler(int16_t fileNum);
@@ -26,7 +32,8 @@ enum class AchievementCategory { VANILLA, RANDOMIZER, BOTH };
 struct Achievement {
   public:
     Achievement(AchievementId id, std::string name, std::string description, std::string iconPath,
-                bool isSecret = false, int gamerscore = 0, AchievementCategory category = AchievementCategory::BOTH);
+                bool isSecret = false, int gamerscore = 0, AchievementCategory category = AchievementCategory::BOTH,
+                bool isInternal = false);
 
     AchievementId getId() const {
         return mId;
@@ -49,6 +56,9 @@ struct Achievement {
     AchievementCategory getCategory() const {
         return mCategory;
     }
+    bool isInternal() const {
+        return mIsInternal;
+    }
 
   private:
     AchievementId mId;
@@ -58,6 +68,7 @@ struct Achievement {
     bool mIsSecret;
     int mGamerscore;
     AchievementCategory mCategory;
+    bool mIsInternal;
 };
 
 // Enum to differentiate notification types in the queue
@@ -81,6 +92,9 @@ struct PendingNotificationInfo {
     }
 };
 
+// ADD Enum for EnableAchievementsForCurrentSave return status
+enum class EnableSaveStatus { SUCCESS, NO_SAVE_LOADED, GLOBALLY_DISABLED, ALREADY_ENABLED, ERROR_UNKNOWN };
+
 class AchievementSystem {
   public:
     static AchievementSystem& Instance();
@@ -96,9 +110,12 @@ class AchievementSystem {
 
     void QueueAchievementUnlock(AchievementId id);
 
-    bool IsAchievementUnlocked(AchievementId id);
+    bool IsAchievementUnlocked(AchievementId id) const;
 
-    const std::vector<std::shared_ptr<Achievement>>& GetAchievements() const;
+    std::vector<std::shared_ptr<Achievement>> GetAchievements() const;
+
+    // ADDED: Method to get all achievements, including internal ones, for editor use
+    std::vector<std::shared_ptr<Achievement>> GetAllAchievementsIncludingInternals() const;
 
     std::vector<std::shared_ptr<Achievement>> GetAchievementsByCategory(AchievementCategory category) const;
 
@@ -125,6 +142,9 @@ class AchievementSystem {
     friend void OnGameStateMainStartHandler();
 
     void TryProcessQueueNow();
+
+    // ADD Method to enable achievements for the current save
+    EnableSaveStatus EnableAchievementsForCurrentSave();
 
   private:
     AchievementSystem() = default;

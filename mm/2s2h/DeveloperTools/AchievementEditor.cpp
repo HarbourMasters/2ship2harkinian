@@ -37,7 +37,7 @@ void AchievementEditor::DrawElement() {
         return;
     }
 
-    mAchievementsList = mAchievementSystem->GetAchievements();
+    mAchievementsList = mAchievementSystem->GetAllAchievementsIncludingInternals();
 
     // --- Filter Input (Above the table) ---
     ImGui::PushItemWidth(-1);

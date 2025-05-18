@@ -392,7 +392,8 @@ typedef struct {
 typedef struct AllAchievementsInfo {
     // Use AID_MAX from the new enum
     AchievementSaveData achievementData[AID_MAX]; 
-} AllAchievementsInfo;
+    bool achievementsSystemEnabled; // ADDED: Flag to indicate if achievement system is enabled for this save
+} AllAchievementsInfo; // Around line 392
 // #endregion
 
 typedef struct RandoSaveInfo {

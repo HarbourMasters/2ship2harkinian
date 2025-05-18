@@ -14,13 +14,25 @@ void HandleSceneInitTrigger(s16 sceneId, s8 spawnNum) { // spawnNum currently un
     std::vector<AchievementStaticData> potentialAchievements = GetAchievementsFromSceneInit(sceneId);
 
     for (const auto& achData : potentialAchievements) {
-        // Check common conditions (unlocked, relevant, loading, additional lambda)
-        if (CheckCommonAchievementConditions(achData)) {
-            SPDLOG_DEBUG("[Achievements] SceneInit Triggered: Scene={}, Queuing Achievement: {}", sceneId,
-                         achData.name);
-            AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
-            // Note: Don't break, other achievements might trigger on the same scene init
+        // Basic pre-checks
+        if (AchievementSystem::Instance().IsLoadingOrInitializing() ||
+            AchievementSystem::Instance().IsAchievementUnlocked(achData.id) ||
+            !AchievementSystem::Instance().IsAchievementRelevantForGameMode(achData.id, IS_RANDO)) {
+            continue; // Skip if basic conditions not met
         }
+
+        // If we reach here, basic pre-conditions are met.
+        if (achData.hasProgressTracking) {
+            SPDLOG_DEBUG("[Achievements] SceneInit: Updating progress for {}. Scene: {}", achData.name, sceneId);
+            AchievementSystem::Instance().UpdateAchievementProgress(achData.id);
+        } else {
+            // Not progress-tracked, check additionalCondition directly
+            if (achData.additionalCondition == nullptr || achData.additionalCondition()) {
+                SPDLOG_DEBUG("[Achievements] SceneInit: Queuing achievement {}. Scene: {}", achData.name, sceneId);
+                AchievementSystem::Instance().QueueAchievementUnlock(achData.id);
+            }
+        }
+        // Note: Don't break, other achievements might trigger on the same scene init
     }
 }
 
