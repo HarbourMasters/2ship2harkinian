@@ -98,24 +98,9 @@ static void DrawGeneralTab() {
     ImGui::SeparatorText("Disclaimer");
     ImGui::PopStyleColor();
     ImGui::TextWrapped(
-        "This is an Alpha. Please make note of any odd or unexpected behavior while you are playing. While we are in "
-        "the earlier phases of this project, some things you may encounter are:\n- X Check is not shuffled\n- X "
-        "Cutscene is not skipped\n- Soft lock when interacting with X\n- Unbeatable seed (glitchless logic)\n\nWe are "
-        "aware of some of these, but likely not all. Please compare your findings to our list of known issues, which "
-        "is available in the pins of the Rando Alpha Discord thread, or on the Github Issue #211, and let us know if "
-        "you encounter any new issues.\n\nExplore the menus for various enhancements and time savers, they are not "
-        "enabled by default in Rando.\n\n");
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
-    ImGui::SeparatorText("Thank You");
-    ImGui::PopStyleColor();
-    ImGui::TextWrapped("Special thanks to BalloonDude, Eblo, Caladius, Sitton, Dana, our playtesters, everyone who "
-                       "contributed to the SoH randomizer, and the creators of the various other randomizer "
-                       "implementations that inspired this project. I hope you enjoy it.\n\n");
-    ImTextureID swordTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-        (const char*)gQuestIconHeartContainer2Tex);
-    ImGui::Image(swordTextureId, ImVec2(25.0f, 25.0f));
-    ImGui::SameLine();
-    ImGui::Text("ProxySaw");
+        "This is a Beta. Please make note of any odd or unexpected behavior while you are playing, and report it "
+        "in our [Playtest] Rando Beta thread on Discord under #2s2h-threads.\n\n"
+        "Explore the menus for various enhancements and time savers, they are not enabled by default in Rando.\n\n");
     ImGui::EndChild();
 }
 

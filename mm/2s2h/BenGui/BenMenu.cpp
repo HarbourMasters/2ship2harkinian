@@ -16,10 +16,12 @@
 #include <tuple>
 #include "ResolutionEditor.h"
 #include "2s2h/Rando/Rando.h"
+#include "build.h"
 
 extern "C" {
 #include "z64.h"
 #include "functions.h"
+#include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
 extern PlayState* gPlayState;
 extern SaveContext gSaveContext;
 }
@@ -96,11 +98,68 @@ WidgetInfo& BenMenu::AddWidget(WidgetPath& pathInfo, std::string widgetName, Wid
     return widget;
 }
 
+// Last generated with the following command on 05/19/2025
+// clang-format off
+// git shortlog -sn 2332f63f5a9ca4b949f029c11a9744d601d7155f..HEAD | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+/"/' | sed -E 's/(.+)/\1",/'
+// clang-format on
+std::vector<std::string> contributors = {
+    "ProxySaw", // "Garrett Cox", manual replacement
+    "Archez",
+    "Eblo",
+    "louist103",
+    "balloondude2",
+    "Caladius",
+    "inspectredc",
+    "sitton76",
+    "Patrick12115",
+    "briaguya",
+    "Malkierian",
+    "PurpleHato",
+    "Joshua Sanchez",
+    "aMannus",
+    "mckinlee",
+    "zodiac-ill",
+    "rachaellama",
+    "Adam Bird",
+    "Revo",
+    "Lars-Christian Selland",
+    "Liam Scholte",
+    "Nicholas Estelami",
+    "ReddestDream",
+    "Sirius902",
+    "Spodi",
+    "lightmanLP",
+    "lilacLunatic",
+    "Alejandro Asenjo Nitti",
+    "AltoXorg",
+    "Ben Willmore",
+    "Captain Kitty Cat",
+    "Extloga",
+    "Felix Dietrich",
+    "Ghunzor",
+    "Hoeloe",
+    "Jacob Erly",
+    "Kenix3",
+    "Louis",
+    "MegaMech",
+    "Mothstery",
+    "OtherBlue",
+    "Qlonever",
+    "Quorsor",
+    "Ralphie Morell",
+    "Reinhardt R. Gaming",
+    "Rozelette",
+    "Travis",
+    "cplaster",
+    "justawayofthesamurai",
+    "verbes4",
+};
+
 void BenMenu::AddSettings() {
     // Add Settings menu
     AddMenuEntry("Settings", "gSettings.Menu.SettingsSidebarSection");
     // General Settings
-    AddSidebarEntry("Settings", "General", 3);
+    AddSidebarEntry("Settings", "General", 2);
     WidgetPath path = { "Settings", "General", SECTION_COLUMN_1 };
     AddWidget(path, "Menu Theme", WIDGET_CVAR_COMBOBOX)
         .CVar("gSettings.Menu.Theme")
@@ -148,6 +207,37 @@ void BenMenu::AddSettings() {
             SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
         })
         .Options(ButtonOptions().Tooltip("Opens the folder that contains the save and mods folders, etc."));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "about", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        ImGui::BeginChild("about");
+        ImGui::PushStyleColor(ImGuiCol_Text, ColorValues.at(Colors::Gray));
+        if (gGitCommitTag[0] == 0) {
+            ImGui::Text("%s | %s", (char*)gGitBranch, (char*)gGitCommitHash);
+        } else {
+            ImGui::Text("%s", (char*)gBuildVersion);
+        }
+        ImGui::PopStyleColor();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
+        ImGui::SeparatorText("Thank You");
+        ImGui::PopStyleColor();
+
+        ImGui::TextWrapped("Special thanks to our contributors, playtesters, artists, moderators, helpers, and "
+                           "everyone in the larger decomp & N64 communities who make this project possible.\n\n");
+        ImTextureID heartTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+            (const char*)gQuestIconHeartContainer2Tex);
+        ImGui::Image(heartTextureId, ImVec2(25.0f, 25.0f));
+        ImGui::SameLine();
+
+        static u64 lastTime = 0;
+        static std::string contributor = "";
+        if (GetUnixTimestamp() - lastTime > 5000) {
+            lastTime = GetUnixTimestamp();
+            contributor = contributors[Ship_Random(0, contributors.size() - 1)];
+        }
+        ImGui::Text("%s", contributor.c_str());
+        ImGui::EndChild();
+    });
 
     // Audio Settings
     path.sidebarName = "Audio";
