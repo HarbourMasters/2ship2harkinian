@@ -501,7 +501,10 @@ void ObjGrass_DrawOpa(Actor* thisx, PlayState* play2) {
 
                     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                    gSPDisplayList(POLY_OPA_DISP++, gObjGrass_D_809AAAE0);
+                    if (GameInteractor_Should(VB_OBJGRASS_DRAW_BE_OVERRIDDEN, true, grassElem, POLY_OPA_DISP)) {
+                        gSPDisplayList(POLY_OPA_DISP++, gObjGrass_D_809AAAE0);
+                    }
+                    
                     FrameInterpolation_RecordCloseChild();
                 }
             }
