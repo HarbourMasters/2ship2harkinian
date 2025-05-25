@@ -491,21 +491,20 @@ void ObjGrass_DrawOpa(Actor* thisx, PlayState* play2) {
                 grassElem = &grassGroup->elements[j];
 
                 if ((grassElem->flags & OBJ_GRASS_ELEM_DRAW) && (grassElem->alpha == 255)) {
-                    FrameInterpolation_RecordOpenChild(grassElem, 0);
-                    rot.y = grassElem->rotY;
-                    Matrix_SetTranslateRotateYXZ(grassElem->pos.x, grassElem->pos.y, grassElem->pos.z, &rot);
-                    Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
-                    if (grassElem->flags & OBJ_GRASS_ELEM_ANIM) {
-                        ObjGrass_OverrideMatrixCurrent(&this->distortionMtx[j]);
-                    }
+                    if (GameInteractor_Should(VB_OBJGRASS_DRAW_BE_OVERRIDDEN, true, this, grassElem, j)) {
+                        FrameInterpolation_RecordOpenChild(grassElem, 0);
+                        rot.y = grassElem->rotY;
+                        Matrix_SetTranslateRotateYXZ(grassElem->pos.x, grassElem->pos.y, grassElem->pos.z, &rot);
+                        Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
+                        if (grassElem->flags & OBJ_GRASS_ELEM_ANIM) {
+                            ObjGrass_OverrideMatrixCurrent(&this->distortionMtx[j]);
+                        }
 
-                    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx),
-                              G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                    if (GameInteractor_Should(VB_OBJGRASS_DRAW_BE_OVERRIDDEN, true, grassElem, POLY_OPA_DISP)) {
+                        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx),
+                                  G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                         gSPDisplayList(POLY_OPA_DISP++, gObjGrass_D_809AAAE0);
+                        FrameInterpolation_RecordCloseChild();
                     }
-                    
-                    FrameInterpolation_RecordCloseChild();
                 }
             }
         }

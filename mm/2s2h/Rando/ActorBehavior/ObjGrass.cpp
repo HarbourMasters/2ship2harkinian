@@ -5,7 +5,8 @@
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
 #include "assets/2s2h_assets.h"
-// #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 extern "C" {
 #include "variables.h"
@@ -1084,7 +1085,7 @@ void EnKusaBush_RandoDraw(Actor* actor, PlayState* play) {
     }
 }
 
-Gfx* GetObjGrassDList(RandoCheckId randoCheckId){
+Gfx* GetObjGrassDList(RandoCheckId randoCheckId) {
     if (!CVarGetInteger("gRando.CSMC", 0)) {
         return (Gfx*)gRandoBushDL;
     }
@@ -1126,64 +1127,20 @@ Gfx* GetObjGrassDList(RandoCheckId randoCheckId){
     }
 }
 
-// void ObjGrass_RandoDrawOpa(Actor* actor, PlayState* play2) {
-//     ObjGrass* objGrass = (ObjGrass*)actor;
-//     PlayState* play = play2;
-//     Lights* lights;
-//     ObjGrassGroup* grassGroup;
-//     s32 i;
-//     s32 j;
-//     Vec3s rot = { 0, 0, 0 };
-//     ObjGrassElement* grassElem;
+void ObjGrass_RandoDraw(ObjGrass* objGrass, ObjGrassElement* grassElem, s32 j, RandoCheckId randoCheckId) {
+    Vec3s rot = { 0, 0, 0 };
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    rot.y = grassElem->rotY;
+    Matrix_SetTranslateRotateYXZ(grassElem->pos.x, grassElem->pos.y, grassElem->pos.z, &rot);
+    Matrix_Scale(objGrass->actor.scale.x, objGrass->actor.scale.y, objGrass->actor.scale.z, MTXMODE_APPLY);
+    if (grassElem->flags & OBJ_GRASS_ELEM_ANIM) {
+        ObjGrass_OverrideMatrixCurrent(&objGrass->distortionMtx[j]);
+    }
 
-//     OPEN_DISPS(play->state.gfxCtx);
-
-//     Gfx_SetupDL25_Opa(play->state.gfxCtx);
-
-//     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
-//     gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gRandoBushDL);
-
-//     for (i = 0; i < objGrass->activeGrassGroups; i++) {
-//         grassGroup = &objGrass->grassGroups[i];
-
-//         if (grassGroup->flags & OBJ_GRASS_GROUP_DRAW) {
-//             lights = LightContext_NewLights(&play->lightCtx, play->state.gfxCtx);
-//             Lights_BindAll(lights, play->lightCtx.listHead, &grassGroup->homePos, play);
-//             Lights_Draw(lights, play->state.gfxCtx);
-
-//             for (j = 0; j < grassGroup->count; j++) {
-//                 grassElem = &grassGroup->elements[j];
-
-//                 if ((grassElem->flags & OBJ_GRASS_ELEM_DRAW) && (grassElem->alpha == 255)) {
-//                     RandoCheckId randoCheckId = IdentifyGrass(grassElem->pos);
-//                     Gfx* dlist = GetObjGrassDList(randoCheckId);
-//                     FrameInterpolation_RecordOpenChild(grassElem, 0);
-//                     rot.y = grassElem->rotY;
-//                     Matrix_SetTranslateRotateYXZ(grassElem->pos.x, grassElem->pos.y, grassElem->pos.z, &rot);
-//                     Matrix_Scale(objGrass->actor.scale.x, objGrass->actor.scale.y, objGrass->actor.scale.z, MTXMODE_APPLY);
-//                     if (grassElem->flags & OBJ_GRASS_ELEM_ANIM) {
-//                         ObjGrass_OverrideMatrixCurrent(&objGrass->distortionMtx[j]);
-//                     }
-
-//                     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx),
-//                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-//                     gSPDisplayList(POLY_OPA_DISP++, dlist);
-//                     FrameInterpolation_RecordCloseChild();
-//                 }
-//             }
-//         }
-//     }
-
-//     CLOSE_DISPS(play->state.gfxCtx);
-// }
-
-// void ObjGrass_RandoDraw(Actor* actor, PlayState* play) {
-//     ObjGrass* objGrass = (ObjGrass*)actor;
-
-//     ObjGrass_InitDraw(objGrass, play);
-//     ObjGrass_RandoDrawOpa(actor, play);
-//     ObjGrass_DrawXlu(actor, play);
-// }
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, GetObjGrassDList(randoCheckId));
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
 
 void Rando::ActorBehavior::InitObjGrassBehavior() {
     COND_ID_HOOK(OnActorInit, ACTOR_EN_KUSA, IS_RANDO, [](Actor* actor) {
@@ -1199,10 +1156,6 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
         ENKUSA_RC = randoCheckId;
     });
 
-    // COND_ID_HOOK(OnActorInit, ACTOR_OBJ_GRASS, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_GRASS_DROPS], [](Actor* actor) {
-    //     actor->draw = ObjGrass_RandoDraw;
-    // });
-
     COND_VB_SHOULD(VB_KUSA_BUSH_DRAW_BE_OVERRIDDEN, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
         if (ENKUSA_RC != RC_UNKNOWN) {
@@ -1212,17 +1165,26 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
     });
 
     COND_VB_SHOULD(VB_OBJGRASS_DRAW_BE_OVERRIDDEN, IS_RANDO, {
-            ObjGrassElement* grassElemActor;
-            grassElemActor = va_arg(args, ObjGrassElement*);
-            Gfx* polyOpaP = va_arg(args, Gfx*);
-            RandoCheckId randoCheckId = IdentifyGrass(grassElemActor->pos);
-            if (randoCheckId == RC_UNKNOWN) {
-                return;
-            }
+        ObjGrass* objGrass = va_arg(args, ObjGrass*);
+        ObjGrassElement* grassElem = va_arg(args, ObjGrassElement*);
+        s32 j = va_arg(args, s32);
+        RandoCheckId randoCheckId = IdentifyGrass(grassElem->pos);
+        if (randoCheckId == RC_UNKNOWN) {
+            return;
+        }
+        *should = false;
+        ObjGrass_RandoDraw(objGrass, grassElem, j, randoCheckId);
+    });
 
+    COND_VB_SHOULD(VB_CARRY_GRASS_DRAW_BE_OVERRIDDEN, IS_RANDO, {
+        ObjGrassCarry* grassCarryActor = va_arg(args, ObjGrassCarry*);
+        Actor* actor = &grassCarryActor->actor;
+        RandoCheckId randoCheckId = IdentifyGrass(grassCarryActor->grassElem->pos);
+        ENKUSA_RC = randoCheckId;
+        if (randoCheckId != RC_UNKNOWN) {
             *should = false;
-            Gfx* dlist = GetObjGrassDList(randoCheckId);
-            gSPDisplayList(polyOpaP++, dlist);
+            grassCarryActor->actor.draw = EnKusaBush_RandoDraw;
+        }
     });
 
     COND_VB_SHOULD(VB_GRASS_DROP_COLLECTIBLE, IS_RANDO, {
