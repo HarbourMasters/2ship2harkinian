@@ -1,3 +1,4 @@
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
@@ -5,6 +6,10 @@ extern "C" {
 #include "variables.h"
 #include "functions.h"
 }
+
+#define CVAR_FASTER_SCENE_TRANSITIONS CVarGetInteger("gEnhancements.Timesavers.FasterSceneTransitions", 0)
+#define CVAR_PAUSE_SAVE CVarGetInteger("gEnhancements.Saving.PauseSave", 0)
+#define CVAR_DEBUG_MODE CVarGetInteger("gDeveloperTools.DebugEnabled", 0)
 
 /*
  * Certain 2ship features circumvent sequence player state manipulation: debug warping, loading into a dungeon via
@@ -17,13 +22,13 @@ extern "C" {
  * is to call AudioScript_SequencePlayerDisable in an OnSceneInit hook. This forces SEQ_PLAYER_BGM_MAIN to reset its
  * state information.
  *
- * Enabled by default, as different enhancements result in the same bug. This shouldn't hurt any vanilla behavior.
+ * Enabled when any of the enhancements in question are enabled.
  */
 
 void RegisterFixBgmReplay() {
-    COND_HOOK(OnSceneInit, true, [](s8 sceneId, s8 spawnNum) {
-        AudioScript_SequencePlayerDisable(&gAudioCtx.seqPlayers[SEQ_PLAYER_BGM_MAIN]);
-    });
+    COND_HOOK(
+        OnSceneInit, CVAR_FASTER_SCENE_TRANSITIONS || CVAR_PAUSE_SAVE || CVAR_DEBUG_MODE,
+        [](s8 sceneId, s8 spawnNum) { AudioScript_SequencePlayerDisable(&gAudioCtx.seqPlayers[SEQ_PLAYER_BGM_MAIN]); });
 }
 
 static RegisterShipInitFunc initFunc(RegisterFixBgmReplay, {});
