@@ -7,9 +7,13 @@ extern "C" {
 #include "functions.h"
 }
 
-#define CVAR_FASTER_SCENE_TRANSITIONS CVarGetInteger("gEnhancements.Timesavers.FasterSceneTransitions", 0)
-#define CVAR_PAUSE_SAVE CVarGetInteger("gEnhancements.Saving.PauseSave", 0)
-#define CVAR_DEBUG_MODE CVarGetInteger("gDeveloperTools.DebugEnabled", 0)
+#define CVAR_NAME_FASTER_SCENE_TRANSITIONS "gEnhancements.Timesavers.FasterSceneTransitions"
+#define CVAR_NAME_PAUSE_SAVE "gEnhancements.Saving.PauseSave"
+#define CVAR_NAME_DEBUG_MODE "gDeveloperTools.DebugEnabled"
+
+#define CVAR_FASTER_SCENE_TRANSITIONS CVarGetInteger(CVAR_NAME_FASTER_SCENE_TRANSITIONS, 0)
+#define CVAR_PAUSE_SAVE CVarGetInteger(CVAR_NAME_PAUSE_SAVE, 0)
+#define CVAR_DEBUG_MODE CVarGetInteger(CVAR_NAME_DEBUG_MODE, 0)
 
 /*
  * Certain 2ship features circumvent sequence player state manipulation: debug warping, loading into a dungeon via
@@ -31,4 +35,5 @@ void RegisterFixBgmReplay() {
         [](s8 sceneId, s8 spawnNum) { AudioScript_SequencePlayerDisable(&gAudioCtx.seqPlayers[SEQ_PLAYER_BGM_MAIN]); });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFixBgmReplay, {});
+static RegisterShipInitFunc initFunc(RegisterFixBgmReplay, { CVAR_NAME_FASTER_SCENE_TRANSITIONS, CVAR_NAME_PAUSE_SAVE,
+                                                             CVAR_NAME_DEBUG_MODE });
