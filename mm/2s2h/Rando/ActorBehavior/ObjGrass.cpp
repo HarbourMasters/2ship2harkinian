@@ -4,10 +4,9 @@
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "assets/2s2h_assets.h"
 #include "assets/overlays/ovl_Obj_Grass/ovl_Obj_Grass.h"
-
-#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 extern "C" {
 #include "variables.h"
@@ -15,10 +14,6 @@ extern "C" {
 #include "overlays/actors/ovl_En_Kusa/z_en_kusa.h"
 #include "overlays/actors/ovl_Obj_Grass_Carry/z_obj_grass_carry.h"
 
-void ObjGrass_Draw(Actor* actor, PlayState* play);
-void ObjGrass_InitDraw(ObjGrass* objGrass, PlayState* play);
-void ObjGrass_DrawOpa(Actor* thisx, PlayState* play2);
-void ObjGrass_DrawXlu(Actor* thisx, PlayState* play);
 void ObjGrass_OverrideMatrixCurrent(MtxF* matrix);
 }
 
