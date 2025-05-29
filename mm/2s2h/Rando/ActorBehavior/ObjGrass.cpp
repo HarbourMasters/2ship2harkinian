@@ -5,6 +5,7 @@
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
 #include "assets/2s2h_assets.h"
+#include "assets/overlays/ovl_Obj_Grass/ovl_Obj_Grass.h"
 
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
@@ -1139,6 +1140,7 @@ void ObjGrass_RandoDraw(ObjGrass* objGrass, ObjGrassElement* grassElem, s32 j, R
 
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(POLY_OPA_DISP++, GetObjGrassDList(randoCheckId));
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gObjGrass_D_809AA9F0);
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
@@ -1169,11 +1171,10 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
         ObjGrassElement* grassElem = va_arg(args, ObjGrassElement*);
         s32 j = va_arg(args, s32);
         RandoCheckId randoCheckId = IdentifyGrass(grassElem->pos);
-        if (randoCheckId == RC_UNKNOWN) {
-            return;
+        if (randoCheckId != RC_UNKNOWN) {
+            *should = false;
+            ObjGrass_RandoDraw(objGrass, grassElem, j, randoCheckId);
         }
-        *should = false;
-        ObjGrass_RandoDraw(objGrass, grassElem, j, randoCheckId);
     });
 
     COND_VB_SHOULD(VB_CARRY_GRASS_DRAW_BE_OVERRIDDEN, IS_RANDO, {
