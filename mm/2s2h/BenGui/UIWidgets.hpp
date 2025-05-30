@@ -173,32 +173,23 @@ namespace UIWidgets {
             return *this;
         }
     };
-    enum ComboboxType {
-        Map,
-        Vector,
-        Max,
-    };
+using ComboMap_t = std::unordered_map<int32_t, const char*>*;
+using ComboVec_t = std::vector<const char*>*;
     struct ComboboxOptions : WidgetOptions {
-        union {
-            std::unordered_map<int32_t, const char*>* comboMap;
-            std::vector<const char*>* comboVec;
-        };
+        std::variant<ComboMap_t, ComboVec_t> comboVariant;
         uint32_t defaultIndex = 0; // Only applicable to CVarCombobox
         ComponentAlignment alignment = ComponentAlignment::Left;
         LabelPosition labelPosition = LabelPosition::Above;
         ImGuiComboFlags flags = 0;
         Colors color = Colors::LightBlue;
-        ComboboxType type = Max;
 
         ComboboxOptions& ComboMap(const std::unordered_map<int32_t, const char*>* comboMap_) {
-            comboMap = const_cast<std::unordered_map<int32_t, const char*>*>(comboMap_);
-            type = Map;
+            comboVariant = const_cast<std::unordered_map<int32_t, const char*>*>(comboMap_);
             return *this;
         }
 
         ComboboxOptions& ComboVec(const std::vector<const char*>* comboMap_) {
-            comboVec = const_cast<std::vector<const char*>*>(comboMap_);
-            type = Vector;
+            comboVariant = const_cast<std::vector<const char*>*>(comboMap_);
             return *this;
         }
 

@@ -328,10 +328,12 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors me
                 auto options = std::static_pointer_cast<UIWidgets::ComboboxOptions>(widget.options);
                 options->color = menuThemeIndex;
                 bool result = false;
-                if (options->type == UIWidgets::Vector) {
-                    result = UIWidgets::Combobox(widget.name.c_str(), pointer, *options->comboVec, *options);
-                } else if (options->type == UIWidgets::Map) {
-                    result = UIWidgets::Combobox(widget.name.c_str(), pointer, options->comboMap, *options);
+                if (std::holds_alternative<UIWidgets::ComboVec_t>(options->comboVariant)) {
+                    result = UIWidgets::Combobox(widget.name.c_str(), pointer,
+                                                 *std::get<UIWidgets::ComboVec_t>(options->comboVariant), *options);
+                } else if (std::holds_alternative<UIWidgets::ComboMap_t>(options->comboVariant)) {
+                    result = UIWidgets::Combobox(widget.name.c_str(), pointer,
+                                                 std::get<UIWidgets::ComboMap_t>(options->comboVariant), *options);
                 }
                 if (result) {
                     if (widget.callback != nullptr) {
@@ -343,10 +345,12 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors me
                 auto options = std::static_pointer_cast<UIWidgets::ComboboxOptions>(widget.options);
                 options->color = menuThemeIndex;
                 bool result = false;
-                if (options->type == UIWidgets::Vector) {
-                    result = UIWidgets::CVarCombobox(widget.name.c_str(), widget.cVar, *options->comboVec, *options);
-                } else if (options->type == UIWidgets::Map) {
-                    result = UIWidgets::CVarCombobox(widget.name.c_str(), widget.cVar, options->comboMap, *options);
+                if (std::holds_alternative<UIWidgets::ComboVec_t>(options->comboVariant)) {
+                    result = UIWidgets::CVarCombobox(widget.name.c_str(), widget.cVar,
+                                                     *std::get<UIWidgets::ComboVec_t>(options->comboVariant), *options);
+                } else if (std::holds_alternative<UIWidgets::ComboMap_t>(options->comboVariant)) {
+                    result = UIWidgets::CVarCombobox(widget.name.c_str(), widget.cVar,
+                                                     std::get<UIWidgets::ComboMap_t>(options->comboVariant), *options);
                 }
                 if (result) {
                     if (widget.callback != nullptr) {
