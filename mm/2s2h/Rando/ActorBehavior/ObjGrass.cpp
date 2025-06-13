@@ -1133,34 +1133,34 @@ Gfx* GetObjGrassXluDList(RandoCheckId randoCheckId) {
 
     switch (randoItemType) {
         case RITYPE_BOSS_KEY:
-            return (Gfx*)gRandoBushBossKeyDL;
+            return (Gfx*)gRandoBushBossKeyXluDL;
             break;
         case RITYPE_HEALTH:
-            return (Gfx*)gRandoBushHeartDL;
+            return (Gfx*)gRandoBushHeartXluDL;
             break;
         case RITYPE_LESSER:
-            return (Gfx*)gRandoBushMinorDL;
+            return (Gfx*)gRandoBushMinorXluDL;
             break;
         case RITYPE_MAJOR:
-            return (Gfx*)gRandoBushMajorDL;
+            return (Gfx*)gRandoBushMajorXluDL;
             break;
         case RITYPE_MASK:
-            return (Gfx*)gRandoBushMaskDL;
+            return (Gfx*)gRandoBushMaskXluDL;
             break;
         case RITYPE_SKULLTULA_TOKEN:
-            return (Gfx*)gRandoBushTokenDL;
+            return (Gfx*)gRandoBushTokenXluDL;
             break;
         case RITYPE_SMALL_KEY:
-            return (Gfx*)gRandoBushSmallKeyDL;
+            return (Gfx*)gRandoBushSmallKeyXluDL;
             break;
         case RITYPE_STRAY_FAIRY:
-            return (Gfx*)gRandoBushFairyDL;
+            return (Gfx*)gRandoBushFairyXluDL;
             break;
         case RITYPE_JUNK:
-            return (Gfx*)gRandoBushJunkDL;
+            return (Gfx*)gRandoBushJunkXluDL;
             break;
         default:
-            return (Gfx*)gRandoBushDL;
+            return (Gfx*)gRandoBushXluDL;
             break;
     }
 }
@@ -1188,8 +1188,7 @@ void ObjGrass_RandoDrawXlu(ObjGrass* objGrass, ObjGrassElement* grassElem, Rando
     Matrix_SetTranslateRotateYXZ(grassElem->pos.x, grassElem->pos.y, grassElem->pos.z, &rot);
     Matrix_Scale(objGrass->actor.scale.x, objGrass->actor.scale.y, objGrass->actor.scale.z, MTXMODE_APPLY);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx),
-            G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, grassElem->alpha);
     gSPDisplayList(POLY_XLU_DISP++, GetObjGrassXluDList(randoCheckId));
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gObjGrass_D_809AAA68);
