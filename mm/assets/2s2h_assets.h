@@ -302,6 +302,9 @@ static const ALIGN_ASSET(2) char gBarrelJunkDL[] = dgBarrelJunkDL;
 #define dgRandoBushDL "__OTR__objects/gameplay_field_keep/gFieldBushRandomDL"
 static const ALIGN_ASSET(2) char gRandoBushDL[] = dgRandoBushDL;
 
+#define dgRandoBushXluDL "__OTR__objects/gameplay_field_keep/gFieldBushRandomXluDL"
+static const ALIGN_ASSET(2) char gRandoBushXluDL[] = dgRandoBushXluDL;
+
 #define dgRandoBushMinorDL "__OTR__objects/gameplay_field_keep/gFieldBushMinorDL"
 static const ALIGN_ASSET(2) char gRandoBushMinorDL[] = dgRandoBushMinorDL;
 
