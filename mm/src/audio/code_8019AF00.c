@@ -5478,8 +5478,7 @@ void Audio_StartMorningSceneSequence(u16 seqId) {
 }
 
 void Audio_PlaySceneSequence(u16 seqId, u8 dayMinusOne) {
-    if (!GameInteractor_Should(VB_PLAY_SCENE_SEQUENCE, true, &sRequestedSceneSeqId, &sPrevMainBgmSeqId, &seqId,
-                               &dayMinusOne)) {
+    if (GameInteractor_Should(VB_PLAY_SCENE_SEQUENCE, false, &sRequestedSceneSeqId, &sPrevMainBgmSeqId, &seqId)) {
         return;
     }
 
