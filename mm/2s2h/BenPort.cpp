@@ -510,7 +510,12 @@ ArchiveVersion ReadPortVersionFromArchive(std::string archivePath, bool isO2rTyp
     if (isO2rType) {
         archive = make_shared<Ship::O2rArchive>(archivePath);
     } else {
+#ifdef INCLUDE_MPQ_SUPPORT
         archive = make_shared<Ship::OtrArchive>(archivePath);
+#else
+        SPDLOG_ERROR("An OTR File, {}, was found but support for them is not included. File will be ignored.",
+                     archivePath.c_str());
+#endif
     }
     if (archive->Open()) {
         auto t = archive->LoadFile("portVersion");
