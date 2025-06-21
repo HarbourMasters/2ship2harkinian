@@ -620,7 +620,7 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
 
 static void MessageboxWorker() {
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Extracting",
-                         "Extraction will now begin in the background.\n\nPlease be patient for the process to "
-                         "finish. Do not close the main program.",
-                         nullptr);
+                             "Extraction will now begin in the background.\n\nPlease be patient for the process to "
+                             "finish. Do not close the main program.",
+                             nullptr);
 }
