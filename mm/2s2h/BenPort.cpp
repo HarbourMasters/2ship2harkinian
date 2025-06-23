@@ -738,8 +738,7 @@ extern "C" void InitOTR() {
     std::shared_ptr<Ship::Config> conf = OTRGlobals::Instance->context->GetConfig();
     Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(BinarySaveConverter_HandleFileDropped);
     Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(SaveManager_HandleFileDropped);
-
-
+    Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(SaveManager_HandleFileDropped);
 }
 
 extern "C" void SaveManager_ThreadPoolWait() {
