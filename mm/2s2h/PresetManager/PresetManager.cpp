@@ -6,6 +6,7 @@
 #include "2s2h/BenPort.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/BenGui/Notification.h"
+#include "FileDropMgr.h"
 
 std::unordered_map<std::string, std::string> tagMap = {
     { "gEventLog", "Developer Tools" },
@@ -385,7 +386,7 @@ void PresetManager_CreatePreset(std::string presetName) {
     } catch (...) { Notification::Emit({ .suffix = "Failed to create preset" }); }
 }
 
-bool PresetManager_HandleFileDropped(const std::string& filePath) {
+bool PresetManager_HandleFileDropped(char* filePath) {
     try {
         std::ifstream fileStream(filePath);
 
@@ -525,7 +526,9 @@ void PresetManager_Draw() {
 }
 
 void PresetManager_RegisterHooks() {
+    Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(PresetManager_HandleFileDropped);
     PresetManager_RefreshPresets();
 }
 
-static RegisterShipInitFunc initFunc(PresetManager_RegisterHooks, {});
+static RegisterShipInitFunc initFunc(
+    PresetManager_RegisterHooks, {});
