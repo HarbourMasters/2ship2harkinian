@@ -10,6 +10,7 @@
 #include "CIC6105.h"
 #include "overlays/gamestates/ovl_opening/z_opening.h"
 #include "misc/nintendo_rogo_static/nintendo_rogo_static.h"
+#include "z64horse.h"
 
 #include "build.h"
 #include "BenPort.h"
@@ -255,6 +256,9 @@ void ConsoleLogo_Init(GameState* thisx) {
     // } else {
     gSaveContext.fileNum = 0xFF;
     // }
+    // If the player triggered a reset command while on Epona, then Link will be riding Epona upon loading a save in
+    // the same play session. This ensures that the Epona state is cleared before that.
+    gHorseIsMounted = false;
     // #endregion
 
     gSaveContext.flashSaveAvailable = true;
