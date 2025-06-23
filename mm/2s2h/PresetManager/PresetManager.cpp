@@ -530,5 +530,4 @@ void PresetManager_RegisterHooks() {
     PresetManager_RefreshPresets();
 }
 
-static RegisterShipInitFunc initFunc(
-    PresetManager_RegisterHooks, {});
+static RegisterShipInitFunc initFunc(PresetManager_RegisterHooks, {});
