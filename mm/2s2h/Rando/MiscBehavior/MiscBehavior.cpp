@@ -39,7 +39,7 @@ void Rando::MiscBehavior::OnFileLoad() {
     // never letting you be other forms when you get a sword from the smithy or curiosity shop.
     COND_VB_SHOULD(VB_ITEM_GIVE_SWORD_SET_FORM_EQUIP, IS_RANDO, {
         *should = false;
-        if (GET_PLAYER(gPlayState)->transformation == PLAYER_FORM_HUMAN) {
+        if (GET_PLAYER_FORM == PLAYER_FORM_HUMAN) {
             u8* item = va_arg(args, u8*);
             BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = *item;
         }

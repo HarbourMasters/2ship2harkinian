@@ -15,6 +15,7 @@
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/interface/icon_item_field_static/icon_item_field_static.h"
+#include "assets/objects/gameplay_keep/gameplay_keep.h"
 
 extern "C" {
 #include "z64.h"
@@ -44,7 +45,7 @@ std::unordered_map<s16, const char*> sceneNames = {
 #undef DEFINE_SCENE_UNSET
 
 // These textures are not in existing lists that we iterate over.
-std::array<const char*, 18> miscellaneousTextures = {
+std::array<const char*, 19> miscellaneousTextures = {
     gArcheryScoreIconTex,
     gBarrelTrackerIcon,
     gChestTrackerIcon,
@@ -63,6 +64,7 @@ std::array<const char*, 18> miscellaneousTextures = {
     gStrayFairyWoodfallIconTex,
     gTimerClockIconTex,
     gWorldMapOwlFaceTex,
+    gameplay_keep_Tex_053140,
 };
 
 std::array<const char*, 11> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
