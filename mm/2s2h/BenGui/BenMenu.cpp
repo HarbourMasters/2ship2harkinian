@@ -1392,7 +1392,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.DifficultyOptions.DeleteFileOnDeath")
         .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE
                                            " WARNING " ICON_FA_EXCLAMATION_TRIANGLE
-                                           "\nTHIS IS NOT REVERSABLE\nUSE AT YOUR OWN RISK!"));
+                                           "\nTHIS IS NOT REVERSIBLE\nUSE AT YOUR OWN RISK!"));
     AddWidget(path, "Jinxed Timer: %d seconds", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.DifficultyOptions.JinxedTimer")
         .Options(
