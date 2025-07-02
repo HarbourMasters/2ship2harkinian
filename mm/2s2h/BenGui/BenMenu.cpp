@@ -28,6 +28,114 @@ extern SaveContext gSaveContext;
 extern std::unordered_map<s16, const char*> warpPointSceneList;
 extern void Warp();
 
+static const std::unordered_map<int32_t, const char*> menuThemeOptions = {
+    { UIWidgets::Colors::Red, "Red" },
+    { UIWidgets::Colors::DarkRed, "Dark Red" },
+    { UIWidgets::Colors::Orange, "Orange" },
+    { UIWidgets::Colors::Green, "Green" },
+    { UIWidgets::Colors::DarkGreen, "Dark Green" },
+    { UIWidgets::Colors::LightBlue, "Light Blue" },
+    { UIWidgets::Colors::Blue, "Blue" },
+    { UIWidgets::Colors::DarkBlue, "Dark Blue" },
+    { UIWidgets::Colors::Indigo, "Indigo" },
+    { UIWidgets::Colors::Violet, "Violet" },
+    { UIWidgets::Colors::Purple, "Purple" },
+    { UIWidgets::Colors::Brown, "Brown" },
+    { UIWidgets::Colors::Gray, "Gray" },
+    { UIWidgets::Colors::DarkGray, "Dark Gray" },
+};
+
+static const std::vector<const char*> alwaysWinDoggyraceOptions = {
+    "Off",                       // ALWAYS_WIN_DOGGY_RACE_OFF
+    "When owning Mask of Truth", // ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH
+    "Always",                    // ALWAYS_WIN_DOGGY_RACE_ALWAYS
+};
+
+static const std::vector<const char*> cremiaRewardOptions = {
+    "Vanilla", // CREMIA_REWARD_RANDOM
+    "Hug",     // CREMIA_REWARD_ALWAYS_HUG
+    "Rupee",   // CREMIA_REWARD_ALWAYS_RUPEE
+};
+
+static const std::vector<const char*> gibdoTradeSequenceOptions = {
+    "Vanilla",  // GIBDO_TRADE_SEQUENCE_VANILLA
+    "MM3D",     // GIBDO_TRADE_SEQUENCE_MM3D
+    "No trade", // GIBDO_TRADE_SEQUENCE_NO_TRADE
+};
+
+static const std::vector<const char*> clockTypeOptions = {
+    "Original",   // CLOCK_TYPE_ORIGINAL
+    "MM3D style", // CLOCK_TYPE_3DS
+    "Text only",  // CLOCK_TYPE_TEXT_BASED
+};
+
+static const std::vector<const char*> textureFilteringOptions = {
+    "Three-Point", // Fast::FILTER_THREE_POINT,
+    "Linear",      // Fast::FILTER_LINEAR
+    "None",        // Fast::FILTER_NONE
+};
+
+static const std::vector<const char*> motionBlurOptions = {
+    "Dynamic (default)", // MOTION_BLUR_DYNAMIC
+    "Always Off",        // MOTION_BLUR_ALWAYS_OFF
+    "Always On",         // MOTION_BLUR_ALWAYS_ON
+};
+static const std::vector<const char*> debugSaveOptions = {
+    "100% save",          // DEBUG_SAVE_INFO_COMPLETE
+    "Vanilla debug save", // DEBUG_SAVE_INFO_VANILLA_DEBUG
+    "Empty save",         // DEBUG_SAVE_INFO_NONE
+};
+
+static const std::vector<const char*> logLevels = {
+    "Trace",    // DEBUG_LOG_TRACE
+    "Debug",    // DEBUG_LOG_DEBUG
+    "Info",     // DEBUG_LOG_INFO
+    "Warn",     // DEBUG_LOG_WARN
+    "Error",    // DEBUG_LOG_ERROR
+    "Critical", // DEBUG_LOG_CRITICAL
+    "Off",      // DEBUG_LOG_OFF
+};
+
+static const std::vector<const char*> timeStopOptions = {
+    "Off",                     // TIME_STOP_OFF
+    "Temples",                 // TIME_STOP_TEMPLES
+    "Temples + Mini Dungeons", // TIME_STOP_TEMPLES_DUNGEONS
+};
+
+static const std::vector<const char*> notificationPosition = {
+    "Top Left", "Top Right", "Bottom Left", "Bottom Right", "Hidden",
+};
+
+static const std::vector<const char*> dekuGuardSearchBallsOptions = {
+    "Never",      // DEKU_GUARD_SEARCH_BALLS_NEVER
+    "Night Only", // DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY
+    "Always",     // DEKU_GUARD_SEARCH_BALLS_ALWAYS
+};
+
+static const std::vector<const char*> skipGetItemCutscenesOptions = {
+    "Never",
+    "Junk Items Only",
+    "Everything But Major",
+    "Always",
+};
+
+static const std::vector<const char*> powerCrouchStabOptions = {
+    "Patched (US/EU)",
+    "Unpatched (JP)",
+    "Unpatched (OoT)",
+};
+
+static const std::vector<const char*> maskOfTruthGrottoOptions = {
+    "Off",                // HIDDEN_GROTTOS_VISIBLITY_OFF
+    "Wear Mask of Truth", // HIDDEN_GROTTOS_VISIBLITY_WEAR_MASK_OF_TRUTH
+    "Have Mask of Truth", // HIDDEN_GROTTOS_VISIBLITY_HAVE_MASK_OF_TRUTH
+    "Always",             // HIDDEN_GROTTOS_VISIBLITY_ALWAYS
+};
+
+static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
+    { 0, "1x" }, { 1, "2x" }, { 2, "4x" }, { 3, "8x" }, { 4, "16x" }, { 10, "1 Hit KO" },
+};
+
 namespace BenGui {
 extern std::shared_ptr<BenMenu> mBenMenu;
 void FreeLookPitchMinMax() {
@@ -165,7 +273,7 @@ void BenMenu::AddSettings() {
         .CVar("gSettings.Menu.Theme")
         .Options(ComboboxOptions()
                      .Tooltip("Changes the Theme of the Menu Widgets.")
-                     .ComboMap(menuThemeOptions)
+                     .ComboMap(&menuThemeOptions)
                      .DefaultIndex(Colors::LightBlue));
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
@@ -384,7 +492,7 @@ void BenMenu::AddSettings() {
             "Allows multiple windows to be opened at once. Requires a reload to take effect."));
     AddWidget(path, "Texture Filter (Needs reload)", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_TEXTURE_FILTER)
-        .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboMap(textureFilteringMap));
+        .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboVec(&textureFilteringOptions));
 
     path.sidebarName = "Controls";
     AddSidebarEntry("Settings", "Controls", 1);
@@ -400,7 +508,7 @@ void BenMenu::AddSettings() {
         .CVar("gNotifications.Position")
         .Options(ComboboxOptions()
                      .Tooltip("Which corner of the screen notifications appear in.")
-                     .ComboMap(notificationPosition)
+                     .ComboVec(&notificationPosition)
                      .DefaultIndex(3));
     AddWidget(path, "Duration: %.0f seconds", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gNotifications.Duration")
@@ -730,7 +838,7 @@ void BenMenu::AddEnhancements() {
                          "- Temples: Stops time in Woodfall, Snowhead, Great Bay, and Stone Tower Temples.\n"
                          "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
                          "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.")
-                .ComboMap(timeStopOptions));
+                .ComboVec(&timeStopOptions));
 
     //// Gameplay Enhancements
     path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
@@ -831,10 +939,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Sfx.ChildGoronCry")
         .Options(CheckboxOptions().Tooltip("Mutes the crying Goron child inside Goron Shrine."));
-    AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
-        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboMap(alwaysWinDoggyraceOptions));
+    AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
         .Options(ComboboxOptions()
@@ -842,100 +947,7 @@ void BenMenu::AddEnhancements() {
                               "-Vanilla: Reward is Random\n"
                               "-Hug: Get the hugging cutscene\n"
                               "-Rupee: Get the rupee reward")
-                     .ComboMap(cremiaRewardOptions));
-    AddWidget(path, "Cucco Shack Cucco Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.CuccoShackCuccoCount")
-        .Options(IntSliderOptions()
-                     .Tooltip("Choose how many cuccos you need to raise to make Grog happy.")
-                     .Min(1)
-                     .Max(10)
-                     .DefaultValue(10));
-    AddWidget(path, "Swordsman School Winning Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.SwordsmanSchoolScore")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Swordsman School.")
-                     .Min(1)
-                     .Max(30)
-                     .DefaultValue(30));
-    AddWidget(path, "Bombers Hide-and-Seek Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BombersHideAndSeek")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the number of Bomber Kids you have to find to complete the hide-and-seek game.")
-                     .Min(1)
-                     .Max(5)
-                     .DefaultValue(5));
-    AddWidget(path, "Beaver Race Rings Collected", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BeaverRaceRingsCollected")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the number of rings required for both Beavers. If the slider is set to 20, the "
-                              "first Beaver will require 20 rings, and the second Beaver will require 25 rings, which "
-                              "are their vanilla values.")
-                     .Min(1)
-                     .Max(20)
-                     .DefaultValue(20));
-    AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.SwampArcheryScore")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Swamp Archery minigame, if this is changed it also "
-                              "speeds up the final score counting.")
-                     .Min(1000)
-                     .Max(2180)
-                     .DefaultValue(2180));
-    AddWidget(path, "Town Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.TownArcheryScore")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Town Archery minigame. Reaching this score will end "
-                              "the minigame.")
-                     .Min(1)
-                     .Max(50)
-                     .DefaultValue(50));
-    AddWidget(path, "Honey & Darling Day 1 (Bombchus)", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay1")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 1.")
-                     .Min(1)
-                     .Max(8)
-                     .DefaultValue(8));
-    AddWidget(path, "Honey & Darling Day 2 (Bombs)", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay2")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 2.")
-                     .Min(1)
-                     .Max(8)
-                     .DefaultValue(8));
-    AddWidget(path, "Honey & Darling Day 3 (Bow)", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay3")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 3.")
-                     .Min(1)
-                     .Max(16)
-                     .DefaultValue(16));
-    AddWidget(path, "Skip Powder Keg Certification", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.PowderKegCertification")
-        .Options(CheckboxOptions().Tooltip(
-            "Skips requiring to take the Powder Keg Test before being given the Certification."));
-    AddWidget(path, "Romani Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.RomaniTargetPractice")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win Romani's Target Practice.")
-                     .Min(1)
-                     .Max(10)
-                     .DefaultValue(10));
-    AddWidget(path, "Frog Choir Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.FrogChoirCount")
-        .Options(IntSliderOptions()
-                     .Tooltip("Choose how many frogs you need to save for the choir performance.")
-                     .Min(1)
-                     .Max(5)
-                     .DefaultValue(5));
-    AddWidget(path, "Skip Gorman Horse Race", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.SkipHorseRace")
-        .Options(CheckboxOptions().Tooltip("Instantly win the Gorman Horse Race"));
-    AddWidget(path, "Skip Ballad of Windfish", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.SkipBalladOfWindfish")
-        .Options(CheckboxOptions().Tooltip(
-            "Play the complete Ballad after playing in one form if you have all three transformation masks."));
-
+                     .ComboVec(&cremiaRewardOptions));
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Saving", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)
@@ -1008,8 +1020,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Clock", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Clock Type", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Graphics.ClockType")
-        .Options(
-            ComboboxOptions().Tooltip("Swaps between Graphical and Text only Clock types.").ComboMap(clockTypeOptions));
+        .Options(ComboboxOptions()
+                     .Tooltip("Swaps between Graphical and Text only Clock types.")
+                     .ComboVec(&clockTypeOptions));
     AddWidget(path, "24 Hours Clock", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.24HoursClock")
         .Options(CheckboxOptions().Tooltip("Changes from a 12 Hour to a 24 Hour Clock."));
@@ -1025,7 +1038,7 @@ void BenMenu::AddEnhancements() {
         .Options(ComboboxOptions()
                      .Tooltip("Selects the Mode for Motion Blur.")
                      .LabelPosition(LabelPosition::None)
-                     .ComboMap(motionBlurOptions));
+                     .ComboVec(&motionBlurOptions));
     AddWidget(path, "Interpolate", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.MotionBlur.Interpolate")
         .PreFunc([](WidgetInfo& info) {
@@ -1206,17 +1219,15 @@ void BenMenu::AddEnhancements() {
             "with Deku Mask, Ocarina, Song of Time, and Song of Healing."));
     AddWidget(path, "Skip Story Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipStoryCutscenes")
-        .Options(CheckboxOptions().Tooltip(
-            "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time."));
+        .Options(CheckboxOptions().Tooltip("This skips many of the cutscenes associated with the main story."));
     AddWidget(path, "Skip Misc Interactions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipMiscInteractions")
-        .Options(CheckboxOptions().Tooltip(
-            "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time."));
+        .Options(CheckboxOptions().Tooltip("This skips many minor cutscenes and interactions."));
     AddWidget(path, "Skip Item Get Cutscene", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Cutscenes.SkipGetItemCutscenes")
         .Options(ComboboxOptions()
                      .Tooltip("Note: This only works in Randomizer currently.")
-                     .ComboMap(skipGetItemCutscenesOptions));
+                     .ComboVec(&skipGetItemCutscenesOptions));
 
     // Dialogue Enhancements
     path.column = SECTION_COLUMN_2;
@@ -1253,6 +1264,14 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
         .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
+    AddWidget(path, "Skip Powder Keg Certification", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.PowderKegCertification")
+        .Options(CheckboxOptions().Tooltip(
+            "Skips requiring to take the Powder Keg Test before being given the Certification."));
+    AddWidget(path, "Skip Ballad of Windfish", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.SkipBalladOfWindfish")
+        .Options(CheckboxOptions().Tooltip(
+            "Play the complete Ballad after playing in one form if you have all three transformation masks."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
@@ -1319,7 +1338,7 @@ void BenMenu::AddEnhancements() {
                          "  pots).\n"
                          "- Unpatched (OoT): Glitch restored, and your initial damage is 1 (a Kokiri Sword slash).")
                 .DefaultIndex(0)
-                .ComboMap(powerCrouchStabOptions));
+                .ComboVec(&powerCrouchStabOptions));
     AddWidget(path, "Side Rolls", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Restorations.SideRoll")
         .Options(CheckboxOptions().Tooltip("Restores side rolling from OoT."));
@@ -1353,6 +1372,125 @@ void BenMenu::AddEnhancements() {
     // Difficulty Options
     path = { "Enhancements", "Difficulty Options", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
+    AddWidget(path, "Combat", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
+        .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
+    AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
+        .Options(ComboboxOptions()
+                     .Tooltip("Adjusts the amount of damage Link takes from all sources.")
+                     .ComboMap(&damageMultiplierOptions));
+    AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
+        .Options(CheckboxOptions().Tooltip(
+            "When you lose 4 quarters of a heart you will permanently lose that heart container.\n\nDisabling this "
+            "after the fact will not restore any received heart containers."));
+    AddWidget(path, "Delete File on Death", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.DeleteFileOnDeath")
+        .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE
+                                           " WARNING " ICON_FA_EXCLAMATION_TRIANGLE
+                                           "\nTHIS IS NOT REVERSIBLE\nUSE AT YOUR OWN RISK!"));
+    AddWidget(path, "Jinxed Timer: %d seconds", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.DifficultyOptions.JinxedTimer")
+        .Options(
+            IntSliderOptions()
+                .Tooltip("Set the duration of the Jinxed effect. Setting it to 0 will prevent the effect entirely.")
+                .Min(0)
+                .Max(60)
+                .DefaultValue(60));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Bombers Hide-and-Seek Count", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BombersHideAndSeek")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the number of Bomber Kids you have to find to complete the hide-and-seek game.")
+                     .Min(1)
+                     .Max(5)
+                     .DefaultValue(5));
+    AddWidget(path, "Swordsman School Winning Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.SwordsmanSchoolScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Swordsman School.")
+                     .Min(1)
+                     .Max(30)
+                     .DefaultValue(30));
+    AddWidget(path, "Honey & Darling Day 1 (Bombchus)", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay1")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 1.")
+                     .Min(1)
+                     .Max(8)
+                     .DefaultValue(8));
+    AddWidget(path, "Honey & Darling Day 2 (Bombs)", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay2")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 2.")
+                     .Min(1)
+                     .Max(8)
+                     .DefaultValue(8));
+    AddWidget(path, "Honey & Darling Day 3 (Bow)", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay3")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 3.")
+                     .Min(1)
+                     .Max(16)
+                     .DefaultValue(16));
+    AddWidget(path, "Town Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.TownArcheryScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Town Archery minigame. Reaching this score will end "
+                              "the minigame.")
+                     .Min(1)
+                     .Max(50)
+                     .DefaultValue(50));
+    AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.SwampArcheryScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Swamp Archery minigame, if this is changed it also "
+                              "speeds up the final score counting.")
+                     .Min(1000)
+                     .Max(2180)
+                     .DefaultValue(2180));
+    AddWidget(path, "Romani Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.RomaniTargetPractice")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win Romani's Target Practice.")
+                     .Min(1)
+                     .Max(10)
+                     .DefaultValue(10));
+    AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
+        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboVec(&alwaysWinDoggyraceOptions));
+
+    AddWidget(path, "Cucco Shack Cucco Count", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.CuccoShackCuccoCount")
+        .Options(IntSliderOptions()
+                     .Tooltip("Choose how many cuccos you need to raise to make Grog happy.")
+                     .Min(1)
+                     .Max(10)
+                     .DefaultValue(10));
+    AddWidget(path, "Skip Gorman Horse Race", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.SkipHorseRace")
+        .Options(CheckboxOptions().Tooltip("Instantly win the Gorman Horse Race"));
+    AddWidget(path, "Beaver Race Rings Collected", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BeaverRaceRingsCollected")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the number of rings required for both Beavers. If the slider is set to 20, the "
+                              "first Beaver will require 20 rings, and the second Beaver will require 25 rings, which "
+                              "are their vanilla values.")
+                     .Min(1)
+                     .Max(20)
+                     .DefaultValue(20));
+    path.column = SECTION_COLUMN_3;
+    AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.LowerBankRewardThresholds")
+        .Options(
+            CheckboxOptions().Tooltip("Reduces the amount of rupees required to receive the rewards from the bank.\n"
+                                      "From: 200 -> 1000 -> 5000\n"
+                                      "To:   100 ->  500 -> 1000"));
     AddWidget(path, "Disable Takkuri Steal", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.DisableTakkuriSteal")
         .Options(CheckboxOptions().Tooltip(
@@ -1367,13 +1505,7 @@ void BenMenu::AddEnhancements() {
                          "- Night Only: Only show the search balls at night. This matches original N64 behaviour.\n"
                          "- Always: Always show the search balls.")
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
-                .ComboMap(dekuGuardSearchBallsOptions));
-    AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.LowerBankRewardThresholds")
-        .Options(
-            CheckboxOptions().Tooltip("Reduces the amount of rupees required to receive the rewards from the bank.\n"
-                                      "From: 200 -> 1000 -> 5000\n"
-                                      "To:   100 ->  500 -> 1000"));
+                .ComboVec(&dekuGuardSearchBallsOptions));
     AddWidget(path, "Gibdo Trade Sequence Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.GibdoTradeSequence")
         .Options(
@@ -1384,7 +1516,7 @@ void BenMenu::AddEnhancements() {
                          "  The Gibdo requesting a blue potion will also accept a red potion.\n"
                          "- No trade: Gibdos will vanish without taking items.")
                 .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
-                .ComboMap(gibdoTradeSequenceOptions));
+                .ComboVec(&gibdoTradeSequenceOptions));
     AddWidget(path, "Hidden Grottos Visibility", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.HiddenGrottosVisibility")
         .Options(
@@ -1396,35 +1528,14 @@ void BenMenu::AddEnhancements() {
                     "- Have Mask of Truth: Hidden grottos are visible once the Mask of Truth is obtained.\n"
                     "- Always: Hidden grottos always have a visual marker.\n")
                 .DefaultIndex(HiddenGrottosVisibilityOptions::HIDDEN_GROTTOS_VISIBLITY_OFF)
-                .ComboMap(maskOfTruthGrottoOptions));
-
-    path.column = SECTION_COLUMN_2;
-    AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
-        .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
-    AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
-        .Options(ComboboxOptions()
-                     .Tooltip("Adjusts the amount of damage Link takes from all sources.")
-                     .ComboMap(damageMultiplierOptions));
-    AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
-        .Options(CheckboxOptions().Tooltip(
-            "When you lose 4 quarters of a heart you will permanently lose that heart container.\n\nDisabling this "
-            "after the fact will not restore any received heart containers."));
-    AddWidget(path, "Delete File on Death", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.DeleteFileOnDeath")
-        .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE
-                                           " WARNING " ICON_FA_EXCLAMATION_TRIANGLE
-                                           "\nTHIS IS NOT REVERSABLE\nUSE AT YOUR OWN RISK!"));
-    AddWidget(path, "Jinxed Timer: %d seconds", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.DifficultyOptions.JinxedTimer")
-        .Options(
-            IntSliderOptions()
-                .Tooltip("Set the duration of the Jinxed effect. Setting it to 0 will prevent the effect entirely.")
-                .Min(0)
-                .Max(60)
-                .DefaultValue(60));
+                .ComboVec(&maskOfTruthGrottoOptions));
+    AddWidget(path, "Frog Choir Count", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.DifficultyOptions.FrogChoirCount")
+        .Options(IntSliderOptions()
+                     .Tooltip("Choose how many frogs you need to save for the choir performance.")
+                     .Min(1)
+                     .Max(5)
+                     .DefaultValue(5));
 
     // HUD Editor
     path = { "Enhancements", "HUD Editor", SECTION_COLUMN_1 };
@@ -1487,7 +1598,7 @@ void BenMenu::AddDevTools() {
                               "- Empty Save: The default 3 heart save file in first cycle.\n"
                               "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks).\n"
                               "- 100\% Save: All items, equipment, mask, quest status and Bombers' Notebook complete.")
-                     .ComboMap(debugSaveOptions))
+                     .ComboVec(&debugSaveOptions))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Update", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorUpdate")
@@ -1510,7 +1621,7 @@ void BenMenu::AddDevTools() {
         .Options(ComboboxOptions()
                      .Tooltip("The log level determines which messages are printed to the "
                               "console. This does not affect the log file output.")
-                     .ComboMap(logLevels))
+                     .ComboVec(&logLevels))
         .Callback([](WidgetInfo& info) {
             Ship::Context::GetInstance()->GetLogger()->set_level(
                 (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
