@@ -380,7 +380,6 @@ typedef struct RandoSaveCheck {
     u16 price; // Only applicable for shops/merchants
 } RandoSaveCheck;
 
-// Event-driven achievement save data structure aligned with rando patterns
 typedef struct AchievementSaveData {
     bool achievementsSystemEnabled;
     bool unlocked[ACHIEVEMENT_ID_MAX];

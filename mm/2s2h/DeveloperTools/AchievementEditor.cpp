@@ -27,10 +27,12 @@ constexpr const char* CVAR_ACTIVE_TAB = CVAR_PREFIX_DEVELOPER_TOOLS ".Achievemen
 } // namespace
 
 namespace BenGui {
-extern std::shared_ptr<AchievementsWindow> mAchievementsWindow;
+extern std::shared_ptr<Achievements::UI::AchievementsWindow> mAchievementsWindow;
 }
 
-namespace Ship {
+namespace Achievements {
+
+namespace DeveloperTools {
 
 // Static Data
 
@@ -1179,4 +1181,6 @@ void AchievementEditor::FixCompletionIssues() {
     SPDLOG_INFO("Fixed {} achievement completion issues", fixedCount);
 }
 
-} // namespace Ship
+} // namespace DeveloperTools
+
+} // namespace Achievements

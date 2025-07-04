@@ -11,6 +11,10 @@
 // Forward declarations
 struct Achievement;
 
+namespace Achievements {
+
+namespace UI {
+
 namespace AchievementsUI {
 // UI Layout Constants
 namespace Layout {
@@ -140,3 +144,7 @@ class AchievementsWindow : public Ship::GuiWindow {
     mutable bool mStatsNeedUpdate = true;
     CachedTextures mTextures = {};
 };
+
+} // namespace UI
+
+} // namespace Achievements

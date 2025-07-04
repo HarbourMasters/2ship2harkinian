@@ -34,7 +34,7 @@
 #include "2s2h/DeveloperTools/AchievementEditor.h"
 
 namespace BenGui {
-// Delegates
+// MARK: - Delegates
 
 std::shared_ptr<BenMenuBar> mBenMenuBar;
 
@@ -51,7 +51,6 @@ std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
 std::shared_ptr<AudioEditor> mAudioEditorWindow;
-std::shared_ptr<Ship::AchievementEditor> mAchievementEditorWindow;
 std::shared_ptr<BenMenu> mBenMenu;
 std::shared_ptr<Notification::Window> mNotificationWindow;
 std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
@@ -59,7 +58,8 @@ std::shared_ptr<Rando::CheckTracker::SettingsWindow> mRandoCheckTrackerSettingsW
 std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
-std::shared_ptr<AchievementsWindow> mAchievementsWindow;
+std::shared_ptr<Achievements::UI::AchievementsWindow> mAchievementsWindow;
+std::shared_ptr<Achievements::DeveloperTools::AchievementEditor> mAchievementEditorWindow;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -130,12 +130,12 @@ void SetupGuiElements() {
     mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor", ImVec2(520, 600));
     gui->AddGuiWindow(mAudioEditorWindow);
 
-    mAchievementEditorWindow = std::make_shared<Ship::AchievementEditor>("gWindows.AchievementEditor",
+    mAchievementEditorWindow = std::make_shared<Achievements::DeveloperTools::AchievementEditor>("gWindows.AchievementEditor",
                                                                          "Achievement Editor", ImVec2(1000, 700));
     gui->AddGuiWindow(mAchievementEditorWindow);
 
     mAchievementsWindow =
-        std::make_shared<AchievementsWindow>("gOpenWindows.Achievements", "Achievements", ImVec2(800, 600));
+        std::make_shared<Achievements::UI::AchievementsWindow>("gOpenWindows.Achievements", "Achievements", ImVec2(800, 600));
     gui->AddGuiWindow(mAchievementsWindow);
 
     mItemTrackerWindow = std::make_shared<ItemTrackerWindow>("gWindows.ItemTracker", "Item Tracker");

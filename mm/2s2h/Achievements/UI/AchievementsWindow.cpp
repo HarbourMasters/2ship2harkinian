@@ -30,6 +30,10 @@ constexpr const char* CVAR_FILTER_LOCKED_ONLY = CVAR_PREFIX_ENHANCEMENT ".Achiev
 constexpr const char* CVAR_FILTER_UNLOCKED_ONLY = CVAR_PREFIX_ENHANCEMENT ".Achievements.Filter.UnlockedOnly";
 } // namespace
 
+namespace Achievements {
+
+namespace UI {
+
 // Lifecycle Methods
 
 AchievementsWindow::~AchievementsWindow() {
@@ -885,3 +889,7 @@ void AchievementsWindow::SaveSettings() {
     CVarSetInteger(CVAR_FILTER_UNLOCKED_ONLY, mShowUnlockedOnly);
     CVarSave();
 }
+
+} // namespace UI
+
+} // namespace Achievements

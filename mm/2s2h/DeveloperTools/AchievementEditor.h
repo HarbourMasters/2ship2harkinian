@@ -6,7 +6,9 @@
 #include "window/gui/GuiWindow.h"
 #include "2s2h/Achievements/StaticData/Registry.h"
 
-namespace Ship {
+namespace Achievements {
+
+namespace DeveloperTools {
 
 // UI Layout Constants
 namespace AchievementEditorUI {
@@ -17,7 +19,7 @@ constexpr float SECTION_SPACING = 8.0f;
 } // namespace Layout
 } // namespace AchievementEditorUI
 
-class AchievementEditor : public GuiWindow {
+class AchievementEditor : public Ship::GuiWindow {
   public:
     using GuiWindow::GuiWindow;
 
@@ -88,4 +90,6 @@ class AchievementEditor : public GuiWindow {
     std::vector<std::string> mValidationWarnings;
 };
 
-} // namespace Ship
+} // namespace DeveloperTools
+
+} // namespace Achievements
