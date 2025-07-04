@@ -130,12 +130,12 @@ void SetupGuiElements() {
     mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor", ImVec2(520, 600));
     gui->AddGuiWindow(mAudioEditorWindow);
 
-    mAchievementEditorWindow = std::make_shared<Achievements::DeveloperTools::AchievementEditor>("gWindows.AchievementEditor",
-                                                                         "Achievement Editor", ImVec2(1000, 700));
+    mAchievementEditorWindow = std::make_shared<Achievements::DeveloperTools::AchievementEditor>(
+        "gWindows.AchievementEditor", "Achievement Editor", ImVec2(1000, 700));
     gui->AddGuiWindow(mAchievementEditorWindow);
 
-    mAchievementsWindow =
-        std::make_shared<Achievements::UI::AchievementsWindow>("gOpenWindows.Achievements", "Achievements", ImVec2(800, 600));
+    mAchievementsWindow = std::make_shared<Achievements::UI::AchievementsWindow>("gOpenWindows.Achievements",
+                                                                                 "Achievements", ImVec2(800, 600));
     gui->AddGuiWindow(mAchievementsWindow);
 
     mItemTrackerWindow = std::make_shared<ItemTrackerWindow>("gWindows.ItemTracker", "Item Tracker");
