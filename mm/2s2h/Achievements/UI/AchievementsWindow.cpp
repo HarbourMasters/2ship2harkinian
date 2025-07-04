@@ -6,7 +6,7 @@
 
 #include <imgui.h>
 #include <IconsFontAwesome4.h>
-#include <fmt/format.h>
+#include <spdlog/fmt/fmt.h>
 #include <spdlog/spdlog.h>
 #include <libultraship/libultraship.h>
 #include <public/bridge/consolevariablebridge.h>

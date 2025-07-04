@@ -1568,7 +1568,7 @@ void BenMenu::AddEnhancements() {
         .WindowName("Audio Editor");
 
     // Achievements Menu Section
-    WidgetPath achievementsPath = { "Enhancements", "Achievements", 1 };
+    WidgetPath achievementsPath = { "Enhancements", "Achievements", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Achievements", 1);
 
     // Add compact header with brief instructions
@@ -1742,7 +1742,7 @@ void BenMenu::AddDevTools() {
         .Options(ButtonOptions().Tooltip("Enables the Event Log window."))
         .WindowName("Event Log");
 
-    path = { "Dev Tools", "Achievement Editor", 1 };
+    path = { "Dev Tools", "Achievement Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Achievement Editor", 1);
     AddWidget(path, "Popout Achievement Editor", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.AchievementEditor")

@@ -401,7 +401,7 @@ void AchievementEditor::DrawSelectedAchievementInfo() {
     ImGui::Text("Name: %s", achievement->name);
     ImGui::Text("ID: %d", static_cast<int>(achievement->id));
 
-            // Status
+    // Status
     ImGui::Text("Status: ");
     ImGui::SameLine();
     ImGui::TextColored(isUnlocked ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)

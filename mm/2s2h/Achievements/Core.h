@@ -12,11 +12,11 @@ extern "C" {
 // Core Achievement System API
 namespace Achievements {
 // Lifecycle functions
-void Init();        // Called on game boot
+void Init(); // Called on game boot
 
 // Hook registration functions
 void RegisterAchievementTracker(); // Register achievement tracking hooks (conditional)
-void RegisterAchievementCore(); // Register all achievement system hooks
+void RegisterAchievementCore();    // Register all achievement system hooks
 
 // Core API functions
 bool IsUnlocked(AchievementId id);
@@ -43,9 +43,9 @@ void ProcessQueuedEvents();
 #define IS_ACHIEVEMENTS (gSaveContext.save.shipSaveInfo.achievements.achievementsSystemEnabled)
 
 // Macro for triggering an event
-#define QUEUE_ACHIEVEMENT(eventId)                 \
+#define QUEUE_ACHIEVEMENT(eventId)             \
     do {                                       \
-        if (IS_ACHIEVEMENTS) {         \
+        if (IS_ACHIEVEMENTS) {                 \
             Achievements::QueueEvent(eventId); \
         }                                      \
     } while (0)

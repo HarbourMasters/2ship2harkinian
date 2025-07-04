@@ -45,12 +45,10 @@ void EnableAchievements() {
     // Initialize and enable achievements for the current save
     memset(&gSaveContext.save.shipSaveInfo.achievements, 0, sizeof(AchievementSaveData));
     gSaveContext.save.shipSaveInfo.achievements.achievementsSystemEnabled = true;
-    
+
     // Re-register achievement tracker now that they're enabled
     RegisterAchievementTracker();
 }
-
-
 
 // Core API functions
 bool IsUnlocked(AchievementId id) {
@@ -109,8 +107,8 @@ void QueueEvent(AchievementEvent eventId) {
         }
     }
 
-    achievementQueue.push_back(
-        { QUEUE_ACHIEVEMENT, eventId, AchievementId::ACHIEVEMENT_ID_MAX, 0, 0, AchievementEvent::ACHIEVEMENT_EVENT_MAX });
+    achievementQueue.push_back({ QUEUE_ACHIEVEMENT, eventId, AchievementId::ACHIEVEMENT_ID_MAX, 0, 0,
+                                 AchievementEvent::ACHIEVEMENT_EVENT_MAX });
 }
 
 void ProcessQueuedEvents() {
@@ -297,7 +295,7 @@ void ResetEvent(AchievementEvent eventId) {
     }
 }
 
-    // Runtime check for achievements
+// Runtime check for achievements
 bool AreAchievementsActive() {
     return IS_ACHIEVEMENTS;
 }
@@ -306,38 +304,35 @@ void RegisterAchievementTracker() {
     // Only register achievement tracking hooks if achievements are active
     COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, IS_ACHIEVEMENTS,
                  [](Actor* actor) { Achievements::ProcessQueuedEvents(); });
-    
+
     COND_HOOK(OnFlagSet, IS_ACHIEVEMENTS,
               [](FlagType flagType, u32 flag) { Achievements::Integration::OnFlagSet(flagType, flag); });
-    
-    COND_HOOK(OnSceneFlagSet, IS_ACHIEVEMENTS,
-              [](s16 sceneId, FlagType flagType, u32 flag) { Achievements::Integration::OnSceneFlagSet(sceneId, flagType, flag); });
-    
+
+    COND_HOOK(OnSceneFlagSet, IS_ACHIEVEMENTS, [](s16 sceneId, FlagType flagType, u32 flag) {
+        Achievements::Integration::OnSceneFlagSet(sceneId, flagType, flag);
+    });
+
     // Register COND_VB_SHOULD hooks for each vanilla behavior in the map
     for (const auto& [vbFlag, conditions] : Integration::vanillaBehaviorMap) {
-        COND_VB_SHOULD(vbFlag, true, {
-            Integration::OnVanillaBehavior(_, should, args);
-        });
+        COND_VB_SHOULD(vbFlag, true, { Integration::OnVanillaBehavior(_, should, args); });
     }
 }
 
 void RegisterAchievementCore() {
     // Register save lifecycle hooks
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveInit>(
-        [](s16 fileNum) {
-            // Auto-enable achievements if the global cvar is set
-            if (CVarGetInteger("gEnhancements.Achievements.Enabled", 0)) {
-                // Initialize and enable achievements for this save
-                memset(&gSaveContext.save.shipSaveInfo.achievements, 0, sizeof(AchievementSaveData));
-                gSaveContext.save.shipSaveInfo.achievements.achievementsSystemEnabled = true;
-            }
-        });
-    
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveLoad>(
-        [](s16 fileNum) {
-            // Register achievement tracker when save is loaded (COND* macros handle conditional registration)
-            RegisterAchievementTracker();
-        });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveInit>([](s16 fileNum) {
+        // Auto-enable achievements if the global cvar is set
+        if (CVarGetInteger("gEnhancements.Achievements.Enabled", 0)) {
+            // Initialize and enable achievements for this save
+            memset(&gSaveContext.save.shipSaveInfo.achievements, 0, sizeof(AchievementSaveData));
+            gSaveContext.save.shipSaveInfo.achievements.achievementsSystemEnabled = true;
+        }
+    });
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveLoad>([](s16 fileNum) {
+        // Register achievement tracker when save is loaded (COND* macros handle conditional registration)
+        RegisterAchievementTracker();
+    });
 }
 
 // Register with ShipInit system

@@ -18,7 +18,8 @@ void OnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag);
 void OnVanillaBehavior(GIVanillaBehavior flag, bool* should, va_list originalArgs);
 
 // External reference for hook registration in Achievements.cpp
-extern std::map<GIVanillaBehavior, std::vector<std::pair<std::function<bool(va_list)>, AchievementEvent>>> vanillaBehaviorMap;
+extern std::map<GIVanillaBehavior, std::vector<std::pair<std::function<bool(va_list)>, AchievementEvent>>>
+    vanillaBehaviorMap;
 
 } // namespace Integration
 

@@ -22,21 +22,22 @@ std::map<GIVanillaBehavior, std::vector<std::pair<std::function<bool(va_list)>, 
 
 // Achievement tracking macros
 #define TRACK_FLAG(flagType, flag, event) \
-    { {FT(flagType), flag}, AE(event) }
+    { { FT(flagType), flag }, AE(event) }
 
 #define TRACK_SCENE_FLAG(sceneId, flagType, flag, event) \
-    { {sceneId, FT(flagType), flag}, AE(event) }
+    { { sceneId, FT(flagType), flag }, AE(event) }
 
 // Usage: TRACK_VB(event, condition)
-#define TRACK_VB(event, ...) \
-    { [](va_list args) -> bool { __VA_ARGS__; }, AE(event) }
+#define TRACK_VB(event, ...)                                 \
+    {                                                        \
+        [](va_list args) -> bool { __VA_ARGS__; }, AE(event) \
+    }
 
 // Flag to achievement event mapping
 static std::map<std::pair<FlagType, u32>, AchievementEvent> flagToEventMap;
 
 // Scene-specific flag to achievement event mapping
 static std::map<std::tuple<s16, FlagType, u32>, AchievementEvent> sceneFlagToEventMap;
-
 
 void Init() {
     // clang-format off
