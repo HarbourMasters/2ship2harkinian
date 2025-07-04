@@ -30,11 +30,11 @@
 #include "DeveloperTools/ActorViewer.h"
 #include "DeveloperTools/CollisionViewer.h"
 #include "DeveloperTools/EventLog.h"
-#include "2s2h/Enhancements/Achievements/AchievementsWindow.h"
+#include "Achievements/UI/AchievementsWindow.h"
 #include "2s2h/DeveloperTools/AchievementEditor.h"
 
 namespace BenGui {
-// MARK: - Delegates
+// Delegates
 
 std::shared_ptr<BenMenuBar> mBenMenuBar;
 
@@ -130,11 +130,12 @@ void SetupGuiElements() {
     mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor", ImVec2(520, 600));
     gui->AddGuiWindow(mAudioEditorWindow);
 
-    mAchievementEditorWindow =
-        std::make_shared<Ship::AchievementEditor>("gWindows.AchievementEditor", "Achievement Editor");
+    mAchievementEditorWindow = std::make_shared<Ship::AchievementEditor>("gWindows.AchievementEditor",
+                                                                         "Achievement Editor", ImVec2(1000, 700));
     gui->AddGuiWindow(mAchievementEditorWindow);
 
-    mAchievementsWindow = std::make_shared<AchievementsWindow>("gOpenWindows.Achievements", "Achievements");
+    mAchievementsWindow =
+        std::make_shared<AchievementsWindow>("gOpenWindows.Achievements", "Achievements", ImVec2(800, 600));
     gui->AddGuiWindow(mAchievementsWindow);
 
     mItemTrackerWindow = std::make_shared<ItemTrackerWindow>("gWindows.ItemTracker", "Item Tracker");

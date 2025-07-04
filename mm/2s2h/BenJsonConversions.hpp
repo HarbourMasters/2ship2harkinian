@@ -4,8 +4,6 @@
 #include <nlohmann/json.hpp>
 #include "spdlog/spdlog.h"
 #include "build.h"
-#include "Enhancements/Achievements/Achievements.h"
-#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "z64save.h"
@@ -14,48 +12,42 @@ extern "C" {
 
 using json = nlohmann::json;
 
-void to_json(json& j, const AchievementSaveData& achievement) {
-    j = json{
-        { "unlocked", achievement.unlocked },
-    };
+void to_json(json& j, const AchievementSaveData& achievementSaveData) {
+    j = json::object();
+    j["achievementsSystemEnabled"] = achievementSaveData.achievementsSystemEnabled;
+
+    std::vector<bool> unlockedVec(achievementSaveData.unlocked, achievementSaveData.unlocked + ACHIEVEMENT_ID_MAX);
+    j["unlocked"] = unlockedVec;
+
+    std::vector<bool> eventsVec(achievementSaveData.events, achievementSaveData.events + ACHIEVEMENT_EVENT_MAX);
+    j["events"] = eventsVec;
 }
 
-void from_json(const json& j, AchievementSaveData& achievement) {
-    if (j.contains("unlocked") && j.at("unlocked").is_boolean()) {
-        j.at("unlocked").get_to(achievement.unlocked);
-    } else {
-        achievement.unlocked = false;
-    }
-}
-
-void to_json(json& j, const AllAchievementsInfo& allAchievements) {
-    j = json::array();
-    for (int i = 0; i < AID_MAX; ++i) {
-        j.push_back(allAchievements.achievementData[i]);
-    }
-}
-
-void from_json(const json& j, AllAchievementsInfo& allAchievements) {
-    if (!j.is_array()) {
-        SPDLOG_WARN("Expected a JSON array for achievements, but found different type. Initializing defaults.");
-        for (int i = 0; i < AID_MAX; ++i) {
-            allAchievements.achievementData[i] = {};
-        }
+void from_json(const json& j, AchievementSaveData& achievementSaveData) {
+    if (!j.is_object()) {
+        SPDLOG_WARN("Expected a JSON object for AchievementSaveData, but found different type. Initializing defaults.");
+        achievementSaveData = {}; // Zero-initialize the struct
         return;
     }
 
-    size_t count = std::min(j.size(), (size_t)AID_MAX);
-    for (size_t i = 0; i < count; ++i) {
-        if (j[i].is_object()) {
-            j.at(i).get_to(allAchievements.achievementData[i]);
-        } else {
-            SPDLOG_WARN("Skipping non-object element at index {} in achievements array.", i);
-            allAchievements.achievementData[i] = {};
+    achievementSaveData.achievementsSystemEnabled = j.value("achievementsSystemEnabled", false);
+
+    if (j.contains("unlocked") && j.at("unlocked").is_array()) {
+        const auto& unlockedArray = j.at("unlocked");
+        std::vector<bool> unlockedVec = unlockedArray.get<std::vector<bool>>();
+        size_t count = std::min(unlockedVec.size(), static_cast<size_t>(ACHIEVEMENT_ID_MAX));
+        for (size_t i = 0; i < count; ++i) {
+            achievementSaveData.unlocked[i] = unlockedVec[i];
         }
     }
 
-    for (size_t i = count; i < AID_MAX; ++i) {
-        allAchievements.achievementData[i] = {};
+    if (j.contains("events") && j.at("events").is_array()) {
+        const auto& eventsArray = j.at("events");
+        std::vector<bool> eventsVec = eventsArray.get<std::vector<bool>>();
+        size_t count = std::min(eventsVec.size(), static_cast<size_t>(ACHIEVEMENT_EVENT_MAX));
+        for (size_t i = 0; i < count; ++i) {
+            achievementSaveData.events[i] = eventsVec[i];
+        }
     }
 }
 
@@ -143,13 +135,7 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("fileCompletedAt").get_to(shipSaveInfo.fileCompletedAt);
     j.at("commitHash").get_to(shipSaveInfo.commitHash);
 
-    // Load achievement data with defensive checks:
-    // This approach ensures achievements load gracefully even if the save file predates the system
-    // or if the data structure evolves in future updates. By checking for existence and correct type
-    // before parsing, and providing defaults otherwise, it prevents crashes when loading older saves.
-    // This differs from the Randomizer data, which uses a strict commit hash check and fails
-    // immediately if the version is mismatched.
-    if (j.contains("achievements") && j.at("achievements").is_array()) {
+    if (j.contains("achievements") && j.at("achievements").is_object()) {
         j.at("achievements").get_to(shipSaveInfo.achievements);
     } else {
         SPDLOG_WARN("Achievements data missing or invalid in save file. Initializing defaults.");

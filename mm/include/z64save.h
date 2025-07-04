@@ -8,7 +8,7 @@
 #include "unk.h"
 #include "z64item.h"
 #include "Rando/Types.h"
-#include "Enhancements/Achievements/AchievementTypes.h" // NEW: Include Achievement Types
+#include "Achievements/StaticData/Types.h"
 
 struct GameState;
 struct PlayState;
@@ -380,15 +380,12 @@ typedef struct RandoSaveCheck {
     u16 price; // Only applicable for shops/merchants
 } RandoSaveCheck;
 
+// Event-driven achievement save data structure aligned with rando patterns
 typedef struct AchievementSaveData {
-    bool unlocked;
+    bool achievementsSystemEnabled;
+    bool unlocked[ACHIEVEMENT_ID_MAX];
+    bool events[ACHIEVEMENT_EVENT_MAX];
 } AchievementSaveData;
-
-typedef struct AllAchievementsInfo {
-    // Use AID_MAX from the new enum
-    AchievementSaveData achievementData[AID_MAX]; 
-} AllAchievementsInfo;
-// #endregion
 
 typedef struct RandoSaveInfo {
     u16 randoInf[(RANDO_INF_MAX + 15) / 16];
@@ -409,8 +406,7 @@ typedef struct ShipSaveInfo {
     uint64_t fileCompletedAt; // For now this is always Majora final blow, has the potential to be something else later on
     char commitHash[8];
     RandoSaveInfo rando;
-    // Use the new container struct
-    AllAchievementsInfo achievements;
+    AchievementSaveData achievements;
 } ShipSaveInfo;
 // #endregion
 
