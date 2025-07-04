@@ -361,8 +361,11 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
     if (options.showButtons) {
         if (Button("-", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && *value > options.min) {
             *value -= options.step;
-            if (*value < options.min)
-                *value = options.min;
+            if (options.clamp) {
+                if (*value < options.min) {
+                    *value = options.min;
+                }
+            }
             dirty = true;
         }
         ImGui::SameLine(0, 3.0f);
@@ -372,6 +375,15 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
     }
     if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_S32, value, &options.min, &options.max, options.format,
                             options.flags)) {
+        if (options.clamp) {
+            if (*value < options.min) {
+                *value = options.min;
+            }
+            if (options.clamp) {
+                if (*value > options.max)
+                    *value = options.max;
+            }
+        }
         dirty = true;
     }
     if (options.showButtons) {
@@ -379,8 +391,10 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (Button("+", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && *value < options.max) {
             *value += options.step;
-            if (*value > options.max)
-                *value = options.max;
+            if (options.clamp) {
+                if (*value > options.max)
+                    *value = options.max;
+            }
             dirty = true;
         }
     }
@@ -472,7 +486,9 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
     if (options.showButtons) {
         if (Button("-", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && *value > options.min) {
             *value -= options.step;
-            ClampFloat(value, options.min, options.max, options.step);
+            if (options.clamp) {
+                ClampFloat(value, options.min, options.max, options.step);
+            }
             dirty = true;
         }
         ImGui::SameLine(0, 3.0f);
@@ -483,7 +499,9 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
     if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_Float, &valueToDisplay, &minToDisplay, &maxToDisplay,
                             options.format, options.flags)) {
         *value = options.isPercentage ? valueToDisplay / 100.0f : valueToDisplay;
-        ClampFloat(value, options.min, options.max, options.step);
+        if (options.clamp) {
+            ClampFloat(value, options.min, options.max, options.step);
+        }
         dirty = true;
     }
     if (options.showButtons) {
@@ -491,7 +509,9 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
         if (Button("+", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && *value < options.max) {
             *value += options.step;
-            ClampFloat(value, options.min, options.max, options.step);
+            if (options.clamp) {
+                ClampFloat(value, options.min, options.max, options.step);
+            }
             dirty = true;
         }
     }

@@ -132,7 +132,11 @@ void AudioPlayback_NoteSetResamplingRate(NoteSampleState* sampleState, f32 resam
     } else {
         sampleState->bitField1.hasTwoParts = true;
         if (resamplingRateInput > 3.99996f) {
-            resamplingRate = 1.99998f;
+            if (sampleState->bitField1.isSyntheticWave) {
+                resamplingRate = resamplingRateInput * 0.25;
+            } else {
+                resamplingRate = 1.99998f;
+            }
         } else {
             resamplingRate = resamplingRateInput * 0.5f;
         }

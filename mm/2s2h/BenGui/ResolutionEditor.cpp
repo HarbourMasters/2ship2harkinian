@@ -99,7 +99,7 @@ void RegisterResolutionWidgets() {
     auto fastWnd = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
     mInterpreter = fastWnd->GetInterpreterWeak();
 
-    WidgetPath path = { "Settings", "Graphics", 2 };
+    WidgetPath path = { "Settings", "Graphics", SECTION_COLUMN_2 };
 
     // Resolution visualiser
     mBenMenu->AddWidget(path, "Viewport dimensions: {} x {}", WIDGET_TEXT).PreFunc([](WidgetInfo& info) {
@@ -167,7 +167,7 @@ void RegisterResolutionWidgets() {
             CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".UIComboItem.AspectRatio", item_aspectRatio);
             CVarSave();
         })
-        .Options(ComboboxOptions().ComboMap(aspectRatioPresetLabels));
+        .Options(ComboboxOptions().ComboMap(&aspectRatioPresetLabels));
     mBenMenu->AddWidget(path, "AspectRationCustom", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
         auto gfx_current_dimensions = GetInterpreter().get()->mCurDimensions;
 
@@ -550,4 +550,8 @@ bool IsDroppingFrames() {
     const float threshold = targetFPS / 20.0f + 4.1f;
     return ImGui::GetIO().Framerate < targetFPS - threshold;
 }
+
+// static RegisterMenuUpdateFunc updateFunc(UpdateResolutionVars, "Settings", "Graphics");
+// static RegisterMenuInitFunc initFunc(RegisterResolutionWidgets);
+
 } // namespace BenGui

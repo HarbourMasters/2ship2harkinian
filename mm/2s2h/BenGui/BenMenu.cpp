@@ -11,16 +11,130 @@
 #include <variant>
 #include "StringHelper.h"
 #include <spdlog/fmt/fmt.h>
+#include "variables.h"
+#include <variant>
+#include <tuple>
+#include "ResolutionEditor.h"
 #include "2s2h/Rando/Rando.h"
+#include "build.h"
 
 extern "C" {
 #include "z64.h"
 #include "functions.h"
+#include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
 extern PlayState* gPlayState;
 extern SaveContext gSaveContext;
 }
 extern std::unordered_map<s16, const char*> warpPointSceneList;
 extern void Warp();
+
+static const std::unordered_map<int32_t, const char*> menuThemeOptions = {
+    { UIWidgets::Colors::Red, "Red" },
+    { UIWidgets::Colors::DarkRed, "Dark Red" },
+    { UIWidgets::Colors::Orange, "Orange" },
+    { UIWidgets::Colors::Green, "Green" },
+    { UIWidgets::Colors::DarkGreen, "Dark Green" },
+    { UIWidgets::Colors::LightBlue, "Light Blue" },
+    { UIWidgets::Colors::Blue, "Blue" },
+    { UIWidgets::Colors::DarkBlue, "Dark Blue" },
+    { UIWidgets::Colors::Indigo, "Indigo" },
+    { UIWidgets::Colors::Violet, "Violet" },
+    { UIWidgets::Colors::Purple, "Purple" },
+    { UIWidgets::Colors::Brown, "Brown" },
+    { UIWidgets::Colors::Gray, "Gray" },
+    { UIWidgets::Colors::DarkGray, "Dark Gray" },
+};
+
+static const std::vector<const char*> alwaysWinDoggyraceOptions = {
+    "Off",                       // ALWAYS_WIN_DOGGY_RACE_OFF
+    "When owning Mask of Truth", // ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH
+    "Always",                    // ALWAYS_WIN_DOGGY_RACE_ALWAYS
+};
+
+static const std::vector<const char*> cremiaRewardOptions = {
+    "Vanilla", // CREMIA_REWARD_RANDOM
+    "Hug",     // CREMIA_REWARD_ALWAYS_HUG
+    "Rupee",   // CREMIA_REWARD_ALWAYS_RUPEE
+};
+
+static const std::vector<const char*> gibdoTradeSequenceOptions = {
+    "Vanilla",  // GIBDO_TRADE_SEQUENCE_VANILLA
+    "MM3D",     // GIBDO_TRADE_SEQUENCE_MM3D
+    "No trade", // GIBDO_TRADE_SEQUENCE_NO_TRADE
+};
+
+static const std::vector<const char*> clockTypeOptions = {
+    "Original",   // CLOCK_TYPE_ORIGINAL
+    "MM3D style", // CLOCK_TYPE_3DS
+    "Text only",  // CLOCK_TYPE_TEXT_BASED
+};
+
+static const std::vector<const char*> textureFilteringOptions = {
+    "Three-Point", // Fast::FILTER_THREE_POINT,
+    "Linear",      // Fast::FILTER_LINEAR
+    "None",        // Fast::FILTER_NONE
+};
+
+static const std::vector<const char*> motionBlurOptions = {
+    "Dynamic (default)", // MOTION_BLUR_DYNAMIC
+    "Always Off",        // MOTION_BLUR_ALWAYS_OFF
+    "Always On",         // MOTION_BLUR_ALWAYS_ON
+};
+static const std::vector<const char*> debugSaveOptions = {
+    "100% save",          // DEBUG_SAVE_INFO_COMPLETE
+    "Vanilla debug save", // DEBUG_SAVE_INFO_VANILLA_DEBUG
+    "Empty save",         // DEBUG_SAVE_INFO_NONE
+};
+
+static const std::vector<const char*> logLevels = {
+    "Trace",    // DEBUG_LOG_TRACE
+    "Debug",    // DEBUG_LOG_DEBUG
+    "Info",     // DEBUG_LOG_INFO
+    "Warn",     // DEBUG_LOG_WARN
+    "Error",    // DEBUG_LOG_ERROR
+    "Critical", // DEBUG_LOG_CRITICAL
+    "Off",      // DEBUG_LOG_OFF
+};
+
+static const std::vector<const char*> timeStopOptions = {
+    "Off",                     // TIME_STOP_OFF
+    "Temples",                 // TIME_STOP_TEMPLES
+    "Temples + Mini Dungeons", // TIME_STOP_TEMPLES_DUNGEONS
+};
+
+static const std::vector<const char*> notificationPosition = {
+    "Top Left", "Top Right", "Bottom Left", "Bottom Right", "Hidden",
+};
+
+static const std::vector<const char*> dekuGuardSearchBallsOptions = {
+    "Never",      // DEKU_GUARD_SEARCH_BALLS_NEVER
+    "Night Only", // DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY
+    "Always",     // DEKU_GUARD_SEARCH_BALLS_ALWAYS
+};
+
+static const std::vector<const char*> skipGetItemCutscenesOptions = {
+    "Never",
+    "Junk Items Only",
+    "Everything But Major",
+    "Always",
+};
+
+static const std::vector<const char*> powerCrouchStabOptions = {
+    "Patched (US/EU)",
+    "Unpatched (JP)",
+    "Unpatched (OoT)",
+};
+
+static const std::vector<const char*> maskOfTruthGrottoOptions = {
+    "Off",                // HIDDEN_GROTTOS_VISIBLITY_OFF
+    "Wear Mask of Truth", // HIDDEN_GROTTOS_VISIBLITY_WEAR_MASK_OF_TRUTH
+    "Have Mask of Truth", // HIDDEN_GROTTOS_VISIBLITY_HAVE_MASK_OF_TRUTH
+    "Always",             // HIDDEN_GROTTOS_VISIBLITY_ALWAYS
+};
+
+static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
+    { 0, "1x" }, { 1, "2x" }, { 2, "4x" }, { 3, "8x" }, { 4, "16x" }, { 10, "1 Hit KO" },
+};
 
 namespace BenGui {
 extern std::shared_ptr<BenMenu> mBenMenu;
@@ -34,40 +148,24 @@ void FreeLookPitchMinMax() {
 using namespace UIWidgets;
 
 void BenMenu::AddSidebarEntry(std::string sectionName, std::string sidebarName, uint32_t columnCount) {
-    if (sectionName == "Settings") {
-        settingsSidebar.emplace(sidebarName, SidebarEntry{ .columnCount = columnCount });
-        settingsOrder.push_back(sidebarName);
-    } else if (sectionName == "Enhancements") {
-        enhancementsSidebar.emplace(sidebarName, SidebarEntry{ .columnCount = columnCount });
-        enhancementsOrder.push_back(sidebarName);
-    } else if (sectionName == "Dev Tools") {
-        devToolsSidebar.emplace(sidebarName, SidebarEntry{ .columnCount = columnCount });
-        devToolsOrder.push_back(sidebarName);
-    } else if (sectionName == "Rando") {
-        randoSidebar.emplace(sidebarName, SidebarEntry{ .columnCount = columnCount });
-        randoOrder.push_back(sidebarName);
-    }
+    assert(!sectionName.empty());
+    assert(!sidebarName.empty());
+    menuEntries.at(sectionName).sidebars.emplace(sidebarName, SidebarEntry{ .columnCount = columnCount });
+    menuEntries.at(sectionName).sidebarOrder.push_back(sidebarName);
 }
 
 WidgetInfo& BenMenu::AddWidget(WidgetPath& pathInfo, std::string widgetName, WidgetType widgetType) {
-    assert(widgetName != ""); // Must be unique
-    std::unordered_map<std::string, SidebarEntry>* sidebar;
-    if (pathInfo.sectionName == "Settings") {
-        sidebar = &settingsSidebar;
-    } else if (pathInfo.sectionName == "Enhancements") {
-        sidebar = &enhancementsSidebar;
-    } else if (pathInfo.sectionName == "Dev Tools") {
-        sidebar = &devToolsSidebar;
-    } else if (pathInfo.sectionName == "Rando") {
-        sidebar = &randoSidebar;
-    }
-    uint8_t column = pathInfo.column - 1;
-    if (sidebar->contains(pathInfo.sidebarName)) {
-        while (sidebar->at(pathInfo.sidebarName).columnWidgets.size() < column + 1) {
-            sidebar->at(pathInfo.sidebarName).columnWidgets.push_back({});
+    assert(!widgetName.empty());                        // Must be unique
+    assert(menuEntries.contains(pathInfo.sectionName)); // Section/header must already exist
+    assert(menuEntries.at(pathInfo.sectionName).sidebars.contains(pathInfo.sidebarName)); // Sidebar must already exist
+    std::unordered_map<std::string, SidebarEntry>& sidebar = menuEntries.at(pathInfo.sectionName).sidebars;
+    uint8_t column = pathInfo.column;
+    if (sidebar.contains(pathInfo.sidebarName)) {
+        while (sidebar.at(pathInfo.sidebarName).columnWidgets.size() < column + 1) {
+            sidebar.at(pathInfo.sidebarName).columnWidgets.push_back({});
         }
     }
-    SidebarEntry& entry = sidebar->at(pathInfo.sidebarName);
+    SidebarEntry& entry = sidebar.at(pathInfo.sidebarName);
     entry.columnWidgets.at(column).push_back({ .name = widgetName, .type = widgetType });
     WidgetInfo& widget = entry.columnWidgets.at(column).back();
     switch (widgetType) {
@@ -108,16 +206,74 @@ WidgetInfo& BenMenu::AddWidget(WidgetPath& pathInfo, std::string widgetName, Wid
     return widget;
 }
 
-void BenMenu::AddSettings() {
+// Last generated with the following command on 05/19/2025
+// clang-format off
+// git shortlog -sn 2332f63f5a9ca4b949f029c11a9744d601d7155f..HEAD | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+/"/' | sed -E 's/(.+)/\1",/'
+// clang-format on
+std::vector<std::string> contributors = {
+    "ProxySaw", // "Garrett Cox", manual replacement
+    "Archez",
+    "Eblo",
+    "louist103",
+    "balloondude2",
+    "Caladius",
+    "inspectredc",
+    "sitton76",
+    "Patrick12115",
+    "briaguya",
+    "Malkierian",
+    "PurpleHato",
+    "Joshua Sanchez",
+    "aMannus",
+    "mckinlee",
+    "zodiac-ill",
+    "rachaellama",
+    "Adam Bird",
+    "Revo",
+    "Lars-Christian Selland",
+    "Liam Scholte",
+    "Nicholas Estelami",
+    "ReddestDream",
+    "Sirius902",
+    "Spodi",
+    "lightmanLP",
+    "lilacLunatic",
+    "Alejandro Asenjo Nitti",
+    "AltoXorg",
+    "Ben Willmore",
+    "Captain Kitty Cat",
+    "Extloga",
+    "Felix Dietrich",
+    "Ghunzor",
+    "Hoeloe",
+    "Jacob Erly",
+    "Kenix3",
+    "Louis",
+    "MegaMech",
+    "Mothstery",
+    "OtherBlue",
+    "Qlonever",
+    "Quorsor",
+    "Ralphie Morell",
+    "Reinhardt R. Gaming",
+    "Rozelette",
+    "Travis",
+    "cplaster",
+    "justawayofthesamurai",
+    "verbes4",
+};
 
+void BenMenu::AddSettings() {
+    // Add Settings menu
+    AddMenuEntry("Settings", "gSettings.Menu.SettingsSidebarSection");
     // General Settings
-    AddSidebarEntry("Settings", "General", 3);
-    WidgetPath path = { "Settings", "General", 1 };
+    AddSidebarEntry("Settings", "General", 2);
+    WidgetPath path = { "Settings", "General", SECTION_COLUMN_1 };
     AddWidget(path, "Menu Theme", WIDGET_CVAR_COMBOBOX)
         .CVar("gSettings.Menu.Theme")
         .Options(ComboboxOptions()
                      .Tooltip("Changes the Theme of the Menu Widgets.")
-                     .ComboMap(menuThemeOptions)
+                     .ComboMap(&menuThemeOptions)
                      .DefaultIndex(Colors::LightBlue));
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
@@ -159,6 +315,37 @@ void BenMenu::AddSettings() {
             SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
         })
         .Options(ButtonOptions().Tooltip("Opens the folder that contains the save and mods folders, etc."));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "about", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        ImGui::BeginChild("about");
+        ImGui::PushStyleColor(ImGuiCol_Text, ColorValues.at(Colors::Gray));
+        if (gGitCommitTag[0] == 0) {
+            ImGui::Text("%s | %s", (char*)gGitBranch, (char*)gGitCommitHash);
+        } else {
+            ImGui::Text("%s", (char*)gBuildVersion);
+        }
+        ImGui::PopStyleColor();
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
+        ImGui::SeparatorText("Thank You");
+        ImGui::PopStyleColor();
+
+        ImGui::TextWrapped("Special thanks to our contributors, playtesters, artists, moderators, helpers, and "
+                           "everyone in the larger decomp & N64 communities who make this project possible.\n\n");
+        ImTextureID heartTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+            (const char*)gQuestIconHeartContainer2Tex);
+        ImGui::Image(heartTextureId, ImVec2(25.0f, 25.0f));
+        ImGui::SameLine();
+
+        static u64 lastTime = 0;
+        static std::string contributor = "";
+        if (GetUnixTimestamp() - lastTime > 5000) {
+            lastTime = GetUnixTimestamp();
+            contributor = contributors[Ship_Random(0, contributors.size() - 1)];
+        }
+        ImGui::Text("%s", contributor.c_str());
+        ImGui::EndChild();
+    });
 
     // Audio Settings
     path.sidebarName = "Audio";
@@ -305,7 +492,7 @@ void BenMenu::AddSettings() {
             "Allows multiple windows to be opened at once. Requires a reload to take effect."));
     AddWidget(path, "Texture Filter (Needs reload)", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_TEXTURE_FILTER)
-        .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboMap(textureFilteringMap));
+        .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboVec(&textureFilteringOptions));
 
     path.sidebarName = "Controls";
     AddSidebarEntry("Settings", "Controls", 1);
@@ -321,7 +508,7 @@ void BenMenu::AddSettings() {
         .CVar("gNotifications.Position")
         .Options(ComboboxOptions()
                      .Tooltip("Which corner of the screen notifications appear in.")
-                     .ComboMap(notificationPosition)
+                     .ComboVec(&notificationPosition)
                      .DefaultIndex(3));
     AddWidget(path, "Duration: %.0f seconds", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gNotifications.Duration")
@@ -357,7 +544,7 @@ void BenMenu::AddSettings() {
             });
         })
         .Options(ButtonOptions().Tooltip("Displays a test notification."));
-    path.column = 2;
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "In-Game Timer", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Toggle Display Overlay", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.DisplayOverlay")
@@ -376,7 +563,7 @@ void BenMenu::AddSettings() {
                      .Format("%.1f")
                      .Step(0.1f));
 
-    path.column = 1;
+    path.column = SECTION_COLUMN_1;
     path.sidebarName = "Presets";
     AddSidebarEntry("Settings", "Presets", 1);
     AddWidget(path, "Presets", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { PresetManager_Draw(); });
@@ -384,7 +571,8 @@ void BenMenu::AddSettings() {
 int32_t motionBlurStrength;
 
 void BenMenu::AddEnhancements() {
-    WidgetPath path = { "Enhancements", "Camera", 1 };
+    AddMenuEntry("Enhancements", "gSettings.Menu.EnhancementsSidebarSection");
+    WidgetPath path = { "Enhancements", "Camera", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Camera", 3);
     // Camera Snap Fix
     AddWidget(path, "Fixes", WIDGET_SEPARATOR_TEXT);
@@ -491,7 +679,7 @@ void BenMenu::AddEnhancements() {
                      .Min(0.01f)
                      .Max(2.0f));
 
-    path.column = 2;
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Cameras", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Free Look", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.FreeLook.Enable")
@@ -600,7 +788,7 @@ void BenMenu::AddEnhancements() {
                      .Min(0.1f)
                      .Max(3.0f));
 
-    path = { "Enhancements", "Cheats", 1 };
+    path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Cheats", 3);
     AddWidget(path, "Infinite Health", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.InfiniteHealth")
@@ -650,10 +838,10 @@ void BenMenu::AddEnhancements() {
                          "- Temples: Stops time in Woodfall, Snowhead, Great Bay, and Stone Tower Temples.\n"
                          "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
                          "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.")
-                .ComboMap(timeStopOptions));
+                .ComboVec(&timeStopOptions));
 
     //// Gameplay Enhancements
-    path = { "Enhancements", "Gameplay", 1 };
+    path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Gameplay", 3);
     AddWidget(path, "Player", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Fast Deku Flower Launch", WIDGET_CVAR_CHECKBOX)
@@ -712,8 +900,12 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Equipment.ChuDrops")
         .Options(
             CheckboxOptions().Tooltip("When a bomb drop is spawned, it has a 50% chance to be a Bombchu instead."));
+    AddWidget(path, "Invert Shield Y Axis", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Equipment.InvertShieldY")
+        .Options(CheckboxOptions().Tooltip(
+            "Invert the Y axis while holding the shield so that it moves up with the left stick."));
 
-    path.column = 2;
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Play as Kafei", WIDGET_CVAR_CHECKBOX)
         .CVar("gModes.PlayAsKafei")
@@ -750,7 +942,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
-        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboMap(alwaysWinDoggyraceOptions));
+        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboVec(&alwaysWinDoggyraceOptions));
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
         .Options(ComboboxOptions()
@@ -758,7 +950,7 @@ void BenMenu::AddEnhancements() {
                               "-Vanilla: Reward is Random\n"
                               "-Hug: Get the hugging cutscene\n"
                               "-Rupee: Get the rupee reward")
-                     .ComboMap(cremiaRewardOptions));
+                     .ComboVec(&cremiaRewardOptions));
     AddWidget(path, "Cucco Shack Cucco Count", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.CuccoShackCuccoCount")
         .Options(IntSliderOptions()
@@ -852,7 +1044,7 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Play the complete Ballad after playing in one form if you have all three transformation masks."));
 
-    path.column = 3;
+    path.column = SECTION_COLUMN_3;
     AddWidget(path, "Saving", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.FileSlot3")
@@ -919,13 +1111,14 @@ void BenMenu::AddEnhancements() {
             "cause issues when attempting the 0th Day Glitch."));
 
     //// Graphics Enhancements
-    path = { "Enhancements", "Graphics", 1 };
+    path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Graphics", 3);
     AddWidget(path, "Clock", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Clock Type", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Graphics.ClockType")
-        .Options(
-            ComboboxOptions().Tooltip("Swaps between Graphical and Text only Clock types.").ComboMap(clockTypeOptions));
+        .Options(ComboboxOptions()
+                     .Tooltip("Swaps between Graphical and Text only Clock types.")
+                     .ComboVec(&clockTypeOptions));
     AddWidget(path, "24 Hours Clock", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.24HoursClock")
         .Options(CheckboxOptions().Tooltip("Changes from a 12 Hour to a 24 Hour Clock."));
@@ -941,7 +1134,7 @@ void BenMenu::AddEnhancements() {
         .Options(ComboboxOptions()
                      .Tooltip("Selects the Mode for Motion Blur.")
                      .LabelPosition(LabelPosition::None)
-                     .ComboMap(motionBlurOptions));
+                     .ComboVec(&motionBlurOptions));
     AddWidget(path, "Interpolate", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.MotionBlur.Interpolate")
         .PreFunc([](WidgetInfo& info) {
@@ -972,7 +1165,7 @@ void BenMenu::AddEnhancements() {
                             mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_OFF).active;
         });
 
-    path.column = 2;
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3D Item Drops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.3DItemDrops")
@@ -993,7 +1186,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Enemy Health Bars", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.EnemyHealthBars")
         .Options(CheckboxOptions().Tooltip("Renders a health bar for enemies and bosses when Z-targeted."));
-    AddWidget(path, "Unstable", WIDGET_SEPARATOR_TEXT).Options(WidgetOptions{ .color = Colors::Orange });
+    AddWidget(path, "Fix Scene Geometry Seams", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Graphics.FixSceneGeometrySeams")
+        .Callback([](WidgetInfo& info) { GfxPatcher_ApplyGeometryIssuePatches(); });
     AddWidget(path, "Disable Scene Geometry Distance Check", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck")
         .Callback([](WidgetInfo& info) { GfxPatcher_ApplyGeometryIssuePatches(); })
@@ -1012,7 +1207,7 @@ void BenMenu::AddEnhancements() {
                      .Max(5)
                      .DefaultValue(1));
 
-    path = { "Enhancements", "Items/Songs", 1 };
+    path = { "Enhancements", "Items/Songs", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Items/Songs", 3);
     // Mask Enhancements
     AddWidget(path, "Masks", WIDGET_SEPARATOR_TEXT);
@@ -1041,7 +1236,7 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Speeds up the wind-up towards spiky rolling to be near instant."));
 
     // Song Enhancements
-    path.column = 2;
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Ocarina", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Better Song of Double Time", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.BetterSongOfDoubleTime")
@@ -1086,7 +1281,7 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs."));
 
     // Time Savers
-    path = { "Enhancements", "Time Savers", 1 };
+    path = { "Enhancements", "Time Savers", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Time Savers", 3);
     // Cutscene Skips
     AddWidget(path, "Cutscenes", WIDGET_SEPARATOR_TEXT);
@@ -1120,20 +1315,18 @@ void BenMenu::AddEnhancements() {
             "with Deku Mask, Ocarina, Song of Time, and Song of Healing."));
     AddWidget(path, "Skip Story Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipStoryCutscenes")
-        .Options(CheckboxOptions().Tooltip(
-            "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time."));
+        .Options(CheckboxOptions().Tooltip("This skips many of the cutscenes associated with the main story."));
     AddWidget(path, "Skip Misc Interactions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipMiscInteractions")
-        .Options(CheckboxOptions().Tooltip(
-            "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time."));
+        .Options(CheckboxOptions().Tooltip("This skips many minor cutscenes and interactions."));
     AddWidget(path, "Skip Item Get Cutscene", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Cutscenes.SkipGetItemCutscenes")
         .Options(ComboboxOptions()
                      .Tooltip("Note: This only works in Randomizer currently.")
-                     .ComboMap(skipGetItemCutscenesOptions));
+                     .ComboVec(&skipGetItemCutscenesOptions));
 
     // Dialogue Enhancements
-    path.column = 2;
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Dialogue", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Fast Bank Selection", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dialogue.FastBankSelection")
@@ -1147,7 +1340,8 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Auto Bombers' Code", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dialogue.AutoBombersCode")
         .Options(CheckboxOptions().Tooltip("Automatically fill in the Bombers' code once you've got the notebook."));
-    path.column = 3;
+
+    path.column = SECTION_COLUMN_3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Swamp Boat Timesaver", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.SwampBoatSpeed")
@@ -1168,7 +1362,7 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
 
     // Fixes
-    path = { "Enhancements", "Fixes", 1 };
+    path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Fixes", 3);
     AddWidget(path, "Fixes", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Fix Console Crashes", WIDGET_CVAR_CHECKBOX)
@@ -1216,7 +1410,7 @@ void BenMenu::AddEnhancements() {
             "fill a new heart container."));
 
     // Restorations
-    path = { "Enhancements", "Restorations", 1 };
+    path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Restorations", 3);
     AddWidget(path, "Restorations", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Constant Distance Backflips and Sidehops", WIDGET_CVAR_CHECKBOX)
@@ -1232,7 +1426,7 @@ void BenMenu::AddEnhancements() {
                          "  pots).\n"
                          "- Unpatched (OoT): Glitch restored, and your initial damage is 1 (a Kokiri Sword slash).")
                 .DefaultIndex(0)
-                .ComboMap(powerCrouchStabOptions));
+                .ComboVec(&powerCrouchStabOptions));
     AddWidget(path, "Side Rolls", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Restorations.SideRoll")
         .Options(CheckboxOptions().Tooltip("Restores side rolling from OoT."));
@@ -1264,7 +1458,7 @@ void BenMenu::AddEnhancements() {
                      .DefaultValue(0));
 
     // Difficulty Options
-    path = { "Enhancements", "Difficulty Options", 1 };
+    path = { "Enhancements", "Difficulty Options", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
     AddWidget(path, "Disable Takkuri Steal", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.DisableTakkuriSteal")
@@ -1280,7 +1474,7 @@ void BenMenu::AddEnhancements() {
                          "- Night Only: Only show the search balls at night. This matches original N64 behaviour.\n"
                          "- Always: Always show the search balls.")
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
-                .ComboMap(dekuGuardSearchBallsOptions));
+                .ComboVec(&dekuGuardSearchBallsOptions));
     AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.LowerBankRewardThresholds")
         .Options(
@@ -1297,9 +1491,21 @@ void BenMenu::AddEnhancements() {
                          "  The Gibdo requesting a blue potion will also accept a red potion.\n"
                          "- No trade: Gibdos will vanish without taking items.")
                 .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
-                .ComboMap(gibdoTradeSequenceOptions));
+                .ComboVec(&gibdoTradeSequenceOptions));
+    AddWidget(path, "Hidden Grottos Visibility", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.HiddenGrottosVisibility")
+        .Options(
+            ComboboxOptions()
+                .Tooltip(
+                    "Enable visual markers for hidden grottos:\n"
+                    "- Off: No visual markers for hidden grottos. Vanilla behavior.\n"
+                    "- Wear Mask of Truth: Hidden grottos are visible when wearing the Mask of Truth. MM3D behavior.\n"
+                    "- Have Mask of Truth: Hidden grottos are visible once the Mask of Truth is obtained.\n"
+                    "- Always: Hidden grottos always have a visual marker.\n")
+                .DefaultIndex(HiddenGrottosVisibilityOptions::HIDDEN_GROTTOS_VISIBLITY_OFF)
+                .ComboVec(&maskOfTruthGrottoOptions));
 
-    path.column = 2;
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
         .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
@@ -1307,7 +1513,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
         .Options(ComboboxOptions()
                      .Tooltip("Adjusts the amount of damage Link takes from all sources.")
-                     .ComboMap(damageMultiplierOptions));
+                     .ComboMap(&damageMultiplierOptions));
     AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
         .Options(CheckboxOptions().Tooltip(
@@ -1328,7 +1534,7 @@ void BenMenu::AddEnhancements() {
                 .DefaultValue(60));
 
     // HUD Editor
-    path = { "Enhancements", "HUD Editor", 1 };
+    path = { "Enhancements", "HUD Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "HUD Editor", 1);
     AddWidget(path, "Popout HUD Editor", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.HudEditor")
@@ -1338,7 +1544,7 @@ void BenMenu::AddEnhancements() {
                      .Size(Sizes::Inline));
 
     // Cosmetics Editor
-    path = { "Enhancements", "Cosmetic Editor", 1 };
+    path = { "Enhancements", "Cosmetic Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Cosmetic Editor", 1);
     AddWidget(path, "Popout Cosmetic Editor", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.CosmeticEditor")
@@ -1348,14 +1554,14 @@ void BenMenu::AddEnhancements() {
                      .Size(Sizes::Inline));
 
     // Item Tracker Settings
-    path = { "Enhancements", "Item Tracker", 1 };
+    path = { "Enhancements", "Item Tracker", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Item Tracker", 1);
     AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.ItemTrackerSettings")
         .WindowName("Item Tracker Settings");
 
     // Audio Editor
-    path = { "Enhancements", "Audio Editor", 1 };
+    path = { "Enhancements", "Audio Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Audio Editor", 1);
     AddWidget(path, "Popout Audio Editor", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.AudioEditor")
@@ -1386,8 +1592,9 @@ void BenMenu::AddEnhancements() {
 }
 
 void BenMenu::AddDevTools() {
-    WidgetPath path = { "Dev Tools", "General", 1 };
+    AddMenuEntry("Dev Tools", "gSettings.Menu.DevToolsSidebarSection");
     AddSidebarEntry("Dev Tools", "General", 3);
+    WidgetPath path = { "Dev Tools", "General", SECTION_COLUMN_1 };
     AddWidget(path, "Popout Menu", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.Menu.Popout")
         .Options(CheckboxOptions().Tooltip("Changes the menu display from overlay to windowed."));
@@ -1410,7 +1617,7 @@ void BenMenu::AddDevTools() {
                               "- Empty Save: The default 3 heart save file in first cycle.\n"
                               "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks).\n"
                               "- 100\% Save: All items, equipment, mask, quest status and Bombers' Notebook complete.")
-                     .ComboMap(debugSaveOptions))
+                     .ComboVec(&debugSaveOptions))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Update", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorUpdate")
@@ -1433,7 +1640,7 @@ void BenMenu::AddDevTools() {
         .Options(ComboboxOptions()
                      .Tooltip("The log level determines which messages are printed to the "
                               "console. This does not affect the log file output.")
-                     .ComboMap(logLevels))
+                     .ComboVec(&logLevels))
         .Callback([](WidgetInfo& info) {
             Ship::Context::GetInstance()->GetLogger()->set_level(
                 (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
@@ -1472,18 +1679,18 @@ void BenMenu::AddDevTools() {
             }
         })
         .SameLine(true);
-    path.column = 2;
+    path.column = SECTION_COLUMN_2;
     AddWidget(path, "Warp Point", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { RenderWarpPointSection(); });
 
     // dev tools windows
-    path = { "Dev Tools", "Collision Viewer", 1 };
+    path = { "Dev Tools", "Collision Viewer", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Collision Viewer", 1);
     AddWidget(path, "Popout Collision Viewer", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.CollisionViewer")
         .Options(ButtonOptions().Tooltip("Makes collision visible on screen.").Size(Sizes::Inline))
         .WindowName("Collision Viewer");
 
-    path = { "Dev Tools", "Stats", 1 };
+    path = { "Dev Tools", "Stats", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Stats", 1);
     AddWidget(path, "Popout Stats", WIDGET_WINDOW_BUTTON)
         .CVar("gOpenWindows.Stats")
@@ -1491,7 +1698,7 @@ void BenMenu::AddDevTools() {
             "Shows the Stats window, with your FPS and frametimes, and the OS you're playing on."))
         .WindowName("Stats");
 
-    path = { "Dev Tools", "Console", 1 };
+    path = { "Dev Tools", "Console", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Console", 1);
     AddWidget(path, "Popout Console", WIDGET_WINDOW_BUTTON)
         .CVar("gOpenWindows.Console")
@@ -1499,7 +1706,7 @@ void BenMenu::AddDevTools() {
             "Enables the Console window, allowing you to input commands. Type help for some examples."))
         .WindowName("Console");
 
-    path = { "Dev Tools", "Gfx Debugger", 1 };
+    path = { "Dev Tools", "Gfx Debugger", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Gfx Debugger", 1);
     AddWidget(path, "Popout Gfx Debugger", WIDGET_WINDOW_BUTTON)
         .CVar("gOpenWindows.GfxDebugger")
@@ -1507,28 +1714,28 @@ void BenMenu::AddDevTools() {
             "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples."))
         .WindowName("GfxDebuggerWindow");
 
-    path = { "Dev Tools", "Hook Debugger", 1 };
+    path = { "Dev Tools", "Hook Debugger", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Hook Debugger", 1);
     AddWidget(path, "Popout Hook Debugger", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.HookDebugger")
         .Options(ButtonOptions().Tooltip("Enables the Hook Debugger window, for viewing info about registered hooks."))
         .WindowName("Hook Debugger");
 
-    path = { "Dev Tools", "Save Editor", 1 };
+    path = { "Dev Tools", "Save Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Save Editor", 1);
     AddWidget(path, "Popout Save Editor", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.SaveEditor")
         .Options(ButtonOptions().Tooltip("Enables the Save Editor window, allowing you to edit your save file."))
         .WindowName("Save Editor");
 
-    path = { "Dev Tools", "Actor Viewer", 1 };
+    path = { "Dev Tools", "Actor Viewer", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Actor Viewer", 1);
     AddWidget(path, "Popout Actor Viewer", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.ActorViewer")
         .Options(ButtonOptions().Tooltip("Enables the Actor Viewer window, allowing you to view actors in the world."))
         .WindowName("Actor Viewer");
 
-    path = { "Dev Tools", "Event Log", 1 };
+    path = { "Dev Tools", "Event Log", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Event Log", 1);
     AddWidget(path, "Popout Event Log", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.EventLog")
@@ -1553,17 +1760,13 @@ void BenMenu::InitElement() {
     AddSettings();
     AddEnhancements();
     AddDevTools();
-    // RegisterResolutionWidgets();
-    Rando::RegisterMenu();
-
-    menuEntries = { { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarSection", settingsOrder },
-                    { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarSection",
-                      enhancementsOrder },
-                    { "Developer Tools", devToolsSidebar, "gSettings.Menu.DevToolsSidebarSection", devToolsOrder },
-                    { "Rando", randoSidebar, "gSettings.Menu.RandoSidebarSection", randoOrder } };
 
     if (CVarGetInteger("gSettings.Menu.SidebarSearch", 0)) {
         InsertSidebarSearch();
+    }
+
+    for (auto& initFunc : MenuInit::GetInitFuncs()) {
+        initFunc();
     }
 
     disabledMap = {
@@ -1670,10 +1873,6 @@ void BenMenu::UpdateElement() {
 }
 
 void BenMenu::Draw() {
-    // if (CVarGetInteger("gSettings.Menu.SelectedHeader", 0) &&
-    // CVarGetInteger("gSettings.Menu.EnhancementsSidebarSection", 0)) {
-    //     UpdateResolutionVars();
-    // }
     Ship::Menu::Draw();
 }
 

@@ -98,24 +98,9 @@ static void DrawGeneralTab() {
     ImGui::SeparatorText("Disclaimer");
     ImGui::PopStyleColor();
     ImGui::TextWrapped(
-        "This is an Alpha. Please make note of any odd or unexpected behavior while you are playing. While we are in "
-        "the earlier phases of this project, some things you may encounter are:\n- X Check is not shuffled\n- X "
-        "Cutscene is not skipped\n- Soft lock when interacting with X\n- Unbeatable seed (glitchless logic)\n\nWe are "
-        "aware of some of these, but likely not all. Please compare your findings to our list of known issues, which "
-        "is available in the pins of the Rando Alpha Discord thread, or on the Github Issue #211, and let us know if "
-        "you encounter any new issues.\n\nExplore the menus for various enhancements and time savers, they are not "
-        "enabled by default in Rando.\n\n");
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
-    ImGui::SeparatorText("Thank You");
-    ImGui::PopStyleColor();
-    ImGui::TextWrapped("Special thanks to BalloonDude, Eblo, Caladius, Sitton, Dana, our playtesters, everyone who "
-                       "contributed to the SoH randomizer, and the creators of the various other randomizer "
-                       "implementations that inspired this project. I hope you enjoy it.\n\n");
-    ImTextureID swordTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-        (const char*)gQuestIconHeartContainer2Tex);
-    ImGui::Image(swordTextureId, ImVec2(25.0f, 25.0f));
-    ImGui::SameLine();
-    ImGui::Text("ProxySaw");
+        "This is a Beta. Please make note of any odd or unexpected behavior while you are playing, and report it "
+        "in our [Playtest] Rando Beta thread on Discord under #2s2h-threads.\n\n"
+        "Explore the menus for various enhancements and time savers, they are not enabled by default in Rando.\n\n");
     ImGui::EndChild();
 }
 
@@ -123,7 +108,7 @@ static void DrawLogicConditionsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 2 - (ImGui::GetStyle().ItemSpacing.y * 2);
     ImGui::BeginChild("randoLogicColumn1", ImVec2(columnWidth, halfHeight));
-    UIWidgets::CVarCombobox("Logic", Rando::StaticData::Options[RO_LOGIC].cvar, logicOptions);
+    UIWidgets::CVarCombobox("Logic", Rando::StaticData::Options[RO_LOGIC].cvar, &logicOptions);
     UIWidgets::Tooltip(
         "Glitchless - The items are shuffled in a way that guarantees the seed is beatable without "
         "glitches.\n\n"
@@ -141,7 +126,7 @@ static void DrawLogicConditionsTab() {
     ImGui::BeginChild("randoLogicColumn2", ImVec2(columnWidth, halfHeight));
 
     UIWidgets::CVarCombobox("Dungeon Access", Rando::StaticData::Options[RO_ACCESS_DUNGEONS].cvar,
-                            accessDungeonOptions);
+                            &accessDungeonOptions);
     UIWidgets::Tooltip("Dungeon access requirements:\n\n"
                        "Requires Transformation & Song - Requires both the correct form and the song (Vanilla).\n\n"
                        "Requires Transformation or Song - Requires either the correct form or the song.\n\n"
@@ -154,7 +139,7 @@ static void DrawLogicConditionsTab() {
     UIWidgets::CVarSliderInt("Moon Access Remains Required",
                              Rando::StaticData::Options[RO_ACCESS_MOON_REMAINS_COUNT].cvar,
                              IntSliderOptions().Min(0).Max(4).DefaultValue(4));
-    UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, accessTrialsOptions);
+    UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, &accessTrialsOptions);
     ImGui::EndChild();
     ImGui::BeginChild("randoLogicTricks", ImVec2(0, 0));
     ImGui::SeparatorText("Tricks & Glitches");
@@ -184,6 +169,7 @@ static void DrawLocationsTab() {
     CVarCheckbox("Shuffle Crate Drops", Rando::StaticData::Options[RO_SHUFFLE_CRATE_DROPS].cvar);
     CVarCheckbox("Shuffle Barrel Drops", Rando::StaticData::Options[RO_SHUFFLE_BARREL_DROPS].cvar);
     CVarCheckbox("Shuffle Snowball Drops", Rando::StaticData::Options[RO_SHUFFLE_SNOWBALL_DROPS].cvar);
+    CVarCheckbox("Shuffle Grass Drops", Rando::StaticData::Options[RO_SHUFFLE_GRASS_DROPS].cvar);
     CVarCheckbox("Shuffle Hive Drops", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Shuffle Freestanding Items", Rando::StaticData::Options[RO_SHUFFLE_FREESTANDING_ITEMS].cvar);
@@ -388,8 +374,9 @@ static void DrawHintsTab() {
 }
 
 void Rando::RegisterMenu() {
+    mBenMenu->AddMenuEntry("Rando", "gSettings.Menu.RandoSidebarSection");
     mBenMenu->AddSidebarEntry("Rando", "General", 1);
-    WidgetPath path = { "Rando", "General", 1 };
+    WidgetPath path = { "Rando", "General", SECTION_COLUMN_1 };
     mBenMenu->AddWidget(path, "General", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawGeneralTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Logic/Conditions", 1);
     path.sidebarName = "Logic/Conditions";
@@ -406,3 +393,5 @@ void Rando::RegisterMenu() {
     path.sidebarName = "Hints";
     mBenMenu->AddWidget(path, "Hints", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawHintsTab(); });
 }
+
+static RegisterMenuInitFunc initFunc(Rando::RegisterMenu);

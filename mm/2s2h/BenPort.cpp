@@ -29,7 +29,7 @@
 #include "build.h"
 
 #include <Fast3D/interpreter.h>
-#include <Fast3D/gfx_rendering_api.h>
+#include <Fast3D/backends/gfx_rendering_api.h>
 
 #ifdef __APPLE__
 #include <SDL_scancode.h>
@@ -105,6 +105,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/importer/TextureAnimationFactory.h"
 #include "2s2h/resource/importer/KeyFrameFactory.h"
 #include "window/gui/resource/Font.h"
+#include "window/FileDropMgr.h"
 #include "window/gui/resource/FontFactory.h"
 #include "2s2h/Enhancements/Audio/AudioCollection.h"
 #include "BenGui/BenInputEditorWindow.h"
@@ -171,7 +172,7 @@ OTRGlobals::OTRGlobals() {
     std::unordered_set<uint32_t> validHashes = { MM_NTSC_US_10, MM_NTSC_US_GC };
 
     context = Ship::Context::CreateUninitializedInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json");
-
+    context->InitFileDropMgr();
     context->InitLogging();
     context->InitGfxDebugger();
     context->InitConfiguration();
@@ -468,7 +469,7 @@ extern "C" void OTRExtScanner() {
     }
 }
 
-void Ben_ProcessDroppedFiles(std::string filePath) {
+void Ben_ProcessDroppedFiles(const std::string& filePath) {
     SPDLOG_INFO("Processing dropped file: {}", filePath);
 
     bool handled = false;
@@ -733,6 +734,10 @@ extern "C" void InitOTR() {
     OTRAudio_Init();
     OTRExtScanner();
 
+    // Just came up with arbitrary numbers that seemed to work, this is
+    // usually set once(?) in currently stubbed out areas of code.
+    gIrqMgrRetraceTime = Ship_Random(700000, 850000);
+
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileDropped>(Ben_ProcessDroppedFiles);
 
     time_t now = time(NULL);
@@ -906,14 +911,13 @@ extern "C" void Graph_StartFrame() {
         }
     }
 #endif
-
-    if (CVarGetInteger(CVAR_NEW_FILE_DROPPED, 0)) {
-        std::string filePath = CVarGetString(CVAR_DROPPED_FILE, "");
+    auto dropMgr = Ship::Context::GetInstance()->GetFileDropMgr();
+    if (dropMgr->FileDropped()) {
+        std::string filePath = dropMgr->GetDroppedFile();
         if (!filePath.empty()) {
             GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFileDropped>(filePath);
         }
-        CVarClear(CVAR_NEW_FILE_DROPPED);
-        CVarClear(CVAR_DROPPED_FILE);
+        dropMgr->ClearDroppedFile();
     }
 }
 

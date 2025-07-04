@@ -60,6 +60,12 @@ typedef enum {
 } WidgetType;
 
 typedef enum {
+    SECTION_COLUMN_1,
+    SECTION_COLUMN_2,
+    SECTION_COLUMN_3,
+} SectionColumns;
+
+typedef enum {
     MOTION_BLUR_DYNAMIC,
     MOTION_BLUR_ALWAYS_OFF,
     MOTION_BLUR_ALWAYS_ON,
@@ -198,7 +204,7 @@ struct WidgetInfo {
 struct WidgetPath {
     std::string sectionName;
     std::string sidebarName;
-    uint8_t column;
+    SectionColumns column;
 };
 
 // `disabledInfo` holds information on reasons for hiding or disabling a widget, as well as an evaluation lambda that
@@ -250,9 +256,9 @@ struct SidebarEntry {
 // the last viewed for that header.
 struct MainMenuEntry {
     std::string label;
-    std::unordered_map<std::string, SidebarEntry> sidebars;
     const char* sidebarCvar;
-    std::vector<std::string> sidebarOrder;
+    std::unordered_map<std::string, SidebarEntry> sidebars = {};
+    std::vector<std::string> sidebarOrder = {};
 };
 
 static const std::unordered_map<Ship::AudioBackend, const char*> audioBackendsMap = {
@@ -264,6 +270,43 @@ static const std::unordered_map<Ship::WindowBackend, const char*> windowBackends
     { Ship::WindowBackend::FAST3D_DXGI_DX11, "DirectX" },
     { Ship::WindowBackend::FAST3D_SDL_OPENGL, "OpenGL" },
     { Ship::WindowBackend::FAST3D_SDL_METAL, "Metal" },
+};
+
+struct MenuInit {
+    static std::vector<std::function<void()>>& GetInitFuncs() {
+        static std::vector<std::function<void()>> menuInitFuncs;
+        return menuInitFuncs;
+    }
+
+    static std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::function<void()>>>>&
+    GetUpdateFuncs() {
+        static std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::function<void()>>>>
+            menuUpdateFuncs;
+        return menuUpdateFuncs;
+    }
+
+    static void InitAll() {
+        auto& menuInitFuncs = MenuInit::GetInitFuncs();
+        for (const auto& initFunc : menuInitFuncs) {
+            initFunc();
+        }
+    }
+};
+
+struct RegisterMenuInitFunc {
+    RegisterMenuInitFunc(std::function<void()> initFunc) {
+        auto& menuInitFuncs = MenuInit::GetInitFuncs();
+
+        menuInitFuncs.push_back(initFunc);
+    }
+};
+
+struct RegisterMenuUpdateFunc {
+    RegisterMenuUpdateFunc(std::function<void()> updateFunc, std::string sectionName, std::string sidebarName) {
+        auto& menuUpdateFuncs = MenuInit::GetUpdateFuncs();
+
+        menuUpdateFuncs[sectionName][sidebarName].push_back(updateFunc);
+    }
 };
 
 #endif // MENUTYPES_H
