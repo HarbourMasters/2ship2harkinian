@@ -1,82 +1,91 @@
 #pragma once
 
-#include <libultraship/libultraship.h>
-#include "2s2h/Enhancements/Achievements/Achievements.h"
-#include "2s2h/Rando/Rando.h" // Include for IS_RANDO and randomizer types
 #include <string>
 #include <vector>
-#include <memory>
-#include <window/gui/GuiWindow.h>
-#include "2s2h/Enhancements/Achievements/AchievementTypes.h" // Include AchievementTypes
 
-// Forward declare AchievementSystem and Achievement to avoid including the full header here if possible
-// If methods need the full definition, we'll include Achievements.h in the .cpp file.
-class AchievementSystem;
-struct Achievement;
+#include "window/gui/GuiWindow.h"
+#include "2s2h/Achievements/StaticData/Registry.h"
 
 namespace Ship {
 
-/**
- * @class AchievementEditorWindow
- * @brief Developer tool for editing and managing achievements
- *
- * Provides a GUI interface for:
- * - Viewing and editing achievements
- * - Testing achievement notifications
- * - Viewing achievement statistics
- * - Mass unlocking/locking achievements
- */
+// UI Layout Constants
+namespace AchievementEditorUI {
+namespace Layout {
+constexpr float CARD_HEIGHT = 80.0f;
+constexpr float ICON_SIZE = 64.0f;
+constexpr float SECTION_SPACING = 8.0f;
+} // namespace Layout
+} // namespace AchievementEditorUI
+
 class AchievementEditor : public GuiWindow {
   public:
-    AchievementEditor(const std::string& consoleVariable, const std::string& name);
-    ~AchievementEditor() = default;
+    using GuiWindow::GuiWindow;
 
-    /**
-     * @brief Initializes the editor window
-     */
+  protected:
+    // GuiElement overrides
     void InitElement() override;
-
-    /**
-     * @brief Draws the editor window contents
-     */
     void DrawElement() override;
-
-    /**
-     * @brief Updates the editor window (unused)
-     */
     void UpdateElement() override;
 
   private:
-    /**
-     * @brief Draws the achievement list section
-     */
+    // Tab enumeration
+    enum class Tab { BROWSER, EVENTS, DIAGNOSTICS, BULK_OPS };
+
+    // Main Drawing Methods
+    void DrawSystemStatus();
+    void DrawAchievementBrowser();
+    void DrawEventTesting();
+    void DrawSystemDiagnostics();
+    void DrawBulkOperations();
+
+    // Browser Section Methods
+    void DrawFilterControls();
     void DrawAchievementList();
+    void DrawAchievementCard(const Achievement* achievement);
+    void DrawAchievementDetails();
+    void DrawSelectedAchievementInfo();
+    void DrawEventProgressDisplay();
+    void DrawAchievementActions();
 
-    /**
-     * @brief Draws the details for a specific achievement
-     * @param achievement The achievement to display details for
-     */
-    void DrawDetailsPane();
+    // Event Testing Section Methods
+    void DrawEventTriggerControls();
+    void DrawEventStatusGrid();
 
-    /**
-     * @brief Draws the achievement system control section
-     */
-    void DrawAchievementControls();
+    // Diagnostic Section Methods
+    void DrawSystemInfo();
+    void DrawStatistics();
+    void DrawValidationResults();
 
-    /**
-     * @brief Draws the achievement statistics section
-     */
-    void DrawAchievementStats();
+    // Utility Methods
+    uint32_t GetUnlockedCount() const;
+    uint32_t GetTotalCount() const;
+    uint32_t GetTotalGamerscore() const;
+    uint32_t GetUnlockedGamerscore() const;
+    uint32_t GetTriggeredEventCount() const;
 
-    /**
-     * @brief Draws diagnostic information about achievements and randomizer
-     */
-    void DrawDiagnostics();
+    // Filter and Validation Methods
+    bool ShouldShowAchievement(const Achievement* achievement) const;
+    void RefreshValidation();
+    void FixCompletionIssues();
+    void UnlockAllAchievements();
+    void ClearAllProgress();
 
-    AchievementSystem* mAchievementSystem = nullptr;
-    std::vector<std::shared_ptr<Achievement>> mAchievementsList;
-    AchievementId mSelectedAchievementId;
-    char mFilterText[256] = { 0 };
+    // State Variables
+    AchievementId mSelectedAchievementId = static_cast<AchievementId>(0);
+    AchievementEvent mSelectedEventId = static_cast<AchievementEvent>(0);
+    Tab mActiveTab = Tab::BROWSER;
+
+    // Filter State
+    char mSearchText[256] = {};
+    AchievementCategory mCategoryFilter = static_cast<AchievementCategory>(-1);
+    bool mShowUnlockedOnly = false;
+    bool mShowLockedOnly = false;
+    bool mShowSecretAchievements = true;
+
+    // Validation State
+    bool mValidationDirty = true;
+    std::vector<std::string> mValidationErrors;
+    std::vector<std::string> mValidationWarnings;
 };
 
 } // namespace Ship

@@ -62,7 +62,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/ShipUtils.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/PresetManager/PresetManager.h"
-#include "Enhancements/Achievements/Achievements.h"
+#include "2s2h/Achievements/Core.h"
 
 // Resource Types/Factories
 #include "resource/type/Blob.h"
@@ -722,7 +722,7 @@ extern "C" void InitOTR() {
     ShipInit::InitAll();
     InitEnhancements();
     Rando::Init();
-    AchievementSystem::Init();
+    Achievements::Init();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
     DebugConsole_Init();
     GameInteractor::Instance->RegisterOwnHooks();

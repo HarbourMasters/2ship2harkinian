@@ -4,8 +4,6 @@
 #include <nlohmann/json.hpp>
 #include "spdlog/spdlog.h"
 #include "build.h"
-#include "Enhancements/Achievements/Achievements.h"
-#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "z64save.h"
@@ -14,56 +12,41 @@ extern "C" {
 
 using json = nlohmann::json;
 
-void to_json(json& j, const AchievementSaveData& achievement) {
+void to_json(json& j, const AchievementSaveData& achievementSaveData) {
     j = json::object();
-    j["unlocked"] = achievement.unlocked;
-    j["currentProgress"] = achievement.currentProgress;
+    j["achievementsSystemEnabled"] = achievementSaveData.achievementsSystemEnabled;
+
+    std::vector<bool> unlockedVec(achievementSaveData.unlocked, achievementSaveData.unlocked + ACHIEVEMENT_ID_MAX);
+    j["unlocked"] = unlockedVec;
+
+    std::vector<bool> eventsVec(achievementSaveData.events, achievementSaveData.events + ACHIEVEMENT_EVENT_MAX);
+    j["events"] = eventsVec;
 }
 
-void from_json(const json& j, AchievementSaveData& achievement) {
-    achievement.unlocked = j.value("unlocked", false);
-    achievement.currentProgress = j.value("currentProgress", 0);
-}
-
-void to_json(json& j, const AllAchievementsInfo& allAchievements) {
-    j = json::object();
-    j["enabled"] = allAchievements.achievementsSystemEnabled;
-    j["data"] = json::array();
-    for (int i = 0; i < AID_MAX; ++i) {
-        j["data"].push_back(allAchievements.achievementData[i]);
-    }
-}
-
-void from_json(const json& j, AllAchievementsInfo& allAchievements) {
+void from_json(const json& j, AchievementSaveData& achievementSaveData) {
     if (!j.is_object()) {
-        SPDLOG_WARN("Expected a JSON object for achievements, but found different type. Initializing defaults.");
-        allAchievements.achievementsSystemEnabled = false;
-        for (int i = 0; i < AID_MAX; ++i) {
-            allAchievements.achievementData[i] = {};
-        }
+        SPDLOG_WARN("Expected a JSON object for AchievementSaveData, but found different type. Initializing defaults.");
+        achievementSaveData = {}; // Zero-initialize the struct
         return;
     }
 
-    allAchievements.achievementsSystemEnabled = j.value("enabled", false);
+    achievementSaveData.achievementsSystemEnabled = j.value("achievementsSystemEnabled", false);
 
-    if (j.contains("data") && j.at("data").is_array()) {
-        const json& dataArray = j.at("data");
-        size_t count = std::min(dataArray.size(), (size_t)AID_MAX);
+    if (j.contains("unlocked") && j.at("unlocked").is_array()) {
+        const auto& unlockedArray = j.at("unlocked");
+        std::vector<bool> unlockedVec = unlockedArray.get<std::vector<bool>>();
+        size_t count = std::min(unlockedVec.size(), static_cast<size_t>(ACHIEVEMENT_ID_MAX));
         for (size_t i = 0; i < count; ++i) {
-            if (dataArray[i].is_object()) {
-                dataArray.at(i).get_to(allAchievements.achievementData[i]);
-            } else {
-                SPDLOG_WARN("Skipping non-object element at index {} in achievements data array.", i);
-                allAchievements.achievementData[i] = {};
-            }
+            achievementSaveData.unlocked[i] = unlockedVec[i];
         }
-        for (size_t i = count; i < AID_MAX; ++i) {
-            allAchievements.achievementData[i] = {};
-        }
-    } else {
-        SPDLOG_WARN("Achievements 'data' array missing or invalid in JSON object. Initializing default data.");
-        for (int i = 0; i < AID_MAX; ++i) {
-            allAchievements.achievementData[i] = {};
+    }
+
+    if (j.contains("events") && j.at("events").is_array()) {
+        const auto& eventsArray = j.at("events");
+        std::vector<bool> eventsVec = eventsArray.get<std::vector<bool>>();
+        size_t count = std::min(eventsVec.size(), static_cast<size_t>(ACHIEVEMENT_EVENT_MAX));
+        for (size_t i = 0; i < count; ++i) {
+            achievementSaveData.events[i] = eventsVec[i];
         }
     }
 }
