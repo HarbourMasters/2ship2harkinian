@@ -11,6 +11,7 @@
 #include <vector>
 #include <map>
 #include <functional>
+#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "variables.h"
@@ -182,6 +183,10 @@ void ProcessQueuedEvents() {
             }
             break;
         }
+
+        default:
+            SPDLOG_WARN("Unknown achievement queue event {}", static_cast<int>(event.type));
+            break;
     }
 
     processing = false;
@@ -293,11 +298,6 @@ void ResetEvent(AchievementEvent eventId) {
     for (AchievementId achId : event->dependentAchievements) {
         Lock(achId);
     }
-}
-
-// Runtime check for achievements
-bool AreAchievementsActive() {
-    return IS_ACHIEVEMENTS;
 }
 
 void RegisterAchievementTracker() {

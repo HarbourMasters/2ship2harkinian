@@ -13,42 +13,17 @@ extern "C" {
 using json = nlohmann::json;
 
 void to_json(json& j, const AchievementSaveData& achievementSaveData) {
-    j = json::object();
-    j["achievementsSystemEnabled"] = achievementSaveData.achievementsSystemEnabled;
-
-    std::vector<bool> unlockedVec(achievementSaveData.unlocked, achievementSaveData.unlocked + ACHIEVEMENT_ID_MAX);
-    j["unlocked"] = unlockedVec;
-
-    std::vector<bool> eventsVec(achievementSaveData.events, achievementSaveData.events + ACHIEVEMENT_EVENT_MAX);
-    j["events"] = eventsVec;
+    j = json{
+        { "achievementsSystemEnabled", achievementSaveData.achievementsSystemEnabled },
+        { "unlocked", achievementSaveData.unlocked },
+        { "events", achievementSaveData.events },
+    };
 }
 
 void from_json(const json& j, AchievementSaveData& achievementSaveData) {
-    if (!j.is_object()) {
-        SPDLOG_WARN("Expected a JSON object for AchievementSaveData, but found different type. Initializing defaults.");
-        achievementSaveData = {}; // Zero-initialize the struct
-        return;
-    }
-
-    achievementSaveData.achievementsSystemEnabled = j.value("achievementsSystemEnabled", false);
-
-    if (j.contains("unlocked") && j.at("unlocked").is_array()) {
-        const auto& unlockedArray = j.at("unlocked");
-        std::vector<bool> unlockedVec = unlockedArray.get<std::vector<bool>>();
-        size_t count = std::min(unlockedVec.size(), static_cast<size_t>(ACHIEVEMENT_ID_MAX));
-        for (size_t i = 0; i < count; ++i) {
-            achievementSaveData.unlocked[i] = unlockedVec[i];
-        }
-    }
-
-    if (j.contains("events") && j.at("events").is_array()) {
-        const auto& eventsArray = j.at("events");
-        std::vector<bool> eventsVec = eventsArray.get<std::vector<bool>>();
-        size_t count = std::min(eventsVec.size(), static_cast<size_t>(ACHIEVEMENT_EVENT_MAX));
-        for (size_t i = 0; i < count; ++i) {
-            achievementSaveData.events[i] = eventsVec[i];
-        }
-    }
+    j.at("achievementsSystemEnabled").get_to(achievementSaveData.achievementsSystemEnabled);
+    j.at("unlocked").get_to(achievementSaveData.unlocked);
+    j.at("events").get_to(achievementSaveData.events);
 }
 
 void to_json(json& j, const DpadSaveInfo& dpadEquips) {

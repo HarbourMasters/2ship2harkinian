@@ -136,6 +136,7 @@ void AchievementsWindow::DrawActivationPrompt() {
                               .Size(ImVec2(-AchievementsUI::Layout::STANDARD_SPACING * 2,
                                            ImGui::GetFrameHeight() + AchievementsUI::Layout::TIGHT_SPACING)))) {
         Achievements::EnableAchievements();
+        InvalidateCache();
         ImGui::OpenPopup("AchievementEnableDisclaimer");
         SPDLOG_INFO("Achievements enabled for current save");
     }
@@ -299,7 +300,7 @@ void AchievementsWindow::DrawAchievementCard(const Achievement* achievement) {
         return;
     }
 
-    ImGui::PushID(achievement->name);
+    ImGui::PushID(static_cast<int>(achievement->id));
 
     bool hasProgress = false;
     AchievementsUI::CardTheme theme = DetermineCardTheme(achievement, hasProgress);

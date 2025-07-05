@@ -42,7 +42,8 @@ void Window::Draw() {
     // Process each notification
     for (int index = 0; index < notifications.size(); ++index) {
         auto& notification = notifications[index];
-        int inverseIndex = -ABS(index - (notifications.size() - 1));
+        int count = static_cast<int>(notifications.size());
+        int inverseIndex = -(count - 1 - index);
 
         if (notification.isAchievement) {
             // Enhanced layout for achievements
