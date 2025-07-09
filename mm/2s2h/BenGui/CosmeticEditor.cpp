@@ -212,7 +212,7 @@ Color_RGBA8 mapNewBaseColorToGradient(Color_RGBA8 currentColor, Color_RGBA8 oldB
 
     return { uint8_t(newBase.r + position * (targetEnd.r - newBase.r)),
              uint8_t(newBase.g + position * (targetEnd.g - newBase.g)),
-             uint8_t(newBase.b + position * (targetEnd.b - newBase.b)), 32 };
+             uint8_t(newBase.b + position * (targetEnd.b - newBase.b)), 31 };
 }
 
 /*
