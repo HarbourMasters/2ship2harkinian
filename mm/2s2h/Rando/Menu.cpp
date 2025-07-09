@@ -260,12 +260,19 @@ static void DrawItemsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, halfHeight));
-    CVarCheckbox("Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar,
-                 CheckboxOptions({ { .disabled = IncompatibleWithLogicSetting(RO_PLENTIFUL_ITEMS),
-                                     .disabledTooltip = "Incompatible with current Logic Setting" } }));
-    CVarCheckbox("Boss Souls", Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar,
-                 CheckboxOptions({ { .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_BOSS_SOULS),
-                                     .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox(
+        "Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar,
+        CheckboxOptions({ { .tooltip = "Major items, masks, and keys will have an extra copy added to the item pool. \n"
+                                       "Lesser items, stray fairies, and skulltula tokens will have a chance for an "
+                                       "extra copy to be added to the item pool.",
+                            .disabled = IncompatibleWithLogicSetting(RO_PLENTIFUL_ITEMS),
+                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox(
+        "Boss Souls", Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar,
+        CheckboxOptions({ { .tooltip = "Adds the \"souls\" of the five bosses to the item pool. Boss Souls are items "
+                                       "that must be found in order for their corresponding boss to spawn.",
+                            .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_BOSS_SOULS),
+                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
     CVarCheckbox("Enemy Souls", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
