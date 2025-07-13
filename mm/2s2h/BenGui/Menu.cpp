@@ -440,7 +440,7 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors me
                     SPDLOG_ERROR(msg.c_str());
                     break;
                 }
-                auto options = std::static_pointer_cast<UIWidgets::ButtonOptions>(widget.options);
+                auto options = std::static_pointer_cast<UIWidgets::WindowButtonOptions>(widget.options);
                 options->color = menuThemeIndex;
                 UIWidgets::WindowButton(widget.name.c_str(), widget.cVar, window, *options);
                 if (!window->IsVisible()) {
