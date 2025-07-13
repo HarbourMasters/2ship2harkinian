@@ -117,6 +117,42 @@ void PopStyleButton() {
     ImGui::PopStyleColor(4);
 }
 
+void PushStyleInput(const ImVec4& color) {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(color.x, color.y, color.z, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(color.x, color.y, color.z, 0.8f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(color.x, color.y, color.z, 0.6f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(color.x, color.y, color.z, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgHovered, ImVec4(color.x, color.y, color.z, 0.8f));
+    ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(color.x, color.y, color.z, 0.6f));
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.3f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 6.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 5.0f);
+}
+
+void PushStyleInput(Colors color) {
+    PushStyleInput(ColorValues.at(color));
+}
+
+void PopStyleInput() {
+    ImGui::PopStyleVar(3);
+    ImGui::PopStyleColor(7);
+}
+
+void PushStyleHeader(const ImVec4& color) {
+    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(color.x, color.y, color.z, 1.0f));
+    ImGui::PushStyleColor(ImGuiCol_HeaderHovered, ImVec4(color.x, color.y, color.z, 0.8f));
+    ImGui::PushStyleColor(ImGuiCol_HeaderActive, ImVec4(color.x, color.y, color.z, 0.6f));
+}
+
+void PushStyleHeader(Colors color) {
+    PushStyleHeader(ColorValues.at(color));
+}
+
+void PopStyleHeader() {
+    ImGui::PopStyleColor(3);
+}
+
 bool Button(const char* label, const ButtonOptions& options) {
     ImGui::BeginDisabled(options.disabled);
     PushStyleButton(options.color);
@@ -168,6 +204,10 @@ void PushStyleCheckbox(Colors color) {
 void PopStyleCheckbox() {
     ImGui::PopStyleVar(3);
     ImGui::PopStyleColor(5);
+}
+
+void Spacer(float height) {
+    ImGui::Dummy(ImVec2(0.0f, height));
 }
 
 void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_text_after_hash) {

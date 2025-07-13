@@ -354,12 +354,24 @@ using ComboVec_t = std::vector<const char*>*;
     void PushStyleButton(const ImVec4& color);
     void PushStyleButton(Colors color = Colors::Gray);
     void PopStyleButton();
+
+    void PushStyleInput(const ImVec4& color);
+    void PushStyleInput(Colors color);
+    void PopStyleInput();
+
+    void PushStyleHeader(const ImVec4& color);
+    void PushStyleHeader(Colors color);
+    void PopStyleHeader();
+
     bool Button(const char* label, const ButtonOptions& options = {});
     bool WindowButton(const char* label, const char* cvarName, std::shared_ptr<Ship::GuiWindow> windowPtr, const ButtonOptions& options = {});
 
     void PushStyleCheckbox(const ImVec4& color);
     void PushStyleCheckbox(Colors color = Colors::LightBlue);
     void PopStyleCheckbox();
+
+    void Spacer(float height);
+
     void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_text_after_hash);
     bool Checkbox(const char* label, bool* v, const CheckboxOptions& options = {});
     bool CVarCheckbox(const char* label, const char* cvarName, const CheckboxOptions& options = {});
