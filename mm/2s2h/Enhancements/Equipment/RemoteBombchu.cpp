@@ -8,6 +8,7 @@ extern "C" {
 
 void EnBomChu_Move(EnBomChu*, PlayState*);
 void EnBomChu_Explode(EnBomChu*, PlayState*);
+void EnBomChu_UpdateRotation(EnBomChu*);
 }
 
 #define CVAR_NAME "gEnhancements.PlayerActions.RemoteBombchu"
@@ -52,10 +53,18 @@ void RegisterRemoteBombchu() {
             f32 turnRate = 1500.0f;
             f32 stickX = input->cur.stick_x;
             if (fabsf(stickX) > 10.0f) {
-                f32 turnAngle = turnRate * (stickX / 85.0f);
-                // TODO: This works on flat ground, but not when the chu starts going up or down slopes/walls
-                activeBombchu->actor.shape.rot.y -= turnAngle;
-                activeBombchu->actor.world.rot.y -= turnAngle;
+                s16 turnAngle = (s16)(turnRate * (stickX / 85.0f));
+
+                Matrix_RotateAxisF(BINANG_TO_RAD(-turnAngle), &activeBombchu->axisUp, MTXMODE_NEW);
+                Vec3f newAxisForwards;
+                Matrix_MultVec3f(&activeBombchu->axisForwards, &newAxisForwards);
+                Math_Vec3f_Copy(&activeBombchu->axisForwards, &newAxisForwards);
+                Math3D_Vec3f_Cross(&activeBombchu->axisUp, &activeBombchu->axisForwards, &activeBombchu->axisLeft);
+
+                EnBomChu_UpdateRotation(activeBombchu);
+                activeBombchu->actor.shape.rot.x = -activeBombchu->actor.world.rot.x;
+                activeBombchu->actor.shape.rot.y = activeBombchu->actor.world.rot.y;
+                activeBombchu->actor.shape.rot.z = activeBombchu->actor.world.rot.z;
             }
 
             if (input->press.button & BTN_B) {
