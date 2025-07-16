@@ -339,7 +339,8 @@ ImFont* OTRGlobals::CreateFontWithSize(float size, std::string fontPath) {
         font = mImGuiIo->Fonts->AddFontDefault(&fontCfg);
     } else {
         auto initData = std::make_shared<Ship::ResourceInitData>();
-        ImFontConfig config = { .FontDataOwnedByAtlas = false };
+        ImFontConfig config;
+        config.FontDataOwnedByAtlas = false;
 
         initData->Format = RESOURCE_FORMAT_BINARY;
         initData->Type = static_cast<uint32_t>(RESOURCE_TYPE_FONT);
