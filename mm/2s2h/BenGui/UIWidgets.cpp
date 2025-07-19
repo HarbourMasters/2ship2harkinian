@@ -594,7 +594,7 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
         !Ship_IsCStringEmpty(options.disabledTooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
     } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !Ship_IsCStringEmpty(options.tooltip)) {
-        ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
+        ImGui::SetTooltip("%s\n%s", WrappedText(options.tooltip).c_str(), "Edit (Ctrl + Left Click)");
     }
     ImGui::PopID();
     return dirty;
@@ -744,7 +744,7 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
         !Ship_IsCStringEmpty(options.disabledTooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
     } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !Ship_IsCStringEmpty(options.tooltip)) {
-        ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
+        ImGui::SetTooltip("%s\n%s", WrappedText(options.tooltip).c_str(), "Edit (Ctrl + Left Click)");
     }
     ImGui::PopID();
     return dirty;
