@@ -321,16 +321,6 @@ void ResolutionCustomWidget(WidgetInfo& info) {
                 ImGui::TextColored(messageColor[MESSAGE_INFO],
                                    " " ICON_FA_INFO_CIRCLE
                                    " A scroll bar may become visible if screen bounds are exceeded.");
-
-                // Another support helper button, to disable the unused "Exceed Bounds By" cvar.
-                // (Remove this button if uncommenting the checkbox.)
-                if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IntegerScale.ExceedBoundsBy", 0)) {
-                    if (UIWidgets::Button("Click to reset a console variable that may be causing this.",
-                                          UIWidgets::ButtonOptions().Color(THEME_COLOR))) {
-                        CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IntegerScale.ExceedBoundsBy", 0);
-                        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-                    }
-                }
             } else {
                 ImGui::Text(" ");
             }
