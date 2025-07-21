@@ -235,27 +235,6 @@ void Separator(bool padTop, bool padBottom, float extraVerticalTopPadding, float
     }
 }
 
-// Adds a "?" next to the previous ImGui item with a custom tooltip
-void InsertHelpHoverText(const std::string& text) {
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "?");
-    if (ImGui::IsItemHovered()) {
-        ImGui::BeginTooltip();
-        ImGui::Text("%s", WrappedText(text, 60).c_str());
-        ImGui::EndTooltip();
-    }
-}
-
-void InsertHelpHoverText(const char* text) {
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "?");
-    if (ImGui::IsItemHovered()) {
-        ImGui::BeginTooltip();
-        ImGui::Text("%s", WrappedText(text, 60).c_str());
-        ImGui::EndTooltip();
-    }
-}
-
 void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_text_after_hash) {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;

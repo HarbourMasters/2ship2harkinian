@@ -1020,9 +1020,6 @@ void DrawFlagArray32(const std::string& name, uint32_t& flags, Colors color = Co
 void DrawFlagArray16(const std::string& name, uint16_t& flags, Colors color = Colors::LightBlue);
 void DrawFlagArray8(const std::string& name, uint8_t& flags, Colors color = Colors::LightBlue);
 void DrawFlagArray8Mask(const std::string& name, uint8_t& flags, Colors color = Colors::LightBlue);
-
-void InsertHelpHoverText(const std::string& text);
-void InsertHelpHoverText(const char* text);
 } // namespace UIWidgets
 ImVec4 GetRandomValue();
 
