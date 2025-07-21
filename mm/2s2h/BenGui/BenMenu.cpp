@@ -261,6 +261,7 @@ std::vector<std::string> contributors = {
     "cplaster",
     "justawayofthesamurai",
     "verbes4",
+    "ammar sadaoui",
 };
 
 void BenMenu::AddSettings() {
