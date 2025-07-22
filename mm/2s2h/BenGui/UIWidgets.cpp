@@ -641,7 +641,7 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
     }
     ImGui::AlignTextToFramePadding();
     if (options.alignment == ComponentAlignment::Right) {
-        ImGui::Text(label, *value);
+        ImGui::Text(label, valueToDisplay);
         if (options.labelPosition == LabelPosition::Above) {
             ImGui::NewLine();
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
@@ -654,7 +654,7 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
         }
     } else if (options.alignment == ComponentAlignment::Left) {
         if (options.labelPosition == LabelPosition::Above) {
-            ImGui::Text(label, *value);
+            ImGui::Text(label, valueToDisplay);
         }
     }
     if (options.showButtons) {
