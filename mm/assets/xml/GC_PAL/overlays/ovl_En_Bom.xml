@@ -1,6 +1,6 @@
 <Root>
     <!-- Assets for the Powder Keg -->
-    <File Name="ovl_En_Bom" BaseAddress="0x8086D8A0" RangeStart="0x2160" RangeEnd="0x3610">
+    <File Name="ovl_En_Bom" BaseAddress="0x8086FD10" RangeStart="0x2160" RangeEnd="0x3610">
         <!-- Texture and DisplayLists for the Powder Keg's fuse -->
         <Array Name="gPowderKegFuseVtx" Count="8" Offset="0x2160">
             <Vtx/>
