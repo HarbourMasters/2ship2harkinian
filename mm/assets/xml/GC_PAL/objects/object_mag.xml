@@ -32,8 +32,8 @@
         <Texture Name="gTitleScreenInsertControllerTextGERTex" OutName="title_screen_insert_controller_text_ger" Format="i4" Width="144" Height="9" Offset="0x12748"/>
         <Texture Name="gTitleScreenControllerNotConnectedTextFRATex" OutName="title_screen_controller_not_connected_text_fra" Format="i4" Width="256" Height="9" Offset="0x129D0"/>
         <Texture Name="gTitleScreenInsertControllerTextFRATex" OutName="title_screen_insert_controller_text_fra" Format="i4" Width="144" Height="9" Offset="0x12E50"/>
-        <Texture Name="gTitleScreenControllerNotConnectedTextSPATex" OutName="title_screen_controller_not_connected_text_spa" Format="i4" Width="256" Height="9" Offset="0x130D8"/>
-        <Texture Name="gTitleScreenInsertControllerTextSPATex" OutName="title_screen_insert_controller_text_spa" Format="i4" Width="144" Height="9" Offset="0x13558"/>
+        <Texture Name="gTitleScreenControllerNotConnectedTextESPTex" OutName="title_screen_controller_not_connected_text_esp" Format="i4" Width="256" Height="9" Offset="0x130D8"/>
+        <Texture Name="gTitleScreenInsertControllerTextESPTex" OutName="title_screen_insert_controller_text_esp" Format="i4" Width="144" Height="9" Offset="0x13558"/>
         <Texture Name="gTitleScreenMajorasMaskTex" OutName="title_screen_majoras_mask" Format="rgba32" Width="128" Height="112" Offset="0x137E0"/>
     </File>
 </Root>

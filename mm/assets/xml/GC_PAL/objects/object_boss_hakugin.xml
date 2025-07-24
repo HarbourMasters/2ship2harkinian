@@ -62,7 +62,7 @@
         <Texture Name="gGohtTitleCardENGTex" OutName="goht_title_card_eng" Format="ia4" Width="128" Height="40" Offset="0x12F58" />
         <Texture Name="gGohtTitleCardGERTex" OutName="goht_title_card_ger" Format="ia4" Width="128" Height="40" Offset="0x13958" />
         <Texture Name="gGohtTitleCardFRATex" OutName="goht_title_card_fra" Format="ia4" Width="128" Height="40" Offset="0x14358" />
-        <Texture Name="gGohtTitleCardSPATex" OutName="goht_title_card_spa" Format="ia4" Width="128" Height="40" Offset="0x14D58" />
+        <Texture Name="gGohtTitleCardESPTex" OutName="goht_title_card_esp" Format="ia4" Width="128" Height="40" Offset="0x14D58" />
 
         <!-- Goht Limbs -->
         <Limb Name="gGohtRootLimb" Type="Standard" EnumName="GOHT_LIMB_ROOT" Offset="0x15758" />

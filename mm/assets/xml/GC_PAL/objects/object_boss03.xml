@@ -49,7 +49,7 @@
         <Texture Name="gGyorgTitleCardENGTex" OutName="gyorg_title_card_eng" Format="ia4" Width="128" Height="40" Offset="0x7EC8" />
         <Texture Name="gGyorgTitleCardGERTex" OutName="gyorg_title_card_ger" Format="ia4" Width="128" Height="40" Offset="0x88C8" />
         <Texture Name="gGyorgTitleCardFRATex" OutName="gyorg_title_card_fra" Format="ia4" Width="128" Height="40" Offset="0x92C8" />
-        <Texture Name="gGyorgTitleCardSPATex" OutName="gyorg_title_card_spa" Format="ia4" Width="128" Height="40" Offset="0x9CC8" />
+        <Texture Name="gGyorgTitleCardESPTex" OutName="gyorg_title_card_esp" Format="ia4" Width="128" Height="40" Offset="0x9CC8" />
 
         <!-- Gyorg Limbs -->
         <Limb Name="gGyorgRootLimb" Type="Standard" EnumName="GYORG_LIMB_ROOT" Offset="0xA6C8" />

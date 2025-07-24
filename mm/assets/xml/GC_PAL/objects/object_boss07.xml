@@ -203,17 +203,17 @@
         <Texture Name="gMajorasMaskTitleCardENGTex" OutName="majoras_mask_title_card_eng" Format="ia4" Width="128" Height="40" Offset="0x2F840" />
         <Texture Name="gMajorasMaskTitleCardGERTex" OutName="majoras_mask_title_card_ger" Format="ia4" Width="128" Height="40" Offset="0x30240" />
         <Texture Name="gMajorasMaskTitleCardFRATex" OutName="majoras_mask_title_card_fra" Format="ia4" Width="128" Height="40" Offset="0x30C40" />
-        <Texture Name="gMajorasMaskTitleCardSPATex" OutName="majoras_mask_title_card_spa" Format="ia4" Width="128" Height="40" Offset="0x31640" />
+        <Texture Name="gMajorasMaskTitleCardESPTex" OutName="majoras_mask_title_card_esp" Format="ia4" Width="128" Height="40" Offset="0x31640" />
 
         <Texture Name="gMajorasIncarnationTitleCardENGTex" OutName="majoras_incarnation_title_card_eng" Format="ia4" Width="128" Height="40" Offset="0x32040" />
         <Texture Name="gMajorasIncarnationTitleCardGERTex" OutName="majoras_incarnation_title_card_ger" Format="ia4" Width="128" Height="40" Offset="0x32A40" />
         <Texture Name="gMajorasIncarnationTitleCardFRATex" OutName="majoras_incarnation_title_card_fra" Format="ia4" Width="128" Height="40" Offset="0x33440" />
-        <Texture Name="gMajorasIncarnationTitleCardSPATex" OutName="majoras_incarnation_title_card_spa" Format="ia4" Width="128" Height="40" Offset="0x33E40" />
+        <Texture Name="gMajorasIncarnationTitleCardESPTex" OutName="majoras_incarnation_title_card_esp" Format="ia4" Width="128" Height="40" Offset="0x33E40" />
 
         <Texture Name="gMajorasWrathTitleCardENGTex" OutName="majoras_wrath_title_card_eng" Format="ia4" Width="128" Height="40" Offset="0x34840" />
         <Texture Name="gMajorasWrathTitleCardGERTex" OutName="majoras_wrath_title_card_ger" Format="ia4" Width="128" Height="40" Offset="0x35240" />
         <Texture Name="gMajorasWrathTitleCardFRATex" OutName="majoras_wrath_title_card_fra" Format="ia4" Width="128" Height="40" Offset="0x35C40" />
-        <Texture Name="gMajorasWrathTitleCardSPATex" OutName="majoras_wrath_title_card_spa" Format="ia4" Width="128" Height="40" Offset="0x36640" />
+        <Texture Name="gMajorasWrathTitleCardESPTex" OutName="majoras_wrath_title_card_esp" Format="ia4" Width="128" Height="40" Offset="0x36640" />
 
         <!-- Majora's Wrath Limbs -->
         <Limb Name="gMajorasWrathRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_ROOT" Offset="0x37040" />
