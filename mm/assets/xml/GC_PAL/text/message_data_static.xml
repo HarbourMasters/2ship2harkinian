@@ -1,8 +1,5 @@
 <Root>
-  <File Name="message_data_static">
-    <TextMM Name="message_data_static" CodeOffset="0x11F648"/>
-  </File>
 	<File Name="staff_message_data_static">
-		<TextMM Name="staff_message_data_static" CodeOffset="0x1285B8"/>
+		<TextMM Name="staff_message_data_static" CodeOffset="0x120078"/>
 	</File>
 </Root>
