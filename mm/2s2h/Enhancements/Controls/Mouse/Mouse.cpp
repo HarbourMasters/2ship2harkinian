@@ -5,6 +5,7 @@
 #include "GameInteractor/GameInteractor.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include "Window.h"
 
 static MouseCoords current;
 
