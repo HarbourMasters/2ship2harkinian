@@ -26,8 +26,14 @@
         <Texture Name="gTitleScreenFlame3Tex" OutName="title_screen_flame_3" Format="i8" Width="32" Height="32" Offset="0x10B40"/>
 
         <Texture Name="gTitleScreenCopyright2000NintendoTex" OutName="title_screen_copyright_2000_nintendo_text" Format="i8" Width="200" Height="16" Offset="0x10F40"/>
-        <Texture Name="gTitleScreenControllerNotConnectedTextTex" OutName="title_screen_controller_not_connected_text" Format="i4" Width="256" Height="9" Offset="0x11BC0"/>
-        <Texture Name="gTitleScreenInsertControllerTextTex" OutName="title_screen_insert_controller_text" Format="i4" Width="144" Height="9" Offset="0x12040"/>
-        <Texture Name="gTitleScreenMajorasMaskTex" OutName="title_screen_majoras_mask" Format="rgba32" Width="128" Height="112" Offset="0x122C8"/>
+        <Texture Name="gTitleScreenControllerNotConnectedTextENGTex" OutName="title_screen_controller_not_connected_text_eng" Format="i4" Width="256" Height="9" Offset="0x11BC0"/>
+        <Texture Name="gTitleScreenInsertControllerTextENGTex" OutName="title_screen_insert_controller_text_eng" Format="i4" Width="144" Height="9" Offset="0x12040"/>
+        <Texture Name="gTitleScreenControllerNotConnectedTextGERTex" OutName="title_screen_controller_not_connected_text_ger" Format="i4" Width="256" Height="9" Offset="0x122C8"/>
+        <Texture Name="gTitleScreenInsertControllerTextGERTex" OutName="title_screen_insert_controller_text_ger" Format="i4" Width="144" Height="9" Offset="0x12748"/>
+        <Texture Name="gTitleScreenControllerNotConnectedTextFRATex" OutName="title_screen_controller_not_connected_text_fra" Format="i4" Width="256" Height="9" Offset="0x129D0"/>
+        <Texture Name="gTitleScreenInsertControllerTextFRATex" OutName="title_screen_insert_controller_text_fra" Format="i4" Width="144" Height="9" Offset="0x12E50"/>
+        <Texture Name="gTitleScreenControllerNotConnectedTextSPATex" OutName="title_screen_controller_not_connected_text_spa" Format="i4" Width="256" Height="9" Offset="0x130D8"/>
+        <Texture Name="gTitleScreenInsertControllerTextSPATex" OutName="title_screen_insert_controller_text_spa" Format="i4" Width="144" Height="9" Offset="0x13558"/>
+        <Texture Name="gTitleScreenMajorasMaskTex" OutName="title_screen_majoras_mask" Format="rgba32" Width="128" Height="112" Offset="0x137E0"/>
     </File>
 </Root>

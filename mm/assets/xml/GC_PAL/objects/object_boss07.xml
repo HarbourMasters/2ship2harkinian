@@ -200,71 +200,82 @@
         <DList Name="gMajorasWrathSpinningTopDL" Offset="0x2F640" />
 
         <!-- Majora Title Cards -->
-        <Texture Name="gMajorasMaskTitleCardTex" OutName="majoras_mask_title_card" Format="ia8" Width="128" Height="40" Offset="0x2F840" />
-        <Texture Name="gMajorasIncarnationTitleCardTex" OutName="majoras_incarnation_title_card" Format="ia8" Width="128" Height="40" Offset="0x30C40" />
-        <Texture Name="gMajorasWrathTitleCardTex" OutName="majoras_wrath_title_card" Format="ia8" Width="128" Height="40" Offset="0x32040" />
+        <Texture Name="gMajorasMaskTitleCardENGTex" OutName="majoras_mask_title_card_eng" Format="ia4" Width="128" Height="40" Offset="0x2F840" />
+        <Texture Name="gMajorasMaskTitleCardGERTex" OutName="majoras_mask_title_card_ger" Format="ia4" Width="128" Height="40" Offset="0x30240" />
+        <Texture Name="gMajorasMaskTitleCardFRATex" OutName="majoras_mask_title_card_fra" Format="ia4" Width="128" Height="40" Offset="0x30C40" />
+        <Texture Name="gMajorasMaskTitleCardSPATex" OutName="majoras_mask_title_card_spa" Format="ia4" Width="128" Height="40" Offset="0x31640" />
+
+        <Texture Name="gMajorasIncarnationTitleCardENGTex" OutName="majoras_incarnation_title_card_eng" Format="ia4" Width="128" Height="40" Offset="0x32040" />
+        <Texture Name="gMajorasIncarnationTitleCardGERTex" OutName="majoras_incarnation_title_card_ger" Format="ia4" Width="128" Height="40" Offset="0x32A40" />
+        <Texture Name="gMajorasIncarnationTitleCardFRATex" OutName="majoras_incarnation_title_card_fra" Format="ia4" Width="128" Height="40" Offset="0x33440" />
+        <Texture Name="gMajorasIncarnationTitleCardSPATex" OutName="majoras_incarnation_title_card_spa" Format="ia4" Width="128" Height="40" Offset="0x33E40" />
+
+        <Texture Name="gMajorasWrathTitleCardENGTex" OutName="majoras_wrath_title_card_eng" Format="ia4" Width="128" Height="40" Offset="0x34840" />
+        <Texture Name="gMajorasWrathTitleCardGERTex" OutName="majoras_wrath_title_card_ger" Format="ia4" Width="128" Height="40" Offset="0x35240" />
+        <Texture Name="gMajorasWrathTitleCardFRATex" OutName="majoras_wrath_title_card_fra" Format="ia4" Width="128" Height="40" Offset="0x35C40" />
+        <Texture Name="gMajorasWrathTitleCardSPATex" OutName="majoras_wrath_title_card_spa" Format="ia4" Width="128" Height="40" Offset="0x36640" />
 
         <!-- Majora's Wrath Limbs -->
-        <Limb Name="gMajorasWrathRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_ROOT" Offset="0x33440" />
-        <Limb Name="gMajorasWrathPelvisLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_PELVIS" Offset="0x3344C" />
-        <Limb Name="gMajorasWrathLeftLegRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_LEG_ROOT" Offset="0x33458" />
-        <Limb Name="gMajorasWrathLeftThighLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_THIGH" Offset="0x33464" />
-        <Limb Name="gMajorasWrathLeftLowerLegRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_LOWER_LEG_ROOT" Offset="0x33470" />
-        <Limb Name="gMajorasWrathLeftShinLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_SHIN" Offset="0x3347C" />
-        <Limb Name="gMajorasWrathLeftFootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_FOOT" Offset="0x33488" />
-        <Limb Name="gMajorasWrathRightLegRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_LEG_ROOT" Offset="0x33494" />
-        <Limb Name="gMajorasWrathRightThighLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_THIGH" Offset="0x334A0" />
-        <Limb Name="gMajorasWrathRightLowerLegRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_LOWER_LEG_ROOT" Offset="0x334AC" />
-        <Limb Name="gMajorasWrathRightShinLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_SHIN" Offset="0x334B8" />
-        <Limb Name="gMajorasWrathRightFootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_FOOT" Offset="0x334C4" />
-        <Limb Name="gMajorasWrathTorsoRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_TORSO_ROOT" Offset="0x334D0" />
-        <Limb Name="gMajorasWrathTorsoLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_TORSO" Offset="0x334DC" />
-        <Limb Name="gMajorasWrathRightArmRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_ARM_ROOT" Offset="0x334E8" />
-        <Limb Name="gMajorasWrathRightUpperArmLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_UPPER_ARM" Offset="0x334F4" />
-        <Limb Name="gMajorasWrathRightLowerArmRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_LOWER_ARM_ROOT" Offset="0x33500" />
-        <Limb Name="gMajorasWrathRightForearmLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_FOREARM" Offset="0x3350C" />
-        <Limb Name="gMajorasWrathRightHandLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_HAND" Offset="0x33518" />
-        <Limb Name="gMajorasWrathLeftArmRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_ARM_ROOT" Offset="0x33524" />
-        <Limb Name="gMajorasWrathLeftUpperArmLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_UPPER_ARM" Offset="0x33530" />
-        <Limb Name="gMajorasWrathLeftLowerArmRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_LOWER_ARM_ROOT" Offset="0x3353C" />
-        <Limb Name="gMajorasWrathLeftForearmLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_FOREARM" Offset="0x33548" />
-        <Limb Name="gMajorasWrathLeftHandLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_HAND" Offset="0x33554" />
-        <Limb Name="gMajorasWrathHeadRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_HEAD_ROOT" Offset="0x33560" />
-        <Limb Name="gMajorasWrathHeadLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_HEAD" Offset="0x3356C" />
-        <Limb Name="gMajorasWrathThirdEyeLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_THIRD_EYE" Offset="0x33578" />
+        <Limb Name="gMajorasWrathRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_ROOT" Offset="0x37040" />
+        <Limb Name="gMajorasWrathPelvisLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_PELVIS" Offset="0x3704C" />
+        <Limb Name="gMajorasWrathLeftLegRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_LEG_ROOT" Offset="0x37058" />
+        <Limb Name="gMajorasWrathLeftThighLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_THIGH" Offset="0x37064" />
+        <Limb Name="gMajorasWrathLeftLowerLegRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_LOWER_LEG_ROOT" Offset="0x37070" />
+        <Limb Name="gMajorasWrathLeftShinLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_SHIN" Offset="0x3707C" />
+        <Limb Name="gMajorasWrathLeftFootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_FOOT" Offset="0x37088" />
+        <Limb Name="gMajorasWrathRightLegRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_LEG_ROOT" Offset="0x37094" />
+        <Limb Name="gMajorasWrathRightThighLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_THIGH" Offset="0x370A0" />
+        <Limb Name="gMajorasWrathRightLowerLegRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_LOWER_LEG_ROOT" Offset="0x370AC" />
+        <Limb Name="gMajorasWrathRightShinLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_SHIN" Offset="0x370B8" />
+        <Limb Name="gMajorasWrathRightFootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_FOOT" Offset="0x370C4" />
+        <Limb Name="gMajorasWrathTorsoRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_TORSO_ROOT" Offset="0x370D0" />
+        <Limb Name="gMajorasWrathTorsoLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_TORSO" Offset="0x370DC" />
+        <Limb Name="gMajorasWrathRightArmRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_ARM_ROOT" Offset="0x370E8" />
+        <Limb Name="gMajorasWrathRightUpperArmLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_UPPER_ARM" Offset="0x370F4" />
+        <Limb Name="gMajorasWrathRightLowerArmRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_LOWER_ARM_ROOT" Offset="0x37100" />
+        <Limb Name="gMajorasWrathRightForearmLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_FOREARM" Offset="0x3710C" />
+        <Limb Name="gMajorasWrathRightHandLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_RIGHT_HAND" Offset="0x37118" />
+        <Limb Name="gMajorasWrathLeftArmRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_ARM_ROOT" Offset="0x37124" />
+        <Limb Name="gMajorasWrathLeftUpperArmLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_UPPER_ARM" Offset="0x37130" />
+        <Limb Name="gMajorasWrathLeftLowerArmRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_LOWER_ARM_ROOT" Offset="0x3713C" />
+        <Limb Name="gMajorasWrathLeftForearmLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_FOREARM" Offset="0x37148" />
+        <Limb Name="gMajorasWrathLeftHandLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_LEFT_HAND" Offset="0x37154" />
+        <Limb Name="gMajorasWrathHeadRootLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_HEAD_ROOT" Offset="0x37160" />
+        <Limb Name="gMajorasWrathHeadLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_HEAD" Offset="0x3716C" />
+        <Limb Name="gMajorasWrathThirdEyeLimb" Type="Standard" EnumName="MAJORAS_WRATH_LIMB_THIRD_EYE" Offset="0x37178" />
 
         <!-- Majora's Wrath Skeleton -->
-        <Skeleton Name="gMajorasWrathSkel" Type="Flex" LimbType="Standard" LimbNone="MAJORAS_WRATH_LIMB_NONE" LimbMax="MAJORAS_WRATH_LIMB_MAX" EnumName="MajorasWrathLimb" Offset="0x335F0" />
+        <Skeleton Name="gMajorasWrathSkel" Type="Flex" LimbType="Standard" LimbNone="MAJORAS_WRATH_LIMB_NONE" LimbMax="MAJORAS_WRATH_LIMB_MAX" EnumName="MajorasWrathLimb" Offset="0x371F0" />
 
         <!-- Majora's Wrath Animations -->
-        <Animation Name="gMajorasWrathShortSingleWhipAttackAnim" Offset="0x33F80" /> <!-- Original name is "last_muti" ("whip") -->
-        <Animation Name="gMajorasWrathWhipFlurryAttackAnim" Offset="0x34E64" /> <!-- Original name is "last_muti2" -->
-        <Animation Name="gMajorasWrathDoubleWhipAttackAnim" Offset="0x358C4" /> <!-- Original name is "last_muti3" -->
-        <Animation Name="gMajorasWrathLongSingleWhipAttackAnim" Offset="0x36A7C" /> <!-- Original name is "last_muti4" -->
-        <Animation Name="gMajorasWrathTauntAnim" Offset="0x37ADC" /> <!-- Original name is "last_muti5" -->
-        <Animation Name="gMajorasWrathThreeAttackComboAnim" Offset="0x3918C" /> <!-- Original name is "last_muticombo" -->
-        <Animation Name="gMajorasWrathStunAnim" Offset="0x3B330" /> <!-- Original name is "last_piyo" ("weakly moving") -->
-        <Animation Name="gMajorasWrathSpinAttackAnim" Offset="0x3C4E0" /> <!-- Original name is "last_rolling" -->
-        <Animation Name="gMajorasWrathIdleAnim" Offset="0x3CBD0" /> <!-- Original name is "last_stop" -->
-        <Animation Name="gMajorasWrathFlipLeftAnim" Offset="0x3D224" /> <!-- Original name is "last_tombo1" ("somersault​") -->
-        <Animation Name="gMajorasWrathFlipRightAnim" Offset="0x3D7F0" /> <!-- Original name is "last_tombo2" -->
-        <Animation Name="gMajorasWrathSidestepAnim" Offset="0x3DD1C" /> <!-- Original name is "last_walk" -->
+        <Animation Name="gMajorasWrathShortSingleWhipAttackAnim" Offset="0x37B80" /> <!-- Original name is "last_muti" ("whip") -->
+        <Animation Name="gMajorasWrathWhipFlurryAttackAnim" Offset="0x38A64" /> <!-- Original name is "last_muti2" -->
+        <Animation Name="gMajorasWrathDoubleWhipAttackAnim" Offset="0x394C4" /> <!-- Original name is "last_muti3" -->
+        <Animation Name="gMajorasWrathLongSingleWhipAttackAnim" Offset="0x3A67C" /> <!-- Original name is "last_muti4" -->
+        <Animation Name="gMajorasWrathTauntAnim" Offset="0x3B6DC" /> <!-- Original name is "last_muti5" -->
+        <Animation Name="gMajorasWrathThreeAttackComboAnim" Offset="0x3CD8C" /> <!-- Original name is "last_muticombo" -->
+        <Animation Name="gMajorasWrathStunAnim" Offset="0x3EF30" /> <!-- Original name is "last_piyo" ("weakly moving") -->
+        <Animation Name="gMajorasWrathSpinAttackAnim" Offset="0x400E0" /> <!-- Original name is "last_rolling" -->
+        <Animation Name="gMajorasWrathIdleAnim" Offset="0x407D0" /> <!-- Original name is "last_stop" -->
+        <Animation Name="gMajorasWrathFlipLeftAnim" Offset="0x40E24" /> <!-- Original name is "last_tombo1" ("somersault​") -->
+        <Animation Name="gMajorasWrathFlipRightAnim" Offset="0x413F0" /> <!-- Original name is "last_tombo2" -->
+        <Animation Name="gMajorasWrathSidestepAnim" Offset="0x4191C" /> <!-- Original name is "last_walk" -->
 
         <!-- Majora Textures -->
-        <Texture Name="gMajoraBodyTex" OutName="majora_body" Format="rgba16" Width="32" Height="64" Offset="0x3DD30" />
-        <Texture Name="gMajoraStripesTex" OutName="majora_stripes" Format="rgba16" Width="32" Height="16" Offset="0x3ED30" />
-        <Texture Name="gMajorasWrathEyeTex" OutName="majoras_wrath_eye" Format="rgba16" Width="64" Height="32" Offset="0x3F130" />
-        <Texture Name="gMajorasWrathMouthTex" OutName="majoras_wrath_mouth" Format="rgba16" Width="32" Height="32" Offset="0x40130" />
-        <Texture Name="gMajorasWrathEarTex" OutName="majoras_wrath_ear" Format="rgba16" Width="16" Height="16" Offset="0x40930" />
-        <Texture Name="gMajoraVeinsTex" OutName="majora_veins" Format="rgba16" Width="32" Height="64" Offset="0x40B30" />
-        <Texture Name="gMajoraBloodshotEyeTex" OutName="majora_bloodshot_eye" Format="rgba16" Width="32" Height="32" Offset="0x41B30" />
-        <Texture Name="gMajorasMaskWithNormalEyesTex" OutName="majoras_mask_with_normal_eyes" Format="rgba16" Width="32" Height="64" Offset="0x42330" />
-        <Texture Name="gMajoraHandTex" OutName="majora_hand" Format="rgba16" Width="32" Height="64" Offset="0x43330" />
-        <Texture Name="gMajorasIncarnationMaskTex" OutName="majoras_incarnation_mask" Format="rgba16" Width="32" Height="64" Offset="0x44330" />
-        <Texture Name="gMajorasMaskSpikes1Tex" OutName="majoras_mask_spikes_1" Format="rgba16" Width="16" Height="16" Offset="0x45330" />
-        <Texture Name="gMajorasMaskSpikes2Tex" OutName="majoras_mask_spikes_2" Format="rgba16" Width="16" Height="16" Offset="0x45530" />
-        <Texture Name="gMajorasMaskSpikes3Tex" OutName="majoras_mask_spikes_3" Format="rgba16" Width="16" Height="16" Offset="0x45730" />
-        <Texture Name="gMajorasMaskSpikes4Tex" OutName="majoras_mask_spikes_4" Format="rgba16" Width="16" Height="16" Offset="0x45930" />
-        <Texture Name="gMajorasMaskWithDullEyesTex" OutName="majoras_mask_with_dull_eyes" Format="rgba16" Width="32" Height="64" Offset="0x45B30" />
+        <Texture Name="gMajoraBodyTex" OutName="majora_body" Format="rgba16" Width="32" Height="64" Offset="0x41930" />
+        <Texture Name="gMajoraStripesTex" OutName="majora_stripes" Format="rgba16" Width="32" Height="16" Offset="0x42930" />
+        <Texture Name="gMajorasWrathEyeTex" OutName="majoras_wrath_eye" Format="rgba16" Width="64" Height="32" Offset="0x42D30" />
+        <Texture Name="gMajorasWrathMouthTex" OutName="majoras_wrath_mouth" Format="rgba16" Width="32" Height="32" Offset="0x43D30" />
+        <Texture Name="gMajorasWrathEarTex" OutName="majoras_wrath_ear" Format="rgba16" Width="16" Height="16" Offset="0x44530" />
+        <Texture Name="gMajoraVeinsTex" OutName="majora_veins" Format="rgba16" Width="32" Height="64" Offset="0x44730" />
+        <Texture Name="gMajoraBloodshotEyeTex" OutName="majora_bloodshot_eye" Format="rgba16" Width="32" Height="32" Offset="0x45730" />
+        <Texture Name="gMajorasMaskWithNormalEyesTex" OutName="majoras_mask_with_normal_eyes" Format="rgba16" Width="32" Height="64" Offset="0x45F30" />
+        <Texture Name="gMajoraHandTex" OutName="majora_hand" Format="rgba16" Width="32" Height="64" Offset="0x46F30" />
+        <Texture Name="gMajorasIncarnationMaskTex" OutName="majoras_incarnation_mask" Format="rgba16" Width="32" Height="64" Offset="0x47F30" />
+        <Texture Name="gMajorasMaskSpikes1Tex" OutName="majoras_mask_spikes_1" Format="rgba16" Width="16" Height="16" Offset="0x48F30" />
+        <Texture Name="gMajorasMaskSpikes2Tex" OutName="majoras_mask_spikes_2" Format="rgba16" Width="16" Height="16" Offset="0x49130" />
+        <Texture Name="gMajorasMaskSpikes3Tex" OutName="majoras_mask_spikes_3" Format="rgba16" Width="16" Height="16" Offset="0x49330" />
+        <Texture Name="gMajorasMaskSpikes4Tex" OutName="majoras_mask_spikes_4" Format="rgba16" Width="16" Height="16" Offset="0x49530" />
+        <Texture Name="gMajorasMaskWithDullEyesTex" OutName="majoras_mask_with_dull_eyes" Format="rgba16" Width="32" Height="64" Offset="0x49730" />
     </File>
 </Root>

@@ -58,49 +58,52 @@
         <DList Name="gGohtLightOrbMaterialDL" Offset="0x12ED0" />
         <DList Name="gGohtLightOrbModelDL" Offset="0x12F40" /> <!-- Original name is "boss_hakugin_lightball_modelT" -->
 
+        <!-- Goht Title Card -->
+        <Texture Name="gGohtTitleCardENGTex" OutName="goht_title_card_eng" Format="ia4" Width="128" Height="40" Offset="0x12F58" />
+        <Texture Name="gGohtTitleCardGERTex" OutName="goht_title_card_ger" Format="ia4" Width="128" Height="40" Offset="0x13958" />
+        <Texture Name="gGohtTitleCardFRATex" OutName="goht_title_card_fra" Format="ia4" Width="128" Height="40" Offset="0x14358" />
+        <Texture Name="gGohtTitleCardSPATex" OutName="goht_title_card_spa" Format="ia4" Width="128" Height="40" Offset="0x14D58" />
+
         <!-- Goht Limbs -->
-        <Limb Name="gGohtRootLimb" Type="Standard" EnumName="GOHT_LIMB_ROOT" Offset="0x12F58" />
-        <Limb Name="gGohtPelvisLimb" Type="Standard" EnumName="GOHT_LIMB_PELVIS" Offset="0x12F64" />
-        <Limb Name="gGohtThoraxRootLimb" Type="Standard" EnumName="GOHT_LIMB_THORAX_ROOT" Offset="0x12F70" />
-        <Limb Name="gGohtThoraxWrapperLimb" Type="Standard" EnumName="GOHT_LIMB_THORAX_WRAPPER" Offset="0x12F7C" />
-        <Limb Name="gGohtFrontRightLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_LEG_ROOT" Offset="0x12F88" />
-        <Limb Name="gGohtFrontRightUpperLegLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_UPPER_LEG" Offset="0x12F94" />
-        <Limb Name="gGohtFrontRightLowerLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_LOWER_LEG_ROOT" Offset="0x12FA0" />
-        <Limb Name="gGohtFrontRightLowerLegLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_LOWER_LEG" Offset="0x12FAC" />
-        <Limb Name="gGohtFrontRightHoofLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_HOOF" Offset="0x12FB8" />
-        <Limb Name="gGohtFrontLeftLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_LEG_ROOT" Offset="0x12FC4" />
-        <Limb Name="gGohtFrontLeftUpperLegLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_UPPER_LEG" Offset="0x12FD0" />
-        <Limb Name="gGohtFrontLeftLowerLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_LOWER_LEG_ROOT" Offset="0x12FDC" />
-        <Limb Name="gGohtFrontLeftLowerLegLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_LOWER_LEG" Offset="0x12FE8" />
-        <Limb Name="gGohtFrontLeftHoofLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_HOOF" Offset="0x12FF4" />
-        <Limb Name="gGohtThoraxLimb" Type="Standard" EnumName="GOHT_LIMB_THORAX" Offset="0x13000" />
-        <Limb Name="gGohtHeadLimb" Type="Standard" EnumName="GOHT_LIMB_HEAD" Offset="0x1300C" />
-        <Limb Name="gGohtJawRootLimb" Type="Standard" EnumName="GOHT_LIMB_JAW_ROOT" Offset="0x13018" />
-        <Limb Name="gGohtJawLimb" Type="Standard" EnumName="GOHT_LIMB_JAW" Offset="0x13024" />
-        <Limb Name="gGohtBackRightLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_LEG_ROOT" Offset="0x13030" />
-        <Limb Name="gGohtBackRightLegWrapperLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_LEG_WRAPPER" Offset="0x1303C" />
-        <Limb Name="gGohtBackRightThighLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_THIGH" Offset="0x13048" />
-        <Limb Name="gGohtBackRightShinLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_SHIN" Offset="0x13054" />
-        <Limb Name="gGohtBackRightPasternRootLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_PASTERN_ROOT" Offset="0x13060" />
-        <Limb Name="gGohtBackRightPasternLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_PASTERN" Offset="0x1306C" />
-        <Limb Name="gGohtBackRightHoofLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_HOOF" Offset="0x13078" />
-        <Limb Name="gGohtBackLeftLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_LEG_ROOT" Offset="0x13084" />
-        <Limb Name="gGohtBackLeftLegWrapperLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_LEG_WRAPPER" Offset="0x13090" />
-        <Limb Name="gGohtBackLeftThighLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_THIGH" Offset="0x1309C" />
-        <Limb Name="gGohtBackLeftShinLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_SHIN" Offset="0x130A8" />
-        <Limb Name="gGohtBackLeftPasternRootLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_PASTERN_ROOT" Offset="0x130B4" />
-        <Limb Name="gGohtBackLeftPasternLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_PASTERN" Offset="0x130C0" />
-        <Limb Name="gGohtBackLeftHoofLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_HOOF" Offset="0x130CC" />
+        <Limb Name="gGohtRootLimb" Type="Standard" EnumName="GOHT_LIMB_ROOT" Offset="0x15758" />
+        <Limb Name="gGohtPelvisLimb" Type="Standard" EnumName="GOHT_LIMB_PELVIS" Offset="0x15764" />
+        <Limb Name="gGohtThoraxRootLimb" Type="Standard" EnumName="GOHT_LIMB_THORAX_ROOT" Offset="0x15770" />
+        <Limb Name="gGohtThoraxWrapperLimb" Type="Standard" EnumName="GOHT_LIMB_THORAX_WRAPPER" Offset="0x1577C" />
+        <Limb Name="gGohtFrontRightLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_LEG_ROOT" Offset="0x15788" />
+        <Limb Name="gGohtFrontRightUpperLegLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_UPPER_LEG" Offset="0x15794" />
+        <Limb Name="gGohtFrontRightLowerLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_LOWER_LEG_ROOT" Offset="0x157A0" />
+        <Limb Name="gGohtFrontRightLowerLegLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_LOWER_LEG" Offset="0x157AC" />
+        <Limb Name="gGohtFrontRightHoofLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_RIGHT_HOOF" Offset="0x157B8" />
+        <Limb Name="gGohtFrontLeftLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_LEG_ROOT" Offset="0x157C4" />
+        <Limb Name="gGohtFrontLeftUpperLegLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_UPPER_LEG" Offset="0x157D0" />
+        <Limb Name="gGohtFrontLeftLowerLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_LOWER_LEG_ROOT" Offset="0x157DC" />
+        <Limb Name="gGohtFrontLeftLowerLegLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_LOWER_LEG" Offset="0x157E8" />
+        <Limb Name="gGohtFrontLeftHoofLimb" Type="Standard" EnumName="GOHT_LIMB_FRONT_LEFT_HOOF" Offset="0x157F4" />
+        <Limb Name="gGohtThoraxLimb" Type="Standard" EnumName="GOHT_LIMB_THORAX" Offset="0x15800" />
+        <Limb Name="gGohtHeadLimb" Type="Standard" EnumName="GOHT_LIMB_HEAD" Offset="0x1580C" />
+        <Limb Name="gGohtJawRootLimb" Type="Standard" EnumName="GOHT_LIMB_JAW_ROOT" Offset="0x15818" />
+        <Limb Name="gGohtJawLimb" Type="Standard" EnumName="GOHT_LIMB_JAW" Offset="0x15824" />
+        <Limb Name="gGohtBackRightLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_LEG_ROOT" Offset="0x15830" />
+        <Limb Name="gGohtBackRightLegWrapperLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_LEG_WRAPPER" Offset="0x1583C" />
+        <Limb Name="gGohtBackRightThighLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_THIGH" Offset="0x15848" />
+        <Limb Name="gGohtBackRightShinLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_SHIN" Offset="0x15854" />
+        <Limb Name="gGohtBackRightPasternRootLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_PASTERN_ROOT" Offset="0x15860" />
+        <Limb Name="gGohtBackRightPasternLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_PASTERN" Offset="0x1586C" />
+        <Limb Name="gGohtBackRightHoofLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_RIGHT_HOOF" Offset="0x15878" />
+        <Limb Name="gGohtBackLeftLegRootLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_LEG_ROOT" Offset="0x15884" />
+        <Limb Name="gGohtBackLeftLegWrapperLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_LEG_WRAPPER" Offset="0x15890" />
+        <Limb Name="gGohtBackLeftThighLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_THIGH" Offset="0x1589C" />
+        <Limb Name="gGohtBackLeftShinLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_SHIN" Offset="0x158A8" />
+        <Limb Name="gGohtBackLeftPasternRootLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_PASTERN_ROOT" Offset="0x158B4" />
+        <Limb Name="gGohtBackLeftPasternLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_PASTERN" Offset="0x158C0" />
+        <Limb Name="gGohtBackLeftHoofLimb" Type="Standard" EnumName="GOHT_LIMB_BACK_LEFT_HOOF" Offset="0x158CC" />
 
         <!-- Goht Skeleton -->
-        <Skeleton Name="gGohtSkel" Type="Flex" LimbType="Standard" LimbNone="GOHT_LIMB_NONE" LimbMax="GOHT_LIMB_MAX" EnumName="GohtLimb" Offset="0x13158" />
+        <Skeleton Name="gGohtSkel" Type="Flex" LimbType="Standard" LimbNone="GOHT_LIMB_NONE" LimbMax="GOHT_LIMB_MAX" EnumName="GohtLimb" Offset="0x15958" />
 
         <!-- Goht Animations -->
-        <Animation Name="gGohtFallDownAnim" Offset="0x134D0" /> <!-- Original name is "iceb_koke" ("folly; fool") -->
-        <Animation Name="gGohtRunAnim" Offset="0x13828" /> <!-- Original name is "iceb_run" -->
-        <Animation Name="gGohtGetUpFromSideAnim" Offset="0x14024" /> <!-- Unused. Original name is "iceb_up" -->
-
-        <!-- Goht Title Card -->
-        <Texture Name="gGohtTitleCardTex" OutName="goht_title_card" Format="ia8" Width="128" Height="40" Offset="0x14040" />
+        <Animation Name="gGohtFallDownAnim" Offset="0x15CD0" /> <!-- Original name is "iceb_koke" ("folly; fool") -->
+        <Animation Name="gGohtRunAnim" Offset="0x16028" /> <!-- Original name is "iceb_run" -->
+        <Animation Name="gGohtGetUpFromSideAnim" Offset="0x16824" /> <!-- Unused. Original name is "iceb_up" -->
     </File>
 </Root>
