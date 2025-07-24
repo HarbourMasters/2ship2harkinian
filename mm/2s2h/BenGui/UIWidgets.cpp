@@ -531,7 +531,8 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
         }
         ImGui::SameLine(0, 3.0f);
         if (options.showResetButton) {
-            float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2 + (ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3);
+            float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2 +
+                                 (ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3);
             ImGui::SetNextItemWidth(width - buttonsWidth);
         } else {
             float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2;
@@ -686,7 +687,8 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
         }
         ImGui::SameLine(0, 3.0f);
         if (options.showResetButton) {
-            float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2 + (ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3);
+            float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2 +
+                                 (ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3);
             ImGui::SetNextItemWidth(width - buttonsWidth);
         } else {
             float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2;
