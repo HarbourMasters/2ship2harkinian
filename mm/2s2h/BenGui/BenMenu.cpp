@@ -261,6 +261,7 @@ std::vector<std::string> contributors = {
     "cplaster",
     "justawayofthesamurai",
     "verbes4",
+    "ammar sadaoui",
 };
 
 void BenMenu::AddSettings() {
@@ -329,21 +330,35 @@ void BenMenu::AddSettings() {
         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
         ImGui::SeparatorText("Thank You");
         ImGui::PopStyleColor();
-
-        ImGui::TextWrapped("Special thanks to our contributors, playtesters, artists, moderators, helpers, and "
-                           "everyone in the larger decomp & N64 communities who make this project possible.\n\n");
+        ImGui::SameLine();
         ImTextureID heartTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
             (const char*)gQuestIconHeartContainer2Tex);
         ImGui::Image(heartTextureId, ImVec2(25.0f, 25.0f));
-        ImGui::SameLine();
+        ImGui::TextWrapped("Special thanks to our contributors, playtesters, artists, moderators, helpers, and "
+                           "everyone in the larger decomp & N64 communities who make this project possible.\n\n");
 
-        static u64 lastTime = 0;
-        static std::string contributor = "";
-        if (GetUnixTimestamp() - lastTime > 5000) {
-            lastTime = GetUnixTimestamp();
-            contributor = contributors[Ship_Random(0, contributors.size() - 1)];
+        // Draw auto scrolling list of contributors in columns
+        ImGui::SetNextWindowSize(ImVec2(0.0f, ImGui::GetMainViewport()->WorkSize.y / 3));
+        ImGui::BeginChild("contributors");
+        static double scrollSpeed = 1.5f * (ImGui::GetFontSize() / 1000.0f); // Lines to scroll per second
+        double scrollPosition = fmod(GetUnixTimestamp() * scrollSpeed, ImGui::GetScrollMaxY() + 1.0f);
+        ImGui::SetScrollY(scrollPosition);
+
+        ImGui::Dummy(ImVec2(0.0f, ImGui::GetFontSize()));
+        static int numColumns = 2; // Two columns seem to work best. Some names are too long for more on lower res
+        for (int column = 0; column < numColumns; column++) {
+            if (column > 0)
+                ImGui::SameLine();
+
+            ImGui::BeginGroup();
+            for (int i = column; i < contributors.size(); i += numColumns) {
+                ImGui::Text("%s", contributors.at(i).c_str());
+            }
+            ImGui::EndGroup();
         }
-        ImGui::Text("%s", contributor.c_str());
+        ImGui::Dummy(ImVec2(0.0f, ImGui::GetFontSize()));
+        ImGui::EndChild();
+
         ImGui::EndChild();
     });
 
@@ -405,7 +420,9 @@ void BenMenu::AddSettings() {
 
     // Graphics Settings
     path.sidebarName = "Graphics";
+    path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Graphics", 3);
+    AddWidget(path, "Graphics Options", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Toggle Fullscreen", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) { Ship::Context::GetInstance()->GetWindow()->ToggleFullscreen(); })
         .Options(ButtonOptions().Tooltip("Toggles Fullscreen On/Off."));
@@ -493,6 +510,9 @@ void BenMenu::AddSettings() {
     AddWidget(path, "Texture Filter (Needs reload)", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_TEXTURE_FILTER)
         .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboVec(&textureFilteringOptions));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "Advanced Graphics Options", WIDGET_SEPARATOR_TEXT);
 
     path.sidebarName = "Controls";
     AddSidebarEntry("Settings", "Controls", 1);
@@ -939,10 +959,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Sfx.ChildGoronCry")
         .Options(CheckboxOptions().Tooltip("Mutes the crying Goron child inside Goron Shrine."));
-    AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
-        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboVec(&alwaysWinDoggyraceOptions));
+    AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
         .Options(ComboboxOptions()
@@ -951,99 +968,6 @@ void BenMenu::AddEnhancements() {
                               "-Hug: Get the hugging cutscene\n"
                               "-Rupee: Get the rupee reward")
                      .ComboVec(&cremiaRewardOptions));
-    AddWidget(path, "Cucco Shack Cucco Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.CuccoShackCuccoCount")
-        .Options(IntSliderOptions()
-                     .Tooltip("Choose how many cuccos you need to raise to make Grog happy.")
-                     .Min(1)
-                     .Max(10)
-                     .DefaultValue(10));
-    AddWidget(path, "Swordsman School Winning Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.SwordsmanSchoolScore")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Swordsman School.")
-                     .Min(1)
-                     .Max(30)
-                     .DefaultValue(30));
-    AddWidget(path, "Bombers Hide-and-Seek Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BombersHideAndSeek")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the number of Bomber Kids you have to find to complete the hide-and-seek game.")
-                     .Min(1)
-                     .Max(5)
-                     .DefaultValue(5));
-    AddWidget(path, "Beaver Race Rings Collected", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BeaverRaceRingsCollected")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the number of rings required for both Beavers. If the slider is set to 20, the "
-                              "first Beaver will require 20 rings, and the second Beaver will require 25 rings, which "
-                              "are their vanilla values.")
-                     .Min(1)
-                     .Max(20)
-                     .DefaultValue(20));
-    AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.SwampArcheryScore")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Swamp Archery minigame, if this is changed it also "
-                              "speeds up the final score counting.")
-                     .Min(1000)
-                     .Max(2180)
-                     .DefaultValue(2180));
-    AddWidget(path, "Town Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.TownArcheryScore")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Town Archery minigame. Reaching this score will end "
-                              "the minigame.")
-                     .Min(1)
-                     .Max(50)
-                     .DefaultValue(50));
-    AddWidget(path, "Honey & Darling Day 1 (Bombchus)", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay1")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 1.")
-                     .Min(1)
-                     .Max(8)
-                     .DefaultValue(8));
-    AddWidget(path, "Honey & Darling Day 2 (Bombs)", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay2")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 2.")
-                     .Min(1)
-                     .Max(8)
-                     .DefaultValue(8));
-    AddWidget(path, "Honey & Darling Day 3 (Bow)", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay3")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 3.")
-                     .Min(1)
-                     .Max(16)
-                     .DefaultValue(16));
-    AddWidget(path, "Skip Powder Keg Certification", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.PowderKegCertification")
-        .Options(CheckboxOptions().Tooltip(
-            "Skips requiring to take the Powder Keg Test before being given the Certification."));
-    AddWidget(path, "Romani Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.RomaniTargetPractice")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win Romani's Target Practice.")
-                     .Min(1)
-                     .Max(10)
-                     .DefaultValue(10));
-    AddWidget(path, "Frog Choir Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.FrogChoirCount")
-        .Options(IntSliderOptions()
-                     .Tooltip("Choose how many frogs you need to save for the choir performance.")
-                     .Min(1)
-                     .Max(5)
-                     .DefaultValue(5));
-    AddWidget(path, "Skip Gorman Horse Race", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.SkipHorseRace")
-        .Options(CheckboxOptions().Tooltip("Instantly win the Gorman Horse Race"));
-    AddWidget(path, "Skip Ballad of Windfish", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.SkipBalladOfWindfish")
-        .Options(CheckboxOptions().Tooltip(
-            "Play the complete Ballad after playing in one form if you have all three transformation masks."));
-
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Saving", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)
@@ -1206,6 +1130,10 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(5)
                      .DefaultValue(1));
+    AddWidget(path, "N64 Mode", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_LOW_RES_MODE)
+        .Options(CheckboxOptions().Tooltip(
+            "Sets the aspect ratio to 4:3 and lowers resolution to 240p, the N64's native resolution."));
 
     path = { "Enhancements", "Items/Songs", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Items/Songs", 3);
@@ -1360,6 +1288,14 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
         .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
+    AddWidget(path, "Skip Powder Keg Certification", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.PowderKegCertification")
+        .Options(CheckboxOptions().Tooltip(
+            "Skips requiring to take the Powder Keg Test before being given the Certification."));
+    AddWidget(path, "Skip Ballad of Windfish", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.SkipBalladOfWindfish")
+        .Options(CheckboxOptions().Tooltip(
+            "Play the complete Ballad after playing in one form if you have all three transformation masks."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
@@ -1460,6 +1396,125 @@ void BenMenu::AddEnhancements() {
     // Difficulty Options
     path = { "Enhancements", "Difficulty Options", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
+    AddWidget(path, "Combat", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
+        .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
+    AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
+        .Options(ComboboxOptions()
+                     .Tooltip("Adjusts the amount of damage Link takes from all sources.")
+                     .ComboMap(&damageMultiplierOptions));
+    AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
+        .Options(CheckboxOptions().Tooltip(
+            "When you lose 4 quarters of a heart you will permanently lose that heart container.\n\nDisabling this "
+            "after the fact will not restore any received heart containers."));
+    AddWidget(path, "Delete File on Death", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.DeleteFileOnDeath")
+        .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE
+                                           " WARNING " ICON_FA_EXCLAMATION_TRIANGLE
+                                           "\nTHIS IS NOT REVERSIBLE\nUSE AT YOUR OWN RISK!"));
+    AddWidget(path, "Jinxed Timer: %d seconds", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.DifficultyOptions.JinxedTimer")
+        .Options(
+            IntSliderOptions()
+                .Tooltip("Set the duration of the Jinxed effect. Setting it to 0 will prevent the effect entirely.")
+                .Min(0)
+                .Max(60)
+                .DefaultValue(60));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Bombers Hide-and-Seek Count", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BombersHideAndSeek")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the number of Bomber Kids you have to find to complete the hide-and-seek game.")
+                     .Min(1)
+                     .Max(5)
+                     .DefaultValue(5));
+    AddWidget(path, "Swordsman School Winning Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.SwordsmanSchoolScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Swordsman School.")
+                     .Min(1)
+                     .Max(30)
+                     .DefaultValue(30));
+    AddWidget(path, "Honey & Darling Day 1 (Bombchus)", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay1")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 1.")
+                     .Min(1)
+                     .Max(8)
+                     .DefaultValue(8));
+    AddWidget(path, "Honey & Darling Day 2 (Bombs)", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay2")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 2.")
+                     .Min(1)
+                     .Max(8)
+                     .DefaultValue(8));
+    AddWidget(path, "Honey & Darling Day 3 (Bow)", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay3")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 3.")
+                     .Min(1)
+                     .Max(16)
+                     .DefaultValue(16));
+    AddWidget(path, "Town Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.TownArcheryScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Town Archery minigame. Reaching this score will end "
+                              "the minigame.")
+                     .Min(1)
+                     .Max(50)
+                     .DefaultValue(50));
+    AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.SwampArcheryScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win the Swamp Archery minigame, if this is changed it also "
+                              "speeds up the final score counting.")
+                     .Min(1000)
+                     .Max(2180)
+                     .DefaultValue(2180));
+    AddWidget(path, "Romani Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.RomaniTargetPractice")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the score required to win Romani's Target Practice.")
+                     .Min(1)
+                     .Max(10)
+                     .DefaultValue(10));
+    AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
+        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboVec(&alwaysWinDoggyraceOptions));
+
+    AddWidget(path, "Cucco Shack Cucco Count", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.CuccoShackCuccoCount")
+        .Options(IntSliderOptions()
+                     .Tooltip("Choose how many cuccos you need to raise to make Grog happy.")
+                     .Min(1)
+                     .Max(10)
+                     .DefaultValue(10));
+    AddWidget(path, "Skip Gorman Horse Race", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.SkipHorseRace")
+        .Options(CheckboxOptions().Tooltip("Instantly win the Gorman Horse Race"));
+    AddWidget(path, "Beaver Race Rings Collected", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BeaverRaceRingsCollected")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the number of rings required for both Beavers. If the slider is set to 20, the "
+                              "first Beaver will require 20 rings, and the second Beaver will require 25 rings, which "
+                              "are their vanilla values.")
+                     .Min(1)
+                     .Max(20)
+                     .DefaultValue(20));
+    path.column = SECTION_COLUMN_3;
+    AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.LowerBankRewardThresholds")
+        .Options(
+            CheckboxOptions().Tooltip("Reduces the amount of rupees required to receive the rewards from the bank.\n"
+                                      "From: 200 -> 1000 -> 5000\n"
+                                      "To:   100 ->  500 -> 1000"));
     AddWidget(path, "Disable Takkuri Steal", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.DisableTakkuriSteal")
         .Options(CheckboxOptions().Tooltip(
@@ -1475,12 +1530,6 @@ void BenMenu::AddEnhancements() {
                          "- Always: Always show the search balls.")
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
                 .ComboVec(&dekuGuardSearchBallsOptions));
-    AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.LowerBankRewardThresholds")
-        .Options(
-            CheckboxOptions().Tooltip("Reduces the amount of rupees required to receive the rewards from the bank.\n"
-                                      "From: 200 -> 1000 -> 5000\n"
-                                      "To:   100 ->  500 -> 1000"));
     AddWidget(path, "Gibdo Trade Sequence Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.GibdoTradeSequence")
         .Options(
@@ -1504,34 +1553,13 @@ void BenMenu::AddEnhancements() {
                     "- Always: Hidden grottos always have a visual marker.\n")
                 .DefaultIndex(HiddenGrottosVisibilityOptions::HIDDEN_GROTTOS_VISIBLITY_OFF)
                 .ComboVec(&maskOfTruthGrottoOptions));
-
-    path.column = SECTION_COLUMN_2;
-    AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
-        .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
-    AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
-        .Options(ComboboxOptions()
-                     .Tooltip("Adjusts the amount of damage Link takes from all sources.")
-                     .ComboMap(&damageMultiplierOptions));
-    AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
-        .Options(CheckboxOptions().Tooltip(
-            "When you lose 4 quarters of a heart you will permanently lose that heart container.\n\nDisabling this "
-            "after the fact will not restore any received heart containers."));
-    AddWidget(path, "Delete File on Death", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.DeleteFileOnDeath")
-        .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE
-                                           " WARNING " ICON_FA_EXCLAMATION_TRIANGLE
-                                           "\nTHIS IS NOT REVERSABLE\nUSE AT YOUR OWN RISK!"));
-    AddWidget(path, "Jinxed Timer: %d seconds", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.DifficultyOptions.JinxedTimer")
-        .Options(
-            IntSliderOptions()
-                .Tooltip("Set the duration of the Jinxed effect. Setting it to 0 will prevent the effect entirely.")
-                .Min(0)
-                .Max(60)
-                .DefaultValue(60));
+    AddWidget(path, "Frog Choir Count", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.DifficultyOptions.FrogChoirCount")
+        .Options(IntSliderOptions()
+                     .Tooltip("Choose how many frogs you need to save for the choir performance.")
+                     .Min(1)
+                     .Max(5)
+                     .DefaultValue(5));
 
     // HUD Editor
     path = { "Enhancements", "HUD Editor", SECTION_COLUMN_1 };
@@ -1865,6 +1893,14 @@ void BenMenu::InitElement() {
             "Vertical Resolution Toggle Enabled" } },
         { DISABLE_FOR_LOW_RES_MODE_ON,
           { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_LOW_RES_MODE, 0); }, "N64 Mode is enabled" } },
+        { DISABLE_FOR_ADVANCED_RESOLUTION_OFF,
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0); },
+            "Advanced Resolution is Disabled" } },
+        { DISABLE_FOR_VERTICAL_RESOLUTION_OFF,
+          { [](disabledInfo& info) -> bool {
+               return !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0);
+           },
+            "Vertical Resolution Toggle is Off" } },
     };
 }
 

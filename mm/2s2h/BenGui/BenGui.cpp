@@ -61,6 +61,10 @@ std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
 std::shared_ptr<Achievements::UI::AchievementsWindow> mAchievementsWindow;
 std::shared_ptr<Achievements::DeveloperTools::AchievementEditor> mAchievementEditorWindow;
 
+UIWidgets::Colors GetMenuThemeColor() {
+    return mBenMenu->GetMenuThemeColor();
+}
+
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
 
