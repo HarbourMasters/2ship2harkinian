@@ -1,10 +1,10 @@
 <Root>
     <File Name="title_static" Segment="1">
-        <Texture Name="gFileSelNoFileToCopyENGTex" OutName="no_file_to_copy_eng" Format="ia4" Width="128" Height="16" Offset="0x0"/>
-        <Texture Name="gFileSelNoFileToEraseENGTex" OutName="no_file_to_erase_eng" Format="ia4" Width="128" Height="16" Offset="0x400"/>
-        <Texture Name="gFileSelNoEmptyFileENGTex" OutName="no_empty_file_eng" Format="ia4" Width="128" Height="16" Offset="0x800"/>
-        <Texture Name="gFileSelFileEmptyENGTex" OutName="file_empty_eng" Format="ia4" Width="128" Height="16" Offset="0xC00"/>
-        <Texture Name="gFileSelFileInUseENGTex" OutName="file_in_use_eng" Format="ia4" Width="128" Height="16" Offset="0x1000"/>
+        <Texture Name="gFileSelNoFileToCopyGCENGTex" OutName="no_file_to_copy_eng_gc" Format="ia4" Width="128" Height="16" Offset="0x0"/>
+        <Texture Name="gFileSelNoFileToEraseGCENGTex" OutName="no_file_to_erase_eng_gc" Format="ia4" Width="128" Height="16" Offset="0x400"/>
+        <Texture Name="gFileSelNoEmptyFileGCENGTex" OutName="no_empty_file_eng_gc" Format="ia4" Width="128" Height="16" Offset="0x800"/>
+        <Texture Name="gFileSelFileEmptyGCENGTex" OutName="file_empty_eng_gc" Format="ia4" Width="128" Height="16" Offset="0xC00"/>
+        <Texture Name="gFileSelFileInUseGCENGTex" OutName="file_in_use_eng_gc" Format="ia4" Width="128" Height="16" Offset="0x1000"/>
 
         <Texture Name="gFileSelConnectorTex" OutName="connector" Format="ia8" Width="24" Height="16" Offset="0x1400"/>
 
