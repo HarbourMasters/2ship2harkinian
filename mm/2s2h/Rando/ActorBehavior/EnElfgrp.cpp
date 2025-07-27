@@ -8,6 +8,7 @@ extern "C" {
 #include "functions.h"
 
 #include "overlays/actors/ovl_En_Elfgrp/z_en_elfgrp.h"
+extern void func_80A3A398(EnElfgrp* enElfgrp, PlayState* play);
 }
 
 void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
@@ -42,7 +43,7 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
 
 void ApplyGreatFairyHint(u16* textId, bool* loadFromMessageTable, RandoCheckId randoCheckId) {
     CustomMessage::Entry entry = {
-        .msg = "%wPlease, find the Stray Fairies who match our color! We will reward you with %g{{article}}{{item}}%w"
+        .msg = "%wPlease, find the Stray Fairies who match our color! We will reward you with %g{{article}}{{item}}%w."
     };
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId].randoItemId];
@@ -99,6 +100,17 @@ void Rando::ActorBehavior::InitEnElfgrpBehavior() {
                     RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].eligible = true;
                 }
                 break;
+        }
+    });
+
+    // Use the RO Stray Fairy minimum threshold rather than the vanilla 15
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_ELFGRP, IS_RANDO, [](Actor* actor) {
+        EnElfgrp* enElfgrp = (EnElfgrp*)actor;
+        // Exclude the Clock Town fairy
+        if (enElfgrp->type != ENELFGRP_TYPE_MAGIC &&
+            gSaveContext.save.saveInfo.inventory.strayFairies[enElfgrp->type - 1] >=
+                RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES]) {
+            enElfgrp->actionFunc = func_80A3A398;
         }
     });
 
