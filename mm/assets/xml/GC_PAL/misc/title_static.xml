@@ -115,58 +115,58 @@
         <Texture Name="gFileSelFileErasedPALENGTex" OutName="file_erased_eng_pal" Format="ia4" Width="128" Height="16" Offset="0x1B050"/>
         <Texture Name="gFileSelFileErasedESPTex" OutName="file_erased_esp" Format="ia4" Width="128" Height="16" Offset="0x1B450"/>
 
-        <Texture Name="gFileSelOptionsFRATex" OutName="options_fra" Format="ia4" Width="128" Height="16" Offset="0x1B850"/>
-        <Texture Name="gFileSelOptionsGERTex" OutName="options_ger" Format="ia4" Width="128" Height="16" Offset="0x1BC50"/>
-        <Texture Name="gFileSelOptionsENGTex" OutName="options_eng" Format="ia4" Width="128" Height="16" Offset="0x1C050"/>
-        <Texture Name="gFileSelOptionsESPTex" OutName="options_esp" Format="ia4" Width="128" Height="16" Offset="0x1C450"/>
+        <Texture Name="gFileSelOptionsGCFRATex" OutName="options_fra" Format="ia4" Width="128" Height="16" Offset="0x1B850"/>
+        <Texture Name="gFileSelOptionsGCGERTex" OutName="options_ger" Format="ia4" Width="128" Height="16" Offset="0x1BC50"/>
+        <Texture Name="gFileSelOptionsGCENGTex" OutName="options_eng" Format="ia4" Width="128" Height="16" Offset="0x1C050"/>
+        <Texture Name="gFileSelOptionsGCESPTex" OutName="options_esp" Format="ia4" Width="128" Height="16" Offset="0x1C450"/>
 
-        <Texture Name="gFileSelSurroundENGTex" OutName="surround_eng" Format="ia4" Width="48" Height="16" Offset="0x1C850"/>
+        <Texture Name="gFileSelSurroundGCENGTex" OutName="surround_eng" Format="ia4" Width="48" Height="16" Offset="0x1C850"/>
 
-        <Texture Name="gFileSelLanguageOptionFRATex" OutName="language_option_fra" Format="ia4" Width="48" Height="16" Offset="0x1C9D0"/>
-        <Texture Name="gFileSelLanguageOptionGERTex" OutName="language_option_ger" Format="ia4" Width="48" Height="16" Offset="0x1CB50"/>
-        <Texture Name="gFileSelLanguageOptionENGTex" OutName="language_option_eng" Format="ia4" Width="48" Height="16" Offset="0x1CCD0"/>
-        <Texture Name="gFileSelLanguageOptionESPTex" OutName="language_option_esp" Format="ia4" Width="48" Height="16" Offset="0x1CE50"/>
+        <Texture Name="gFileSelLanguageOptionGCFRATex" OutName="language_option_fra" Format="ia4" Width="48" Height="16" Offset="0x1C9D0"/>
+        <Texture Name="gFileSelLanguageOptionGCGERTex" OutName="language_option_ger" Format="ia4" Width="48" Height="16" Offset="0x1CB50"/>
+        <Texture Name="gFileSelLanguageOptionGCENGTex" OutName="language_option_eng" Format="ia4" Width="48" Height="16" Offset="0x1CCD0"/>
+        <Texture Name="gFileSelLanguageOptionGCESPTex" OutName="language_option_esp" Format="ia4" Width="48" Height="16" Offset="0x1CE50"/>
 
-        <Texture Name="gFileSelHeadsetFRATex" OutName="headset_fra" Format="ia4" Width="48" Height="16" Offset="0x1CFD0"/>
-        <Texture Name="gFileSelHeadsetGERTex" OutName="headset_ger" Format="ia4" Width="48" Height="16" Offset="0x1D150"/>
-        <Texture Name="gFileSelHeadsetENGTex" OutName="headset_eng" Format="ia4" Width="48" Height="16" Offset="0x1D2D0"/>
-        <Texture Name="gFileSelHeadsetESPTex" OutName="headset_esp" Format="ia4" Width="48" Height="16" Offset="0x1D450"/>
+        <Texture Name="gFileSelHeadsetGCFRATex" OutName="headset_fra" Format="ia4" Width="48" Height="16" Offset="0x1CFD0"/>
+        <Texture Name="gFileSelHeadsetGCGERTex" OutName="headset_ger" Format="ia4" Width="48" Height="16" Offset="0x1D150"/>
+        <Texture Name="gFileSelHeadsetGCENGTex" OutName="headset_eng" Format="ia4" Width="48" Height="16" Offset="0x1D2D0"/>
+        <Texture Name="gFileSelHeadsetGCESPTex" OutName="headset_esp" Format="ia4" Width="48" Height="16" Offset="0x1D450"/>
 
-        <Texture Name="gFileSelHoldFRATex" OutName="hold_fra" Format="ia4" Width="48" Height="16" Offset="0x1D5D0"/>
-        <Texture Name="gFileSelHoldGERTex" OutName="hold_ger" Format="ia4" Width="48" Height="16" Offset="0x1D750"/>
-        <Texture Name="gFileSelHoldENGTex" OutName="hold_eng" Format="ia4" Width="48" Height="16" Offset="0x1D8D0"/>
-        <Texture Name="gFileSelHoldESPTex" OutName="hold_esp" Format="ia4" Width="48" Height="16" Offset="0x1DA50"/>
+        <Texture Name="gFileSelHoldGCFRATex" OutName="hold_fra" Format="ia4" Width="48" Height="16" Offset="0x1D5D0"/>
+        <Texture Name="gFileSelHoldGCGERTex" OutName="hold_ger" Format="ia4" Width="48" Height="16" Offset="0x1D750"/>
+        <Texture Name="gFileSelHoldGCENGTex" OutName="hold_eng" Format="ia4" Width="48" Height="16" Offset="0x1D8D0"/>
+        <Texture Name="gFileSelHoldGCESPTex" OutName="hold_esp" Format="ia4" Width="48" Height="16" Offset="0x1DA50"/>
 
-        <Texture Name="gFileSelLanguageFRATex" OutName="language_fra" Format="ia4" Width="64" Height="16" Offset="0x1DBD0"/>
-        <Texture Name="gFileSelLanguageGERTex" OutName="language_ger" Format="ia4" Width="64" Height="16" Offset="0x1DDD0"/>
-        <Texture Name="gFileSelLanguageENGTex" OutName="language_eng" Format="ia4" Width="64" Height="16" Offset="0x1DFD0"/>
-        <Texture Name="gFileSelLanguageESPTex" OutName="language_esp" Format="ia4" Width="64" Height="16" Offset="0x1E1D0"/>
+        <Texture Name="gFileSelLanguageGCFRATex" OutName="language_fra" Format="ia4" Width="64" Height="16" Offset="0x1DBD0"/>
+        <Texture Name="gFileSelLanguageGCGERTex" OutName="language_ger" Format="ia4" Width="64" Height="16" Offset="0x1DDD0"/>
+        <Texture Name="gFileSelLanguageGCENGTex" OutName="language_eng" Format="ia4" Width="64" Height="16" Offset="0x1DFD0"/>
+        <Texture Name="gFileSelLanguageGCESPTex" OutName="language_esp" Format="ia4" Width="64" Height="16" Offset="0x1E1D0"/>
 
-        <Texture Name="gFileSelMonoFRATex" OutName="mono_fra" Format="ia4" Width="48" Height="16" Offset="0x1E3D0"/>
-        <Texture Name="gFileSelMonoGERTex" OutName="mono_ger" Format="ia4" Width="48" Height="16" Offset="0x1E550"/>
-        <Texture Name="gFileSelMonoENGTex" OutName="mono_eng" Format="ia4" Width="48" Height="16" Offset="0x1E6D0"/>
-        <Texture Name="gFileSelMonoESPTex" OutName="mono_esp" Format="ia4" Width="48" Height="16" Offset="0x1E850"/>
+        <Texture Name="gFileSelMonoGCFRATex" OutName="mono_fra" Format="ia4" Width="48" Height="16" Offset="0x1E3D0"/>
+        <Texture Name="gFileSelMonoGCGERTex" OutName="mono_ger" Format="ia4" Width="48" Height="16" Offset="0x1E550"/>
+        <Texture Name="gFileSelMonoGCENGTex" OutName="mono_eng" Format="ia4" Width="48" Height="16" Offset="0x1E6D0"/>
+        <Texture Name="gFileSelMonoGCESPTex" OutName="mono_esp" Format="ia4" Width="48" Height="16" Offset="0x1E850"/>
 
         <!-- Note: Brightness Texture Width Differs from NTSC -->
-        <Texture Name="gFileSelCheckBrightnessFRATex" OutName="check_brightness_fra" Format="ia4" Width="128" Height="16" Offset="0x1E9D0"/>
-        <Texture Name="gFileSelCheckBrightnessGERTex" OutName="check_brightness_ger" Format="ia4" Width="128" Height="16" Offset="0x1EDD0"/>
-        <Texture Name="gFileSelCheckBrightnessPALENGTex" OutName="check_brightness_eng_pal" Format="ia4" Width="128" Height="16" Offset="0x1F1D0"/>
-        <Texture Name="gFileSelCheckBrightnessESPTex" OutName="check_brightness_esp" Format="ia4" Width="128" Height="16" Offset="0x1F5D0"/>
+        <Texture Name="gFileSelCheckBrightnessGCFRATex" OutName="check_brightness_fra" Format="ia4" Width="128" Height="16" Offset="0x1E9D0"/>
+        <Texture Name="gFileSelCheckBrightnessGCGERTex" OutName="check_brightness_ger" Format="ia4" Width="128" Height="16" Offset="0x1EDD0"/>
+        <Texture Name="gFileSelCheckBrightnessGCPALENGTex" OutName="check_brightness_eng_pal" Format="ia4" Width="128" Height="16" Offset="0x1F1D0"/>
+        <Texture Name="gFileSelCheckBrightnessGCESPTex" OutName="check_brightness_esp" Format="ia4" Width="128" Height="16" Offset="0x1F5D0"/>
 
-        <Texture Name="gFileSelSoundFRATex" OutName="sound_fra" Format="ia4" Width="64" Height="16" Offset="0x1F9D0"/>
-        <Texture Name="gFileSelSoundGERTex" OutName="sound_ger" Format="ia4" Width="64" Height="16" Offset="0x1FBD0"/>
-        <Texture Name="gFileSelSoundENGTex" OutName="sound_eng" Format="ia4" Width="64" Height="16" Offset="0x1FDD0"/>
-        <Texture Name="gFileSelSoundESPTex" OutName="sound_esp" Format="ia4" Width="64" Height="16" Offset="0x1FFD0"/>
+        <Texture Name="gFileSelSoundGCFRATex" OutName="sound_fra" Format="ia4" Width="64" Height="16" Offset="0x1F9D0"/>
+        <Texture Name="gFileSelSoundGCGERTex" OutName="sound_ger" Format="ia4" Width="64" Height="16" Offset="0x1FBD0"/>
+        <Texture Name="gFileSelSoundGCENGTex" OutName="sound_eng" Format="ia4" Width="64" Height="16" Offset="0x1FDD0"/>
+        <Texture Name="gFileSelSoundGCESPTex" OutName="sound_esp" Format="ia4" Width="64" Height="16" Offset="0x1FFD0"/>
 
-        <Texture Name="gFileSelStereoFRATex" OutName="stereo_fra" Format="ia4" Width="48" Height="16" Offset="0x201D0"/>
-        <Texture Name="gFileSelStereoGERTex" OutName="stereo_ger" Format="ia4" Width="48" Height="16" Offset="0x20350"/>
-        <Texture Name="gFileSelStereoENGTex" OutName="stereo_eng" Format="ia4" Width="48" Height="16" Offset="0x204D0"/>
-        <Texture Name="gFileSelStereoESPTex" OutName="stereo_esp" Format="ia4" Width="48" Height="16" Offset="0x20650"/>
+        <Texture Name="gFileSelStereoGCFRATex" OutName="stereo_fra" Format="ia4" Width="48" Height="16" Offset="0x201D0"/>
+        <Texture Name="gFileSelStereoGCGERTex" OutName="stereo_ger" Format="ia4" Width="48" Height="16" Offset="0x20350"/>
+        <Texture Name="gFileSelStereoGCENGTex" OutName="stereo_eng" Format="ia4" Width="48" Height="16" Offset="0x204D0"/>
+        <Texture Name="gFileSelStereoGCESPTex" OutName="stereo_esp" Format="ia4" Width="48" Height="16" Offset="0x20650"/>
 
-        <Texture Name="gFileSelSwitchFRATex" OutName="switch_fra" Format="ia4" Width="48" Height="16" Offset="0x207D0"/>
-        <Texture Name="gFileSelSwitchGERTex" OutName="switch_ger" Format="ia4" Width="48" Height="16" Offset="0x20950"/>
-        <Texture Name="gFileSelSwitchENGTex" OutName="switch_eng" Format="ia4" Width="48" Height="16" Offset="0x20AD0"/>
-        <Texture Name="gFileSelSwitchESPTex" OutName="switch_esp" Format="ia4" Width="48" Height="16" Offset="0x20C50"/>
+        <Texture Name="gFileSelSwitchGCFRATex" OutName="switch_fra" Format="ia4" Width="48" Height="16" Offset="0x207D0"/>
+        <Texture Name="gFileSelSwitchGCGERTex" OutName="switch_ger" Format="ia4" Width="48" Height="16" Offset="0x20950"/>
+        <Texture Name="gFileSelSwitchGCENGTex" OutName="switch_eng" Format="ia4" Width="48" Height="16" Offset="0x20AD0"/>
+        <Texture Name="gFileSelSwitchGCESPTex" OutName="switch_esp" Format="ia4" Width="48" Height="16" Offset="0x20C50"/>
 
         <!-- Note: Uses "L" Targeting -->
         <Texture Name="gFileSelTargetingGCFRATex" OutName="targeting_gc_fra" Format="ia4" Width="64" Height="16" Offset="0x20DD0"/>

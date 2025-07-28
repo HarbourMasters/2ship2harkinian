@@ -173,6 +173,21 @@ s16 D_8081444C[] = {
     72, 69, 69, 69, 69, 69, 69, 69, 69, 69, 69, 0,
 };
 
+// #region 2S2H [PAL]
+TexturePtr sBackspaceEndPALTextures[][2] = {
+    { gFileSelBackspaceButtonTex, gFileSelENDButtonENGTex },
+    { gFileSelBackspaceButtonTex, gFileSelENDButtonGERTex },
+    { gFileSelBackspaceButtonTex, gFileSelENDButtonFRATex },
+    { gFileSelBackspaceButtonTex, gFileSelENDButtonESPTex },
+};
+
+TexturePtr sNameTextures[] = {
+    gFileSelNameENGTex,
+    gFileSelNameGERTex,
+    gFileSelNameFRATex,
+    gFileSelNameESPTex,
+};
+
 /**
  * Set vertices used by all elements of the name entry screen that are NOT the keyboard.
  * This includes the cursor highlight, the name entry plate and characters, and the buttons.
@@ -194,9 +209,15 @@ void FileSelect_SetNameEntryVtx(GameState* thisx) {
 
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
     gSPVertex(POLY_OPA_DISP++, this->keyboard2Vtx, 24, 0);
-    gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelNameENGTex, G_IM_FMT_IA, G_IM_SIZ_8b, 56, 16, 0,
-                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                        G_TX_NOLOD);
+    if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+        gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelNameENGTex, G_IM_FMT_IA, G_IM_SIZ_8b, 56, 16, 0,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                            G_TX_NOLOD);
+    } else {
+        gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelNameENGTex, G_IM_FMT_IA, G_IM_SIZ_8b, 56, 16, 0,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                            G_TX_NOLOD);
+    }
     gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
     gDPPipeSync(POLY_OPA_DISP++);
 
@@ -204,9 +225,15 @@ void FileSelect_SetNameEntryVtx(GameState* thisx) {
         gDPSetPrimColorOverride(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
                                 255, COSMETIC_ELEMENT_FILE_SELECT_PLATES);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
-        gDPLoadTextureBlock(POLY_OPA_DISP++, sBackspaceEndTextures[var_t1], G_IM_FMT_IA, G_IM_SIZ_16b,
-                            sBackspaceEndWidths[var_t1], 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
-                            G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+            gDPLoadTextureBlock(POLY_OPA_DISP++, sBackspaceEndPALTextures[gSaveContext.options.language - 1][var_t1], G_IM_FMT_IA, G_IM_SIZ_16b,
+                                sBackspaceEndWidths[var_t1], 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock(POLY_OPA_DISP++, sBackspaceEndTextures[var_t1], G_IM_FMT_IA, G_IM_SIZ_16b,
+                                sBackspaceEndWidths[var_t1], 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        }
         gSP1Quadrangle(POLY_OPA_DISP++, var_s0, var_s0 + 2, var_s0 + 3, var_s0 + 1, 0);
     }
 
@@ -848,7 +875,38 @@ OptionsMenuTextureInfo gOptionsMenuSettings[] = {
     { gFileSelSurroundENGTex, 48, 16 }, { gFileSelSwitchENGTex, 48, 16 }, { gFileSelHoldENGTex, 48, 16 },
 };
 
-void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
+// #region 2S2H [PAL + GC]
+OptionsMenuTextureInfo gOptionsMenuHeadersGC[] = {
+    { gFileSelOptionsGCENGTex, 128, 16 },          { gFileSelSoundGCENGTex, 64, 16 },
+    { gFileSelTargetingGCENGTex, 64, 16 },         { gFileSelCheckBrightnessGCENGTex, 96, 16 },
+    { gFileSelDolbySurroundLogoENGTex, 48, 17 },
+};
+
+OptionsMenuTextureInfo gOptionsMenuSettingsGC[] = {
+    { gFileSelStereoGCENGTex, 48, 16 },   { gFileSelMonoGCENGTex, 48, 16 },   { gFileSelHeadsetGCENGTex, 48, 16 },
+    { gFileSelSurroundGCENGTex, 48, 16 }, { gFileSelSwitchGCENGTex, 48, 16 }, { gFileSelHoldGCENGTex, 48, 16 },
+};
+
+typedef struct {
+    TexturePtr textures[4];
+    u16 width;
+    u16 height;
+} OptionsMenuTextureInfoPAL;
+
+OptionsMenuTextureInfoPAL gOptionsMenuHeadersPAL[] = {
+    { { gFileSelOptionsGCENGTex, gFileSelOptionsGCGERTex, gFileSelOptionsGCFRATex, gFileSelOptionsGCESPTex }, 128, 16 },
+    { { gFileSelSoundGCENGTex, gFileSelSoundGCGERTex, gFileSelSoundGCFRATex, gFileSelSoundGCESPTex }, 64, 16 },
+    { { gFileSelTargetingGCPALENGTex, gFileSelTargetingGCGERTex, gFileSelTargetingGCFRATex, gFileSelTargetingGCESPTex }, 64, 16 },
+    { { gFileSelCheckBrightnessGCENGTex, gFileSelCheckBrightnessGCGERTex, gFileSelCheckBrightnessGCFRATex, gFileSelCheckBrightnessGCESPTex }, 96, 16 },
+    { { gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex }, 48, 17 },
+};
+
+OptionsMenuTextureInfoPAL gOptionsMenuSettingsPAL[] = {
+    { gFileSelStereoENGTex, 48, 16 },   { gFileSelMonoENGTex, 48, 16 },   { gFileSelHeadsetENGTex, 48, 16 },
+    { gFileSelSurroundENGTex, 48, 16 }, { gFileSelSwitchENGTex, 48, 16 }, { gFileSelHoldENGTex, 48, 16 },
+};
+
+void FileSelect_DrawOptionsImpl_GC(GameState* thisx) {
     static s16 sCursorPrimRed = 255;
     static s16 sCursorPrimGreen = 255;
     static s16 sCursorPrimBlue = 255;
@@ -872,6 +930,7 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
     s16 i;
     s16 j;
     s16 vtx;
+    u32 gameRegion = ResourceMgr_GetGameRegion(0);
 
     OPEN_DISPS(this->state.gfxCtx);
 
@@ -963,7 +1022,20 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
     gSP1Quadrangle(POLY_OPA_DISP++, 8, 10, 11, 9, 0);
     Matrix_Pop();
 
-    gSPVertex(POLY_OPA_DISP++, D_80813DF0, 20, 0);
+    if (gameRegion == GAME_REGION_PAL) {
+        Matrix_Push();
+        Matrix_Translate(0.0f, 0.8f, 0.0f, MTXMODE_APPLY);
+        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPVertex(POLY_OPA_DISP++, D_808153B0_cp0, 4, 0);
+        gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
+        Matrix_Pop();
+    }
+
+    if (gameRegion == GAME_REGION_PAL) {
+        gSPVertex(POLY_OPA_DISP++, D_80814F70_cp0, 24, 0);
+    } else {
+        gSPVertex(POLY_OPA_DISP++, D_80813DF0_ce0, 20, 0);
+    }
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
                       ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -980,15 +1052,37 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
                 gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
             }
 
-            gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeaders[i].texture, G_IM_FMT_IA, G_IM_SIZ_8b,
-                                gOptionsMenuHeaders[i].width, gOptionsMenuHeaders[i].height, 0,
+            if (gameRegion == GAME_REGION_PAL) {
+                gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA, G_IM_SIZ_8b,
+                                    gOptionsMenuHeadersPAL[i].width, gOptionsMenuHeadersPAL[i].height, 0,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
+            } else {
+                gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeadersGC[i].texture, G_IM_FMT_IA, G_IM_SIZ_8b,
+                                    gOptionsMenuHeadersGC[i].width, gOptionsMenuHeadersGC[i].height, 0,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
+            }
+        } else if (gameRegion == GAME_REGION_PAL && i == 2 && (gSaveContext.options.language == LANGUAGE_GER || gSaveContext.options.language == LANGUAGE_SPA)) {
+            // Override widths for targeting setting header
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                                144, gOptionsMenuHeadersPAL[i].height, 0,
                                 G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                 G_TX_NOLOD, G_TX_NOLOD);
+
+            gSP1Quadrangle(POLY_OPA_DISP++, vtx + 12, vtx + 14, vtx + 15, vtx + 13, 0);
         } else {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeaders[i].texture, G_IM_FMT_IA,
-                                   gOptionsMenuHeaders[i].width, gOptionsMenuHeaders[i].height, 0,
-                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                   G_TX_NOLOD, G_TX_NOLOD);
+            if (gameRegion == GAME_REGION_PAL) {
+                gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                                       gOptionsMenuHeadersPAL[i].width, gOptionsMenuHeadersPAL[i].height, 0,
+                                       G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                       G_TX_NOLOD, G_TX_NOLOD);
+            } else {
+                gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersGC[i].texture, G_IM_FMT_IA,
+                                       gOptionsMenuHeadersGC[i].width, gOptionsMenuHeadersGC[i].height, 0,
+                                       G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                       G_TX_NOLOD, G_TX_NOLOD);
+            }
         }
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
     }
@@ -999,7 +1093,7 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
 
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->titleAlpha[FS_TITLE_CUR]);
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
-    gSPVertex(POLY_OPA_DISP++, D_80813F30, 24, 0);
+    gSPVertex(POLY_OPA_DISP++, D_80813F30_GC, 24, 0);
 
     for (i = 0, vtx = 0; i < 4; i++, vtx += 4) {
         gDPPipeSync(POLY_OPA_DISP++);
@@ -1016,11 +1110,17 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 120, 120, 120, this->titleAlpha[FS_TITLE_CUR]);
             gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
         }
-
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettings[i].texture, G_IM_FMT_IA,
-                               gOptionsMenuSettings[i].width, gOptionsMenuSettings[i].height, 0,
+        if (gameRegion == GAME_REGION_PAL) {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                               gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsGC[i].texture, G_IM_FMT_IA,
+                                gOptionsMenuSettingsGC[i].width, gOptionsMenuSettingsGC[i].height, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        }
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
     }
 
@@ -1040,18 +1140,24 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 120, 120, 120, this->titleAlpha[FS_TITLE_CUR]);
             gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
         }
-
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettings[i].texture, G_IM_FMT_IA,
-                               gOptionsMenuSettings[i].width, gOptionsMenuSettings[i].height, 0,
+        if (gameRegion == GAME_REGION_PAL) {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                               gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsGC[i].texture, G_IM_FMT_IA,
+                                gOptionsMenuSettingsGC[i].width, gOptionsMenuSettingsGC[i].height, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        }
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
     }
 
     vtx = 0;
     gDPPipeSync(POLY_OPA_DISP++);
     // check brightness bars
-    gSPVertex(POLY_OPA_DISP++, D_80813EB0_ce0, 8, 0);
+    gSPVertex(POLY_OPA_DISP++, D_80813EB0_GC, 8, 0);
     gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelBrightnessCheckTex, G_IM_FMT_IA, 96, 16, 0,
                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                            G_TX_NOLOD);
@@ -1094,9 +1200,9 @@ void FileSelect_DrawOptionsImpl(GameState* thisx) {
     s16 j;
     s16 vtx;
 
-    // #region 2S2H [GC US Support]
-    if (ResourceMgr_GetGameVersion(0) == MM_NTSC_US_GC) {
-        FileSelect_DrawOptionsImpl_NES_GC(thisx);
+    // #region 2S2H [GC Support]
+    if (ResourceMgr_GetGamePlatform(0) == GAME_PLATFORM_GC) {
+        FileSelect_DrawOptionsImpl_GC(thisx);
         return;
     }
     // #endregion

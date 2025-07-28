@@ -299,6 +299,36 @@ static const ALIGN_ASSET(2) char gFileSelFileEmptyGCENGTex[] = dgFileSelFileEmpt
 #define dgFileSelFileInUseGCENGTex "__OTR__misc/title_static/gFileSelFileInUseGCENGTex"
 static const ALIGN_ASSET(2) char gFileSelFileInUseGCENGTex[] = dgFileSelFileInUseGCENGTex;
 
+#define dgFileSelOptionsGCENGTex "__OTR__misc/title_static/gFileSelOptionsGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelOptionsGCENGTex[] = dgFileSelOptionsGCENGTex;
+
+#define dgFileSelSurroundGCENGTex "__OTR__misc/title_static/gFileSelSurroundGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelSurroundGCENGTex[] = dgFileSelSurroundGCENGTex;
+
+#define dgFileSelHeadsetGCENGTex "__OTR__misc/title_static/gFileSelHeadsetGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelHeadsetGCENGTex[] = dgFileSelHeadsetGCENGTex;
+
+#define dgFileSelMonoGCENGTex "__OTR__misc/title_static/gFileSelMonoGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelMonoGCENGTex[] = dgFileSelMonoGCENGTex;
+
+#define dgFileSelSoundGCENGTex "__OTR__misc/title_static/gFileSelSoundGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelSoundGCENGTex[] = dgFileSelSoundGCENGTex;
+
+#define dgFileSelStereoGCENGTex "__OTR__misc/title_static/gFileSelStereoGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelStereoGCENGTex[] = dgFileSelStereoGCENGTex;
+
+#define dgFileSelTargetingGCENGTex "__OTR__misc/title_static/gFileSelTargetingGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelTargetingGCENGTex[] = dgFileSelTargetingGCENGTex;
+
+#define dgFileSelSwitchGCENGTex "__OTR__misc/title_static/gFileSelSwitchGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelSwitchGCENGTex[] = dgFileSelSwitchGCENGTex;
+
+#define dgFileSelHoldGCENGTex "__OTR__misc/title_static/gFileSelHoldGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelHoldGCENGTex[] = dgFileSelHoldGCENGTex;
+
+#define dgFileSelCheckBrightnessGCENGTex "__OTR__misc/title_static/gFileSelCheckBrightnessGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelCheckBrightnessGCENGTex[] = dgFileSelCheckBrightnessGCENGTex;
+
 #define dgFileSelFileLanguageFRATex "__OTR__misc/title_static/gFileSelFileLanguageFRATex"
 static const ALIGN_ASSET(2) char gFileSelFileLanguageFRATex[] = dgFileSelFileLanguageFRATex;
 
@@ -515,104 +545,104 @@ static const ALIGN_ASSET(2) char gFileSelFileErasedPALENGTex[] = dgFileSelFileEr
 #define dgFileSelFileErasedESPTex "__OTR__misc/title_static/gFileSelFileErasedESPTex"
 static const ALIGN_ASSET(2) char gFileSelFileErasedESPTex[] = dgFileSelFileErasedESPTex;
 
-#define dgFileSelOptionsFRATex "__OTR__misc/title_static/gFileSelOptionsFRATex"
-static const ALIGN_ASSET(2) char gFileSelOptionsFRATex[] = dgFileSelOptionsFRATex;
+#define dgFileSelOptionsGCFRATex "__OTR__misc/title_static/gFileSelOptionsGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelOptionsGCFRATex[] = dgFileSelOptionsGCFRATex;
 
-#define dgFileSelOptionsGERTex "__OTR__misc/title_static/gFileSelOptionsGERTex"
-static const ALIGN_ASSET(2) char gFileSelOptionsGERTex[] = dgFileSelOptionsGERTex;
+#define dgFileSelOptionsGCGERTex "__OTR__misc/title_static/gFileSelOptionsGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelOptionsGCGERTex[] = dgFileSelOptionsGCGERTex;
 
-#define dgFileSelOptionsESPTex "__OTR__misc/title_static/gFileSelOptionsESPTex"
-static const ALIGN_ASSET(2) char gFileSelOptionsESPTex[] = dgFileSelOptionsESPTex;
+#define dgFileSelOptionsGCESPTex "__OTR__misc/title_static/gFileSelOptionsGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelOptionsGCESPTex[] = dgFileSelOptionsGCESPTex;
 
-#define dgFileSelLanguageOptionFRATex "__OTR__misc/title_static/gFileSelLanguageOptionFRATex"
-static const ALIGN_ASSET(2) char gFileSelLanguageOptionFRATex[] = dgFileSelLanguageOptionFRATex;
+#define dgFileSelLanguageOptionGCFRATex "__OTR__misc/title_static/gFileSelLanguageOptionGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelLanguageOptionGCFRATex[] = dgFileSelLanguageOptionGCFRATex;
 
-#define dgFileSelLanguageOptionGERTex "__OTR__misc/title_static/gFileSelLanguageOptionGERTex"
-static const ALIGN_ASSET(2) char gFileSelLanguageOptionGERTex[] = dgFileSelLanguageOptionGERTex;
+#define dgFileSelLanguageOptionGCGERTex "__OTR__misc/title_static/gFileSelLanguageOptionGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelLanguageOptionGCGERTex[] = dgFileSelLanguageOptionGCGERTex;
 
-#define dgFileSelLanguageOptionENGTex "__OTR__misc/title_static/gFileSelLanguageOptionENGTex"
-static const ALIGN_ASSET(2) char gFileSelLanguageOptionENGTex[] = dgFileSelLanguageOptionENGTex;
+#define dgFileSelLanguageOptionGCENGTex "__OTR__misc/title_static/gFileSelLanguageOptionGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelLanguageOptionGCENGTex[] = dgFileSelLanguageOptionGCENGTex;
 
-#define dgFileSelLanguageOptionESPTex "__OTR__misc/title_static/gFileSelLanguageOptionESPTex"
-static const ALIGN_ASSET(2) char gFileSelLanguageOptionESPTex[] = dgFileSelLanguageOptionESPTex;
+#define dgFileSelLanguageOptionGCESPTex "__OTR__misc/title_static/gFileSelLanguageOptionGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelLanguageOptionGCESPTex[] = dgFileSelLanguageOptionGCESPTex;
 
-#define dgFileSelHeadsetFRATex "__OTR__misc/title_static/gFileSelHeadsetFRATex"
-static const ALIGN_ASSET(2) char gFileSelHeadsetFRATex[] = dgFileSelHeadsetFRATex;
+#define dgFileSelHeadsetGCFRATex "__OTR__misc/title_static/gFileSelHeadsetGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelHeadsetGCFRATex[] = dgFileSelHeadsetGCFRATex;
 
-#define dgFileSelHeadsetGERTex "__OTR__misc/title_static/gFileSelHeadsetGERTex"
-static const ALIGN_ASSET(2) char gFileSelHeadsetGERTex[] = dgFileSelHeadsetGERTex;
+#define dgFileSelHeadsetGCGERTex "__OTR__misc/title_static/gFileSelHeadsetGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelHeadsetGCGERTex[] = dgFileSelHeadsetGCGERTex;
 
-#define dgFileSelHeadsetESPTex "__OTR__misc/title_static/gFileSelHeadsetESPTex"
-static const ALIGN_ASSET(2) char gFileSelHeadsetESPTex[] = dgFileSelHeadsetESPTex;
+#define dgFileSelHeadsetGCESPTex "__OTR__misc/title_static/gFileSelHeadsetGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelHeadsetGCESPTex[] = dgFileSelHeadsetGCESPTex;
 
-#define dgFileSelHoldFRATex "__OTR__misc/title_static/gFileSelHoldFRATex"
-static const ALIGN_ASSET(2) char gFileSelHoldFRATex[] = dgFileSelHoldFRATex;
+#define dgFileSelHoldGCFRATex "__OTR__misc/title_static/gFileSelHoldGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelHoldGCFRATex[] = dgFileSelHoldGCFRATex;
 
-#define dgFileSelHoldGERTex "__OTR__misc/title_static/gFileSelHoldGERTex"
-static const ALIGN_ASSET(2) char gFileSelHoldGERTex[] = dgFileSelHoldGERTex;
+#define dgFileSelHoldGCGERTex "__OTR__misc/title_static/gFileSelHoldGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelHoldGCGERTex[] = dgFileSelHoldGCGERTex;
 
-#define dgFileSelHoldESPTex "__OTR__misc/title_static/gFileSelHoldESPTex"
-static const ALIGN_ASSET(2) char gFileSelHoldESPTex[] = dgFileSelHoldESPTex;
+#define dgFileSelHoldGCESPTex "__OTR__misc/title_static/gFileSelHoldGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelHoldGCESPTex[] = dgFileSelHoldGCESPTex;
 
-#define dgFileSelLanguageFRATex "__OTR__misc/title_static/gFileSelLanguageFRATex"
-static const ALIGN_ASSET(2) char gFileSelLanguageFRATex[] = dgFileSelLanguageFRATex;
+#define dgFileSelLanguageGCFRATex "__OTR__misc/title_static/gFileSelLanguageGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelLanguageGCFRATex[] = dgFileSelLanguageGCFRATex;
 
-#define dgFileSelLanguageGERTex "__OTR__misc/title_static/gFileSelLanguageGERTex"
-static const ALIGN_ASSET(2) char gFileSelLanguageGERTex[] = dgFileSelLanguageGERTex;
+#define dgFileSelLanguageGCGERTex "__OTR__misc/title_static/gFileSelLanguageGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelLanguageGCGERTex[] = dgFileSelLanguageGCGERTex;
 
-#define dgFileSelLanguageENGTex "__OTR__misc/title_static/gFileSelLanguageENGTex"
-static const ALIGN_ASSET(2) char gFileSelLanguageENGTex[] = dgFileSelLanguageENGTex;
+#define dgFileSelLanguageGCENGTex "__OTR__misc/title_static/gFileSelLanguageGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelLanguageGCENGTex[] = dgFileSelLanguageGCENGTex;
 
-#define dgFileSelLanguageESPTex "__OTR__misc/title_static/gFileSelLanguageESPTex"
-static const ALIGN_ASSET(2) char gFileSelLanguageESPTex[] = dgFileSelLanguageESPTex;
+#define dgFileSelLanguageGCESPTex "__OTR__misc/title_static/gFileSelLanguageGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelLanguageGCESPTex[] = dgFileSelLanguageGCESPTex;
 
-#define dgFileSelMonoFRATex "__OTR__misc/title_static/gFileSelMonoFRATex"
-static const ALIGN_ASSET(2) char gFileSelMonoFRATex[] = dgFileSelMonoFRATex;
+#define dgFileSelMonoGCFRATex "__OTR__misc/title_static/gFileSelMonoGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelMonoGCFRATex[] = dgFileSelMonoGCFRATex;
 
-#define dgFileSelMonoGERTex "__OTR__misc/title_static/gFileSelMonoGERTex"
-static const ALIGN_ASSET(2) char gFileSelMonoGERTex[] = dgFileSelMonoGERTex;
+#define dgFileSelMonoGCGERTex "__OTR__misc/title_static/gFileSelMonoGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelMonoGCGERTex[] = dgFileSelMonoGCGERTex;
 
-#define dgFileSelMonoESPTex "__OTR__misc/title_static/gFileSelMonoESPTex"
-static const ALIGN_ASSET(2) char gFileSelMonoESPTex[] = dgFileSelMonoESPTex;
+#define dgFileSelMonoGCESPTex "__OTR__misc/title_static/gFileSelMonoGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelMonoGCESPTex[] = dgFileSelMonoGCESPTex;
 
-#define dgFileSelCheckBrightnessFRATex "__OTR__misc/title_static/gFileSelCheckBrightnessFRATex"
-static const ALIGN_ASSET(2) char gFileSelCheckBrightnessFRATex[] = dgFileSelCheckBrightnessFRATex;
+#define dgFileSelCheckBrightnessGCFRATex "__OTR__misc/title_static/gFileSelCheckBrightnessGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelCheckBrightnessGCFRATex[] = dgFileSelCheckBrightnessGCFRATex;
 
-#define dgFileSelCheckBrightnessGERTex "__OTR__misc/title_static/gFileSelCheckBrightnessGERTex"
-static const ALIGN_ASSET(2) char gFileSelCheckBrightnessGERTex[] = dgFileSelCheckBrightnessGERTex;
+#define dgFileSelCheckBrightnessGCGERTex "__OTR__misc/title_static/gFileSelCheckBrightnessGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelCheckBrightnessGCGERTex[] = dgFileSelCheckBrightnessGCGERTex;
 
-#define dgFileSelCheckBrightnessPALENGTex "__OTR__misc/title_static/gFileSelCheckBrightnessPALENGTex"
-static const ALIGN_ASSET(2) char gFileSelCheckBrightnessPALENGTex[] = dgFileSelCheckBrightnessPALENGTex;
+#define dgFileSelCheckBrightnessPALGCENGTex "__OTR__misc/title_static/gFileSelCheckBrightnessPALGCENGTex"
+static const ALIGN_ASSET(2) char gFileSelCheckBrightnessPALGCENGTex[] = dgFileSelCheckBrightnessPALGCENGTex;
 
-#define dgFileSelCheckBrightnessESPTex "__OTR__misc/title_static/gFileSelCheckBrightnessESPTex"
-static const ALIGN_ASSET(2) char gFileSelCheckBrightnessESPTex[] = dgFileSelCheckBrightnessESPTex;
+#define dgFileSelCheckBrightnessGCESPTex "__OTR__misc/title_static/gFileSelCheckBrightnessGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelCheckBrightnessGCESPTex[] = dgFileSelCheckBrightnessGCESPTex;
 
-#define dgFileSelSoundFRATex "__OTR__misc/title_static/gFileSelSoundFRATex"
-static const ALIGN_ASSET(2) char gFileSelSoundFRATex[] = dgFileSelSoundFRATex;
+#define dgFileSelSoundGCFRATex "__OTR__misc/title_static/gFileSelSoundGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelSoundGCFRATex[] = dgFileSelSoundGCFRATex;
 
-#define dgFileSelSoundGERTex "__OTR__misc/title_static/gFileSelSoundGERTex"
-static const ALIGN_ASSET(2) char gFileSelSoundGERTex[] = dgFileSelSoundGERTex;
+#define dgFileSelSoundGCGERTex "__OTR__misc/title_static/gFileSelSoundGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelSoundGCGERTex[] = dgFileSelSoundGCGERTex;
 
-#define dgFileSelSoundESPTex "__OTR__misc/title_static/gFileSelSoundESPTex"
-static const ALIGN_ASSET(2) char gFileSelSoundESPTex[] = dgFileSelSoundESPTex;
+#define dgFileSelSoundGCESPTex "__OTR__misc/title_static/gFileSelSoundGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelSoundGCESPTex[] = dgFileSelSoundGCESPTex;
 
-#define dgFileSelStereoFRATex "__OTR__misc/title_static/gFileSelStereoFRATex"
-static const ALIGN_ASSET(2) char gFileSelStereoFRATex[] = dgFileSelStereoFRATex;
+#define dgFileSelStereoGCFRATex "__OTR__misc/title_static/gFileSelStereoGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelStereoGCFRATex[] = dgFileSelStereoGCFRATex;
 
-#define dgFileSelStereoGERTex "__OTR__misc/title_static/gFileSelStereoGERTex"
-static const ALIGN_ASSET(2) char gFileSelStereoGERTex[] = dgFileSelStereoGERTex;
+#define dgFileSelStereoGCGERTex "__OTR__misc/title_static/gFileSelStereoGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelStereoGCGERTex[] = dgFileSelStereoGCGERTex;
 
-#define dgFileSelStereoESPTex "__OTR__misc/title_static/gFileSelStereoESPTex"
-static const ALIGN_ASSET(2) char gFileSelStereoESPTex[] = dgFileSelStereoESPTex;
+#define dgFileSelStereoGCESPTex "__OTR__misc/title_static/gFileSelStereoGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelStereoGCESPTex[] = dgFileSelStereoGCESPTex;
 
-#define dgFileSelSwitchFRATex "__OTR__misc/title_static/gFileSelSwitchFRATex"
-static const ALIGN_ASSET(2) char gFileSelSwitchFRATex[] = dgFileSelSwitchFRATex;
+#define dgFileSelSwitchGCFRATex "__OTR__misc/title_static/gFileSelSwitchGCFRATex"
+static const ALIGN_ASSET(2) char gFileSelSwitchGCFRATex[] = dgFileSelSwitchGCFRATex;
 
-#define dgFileSelSwitchGERTex "__OTR__misc/title_static/gFileSelSwitchGERTex"
-static const ALIGN_ASSET(2) char gFileSelSwitchGERTex[] = dgFileSelSwitchGERTex;
+#define dgFileSelSwitchGCGERTex "__OTR__misc/title_static/gFileSelSwitchGCGERTex"
+static const ALIGN_ASSET(2) char gFileSelSwitchGCGERTex[] = dgFileSelSwitchGCGERTex;
 
-#define dgFileSelSwitchESPTex "__OTR__misc/title_static/gFileSelSwitchESPTex"
-static const ALIGN_ASSET(2) char gFileSelSwitchESPTex[] = dgFileSelSwitchESPTex;
+#define dgFileSelSwitchGCESPTex "__OTR__misc/title_static/gFileSelSwitchGCESPTex"
+static const ALIGN_ASSET(2) char gFileSelSwitchGCESPTex[] = dgFileSelSwitchGCESPTex;
 
 #define dgFileSelTargetingGCFRATex "__OTR__misc/title_static/gFileSelTargetingGCFRATex"
 static const ALIGN_ASSET(2) char gFileSelTargetingGCFRATex[] = dgFileSelTargetingGCFRATex;
