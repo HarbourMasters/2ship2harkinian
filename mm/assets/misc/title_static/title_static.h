@@ -611,8 +611,8 @@ static const ALIGN_ASSET(2) char gFileSelCheckBrightnessGCFRATex[] = dgFileSelCh
 #define dgFileSelCheckBrightnessGCGERTex "__OTR__misc/title_static/gFileSelCheckBrightnessGCGERTex"
 static const ALIGN_ASSET(2) char gFileSelCheckBrightnessGCGERTex[] = dgFileSelCheckBrightnessGCGERTex;
 
-#define dgFileSelCheckBrightnessPALGCENGTex "__OTR__misc/title_static/gFileSelCheckBrightnessPALGCENGTex"
-static const ALIGN_ASSET(2) char gFileSelCheckBrightnessPALGCENGTex[] = dgFileSelCheckBrightnessPALGCENGTex;
+#define dgFileSelCheckBrightnessGCPALENGTex "__OTR__misc/title_static/gFileSelCheckBrightnessGCPALENGTex"
+static const ALIGN_ASSET(2) char gFileSelCheckBrightnessGCPALENGTex[] = dgFileSelCheckBrightnessGCPALENGTex;
 
 #define dgFileSelCheckBrightnessGCESPTex "__OTR__misc/title_static/gFileSelCheckBrightnessGCESPTex"
 static const ALIGN_ASSET(2) char gFileSelCheckBrightnessGCESPTex[] = dgFileSelCheckBrightnessGCESPTex;
@@ -772,6 +772,9 @@ static const ALIGN_ASSET(2) char gFileSelMASKSGERTex[] = dgFileSelMASKSGERTex;
 
 #define dgFileSelMASKSESPTex "__OTR__misc/title_static/gFileSelMASKSESPTex"
 static const ALIGN_ASSET(2) char gFileSelMASKSESPTex[] = dgFileSelMASKSESPTex;
+
+#define dgFileSelLanguageHighlightTex "__OTR__misc/title_static/gFileSelLanguageHighlightTex"
+static const ALIGN_ASSET(2) char gFileSelLanguageHighlightTex[] = dgFileSelLanguageHighlightTex;
 
 // #endregion
 

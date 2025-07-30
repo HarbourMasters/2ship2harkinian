@@ -12,6 +12,7 @@
 #include "z64view.h"
 #include "interface/parameter_static/parameter_static.h"
 #include "misc/title_static/title_static.h"
+#include "objects/object_mag/object_mag.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h_assets.h"
@@ -122,8 +123,97 @@ void FileChoose_DrawImageRGBA32(GraphicsContext* gfxCtx, s16 centerX, s16 center
 // #endregion
 
 // #region 2S2H [PAL] - This function is stubbed in NTSC
-void FileSelect_Noop2(FileSelectState* this) {
+typedef struct LanguageHighlightPosition {
+    s32 left;
+    s32 top;
+    s32 right;
+    s32 bottom;
+} LanguageHighlightPosition;
+
+typedef struct LanguageTextureInfo {
+    TexturePtr texture;
+    u16 width;
+    u16 height;
+    s32 left;
+    s32 top;
+    s32 right;
+    s32 bottom;
+} LanguageTextureInfo;
+
+void FileSelect_DrawLanguageSelectScreen(FileSelectState* this) {
+    static s32 sLanguageHighlightAlpha = 100;
+    static LanguageHighlightPosition sLanguageHighlightPositions[] = {
+        { 56, 157, 128, 229 },
+        { 104, 157, 176, 229 },
+        { 152, 157, 224, 229 },
+        { 200, 157, 272, 229 },
+    };
+    static LanguageTextureInfo sLanguageTextureInfos[] = {
+        { gFileSelLanguageOptionGCENGTex, 48, 16, 64, 183, 112, 199 },
+        { gFileSelLanguageOptionGCGERTex, 48, 16, 112, 183, 160, 199 },
+        { gFileSelLanguageOptionGCFRATex, 48, 16, 160, 183, 208, 199 },
+        { gFileSelLanguageOptionGCESPTex, 48, 16, 208, 183, 256, 199 },
+    };
+    s32 i;
+    u8* var_a2;
+    s32 var_a0;
+    s32 var_a1;
+
+    // Stub For NTSC
+    if (ResourceMgr_GetGameRegion(0) == GAME_REGION_NTSC) {
+        return;
+    }
+    
+    OPEN_DISPS(this->state.gfxCtx);
+    Gfx_SetupDL39_Opa(this->state.gfxCtx);
+    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
+    gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
+    FileChoose_DrawImageRGBA32(this->state.gfxCtx, 0x7C, 0x47, gTitleScreenMajorasMaskTex, 0x80, 0x70);
+    Gfx_SetupDL39_Opa(this->state.gfxCtx);
+    gDPSetAlphaCompare(POLY_OPA_DISP++, G_AC_NONE);
+    gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
+    FileChoose_DrawImageRGBA32(this->state.gfxCtx, 0xB1, 0x49, gTitleScreenZeldaLogoTex, 0x90, 0x40);
+    Gfx_SetupDL39_Opa(this->state.gfxCtx);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 100, 100, 255, sLanguageHighlightAlpha);
+    gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelLanguageHighlightTex, G_IM_FMT_I, 48, 48, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+    gSPTextureRectangle(POLY_OPA_DISP++, sLanguageHighlightPositions[gSaveContext.options.language - 1].left << 2, sLanguageHighlightPositions[gSaveContext.options.language - 1].top << 2, sLanguageHighlightPositions[gSaveContext.options.language - 1].right << 2, sLanguageHighlightPositions[gSaveContext.options.language - 1].bottom << 2, 0, 0, 0, 0x300, 0x300);
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetRenderMode(POLY_OPA_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+    gDPSetCombineMode(POLY_OPA_DISP++, G_CC_BLENDPEDECALA, G_CC_BLENDPEDECALA);
+    gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 50, 255);
+
+    for (i = 0; i < 4; i++) {
+        gDPPipeSync(POLY_OPA_DISP++);
+
+        if (gSaveContext.options.language - 1 == i) {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
+        } else {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 50, 50, 100, 255);
+        }
+        
+        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sLanguageTextureInfos[i].texture, G_IM_FMT_IA, sLanguageTextureInfos[i].width, sLanguageTextureInfos[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gSPTextureRectangle(POLY_OPA_DISP++, sLanguageTextureInfos[i].left << 2, sLanguageTextureInfos[i].top << 2, sLanguageTextureInfos[i].right << 2, sLanguageTextureInfos[i].bottom << 2, 0, 0, 0, 1 << 10, 1 << 10);
+    }
+
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 220, 180, 30, 255);
+    gDPSetEnvColor(POLY_OPA_DISP++, 60, 20, 0, 255);
+
+    // TODO: Allow For HD Assets
+    var_a2 = gFileSelSelectLanguagesTex;
+    var_a0 = 0x68;
+    for (i = 0; i < 8; i++, var_a2 += 0x500) {
+        var_a1 = var_a0 + 8;
+        gDPLoadTextureBlock(POLY_OPA_DISP++, var_a2, G_IM_FMT_IA, G_IM_SIZ_8b, 160, 8, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gSPTextureRectangle(POLY_OPA_DISP++, 80 << 2, var_a0 << 2, 240 << 2, var_a1 << 2, 0, 0, 0, 1 << 10, 1 << 10);
+        var_a0 = var_a1;
+    }
+
+    CLOSE_DISPS(this->state.gfxCtx);
 }
+// #endregion
 
 void FileSelect_InitModeUpdate(GameState* thisx) {
     FileSelectState* this = (FileSelectState*)thisx;
@@ -163,7 +253,7 @@ void FileSelect_InitModeDraw(GameState* thisx) {
     FileSelectState* this = (FileSelectState*)thisx;
 
     Gfx_SetupDL39_Opa(this->state.gfxCtx);
-    FileSelect_Noop2(this);
+    FileSelect_DrawLanguageSelectScreen(this);
 }
 
 void FileSelect_SetView(FileSelectState* this, f32 eyeX, f32 eyeY, f32 eyeZ) {
@@ -2535,15 +2625,6 @@ void FileSelect_Main(GameState* thisx) {
     Input* input = CONTROLLER1(&this->state);
     s32 texIndex;
     s32 pad;
-
-    // Testing
-    if (input->press.button & BTN_CUP) {
-        gSaveContext.options.language++;
-        gSaveContext.options.language %= LANGUAGE_MAX;
-        if (gSaveContext.options.language == 0) {
-            gSaveContext.options.language++;
-        }
-    }
 
     func_8012CF0C(this->state.gfxCtx, 0, 1, 0, 0, 0);
 

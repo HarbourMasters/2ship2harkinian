@@ -9,6 +9,9 @@
 #include "z64save.h"
 #include "z64shrink_window.h"
 #include "misc/daytelop_static/daytelop_static.h"
+#include "misc/ger_daytelop_static/ger_daytelop_static.h"
+#include "misc/fra_daytelop_static/fra_daytelop_static.h"
+#include "misc/esp_daytelop_static/esp_daytelop_static.h"
 #include "interface/icon_item_gameover_static/icon_item_gameover_static.h"
 
 #include "BenPort.h"
@@ -132,6 +135,29 @@ TexturePtr sHoursLeftTextures[] = {
     gEmptyTexture,
 };
 
+// #region 2S2H [PAL]
+TexturePtr sDayLeftTexturesPAL[][4] = {
+    { gDaytelopFirstDayLeftNESTex, gDaytelopSecondDayLeftNESTex, gDaytelopFinalDayLeftNESTex, gDaytelopNewDayLeftNESTex },
+    { gDaytelopFirstDayLeftGERTex, gDaytelopSecondDayLeftGERTex, gDaytelopFinalDayLeftGERTex, gDaytelopNewDayLeftGERTex },
+    { gDaytelopFirstDayLeftFRATex, gDaytelopSecondDayLeftFRATex, gDaytelopFinalDayLeftFRATex, gDaytelopNewDayLeftFRATex },
+    { gDaytelopFirstDayLeftESPTex, gDaytelopSecondDayLeftESPTex, gDaytelopFinalDayLeftESPTex, gDaytelopNewDayLeftESPTex },
+};
+
+TexturePtr sDayRightTexturesPAL[][4] = {
+    { gDaytelopFirstDayRightNESTex, gDaytelopSecondDayRightNESTex, gDaytelopFinalDayRightNESTex, gDaytelopNewDayRightNESTex },
+    { gDaytelopFirstDayRightGERTex, gDaytelopSecondDayRightGERTex, gDaytelopFinalDayRightGERTex, gDaytelopNewDayRightGERTex },
+    { gDaytelopFirstDayRightFRATex, gDaytelopSecondDayRightFRATex, gDaytelopFinalDayRightFRATex, gDaytelopNewDayRightFRATex },
+    { gDaytelopFirstDayRightESPTex, gDaytelopSecondDayRightESPTex, gDaytelopFinalDayRightESPTex, gDaytelopNewDayRightESPTex },
+};
+
+TexturePtr sHoursLeftTexturesPAL[][4] = {
+    { gDaytelop72HoursNESTex, gDaytelop48HoursNESTex, gDaytelop24HoursNESTex, gEmptyTexture },
+    { gDaytelop72HoursGERTex, gDaytelop48HoursGERTex, gDaytelop24HoursGERTex, gEmptyTexture },
+    { gDaytelop72HoursFRATex, gDaytelop48HoursFRATex, gDaytelop24HoursFRATex, gEmptyTexture },
+    { gDaytelop72HoursESPTex, gDaytelop48HoursESPTex, gDaytelop24HoursESPTex, gEmptyTexture },
+};
+// #endregion
+
 void DayTelop_Draw(DayTelopState* this) {
     GraphicsContext* gfxCtx = this->state.gfxCtx;
 
@@ -165,27 +191,51 @@ void DayTelop_Draw(DayTelopState* this) {
     }
 
     // Draw the left side of the "Dawn of" texture
-    if (gSaveContext.save.day < 9) {
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTextures[CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
-                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
+    if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+        if (gSaveContext.save.day < 9) {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTexturesPAL[gSaveContext.options.language - 1][CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTexturesPAL[gSaveContext.options.language - 1][ARRAY_COUNT(sDayLeftTextures) - 1], G_IM_FMT_I, 128,
+                                64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        }
     } else {
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTextures[ARRAY_COUNT(sDayLeftTextures) - 1], G_IM_FMT_I, 128,
-                               64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
+        if (gSaveContext.save.day < 9) {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTextures[CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTextures[ARRAY_COUNT(sDayLeftTextures) - 1], G_IM_FMT_I, 128,
+                                64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        }
     }
     gSPTextureRectangle(POLY_OPA_DISP++, 32 << 2, 77 << 2, (32 + 128) << 2, (77 + 64) << 2, G_TX_RENDERTILE, 0, 0,
                         0x0400, 0x0400);
 
     // Draw the right side of the "Dawn of" texture
-    if (gSaveContext.save.day < 9) {
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTextures[CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
-                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
+    if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+        if (gSaveContext.save.day < 9) {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTexturesPAL[gSaveContext.options.language - 1][CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTexturesPAL[gSaveContext.options.language - 1][ARRAY_COUNT(sDayRightTextures) - 1], G_IM_FMT_I, 128,
+                                64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        }
     } else {
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTextures[ARRAY_COUNT(sDayRightTextures) - 1], G_IM_FMT_I, 128,
-                               64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
+        if (gSaveContext.save.day < 9) {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTextures[CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTextures[ARRAY_COUNT(sDayRightTextures) - 1], G_IM_FMT_I, 128,
+                                64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        }
     }
     gSPTextureRectangle(POLY_OPA_DISP++, 160 << 2, 77 << 2, (160 + 128) << 2, (77 + 64) << 2, G_TX_RENDERTILE, 0, 0,
                         0x0400, 0x0400);
@@ -195,9 +245,15 @@ void DayTelop_Draw(DayTelopState* this) {
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetRenderMode(POLY_OPA_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->alpha);
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sHoursLeftTextures[CURRENT_DAY - 1], G_IM_FMT_I, 144, 32, 0,
-                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
+        if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sHoursLeftTexturesPAL[gSaveContext.options.language - 1][CURRENT_DAY - 1], G_IM_FMT_I, 144, 32, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sHoursLeftTextures[CURRENT_DAY - 1], G_IM_FMT_I, 144, 32, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        }
         gSPTextureRectangle(POLY_OPA_DISP++, 88 << 2, 144 << 2, (88 + 144) << 2, (144 + 32) << 2, G_TX_RENDERTILE, 0, 0,
                             0x0400, 0x0400);
     }

@@ -2,10 +2,10 @@
     <!-- Pause Menu: Language-Dependent Textures -->
     <File Name="icon_item_jpn_static" Segment="13">
         <!-- Pause Menu Dungeon Title Cards -->
-        <Texture Name="gPauseWoodfallTitleENGTex" OutName="pause_woodfall_title_eng" Format="ia4" Width="128" Height="16" Offset="0x0"/>
-        <Texture Name="gPauseSnowheadTitleENGTex" OutName="pause_snowhead_title_eng" Format="ia4" Width="128" Height="16" Offset="0x400"/>
-        <Texture Name="gPauseGreatBayTitleENGTex" OutName="pause_great_bay_title_eng" Format="ia4" Width="128" Height="16" Offset="0x800"/>
-        <Texture Name="gPauseStoneTowerTitleENGTex" OutName="pause_stone_tower_title_eng" Format="ia4" Width="128" Height="16" Offset="0xC00"/>
+        <Texture Name="gPauseWoodfallTitleGCENGTex" OutName="pause_woodfall_title_eng" Format="ia4" Width="128" Height="16" Offset="0x0"/>
+        <Texture Name="gPauseSnowheadTitleGCENGTex" OutName="pause_snowhead_title_eng" Format="ia4" Width="128" Height="16" Offset="0x400"/>
+        <Texture Name="gPauseGreatBayTitleGCENGTex" OutName="pause_great_bay_title_eng" Format="ia4" Width="128" Height="16" Offset="0x800"/>
+        <Texture Name="gPauseStoneTowerTitleGCENGTex" OutName="pause_stone_tower_title_eng" Format="ia4" Width="128" Height="16" Offset="0xC00"/>
 
         <!-- Pause Menu Info Panel To-> Textures -->
         <Texture Name="gPauseToEquipENGTex" OutName="pause_to_equip_eng" Format="ia4" Width="64" Height="16" Offset="0x1000"/>

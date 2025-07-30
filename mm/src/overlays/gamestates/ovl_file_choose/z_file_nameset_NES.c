@@ -965,17 +965,21 @@ typedef struct {
     u16 height;
 } OptionsMenuTextureInfoPAL;
 
-OptionsMenuTextureInfoPAL gOptionsMenuHeadersPAL[] = {
+OptionsMenuTextureInfoPAL gOptionsMenuHeadersGCPAL[] = {
     { { gFileSelOptionsGCENGTex, gFileSelOptionsGCGERTex, gFileSelOptionsGCFRATex, gFileSelOptionsGCESPTex }, 128, 16 },
     { { gFileSelSoundGCENGTex, gFileSelSoundGCGERTex, gFileSelSoundGCFRATex, gFileSelSoundGCESPTex }, 64, 16 },
     { { gFileSelTargetingGCPALENGTex, gFileSelTargetingGCGERTex, gFileSelTargetingGCFRATex, gFileSelTargetingGCESPTex }, 64, 16 },
-    { { gFileSelCheckBrightnessGCENGTex, gFileSelCheckBrightnessGCGERTex, gFileSelCheckBrightnessGCFRATex, gFileSelCheckBrightnessGCESPTex }, 96, 16 },
+    { { gFileSelCheckBrightnessGCPALENGTex, gFileSelCheckBrightnessGCGERTex, gFileSelCheckBrightnessGCFRATex, gFileSelCheckBrightnessGCESPTex }, 128, 16 },
     { { gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex }, 48, 17 },
 };
 
 OptionsMenuTextureInfoPAL gOptionsMenuSettingsPAL[] = {
-    { gFileSelStereoENGTex, 48, 16 },   { gFileSelMonoENGTex, 48, 16 },   { gFileSelHeadsetENGTex, 48, 16 },
-    { gFileSelSurroundENGTex, 48, 16 }, { gFileSelSwitchENGTex, 48, 16 }, { gFileSelHoldENGTex, 48, 16 },
+    { { gFileSelStereoGCENGTex, gFileSelStereoGCGERTex, gFileSelStereoGCFRATex, gFileSelStereoGCESPTex }, 48, 16 },
+    { { gFileSelMonoGCENGTex, gFileSelMonoGCGERTex, gFileSelMonoGCFRATex, gFileSelMonoGCESPTex }, 48, 16 },
+    { { gFileSelHeadsetGCENGTex, gFileSelHeadsetGCGERTex, gFileSelHeadsetGCFRATex, gFileSelHeadsetGCESPTex }, 48, 16 },
+    { { gFileSelSurroundGCENGTex, gFileSelSurroundGCENGTex, gFileSelSurroundGCENGTex, gFileSelSurroundGCENGTex }, 48, 16 },
+    { { gFileSelSwitchGCENGTex, gFileSelSwitchGCGERTex, gFileSelSwitchGCFRATex, gFileSelSwitchGCESPTex }, 48, 16 },
+    { { gFileSelHoldGCENGTex, gFileSelHoldGCGERTex, gFileSelHoldGCFRATex, gFileSelHoldGCESPTex }, 48, 16 },
 };
 
 void FileSelect_DrawOptionsImpl_GC(GameState* thisx) {
@@ -1125,8 +1129,8 @@ void FileSelect_DrawOptionsImpl_GC(GameState* thisx) {
             }
 
             if (gameRegion == GAME_REGION_PAL) {
-                gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA, G_IM_SIZ_8b,
-                                    gOptionsMenuHeadersPAL[i].width, gOptionsMenuHeadersPAL[i].height, 0,
+                gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeadersGCPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA, G_IM_SIZ_8b,
+                                    gOptionsMenuHeadersGCPAL[i].width, gOptionsMenuHeadersGCPAL[i].height, 0,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                     G_TX_NOLOD, G_TX_NOLOD);
             } else {
@@ -1137,16 +1141,16 @@ void FileSelect_DrawOptionsImpl_GC(GameState* thisx) {
             }
         } else if (gameRegion == GAME_REGION_PAL && i == 2 && (gSaveContext.options.language == LANGUAGE_GER || gSaveContext.options.language == LANGUAGE_SPA)) {
             // Override widths for targeting setting header
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                                144, gOptionsMenuHeadersPAL[i].height, 0,
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersGCPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                                144, gOptionsMenuHeadersGCPAL[i].height, 0,
                                 G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                 G_TX_NOLOD, G_TX_NOLOD);
 
             gSP1Quadrangle(POLY_OPA_DISP++, vtx + 12, vtx + 14, vtx + 15, vtx + 13, 0);
         } else {
             if (gameRegion == GAME_REGION_PAL) {
-                gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                                       gOptionsMenuHeadersPAL[i].width, gOptionsMenuHeadersPAL[i].height, 0,
+                gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersGCPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                                       gOptionsMenuHeadersGCPAL[i].width, gOptionsMenuHeadersGCPAL[i].height, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
             } else {
