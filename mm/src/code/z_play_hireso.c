@@ -325,13 +325,13 @@ void BombersNotebook_DrawHeaders(Gfx** gfxP) {
     gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, 255);
     for (i = 0, rectLeft = 124; i < ARRAY_COUNT(sBombersNotebookDayTextures); i++, rectLeft += 150) {
         if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
-            gDPLoadTextureBlock(gfx++, sBombersNotebookDayTexturesPAL[gSaveContext.options.language - 1][i], G_IM_FMT_IA, G_IM_SIZ_8b, 48, 22, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                                G_TX_NOLOD);
+            gDPLoadTextureBlock(gfx++, sBombersNotebookDayTexturesPAL[gSaveContext.options.language - 1][i],
+                                G_IM_FMT_IA, G_IM_SIZ_8b, 48, 22, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
             gDPLoadTextureBlock(gfx++, sBombersNotebookDayTextures[i], G_IM_FMT_IA, G_IM_SIZ_8b, 48, 22, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                                G_TX_NOLOD);
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
         }
         BombersNotebook_DrawScisTexRect(&gfx, rectLeft * 4, 77 * 4, (rectLeft + 48) * 4, 99 * 4, 0, 0, 0, 1 << 10,
                                         1 << 10);

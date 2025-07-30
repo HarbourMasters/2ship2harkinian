@@ -63,23 +63,17 @@ s16 D_8081441C[] = {
 };
 
 // #region 2S2H [PAL]
-s16 D_80815450_cp0[] = {
-    2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 0,
-    1, 1, 1, 2, 2, 2, 2, 2, 3, 2, 2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 0, 3, 1, 2,
-    1, 1, 4, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2
-};
+s16 D_80815450_cp0[] = { 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1,
+                         1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 2, 2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2,
+                         0, 3, 1, 2, 1, 1, 4, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2 };
 
-s16 D_80815508_cp0[] = {
-    1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 2,
-    2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 1, 1, 4, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2,
-    2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 3
-};
+s16 D_80815508_cp0[] = { 1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2,
+                         2, 3, 2, 2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 1, 1, 4, 1, 1, 1, 1, 2,
+                         2, 2, 2, 2, 2, 2, 2, 2, 4, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 3 };
 
-s16 D_808155BC_cp0[] = {
-    0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-};
+s16 D_808155BC_cp0[] = { 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1,
+                         1, 1, 1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1,
+                         1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 // #endregion
 
 void FileSelect_SetKeyboardVtx(GameState* thisx) {
@@ -251,13 +245,14 @@ void FileSelect_SetNameEntryVtx(GameState* thisx) {
                                 255, COSMETIC_ELEMENT_FILE_SELECT_PLATES);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
         if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
-            gDPLoadTextureBlock(POLY_OPA_DISP++, sBackspaceEndPALTextures[gSaveContext.options.language - 1][var_t1], G_IM_FMT_IA, G_IM_SIZ_16b,
-                                sBackspaceEndWidths[var_t1], 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
-                                G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(POLY_OPA_DISP++, sBackspaceEndPALTextures[gSaveContext.options.language - 1][var_t1],
+                                G_IM_FMT_IA, G_IM_SIZ_16b, sBackspaceEndWidths[var_t1], 16, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
         } else {
             gDPLoadTextureBlock(POLY_OPA_DISP++, sBackspaceEndTextures[var_t1], G_IM_FMT_IA, G_IM_SIZ_16b,
-                                sBackspaceEndWidths[var_t1], 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
-                                G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                                sBackspaceEndWidths[var_t1], 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         }
         gSP1Quadrangle(POLY_OPA_DISP++, var_s0, var_s0 + 2, var_s0 + 3, var_s0 + 1, 0);
     }
@@ -269,7 +264,8 @@ void FileSelect_SetNameEntryVtx(GameState* thisx) {
             temp = this->fileNames[this->buttonIndex][var_s0 - 1];
 
             this->nameEntryVtx[var_t1 + 0].v.ob[0] = this->nameEntryVtx[var_t1 + 2].v.ob[0] =
-                D_80814434[var_s0] + this->nameEntryBoxPosX + ((ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) ? D_80815450_cp0[temp] : D_80814280[temp]);
+                D_80814434[var_s0] + this->nameEntryBoxPosX +
+                ((ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) ? D_80815450_cp0[temp] : D_80814280[temp]);
 
             this->nameEntryVtx[var_t1 + 1].v.ob[0] = this->nameEntryVtx[var_t1 + 3].v.ob[0] =
                 this->nameEntryVtx[var_t1 + 0].v.ob[0] + 10;
@@ -370,12 +366,14 @@ void FileSelect_DrawKeyboardPAL(GameState* thisx) {
         gSPVertex(POLY_OPA_DISP++, &this->keyboardVtx[vtx], 32, 0);
 
         for (tmp = 0; tmp < 32; i++, tmp += 4) {
-            FileSelect_DrawTexQuadI4(this->state.gfxCtx, font->fontBuf + gKeyboardCharactersPAL[i] * FONT_CHAR_TEX_SIZE, tmp);
+            FileSelect_DrawTexQuadI4(this->state.gfxCtx, font->fontBuf + gKeyboardCharactersPAL[i] * FONT_CHAR_TEX_SIZE,
+                                     tmp);
         }
         gSPVertex(POLY_OPA_DISP++, &this->keyboardVtx[vtx + 32], 20, 0);
 
         for (tmp = 0; tmp < 20; i++, tmp += 4) {
-            FileSelect_DrawTexQuadI4(this->state.gfxCtx, font->fontBuf + gKeyboardCharactersPAL[i] * FONT_CHAR_TEX_SIZE, tmp);
+            FileSelect_DrawTexQuadI4(this->state.gfxCtx, font->fontBuf + gKeyboardCharactersPAL[i] * FONT_CHAR_TEX_SIZE,
+                                     tmp);
         }
     }
 
@@ -561,11 +559,13 @@ void FileSelect_DrawNameEntry(GameState* thisx) {
                     gSPVertex(POLY_OPA_DISP++, &this->keyboardVtx[this->charIndex * 4], 4, 0);
 
                     FileSelect_DrawTexQuadI4(this->state.gfxCtx,
-                                             font->fontBuf + keyboardCharacters[this->charIndex] * FONT_CHAR_TEX_SIZE, 0);
+                                             font->fontBuf + keyboardCharacters[this->charIndex] * FONT_CHAR_TEX_SIZE,
+                                             0);
 
                     if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
                         Audio_PlaySfx(NA_SE_SY_FSEL_DECIDE_S);
-                        this->fileNames[this->buttonIndex][this->newFileNameCharCount] = keyboardCharacters[this->charIndex];
+                        this->fileNames[this->buttonIndex][this->newFileNameCharCount] =
+                            keyboardCharacters[this->charIndex];
 
                         this->newFileNameCharCount++;
 
@@ -949,8 +949,8 @@ OptionsMenuTextureInfo gOptionsMenuSettings[] = {
 
 // #region 2S2H [PAL + GC]
 OptionsMenuTextureInfo gOptionsMenuHeadersGC[] = {
-    { gFileSelOptionsGCENGTex, 128, 16 },          { gFileSelSoundGCENGTex, 64, 16 },
-    { gFileSelTargetingGCENGTex, 64, 16 },         { gFileSelCheckBrightnessGCENGTex, 96, 16 },
+    { gFileSelOptionsGCENGTex, 128, 16 },        { gFileSelSoundGCENGTex, 64, 16 },
+    { gFileSelTargetingGCENGTex, 64, 16 },       { gFileSelCheckBrightnessGCENGTex, 96, 16 },
     { gFileSelDolbySurroundLogoENGTex, 48, 17 },
 };
 
@@ -968,16 +968,26 @@ typedef struct {
 OptionsMenuTextureInfoPAL gOptionsMenuHeadersGCPAL[] = {
     { { gFileSelOptionsGCENGTex, gFileSelOptionsGCGERTex, gFileSelOptionsGCFRATex, gFileSelOptionsGCESPTex }, 128, 16 },
     { { gFileSelSoundGCENGTex, gFileSelSoundGCGERTex, gFileSelSoundGCFRATex, gFileSelSoundGCESPTex }, 64, 16 },
-    { { gFileSelTargetingGCPALENGTex, gFileSelTargetingGCGERTex, gFileSelTargetingGCFRATex, gFileSelTargetingGCESPTex }, 64, 16 },
-    { { gFileSelCheckBrightnessGCPALENGTex, gFileSelCheckBrightnessGCGERTex, gFileSelCheckBrightnessGCFRATex, gFileSelCheckBrightnessGCESPTex }, 128, 16 },
-    { { gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex }, 48, 17 },
+    { { gFileSelTargetingGCPALENGTex, gFileSelTargetingGCGERTex, gFileSelTargetingGCFRATex, gFileSelTargetingGCESPTex },
+      64,
+      16 },
+    { { gFileSelCheckBrightnessGCPALENGTex, gFileSelCheckBrightnessGCGERTex, gFileSelCheckBrightnessGCFRATex,
+        gFileSelCheckBrightnessGCESPTex },
+      128,
+      16 },
+    { { gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex, gFileSelDolbySurroundLogoENGTex,
+        gFileSelDolbySurroundLogoENGTex },
+      48,
+      17 },
 };
 
 OptionsMenuTextureInfoPAL gOptionsMenuSettingsPAL[] = {
     { { gFileSelStereoGCENGTex, gFileSelStereoGCGERTex, gFileSelStereoGCFRATex, gFileSelStereoGCESPTex }, 48, 16 },
     { { gFileSelMonoGCENGTex, gFileSelMonoGCGERTex, gFileSelMonoGCFRATex, gFileSelMonoGCESPTex }, 48, 16 },
     { { gFileSelHeadsetGCENGTex, gFileSelHeadsetGCGERTex, gFileSelHeadsetGCFRATex, gFileSelHeadsetGCESPTex }, 48, 16 },
-    { { gFileSelSurroundGCENGTex, gFileSelSurroundGCENGTex, gFileSelSurroundGCENGTex, gFileSelSurroundGCENGTex }, 48, 16 },
+    { { gFileSelSurroundGCENGTex, gFileSelSurroundGCENGTex, gFileSelSurroundGCENGTex, gFileSelSurroundGCENGTex },
+      48,
+      16 },
     { { gFileSelSwitchGCENGTex, gFileSelSwitchGCGERTex, gFileSelSwitchGCFRATex, gFileSelSwitchGCESPTex }, 48, 16 },
     { { gFileSelHoldGCENGTex, gFileSelHoldGCGERTex, gFileSelHoldGCFRATex, gFileSelHoldGCESPTex }, 48, 16 },
 };
@@ -1129,30 +1139,33 @@ void FileSelect_DrawOptionsImpl_GC(GameState* thisx) {
             }
 
             if (gameRegion == GAME_REGION_PAL) {
-                gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeadersGCPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA, G_IM_SIZ_8b,
-                                    gOptionsMenuHeadersGCPAL[i].width, gOptionsMenuHeadersGCPAL[i].height, 0,
-                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                    G_TX_NOLOD, G_TX_NOLOD);
+                gDPLoadTextureBlock(POLY_OPA_DISP++,
+                                    gOptionsMenuHeadersGCPAL[i].textures[gSaveContext.options.language - 1],
+                                    G_IM_FMT_IA, G_IM_SIZ_8b, gOptionsMenuHeadersGCPAL[i].width,
+                                    gOptionsMenuHeadersGCPAL[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             } else {
                 gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeadersGC[i].texture, G_IM_FMT_IA, G_IM_SIZ_8b,
                                     gOptionsMenuHeadersGC[i].width, gOptionsMenuHeadersGC[i].height, 0,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                     G_TX_NOLOD, G_TX_NOLOD);
             }
-        } else if (gameRegion == GAME_REGION_PAL && i == 2 && (gSaveContext.options.language == LANGUAGE_GER || gSaveContext.options.language == LANGUAGE_SPA)) {
+        } else if (gameRegion == GAME_REGION_PAL && i == 2 &&
+                   (gSaveContext.options.language == LANGUAGE_GER || gSaveContext.options.language == LANGUAGE_SPA)) {
             // Override widths for targeting setting header
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersGCPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                                144, gOptionsMenuHeadersGCPAL[i].height, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++,
+                                   gOptionsMenuHeadersGCPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                                   144, gOptionsMenuHeadersGCPAL[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
             gSP1Quadrangle(POLY_OPA_DISP++, vtx + 12, vtx + 14, vtx + 15, vtx + 13, 0);
         } else {
             if (gameRegion == GAME_REGION_PAL) {
-                gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersGCPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                                       gOptionsMenuHeadersGCPAL[i].width, gOptionsMenuHeadersGCPAL[i].height, 0,
-                                       G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                       G_TX_NOLOD, G_TX_NOLOD);
+                gDPLoadTextureBlock_4b(POLY_OPA_DISP++,
+                                       gOptionsMenuHeadersGCPAL[i].textures[gSaveContext.options.language - 1],
+                                       G_IM_FMT_IA, gOptionsMenuHeadersGCPAL[i].width,
+                                       gOptionsMenuHeadersGCPAL[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                       G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             } else {
                 gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersGC[i].texture, G_IM_FMT_IA,
                                        gOptionsMenuHeadersGC[i].width, gOptionsMenuHeadersGC[i].height, 0,
@@ -1187,15 +1200,15 @@ void FileSelect_DrawOptionsImpl_GC(GameState* thisx) {
             gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
         }
         if (gameRegion == GAME_REGION_PAL) {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                               gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0,
-                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(
+                POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
             gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsGC[i].texture, G_IM_FMT_IA,
-                                gOptionsMenuSettingsGC[i].width, gOptionsMenuSettingsGC[i].height, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+                                   gOptionsMenuSettingsGC[i].width, gOptionsMenuSettingsGC[i].height, 0,
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
         }
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
     }
@@ -1217,15 +1230,15 @@ void FileSelect_DrawOptionsImpl_GC(GameState* thisx) {
             gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
         }
         if (gameRegion == GAME_REGION_PAL) {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                               gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0,
-                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(
+                POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
             gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsGC[i].texture, G_IM_FMT_IA,
-                                gOptionsMenuSettingsGC[i].width, gOptionsMenuSettingsGC[i].height, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+                                   gOptionsMenuSettingsGC[i].width, gOptionsMenuSettingsGC[i].height, 0,
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
         }
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
     }

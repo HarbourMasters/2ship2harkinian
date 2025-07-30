@@ -62,7 +62,8 @@ void FileSelect_IncrementConfigMode(FileSelectState* this) {
 }
 
 // #region 2S2H [PAL] - This function is empty in NTSC
-void FileChoose_DrawImageRGBA32(GraphicsContext* gfxCtx, s16 centerX, s16 centerY, TexturePtr source, u32 width, u32 height) {
+void FileChoose_DrawImageRGBA32(GraphicsContext* gfxCtx, s16 centerX, s16 centerY, TexturePtr source, u32 width,
+                                u32 height) {
     uintptr_t curTexture;
     s32 textureCount;
     u32 rectLeft;
@@ -72,7 +73,7 @@ void FileChoose_DrawImageRGBA32(GraphicsContext* gfxCtx, s16 centerX, s16 center
     s32 textureSize;
     s32 pad;
     s32 i;
-    
+
     OPEN_DISPS(gfxCtx);
     Gfx_SetupDL56_Opa(gfxCtx);
 
@@ -163,10 +164,11 @@ void FileSelect_DrawLanguageSelectScreen(FileSelectState* this) {
     if (ResourceMgr_GetGameRegion(0) == GAME_REGION_NTSC) {
         return;
     }
-    
+
     OPEN_DISPS(this->state.gfxCtx);
     Gfx_SetupDL39_Opa(this->state.gfxCtx);
-    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                      ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
     gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
     FileChoose_DrawImageRGBA32(this->state.gfxCtx, 0x7C, 0x47, gTitleScreenMajorasMaskTex, 0x80, 0x70);
@@ -177,8 +179,14 @@ void FileSelect_DrawLanguageSelectScreen(FileSelectState* this) {
     FileChoose_DrawImageRGBA32(this->state.gfxCtx, 0xB1, 0x49, gTitleScreenZeldaLogoTex, 0x90, 0x40);
     Gfx_SetupDL39_Opa(this->state.gfxCtx);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 100, 100, 255, sLanguageHighlightAlpha);
-    gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelLanguageHighlightTex, G_IM_FMT_I, 48, 48, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-    gSPTextureRectangle(POLY_OPA_DISP++, sLanguageHighlightPositions[gSaveContext.options.language - 1].left << 2, sLanguageHighlightPositions[gSaveContext.options.language - 1].top << 2, sLanguageHighlightPositions[gSaveContext.options.language - 1].right << 2, sLanguageHighlightPositions[gSaveContext.options.language - 1].bottom << 2, 0, 0, 0, 0x300, 0x300);
+    gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelLanguageHighlightTex, G_IM_FMT_I, 48, 48, 0,
+                           G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                           G_TX_NOLOD);
+    gSPTextureRectangle(POLY_OPA_DISP++, sLanguageHighlightPositions[gSaveContext.options.language - 1].left << 2,
+                        sLanguageHighlightPositions[gSaveContext.options.language - 1].top << 2,
+                        sLanguageHighlightPositions[gSaveContext.options.language - 1].right << 2,
+                        sLanguageHighlightPositions[gSaveContext.options.language - 1].bottom << 2, 0, 0, 0, 0x300,
+                        0x300);
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetRenderMode(POLY_OPA_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
     gDPSetCombineMode(POLY_OPA_DISP++, G_CC_BLENDPEDECALA, G_CC_BLENDPEDECALA);
@@ -192,9 +200,14 @@ void FileSelect_DrawLanguageSelectScreen(FileSelectState* this) {
         } else {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 50, 50, 100, 255);
         }
-        
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sLanguageTextureInfos[i].texture, G_IM_FMT_IA, sLanguageTextureInfos[i].width, sLanguageTextureInfos[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-        gSPTextureRectangle(POLY_OPA_DISP++, sLanguageTextureInfos[i].left << 2, sLanguageTextureInfos[i].top << 2, sLanguageTextureInfos[i].right << 2, sLanguageTextureInfos[i].bottom << 2, 0, 0, 0, 1 << 10, 1 << 10);
+
+        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sLanguageTextureInfos[i].texture, G_IM_FMT_IA,
+                               sLanguageTextureInfos[i].width, sLanguageTextureInfos[i].height, 0,
+                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                               G_TX_NOLOD, G_TX_NOLOD);
+        gSPTextureRectangle(POLY_OPA_DISP++, sLanguageTextureInfos[i].left << 2, sLanguageTextureInfos[i].top << 2,
+                            sLanguageTextureInfos[i].right << 2, sLanguageTextureInfos[i].bottom << 2, 0, 0, 0, 1 << 10,
+                            1 << 10);
     }
 
     gDPPipeSync(POLY_OPA_DISP++);
@@ -206,7 +219,8 @@ void FileSelect_DrawLanguageSelectScreen(FileSelectState* this) {
     var_a0 = 0x68;
     for (i = 0; i < 8; i++, var_a2 += 0x500) {
         var_a1 = var_a0 + 8;
-        gDPLoadTextureBlock(POLY_OPA_DISP++, var_a2, G_IM_FMT_IA, G_IM_SIZ_8b, 160, 8, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, var_a2, G_IM_FMT_IA, G_IM_SIZ_8b, 160, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSPTextureRectangle(POLY_OPA_DISP++, 80 << 2, var_a0 << 2, 240 << 2, var_a1 << 2, 0, 0, 0, 1 << 10, 1 << 10);
         var_a0 = var_a1;
     }
@@ -1538,10 +1552,14 @@ static s16 sHeartEnvColors[2][3] = {
 
 // #region 2S2H [PAL]
 TexturePtr sFileSelDayPALTextures[][6] = {
-    { gFileSelFirstDayENGTex, gFileSelFirstDayENGTex, gFileSelSecondDayENGTex, gFileSelFinalDayENGTex, gFileSelFourthDayTex, gFileSelCheatingDayTex },
-    { gFileSelFirstDayGERTex, gFileSelFirstDayGERTex, gFileSelSecondDayGERTex, gFileSelFinalDayGERTex, gFileSelFourthDayTex, gFileSelCheatingDayTex },
-    { gFileSelFirstDayFRATex, gFileSelFirstDayFRATex, gFileSelSecondDayFRATex, gFileSelFinalDayFRATex, gFileSelFourthDayTex, gFileSelCheatingDayTex },
-    { gFileSelFirstDayESPTex, gFileSelFirstDayESPTex, gFileSelSecondDayESPTex, gFileSelFinalDayESPTex, gFileSelFourthDayTex, gFileSelCheatingDayTex },
+    { gFileSelFirstDayENGTex, gFileSelFirstDayENGTex, gFileSelSecondDayENGTex, gFileSelFinalDayENGTex,
+      gFileSelFourthDayTex, gFileSelCheatingDayTex },
+    { gFileSelFirstDayGERTex, gFileSelFirstDayGERTex, gFileSelSecondDayGERTex, gFileSelFinalDayGERTex,
+      gFileSelFourthDayTex, gFileSelCheatingDayTex },
+    { gFileSelFirstDayFRATex, gFileSelFirstDayFRATex, gFileSelSecondDayFRATex, gFileSelFinalDayFRATex,
+      gFileSelFourthDayTex, gFileSelCheatingDayTex },
+    { gFileSelFirstDayESPTex, gFileSelFirstDayESPTex, gFileSelSecondDayESPTex, gFileSelFinalDayESPTex,
+      gFileSelFourthDayTex, gFileSelCheatingDayTex },
 };
 
 TexturePtr sMASKSTextures[] = {
@@ -1711,11 +1729,13 @@ void FileSelect_DrawFileInfo(GameState* thisx, s16 fileIndex) {
         gDPSetPrimColor(POLY_OPA_DISP++, 0x00, 0x00, 0, 0, 0, this->fileInfoAlpha[fileIndex]);
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80814654[fileIndex] + 0xD0], 8, 0);
         if (gameRegion == GAME_REGION_PAL) {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sMASKSTextures[gSaveContext.options.language - 1], G_IM_FMT_I, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sMASKSTextures[gSaveContext.options.language - 1], G_IM_FMT_I, 64,
+                                   16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                   G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelMASKSENGTex, G_IM_FMT_I, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelMASKSENGTex, G_IM_FMT_I, 64, 16, 0,
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
         }
         gSP1Quadrangle(POLY_OPA_DISP++, 4, 6, 7, 5, 0);
         gDPSetPrimColor(POLY_OPA_DISP++, 0x00, 0x00, 255, 255, 255, this->fileInfoAlpha[fileIndex]);
@@ -1770,13 +1790,13 @@ void FileSelect_DrawFileInfo(GameState* thisx, s16 fileIndex) {
         uint32_t dayIndex = CLAMP_MAX(this->day[sp20C], 5);
 
         if (gameRegion == GAME_REGION_PAL) {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sFileSelDayPALTextures[gSaveContext.options.language - 1][dayIndex], G_IM_FMT_I, 48, 24, 0,
-                                G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sFileSelDayPALTextures[gSaveContext.options.language - 1][dayIndex],
+                                   G_IM_FMT_I, 48, 24, 0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP,
+                                   G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
             gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sFileSelDayENGTextures[dayIndex], G_IM_FMT_I, 48, 24, 0,
-                                G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+                                   G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
         }
         gSP1Quadrangle(POLY_OPA_DISP++, 4, 6, 7, 5, 0);
 
@@ -1861,17 +1881,29 @@ TexturePtr sWarningLabelsGC[] = {
 };
 
 TexturePtr sTitleLabelsPAL[][9] = {
-    { gFileSelPleaseSelectAFilePALENGTex, gFileSelOpenThisFilePALENGTex, gFileSelCopyWhichFilePALENGTex, gFileSelCopyToWhichFilePALENGTex, gFileSelAreYouSureCopyPALENGTex,  gFileSelFileCopiedPALENGTex, gFileSelEraseWhichFilePALENGTex, gFileSelAreYouSureErasePALENGTex, gFileSelFileErasedPALENGTex },
-    { gFileSelPleaseSelectAFileGERTex, gFileSelOpenThisFileGERTex, gFileSelCopyWhichFileGERTex, gFileSelCopyToWhichFileGERTex, gFileSelAreYouSureCopyGERTex,  gFileSelFileCopiedGERTex, gFileSelEraseWhichFileGERTex, gFileSelAreYouSureEraseGERTex, gFileSelFileErasedGERTex },
-    { gFileSelPleaseSelectAFileFRATex, gFileSelOpenThisFileFRATex, gFileSelCopyWhichFileFRATex, gFileSelCopyToWhichFileFRATex, gFileSelAreYouSureCopyFRATex,  gFileSelFileCopiedFRATex, gFileSelEraseWhichFileFRATex, gFileSelAreYouSureEraseFRATex, gFileSelFileErasedFRATex },
-    { gFileSelPleaseSelectAFileESPTex, gFileSelOpenThisFileESPTex, gFileSelCopyWhichFileESPTex, gFileSelCopyToWhichFileESPTex, gFileSelAreYouSureCopyESPTex,  gFileSelFileCopiedESPTex, gFileSelEraseWhichFileESPTex, gFileSelAreYouSureEraseESPTex, gFileSelFileErasedESPTex },
+    { gFileSelPleaseSelectAFilePALENGTex, gFileSelOpenThisFilePALENGTex, gFileSelCopyWhichFilePALENGTex,
+      gFileSelCopyToWhichFilePALENGTex, gFileSelAreYouSureCopyPALENGTex, gFileSelFileCopiedPALENGTex,
+      gFileSelEraseWhichFilePALENGTex, gFileSelAreYouSureErasePALENGTex, gFileSelFileErasedPALENGTex },
+    { gFileSelPleaseSelectAFileGERTex, gFileSelOpenThisFileGERTex, gFileSelCopyWhichFileGERTex,
+      gFileSelCopyToWhichFileGERTex, gFileSelAreYouSureCopyGERTex, gFileSelFileCopiedGERTex,
+      gFileSelEraseWhichFileGERTex, gFileSelAreYouSureEraseGERTex, gFileSelFileErasedGERTex },
+    { gFileSelPleaseSelectAFileFRATex, gFileSelOpenThisFileFRATex, gFileSelCopyWhichFileFRATex,
+      gFileSelCopyToWhichFileFRATex, gFileSelAreYouSureCopyFRATex, gFileSelFileCopiedFRATex,
+      gFileSelEraseWhichFileFRATex, gFileSelAreYouSureEraseFRATex, gFileSelFileErasedFRATex },
+    { gFileSelPleaseSelectAFileESPTex, gFileSelOpenThisFileESPTex, gFileSelCopyWhichFileESPTex,
+      gFileSelCopyToWhichFileESPTex, gFileSelAreYouSureCopyESPTex, gFileSelFileCopiedESPTex,
+      gFileSelEraseWhichFileESPTex, gFileSelAreYouSureEraseESPTex, gFileSelFileErasedESPTex },
 };
 
 TexturePtr sWarningLabelsPAL[][5] = {
-    { gFileSelNoFileToCopyGCENGTex, gFileSelNoFileToEraseGCENGTex, gFileSelNoEmptyFileGCENGTex, gFileSelFileEmptyGCENGTex, gFileSelFileInUseGCENGTex },
-    { gFileSelNoFileToCopyGERTex, gFileSelNoFileToEraseGERTex, gFileSelNoEmptyFileGERTex, gFileSelFileEmptyGERTex, gFileSelFileInUseGERTex },
-    { gFileSelNoFileToCopyFRATex, gFileSelNoFileToEraseFRATex, gFileSelNoEmptyFileFRATex, gFileSelFileEmptyFRATex, gFileSelFileInUseFRATex },
-    { gFileSelNoFileToCopyESPTex, gFileSelNoFileToEraseESPTex, gFileSelNoEmptyFileESPTex, gFileSelFileEmptyESPTex, gFileSelFileInUseESPTex },
+    { gFileSelNoFileToCopyGCENGTex, gFileSelNoFileToEraseGCENGTex, gFileSelNoEmptyFileGCENGTex,
+      gFileSelFileEmptyGCENGTex, gFileSelFileInUseGCENGTex },
+    { gFileSelNoFileToCopyGERTex, gFileSelNoFileToEraseGERTex, gFileSelNoEmptyFileGERTex, gFileSelFileEmptyGERTex,
+      gFileSelFileInUseGERTex },
+    { gFileSelNoFileToCopyFRATex, gFileSelNoFileToEraseFRATex, gFileSelNoEmptyFileFRATex, gFileSelFileEmptyFRATex,
+      gFileSelFileInUseFRATex },
+    { gFileSelNoFileToCopyESPTex, gFileSelNoFileToEraseESPTex, gFileSelNoEmptyFileESPTex, gFileSelFileEmptyESPTex,
+      gFileSelFileInUseESPTex },
 };
 
 TexturePtr sFileButtonTexturesPAL[][3] = {
@@ -1921,9 +1953,9 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
 
     gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[0], 4, 0);
     if (gameRegion == GAME_REGION_PAL) {
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sTitleLabelsPAL[gSaveContext.options.language - 1][this->titleLabel], G_IM_FMT_IA, 128, 16, 0,
-                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                               G_TX_NOLOD);
+        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sTitleLabelsPAL[gSaveContext.options.language - 1][this->titleLabel],
+                               G_IM_FMT_IA, 128, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                               G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     } else {
         gDPLoadTextureBlock(POLY_OPA_DISP++, sTitleLabels[this->titleLabel], G_IM_FMT_IA, G_IM_SIZ_8b, 128, 16, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
@@ -1935,9 +1967,10 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->titleAlpha[FS_TITLE_NEXT]);
     if (gameRegion == GAME_REGION_PAL) {
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sTitleLabelsPAL[gSaveContext.options.language - 1][this->nextTitleLabel], G_IM_FMT_IA, 128, 16, 0,
-                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                               G_TX_NOLOD);
+        gDPLoadTextureBlock_4b(POLY_OPA_DISP++,
+                               sTitleLabelsPAL[gSaveContext.options.language - 1][this->nextTitleLabel], G_IM_FMT_IA,
+                               128, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                               G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     } else {
         gDPLoadTextureBlock(POLY_OPA_DISP++, sTitleLabels[this->nextTitleLabel], G_IM_FMT_IA, G_IM_SIZ_8b, 128, 16, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
@@ -1980,9 +2013,9 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
                                     sWindowContentColors[2], this->fileButtonAlpha[i],
                                     COSMETIC_ELEMENT_FILE_SELECT_PLATES);
             if (gameRegion == GAME_REGION_PAL) {
-                gDPLoadTextureBlock(POLY_OPA_DISP++, sFileButtonTexturesPAL[gSaveContext.options.language - 1][i], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                    G_TX_NOLOD, G_TX_NOLOD);
+                gDPLoadTextureBlock(POLY_OPA_DISP++, sFileButtonTexturesPAL[gSaveContext.options.language - 1][i],
+                                    G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             } else {
                 gDPLoadTextureBlock(POLY_OPA_DISP++, sFileButtonTextures[i], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
@@ -2036,13 +2069,13 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
         gDPSetPrimColorOverride(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
                                 this->actionButtonAlpha[i], COSMETIC_ELEMENT_FILE_SELECT_PLATES);
         if (gameRegion == GAME_REGION_PAL) {
-            gDPLoadTextureBlock(POLY_OPA_DISP++, sActionButtonTexturesPAL[gSaveContext.options.language - 1][i], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                                G_TX_NOLOD);
+            gDPLoadTextureBlock(POLY_OPA_DISP++, sActionButtonTexturesPAL[gSaveContext.options.language - 1][i],
+                                G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
             gDPLoadTextureBlock(POLY_OPA_DISP++, sActionButtonTextures[i], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                                G_TX_NOLOD);
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
         }
         gSP1Quadrangle(POLY_OPA_DISP++, quadVtxIndex, quadVtxIndex + 2, quadVtxIndex + 3, quadVtxIndex + 1, 0);
     }
@@ -2055,13 +2088,13 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
         gDPSetPrimColorOverride(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
                                 this->confirmButtonAlpha[i], COSMETIC_ELEMENT_FILE_SELECT_PLATES);
         if (gameRegion == GAME_REGION_PAL) {
-            gDPLoadTextureBlock(POLY_OPA_DISP++, sActionButtonTexturesPAL[gSaveContext.options.language - 1][temp], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                                G_TX_NOLOD);
+            gDPLoadTextureBlock(POLY_OPA_DISP++, sActionButtonTexturesPAL[gSaveContext.options.language - 1][temp],
+                                G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
             gDPLoadTextureBlock(POLY_OPA_DISP++, sActionButtonTextures[temp], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                                G_TX_NOLOD);
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
         }
         gSP1Quadrangle(POLY_OPA_DISP++, quadVtxIndex, quadVtxIndex + 2, quadVtxIndex + 3, quadVtxIndex + 1, 0);
     }
@@ -2071,9 +2104,9 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
     gDPSetPrimColorOverride(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
                             this->optionButtonAlpha, COSMETIC_ELEMENT_FILE_SELECT_PLATES);
     if (gameRegion == GAME_REGION_PAL) {
-        gDPLoadTextureBlock(POLY_OPA_DISP++, sOptionsButtonTexturesPAL[gSaveContext.options.language - 1], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                            G_TX_NOLOD);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, sOptionsButtonTexturesPAL[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                            G_IM_SIZ_16b, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                            G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     } else {
         gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelOptionsButtonENGTex, G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
@@ -2109,9 +2142,10 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
         if (ResourceMgr_GetGamePlatform(0) == GAME_PLATFORM_GC) {
             if (gameRegion == GAME_REGION_PAL) {
-                gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sWarningLabelsPAL[gSaveContext.options.language - 1][this->warningLabel], G_IM_FMT_IA, 128, 16, 0,
-                                       G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                       G_TX_NOLOD, G_TX_NOLOD);
+                gDPLoadTextureBlock_4b(POLY_OPA_DISP++,
+                                       sWarningLabelsPAL[gSaveContext.options.language - 1][this->warningLabel],
+                                       G_IM_FMT_IA, 128, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                       G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             } else {
                 gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sWarningLabelsGC[this->warningLabel], G_IM_FMT_IA, 128, 16, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
@@ -2719,13 +2753,13 @@ void FileSelect_Main(GameState* thisx) {
     }
 
     if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
-        gDPLoadTextureBlock(POLY_OPA_DISP++, sLowerInstructionsPALTextures[gSaveContext.options.language - 1][texIndex], G_IM_FMT_IA, G_IM_SIZ_8b, D_808147C0[texIndex], 16, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
-                            G_TX_NOLOD);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, sLowerInstructionsPALTextures[gSaveContext.options.language - 1][texIndex],
+                            G_IM_FMT_IA, G_IM_SIZ_8b, D_808147C0[texIndex], 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD);
     } else {
-        gDPLoadTextureBlock(POLY_OPA_DISP++, D_808147B4[texIndex], G_IM_FMT_IA, G_IM_SIZ_8b, D_808147C0[texIndex], 16, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
-                            G_TX_NOLOD);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, D_808147B4[texIndex], G_IM_FMT_IA, G_IM_SIZ_8b, D_808147C0[texIndex], 16,
+                            0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMASK, G_TX_NOLOD);
     }
 
     gSPTextureRectangle(POLY_OPA_DISP++, D_808147C8[texIndex] << 2, 204 << 2,

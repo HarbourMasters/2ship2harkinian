@@ -137,17 +137,25 @@ TexturePtr sHoursLeftTextures[] = {
 
 // #region 2S2H [PAL]
 TexturePtr sDayLeftTexturesPAL[][4] = {
-    { gDaytelopFirstDayLeftNESTex, gDaytelopSecondDayLeftNESTex, gDaytelopFinalDayLeftNESTex, gDaytelopNewDayLeftNESTex },
-    { gDaytelopFirstDayLeftGERTex, gDaytelopSecondDayLeftGERTex, gDaytelopFinalDayLeftGERTex, gDaytelopNewDayLeftGERTex },
-    { gDaytelopFirstDayLeftFRATex, gDaytelopSecondDayLeftFRATex, gDaytelopFinalDayLeftFRATex, gDaytelopNewDayLeftFRATex },
-    { gDaytelopFirstDayLeftESPTex, gDaytelopSecondDayLeftESPTex, gDaytelopFinalDayLeftESPTex, gDaytelopNewDayLeftESPTex },
+    { gDaytelopFirstDayLeftNESTex, gDaytelopSecondDayLeftNESTex, gDaytelopFinalDayLeftNESTex,
+      gDaytelopNewDayLeftNESTex },
+    { gDaytelopFirstDayLeftGERTex, gDaytelopSecondDayLeftGERTex, gDaytelopFinalDayLeftGERTex,
+      gDaytelopNewDayLeftGERTex },
+    { gDaytelopFirstDayLeftFRATex, gDaytelopSecondDayLeftFRATex, gDaytelopFinalDayLeftFRATex,
+      gDaytelopNewDayLeftFRATex },
+    { gDaytelopFirstDayLeftESPTex, gDaytelopSecondDayLeftESPTex, gDaytelopFinalDayLeftESPTex,
+      gDaytelopNewDayLeftESPTex },
 };
 
 TexturePtr sDayRightTexturesPAL[][4] = {
-    { gDaytelopFirstDayRightNESTex, gDaytelopSecondDayRightNESTex, gDaytelopFinalDayRightNESTex, gDaytelopNewDayRightNESTex },
-    { gDaytelopFirstDayRightGERTex, gDaytelopSecondDayRightGERTex, gDaytelopFinalDayRightGERTex, gDaytelopNewDayRightGERTex },
-    { gDaytelopFirstDayRightFRATex, gDaytelopSecondDayRightFRATex, gDaytelopFinalDayRightFRATex, gDaytelopNewDayRightFRATex },
-    { gDaytelopFirstDayRightESPTex, gDaytelopSecondDayRightESPTex, gDaytelopFinalDayRightESPTex, gDaytelopNewDayRightESPTex },
+    { gDaytelopFirstDayRightNESTex, gDaytelopSecondDayRightNESTex, gDaytelopFinalDayRightNESTex,
+      gDaytelopNewDayRightNESTex },
+    { gDaytelopFirstDayRightGERTex, gDaytelopSecondDayRightGERTex, gDaytelopFinalDayRightGERTex,
+      gDaytelopNewDayRightGERTex },
+    { gDaytelopFirstDayRightFRATex, gDaytelopSecondDayRightFRATex, gDaytelopFinalDayRightFRATex,
+      gDaytelopNewDayRightFRATex },
+    { gDaytelopFirstDayRightESPTex, gDaytelopSecondDayRightESPTex, gDaytelopFinalDayRightESPTex,
+      gDaytelopNewDayRightESPTex },
 };
 
 TexturePtr sHoursLeftTexturesPAL[][4] = {
@@ -193,23 +201,26 @@ void DayTelop_Draw(DayTelopState* this) {
     // Draw the left side of the "Dawn of" texture
     if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
         if (gSaveContext.save.day < 9) {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTexturesPAL[gSaveContext.options.language - 1][CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++,
+                                   sDayLeftTexturesPAL[gSaveContext.options.language - 1][CURRENT_DAY - 1], G_IM_FMT_I,
+                                   128, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                   G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTexturesPAL[gSaveContext.options.language - 1][ARRAY_COUNT(sDayLeftTextures) - 1], G_IM_FMT_I, 128,
-                                64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(
+                POLY_OPA_DISP++,
+                sDayLeftTexturesPAL[gSaveContext.options.language - 1][ARRAY_COUNT(sDayLeftTextures) - 1], G_IM_FMT_I,
+                128, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                G_TX_NOLOD);
         }
     } else {
         if (gSaveContext.save.day < 9) {
             gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTextures[CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTextures[ARRAY_COUNT(sDayLeftTextures) - 1], G_IM_FMT_I, 128,
-                                64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayLeftTextures[ARRAY_COUNT(sDayLeftTextures) - 1], G_IM_FMT_I,
+                                   128, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                   G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         }
     }
     gSPTextureRectangle(POLY_OPA_DISP++, 32 << 2, 77 << 2, (32 + 128) << 2, (77 + 64) << 2, G_TX_RENDERTILE, 0, 0,
@@ -218,23 +229,26 @@ void DayTelop_Draw(DayTelopState* this) {
     // Draw the right side of the "Dawn of" texture
     if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
         if (gSaveContext.save.day < 9) {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTexturesPAL[gSaveContext.options.language - 1][CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++,
+                                   sDayRightTexturesPAL[gSaveContext.options.language - 1][CURRENT_DAY - 1], G_IM_FMT_I,
+                                   128, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                   G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTexturesPAL[gSaveContext.options.language - 1][ARRAY_COUNT(sDayRightTextures) - 1], G_IM_FMT_I, 128,
-                                64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(
+                POLY_OPA_DISP++,
+                sDayRightTexturesPAL[gSaveContext.options.language - 1][ARRAY_COUNT(sDayRightTextures) - 1], G_IM_FMT_I,
+                128, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                G_TX_NOLOD);
         }
     } else {
         if (gSaveContext.save.day < 9) {
             gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTextures[CURRENT_DAY - 1], G_IM_FMT_I, 128, 64, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
         } else {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTextures[ARRAY_COUNT(sDayRightTextures) - 1], G_IM_FMT_I, 128,
-                                64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sDayRightTextures[ARRAY_COUNT(sDayRightTextures) - 1], G_IM_FMT_I,
+                                   128, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                   G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         }
     }
     gSPTextureRectangle(POLY_OPA_DISP++, 160 << 2, 77 << 2, (160 + 128) << 2, (77 + 64) << 2, G_TX_RENDERTILE, 0, 0,
@@ -246,13 +260,14 @@ void DayTelop_Draw(DayTelopState* this) {
         gDPSetRenderMode(POLY_OPA_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->alpha);
         if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sHoursLeftTexturesPAL[gSaveContext.options.language - 1][CURRENT_DAY - 1], G_IM_FMT_I, 144, 32, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++,
+                                   sHoursLeftTexturesPAL[gSaveContext.options.language - 1][CURRENT_DAY - 1],
+                                   G_IM_FMT_I, 144, 32, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                   G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         } else {
             gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sHoursLeftTextures[CURRENT_DAY - 1], G_IM_FMT_I, 144, 32, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
         }
         gSPTextureRectangle(POLY_OPA_DISP++, 88 << 2, 144 << 2, (88 + 144) << 2, (144 + 32) << 2, G_TX_RENDERTILE, 0, 0,
                             0x0400, 0x0400);

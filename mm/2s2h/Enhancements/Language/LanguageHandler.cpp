@@ -19,7 +19,7 @@ extern "C" MessageTableEntry* sMessageTableESP;
 #define CVAR CVarGetInteger(CVAR_NAME, LANGUAGE_ENG)
 
 void RegisterLanguageHandler() {
-    
+
     COND_HOOK(OnGameStateUpdate, true, []() {
         uint8_t oldLanguage = gSaveContext.options.language;
         gSaveContext.options.language = CVAR;
