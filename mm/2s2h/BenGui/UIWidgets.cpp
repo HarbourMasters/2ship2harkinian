@@ -519,6 +519,10 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
             ImGui::Text(label, *value);
         }
     }
+    float buttonsWidth = 0;
+    if (options.showResetButton) {
+        buttonsWidth = ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3;
+    }
     if (options.showAdjustmentButtons) {
         if (Button("-", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && *value > options.min) {
             *value -= options.step;
@@ -530,22 +534,9 @@ bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& option
             dirty = true;
         }
         ImGui::SameLine(0, 3.0f);
-        if (options.showResetButton) {
-            float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2 +
-                                 (ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3);
-            ImGui::SetNextItemWidth(width - buttonsWidth);
-        } else {
-            float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2;
-            ImGui::SetNextItemWidth(width - buttonsWidth);
-        }
-    } else {
-        if (options.showResetButton) {
-            float buttonsWidth = (ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3);
-            ImGui::SetNextItemWidth(width - buttonsWidth);
-        } else {
-            ImGui::SetNextItemWidth(width);
-        }
+        buttonsWidth += (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2;
     }
+    ImGui::SetNextItemWidth(width - buttonsWidth);
     if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_S32, value, &options.min, &options.max, options.format,
                             options.flags)) {
         if (options.clamp) {
@@ -677,6 +668,10 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
             ImGui::Text(label, *value);
         }
     }
+    float buttonsWidth = 0;
+    if (options.showResetButton) {
+        buttonsWidth = ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3;
+    }
     if (options.showAdjustmentButtons) {
         if (Button("-", ButtonOptions{ .color = options.color }.Size(Sizes::Inline)) && *value > options.min) {
             *value -= options.step;
@@ -686,22 +681,9 @@ bool SliderFloat(const char* label, float* value, const FloatSliderOptions& opti
             dirty = true;
         }
         ImGui::SameLine(0, 3.0f);
-        if (options.showResetButton) {
-            float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2 +
-                                 (ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3);
-            ImGui::SetNextItemWidth(width - buttonsWidth);
-        } else {
-            float buttonsWidth = (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2;
-            ImGui::SetNextItemWidth(width - buttonsWidth);
-        }
-    } else {
-        if (options.showResetButton) {
-            float buttonsWidth = (ImGui::CalcTextSize(ICON_FA_UNDO).x + (ImGui::GetStyle().FramePadding.x * 2) + 3);
-            ImGui::SetNextItemWidth(width - buttonsWidth);
-        } else {
-            ImGui::SetNextItemWidth(width);
-        }
+        buttonsWidth += (ImGui::CalcTextSize("+").x + (ImGui::GetStyle().FramePadding.x * 2) + 3) * 2;
     }
+    ImGui::SetNextItemWidth(width - buttonsWidth);
     if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_Float, &valueToDisplay, &minToDisplay, &maxToDisplay,
                             options.format, options.flags)) {
         *value = options.isPercentage ? valueToDisplay / 100.0f : valueToDisplay;
