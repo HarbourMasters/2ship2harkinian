@@ -14,12 +14,8 @@ extern "C" {
 #include "objects/object_gi_liquid/object_gi_liquid.h"
 #include "objects/object_sek/object_sek.h"
 #include "objects/object_st/object_st.h"
-/* Minifrog */ #include "objects/object_fr/object_fr.h"
-#include "overlays/actors/ovl_En_Minifrog/z_en_minifrog.h"
 
-    Gfx*
-    ResourceMgr_LoadGfxByName(const char* path);
-s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMini);
+Gfx* ResourceMgr_LoadGfxByName(const char* path);
 }
 
 s32 StrayFairyOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx,
@@ -296,69 +292,6 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
                                            gPlayState->state.frames * 0, 32, 64));
     gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gSkulltulaTokenFlameCopyDL);
-
-    CLOSE_DISPS(gPlayState->state.gfxCtx);
-}
-
-void EnMinifrogPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx) {
-    EnMinifrog* enMinifrog = (EnMinifrog*)thisx;
-
-    if ((limbIndex == FROG_LIMB_RIGHT_EYE) || (limbIndex == FROG_LIMB_LEFT_EYE)) {
-        OPEN_DISPS(play->state.gfxCtx);
-
-        Matrix_ReplaceRotation(&play->billboardMtxF);
-        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        gSPDisplayList(POLY_OPA_DISP++, *dList);
-
-        CLOSE_DISPS(play->state.gfxCtx);
-    }
-}
-
-void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
-    OPEN_DISPS(gPlayState->state.gfxCtx);
-
-    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
-    Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
-    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
-
-    static bool initialized = false;
-    static SkelAnime skelAnime;
-    static Vec3s jointTable[FROG_LIMB_MAX];
-    static Vec3s otherTable[FROG_LIMB_MAX];
-    Color_RGBA8 envColor = { 200, 170, 0, 255 }; // FROG_YELLOW
-    static u32 lastUpdate = 0;
-    if (!initialized) {
-        initialized = true;
-        SkelAnime_InitFlex(gPlayState, &skelAnime, (FlexSkeletonHeader*)&gFrogSkel, (AnimationHeader*)&gFrogIdleAnim,
-                           jointTable, otherTable, FROG_LIMB_MAX);
-    }
-    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
-        lastUpdate = gPlayState->state.frames;
-        SkelAnime_Update(&skelAnime);
-    }
-
-    switch (randoItemId) {
-        case RI_FROG_BLUE:
-            envColor = { 120, 130, 230, 255 };
-            break;
-        case RI_FROG_CYAN:
-            envColor = { 0, 170, 200, 255 };
-            break;
-        case RI_FROG_PINK:
-            envColor = { 210, 120, 100, 255 };
-            break;
-        case RI_FROG_WHITE:
-            envColor = { 190, 190, 190, 255 };
-            break;
-    }
-
-    gDPSetEnvColor(POLY_OPA_DISP++, envColor.r, envColor.g, envColor.b, envColor.a);
-
-    Mtx* mtxHead = (Mtx*)GRAPH_ALLOC(gPlayState->state.gfxCtx, 23 * sizeof(Mtx));
-    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gFrogIrisOpenTex);
-    gSPSegment(POLY_OPA_DISP++, 0x09, (uintptr_t)gFrogIrisOpenTex);
-    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, FROG_LIMB_MAX,
-                          EnMinifrog_OverrideLimbDraw, EnMinifrogPostLimbDraw, actor);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
