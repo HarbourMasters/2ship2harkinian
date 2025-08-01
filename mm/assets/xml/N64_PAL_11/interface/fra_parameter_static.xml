@@ -1,0 +1,9 @@
+<Root>
+    <File Name="fra_parameter_static" Segment="7">
+        <Texture Name="gTatlCUpPALFRATex" OutName="tatl_c_up_fra_pal" Format="ia4" Width="32" Height="12" Offset="0x0"/>
+        <Texture Name="gMinigameCountdownGoPALFRATex" OutName="minigame_countdown_go_fra_pal" Format="ia8" Width="40" Height="32" Offset="0xC0"/>
+        <Texture Name="gPerfectLetterAPALFRATex" OutName="letter_perfect_a_fra_pal" Format="i4" Width="32" Height="33" Offset="0x5C0"/>
+        <Texture Name="gPerfectLetterIPALFRATex" OutName="letter_perfect_i_fra_pal" Format="i4" Width="32" Height="33" Offset="0x7D0"/>
+        <Texture Name="gPerfectLetterExclamationPALFRATex" OutName="letter_perfect_exclamation_fra_pal" Format="i4" Width="32" Height="33" Offset="0x9E0"/>
+    </File>
+</Root>
