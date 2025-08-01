@@ -28,8 +28,8 @@
 #include <nlohmann/json.hpp>
 #include "build.h"
 
-#include <Fast3D/gfx_pc.h>
-#include <Fast3D/gfx_rendering_api.h>
+#include <Fast3D/interpreter.h>
+#include <Fast3D/backends/gfx_rendering_api.h>
 
 #ifdef __APPLE__
 #include <SDL_scancode.h>
@@ -104,6 +104,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/importer/TextureAnimationFactory.h"
 #include "2s2h/resource/importer/KeyFrameFactory.h"
 #include "window/gui/resource/Font.h"
+#include "window/FileDropMgr.h"
 #include "window/gui/resource/FontFactory.h"
 #include "2s2h/Enhancements/Audio/AudioCollection.h"
 #include "BenGui/BenInputEditorWindow.h"
@@ -170,7 +171,7 @@ OTRGlobals::OTRGlobals() {
     std::unordered_set<uint32_t> validHashes = { MM_NTSC_US_10, MM_NTSC_US_GC };
 
     context = Ship::Context::CreateUninitializedInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json");
-
+    context->InitFileDropMgr();
     context->InitLogging();
     context->InitGfxDebugger();
     context->InitConfiguration();
@@ -338,13 +339,16 @@ ImFont* OTRGlobals::CreateFontWithSize(float size, std::string fontPath) {
         font = mImGuiIo->Fonts->AddFontDefault(&fontCfg);
     } else {
         auto initData = std::make_shared<Ship::ResourceInitData>();
+        ImFontConfig config;
+        config.FontDataOwnedByAtlas = false;
+
         initData->Format = RESOURCE_FORMAT_BINARY;
         initData->Type = static_cast<uint32_t>(RESOURCE_TYPE_FONT);
         initData->ResourceVersion = 0;
         initData->Path = fontPath;
         std::shared_ptr<Ship::Font> fontData = std::static_pointer_cast<Ship::Font>(
             Ship::Context::GetInstance()->GetResourceManager()->LoadResource(fontPath, false, initData));
-        font = mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, fontData->DataSize, size);
+        font = mImGuiIo->Fonts->AddFontFromMemoryTTF(fontData->Data, fontData->DataSize, size, &config);
     }
     // FontAwesome fonts need to have their sizes reduced by 2.0f/3.0f in order to align correctly
     float iconFontSize = size * 2.0f / 3.0f;
@@ -467,7 +471,7 @@ extern "C" void OTRExtScanner() {
     }
 }
 
-void Ben_ProcessDroppedFiles(std::string filePath) {
+void Ben_ProcessDroppedFiles(const std::string& filePath) {
     SPDLOG_INFO("Processing dropped file: {}", filePath);
 
     bool handled = false;
@@ -509,7 +513,12 @@ ArchiveVersion ReadPortVersionFromArchive(std::string archivePath, bool isO2rTyp
     if (isO2rType) {
         archive = make_shared<Ship::O2rArchive>(archivePath);
     } else {
+#ifdef INCLUDE_MPQ_SUPPORT
         archive = make_shared<Ship::OtrArchive>(archivePath);
+#else
+        SPDLOG_ERROR("An OTR File, {}, was found but support for them is not included. File will be ignored.",
+                     archivePath.c_str());
+#endif
     }
     if (archive->Open()) {
         auto t = archive->LoadFile("portVersion");
@@ -522,7 +531,6 @@ ArchiveVersion ReadPortVersionFromArchive(std::string archivePath, bool isO2rTyp
             version.minor = reader->ReadUInt16();
             version.patch = reader->ReadUInt16();
         }
-        archive->Close();
     }
 
     return version;
@@ -607,10 +615,10 @@ void DetectArchiveVersion(std::string fileName, bool isO2rType) {
 
         if (Extractor::ShowYesNoBox("Old O2R File Found", msgBuf) == IDYES) {
             std::string installPath = Ship::Context::GetAppBundlePath();
-            if (!std::filesystem::exists(installPath + "/assets/extractor")) {
+            if (!std::filesystem::exists(installPath + "/assets")) {
                 Extractor::ShowErrorBox(
                     "Extractor assets not found",
-                    "Unable to regenerate. Missing assets/extractor folder needed to generate O2R file.\n\nExiting...");
+                    "Unable to regenerate. Missing assets folder needed to generate O2R file.\n\nExiting...");
                 exit(1);
             }
 
@@ -693,10 +701,10 @@ extern "C" void InitOTR() {
     if (!std::filesystem::exists(mmPathO2R) && !std::filesystem::exists(mmPathZIP) &&
         !std::filesystem::exists(mmPathOtr)) {
         std::string installPath = Ship::Context::GetAppBundlePath();
-        if (!std::filesystem::exists(installPath + "/assets/extractor")) {
+        if (!std::filesystem::exists(installPath + "/assets")) {
             Extractor::ShowErrorBox(
                 "Extractor assets not found",
-                "No game O2R file found. Missing assets/extractor folder needed to generate O2R file. Exiting...");
+                "No game O2R file found. Missing assets folder needed to generate O2R file. Exiting...");
             exit(1);
         }
 
@@ -730,6 +738,10 @@ extern "C" void InitOTR() {
     OTRMessage_Init();
     OTRAudio_Init();
     OTRExtScanner();
+
+    // Just came up with arbitrary numbers that seemed to work, this is
+    // usually set once(?) in currently stubbed out areas of code.
+    gIrqMgrRetraceTime = Ship_Random(700000, 850000);
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileDropped>(Ben_ProcessDroppedFiles);
 
@@ -904,14 +916,13 @@ extern "C" void Graph_StartFrame() {
         }
     }
 #endif
-
-    if (CVarGetInteger(CVAR_NEW_FILE_DROPPED, 0)) {
-        std::string filePath = CVarGetString(CVAR_DROPPED_FILE, "");
+    auto dropMgr = Ship::Context::GetInstance()->GetFileDropMgr();
+    if (dropMgr->FileDropped()) {
+        std::string filePath = dropMgr->GetDroppedFile();
         if (!filePath.empty()) {
             GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFileDropped>(filePath);
         }
-        CVarClear(CVAR_NEW_FILE_DROPPED);
-        CVarClear(CVAR_DROPPED_FILE);
+        dropMgr->ClearDroppedFile();
     }
 }
 
@@ -1201,7 +1212,7 @@ extern "C" char* ResourceMgr_LoadPlayerAnimByName(const char* animPath) {
 }
 
 extern "C" void ResourceMgr_PushCurrentDirectory(char* path) {
-    gfx_push_current_dir(path);
+    Fast::gfx_push_current_dir(path);
 }
 
 extern "C" Gfx* ResourceMgr_LoadGfxByName(const char* path) {
@@ -1735,26 +1746,68 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
 }
 
 extern "C" float OTRGetAspectRatio() {
-    return gfx_current_dimensions.aspect_ratio;
+    return Ship::Context::GetInstance()->GetWindow()->GetAspectRatio();
 }
 
 extern "C" float OTRGetDimensionFromLeftEdge(float v) {
+    auto fastWnd = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    auto intP = fastWnd->GetInterpreterWeak().lock();
+
+    if (!intP) {
+        assert(false && "Lost reference to Fast::Interpreter");
+        return v;
+    }
+
+    auto gfx_native_dimensions = intP->mNativeDimensions;
+
     return (gfx_native_dimensions.width / 2 - gfx_native_dimensions.height / 2 * OTRGetAspectRatio() + (v));
 }
 
 extern "C" float OTRGetDimensionFromRightEdge(float v) {
+    auto fastWnd = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    auto intP = fastWnd->GetInterpreterWeak().lock();
+
+    if (!intP) {
+        assert(false && "Lost reference to Fast::Interpreter");
+        return v;
+    }
+
+    auto gfx_native_dimensions = intP->mNativeDimensions;
+
     return (gfx_native_dimensions.width / 2 + gfx_native_dimensions.height / 2 * OTRGetAspectRatio() -
             (gfx_native_dimensions.width - v));
 }
 
 // Gets the width of the current render target area
 extern "C" uint32_t OTRGetGameRenderWidth() {
-    return gfx_current_dimensions.width;
+    auto fastWnd = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    auto intP = fastWnd->GetInterpreterWeak().lock();
+
+    if (!intP) {
+        assert(false && "Lost reference to Fast::Interpreter");
+        return 320;
+    }
+
+    uint32_t height, width;
+    intP->GetCurDimensions(&width, &height);
+
+    return width;
 }
 
 // Gets the height of the current render target area
 extern "C" uint32_t OTRGetGameRenderHeight() {
-    return gfx_current_dimensions.height;
+    auto fastWnd = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    auto intP = fastWnd->GetInterpreterWeak().lock();
+
+    if (!intP) {
+        assert(false && "Lost reference to Fast::Interpreter");
+        return 240;
+    }
+
+    uint32_t height, width;
+    intP->GetCurDimensions(&width, &height);
+
+    return height;
 }
 
 f32 floorf(f32 x);
@@ -1784,9 +1837,17 @@ Calling with Y (1,1) will return 10
 . . . _ _ _ _ _ _ _ _ . . .
 */
 extern "C" int32_t OTRConvertHUDXToScreenX(int32_t v) {
-    float gameAspectRatio = gfx_current_dimensions.aspect_ratio;
-    int32_t gameHeight = gfx_current_dimensions.height;
-    int32_t gameWidth = gfx_current_dimensions.width;
+    auto fastWnd = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    auto intP = fastWnd->GetInterpreterWeak().lock();
+
+    if (!intP) {
+        assert(false && "Lost reference to Fast::Interpreter");
+        return v;
+    }
+
+    uint32_t gameHeight, gameWidth;
+    float gameAspectRatio = fastWnd->GetAspectRatio();
+    intP->GetCurDimensions(&gameWidth, &gameHeight);
     float hudAspectRatio = 4.0f / 3.0f;
     int32_t hudHeight = gameHeight;
     int32_t hudWidth = hudHeight * hudAspectRatio;
@@ -1803,11 +1864,23 @@ extern "C" int32_t OTRConvertHUDXToScreenX(int32_t v) {
 }
 
 extern "C" void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement) {
-    gfx_register_blended_texture(name, mask, replacement);
+    if (auto intP = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow())
+                        ->GetInterpreterWeak()
+                        .lock()) {
+        intP->RegisterBlendedTexture(name, mask, replacement);
+    } else {
+        assert(false && "Lost reference to Fast::Interpreter");
+    }
 }
 
 extern "C" void Gfx_UnregisterBlendedTexture(const char* name) {
-    gfx_unregister_blended_texture(name);
+    if (auto intP = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow())
+                        ->GetInterpreterWeak()
+                        .lock()) {
+        intP->UnregisterBlendedTexture(name);
+    } else {
+        assert(false && "Lost reference to Fast::Interpreter");
+    }
 }
 
 extern "C" void Gfx_TextureCacheDelete(const uint8_t* texAddr) {
@@ -1821,7 +1894,13 @@ extern "C" void Gfx_TextureCacheDelete(const uint8_t* texAddr) {
         texAddr = (const uint8_t*)ResourceGetDataByName(imgName);
     }
 
-    gfx_texture_cache_delete(texAddr);
+    if (auto intP = dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow())
+                        ->GetInterpreterWeak()
+                        .lock()) {
+        intP->TextureCacheDelete(texAddr);
+    } else {
+        assert(false && "Lost reference to Fast::Interpreter");
+    }
 }
 
 extern "C" int AudioPlayer_Buffered(void) {

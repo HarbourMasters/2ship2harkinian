@@ -105,6 +105,7 @@ nlohmann::json curatedPresetJ = R"(
                 "BowReticle": 1,
                 "ClockType": 1,
                 "DisableSceneGeometryDistanceCheck": 1,
+                "FixSceneGeometrySeams": 1,
                 "IncreaseActorDrawDistance": 5
             },
             "Masks": {
@@ -147,7 +148,8 @@ nlohmann::json curatedPresetJ = R"(
                 "FierceDeityPutaway": 1,
                 "InfiniteDekuHopping": 1,
                 "InstantPutaway": 1,
-                "PreventDiveOverWater": 1
+                "PreventDiveOverWater": 1,
+                "UnderwaterOcarina": 1
             },
             "PlayerActions": {
                 "ArrowCycle": 1,
@@ -383,7 +385,7 @@ void PresetManager_CreatePreset(std::string presetName) {
     } catch (...) { Notification::Emit({ .suffix = "Failed to create preset" }); }
 }
 
-bool PresetManager_HandleFileDropped(std::string filePath) {
+bool PresetManager_HandleFileDropped(const std::string& filePath) {
     try {
         std::ifstream fileStream(filePath);
 

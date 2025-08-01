@@ -9,6 +9,7 @@
 #include <vector>
 
 namespace Ship {
+uint32_t GetVectorIndexOf(std::vector<std::string>& vector, std::string value);
 class Menu : public GuiWindow {
   public:
     using GuiWindow::GuiWindow;
@@ -23,16 +24,18 @@ class Menu : public GuiWindow {
     void InsertSidebarSearch();
     void RemoveSidebarSearch();
     void UpdateWindowBackendObjects();
+    UIWidgets::Colors GetMenuThemeColor();
 
     void MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors menuThemeIndex);
-    void AddHeaderEntry(MainMenuEntry& menuEntry);
+    void AddMenuEntry(std::string entryName, const char* entryCvar);
     std::unordered_map<uint32_t, disabledInfo>& GetDisabledMap();
 
   protected:
     ImVec2 mOriginalSize;
     std::string mName;
     uint32_t mWindowFlags;
-    std::vector<MainMenuEntry> menuEntries;
+    std::unordered_map<std::string, MainMenuEntry> menuEntries;
+    std::vector<std::string> menuOrder;
     uint32_t DrawSearchResults(std::string& menuSearchText);
     ImGuiTextFilter menuSearch;
     uint8_t searchSidebarIndex;
@@ -58,6 +61,7 @@ class Menu : public GuiWindow {
     ImVec2 poppedPos;
     float windowHeight;
     float windowWidth;
+    UIWidgets::Colors menuThemeIndex;
 };
 } // namespace Ship
 

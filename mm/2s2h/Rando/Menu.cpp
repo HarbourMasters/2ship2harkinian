@@ -29,6 +29,16 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
     { RO_ACCESS_TRIALS_OPEN, "Open" },
 };
 
+std::vector<int32_t> incompatibleWithFrenchVanilla = {
+    RO_SHUFFLE_BOSS_SOULS,
+    RO_PLENTIFUL_ITEMS,
+};
+
+std::vector<int32_t> incompatibleWithVanilla = {
+    RO_SHUFFLE_BOSS_SOULS,
+    RO_PLENTIFUL_ITEMS,
+};
+
 namespace BenGui {
 extern std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
 extern std::shared_ptr<Rando::CheckTracker::SettingsWindow> mRandoCheckTrackerSettingsWindow;
@@ -42,8 +52,55 @@ extern "C" {
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
 }
 
+void ClearIncompatibleSetting() {
+    int32_t currentLogicSetting =
+        CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, Rando::StaticData::Options[RO_LOGIC].defaultValue);
+    switch (currentLogicSetting) {
+        // French Vanilla can't have any options that add items without a corresponding check
+        case RO_LOGIC_FRENCH_VANILLA:
+            CVarClear(Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
+            CVarClear(Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
+            // TODO: Handle Starting Items to ensure starting sword/shield
+            break;
+        // Similar to French Vanilla, Vanilla can't add items without corresponding checks
+        case RO_LOGIC_VANILLA:
+            CVarClear(Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
+            CVarClear(Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
+            break;
+        default:
+            break;
+    }
+}
+
+bool IncompatibleWithLogicSetting(int32_t option) {
+    int32_t currentLogicSetting =
+        CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, Rando::StaticData::Options[RO_LOGIC].defaultValue);
+    switch (currentLogicSetting) {
+        case RO_LOGIC_FRENCH_VANILLA:
+            if (std::find(incompatibleWithFrenchVanilla.begin(), incompatibleWithFrenchVanilla.end(), option) !=
+                incompatibleWithFrenchVanilla.end()) {
+                return true;
+            }
+            break;
+        case RO_LOGIC_VANILLA:
+            if (std::find(incompatibleWithVanilla.begin(), incompatibleWithVanilla.end(), option) !=
+                incompatibleWithVanilla.end()) {
+                return true;
+            }
+            break;
+        default:
+            break;
+    }
+    return false;
+}
+
 static void DrawGeneralTab() {
-    ImGui::BeginChild("randoSettings", ImVec2(ImGui::GetContentRegionAvail().x / 2, 0));
+    ImGui::BeginChild("randoSettings");
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 0.5f));
+    ImGui::TextWrapped(
+        "Explore the menus for various enhancements and time savers; most are not enabled by default in Rando.");
+    ImGui::PopStyleColor();
+
     ImGui::SeparatorText("Seed Generation");
     UIWidgets::CVarCheckbox("Enable Rando (Randomizes new files upon creation)", "gRando.Enabled");
 
@@ -86,44 +143,15 @@ static void DrawGeneralTab() {
     }
     ImGui::EndChild();
     ImGui::SameLine();
-    ImGui::BeginChild("randoDisclaimer");
-    ImGui::PushStyleColor(ImGuiCol_Text, ColorValues.at(Colors::Gray));
-    if (gGitCommitTag[0] == 0) {
-        ImGui::Text("%s | %s", (char*)gGitBranch, (char*)gGitCommitHash);
-    } else {
-        ImGui::Text("%s", (char*)gBuildVersion);
-    }
-    ImGui::PopStyleColor();
-    ImGui::PushStyleColor(ImGuiCol_Text, ColorValues.at(Colors::Orange));
-    ImGui::SeparatorText("Disclaimer");
-    ImGui::PopStyleColor();
-    ImGui::TextWrapped(
-        "This is an Alpha. Please make note of any odd or unexpected behavior while you are playing. While we are in "
-        "the earlier phases of this project, some things you may encounter are:\n- X Check is not shuffled\n- X "
-        "Cutscene is not skipped\n- Soft lock when interacting with X\n- Unbeatable seed (glitchless logic)\n\nWe are "
-        "aware of some of these, but likely not all. Please compare your findings to our list of known issues, which "
-        "is available in the pins of the Rando Alpha Discord thread, or on the Github Issue #211, and let us know if "
-        "you encounter any new issues.\n\nExplore the menus for various enhancements and time savers, they are not "
-        "enabled by default in Rando.\n\n");
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
-    ImGui::SeparatorText("Thank You");
-    ImGui::PopStyleColor();
-    ImGui::TextWrapped("Special thanks to BalloonDude, Eblo, Caladius, Sitton, Dana, our playtesters, everyone who "
-                       "contributed to the SoH randomizer, and the creators of the various other randomizer "
-                       "implementations that inspired this project. I hope you enjoy it.\n\n");
-    ImTextureID swordTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-        (const char*)gQuestIconHeartContainer2Tex);
-    ImGui::Image(swordTextureId, ImVec2(25.0f, 25.0f));
-    ImGui::SameLine();
-    ImGui::Text("ProxySaw");
-    ImGui::EndChild();
 }
 
 static void DrawLogicConditionsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 2 - (ImGui::GetStyle().ItemSpacing.y * 2);
     ImGui::BeginChild("randoLogicColumn1", ImVec2(columnWidth, halfHeight));
-    UIWidgets::CVarCombobox("Logic", Rando::StaticData::Options[RO_LOGIC].cvar, logicOptions);
+    if (UIWidgets::CVarCombobox("Logic", Rando::StaticData::Options[RO_LOGIC].cvar, &logicOptions)) {
+        ClearIncompatibleSetting();
+    }
     UIWidgets::Tooltip(
         "Glitchless - The items are shuffled in a way that guarantees the seed is beatable without "
         "glitches.\n\n"
@@ -134,14 +162,16 @@ static void DrawLogicConditionsTab() {
         "- Deku Mask, Zora Mask, Sonata, and Bossa Nova cannot be placed in their respective Temples or on "
         "the Moon.\n\n"
         "French Vanilla - This is an alternative variant to Glitchless, but the items are biased to be "
-        "closer to their vanilla locations. Tends to be an more beginner friendly experience.\n\n"
-        "Vanilla - The items are not shuffled.");
+        "closer to their vanilla locations. Tends to be an more beginner friendly experience.\n"
+        "Not compatible with settings that add items to the pool, like Boss Souls or Plentiful Items.\n\n"
+        "Vanilla - The items are not shuffled.\n"
+        "Not compatible with settings that add items to the pool, like Boss Souls or Plentiful Items.");
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoLogicColumn2", ImVec2(columnWidth, halfHeight));
 
     UIWidgets::CVarCombobox("Dungeon Access", Rando::StaticData::Options[RO_ACCESS_DUNGEONS].cvar,
-                            accessDungeonOptions);
+                            &accessDungeonOptions);
     UIWidgets::Tooltip("Dungeon access requirements:\n\n"
                        "Requires Transformation & Song - Requires both the correct form and the song (Vanilla).\n\n"
                        "Requires Transformation or Song - Requires either the correct form or the song.\n\n"
@@ -154,7 +184,7 @@ static void DrawLogicConditionsTab() {
     UIWidgets::CVarSliderInt("Moon Access Remains Required",
                              Rando::StaticData::Options[RO_ACCESS_MOON_REMAINS_COUNT].cvar,
                              IntSliderOptions().Min(0).Max(4).DefaultValue(4));
-    UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, accessTrialsOptions);
+    UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, &accessTrialsOptions);
     ImGui::EndChild();
     ImGui::BeginChild("randoLogicTricks", ImVec2(0, 0));
     ImGui::SeparatorText("Tricks & Glitches");
@@ -184,6 +214,7 @@ static void DrawLocationsTab() {
     CVarCheckbox("Shuffle Crate Drops", Rando::StaticData::Options[RO_SHUFFLE_CRATE_DROPS].cvar);
     CVarCheckbox("Shuffle Barrel Drops", Rando::StaticData::Options[RO_SHUFFLE_BARREL_DROPS].cvar);
     CVarCheckbox("Shuffle Snowball Drops", Rando::StaticData::Options[RO_SHUFFLE_SNOWBALL_DROPS].cvar);
+    CVarCheckbox("Shuffle Grass Drops", Rando::StaticData::Options[RO_SHUFFLE_GRASS_DROPS].cvar);
     CVarCheckbox("Shuffle Frogs", Rando::StaticData::Options[RO_SHUFFLE_FROGS].cvar);
     CVarCheckbox("Shuffle Hive Drops", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
@@ -219,8 +250,19 @@ static void DrawItemsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, halfHeight));
-    CVarCheckbox("Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
-    CVarCheckbox("Boss Souls", Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
+    CVarCheckbox(
+        "Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar,
+        CheckboxOptions({ { .tooltip = "Major items, masks, and keys will have an extra copy added to the item pool. \n"
+                                       "Lesser items, stray fairies, and skulltula tokens will have a chance for an "
+                                       "extra copy to be added to the item pool.",
+                            .disabled = IncompatibleWithLogicSetting(RO_PLENTIFUL_ITEMS),
+                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox(
+        "Boss Souls", Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar,
+        CheckboxOptions({ { .tooltip = "Adds the \"souls\" of the five bosses to the item pool. Boss Souls are items "
+                                       "that must be found in order for their corresponding boss to spawn.",
+                            .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_BOSS_SOULS),
+                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
     CVarCheckbox("Enemy Souls", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
@@ -238,9 +280,15 @@ static void DrawItemsTab() {
     ImGui::BeginChild("randoItemsStarting", ImVec2(0, 0));
     ImGui::BeginChild("randoStartingItemsColumn1", ImVec2(columnWidth, 0));
     ImGui::SeparatorText("Starting Options");
-    CVarCheckbox("Wallet Full", Rando::StaticData::Options[RO_STARTING_RUPEES].cvar);
+    CVarCheckbox("Wallet Full", Rando::StaticData::Options[RO_STARTING_RUPEES].cvar,
+                 CheckboxOptions({ {
+                     .tooltip = "Start with a full wallet",
+                 } }));
     CVarCheckbox("Consumables Full", Rando::StaticData::Options[RO_STARTING_CONSUMABLES].cvar);
-    CVarCheckbox("Maps and Compasses", Rando::StaticData::Options[RO_STARTING_MAPS_AND_COMPASSES].cvar);
+    CVarCheckbox("Maps and Compasses", Rando::StaticData::Options[RO_STARTING_MAPS_AND_COMPASSES].cvar,
+                 CheckboxOptions({ {
+                     .tooltip = "Enables maps and compasses everywhere",
+                 } }));
     CVarSliderInt("Health", Rando::StaticData::Options[RO_STARTING_HEALTH].cvar,
                   IntSliderOptions()
                       .Min(1)
@@ -389,8 +437,9 @@ static void DrawHintsTab() {
 }
 
 void Rando::RegisterMenu() {
+    mBenMenu->AddMenuEntry("Rando", "gSettings.Menu.RandoSidebarSection");
     mBenMenu->AddSidebarEntry("Rando", "General", 1);
-    WidgetPath path = { "Rando", "General", 1 };
+    WidgetPath path = { "Rando", "General", SECTION_COLUMN_1 };
     mBenMenu->AddWidget(path, "General", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawGeneralTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Logic/Conditions", 1);
     path.sidebarName = "Logic/Conditions";
@@ -407,3 +456,5 @@ void Rando::RegisterMenu() {
     path.sidebarName = "Hints";
     mBenMenu->AddWidget(path, "Hints", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawHintsTab(); });
 }
+
+static RegisterMenuInitFunc initFunc(Rando::RegisterMenu);
