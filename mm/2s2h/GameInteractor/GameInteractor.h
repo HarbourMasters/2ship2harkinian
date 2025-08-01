@@ -246,6 +246,7 @@ typedef enum {
     VB_LOAD_PLAYER_ANIMATION_FRAME,
     VB_PLAY_SCENE_SEQUENCE,
     VB_DISABLE_ITEM_UNDERWATER_FLOOR,
+    VB_PLAY_SLOW_CHEST_CS,
 } GIVanillaBehavior;
 
 typedef enum {
