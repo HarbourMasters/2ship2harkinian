@@ -359,7 +359,6 @@ void RegisterSkipEnemyCutscenes() {
             // This is Igos, and the two lackeys have been slain. Skip cutscene, start next phase
             if (D_809BEFD4->actor.draw == NULL && D_809BEFD8->actor.draw == NULL) {
                 enKnight->unk17A = enKnight->unk178 = enKnight->unk176 = enKnight->unk174 = 0;
-                enKnight->actionFunc = func_809B71DC;
                 enKnight->unk684 = 0;
                 enKnight->unk6A4 = 0.0f;
                 enKnight->unk46C = enKnight->unk470 = 1.0f; // Show sword and shield
