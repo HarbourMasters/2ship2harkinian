@@ -6,6 +6,12 @@ extern "C" {
 #include <functions.h>
 #include "objects/gameplay_keep/gameplay_keep.h"
 
+// Soul Effects
+#include "src/overlays/actors/ovl_Obj_Moon_Stone/z_obj_moon_stone.h"
+#include "assets/objects/object_gi_reserve00/object_gi_reserve00.h"
+
+s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMini);
+
 // clang-format off
 // Boss Includes
 /* Goht */      #include "objects/object_boss_hakugin/object_boss_hakugin.h"
@@ -15,15 +21,8 @@ extern "C" {
 /* Majora */    #include "objects/object_boss07/object_boss07.h"
 
 // Other Actor Includes
-/* Minifrog */ #include "objects/object_fr/object_fr.h"
-
+/* Minifrog */  #include "objects/object_fr/object_fr.h"
 // clang-format on
-
-// Soul Effects
-#include "src/overlays/actors/ovl_Obj_Moon_Stone/z_obj_moon_stone.h"
-#include "assets/objects/object_gi_reserve00/object_gi_reserve00.h"
-
-s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMini);
 }
 
 // Soul Effects
