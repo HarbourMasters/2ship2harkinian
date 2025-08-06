@@ -38,6 +38,7 @@ typedef struct {
 
 // Reference https://tcrf.net/Proto:The_Legend_of_Zelda:_Majora's_Mask/Debug_Version/Event_Editor
 // The source was last referenced on 2025-08-05 and had a last updated value of 2024-06-29
+// clang-format off
 const std::vector<FlagTable> flagTables = {
     { "Current Scene Flags", CURRENT_SCENE_FLAGS, {} },
     { "Week Event Reg",
@@ -936,6 +937,7 @@ const std::vector<FlagTable> flagTables = {
     { "Permanent Scene Flags", PERMANENT_SCENE_FLAGS, {} },
     { "Cycle Scene Flags", CYCLE_SCENE_FLAGS, {} },
 };
+// clang-format on
 
 class SaveEditorWindow : public Ship::GuiWindow {
   public:
