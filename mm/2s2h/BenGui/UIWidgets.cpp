@@ -1175,7 +1175,6 @@ void DrawFlagTableArray8Mask(const FlagTable& flagTable, uint16_t row, uint8_t& 
         uint8_t bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
         FlagEntry flagEntry = flagTable.entries.at(row * 8 + flagIndex);
-        // TODO: Cleaner style selection here
         PushStyleCheckbox(flagEntry.type == PERSISTENT ? Gray : (flagEntry.type == CYCLE_RESET ? LightBlue : Orange));
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 6.0f));
         std::string id = fmt::format("##{}{}", flagTable.name, flagIndex);
@@ -1188,9 +1187,7 @@ void DrawFlagTableArray8Mask(const FlagTable& flagTable, uint16_t row, uint8_t& 
         }
         if (ImGui::IsItemHovered()) {
             std::string label = WrappedText(flagEntry.description, 60).c_str();
-            if (!label.size()) {
-                label = fmt::format("0x{:02X} ({})", flagIndex, flagIndex);
-            }
+            label += fmt::format("{}0x{:02X} ({})", label.size() ? "\n" : "", flagIndex, flagIndex);
             ImGui::SetTooltip(label.c_str());
         }
         ImGui::PopStyleVar();
