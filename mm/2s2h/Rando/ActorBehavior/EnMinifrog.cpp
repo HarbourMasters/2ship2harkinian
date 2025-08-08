@@ -8,7 +8,10 @@ extern "C" {
 void EnMinifrog_TurnToPlayer(EnMinifrog* enMinifrog);
 void EnMinifrog_Jump(EnMinifrog* enMinifrog);
 void EnMinifrog_JumpTimer(EnMinifrog* enMinifrog);
+void EnMinifrog_SpawnDust(EnMinifrog* enMinifrog, PlayState* play);
 }
+
+#define SHUFFLED_FROGS (IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS])
 
 RandoCheckId GetFrogCheck(s16 index) {
     switch (index) {
@@ -24,42 +27,35 @@ RandoCheckId GetFrogCheck(s16 index) {
     return RC_UNKNOWN;
 }
 
-void MiniFrog_DrawCustom(Actor* thisx, PlayState* play) {
-    EnMinifrog* enMinifrog = (EnMinifrog*)thisx;
-    RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
-    if (frogCheck == RC_UNKNOWN) {
-        return;
-    }
-
-    RandoItemId frogItem = RANDO_SAVE_CHECKS[frogCheck].randoItemId;
-
-    Matrix_Translate(0.0f, 25.0f, 0.0f, MTXMODE_APPLY);
-    Rando::DrawItem(Rando::ConvertItem(frogItem, frogCheck), thisx);
-}
-
-void MiniFrog_UpdateCustom(Actor* thisx, PlayState* play) {
-    EnMinifrog* enMinifrog = (EnMinifrog*)thisx;
-    RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
-
+// Custom func to make the frog give the item and vanish, without using a cutscene
+void MiniFrog_TalkAndVanish(EnMinifrog* enMinifrog, PlayState* play) {
     EnMinifrog_TurnToPlayer(enMinifrog);
     EnMinifrog_Jump(enMinifrog);
     EnMinifrog_JumpTimer(enMinifrog);
-
-    Actor_MoveWithGravity(&enMinifrog->actor);
-    Actor_UpdateBgCheckInfo(play, &enMinifrog->actor, 25.0f, 12.0f, 0.0f,
-                            UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_8 |
-                                UPDBGCHECKINFO_FLAG_10);
-    enMinifrog->actor.focus.rot.y = enMinifrog->actor.shape.rot.y;
-
-    if ((thisx->xzDistToPlayer <= 30.0f) && (fabsf(thisx->playerHeightRel) <= fabsf(80.0f))) {
-        RANDO_SAVE_CHECKS[frogCheck].eligible = true;
+    if (!play->msgCtx.currentTextId) {
+        EnMinifrog_SpawnDust(enMinifrog, play);
+        SoundSource_PlaySfxAtFixedWorldPos(play, &enMinifrog->actor.world.pos, 30, NA_SE_EN_NPC_FADEAWAY);
         Actor_Kill(&enMinifrog->actor);
-        return;
+        RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
+        RANDO_SAVE_CHECKS[frogCheck].eligible = true;
+    }
+}
+
+void MiniFrog_IdleWithoutCs(EnMinifrog* enMinifrog, PlayState* play) {
+    EnMinifrog_TurnToPlayer(enMinifrog);
+    EnMinifrog_Jump(enMinifrog);
+    EnMinifrog_JumpTimer(enMinifrog);
+    if (Actor_ProcessTalkRequest(&enMinifrog->actor, &play->state)) {
+        play->msgCtx.currentTextId = 0xD81;
+        enMinifrog->actionFunc = MiniFrog_TalkAndVanish;
+    } else if ((enMinifrog->actor.xzDistToPlayer < 100.0f) && Player_IsFacingActor(&enMinifrog->actor, 0x3000, play) &&
+               (Player_GetMask(play) == PLAYER_MASK_DON_GERO)) {
+        Actor_OfferTalk(&enMinifrog->actor, play, 110.0f);
     }
 }
 
 void Rando::ActorBehavior::InitEnMinifrogBehavior() {
-    COND_VB_SHOULD(VB_SPAWN_FROG, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], {
+    COND_VB_SHOULD(VB_DESPAWN_FROG, SHUFFLED_FROGS, {
         EnMinifrog* enMinifrog = va_arg(args, EnMinifrog*);
         RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
         if (frogCheck == RC_UNKNOWN) {
@@ -68,22 +64,21 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
         *should = RANDO_SAVE_CHECKS[frogCheck].cycleObtained;
     });
 
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_MINIFROG, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], [](Actor* actor) {
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_MINIFROG, SHUFFLED_FROGS, [](Actor* actor) {
         EnMinifrog* enMinifrog = (EnMinifrog*)actor;
-
-        if (EN_FROG_IS_RETURNED(&enMinifrog->actor)) {
-            return;
+        // If this is not a Mountain Village frog, use the custom actionFunc
+        if (enMinifrog->frogIndex != FROG_YELLOW && !EN_FROG_IS_RETURNED(actor)) {
+            enMinifrog->actionFunc = MiniFrog_IdleWithoutCs;
         }
+    });
 
-        RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
-        if (frogCheck == RC_UNKNOWN) {
-            return;
-        }
+    // "Ah, Don Gero"
+    COND_ID_HOOK(OnOpenText, 0xD81, SHUFFLED_FROGS, [](u16* textId, bool* loadFromMessageTable) {
+        auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
+        entry.msg = "Why, Don Gero! I'm not joining that choir unless someone finds my other hiding spot. "
+                    "Take this and don't follow me.";
 
-        actor->draw = MiniFrog_DrawCustom;
-        actor->update = MiniFrog_UpdateCustom;
-        actor->shape.shadowDraw = NULL;
-        actor->flags &= ~ACTOR_FLAG_TARGETABLE;
-        Actor_SetScale(&enMinifrog->actor, 0.4f);
+        CustomMessage::LoadCustomMessageIntoFont(entry);
+        *loadFromMessageTable = false;
     });
 }

@@ -112,7 +112,7 @@ void EnMinifrog_Init(Actor* thisx, PlayState* play) {
 
     if (!EN_FROG_IS_RETURNED(&this->actor)) {
         if ((this->frogIndex == FROG_YELLOW) ||
-            GameInteractor_Should(VB_SPAWN_FROG, CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[this->frogIndex]), this)) {
+            GameInteractor_Should(VB_DESPAWN_FROG, CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[this->frogIndex]), this)) {
             Actor_Kill(&this->actor);
             return;
         }

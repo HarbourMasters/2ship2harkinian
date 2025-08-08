@@ -123,7 +123,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_01,  true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_02,  true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_03,  true),
-            CHECK(RC_CLOCK_TOWN_LAUNDRY_FROG,                   true),
+            CHECK(RC_CLOCK_TOWN_LAUNDRY_FROG,                   HAS_ITEM(ITEM_MASK_DON_GERO)),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_GURU_GURU,              true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_SMALL_CRATE,            true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_POOL_GRASS_01, true),
