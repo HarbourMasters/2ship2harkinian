@@ -13,6 +13,14 @@ void EnMinifrog_SpawnDust(EnMinifrog* enMinifrog, PlayState* play);
 
 #define SHUFFLED_FROGS (IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS])
 
+static u16 sIsFrogReturnedFlags[] = {
+    0,                  // FROG_YELLOW
+    WEEKEVENTREG_32_40, // FROG_CYAN
+    WEEKEVENTREG_32_80, // FROG_PINK
+    WEEKEVENTREG_33_01, // FROG_BLUE
+    WEEKEVENTREG_33_02, // FROG_WHITE
+};
+
 RandoCheckId GetFrogCheck(s16 index) {
     switch (index) {
         case 1:
@@ -46,7 +54,7 @@ void MiniFrog_IdleWithoutCs(EnMinifrog* enMinifrog, PlayState* play) {
     EnMinifrog_Jump(enMinifrog);
     EnMinifrog_JumpTimer(enMinifrog);
     if (Actor_ProcessTalkRequest(&enMinifrog->actor, &play->state)) {
-        play->msgCtx.currentTextId = 0xD81;
+        play->msgCtx.currentTextId = enMinifrog->actor.textId;
         enMinifrog->actionFunc = MiniFrog_TalkAndVanish;
     } else if ((enMinifrog->actor.xzDistToPlayer < 100.0f) && Player_IsFacingActor(&enMinifrog->actor, 0x3000, play) &&
                (Player_GetMask(play) == PLAYER_MASK_DON_GERO)) {
@@ -68,6 +76,7 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
         EnMinifrog* enMinifrog = (EnMinifrog*)actor;
         // If this is not a Mountain Village frog, use the custom actionFunc
         if (enMinifrog->frogIndex != FROG_YELLOW && !EN_FROG_IS_RETURNED(actor)) {
+            enMinifrog->actor.textId = CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[enMinifrog->frogIndex]) ? 0xD82 : 0xD81;
             enMinifrog->actionFunc = MiniFrog_IdleWithoutCs;
         }
     });
@@ -77,6 +86,16 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = "Why, Don Gero! I'm not joining that choir unless someone finds my other hiding spot. "
                     "Take this and don't follow me.";
+
+        CustomMessage::LoadCustomMessageIntoFont(entry);
+        *loadFromMessageTable = false;
+    });
+
+    // "What has brought you..."
+    COND_ID_HOOK(OnOpenText, 0xD82, SHUFFLED_FROGS, [](u16* textId, bool* loadFromMessageTable) {
+        auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
+        entry.msg = "Why, Don Gero! Since you found my other hiding spot, I'll join the choir. "
+                    "Take this and meet me in the mountains.";
 
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
