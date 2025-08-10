@@ -10,10 +10,7 @@ extern "C" {
 #define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-#define TERMINA_FIELD_MOON_CRASH_CS_ENTRANCE 0x54C0
-
-#define MOON_CRASH_NEW_CYCLE_CS_ID 13
-#define MOON_CRASH_NEW_CYCLE_ENTRANCE_ID 0xC030
+#define MOON_CRASH_NEW_CYCLE_CS_ID 0
 
 /**
  *  Skips only the visible cutscenes (Clock Tower destruction and Link's terrible fate with the Fire Wall).
@@ -24,14 +21,13 @@ extern "C" {
 void RegisterSkipMoonCrash() {
     // Skips initial cutscene in Termina Field where the moon falls, goes straight to clock tower cutscene
     COND_VB_SHOULD(VB_PLAY_TRANSITION_CS, CVAR, {
-        if (gSaveContext.save.cutsceneIndex == 0x0 &&
-            gSaveContext.save.entrance == TERMINA_FIELD_MOON_CRASH_CS_ENTRANCE) {
+        if (gSaveContext.save.cutsceneIndex == 0x0 && gSaveContext.save.entrance == ENTRANCE(TERMINA_FIELD, 12)) {
             // This cutscene command would otherwise be run as part of the Fire Wall cutscene that gets skipped.
             // IT MUST BE CALLED HERE IF THAT CUTSCENE IS SKIPPED OR ELSE THE GAME STATE WILL NOT RESET CORRECTLY!
             Sram_ResetSaveFromMoonCrash(&gPlayState->sramCtx);
 
             gSaveContext.save.cutsceneIndex = MOON_CRASH_NEW_CYCLE_CS_ID;
-            gSaveContext.save.entrance = MOON_CRASH_NEW_CYCLE_ENTRANCE_ID;
+            gSaveContext.save.entrance = ENTRANCE(CLOCK_TOWER_INTERIOR, 3);
         }
     });
 }
