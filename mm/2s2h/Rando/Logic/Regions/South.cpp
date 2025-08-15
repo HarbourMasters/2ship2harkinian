@@ -209,13 +209,17 @@ static RegisterShipInitFunc initFunc([]() {
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 1),                ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 0), true),
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 0),      ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 1), true),
-            EXIT(ENTRANCE(SWAMP_SHOOTING_GALLERY, 0),       ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2), true),
+            EXIT(ENTRANCE(SWAMP_SHOOTING_GALLERY, 0),       ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2),
+                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                 (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                 (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+            ),
         },
         .connections = {
             CONNECTION(RR_ROAD_TO_SOUTHERN_SWAMP_GROTTO, true), // TODO: Grotto mapping
         },
         .events = {
-            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, IS_DAY && HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
             EVENT(RE_ACCESS_SPRING_WATER, true),
         },
     };
@@ -357,11 +361,25 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_SWAMP_SHOOTING_GALLERY] = RandoRegion{ .sceneId = SCENE_SYATEKI_MORI,
         .checks = {
-            CHECK(RC_SWAMP_SHOOTING_GALLERY_HIGH_SCORE, HAS_ITEM(ITEM_BOW)),
-            CHECK(RC_SWAMP_SHOOTING_GALLERY_PERFECT_SCORE, HAS_ITEM(ITEM_BOW)),
+            CHECK(RC_SWAMP_SHOOTING_GALLERY_HIGH_SCORE,
+                  HAS_ITEM(ITEM_BOW) && (
+                      (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                      (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                      (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+                  )),
+            CHECK(RC_SWAMP_SHOOTING_GALLERY_PERFECT_SCORE,
+                  HAS_ITEM(ITEM_BOW) && (
+                      (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                      (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                      (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+                  )),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2),       ENTRANCE(SWAMP_SHOOTING_GALLERY, 0), true),
+            EXIT(ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2),       ENTRANCE(SWAMP_SHOOTING_GALLERY, 0),
+                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                 (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                 (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+            ),
         },
     };
     Regions[RR_TOURIST_INFORMATION] = RandoRegion{ .sceneId = SCENE_MAP_SHOP,

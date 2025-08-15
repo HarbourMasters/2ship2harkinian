@@ -1,5 +1,6 @@
 #include "MiscBehavior.h"
 #include "2s2h/Rando/Logic/Logic.h"
+#include "Rando/Utils.h"
 
 extern "C" {
 #include "variables.h"
@@ -16,6 +17,7 @@ void Rando::MiscBehavior::OnFileLoad() {
     Rando::MiscBehavior::CheckQueueReset();
     Rando::MiscBehavior::InitKaleidoItemPage();
     Rando::MiscBehavior::InitOfferGetItemBehavior();
+    Rando::MiscBehavior::ClockSpawnTime();
 
     COND_HOOK(OnFlagSet, IS_RANDO, Rando::MiscBehavior::OnFlagSet);
     COND_HOOK(OnSceneFlagSet, IS_RANDO, Rando::MiscBehavior::OnSceneFlagSet);
@@ -63,6 +65,17 @@ void Rando::MiscBehavior::OnFileLoad() {
         // Playing Honey and Darling
         if (CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01) && (gPlayState->sceneId == SCENE_BOWLING)) {
             *should = false;
+        }
+    });
+
+    // New Cycle Moon behavior: persist progression using Song of Time's end-of-cycle save
+    COND_HOOK(BeforeMoonCrashSaveReset, IS_RANDO, []() {
+        if (!RANDO_SAVE_OPTIONS[RO_CLOCKS_AS_ITEMS])
+            return;
+        if (RANDO_SAVE_OPTIONS[RO_CLOCKS_CRASH_BEHAVIOR] != 1)
+            return;
+        if (gPlayState != nullptr) {
+            Sram_SaveEndOfCycle(gPlayState);
         }
     });
 }

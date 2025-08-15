@@ -40,6 +40,9 @@ static std::unordered_map<s32, s32> betterSceneIndex = {
 #define CVAR_NAME_TRACKER_OPACITY "gRando.CheckTracker.Opacity"
 #define CVAR_NAME_TRACKER_SCALE "gRando.CheckTracker.Scale"
 #define CVAR_NAME_SHOW_CURRENT_SCENE "gRando.CheckTracker.ShowCurrentScene"
+#define CVAR_NAME_CLOCK_SEGMENTS_SHOW "gRando.CheckTracker.ShowClockSegments"
+#define CVAR_NAME_CLOCK_SEGMENTS_POS_X "gRando.CheckTracker.ClockSegments.X"
+#define CVAR_NAME_CLOCK_SEGMENTS_POS_Y "gRando.CheckTracker.ClockSegments.Y"
 #define CVAR_SHOW_CHECK_TRACKER CVarGetInteger(CVAR_NAME_SHOW_CHECK_TRACKER, 0)
 #define CVAR_SHOW_LOGIC CVarGetInteger(CVAR_NAME_SHOW_LOGIC, 0)
 #define CVAR_HIDE_COLLECTED CVarGetInteger(CVAR_NAME_HIDE_COLLECTED, 0)
@@ -48,6 +51,9 @@ static std::unordered_map<s32, s32> betterSceneIndex = {
 #define CVAR_TRACKER_OPACITY CVarGetFloat(CVAR_NAME_TRACKER_OPACITY, 0.5f)
 #define CVAR_TRACKER_SCALE CVarGetFloat(CVAR_NAME_TRACKER_SCALE, 1.0f)
 #define CVAR_SHOW_CURRENT_SCENE CVarGetInteger(CVAR_NAME_SHOW_CURRENT_SCENE, 0)
+#define CVAR_CLOCK_SEGMENTS_SHOW CVarGetInteger(CVAR_NAME_CLOCK_SEGMENTS_SHOW, 1)
+#define CVAR_CLOCK_SEGMENTS_POS_X CVarGetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_X, 32.0f)
+#define CVAR_CLOCK_SEGMENTS_POS_Y CVarGetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_Y, 64.0f)
 
 static bool sExpandedHeadersToggle = true;
 static bool sExpandedHeadersState = true;
@@ -513,6 +519,46 @@ void CheckTrackerWindow::Draw() {
 
     ImGui::PopStyleColor(4);
     ImGui::PopStyleVar(1);
+
+    // Compact Clocks-as-Items indicator row
+    if (RANDO_SAVE_OPTIONS[RO_CLOCKS_AS_ITEMS] && CVAR_CLOCK_SEGMENTS_SHOW) {
+        ImGui::SetNextWindowBgAlpha(trackerBG.w);
+        ImGui::SetNextWindowPos(ImVec2(CVAR_CLOCK_SEGMENTS_POS_X, CVAR_CLOCK_SEGMENTS_POS_Y), ImGuiCond_Always);
+        ImGui::Begin("Clock Segments", nullptr,
+                     ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoTitleBar |
+                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
+        auto seg = [&](const char* label, bool owned) {
+            ImGui::SameLine(0, 8.0f);
+            ImGui::TextColored(owned ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)
+                                     : UIWidgets::ColorValues.at(UIWidgets::Colors::Gray),
+                               "%s", label);
+        };
+        ImGui::Text("Clocks:");
+        seg("D1", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY1));
+        seg("N1", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT1));
+        seg("D2", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY2));
+        seg("N2", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT2));
+        seg("D3", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY3));
+        seg("N3", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT3));
+        ImGui::End();
+
+        // Allow dragging to reposition; persist when released
+        ImGui::SetNextWindowBgAlpha(0.0f);
+        ImGui::Begin("Clock Segments DragHitbox", nullptr,
+                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar |
+                         ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBringToFrontOnFocus |
+                         ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoSavedSettings |
+                         ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::SetWindowPos(ImVec2(CVAR_CLOCK_SEGMENTS_POS_X, CVAR_CLOCK_SEGMENTS_POS_Y), ImGuiCond_Always);
+        ImGui::InvisibleButton("clock_segments_drag", ImVec2(140, 18));
+        if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
+            ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
+            CVarSetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_X, CVAR_CLOCK_SEGMENTS_POS_X + delta.x);
+            CVarSetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_Y, CVAR_CLOCK_SEGMENTS_POS_Y + delta.y);
+            ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
+        }
+        ImGui::End();
+    }
 }
 
 void SettingsWindow::DrawElement() {

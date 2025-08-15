@@ -121,7 +121,10 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_GREAT_BAY_COAST] = RandoRegion{ .sceneId = SCENE_30GYOSON,
         .checks = {
-            CHECK(RC_GREAT_BAY_COAST_FISHERMAN_MINIGAME, RANDO_EVENTS[RE_CLEARED_GREAT_BAY_TEMPLE] && (HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_MAGIC_ARROW(ICE))),
+            CHECK(RC_GREAT_BAY_COAST_FISHERMAN_MINIGAME,
+                  RANDO_EVENTS[RE_CLEARED_GREAT_BAY_TEMPLE] && (HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_MAGIC_ARROW(ICE)) && (
+                      (IS_DAY && TIME_AT_LEAST(7, 0)) || (IS_NIGHT && TIME_BEFORE(4, 0))
+                  )),
             CHECK(RC_GREAT_BAY_COAST_OWL_STATUE, CAN_USE_SWORD),
             CHECK(RC_GREAT_BAY_COAST_MIKAU, CAN_PLAY_SONG(HEALING)),
             CHECK(RC_GREAT_BAY_COAST_PIECE_OF_HEART, CAN_HOOK_SCARECROW && CAN_GROW_BEAN_PLANT),
@@ -162,7 +165,7 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_GREAT_BAY_COAST_FISHERMAN_GROTTO, true), // TODO: Grotto mapping
         },
         .events = {
-            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, IS_DAY && HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
         },
         .oneWayEntrances = {
             ENTRANCE(GREAT_BAY_COAST, 11), // From Song of Soaring
@@ -339,10 +342,10 @@ static RegisterShipInitFunc initFunc([]() {
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ZORA_CAPE, 1),                    ENTRANCE(ZORA_HALL, 0), true),           
             EXIT(ENTRANCE(ZORA_HALL_ROOMS, 5),              ENTRANCE(ZORA_HALL, 2), true), // To Shop
-            EXIT(ENTRANCE(ZORA_HALL_ROOMS, 2),              ENTRANCE(ZORA_HALL, 3), CAN_BE_ZORA), // To Lulu's Room
-            EXIT(ENTRANCE(ZORA_HALL_ROOMS, 3),              ENTRANCE(ZORA_HALL, 4), CAN_BE_ZORA), // To Evan's Room
-            EXIT(ENTRANCE(ZORA_HALL_ROOMS, 1),              ENTRANCE(ZORA_HALL, 5), CAN_BE_ZORA), // To Japas's Room
-            EXIT(ENTRANCE(ZORA_HALL_ROOMS, 0),              ENTRANCE(ZORA_HALL, 6), CAN_BE_ZORA), // To Mikaus's Room
+            EXIT(ENTRANCE(ZORA_HALL_ROOMS, 2),              ENTRANCE(ZORA_HALL, 3), CAN_BE_ZORA), // Lulu's Room
+            EXIT(ENTRANCE(ZORA_HALL_ROOMS, 3),              ENTRANCE(ZORA_HALL, 4), CAN_BE_ZORA), // Evan's Room
+            EXIT(ENTRANCE(ZORA_HALL_ROOMS, 1),              ENTRANCE(ZORA_HALL, 5), CAN_BE_ZORA), // Japas's Room
+            EXIT(ENTRANCE(ZORA_HALL_ROOMS, 0),              ENTRANCE(ZORA_HALL, 6), CAN_BE_ZORA), // Mikaus's Room
         },
     };
 }, {});

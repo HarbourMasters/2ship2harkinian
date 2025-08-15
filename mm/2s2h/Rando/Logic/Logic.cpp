@@ -6,7 +6,6 @@
 namespace Rando {
 
 namespace Logic {
-
 std::unordered_map<RandoRegionId, RandoRegion> Regions = {};
 
 RandoRegionId GetRegionIdFromEntrance(s32 entrance) {

@@ -368,7 +368,7 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_PATH_TO_GORON_VILLAGE_RAMP_GROTTO, CAN_USE_EXPLOSIVE && (CAN_BE_GORON || CAN_HOOK_SCARECROW)), // TODO: Grotto mapping
         },
         .events = {
-            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, IS_DAY && HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
         },
     };
     Regions[RR_PATH_TO_MOUNTAIN_VILLAGE_LOWER] = RandoRegion{ .name = "Lower", .sceneId = SCENE_13HUBUKINOMITI,

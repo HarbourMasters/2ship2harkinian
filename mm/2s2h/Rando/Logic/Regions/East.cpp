@@ -46,7 +46,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_1_BATS_POT_03, true),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(IKANA_GRAVEYARD, 3),              ENTRANCE(BENEATH_THE_GRAVERYARD, 1), true),
+            EXIT(ENTRANCE(IKANA_GRAVEYARD, 3),              ENTRANCE(BENEATH_THE_GRAVERYARD, 1), NIGHT(1)),
         },
         .connections = {
             CONNECTION(RR_BENEATH_THE_GRAVEYARD_NIGHT_1_BOSS, CAN_LIGHT_TORCH_NEAR_ANOTHER),
@@ -86,7 +86,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_2_BEFORE_PIT_POT_02, true),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(IKANA_GRAVEYARD, 2),              ENTRANCE(BENEATH_THE_GRAVERYARD, 0), true),
+            EXIT(ENTRANCE(IKANA_GRAVEYARD, 2),              ENTRANCE(BENEATH_THE_GRAVERYARD, 0), NIGHT(2)),
         },
         .connections = {
             CONNECTION(RR_BENEATH_THE_GRAVEYARD_NIGHT_2_GRAVE_AFTER_PIT, HAS_MAGIC && HAS_ITEM(ITEM_LENS_OF_TRUTH)),
@@ -177,7 +177,7 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_IKANA_CANYON_LOWER, true),
         },
         .events = {
-            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, IS_DAY && HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
         },
         .oneWayEntrances = {
             ENTRANCE(IKANA_CANYON, 4), // From Song of Soaring
@@ -220,9 +220,9 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ROAD_TO_IKANA, 2),                ENTRANCE(IKANA_GRAVEYARD, 0), true),
-            EXIT(ENTRANCE(DAMPES_HOUSE, 0),                          ONE_WAY_EXIT, HAS_ITEM(ITEM_MASK_CAPTAIN)), // Day 3 hole
-            EXIT(ENTRANCE(BENEATH_THE_GRAVERYARD, 0),       ENTRANCE(IKANA_GRAVEYARD, 2), HAS_ITEM(ITEM_MASK_CAPTAIN)), // Day 2 hole
-            EXIT(ENTRANCE(BENEATH_THE_GRAVERYARD, 1),       ENTRANCE(IKANA_GRAVEYARD, 3), HAS_ITEM(ITEM_MASK_CAPTAIN)), // Day 1 hole
+            EXIT(ENTRANCE(DAMPES_HOUSE, 0),                          ONE_WAY_EXIT, HAS_ITEM(ITEM_MASK_CAPTAIN) && NIGHT(3)), // Day 3 hole
+            EXIT(ENTRANCE(BENEATH_THE_GRAVERYARD, 0),       ENTRANCE(IKANA_GRAVEYARD, 2), HAS_ITEM(ITEM_MASK_CAPTAIN) && NIGHT(2)), // Day 2 hole
+            EXIT(ENTRANCE(BENEATH_THE_GRAVERYARD, 1),       ENTRANCE(IKANA_GRAVEYARD, 3), HAS_ITEM(ITEM_MASK_CAPTAIN) && NIGHT(1)), // Day 1 hole
         },
         .connections = {
             CONNECTION(RR_IKANA_GRAVEYARD_UPPER, CAN_PLAY_SONG(SONATA)),

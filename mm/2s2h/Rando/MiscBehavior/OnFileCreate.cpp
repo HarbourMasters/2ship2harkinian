@@ -3,6 +3,7 @@
 #include "Rando/Logic/Logic.h"
 #include <boost_custom/container_hash/hash_32.hpp>
 #include "public/bridge/consolevariablebridge.h"
+#include "Rando/Utils.h"
 #include <spdlog/spdlog.h>
 
 extern "C" {
@@ -212,6 +213,62 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES) {
                     for (int i = RI_SOUL_GOHT; i <= RI_SOUL_TWINMOLD; i++) {
                         itemPool.push_back((RandoItemId)i);
+                    }
+                }
+
+                // Inject clocks as items when enabled
+                if (RANDO_SAVE_OPTIONS[RO_CLOCKS_AS_ITEMS]) {
+                    int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCKS_PROGRESSIVE_MODE];
+                    if (clockMode == RO_CLOCKS_MODE_SEPARATE) {
+                        // Grant one random half-day and remove it from the pool to avoid instant crash
+                        int initialClockHalf = Ship_Random(0, 6); // 0..5 map to D1..N3
+
+                        // Own the selected half
+                        Rando::TimeUtils::OwnHalfDay(initialClockHalf);
+
+                        // Seed day/time to match the selected half
+                        switch (initialClockHalf) {
+                            case 0:
+                                gSaveContext.save.day = 1;
+                                gSaveContext.save.time = CLOCK_TIME(6, 0);
+                                break;
+                            case 1:
+                                gSaveContext.save.day = 1;
+                                gSaveContext.save.time = CLOCK_TIME(18, 0);
+                                break;
+                            case 2:
+                                gSaveContext.save.day = 2;
+                                gSaveContext.save.time = CLOCK_TIME(6, 0);
+                                break;
+                            case 3:
+                                gSaveContext.save.day = 2;
+                                gSaveContext.save.time = CLOCK_TIME(18, 0);
+                                break;
+                            case 4:
+                                gSaveContext.save.day = 3;
+                                gSaveContext.save.time = CLOCK_TIME(6, 0);
+                                break;
+                            case 5:
+                                gSaveContext.save.day = 3;
+                                gSaveContext.save.time = CLOCK_TIME(18, 0);
+                                break;
+                        }
+
+                        // Keep isNight consistent for any early reads before environment init recalculates it
+                        gSaveContext.save.isNight = (gSaveContext.save.time >= CLOCK_TIME(18, 0)) ||
+                                                    (gSaveContext.save.time < CLOCK_TIME(6, 0));
+
+                        // Push all separate clocks except the granted starting one
+                        for (int i = 0; i < 6; ++i) {
+                            if (i == initialClockHalf)
+                                continue;
+                            RandoItemId clockItem = Rando::TimeUtils::ClockItemFromHalfIndex(i);
+                            if (clockItem != RI_UNKNOWN)
+                                itemPool.push_back(clockItem);
+                        }
+                    } else {
+                        for (int i = 0; i < 5; ++i)
+                            itemPool.push_back(RI_CLOCK_PROGRESSIVE);
                     }
                 }
 

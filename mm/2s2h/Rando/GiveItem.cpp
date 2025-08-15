@@ -1,4 +1,5 @@
 #include "Rando/Rando.h"
+#include "Rando/Utils.h"
 
 extern "C" {
 #include "variables.h"
@@ -240,6 +241,27 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_OWL_ZORA_CAPE:
             Sram_ActivateOwl(OWL_WARP_ZORA_CAPE);
             break;
+        // Clocks as Items: set dedicated rando flags only; no quest/event flags
+        case RI_CLOCK_DAY_1:
+        case RI_CLOCK_NIGHT_1:
+        case RI_CLOCK_DAY_2:
+        case RI_CLOCK_NIGHT_2:
+        case RI_CLOCK_DAY_3:
+        case RI_CLOCK_NIGHT_3: {
+            int half = Rando::TimeUtils::HalfIndexFromClockItem(randoItemId);
+            if (half >= 0) {
+                Rando::TimeUtils::OwnHalfDay(half);
+            }
+            break;
+        }
+        case RI_CLOCK_PROGRESSIVE: {
+            // Convert to actual half-day per mode
+            RandoItemId concrete = Rando::ConvertItem(RI_CLOCK_PROGRESSIVE);
+            if (concrete != RI_JUNK) {
+                Rando::GiveItem(concrete);
+            }
+            break;
+        }
         case RI_HEART_CONTAINER:
         case RI_HEART_PIECE:
             gSaveContext.healthAccumulator = gSaveContext.save.saveInfo.playerData.healthCapacity + 0x10;

@@ -89,7 +89,8 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_CLOCK_TOWN_EAST_SMALL_CRATE_01, true),
             CHECK(RC_CLOCK_TOWN_EAST_SMALL_CRATE_02, true),
-            CHECK(RC_CLOCK_TOWN_EAST_POSTMAN_HAT,    Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_MAMA)),
+            CHECK(RC_CLOCK_TOWN_EAST_POSTMAN_HAT,
+                  Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_MAMA) && NIGHT(3) && (TIME_AT_LEAST(18, 0) || TIME_BEFORE(5, 0))),
             CHECK(RC_CLOCK_TOWN_STRAY_FAIRY,         CAN_BE_DEKU),
             CHECK(RC_CLOCK_TOWN_EAST_UPPER_CHEST,    true),
         },
@@ -98,14 +99,38 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(SOUTH_CLOCK_TOWN, 7),             ENTRANCE(EAST_CLOCK_TOWN, 1), true), // To lower
             EXIT(ENTRANCE(ASTRAL_OBSERVATORY, 0),           ENTRANCE(EAST_CLOCK_TOWN, 2), CAN_USE_PROJECTILE),
             EXIT(ENTRANCE(SOUTH_CLOCK_TOWN, 2),             ENTRANCE(EAST_CLOCK_TOWN, 3), true), // To upper
-            EXIT(ENTRANCE(TREASURE_CHEST_SHOP, 0),          ENTRANCE(EAST_CLOCK_TOWN, 4), true),
+            EXIT(ENTRANCE(TREASURE_CHEST_SHOP, 0),          ENTRANCE(EAST_CLOCK_TOWN, 4),
+                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                 (DAY(2) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                 (DAY(3) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+            ),
             EXIT(ENTRANCE(NORTH_CLOCK_TOWN, 1),             ENTRANCE(EAST_CLOCK_TOWN, 5), true),
-            EXIT(ENTRANCE(HONEY_AND_DARLINGS_SHOP, 0),      ENTRANCE(EAST_CLOCK_TOWN, 6), true),
+            EXIT(ENTRANCE(HONEY_AND_DARLINGS_SHOP, 0),      ENTRANCE(EAST_CLOCK_TOWN, 6),
+                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                 (DAY(2) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                 (DAY(3) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+            ),
             EXIT(ENTRANCE(MAYORS_RESIDENCE, 0),             ENTRANCE(EAST_CLOCK_TOWN, 7), true),
-            EXIT(ENTRANCE(TOWN_SHOOTING_GALLERY, 0),        ENTRANCE(EAST_CLOCK_TOWN, 8), true),
-            EXIT(ENTRANCE(STOCK_POT_INN, 0),                ENTRANCE(EAST_CLOCK_TOWN, 9), true), // To lobby
+            EXIT(ENTRANCE(TOWN_SHOOTING_GALLERY, 0),        ENTRANCE(EAST_CLOCK_TOWN, 8),
+                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                 (DAY(2) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                 (DAY(3) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+            ),
+            EXIT(ENTRANCE(STOCK_POT_INN, 0),                ENTRANCE(EAST_CLOCK_TOWN, 9),
+                 Flags_GetRandoInf(RANDO_INF_OBTAINED_ROOM_KEY) ||
+                 (DAY(1) && ((IS_DAY && TIME_AT_LEAST(8, 0)) || (IS_NIGHT && TIME_BEFORE(20, 0)))) ||
+                 (DAY(2) && ((IS_DAY && TIME_AT_LEAST(8, 0)) || (IS_NIGHT && TIME_BEFORE(20, 0)))) ||
+                 (DAY(3) && TIME_AT_LEAST(8, 0))
+            ), // To lobby
             EXIT(ENTRANCE(STOCK_POT_INN, 1),                ENTRANCE(EAST_CLOCK_TOWN, 10), CAN_BE_DEKU), // To upstairs
-            EXIT(ENTRANCE(MILK_BAR, 0),                     ENTRANCE(EAST_CLOCK_TOWN, 11), HAS_ITEM(ITEM_MASK_ROMANI)),
+            EXIT(ENTRANCE(MILK_BAR, 0),                     ENTRANCE(EAST_CLOCK_TOWN, 11),
+                 (IS_DAY && TIME_AT_LEAST(10, 0) && TIME_BEFORE(21, 0)) ||
+                 (HAS_ITEM(ITEM_MASK_ROMANI) && (
+                      (NIGHT(1) && TIME_AT_LEAST(22, 0)) || (DAY(2) && TIME_BEFORE(6, 0)) ||
+                      (NIGHT(2) && TIME_AT_LEAST(22, 0)) || (DAY(3) && TIME_BEFORE(6, 0)) ||
+                      (NIGHT(3) && TIME_AT_LEAST(18, 0) && TIME_BEFORE(21, 0)) || (NIGHT(3) && TIME_AT_LEAST(22, 0))
+                 ))
+            ),
         },
     };
     Regions[RR_CLOCK_TOWN_GREAT_FAIRY_FOUNTAIN] = RandoRegion{ .name = "Clock Town", .sceneId = SCENE_YOUSEI_IZUMI,
@@ -131,7 +156,10 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTH_CLOCK_TOWN, 6),             ENTRANCE(LAUNDRY_POOL, 0), true),
-            EXIT(ENTRANCE(CURIOSITY_SHOP, 1),               ENTRANCE(LAUNDRY_POOL, 1), Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI))
+            EXIT(ENTRANCE(CURIOSITY_SHOP, 1),               ENTRANCE(LAUNDRY_POOL, 1),
+                 (Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI) && ((DAY(2) && TIME_AT_LEAST(14, 0)) || (NIGHT(2) && TIME_BEFORE(22, 0)))) ||
+                 (CHECK_WEEKEVENTREG(WEEKEVENTREG_BOMBERS_NOTEBOOK_EVENT_MET_KAFEI) && ((DAY(3) && TIME_AT_LEAST(13, 0)) || (NIGHT(3) && TIME_BEFORE(22, 0))))
+            )
         },
         .events = {
             EVENT(RE_ACCESS_FROG_WHITE, true),
@@ -155,10 +183,10 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(DEKU_SCRUB_PLAYGROUND, 0),        ENTRANCE(NORTH_CLOCK_TOWN, 4), CAN_BE_DEKU),
         },
         .events = {
-            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)), // Only in the day
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, IS_DAY && HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
             // Refer to z_en_suttari's damage table for more info. Damage effect 0xF stops him nonlethally, while 0xE kills.
             // FD sword beams can also kill him, but currently FD is not logically considered.
-            EVENT(RE_SAVE_BOMB_SHOP_LADY, CAN_USE_SWORD || CAN_BE_ZORA || CAN_BE_GORON),
+            EVENT(RE_SAVE_BOMB_SHOP_LADY, NIGHT(1) && (CAN_USE_SWORD || CAN_BE_ZORA || CAN_BE_GORON)),
             EVENT(RE_KILL_SAKON, HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA || CAN_USE_EXPLOSIVE),
         },
     };
@@ -201,19 +229,40 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(TERMINA_FIELD, 0),                ENTRANCE(WEST_CLOCK_TOWN, 0), true),
             EXIT(ENTRANCE(SOUTH_CLOCK_TOWN, 5),             ENTRANCE(WEST_CLOCK_TOWN, 1), true), // To lower
             EXIT(ENTRANCE(SOUTH_CLOCK_TOWN, 3),             ENTRANCE(WEST_CLOCK_TOWN, 2), true), // To upper
-            EXIT(ENTRANCE(SWORDMANS_SCHOOL, 0),             ENTRANCE(WEST_CLOCK_TOWN, 3), true),
-            EXIT(ENTRANCE(CURIOSITY_SHOP, 0),               ENTRANCE(WEST_CLOCK_TOWN, 4), true),
-            EXIT(ENTRANCE(TRADING_POST, 0),                 ENTRANCE(WEST_CLOCK_TOWN, 5), true),
+            EXIT(ENTRANCE(SWORDMANS_SCHOOL, 0),             ENTRANCE(WEST_CLOCK_TOWN, 3),
+                 DAY(1) || DAY(2) || (DAY(3) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(23, 0)) || NIGHT(3)
+            ),
+            EXIT(ENTRANCE(CURIOSITY_SHOP, 0),               ENTRANCE(WEST_CLOCK_TOWN, 4),
+                 (NIGHT(1) && TIME_AT_LEAST(22, 0)) || (DAY(2) && TIME_BEFORE(6, 0)) ||
+                 (NIGHT(2) && TIME_AT_LEAST(22, 0)) || (DAY(3) && TIME_BEFORE(6, 0)) ||
+                 (NIGHT(3) && TIME_AT_LEAST(22, 0))
+            ),
+            EXIT(ENTRANCE(TRADING_POST, 0),                 ENTRANCE(WEST_CLOCK_TOWN, 5),
+                 /* Day clerk */
+                 (DAY(1) && TIME_BEFORE(21, 0)) ||
+                 (DAY(2) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(21, 0)) ||
+                 /* Rooftop man */
+                 (NIGHT(1) && TIME_AT_LEAST(21, 0)) || (DAY(2) && TIME_BEFORE(6, 0)) ||
+                 (NIGHT(2) && TIME_AT_LEAST(21, 0)) || (NIGHT(3) && TIME_BEFORE(21, 0))
+            ),
             EXIT(ENTRANCE(BOMB_SHOP, 0),                    ENTRANCE(WEST_CLOCK_TOWN, 6), true),
-            EXIT(ENTRANCE(POST_OFFICE, 0),                  ENTRANCE(WEST_CLOCK_TOWN, 7), true),
-            EXIT(ENTRANCE(LOTTERY_SHOP, 0),                 ENTRANCE(WEST_CLOCK_TOWN, 8), true),
+            EXIT(ENTRANCE(POST_OFFICE, 0),                  ENTRANCE(WEST_CLOCK_TOWN, 7),
+                 (DAY(1) && TIME_AT_LEAST(15, 0)) ||
+                 (NIGHT(2) && TIME_AT_LEAST(18, 0) && Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI)) ||
+                 NIGHT(3)
+            ),
+            EXIT(ENTRANCE(LOTTERY_SHOP, 0),                 ENTRANCE(WEST_CLOCK_TOWN, 8),
+                 IS_DAY || (NIGHT(1) && TIME_BEFORE(23, 0)) ||
+                 (NIGHT(2) && TIME_AT_LEAST(18, 0) && TIME_BEFORE(23, 0)) ||
+                 (NIGHT(3) && TIME_AT_LEAST(18, 0) && TIME_BEFORE(23, 0))
+            ),
         },
     };
     Regions[RR_CURIOSITY_SHOP_BACK] = RandoRegion{ .name = "Back", .sceneId = SCENE_AYASHIISHOP,
         .checks = {
-            CHECK(RC_KAFEIS_HIDEOUT_KEATON_MASK, true),
-            CHECK(RC_KAFEIS_HIDEOUT_LETTER_TO_MAMA, true),
-            CHECK(RC_KAFEIS_HIDEOUT_PENDANT_OF_MEMORIES, Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI)),
+            CHECK(RC_KAFEIS_HIDEOUT_KEATON_MASK, (DAY(3) && TIME_AT_LEAST(6, 0)) || (NIGHT(3) && TIME_BEFORE(22, 0))),
+            CHECK(RC_KAFEIS_HIDEOUT_LETTER_TO_MAMA, (DAY(3) && TIME_AT_LEAST(6, 0)) || (NIGHT(3) && TIME_BEFORE(22, 0))),
+            CHECK(RC_KAFEIS_HIDEOUT_PENDANT_OF_MEMORIES, Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI) && ((DAY(2) && TIME_AT_LEAST(14, 0)) || (NIGHT(2) && TIME_BEFORE(22, 0)))),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(LAUNDRY_POOL, 1),                 ENTRANCE(CURIOSITY_SHOP, 1), true)
@@ -222,38 +271,60 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_CURIOSITY_SHOP_FRONT] = RandoRegion{ .name = "Front", .sceneId = SCENE_AYASHIISHOP,
         .checks = {
             CHECK(RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM, CAN_AFFORD(RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM)),
-            CHECK(RC_CURIOSITY_SHOP_SPECIAL_ITEM, CAN_AFFORD(RC_CURIOSITY_SHOP_SPECIAL_ITEM) && (RANDO_EVENTS[RE_SAVE_BOMB_SHOP_LADY] || RANDO_EVENTS[RE_KILL_SAKON])),
+            CHECK(RC_CURIOSITY_SHOP_SPECIAL_ITEM, CAN_AFFORD(RC_CURIOSITY_SHOP_SPECIAL_ITEM) && NIGHT(3) && (RANDO_EVENTS[RE_SAVE_BOMB_SHOP_LADY] || RANDO_EVENTS[RE_KILL_SAKON])),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(WEST_CLOCK_TOWN, 4),              ENTRANCE(CURIOSITY_SHOP, 0), true)
+            EXIT(ENTRANCE(WEST_CLOCK_TOWN, 4),              ENTRANCE(CURIOSITY_SHOP, 0), IS_NIGHT)
         },
     };
     Regions[RR_HONEY_AND_DARLING] = RandoRegion{ .sceneId = SCENE_BOWLING,
         .checks = {
-            CHECK(RC_CLOCK_TOWN_EAST_HONEY_DARLING_ALL_DAYS, HAS_ITEM(ITEM_BOW) && HAS_ITEM(ITEM_BOMBCHU) && HAS_ITEM(ITEM_BOMB)),
-            CHECK(RC_CLOCK_TOWN_EAST_HONEY_DARLING_ANY_DAY, HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_BOMBCHU) || HAS_ITEM(ITEM_BOMB)),
+            CHECK(RC_CLOCK_TOWN_EAST_HONEY_DARLING_ALL_DAYS,
+                  HAS_ITEM(ITEM_BOW) && HAS_ITEM(ITEM_BOMBCHU) && HAS_ITEM(ITEM_BOMB) && (
+                      (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                      (DAY(2) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                      (DAY(3) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+                  )),
+            CHECK(RC_CLOCK_TOWN_EAST_HONEY_DARLING_ANY_DAY,
+                  (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_BOMBCHU) || HAS_ITEM(ITEM_BOMB)) && (
+                      (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                      (DAY(2) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                      (DAY(3) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+                  )),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 6),              ENTRANCE(HONEY_AND_DARLINGS_SHOP, 0), true),
+            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 6),              ENTRANCE(HONEY_AND_DARLINGS_SHOP, 0),
+                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                 (DAY(2) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                 (DAY(3) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+            ),
         },
     };
     Regions[RR_INN] = RandoRegion{ .sceneId = SCENE_YADOYA,
         .checks = {
-            CHECK(RC_STOCK_POT_INN_COUPLES_MASK, HAS_ITEM(ITEM_MASK_KAFEIS_MASK) && Flags_GetRandoInf(RANDO_INF_OBTAINED_PENDANT_OF_MEMORIES) && RANDO_EVENTS[RE_RETRIEVE_SUN_MASK]),
+            CHECK(RC_STOCK_POT_INN_COUPLES_MASK, RANDO_EVENTS[RE_RETRIEVE_SUN_MASK] && Flags_GetRandoInf(RANDO_INF_OBTAINED_PENDANT_OF_MEMORIES) && NIGHT(3)),
             CHECK(RC_STOCK_POT_INN_GRANDMA_LONG_STORY, HAS_ITEM(ITEM_MASK_ALL_NIGHT)),
             CHECK(RC_STOCK_POT_INN_GRANDMA_SHORT_STORY, HAS_ITEM(ITEM_MASK_ALL_NIGHT)),
             CHECK(RC_STOCK_POT_INN_GUEST_ROOM_CHEST,Flags_GetRandoInf(RANDO_INF_OBTAINED_ROOM_KEY)),
-            CHECK(RC_STOCK_POT_INN_LETTER_TO_KAFEI, HAS_ITEM(ITEM_MASK_KAFEIS_MASK)),
-            CHECK(RC_STOCK_POT_INN_ROOM_KEY, true),
-            CHECK(RC_STOCK_POT_INN_STAFF_ROOM_CHEST, true),
-            CHECK(RC_STOCK_POT_INN_TOILET_HAND, 
-                Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_LAND) || Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_SWAMP) ||
-                Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_MOUNTAIN) || Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_OCEAN) ||
-                Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_MAMA) || Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI)
+            CHECK(RC_STOCK_POT_INN_LETTER_TO_KAFEI, (NIGHT(1) || DAY(2))),
+            CHECK(RC_STOCK_POT_INN_ROOM_KEY, DAYTIME(1) && TIME_AT_LEAST(13, 45) && TIME_BEFORE(16, 0)),
+            CHECK(RC_STOCK_POT_INN_STAFF_ROOM_CHEST, NIGHT(3)),
+            CHECK(RC_STOCK_POT_INN_TOILET_HAND,
+                  (IS_NIGHT && TIME_AT_LEAST(0, 0) && TIME_BEFORE(6, 0)) &&
+                  (NIGHT(3) || Flags_GetRandoInf(RANDO_INF_OBTAINED_ROOM_KEY) || HAS_ITEM(ITEM_MASK_DEKU)) && (
+                      Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_LAND) || Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_SWAMP) ||
+                      Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_MOUNTAIN) || Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_OCEAN) ||
+                      Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_MAMA) || Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI)
+                  )
             ),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 9),              ENTRANCE(STOCK_POT_INN, 0), true), // From ground floor
+            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 9),              ENTRANCE(STOCK_POT_INN, 0),
+                 Flags_GetRandoInf(RANDO_INF_OBTAINED_ROOM_KEY) ||
+                 (DAY(1) && ((IS_DAY && TIME_AT_LEAST(8, 0)) || (IS_NIGHT && TIME_BEFORE(20, 0)))) ||
+                 (DAY(2) && ((IS_DAY && TIME_AT_LEAST(8, 0)) || (IS_NIGHT && TIME_BEFORE(20, 0)))) ||
+                 (DAY(3) && TIME_AT_LEAST(8, 0))
+            ), // From ground floor
             EXIT(ENTRANCE(EAST_CLOCK_TOWN, 10),             ENTRANCE(STOCK_POT_INN, 1), true), // From upstairs
         },
         .events = {
@@ -271,28 +342,63 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_MAYOR_RESIDENCE] = RandoRegion{ .sceneId = SCENE_SONCHONOIE,
         .checks = {
-            CHECK(RC_MAYORS_OFFICE_PIECE_OF_HEART, HAS_ITEM(ITEM_MASK_COUPLE)),
-            CHECK(RC_MAYORS_OFFICE_KAFEIS_MASK, true)
+            CHECK(RC_MAYORS_OFFICE_PIECE_OF_HEART,
+                  HAS_ITEM(ITEM_MASK_COUPLE) && (
+                      (DAY(1) && TIME_AT_LEAST(10, 0) && TIME_BEFORE(20, 0)) ||
+                      (DAY(2) && TIME_AT_LEAST(10, 0) && TIME_BEFORE(20, 0)) ||
+                      (DAY(3) && TIME_AT_LEAST(10, 0) && TIME_BEFORE(18, 0))
+                  )),
+            CHECK(RC_MAYORS_OFFICE_KAFEIS_MASK,
+                  (DAY(1) && TIME_AT_LEAST(10, 0) && TIME_BEFORE(20, 0)) ||
+                  (DAY(2) && TIME_AT_LEAST(10, 0) && TIME_BEFORE(20, 0)))
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 7),              ENTRANCE(MAYORS_RESIDENCE, 0), true),
+            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 7),              ENTRANCE(MAYORS_RESIDENCE, 0),
+                 (DAY(1) && TIME_AT_LEAST(10, 0) && TIME_BEFORE(20, 0)) ||
+                 (DAY(2) && TIME_AT_LEAST(10, 0) && TIME_BEFORE(20, 0)) ||
+                 (DAY(3) && TIME_AT_LEAST(10, 0) && TIME_BEFORE(18, 0)))
         },
     };
     Regions[RR_MILK_BAR] = RandoRegion{ .sceneId = SCENE_MILK_BAR,
         .checks = {
-            CHECK(RC_MILK_BAR_CIRCUS_LEADER_MASK, CAN_BE_DEKU && CAN_BE_GORON && CAN_BE_ZORA && HAS_ITEM(ITEM_OCARINA_OF_TIME)),
-            CHECK(RC_MILK_BAR_MADAME_AROMA, HAS_ITEM(ITEM_MASK_KAFEIS_MASK) && Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_MAMA)),
-            CHECK(RC_MILK_BAR_PURCHASE_CHATEAU, CAN_AFFORD(RC_MILK_BAR_PURCHASE_CHATEAU) && HAS_ITEM(ITEM_MASK_ROMANI)),
-            CHECK(RC_MILK_BAR_PURCHASE_MILK, CAN_AFFORD(RC_MILK_BAR_PURCHASE_MILK) && HAS_ITEM(ITEM_MASK_ROMANI)),
+            CHECK(RC_MILK_BAR_CIRCUS_LEADER_MASK,
+                  CAN_BE_DEKU && CAN_BE_GORON && CAN_BE_ZORA && HAS_ITEM(ITEM_OCARINA_OF_TIME) && (
+                      (NIGHT(1) && (TIME_AT_LEAST(22, 0) || TIME_BEFORE(5, 0))) ||
+                      (NIGHT(2) && (TIME_AT_LEAST(22, 0) || TIME_BEFORE(5, 0)))
+                  )),
+            CHECK(RC_MILK_BAR_MADAME_AROMA,
+                  HAS_ITEM(ITEM_MASK_KAFEIS_MASK) && Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_MAMA) && (
+                      (NIGHT(3) && TIME_AT_LEAST(18, 0) && TIME_BEFORE(21, 0)) ||
+                      (NIGHT(3) && TIME_AT_LEAST(22, 0))
+                  )),
+            CHECK(RC_MILK_BAR_PURCHASE_CHATEAU,
+                  CAN_AFFORD(RC_MILK_BAR_PURCHASE_CHATEAU) && HAS_ITEM(ITEM_MASK_ROMANI) && (
+                      (NIGHT(1) && TIME_AT_LEAST(22, 0)) || (DAY(2) && TIME_BEFORE(6, 0)) ||
+                      (NIGHT(2) && TIME_AT_LEAST(22, 0)) || (DAY(3) && TIME_BEFORE(6, 0)) ||
+                      (NIGHT(3) && TIME_AT_LEAST(18, 0) && TIME_BEFORE(21, 0)) || (NIGHT(3) && TIME_AT_LEAST(22, 0))
+                  )),
+            CHECK(RC_MILK_BAR_PURCHASE_MILK,
+                  CAN_AFFORD(RC_MILK_BAR_PURCHASE_MILK) && HAS_ITEM(ITEM_MASK_ROMANI) && (
+                      (NIGHT(1) && TIME_AT_LEAST(22, 0)) || (DAY(2) && TIME_BEFORE(6, 0)) ||
+                      (NIGHT(2) && TIME_AT_LEAST(22, 0)) || (DAY(3) && TIME_BEFORE(6, 0)) ||
+                      (NIGHT(3) && TIME_AT_LEAST(18, 0) && TIME_BEFORE(21, 0)) || (NIGHT(3) && TIME_AT_LEAST(22, 0))
+                  )),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 11),             ENTRANCE(MILK_BAR, 0), true),
+            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 11),             ENTRANCE(MILK_BAR, 0),
+                 (IS_DAY && TIME_AT_LEAST(10, 0) && TIME_BEFORE(21, 0)) || (IS_NIGHT && HAS_ITEM(ITEM_MASK_ROMANI))
+            ),
         },
     };
     Regions[RR_POST_OFFICE] = RandoRegion{ .sceneId = SCENE_POSTHOUSE,
         .checks = {
             // TODO: Trick for doing without the Bunny Hood
-            CHECK(RC_CLOCK_TOWN_WEST_POSTMAN_MINIGAME, HAS_ITEM(ITEM_MASK_BUNNY)),
+            CHECK(RC_CLOCK_TOWN_WEST_POSTMAN_MINIGAME,
+                  HAS_ITEM(ITEM_MASK_BUNNY) && (
+                      (DAY(1) && TIME_AT_LEAST(15, 0)) ||
+                      (NIGHT(2) && TIME_AT_LEAST(18, 0) && Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI)) ||
+                      NIGHT(3)
+                  )),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(WEST_CLOCK_TOWN, 7),              ENTRANCE(POST_OFFICE, 0), true),
@@ -301,20 +407,22 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_SWORDSMAN_SCHOOL] = RandoRegion{ .sceneId = SCENE_DOUJOU,
         .checks = {
             CHECK(RC_SWORDSMAN_SCHOOL_PIECE_OF_HEART, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_01, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_02, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_03, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_04, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_05, CAN_USE_HUMAN_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_01, CAN_USE_HUMAN_SWORD && NIGHT(3) && TIME_AT_LEAST(0, 0)),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_02, CAN_USE_HUMAN_SWORD && NIGHT(3) && TIME_AT_LEAST(0, 0)),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_03, CAN_USE_HUMAN_SWORD && NIGHT(3) && TIME_AT_LEAST(0, 0)),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_04, CAN_USE_HUMAN_SWORD && NIGHT(3) && TIME_AT_LEAST(0, 0)),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_05, CAN_USE_HUMAN_SWORD && NIGHT(3) && TIME_AT_LEAST(0, 0)),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(WEST_CLOCK_TOWN, 3),              ENTRANCE(SWORDMANS_SCHOOL, 0), true),
+            EXIT(ENTRANCE(WEST_CLOCK_TOWN, 3),              ENTRANCE(SWORDMANS_SCHOOL, 0),
+                 DAY(1) || DAY(2) || (DAY(3) && IS_DAY && TIME_AT_LEAST(6, 0) && TIME_BEFORE(23, 0)) || NIGHT(3)
+            ),
         },
     };
     Regions[RR_TOWN_DEKU_PLAYGROUND] = RandoRegion{ .sceneId = SCENE_DEKUTES,
         .checks = {
-            CHECK(RC_DEKU_PLAYGROUND_ALL_DAYS, CAN_BE_DEKU),
-            CHECK(RC_DEKU_PLAYGROUND_ANY_DAY, CAN_BE_DEKU),
+            CHECK(RC_DEKU_PLAYGROUND_ALL_DAYS, CAN_BE_DEKU && TIME_AT_LEAST(6, 0)),
+            CHECK(RC_DEKU_PLAYGROUND_ANY_DAY, CAN_BE_DEKU && TIME_AT_LEAST(6, 0)),
             CHECK(RC_DEKU_PLAYGROUND_DAY_1_RUPEE_01, CAN_BE_DEKU),
             CHECK(RC_DEKU_PLAYGROUND_DAY_1_RUPEE_02, CAN_BE_DEKU),
             CHECK(RC_DEKU_PLAYGROUND_DAY_1_RUPEE_03, CAN_BE_DEKU),
@@ -340,11 +448,25 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_TOWN_SHOOTING_GALLERY] = RandoRegion{ .sceneId = SCENE_SYATEKI_MIZU,
         .checks = {
-            CHECK(RC_CLOCK_TOWN_EAST_SHOOTING_GALLERY_HIGH_SCORE, HAS_ITEM(ITEM_BOW)),
-            CHECK(RC_CLOCK_TOWN_EAST_SHOOTING_GALLERY_PERFECT_SCORE, HAS_ITEM(ITEM_BOW)),
+            CHECK(RC_CLOCK_TOWN_EAST_SHOOTING_GALLERY_HIGH_SCORE,
+                  HAS_ITEM(ITEM_BOW) && (
+                      (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                      (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                      (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+                  )),
+            CHECK(RC_CLOCK_TOWN_EAST_SHOOTING_GALLERY_PERFECT_SCORE,
+                  HAS_ITEM(ITEM_BOW) && (
+                      (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                      (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                      (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+                  )),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 8),              ENTRANCE(TOWN_SHOOTING_GALLERY, 0), true),
+            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 8),              ENTRANCE(TOWN_SHOOTING_GALLERY, 0),
+                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                 (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                 (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+            ),
         },
     };
     Regions[RR_TRADING_POST] = RandoRegion{ .sceneId = SCENE_8ITEMSHOP,
@@ -366,13 +488,21 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_TREASURE_SHOP] = RandoRegion{ .sceneId = SCENE_TAKARAYA,
         .checks = {
-            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_DEKU,  CAN_BE_DEKU),
-            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_GORON, CAN_BE_GORON),
-            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_HUMAN, true), // can be human
-            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_ZORA,  CAN_BE_ZORA),
+            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_DEKU,
+                  CAN_BE_DEKU && ((NIGHT(1) && TIME_BEFORE(22, 0)) || (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) || (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)))),
+            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_GORON,
+                  CAN_BE_GORON && ((NIGHT(1) && TIME_BEFORE(22, 0)) || (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) || (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)))),
+            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_HUMAN,
+                  ((NIGHT(1) && TIME_BEFORE(22, 0)) || (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) || (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)))),
+            CHECK(RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_ZORA,
+                  CAN_BE_ZORA && ((NIGHT(1) && TIME_BEFORE(22, 0)) || (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) || (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)))),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 4),              ENTRANCE(TREASURE_CHEST_SHOP, 0), true),
+            EXIT(ENTRANCE(EAST_CLOCK_TOWN, 4),              ENTRANCE(TREASURE_CHEST_SHOP, 0),
+                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
+                 (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
+                 (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
+            ),
         },
     };
 }, {});

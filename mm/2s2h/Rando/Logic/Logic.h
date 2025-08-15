@@ -18,6 +18,8 @@ namespace Rando {
 
 namespace Logic {
 
+// Time is evaluated via owned half-days; generation temporarily grants time capability via flags
+
 void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions);
 RandoRegionId GetRegionIdFromEntrance(s32 entrance);
 void ApplyFrenchVanillaLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
@@ -94,6 +96,36 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
     ((RANDO_SAVE_CHECKS[rc].price < 100) || (RANDO_SAVE_CHECKS[rc].price <= 200 && CUR_UPG_VALUE(UPG_WALLET) >= 1) || \
      (CUR_UPG_VALUE(UPG_WALLET) >= 2))
 #define HAS_ALL_STRAY_FAIRIES(dungeonIndex) (gSaveContext.save.saveInfo.inventory.strayFairies[dungeonIndex] >= 15)
+// Time capability evaluation for logic: true if any owned half-day satisfies
+#define OWNED_HALF(i)                                                \
+    ((i) == 0   ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY1)   \
+     : (i) == 1 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT1) \
+     : (i) == 2 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY2)   \
+     : (i) == 3 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT2) \
+     : (i) == 4 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY3)   \
+     : (i) == 5 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT3) \
+                : false)
+
+#define CLOCKS_FILTER                                                                                               \
+    (!RANDO_SAVE_OPTIONS[RO_CLOCKS_AS_ITEMS] || OWNED_HALF(0) || OWNED_HALF(1) || OWNED_HALF(2) || OWNED_HALF(3) || \
+     OWNED_HALF(4) || OWNED_HALF(5))
+
+// Any-owned semantics: day and night are satisfied if any owned half corresponds
+#define IS_NIGHT (CLOCKS_FILTER && (OWNED_HALF(1) || OWNED_HALF(3) || OWNED_HALF(5)))
+#define IS_DAY (CLOCKS_FILTER && (OWNED_HALF(0) || OWNED_HALF(2) || OWNED_HALF(4)))
+
+// Day N satisfied if either day or night half of N is owned
+#define DAY(n)                                                       \
+    (CLOCKS_FILTER && ((n) == 1   ? (OWNED_HALF(0) || OWNED_HALF(1)) \
+                       : (n) == 2 ? (OWNED_HALF(2) || OWNED_HALF(3)) \
+                       : (n) == 3 ? (OWNED_HALF(4) || OWNED_HALF(5)) \
+                                  : false))
+#define NIGHT(n) (DAY(n) && ((n) == 1 ? OWNED_HALF(1) : (n) == 2 ? OWNED_HALF(3) : (n) == 3 ? OWNED_HALF(5) : false))
+#define DAYTIME(n) (DAY(n) && ((n) == 1 ? OWNED_HALF(0) : (n) == 2 ? OWNED_HALF(2) : (n) == 3 ? OWNED_HALF(4) : false))
+
+// Coarse hour windows map to day/night halves for logic purposes
+#define TIME_AT_LEAST(h, m) ((h) >= 18 ? IS_NIGHT : IS_DAY)
+#define TIME_BEFORE(h, m) ((h) < 6 ? IS_NIGHT : IS_DAY)
 
 #define EVENT(randoEvent, condition)         \
     {                                        \
