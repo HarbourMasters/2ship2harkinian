@@ -76,27 +76,23 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
         EnMinifrog* enMinifrog = (EnMinifrog*)actor;
         // If this is not a Mountain Village frog, use the custom actionFunc
         if (enMinifrog->frogIndex != FROG_YELLOW && !EN_FROG_IS_RETURNED(actor)) {
-            enMinifrog->actor.textId = CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[enMinifrog->frogIndex]) ? 0xD82 : 0xD81;
             enMinifrog->actionFunc = MiniFrog_IdleWithoutCs;
         }
     });
 
     // "Ah, Don Gero"
     COND_ID_HOOK(OnOpenText, 0xD81, SHUFFLED_FROGS, [](u16* textId, bool* loadFromMessageTable) {
+        Player* player = GET_PLAYER(gPlayState);
+        EnMinifrog* enMinifrog =
+            (EnMinifrog*)Actor_FindNearby(gPlayState, &player->actor, ACTOR_EN_MINIFROG, ACTORCAT_NPC, 100.0f);
+
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = "Why, Don Gero! I'm not joining that choir unless someone finds my other hiding spot. "
                     "Take this and don't follow me.";
-
-        CustomMessage::LoadCustomMessageIntoFont(entry);
-        *loadFromMessageTable = false;
-    });
-
-    // "What has brought you..."
-    COND_ID_HOOK(OnOpenText, 0xD82, SHUFFLED_FROGS, [](u16* textId, bool* loadFromMessageTable) {
-        auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Why, Don Gero! Since you found my other hiding spot, I'll join the choir. "
-                    "Take this and meet me in the mountains.";
-
+        if (enMinifrog != NULL && CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[enMinifrog->frogIndex])) {
+            entry.msg = "Why, Don Gero! Since you found my other hiding spot, I'll join the choir. "
+                        "Take this and meet me in the mountains.";
+        }
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
