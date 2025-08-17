@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 
@@ -18,10 +18,44 @@ void EnGirlA_SetupAction(EnGirlA* enGirlA, EnGirlAActionFunc action);
 #define RANDO_DESC_TEXT_ID 0x083F
 #define RANDO_CHOICE_TEXT_ID 0x0840
 
-static const std::vector<std::string> flavorTexts = {
+#define LOCALIZED(eng, fre, ger, jpn, spa)                   \
+    (gSaveContext.options.language == LANGUAGE_FRE   ? (fre) \
+     : gSaveContext.options.language == LANGUAGE_GER ? (ger) \
+     : gSaveContext.options.language == LANGUAGE_JPN ? (jpn) \
+     : gSaveContext.options.language == LANGUAGE_SPA ? (spa) \
+                                                     : (eng))
+
+static const std::vector<std::string> flavorTextsEng = {
     "Buy it, you won't regret it!",   "A must-have for any adventurer!", "A great gift for a friend!",
     "One of a kind, don't miss out!", "A great deal for the price!",     "On sale for a limited time!",
     "Get it while it's hot!",         "Don't miss out on this deal!",
+};
+
+static const std::vector<std::string> flavorTextsFre = {
+    "Achetez-le, vous ne le regretterez pas!", "Un indispensable pour tout aventurier!",
+    "Un excellent cadeau pour un ami!",        "Unique en son genre, ne le ratez pas!",
+    "Une excellente affaire pour le prix!",    "En vente pour une durée limitée!",
+    "Prenez-le tant qu'il est chaud!",         "Ne ratez pas cette offre!",
+};
+
+static const std::vector<std::string> flavorTextsGer = {
+    "Kaufen Sie es, Sie werden es nicht bereuen!", "Ein Muss für jeden Abenteurer!",
+    "Ein tolles Geschenk für einen Freund!",       "Einzigartig, verpassen Sie es nicht!",
+    "Ein großartiges Angebot für den Preis!",      "Nur für begrenzte Zeit im Angebot!",
+    "Holen Sie es sich, solange es heiß ist!",     "Verpassen Sie dieses Angebot nicht!",
+};
+
+static const std::vector<std::string> flavorTextsSpa = {
+    "¡Cómpralo, no te arrepentirás!",      "¡Imprescindible para cualquier aventurero!",
+    "¡Un gran regalo para un amigo!",      "¡Único, no te lo pierdas!",
+    "¡Una gran oferta por el precio!",     "¡En oferta por tiempo limitado!",
+    "¡Consíguelo mientras esté caliente!", "¡No te pierdas esta oferta!",
+};
+
+static const std::vector<std::string> flavorTextsJpn = {
+    "買って損はしません！",   "冒険者必携のアイテム！",       "友達への素敵なプレゼント！",
+    "一点物、お見逃しなく！", "この価格でこの品質は超お得！", "期間限定セール中！",
+    "今が買い時です！",       "このチャンスをお見逃しなく！",
 };
 
 void EnGirlA_RandoDrawFunc(Actor* actor, PlayState* play) {
@@ -114,8 +148,19 @@ void renameStolenBombBag(u16* textId, bool* loadFromMessageTable) {
     auto randoSaveCheck = RANDO_SAVE_CHECKS[RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM];
     auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-    entry.msg = "Tonight's special, stolen from the Bomb Shop: %r{{itemName}}%w. Check it out!\x19\xA8";
-    CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.nameEng);
+
+    entry.msg = LOCALIZED(
+        "Tonight's special, stolen from the Bomb Shop: %r{{itemName}}%w. Check it out!\x19\xA8",
+        "Spécial de ce soir, volé au Magasin de Bombes: %r{{itemName}}%w. Jetes-y un œil!\x19\xA8",
+        "Heute Abend spezial, gestohlen aus dem Bomben-Shop: %r{{itemName}}%w. Schau es dir an!\x19\xA8",
+        "今夜の特別品、爆弾屋から盗んだ: %r{{itemName}}%w。チェックしてみて！\x19\xA8",
+        "Especial de esta noche, robado de la Tienda de Bombas: %r{{itemName}}%w. ¡Échale un vistazo!\x19\xA8");
+
+    std::string itemName = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                     randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+
+    CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }
@@ -124,17 +169,30 @@ void renameSpecialBargain(u16* textId, bool* loadFromMessageTable) {
     auto randoSaveCheck = RANDO_SAVE_CHECKS[RC_CURIOSITY_SHOP_SPECIAL_ITEM];
     auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-    entry.msg = "Tonight's bargain: %r{{itemName}}%w. Check it out!\x19\xA8";
-    CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.nameEng);
+
+    entry.msg = LOCALIZED("Tonight's bargain: %r{{itemName}}%w. Check it out!\x19\xA8",
+                          "L'affaire de ce soir: %r{{itemName}}%w. Jetes-y un œil!\x19\xA8",
+                          "Heute Abend Schnäppchen: %r{{itemName}}%w. Schau es dir an!\x19\xA8",
+                          "今夜のバーゲン: %r{{itemName}}%w。チェックしてみて！\x19\xA8",
+                          "Ganga de esta noche: %r{{itemName}}%w. ¡Échale un vistazo!\x19\xA8");
+
+    std::string itemName = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                     randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+
+    CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }
 
 void ReplaceCannotBuyMessage(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
-        .msg = "Sorry, you can't buy this right now.\xE0",
+        .msg = LOCALIZED("Sorry, you can't buy this right now.\xE0",
+                         "Désolé, vous ne pouvez pas acheter ceci maintenant.\xE0",
+                         "Entschuldigung, Sie können das gerade nicht kaufen.\xE0",
+                         "すみません、今これは買えません。\xE0", "Lo siento, no puedes comprar esto ahora.\xE0"),
     };
-
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }
@@ -284,43 +342,47 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        // Not using formatting here, to ensure the item name and price stay on one line
         entry.autoFormat = false;
-        entry.msg = "\x01{{itemName}}: {{rupees}} Rupees\x11\x00";
+
+        entry.msg =
+            LOCALIZED("\x01{{itemName}}: {{rupees}} Rupees\x11\x00", "\x01{{itemName}}: {{rupees}} Rubis\x11\x00",
+                      "\x01{{itemName}}: {{rupees}} Rubine\x11\x00", "\x01{{itemName}}: {{rupees}}ルピー\x11\x00",
+                      "\x01{{itemName}}: {{rupees}} Rupias\x11\x00");
         entry.msg += '\x00';
-        CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.nameEng);
+
+        std::string itemName = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                         randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
         CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(randoSaveCheck.price));
 
         if (!Rando::IsItemObtainable(randoSaveCheck.randoItemId, randoCheckId) && randoSaveCheck.obtained) {
-            entry.msg += "Out of Stock";
+            entry.msg += LOCALIZED("Out of Stock", "Rupture de stock", "Ausverkauft", "売り切れ", "Agotado");
         } else {
-            entry.msg += flavorTexts[rand() % flavorTexts.size()];
+            // Use localized flavor texts
+            const std::vector<std::string>* flavorTexts = nullptr;
+            switch (gSaveContext.options.language) {
+                case LANGUAGE_FRE:
+                    flavorTexts = &flavorTextsFre;
+                    break;
+                case LANGUAGE_GER:
+                    flavorTexts = &flavorTextsGer;
+                    break;
+                case LANGUAGE_JPN:
+                    flavorTexts = &flavorTextsJpn;
+                    break;
+                case LANGUAGE_SPA:
+                    flavorTexts = &flavorTextsSpa;
+                    break;
+                case LANGUAGE_ENG:
+                default:
+                    flavorTexts = &flavorTextsEng;
+                    break;
+            }
+            entry.msg += (*flavorTexts)[rand() % flavorTexts->size()];
         }
         entry.msg += "\x1A\xBF";
-
-        CustomMessage::LoadCustomMessageIntoFont(entry);
-        *loadFromMessageTable = false;
-    });
-
-    // Shop item purchase
-    COND_ID_HOOK(OnOpenText, RANDO_CHOICE_TEXT_ID, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
-        RandoCheckId randoCheckId = IdentifyActiveShopItem();
-
-        if (randoCheckId == RC_UNKNOWN) {
-            return;
-        }
-
-        auto randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-        auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
-
-        auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        // Not using formatting here, to ensure the item name and price stay on one line
-        entry.autoFormat = false;
-        entry.firstItemCost = randoSaveCheck.price;
-        entry.msg = "\x01{{itemName}}: {{rupees}} Rupees\x02\x11\xC2I'll buy it\x11No thanks\xBF";
-        CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.nameEng);
-        CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(randoSaveCheck.price));
-
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -337,14 +399,25 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        // Not using formatting here, to ensure the item name and price stay on one line
         entry.autoFormat = false;
         entry.firstItemCost = randoSaveCheck.price;
-        entry.msg = "\x01{{itemName}}: {{itemPrice}} Rupees\x11\x00";
+
+        entry.msg =
+            LOCALIZED("\x01{{itemName}}: {{itemPrice}} Rupees\x11\x00", "\x01{{itemName}}: {{itemPrice}} Rubis\x11\x00",
+                      "\x01{{itemName}}: {{itemPrice}} Rubine\x11\x00", "\x01{{itemName}}: {{itemPrice}}ルピー\x11\x00",
+                      "\x01{{itemName}}: {{itemPrice}} Rupias\x11\x00");
         entry.msg += '\x00';
-        entry.msg += "I need a mushroom to make this.\x1A";
-        CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.nameEng);
+        entry.msg +=
+            LOCALIZED("I need a mushroom to make this.\x1A", "J'ai besoin d'un champignon pour faire ça.\x1A",
+                      "Ich brauche einen Pilz, um das zu machen.\x1A", "これを作るにはキノコが必要です。\x1A",
+                      "Necesito una seta para hacer esto.\x1A");
+
+        std::string itemName = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                         randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
         CustomMessage::Replace(&entry.msg, "{{itemPrice}}", std::to_string(randoSaveCheck.price));
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -359,7 +432,12 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         }
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "I used this to make %r{{itemName}}%w, take it!\x19";
+        entry.msg = LOCALIZED("I used this to make %r{{itemName}}%w, take it!\x19",
+                              "J'ai utilisé ça pour faire %r{{itemName}}%w, prends-le!\x19",
+                              "Ich habe das benutzt, um %r{{itemName}}%w zu machen, nimm es!\x19",
+                              "これを使って%r{{itemName}}%wを作りました、どうぞ！\x19",
+                              "Usé esto para hacer %r{{itemName}}%w, ¡tómalo!\x19");
+
         CustomMessage::Replace(&entry.msg, "{{itemName}}", Rando::StaticData::GetItemName(randoSaveCheck.randoItemId));
 
         // Mark the item as eligible for purchase
@@ -375,6 +453,7 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
             enGirlA->actor.draw = NULL;
         }
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -383,9 +462,17 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
     COND_ID_HOOK(OnOpenText, 0x648, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto randoSaveCheck = RANDO_SAVE_CHECKS[RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM];
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg =
-            "If nothing devastating happens to Mommy tonight, we should be able to sell %r{{itemName}}%w.\x19\xA8";
+
+        entry.msg = LOCALIZED(
+            "If nothing devastating happens to Mommy tonight, we should be able to sell %r{{itemName}}%w.\x19\xA8",
+            "Si rien de dévastateur n'arrive à Maman ce soir, nous devrions pouvoir vendre %r{{itemName}}%w.\x19\xA8",
+            "Wenn Mama heute Abend nichts Verheerendes passiert, sollten wir %r{{itemName}}%w verkaufen "
+            "können.\x19\xA8",
+            "今夜ママに何も破滅的なことが起こらなければ、%r{{itemName}}%wを売ることができるはずです。\x19\xA8",
+            "Si no le pasa nada devastador a Mamá esta noche, deberíamos poder vender %r{{itemName}}%w.\x19\xA8");
+
         CustomMessage::Replace(&entry.msg, "{{itemName}}", Rando::StaticData::GetItemName(randoSaveCheck.randoItemId));
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -395,8 +482,22 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         auto randoSaveCheck = RANDO_SAVE_CHECKS[RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM];
         auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Thanks to a mishap, we did not receive our %r{{itemName}}%w stock. Maybe next time...\x19\xA8";
-        CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.nameEng);
+
+        entry.msg = LOCALIZED(
+            "Thanks to a mishap, we did not receive our %r{{itemName}}%w stock. Maybe next time...\x19\xA8",
+            "À cause d'un accident, nous n'avons pas reçu notre stock de %r{{itemName}}%w. Peut-être la prochaine "
+            "fois...\x19\xA8",
+            "Aufgrund eines Missgeschicks haben wir unseren %r{{itemName}}%w Vorrat nicht erhalten. Vielleicht "
+            "nächstes Mal...\x19\xA8",
+            "事故のため、%r{{itemName}}%wの在庫を受け取れませんでした。また次回...\x19\xA8",
+            "Debido a un percance, no recibimos nuestro stock de %r{{itemName}}%w. Tal vez la próxima vez...\x19\xA8");
+
+        std::string itemName = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                         randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
+
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -406,9 +507,15 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         auto randoSaveCheck = RANDO_SAVE_CHECKS[RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "It's over... Now we'll never sell %r{{itemName}}%w...\x19\xA8";
+        entry.msg = LOCALIZED("It's over... Now we'll never sell %r{{itemName}}%w...\x19\xA8",
+                              "C'est fini... Maintenant nous ne vendrons plus jamais %r{{itemName}}%w...\x19\xA8",
+                              "Es ist vorbei... Jetzt werden wir nie %r{{itemName}}%w verkaufen...\x19\xA8",
+                              "終わりです...今度は%r{{itemName}}%wを売ることは絶対にありません...\x19\xA8",
+                              "Se acabó... Ahora nunca venderemos %r{{itemName}}%w...\x19\xA8");
+
         CustomMessage::Replace(&entry.msg, "{{itemName}}", Rando::StaticData::GetItemName(randoSaveCheck.randoItemId));
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -419,9 +526,18 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "We just got some new stock: %r{{itemName}}%w.\x19\xA8";
-        CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.nameEng);
+        entry.msg = LOCALIZED("We just got some new stock: %r{{itemName}}%w.\x19\xA8",
+                              "Nous venons de recevoir de nouveaux stocks: %r{{itemName}}%w.\x19\xA8",
+                              "Wir haben gerade neue Ware erhalten: %r{{itemName}}%w.\x19\xA8",
+                              "新しい在庫が入りました: %r{{itemName}}%w。\x19\xA8",
+                              "Acabamos de recibir nuevo stock: %r{{itemName}}%w.\x19\xA8");
 
+        std::string itemName = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                         randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
+
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });

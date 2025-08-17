@@ -98,7 +98,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
             CustomMessage::Replace(&entry.msg, "{{location}}",
                                    Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 
-            // Replace colors before line break calculation
+            // Replace colors and special charcters before line break calculation
             CustomMessage::ReplaceColorChars(&entry.msg);
             CustomMessage::ReplaceSpecialChars(&entry.msg);
 
