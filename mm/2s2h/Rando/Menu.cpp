@@ -297,7 +297,7 @@ static void DrawItemsTab() {
     int checkedItemIndex = 0;
     for (size_t i = 0; i < Rando::StaticData::StartingItemsMap.size(); i++) {
         RandoItemId itemId = Rando::StaticData::StartingItemsMap[i];
-        std::string itemName = Rando::StaticData::Items[itemId].name;
+        std::string itemName = Rando::StaticData::Items[itemId].nameEng;
         RandoOptionId optionId;
         uint32_t defaults = 0;
         if (i < 32) {
@@ -342,7 +342,7 @@ static void DrawItemsTab() {
     int uncheckedItemIndex = 0;
     for (size_t i = 0; i < Rando::StaticData::StartingItemsMap.size(); i++) {
         RandoItemId itemId = Rando::StaticData::StartingItemsMap[i];
-        std::string itemName = Rando::StaticData::Items[itemId].name;
+        std::string itemName = Rando::StaticData::Items[itemId].nameEng;
         RandoOptionId optionId;
         uint32_t defaults = 0;
         if (i < 32) {

@@ -100,6 +100,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
             // Replace colors before line break calculation
             CustomMessage::ReplaceColorChars(&entry.msg);
+            CustomMessage::ReplaceSpecialChars(&entry.msg);
 
             CustomMessage::AddLineBreaks(&entry.msg);
 
@@ -116,6 +117,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
             CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(cost));
 
             CustomMessage::ReplaceColorChars(&entry.msg);
+            CustomMessage::ReplaceSpecialChars(&entry.msg);
         }
 
         CustomMessage::EnsureMessageEnd(&entry.msg);

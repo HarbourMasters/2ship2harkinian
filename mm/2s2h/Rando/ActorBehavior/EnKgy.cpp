@@ -126,7 +126,7 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_BOTTLE_GOLD_DUST);
         CustomMessage::Replace(
             &entry.msg, "{itemName}",
-            Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_MOUNTAIN_VILLAGE_SMITHY_GILDED_SWORD].randoItemId].name);
+            Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_MOUNTAIN_VILLAGE_SMITHY_GILDED_SWORD].randoItemId].nameEng);
         CustomMessage::Replace(&entry.msg, "{location}",
                                Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 

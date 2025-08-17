@@ -23,10 +23,11 @@ void EnIn_OnOpenPurchaseText(u16* textId, bool* loadFromMessageTable) {
                 "\xC2%gYes\x11"
                 "No";
 
-    std::string itemName = Rando::StaticData::Items[riMilkPurchase].name;
+    std::string itemName = Rando::StaticData::Items[riMilkPurchase].nameEng;
     std::string itemPrice = std::to_string(milkPurchaseCheck.price);
 
     CustomMessage::ReplaceColorChars(&entry.msg);
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
     CustomMessage::Replace(&entry.msg, "{{price}}", itemPrice);
     CustomMessage::EnsureMessageEnd(&entry.msg);

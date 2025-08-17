@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 
 // These come from corresponding entries in z_message.c.
@@ -7,17 +7,29 @@
 #define GIBDO_MASK_TEXT 0x87
 #define COUPLES_MASK_TEXT 0x85
 
-// Replace vanilla item get text with a simple message stating what randomized item has been received
 void replaceGetItemText(RandoCheckId randoCheckId, u16* textId, bool* loadFromMessageTable) {
     auto randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
     auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
-
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
     entry.autoFormat = false;
-    entry.msg.assign("You received " + std::string(randoStaticItem.article) + " " + std::string(randoStaticItem.name) +
-                     "!\x1C\x02\x10");
-    entry.icon = 0xFE; // No icon
 
+    std::string message;
+    if (gSaveContext.options.language == LANGUAGE_FRE) {
+        message = "Vous obtenez " + std::string(randoStaticItem.articleFre) + " " + "%r" +
+                  std::string(randoStaticItem.nameFre) + "%w!\x1C\x02\x10";
+    } else if (gSaveContext.options.language == LANGUAGE_GER) {
+        message = "Du hast " + std::string(randoStaticItem.articleGer) + " " + "%r" +
+                  std::string(randoStaticItem.nameGer) + " %werhalten!\x1C\x02\x10";
+    } else if (gSaveContext.options.language == LANGUAGE_SPA) {
+        message = "Has recibido " + std::string(randoStaticItem.articleSpa) + " " + "%r" +
+                  std::string(randoStaticItem.nameSpa) + "%w!\x1C\x02\x10";
+    } else {
+        message = "You received " + std::string(randoStaticItem.articleEng) + " " + "%r" +
+                  std::string(randoStaticItem.nameEng) + "%w!\x1C\x02\x10";
+    }
+
+    entry.msg.assign(message);
+    entry.icon = 0xFE; // No icon
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }

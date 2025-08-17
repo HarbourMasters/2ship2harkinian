@@ -891,12 +891,12 @@ void DrawItemsAndMasksTab() {
         std::string riFilterString(riFilter.InputBuf);
 
         for (auto& [randoItemId, randoStaticItem] : Rando::StaticData::Items) {
-            if (!riFilter.PassFilter(randoStaticItem.name)) {
+            if (!riFilter.PassFilter(randoStaticItem.nameEng)) {
                 continue;
             }
 
             std::string buttonLabel = "Give ";
-            buttonLabel += randoStaticItem.name;
+            buttonLabel += randoStaticItem.nameEng;
             if (UIWidgets::Button(buttonLabel.c_str())) {
                 GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
                     .showGetItemCutscene =

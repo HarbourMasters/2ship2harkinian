@@ -17,13 +17,13 @@ void ApplySwampSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
     auto& randoStaticItem =
         Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_SWAMP_SPIDER_HOUSE_MASK_OF_TRUTH].randoItemId];
 
-    if (!Ship_IsCStringEmpty(randoStaticItem.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.article) + " ");
+    if (!Ship_IsCStringEmpty(randoStaticItem.articleEng)) {
+        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.articleEng) + " ");
     } else {
         CustomMessage::Replace(&entry.msg, "{{article}}", "");
     }
 
-    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.name);
+    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.nameEng);
 
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
@@ -36,13 +36,13 @@ void ApplyOceanSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_OCEAN_SPIDER_HOUSE_WALLET].randoItemId];
 
-    if (!Ship_IsCStringEmpty(randoStaticItem.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.article) + " ");
+    if (!Ship_IsCStringEmpty(randoStaticItem.articleEng)) {
+        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.articleEng) + " ");
     } else {
         CustomMessage::Replace(&entry.msg, "{{article}}", "");
     }
 
-    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.name);
+    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.nameEng);
 
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;

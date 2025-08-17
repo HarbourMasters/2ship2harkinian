@@ -255,7 +255,7 @@ void CheckTrackerDrawLogicalList() {
                             }
                             if (randoSaveCheck.obtained) {
                                 ImGui::SameLine(0, 25.0f);
-                                ImGui::Text("(%s)", Rando::StaticData::Items[randoSaveCheck.randoItemId].name);
+                                ImGui::Text("(%s)", Rando::StaticData::Items[randoSaveCheck.randoItemId].nameEng);
                             } else if (randoSaveCheck.skipped) {
                                 ImGui::SameLine(0, 25.0f);
                                 ImGui::Text("(Skipped)");
@@ -416,7 +416,7 @@ void CheckTrackerDrawNonLogicalList() {
                         ImGui::Text("%s", readableCheckNames[randoCheckId].c_str());
                         if (randoSaveCheck.obtained) {
                             ImGui::SameLine(0, 25.0f);
-                            ImGui::Text("(%s)", Rando::StaticData::Items[randoSaveCheck.randoItemId].name);
+                            ImGui::Text("(%s)", Rando::StaticData::Items[randoSaveCheck.randoItemId].nameEng);
                         } else if (randoSaveCheck.skipped) {
                             ImGui::SameLine(0, 25.0f);
                             ImGui::Text("(Skipped)");

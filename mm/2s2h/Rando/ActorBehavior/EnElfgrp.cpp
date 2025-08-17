@@ -18,23 +18,23 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
 
     auto& randoStaticItem1 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY].randoItemId];
 
-    if (!Ship_IsCStringEmpty(randoStaticItem1.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article1}}", std::string(randoStaticItem1.article) + " ");
+    if (!Ship_IsCStringEmpty(randoStaticItem1.articleEng)) {
+        CustomMessage::Replace(&entry.msg, "{{article1}}", std::string(randoStaticItem1.articleEng) + " ");
     } else {
         CustomMessage::Replace(&entry.msg, "{{article1}}", "");
     }
 
-    CustomMessage::Replace(&entry.msg, "{{item1}}", randoStaticItem1.name);
+    CustomMessage::Replace(&entry.msg, "{{item1}}", randoStaticItem1.nameEng);
 
     auto& randoStaticItem2 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].randoItemId];
 
-    if (!Ship_IsCStringEmpty(randoStaticItem2.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article2}}", std::string(randoStaticItem2.article) + " ");
+    if (!Ship_IsCStringEmpty(randoStaticItem2.articleEng)) {
+        CustomMessage::Replace(&entry.msg, "{{article2}}", std::string(randoStaticItem2.articleEng) + " ");
     } else {
         CustomMessage::Replace(&entry.msg, "{{article2}}", "");
     }
 
-    CustomMessage::Replace(&entry.msg, "{{item2}}", randoStaticItem2.name);
+    CustomMessage::Replace(&entry.msg, "{{item2}}", randoStaticItem2.nameEng);
 
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
@@ -47,13 +47,13 @@ void ApplyGreatFairyHint(u16* textId, bool* loadFromMessageTable, RandoCheckId r
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId].randoItemId];
 
-    if (!Ship_IsCStringEmpty(randoStaticItem.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.article) + " ");
+    if (!Ship_IsCStringEmpty(randoStaticItem.articleEng)) {
+        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.articleEng) + " ");
     } else {
         CustomMessage::Replace(&entry.msg, "{{article}}", "");
     }
 
-    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.name);
+    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.nameEng);
 
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;

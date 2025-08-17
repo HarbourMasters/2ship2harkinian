@@ -36,14 +36,14 @@ void EnTab_OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
     std::string itemName1 = "Milk";
     std::string itemPrice1 = "20";
     if (!milkPurchaseCheck.cycleObtained) {
-        itemName1 = Rando::StaticData::Items[riMilkPurchase].name;
+        itemName1 = Rando::StaticData::Items[riMilkPurchase].nameEng;
         itemPrice1 = std::to_string(milkPurchaseCheck.price);
     }
 
     std::string itemName2 = "Chateau Romani";
     std::string itemPrice2 = "200";
     if (!chateauPurchaseCheck.cycleObtained) {
-        itemName2 = Rando::StaticData::Items[riChateauPurchase].name;
+        itemName2 = Rando::StaticData::Items[riChateauPurchase].nameEng;
         itemPrice2 = std::to_string(chateauPurchaseCheck.price);
     }
 
