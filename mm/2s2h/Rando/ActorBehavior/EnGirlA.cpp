@@ -407,10 +407,9 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
                       "\x01{{itemName}}: {{itemPrice}} Rubine\x11\x00", "\x01{{itemName}}: {{itemPrice}}ルピー\x11\x00",
                       "\x01{{itemName}}: {{itemPrice}} Rupias\x11\x00");
         entry.msg += '\x00';
-        entry.msg +=
-            LOCALIZED("I need a mushroom to make this.\x1A", "J'ai besoin d'un champignon pour faire ça.\x1A",
-                      "Ich brauche einen Pilz, um das zu machen.\x1A", "これを作るにはキノコが必要です。\x1A",
-                      "Necesito una seta para hacer esto.\x1A");
+        entry.msg += LOCALIZED("I need a mushroom to make this.\x1A", "J'ai besoin d'un champignon pour faire ça.\x1A",
+                               "Ich brauche einen Pilz, um das zu machen.\x1A", "これを作るにはキノコが必要です。\x1A",
+                               "Necesito una seta para hacer esto.\x1A");
 
         std::string itemName = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
                                          randoStaticItem.nameJpn, randoStaticItem.nameSpa);

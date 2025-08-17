@@ -87,7 +87,8 @@ void CustomMessage::ReplaceSpecialChars(std::string* msg) {
     CustomMessage::Replace(msg, "û", "\xAB");
     CustomMessage::Replace(msg, "ü", "\xAC");
     CustomMessage::Replace(msg, "¡", "\xAD");
-    CustomMessage::Replace(msg, "_", "\x20"); // This is to handles the TODO_XXX and replace the underscore with a normal space and not break textboxes since the underscore doesn't exist
+    CustomMessage::Replace(msg, "_", "\x20"); // This is to handles the TODO_XXX and replace the underscore with a
+                                              // normal space and not break textboxes since the underscore doesn't exist
 }
 
 void CustomMessage::AddLineBreaks(std::string* msg) {
