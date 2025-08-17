@@ -7,6 +7,7 @@
 #define GIBDO_MASK_TEXT 0x87
 #define COUPLES_MASK_TEXT 0x85
 
+// Replace vanilla item get text with a simple message stating what randomized item has been received
 void replaceGetItemText(RandoCheckId randoCheckId, u16* textId, bool* loadFromMessageTable) {
     auto randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
     auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
