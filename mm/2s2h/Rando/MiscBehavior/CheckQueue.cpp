@@ -58,7 +58,7 @@ void Rando::MiscBehavior::CheckQueue() {
                                               // that "erhalten support"
                                 break;
                             case LANGUAGE_SPA:
-                                prefix = "Has recibido%r";
+                                prefix = "¡Obtiene%r";
                                 break;
                             case LANGUAGE_ENG:
                             default:

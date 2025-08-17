@@ -86,6 +86,7 @@ void CustomMessage::ReplaceSpecialChars(std::string* msg) {
     CustomMessage::Replace(msg, "ú", "\xAA");
     CustomMessage::Replace(msg, "û", "\xAB");
     CustomMessage::Replace(msg, "ü", "\xAC");
+    CustomMessage::Replace(msg, "¡", "\xAD");
 }
 
 void CustomMessage::AddLineBreaks(std::string* msg) {

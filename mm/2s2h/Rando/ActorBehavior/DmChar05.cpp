@@ -21,7 +21,7 @@ void replaceGetItemText(RandoCheckId randoCheckId, u16* textId, bool* loadFromMe
         message = "Du hast " + std::string(randoStaticItem.articleGer) + " " + "%r" +
                   std::string(randoStaticItem.nameGer) + " %werhalten!\x1C\x02\x10";
     } else if (gSaveContext.options.language == LANGUAGE_SPA) {
-        message = "Has recibido " + std::string(randoStaticItem.articleSpa) + " " + "%r" +
+        message = "¡Obtiene " + std::string(randoStaticItem.articleSpa) + " " + "%r" +
                   std::string(randoStaticItem.nameSpa) + "%w!\x1C\x02\x10";
     } else {
         message = "You received " + std::string(randoStaticItem.articleEng) + " " + "%r" +
