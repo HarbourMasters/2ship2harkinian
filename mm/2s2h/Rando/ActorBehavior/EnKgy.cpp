@@ -72,7 +72,7 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
         }
         entry.msg = LOCALIZED(
             "Want to know a secret? If you bring me some Gold Dust, I can offer you {article}%r{itemName}%w.\xE0",
-            "Tu veux savoir un secret? Si tu m'apportes de la Poussière d'Or,je peux t'offrir "
+            "Tu veux savoir un secret? Si tu m'apportes de la Poudre d'Or,je peux t'offrir "
             "{article}%r{itemName}%w.\xE0",
             "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
         CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
@@ -132,7 +132,7 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     COND_ID_HOOK(OnOpenText, 0xc49, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED("Huh? You say that gold dust can be found at %r{location}%w?\x19",
-                              "Hein?Tu dis que la poussière d'or se trouve à %r{location}%w?\x19", "TODO_GERMAN",
+                              "Hein?Tu dis que la Poudre d'Or se trouve à %r{location}%w?\x19", "TODO_GERMAN",
                               "TODO_JAPANESE", "TODO_SPANISH");
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_BOTTLE_GOLD_DUST);
         // TODO HATO: SCENE LOCALIZATION
@@ -149,7 +149,7 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED("Gold dust can be found at %p{location}%w.\x10\Bring me that, and my "
                               "{article}%r{itemName}%w is all yours.\xE0",
-                              "La poussière d'or se trouve à %p{location}%w.\x10\Apporte-la moi,et ma "
+                              "La Poudre d'Or se trouve à %p{location}%w.\x10\Apporte-la moi,et ma "
                               "{article}%r{itemName}%w est à toi.\xE0",
                               "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_BOTTLE_GOLD_DUST);
