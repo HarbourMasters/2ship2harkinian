@@ -19,15 +19,15 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
     RandoItemId randoItemId = RI_NONE;
 
     if (remainsHintIndex == 0) {
-        msg = LOCALIZED(
-            "        Witcher Wanted:\nThese monsters are tormenting the local townfolk, will pay good money for their remains.",
-            "        Chasseur recherché:\nCes monstres tourmentent les habitants du village, bonne récompense pour leurs restes.",
-            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        msg = LOCALIZED("        Witcher Wanted:\nThese monsters are tormenting the local townfolk, will pay good "
+                        "money for their remains.",
+                        "        Chasseur recherché:\nCes monstres tourmentent les habitants du village, bonne "
+                        "récompense pour leurs restes.",
+                        "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
     } else {
-        msg = LOCALIZED(
-            "         %g{{boss}}%w:\nLast seen in near %y{{location}}%w.",
-            "         %g{{boss}}%w:\nAperçu dernièrement près de %y{{location}}%w.",
-            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        msg = LOCALIZED("         %g{{boss}}%w:\nLast seen in near %y{{location}}%w.",
+                        "         %g{{boss}}%w:\nAperçu dernièrement près de %y{{location}}%w.", "TODO_GERMAN",
+                        "TODO_JAPANESE", "TODO_SPANISH");
 
         switch (remainsHintIndex) {
             case 1:

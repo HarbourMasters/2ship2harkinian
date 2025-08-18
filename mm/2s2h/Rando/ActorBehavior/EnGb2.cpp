@@ -44,28 +44,29 @@ void Rando::ActorBehavior::InitEnGb2Behavior() {
             return;
         }
 
-        const auto& item = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART].randoItemId];
-        std::string article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+        const auto& item =
+            Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART].randoItemId];
+        std::string article =
+            LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
         if (!Ship_IsCStringEmpty(article.c_str())) {
             article += " ";
         }
         std::string checkItemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = LOCALIZED(
-            "If you are seeking the one who is\n"
-            "%rstrong%w than you are, you may find\n"
-            "{article}%g{{itemName}}%w here...\n"
-            "\x10"
-            "from a group of spirits plagued by\n"
-            "lingering regrets.\xE0",
-            "Si tu cherches celui qui est\n"
-            "%rplus fort%w que toi, tu trouveras peut-être\n"
-            "{article}%g{{itemName}}%w ici...\n"
-            "\x10"
-            "parmi des esprits tourmentés par\n"
-            "des regrets persistants.\xE0",
-            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        entry.msg = LOCALIZED("If you are seeking the one who is\n"
+                              "%rstrong%w than you are, you may find\n"
+                              "{article}%g{{itemName}}%w here...\n"
+                              "\x10"
+                              "from a group of spirits plagued by\n"
+                              "lingering regrets.\xE0",
+                              "Si tu cherches celui qui est\n"
+                              "%rplus fort%w que toi, tu trouveras peut-être\n"
+                              "{article}%g{{itemName}}%w ici...\n"
+                              "\x10"
+                              "parmi des esprits tourmentés par\n"
+                              "des regrets persistants.\xE0",
+                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
         CustomMessage::Replace(&entry.msg, "{article}", article);
         CustomMessage::Replace(&entry.msg, "{{itemName}}", checkItemName);

@@ -26,23 +26,24 @@ void OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
     entry.autoFormat = false;
 
-    entry.msg = LOCALIZED(
-        "\x02\xC3{article1}%y{item1}%w\x01 {price1} Rupees\x11"
-        "\x02{article2}%y{item2}%w\x01 {price2} Rupees\x11"
-        "\x02No thanks",
-        "\x02\xC3{article1}%y{item1}%w\x01 {price1} Rubis\x11"
-        "\x02{article2}%y{item2}%w\x01 {price2} Rubis\x11"
-        "\x02Non merci",
-        "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+    entry.msg = LOCALIZED("\x02\xC3{article1}%y{item1}%w\x01 {price1} Rupees\x11"
+                          "\x02{article2}%y{item2}%w\x01 {price2} Rupees\x11"
+                          "\x02No thanks",
+                          "\x02\xC3{article1}%y{item1}%w\x01 {price1} Rubis\x11"
+                          "\x02{article2}%y{item2}%w\x01 {price2} Rubis\x11"
+                          "\x02Non merci",
+                          "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
     const auto& item1 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId1].randoItemId];
     const auto& item2 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId2].randoItemId];
-    std::string article1 = LOCALIZED(item1.articleEng, item1.articleFre, item1.articleGer, item1.articleJpn, item1.articleSpa);
+    std::string article1 =
+        LOCALIZED(item1.articleEng, item1.articleFre, item1.articleGer, item1.articleJpn, item1.articleSpa);
     if (!Ship_IsCStringEmpty(article1.c_str())) {
         article1 += " ";
     }
     std::string itemName1 = LOCALIZED(item1.nameEng, item1.nameFre, item1.nameGer, item1.nameJpn, item1.nameSpa);
-    std::string article2 = LOCALIZED(item2.articleEng, item2.articleFre, item2.articleGer, item2.articleJpn, item2.articleSpa);
+    std::string article2 =
+        LOCALIZED(item2.articleEng, item2.articleFre, item2.articleGer, item2.articleJpn, item2.articleSpa);
     if (!Ship_IsCStringEmpty(article2.c_str())) {
         article2 += " ";
     }
@@ -62,10 +63,9 @@ void OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
 
 void OnOpenCantGetText(u16* textId, bool* loadFromMessageTable) {
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-    entry.msg = LOCALIZED(
-        "I'm sorry, but it seems I cannot sell this to you now.",
-        "Je suis désolé, mais il semble que je ne puisse pas te vendre ceci maintenant.",
-        "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+    entry.msg = LOCALIZED("I'm sorry, but it seems I cannot sell this to you now.",
+                          "Je suis désolé, mais il semble que je ne puisse pas te vendre ceci maintenant.",
+                          "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
     CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);

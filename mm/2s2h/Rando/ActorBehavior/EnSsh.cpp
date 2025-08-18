@@ -17,18 +17,17 @@ void ApplySwampSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
             "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
     };
 
-    auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_SWAMP_SPIDER_HOUSE_MASK_OF_TRUTH].randoItemId];
+    auto& randoStaticItem =
+        Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_SWAMP_SPIDER_HOUSE_MASK_OF_TRUTH].randoItemId];
 
-    std::string article = LOCALIZED(
-        randoStaticItem.articleEng, randoStaticItem.articleFre, randoStaticItem.articleGer,
-        randoStaticItem.articleJpn, randoStaticItem.articleSpa);
+    std::string article = LOCALIZED(randoStaticItem.articleEng, randoStaticItem.articleFre, randoStaticItem.articleGer,
+                                    randoStaticItem.articleJpn, randoStaticItem.articleSpa);
     if (!Ship_IsCStringEmpty(article.c_str())) {
         article += " ";
     }
 
-    std::string name = LOCALIZED(
-        randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
-        randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+    std::string name = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                 randoStaticItem.nameJpn, randoStaticItem.nameSpa);
 
     CustomMessage::Replace(&entry.msg, "{{article}}", article);
     CustomMessage::Replace(&entry.msg, "{{item}}", name);
@@ -39,24 +38,22 @@ void ApplySwampSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
 
 void ApplyOceanSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
-        .msg = LOCALIZED(
-            "Huh? How'd I get up here... Why do I have %g{{article}}{{item}}%w in my pocket...?\xE0",
-            "Hein? Comment je suis arrivé ici...Pourquoi j'ai %g{{article}}{{item}}%w dans ma poche...?\xE0",
-            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
+        .msg =
+            LOCALIZED("Huh? How'd I get up here... Why do I have %g{{article}}{{item}}%w in my pocket...?\xE0",
+                      "Hein? Comment je suis arrivé ici...Pourquoi j'ai %g{{article}}{{item}}%w dans ma poche...?\xE0",
+                      "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_OCEAN_SPIDER_HOUSE_WALLET].randoItemId];
 
-    std::string article = LOCALIZED(
-        randoStaticItem.articleEng, randoStaticItem.articleFre, randoStaticItem.articleGer,
-        randoStaticItem.articleJpn, randoStaticItem.articleSpa);
+    std::string article = LOCALIZED(randoStaticItem.articleEng, randoStaticItem.articleFre, randoStaticItem.articleGer,
+                                    randoStaticItem.articleJpn, randoStaticItem.articleSpa);
     if (!Ship_IsCStringEmpty(article.c_str())) {
         article += " ";
     }
 
-    std::string name = LOCALIZED(
-        randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
-        randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+    std::string name = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                 randoStaticItem.nameJpn, randoStaticItem.nameSpa);
 
     CustomMessage::Replace(&entry.msg, "{{article}}", article);
     CustomMessage::Replace(&entry.msg, "{{item}}", name);

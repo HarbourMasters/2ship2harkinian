@@ -20,17 +20,17 @@ void EnIn_OnOpenPurchaseText(u16* textId, bool* loadFromMessageTable) {
 
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
 
-    entry.msg = LOCALIZED(
-        "%p{{price}} Rupees%w will do ya for one {article}%y{{item}}%w!\x11"
-        "\xC2%gYes\x11"
-        "No",
-        "%p{{price}} Rubis%w pour {article}%y{{item}}%w!\x11"
-        "\xC2%gOui\x11"
-        "Non",
-        "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+    entry.msg = LOCALIZED("%p{{price}} Rupees%w will do ya for one {article}%y{{item}}%w!\x11"
+                          "\xC2%gYes\x11"
+                          "No",
+                          "%p{{price}} Rubis%w pour {article}%y{{item}}%w!\x11"
+                          "\xC2%gOui\x11"
+                          "Non",
+                          "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
     const auto& item = Rando::StaticData::Items[riMilkPurchase];
-    std::string article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+    std::string article =
+        LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
     if (!Ship_IsCStringEmpty(article.c_str())) {
         article += " ";
     }

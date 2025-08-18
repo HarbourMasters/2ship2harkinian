@@ -29,10 +29,11 @@ void Rando::ActorBehavior::InitEnJgameTsnBehavior() {
         auto randoSaveCheck = RANDO_SAVE_CHECKS[RC_GREAT_BAY_COAST_FISHERMAN_MINIGAME];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = LOCALIZED(
-            "Want to try my %rjumping game%w for %p20 Rupees%w? Win, and I'll give you {article}%r{itemName}%w!\x19\xA8",
-            "Tu veux essayer mon %rjeu de saut%w pour %p20 Rubis%w? Si tu gagnes,je te donne {article}%r{itemName}%w!\x19\xA8",
-            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        entry.msg = LOCALIZED("Want to try my %rjumping game%w for %p20 Rupees%w? Win, and I'll give you "
+                              "{article}%r{itemName}%w!\x19\xA8",
+                              "Tu veux essayer mon %rjeu de saut%w pour %p20 Rubis%w? Si tu gagnes,je te donne "
+                              "{article}%r{itemName}%w!\x19\xA8",
+                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
         std::string itemName;
         std::string article;
