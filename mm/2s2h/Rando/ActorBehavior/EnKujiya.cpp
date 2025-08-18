@@ -22,7 +22,7 @@ void Rando::ActorBehavior::InitEnKujiyaBehavior() {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED("Step right up! For a measly %p10 Rupees%w, your dreams could come true!\x11\x13\x12"
                               "Guess all three numbers to win {article}%p{itemName}%w!\x19",
-                              "Approchez!Pour seulement %p10 Rubis%w,votre rêve peut devenir réalité!\x11\x13\x12"
+                              "Approchez! Pour seulement %p10 Rubis%w, votre rêve peut devenir réalité!\x11\x13\x12"
                               "Trouvez les trois numéros pour gagner {article}%p{itemName}%w!\x19",
                               "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_LOTTERY].randoItemId;
