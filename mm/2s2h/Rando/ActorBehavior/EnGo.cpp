@@ -133,11 +133,13 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
                               "but I can give you one to\n"
                               "blow up the boulder near the track.\x19",
                               "Tu veux un %rBaril de Poudre%w?\n"
-                              "Le Doyen Goron a dit que je ne peux pas vendre\n"
-                              "de %rBarils de Poudre%w aux nouveaux,\n"
+                              "Le Doyen Goron a dit que je ne peux\n"
+                              "pas vendre de %rBarils de Poudre%w\n"
+                              "aux nouveaux,"
                               "\x12"
                               "mais je peux t'en donner un pour\n"
-                              "faire exploser le rocher près de la piste.\x19",
+                              "faire exploser le rocher près de la\n"
+                              "piste.\x19",
                               "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
         CustomMessage::ReplaceSpecialChars(&entry.msg);
