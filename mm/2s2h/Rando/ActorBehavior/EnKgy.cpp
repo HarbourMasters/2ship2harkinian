@@ -147,9 +147,9 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "Gold dust happens to be first prize at the racetrack"
     COND_ID_HOOK(OnOpenText, 0xc4b, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = LOCALIZED("Gold dust can be found at %p{location}%w.\x10Bring me that, and my "
+        entry.msg = LOCALIZED("Gold dust can be found at %p{location}%w.\x10\Bring me that, and my "
                               "{article}%r{itemName}%w is all yours.\xE0",
-                              "La poussière d'or se trouve à %p{location}%w.\x10Apporte-la moi,et ma "
+                              "La poussière d'or se trouve à %p{location}%w.\x10\Apporte-la moi,et ma "
                               "{article}%r{itemName}%w est à toi.\xE0",
                               "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_BOTTLE_GOLD_DUST);
