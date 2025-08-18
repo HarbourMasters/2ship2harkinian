@@ -23,11 +23,13 @@ void EnAkindonuts_ReplacePurchaseMessage(RandoCheckId randoCheckId, RandoInf ran
     }
 
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-    entry.msg = "I'll sell you %g{{item}}%w for %r{{rupees}} Rupees%w!\xE0";
+    entry.msg = LOCALIZED("I'll sell you %g{{item}}%w for %r{{rupees}} Rupees%w!\xE0", "TODO_FRENCH", "TODO_GERMAN",
+                          "TODO_JAPANESE", "TODO_SPANISH");
 
     CustomMessage::Replace(&entry.msg, "{{item}}", Rando::StaticData::GetItemName(randoSaveCheck.randoItemId));
     CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(cost));
 
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }
@@ -35,7 +37,9 @@ void EnAkindonuts_ReplacePurchaseMessage(RandoCheckId randoCheckId, RandoInf ran
 void EnAkindonuts_ReplaceNotEligibleMessage(RandoInf randoInf, u16* textId, bool* loadFromMessageTable) {
     if (!Flags_GetRandoInf(randoInf)) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Oh, it seems I can't sell you that right now. Sorry for the trouble.\xE0";
+        entry.msg = LOCALIZED("Oh, it seems I can't sell you that right now. Sorry for the trouble.\xE0", "TODO_FRENCH",
+                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     }
@@ -107,12 +111,15 @@ void Rando::ActorBehavior::InitEnAkindonutsBehavior() {
         }
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "I sell %g{{item}} %wand %gMagic Beans %wto Deku Scrubs, but recently I've been thinking about "
-                    "relocating to a new area.\xE0";
+        entry.msg =
+            LOCALIZED("I sell %g{{item}} %wand %gMagic Beans %wto Deku Scrubs, but recently I've been thinking about "
+                      "relocating to a new area.\xE0",
+                      "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
         CustomMessage::Replace(
             &entry.msg, "{{item}}",
             Rando::StaticData::GetItemName(RANDO_SAVE_CHECKS[RC_SOUTHERN_SWAMP_SCRUB_BEANS].randoItemId));
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -198,7 +205,9 @@ void Rando::ActorBehavior::InitEnAkindonutsBehavior() {
     COND_ID_HOOK(OnOpenText, 0x1601, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         if (RANDO_SAVE_CHECKS[RC_GORON_VILLAGE_SCRUB_BOMB_BAG].shuffled) {
             auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-            entry.msg = "What? You already bought that from me, Only one purchase per customer allowed!\xE0";
+            entry.msg = LOCALIZED("What? You already bought that from me, Only one purchase per customer allowed!\xE0",
+                                  "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+            CustomMessage::ReplaceSpecialChars(&entry.msg);
             CustomMessage::LoadCustomMessageIntoFont(entry);
             *loadFromMessageTable = false;
         }

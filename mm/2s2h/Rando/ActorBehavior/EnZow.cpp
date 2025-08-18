@@ -8,10 +8,12 @@ extern "C" {
 }
 
 void ApplyHookshotHint(u16* textId, bool* loadFromMessageTable) {
-    std::string msg = "I overheard those Pirates talk about treasure in "
-                      "%y{{location}}%w that can help you reach the unreachable!";
+    std::string msg = LOCALIZED(
+        "I overheard those Pirates talk about treasure in %y{{location}}%w that can help you reach the unreachable!",
+        "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
     RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_HOOKSHOT);
+    // TODO HATO: SCENE LOCALIZATION
     CustomMessage::Replace(&msg, "{{location}}", Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 
     CustomMessage::Entry entry = {
@@ -19,6 +21,7 @@ void ApplyHookshotHint(u16* textId, bool* loadFromMessageTable) {
         .msg = msg,
     };
 
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }

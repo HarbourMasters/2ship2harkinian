@@ -29,18 +29,19 @@ void EnTab_OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
     entry.autoFormat = false;
 
-    entry.msg = "\x02\xC3{item1}\x01 {price1} Rupees\x11"
-                "\x02{item2}\x01 {price2} Rupees\x11"
-                "\x02Nothing";
+    entry.msg = LOCALIZED("\x02\xC3{item1}\x01 {price1} Rupees\x11"
+                          "\x02{item2}\x01 {price2} Rupees\x11"
+                          "\x02Nothing",
+                          "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
-    std::string itemName1 = "Milk";
+    std::string itemName1 = LOCALIZED("Milk", "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
     std::string itemPrice1 = "20";
     if (!milkPurchaseCheck.cycleObtained) {
         itemName1 = Rando::StaticData::Items[riMilkPurchase].nameEng;
         itemPrice1 = std::to_string(milkPurchaseCheck.price);
     }
 
-    std::string itemName2 = "Chateau Romani";
+    std::string itemName2 = LOCALIZED("Chateau Romani", "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
     std::string itemPrice2 = "200";
     if (!chateauPurchaseCheck.cycleObtained) {
         itemName2 = Rando::StaticData::Items[riChateauPurchase].nameEng;
@@ -52,6 +53,7 @@ void EnTab_OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Replace(&entry.msg, "{price1}", itemPrice1);
     CustomMessage::Replace(&entry.msg, "{price2}", itemPrice2);
     CustomMessage::EnsureMessageEnd(&entry.msg);
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 };

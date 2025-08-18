@@ -41,6 +41,7 @@ void CustomMessage::ReplaceColorChars(std::string* msg) {
 }
 
 void CustomMessage::ReplaceSpecialChars(std::string* msg) {
+    CustomMessage::Replace(msg, "\n", "\x11");
     CustomMessage::Replace(msg, "À", "\x80");
     CustomMessage::Replace(msg, "Á", "\x81");
     CustomMessage::Replace(msg, "Â", "\x82");

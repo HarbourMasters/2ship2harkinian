@@ -19,10 +19,11 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
     RandoItemId randoItemId = RI_NONE;
 
     if (remainsHintIndex == 0) {
-        msg = "        Witcher Wanted:\n"
-              "These monsters are tormenting the "
-              "local townfolk, will pay good money "
-              "for their remains.";
+        msg = LOCALIZED("        Witcher Wanted:\n"
+                        "These monsters are tormenting the "
+                        "local townfolk, will pay good money "
+                        "for their remains.",
+                        "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
     } else {
         msg = "         %g{{boss}}%w:\n"
               "Last seen in near %y{{location}}%w.";
@@ -48,6 +49,7 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
 
         icon = Rando::StaticData::GetIconForZMessage(randoItemId);
         RandoCheckId randoCheckId = Rando::FindItemPlacement(randoItemId);
+        // TODO HATO: SCENE LOCALIZATION
         CustomMessage::Replace(&msg, "{{location}}",
                                Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
     }
@@ -58,6 +60,7 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
         .msg = msg,
     };
 
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
     remainsHintIndex++;

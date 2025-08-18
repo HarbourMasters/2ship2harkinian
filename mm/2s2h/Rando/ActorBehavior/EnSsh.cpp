@@ -11,7 +11,8 @@ extern "C" {
 
 void ApplySwampSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
-        .msg = "Make me...normal again...I'll give you %g{{article}}{{item}}%w...Please...help me...\xE0",
+        .msg = LOCALIZED("Make me...normal again...I'll give you %g{{article}}{{item}}%w...Please...help me...\xE0",
+                         "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem =
@@ -31,7 +32,8 @@ void ApplySwampSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
 
 void ApplyOceanSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
-        .msg = "Huh? How'd I get up here... Why do I have %g{{article}}{{item}}%w in my pocket...?\xE0",
+        .msg = LOCALIZED("Huh? How'd I get up here... Why do I have %g{{article}}{{item}}%w in my pocket...?\xE0",
+                         "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_OCEAN_SPIDER_HOUSE_WALLET].randoItemId];
@@ -44,6 +46,7 @@ void ApplyOceanSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
 
     CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.nameEng);
 
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }

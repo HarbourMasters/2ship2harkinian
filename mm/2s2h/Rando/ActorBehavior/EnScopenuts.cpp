@@ -31,9 +31,11 @@ void Rando::ActorBehavior::InitEnScopenutsBehavior() {
     COND_ID_HOOK(OnOpenText, 0x1631, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_TERMINA_FIELD_GROTTO_SCRUB].randoItemId;
-        entry.msg = "Please! I'll sell you %y{{itemName}}%w if you just keep this place a secret...\xE0";
+        entry.msg = LOCALIZED("Please! I'll sell you %y{{itemName}}%w if you just keep this place a secret...\xE0",
+                              "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
         CustomMessage::Replace(&entry.msg, "{{itemName}}", Rando::StaticData::GetItemName(randoItemId));
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });

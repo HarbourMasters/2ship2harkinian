@@ -25,11 +25,13 @@ void ApplyOathHint(u16* textId, bool* loadFromMessageTable) {
     }
 
     if (Rando::Logic::RemainsCount() < RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT]) {
-        msg = "You think you can defeat me? The Giants are trapped and powerless to stop me. Even if they were free, "
-              "they couldn't save you.";
+        msg = LOCALIZED("You think you can defeat me? The Giants are trapped and powerless to stop me. Even if they "
+                        "were free, they couldn't save you.",
+                        "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
     } else {
-        msg = "I can hear the Giants Melody coming from "
-              "%y{{location}}%w. But it's too late! They can't help you now!";
+        msg = LOCALIZED(
+            "I can hear the Giants Melody coming from %y{{location}}%w. But it's too late! They can't help you now!",
+            "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
     }
 
     RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_SONG_OATH);
@@ -40,6 +42,7 @@ void ApplyOathHint(u16* textId, bool* loadFromMessageTable) {
         .msg = msg,
     };
 
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }

@@ -44,12 +44,14 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
 
         RandoSaveCheck& randoRazorSwordSaveCheck = RANDO_SAVE_CHECKS[RC_MOUNTAIN_VILLAGE_SMITHY_RAZOR_SWORD];
         if (!randoRazorSwordSaveCheck.cycleObtained) {
-            entry.msg = "\nIf you want %y{itemName}%w, it will cost you %p100 Rupees%w.\n\x10";
-            entry.msg += "So, do we have a deal?\n\xC2%gI'll buy it\nNo thanks\xBF";
+            entry.msg = LOCALIZED("\nIf you want %y{itemName}%w, it will cost you %p100 Rupees%w.\n\x10"
+                                  "So, do we have a deal?\n\xC2%gI'll buy it\nNo thanks\xBF",
+                                  "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
             CustomMessage::Replace(&entry.msg, "{itemName}",
                                    Rando::StaticData::GetItemName(randoRazorSwordSaveCheck.randoItemId));
         }
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -57,15 +59,18 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "With gold dust I can forge the strongest of swords"
     COND_ID_HOOK(OnOpenText, 0xc3d, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        std::string itemName = "40 Rupees";
+        std::string itemName = LOCALIZED("40 Rupees", "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
         if (!RANDO_SAVE_CHECKS[RC_MOUNTAIN_VILLAGE_SMITHY_GILDED_SWORD].eligible) {
             itemName =
                 Rando::StaticData::GetItemName(RANDO_SAVE_CHECKS[RC_MOUNTAIN_VILLAGE_SMITHY_GILDED_SWORD].randoItemId);
         }
-        entry.msg = "Want to know a secret? If you bring me some gold dust, I can offer you %r{itemName}%w.\xE0";
+        entry.msg =
+            LOCALIZED("Want to know a secret? If you bring me some gold dust, I can offer you %r{itemName}%w.\xE0",
+                      "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
         CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -73,8 +78,10 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "Reforge your sword?"
     COND_ID_HOOK(OnOpenText, 0xc3e, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Back for more?\n\xC2%gYes\nNo";
+        entry.msg =
+            LOCALIZED("Back for more?\n\xC2%gYes\nNo", "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -82,8 +89,10 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "Come back tomorrow morning"
     COND_ID_HOOK(OnOpenText, 0xc42, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Thanks for your business.\x19";
+        entry.msg =
+            LOCALIZED("Thanks for your business.\x19", "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -91,8 +100,10 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "Your sword has already been reforged! Unless..."
     COND_ID_HOOK(OnOpenText, 0xc45, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Did you bring the %rgold dust%w?\x19";
+        entry.msg = LOCALIZED("Did you bring the %rgold dust%w?\x19", "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE",
+                              "TODO_SPANISH");
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -100,8 +111,11 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "We can use it to reforge your sword"
     COND_ID_HOOK(OnOpenText, 0xc46, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "That's it, alright. I'll just take that off your hands and give you this. Don't tell anyone!\x19";
+        entry.msg = LOCALIZED(
+            "That's it, alright. I'll just take that off your hands and give you this. Don't tell anyone!\x19",
+            "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -109,11 +123,14 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "Gold dust is the prize for winning the Goron race in spring?"
     COND_ID_HOOK(OnOpenText, 0xc49, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Huh? You say that gold dust can be found at %r{location}%w?\x19";
+        entry.msg = LOCALIZED("Huh? You say that gold dust can be found at %r{location}%w?\x19", "TODO_FRENCH",
+                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_BOTTLE_GOLD_DUST);
+        // TODO HATO: SCENE LOCALIZATION
         CustomMessage::Replace(&entry.msg, "{location}",
                                Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -121,15 +138,18 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "Gold dust happens to be first prize at the racetrack"
     COND_ID_HOOK(OnOpenText, 0xc4b, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Gold dust can be found at %p{location}%w.\x10";
-        entry.msg += "Bring me that, and my %r{itemName}%w is all yours.\xE0";
+        entry.msg = LOCALIZED("Gold dust can be found at %p{location}%w.\x10"
+                              "Bring me that, and my %r{itemName}%w is all yours.\xE0",
+                              "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_BOTTLE_GOLD_DUST);
         CustomMessage::Replace(
             &entry.msg, "{itemName}",
             Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_MOUNTAIN_VILLAGE_SMITHY_GILDED_SWORD].randoItemId].nameEng);
+        // TODO HATO: SCENE LOCALIZATION
         CustomMessage::Replace(&entry.msg, "{location}",
                                Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -137,8 +157,10 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "Your sword is already as strong as I can make it!"
     COND_ID_HOOK(OnOpenText, 0xc4c, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Hey, what is this? I'm not made of Randomizer Checks!\x19";
+        entry.msg = LOCALIZED("Hey, what is this? I'm not made of Randomizer Checks!\x19", "TODO_FRENCH", "TODO_GERMAN",
+                              "TODO_JAPANESE", "TODO_SPANISH");
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });

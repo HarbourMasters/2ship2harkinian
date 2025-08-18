@@ -28,13 +28,15 @@ void Rando::ActorBehavior::InitEnJgameTsnBehavior() {
         auto randoSaveCheck = RANDO_SAVE_CHECKS[RC_GREAT_BAY_COAST_FISHERMAN_MINIGAME];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg =
-            "Want to try my %rjumping game%w for %p20 Rupees%w? Win, and I'll give you %r{{itemName}}%w!\x19\xA8";
+        entry.msg = LOCALIZED(
+            "Want to try my %rjumping game%w for %p20 Rupees%w? Win, and I'll give you %r{{itemName}}%w!\x19\xA8",
+            "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
         // The same-cycle repeat reward is a purple Rupee
         CustomMessage::Replace(
             &entry.msg, "{{itemName}}",
             randoSaveCheck.cycleObtained ? "50 Rupees" : Rando::StaticData::GetItemName(randoSaveCheck.randoItemId));
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });

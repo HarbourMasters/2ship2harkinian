@@ -12,8 +12,9 @@ extern "C" {
 
 void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
-        .msg = "%wPlease, find the Stray Fairy who's lost! We will reward you with %g{{article1}}{{item1}}%w and maybe "
-               "even %g{{article2}}{{item2}}%w if you are worthy."
+        .msg = LOCALIZED("%wPlease, find the Stray Fairy who's lost! We will reward you with %g{{article1}}{{item1}}%w "
+                         "and maybe even %g{{article2}}{{item2}}%w if you are worthy.",
+                         "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem1 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY].randoItemId];
@@ -36,13 +37,16 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
 
     CustomMessage::Replace(&entry.msg, "{{item2}}", randoStaticItem2.nameEng);
 
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }
 
 void ApplyGreatFairyHint(u16* textId, bool* loadFromMessageTable, RandoCheckId randoCheckId) {
     CustomMessage::Entry entry = {
-        .msg = "%wPlease, find the Stray Fairies who match our color! We will reward you with %g{{article}}{{item}}%w"
+        .msg = LOCALIZED(
+            "%wPlease, find the Stray Fairies who match our color! We will reward you with %g{{article}}{{item}}%w",
+            "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId].randoItemId];
@@ -55,6 +59,7 @@ void ApplyGreatFairyHint(u16* textId, bool* loadFromMessageTable, RandoCheckId r
 
     CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.nameEng);
 
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }

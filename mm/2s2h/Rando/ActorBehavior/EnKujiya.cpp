@@ -19,8 +19,10 @@ void Rando::ActorBehavior::InitEnKujiyaBehavior() {
 
     COND_ID_HOOK(OnOpenText, 0x2b5c, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Step right up! For a measly %p10 Rupees%w, your dreams could come true!\x11\x13\x12";
-        entry.msg += "Guess all three numbers to win %p{{itemName}}%w!\x19";
+        entry.msg = LOCALIZED("Step right up! For a measly %p10 Rupees%w, your dreams could come true!\x11\x13\x12",
+                              "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        entry.msg += LOCALIZED("Guess all three numbers to win %p{{itemName}}%w!\x19", "TODO_FRENCH", "TODO_GERMAN",
+                               "TODO_JAPANESE", "TODO_SPANISH");
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_LOTTERY].randoItemId;
         CustomMessage::Replace(&entry.msg, "{{itemName}}", Rando::StaticData::GetItemName(randoItemId));
 
@@ -30,10 +32,12 @@ void Rando::ActorBehavior::InitEnKujiyaBehavior() {
 
     COND_ID_HOOK(OnOpenText, 0x2b66, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Congratulations! You win the jackpot: %p{{itemName}}%w!\x19";
+        entry.msg = LOCALIZED("Congratulations! You win the jackpot: %p{{itemName}}%w!\x19", "TODO_FRENCH",
+                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_LOTTERY].randoItemId;
         CustomMessage::Replace(&entry.msg, "{{itemName}}", Rando::StaticData::GetItemName(randoItemId));
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });

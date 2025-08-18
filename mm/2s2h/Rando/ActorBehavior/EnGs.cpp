@@ -14,7 +14,7 @@ extern "C" {
 
 #define FIRST_GS_MESSAGE 0x20D1
 #define SECOND_GS_MESSAGE 0x20C0
-
+// TODO HATO: LOCALIZED FLAVOUR
 std::vector<std::string> flavorText = {
     "Good luck on your journey ...",
     "I hope you find what you're looking for ...",
@@ -92,7 +92,8 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
             entry.autoFormat = false;
             auto& saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
 
-            entry.msg = "They say %g{{item}}%w is hidden at %y{{location}}%w.";
+            entry.msg = LOCALIZED("They say %g{{item}}%w is hidden at %y{{location}}%w.", "TODO_FRENCH", "TODO_GERMAN",
+                                  "TODO_JAPANESE", "TODO_SPANISH");
 
             CustomMessage::Replace(&entry.msg, "{{item}}", Rando::StaticData::GetItemName(saveCheck.randoItemId));
             CustomMessage::Replace(&entry.msg, "{{location}}",
@@ -112,7 +113,8 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
         }
 
         if (RANDO_SAVE_OPTIONS[RO_HINTS_PURCHASEABLE]) {
-            entry.msg += "Trade %r{{rupees}} Rupees%w for a hint?\x02\x11\xC2No\x11Yes";
+            entry.msg += LOCALIZED("Trade %r{{rupees}} Rupees%w for a hint?\x02\x11\xC2No\x11Yes", "TODO_FRENCH",
+                                   "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
             s32 cost = GetNormalizedCost();
             CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(cost));
 
@@ -122,6 +124,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
         CustomMessage::EnsureMessageEnd(&entry.msg);
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -136,13 +139,16 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
                 RandoCheckId randoCheckId = GetRandomCheck(true);
                 if (gSaveContext.save.saveInfo.playerData.rupees < cost) {
-                    entry.msg = "Foolish... You don't have enough rupees...";
+                    entry.msg = LOCALIZED("Foolish... You don't have enough rupees...", "TODO_FRENCH", "TODO_GERMAN",
+                                          "TODO_JAPANESE", "TODO_SPANISH");
                 } else if (randoCheckId == RC_UNKNOWN) {
-                    entry.msg = "I have no more hints for you...";
+                    entry.msg = LOCALIZED("I have no more hints for you...", "TODO_FRENCH", "TODO_GERMAN",
+                                          "TODO_JAPANESE", "TODO_SPANISH");
                 } else {
                     RandoSaveCheck saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
 
-                    entry.msg = "Wise choice... They say %g{{item}}%w is hidden at %y{{location}}%w.";
+                    entry.msg = LOCALIZED("Wise choice... They say %g{{item}}%w is hidden at %y{{location}}%w.",
+                                          "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
                     CustomMessage::Replace(&entry.msg, "{{item}}",
                                            Rando::StaticData::GetItemName(saveCheck.randoItemId));
@@ -153,12 +159,14 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                     cost *= 2;
                 }
             } else {
-                entry.msg = "Foolish... Come back later when you have more sense.";
+                entry.msg = LOCALIZED("Foolish... Come back later when you have more sense.", "TODO_FRENCH",
+                                      "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
             }
         } else {
             entry.msg = flavorText[Ship_Random(0, flavorText.size() - 1)];
         }
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });

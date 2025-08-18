@@ -47,14 +47,16 @@ void Rando::ActorBehavior::InitEnGb2Behavior() {
             Rando::StaticData::GetItemName(RANDO_SAVE_CHECKS[RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART].randoItemId);
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "If you are seeking the one who is\n";
-        entry.msg += "%rstronger%w than you are, you may find\n";
-        entry.msg += "%g{{itemName}}%w here...\n";
-        entry.msg += "\x10";
-        entry.msg += "from a group of spirits plagued by\n";
-        entry.msg += "lingering regrets.\xE0";
+        entry.msg = LOCALIZED("If you are seeking the one who is\n"
+                              "%rstronger%w than you are, you may find\n"
+                              "%g{{itemName}}%w here...\n"
+                              "\x10"
+                              "from a group of spirits plagued by\n"
+                              "lingering regrets.\xE0",
+                              "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
         CustomMessage::Replace(&entry.msg, "{{itemName}}", checkItemName);
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
