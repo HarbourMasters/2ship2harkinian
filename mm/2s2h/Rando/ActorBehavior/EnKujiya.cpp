@@ -36,6 +36,7 @@ void Rando::ActorBehavior::InitEnKujiyaBehavior() {
         CustomMessage::Replace(&entry.msg, "{article}", article);
         CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });

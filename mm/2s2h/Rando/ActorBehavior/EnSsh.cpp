@@ -40,7 +40,7 @@ void ApplyOceanSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
         .msg =
             LOCALIZED("Huh? How'd I get up here... Why do I have %g{{article}}{{item}}%w in my pocket...?\xE0",
-                      "Hein? Comment je suis arrivé ici...Pourquoi j'ai %g{{article}}{{item}}%w dans ma poche...?\xE0",
+                      "Hein? Comment je suis arrivé ici... Pourquoi j'ai %g{{article}}{{item}}%w dans ma poche...?\xE0",
                       "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
     };
 

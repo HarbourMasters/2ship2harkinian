@@ -22,7 +22,7 @@ void ApplyHookshotHint(u16* textId, bool* loadFromMessageTable) {
         .nextMessageID = (u16)0xFFFF,
         .msg = msg,
     };
-
+    CustomMessage::ReplaceColorChars(&entry.msg);
     CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;

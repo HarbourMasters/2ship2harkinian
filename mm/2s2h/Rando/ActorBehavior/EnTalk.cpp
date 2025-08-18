@@ -21,7 +21,7 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
     if (remainsHintIndex == 0) {
         msg = LOCALIZED("        Witcher Wanted:\nThese monsters are tormenting the local townfolk, will pay good "
                         "money for their remains.",
-                        "        Chasseur recherché:\nCes monstres tourmentent les habitants du village, bonne "
+                        "    Chasseur recherché:\nCes monstres tourmentent les habitants du village, bonne "
                         "récompense pour leurs restes.",
                         "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
     } else {
