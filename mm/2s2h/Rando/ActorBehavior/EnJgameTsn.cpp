@@ -1,6 +1,7 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/ShipUtils.h"
 
 extern "C" {
 #include "variables.h"
@@ -29,12 +30,26 @@ void Rando::ActorBehavior::InitEnJgameTsnBehavior() {
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED(
-            "Want to try my %rjumping game%w for %p20 Rupees%w? Win, and I'll give you %r{{itemName}}%w!\x19\xA8",
-            "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+            "Want to try my %rjumping game%w for %p20 Rupees%w? Win, and I'll give you {article}%r{itemName}%w!\x19\xA8",
+            "Tu veux essayer mon %rjeu de saut%w pour %p20 Rubis%w? Si tu gagnes,je te donne {article}%r{itemName}%w!\x19\xA8",
+            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+
+        std::string itemName;
+        std::string article;
         // The same-cycle repeat reward is a purple Rupee
-        CustomMessage::Replace(
-            &entry.msg, "{{itemName}}",
-            randoSaveCheck.cycleObtained ? "50 Rupees" : Rando::StaticData::GetItemName(randoSaveCheck.randoItemId));
+        if (randoSaveCheck.cycleObtained) {
+            article = "";
+            itemName = LOCALIZED("50 Rupees", "50 Rubis", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        } else {
+            const auto& item = Rando::StaticData::Items[randoSaveCheck.randoItemId];
+            article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+            if (!Ship_IsCStringEmpty(article.c_str())) {
+                article += " ";
+            }
+            itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
+        }
+        CustomMessage::Replace(&entry.msg, "{article}", article);
+        CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
 
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);

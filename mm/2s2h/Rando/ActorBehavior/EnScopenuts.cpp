@@ -1,6 +1,7 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/ShipUtils.h"
 
 extern "C" {
 #include "variables.h"
@@ -31,10 +32,19 @@ void Rando::ActorBehavior::InitEnScopenutsBehavior() {
     COND_ID_HOOK(OnOpenText, 0x1631, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_TERMINA_FIELD_GROTTO_SCRUB].randoItemId;
-        entry.msg = LOCALIZED("Please! I'll sell you %y{{itemName}}%w if you just keep this place a secret...\xE0",
-                              "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        const auto& item = Rando::StaticData::Items[randoItemId];
+        entry.msg = LOCALIZED(
+            "Please! I'll sell you {article}%y{itemName}%w if you just keep this place a secret...\xE0",
+            "S'il te plaît! Je te vends {article}%y{itemName}%w si tu gardes cet endroit secret...\xE0",
+            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
-        CustomMessage::Replace(&entry.msg, "{{itemName}}", Rando::StaticData::GetItemName(randoItemId));
+        std::string article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+        if (!Ship_IsCStringEmpty(article.c_str())) {
+            article += " ";
+        }
+        std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
+        CustomMessage::Replace(&entry.msg, "{article}", article);
+        CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;

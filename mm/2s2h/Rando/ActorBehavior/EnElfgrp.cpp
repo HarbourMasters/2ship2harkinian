@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/ShipUtils.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
@@ -12,30 +12,29 @@ extern "C" {
 
 void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
-        .msg = LOCALIZED("%wPlease, find the Stray Fairy who's lost! We will reward you with %g{{article1}}{{item1}}%w "
-                         "and maybe even %g{{article2}}{{item2}}%w if you are worthy.",
-                         "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
+        .msg = LOCALIZED(
+            "%wPlease, find the Stray Fairy who's lost! We will reward you with {article1}%g{item1}%w and maybe even {article2}%g{item2}%w if you are worthy.",
+            "%wS'il te plaît,trouve la Fée Perdue! Nous te récompenserons avec {article1}%g{item1}%w et peut-être même {article2}%g{item2}%w si tu en es digne.",
+            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem1 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY].randoItemId];
-
-    if (!Ship_IsCStringEmpty(randoStaticItem1.articleEng)) {
-        CustomMessage::Replace(&entry.msg, "{{article1}}", std::string(randoStaticItem1.articleEng) + " ");
-    } else {
-        CustomMessage::Replace(&entry.msg, "{{article1}}", "");
+    std::string article1 = LOCALIZED(randoStaticItem1.articleEng, randoStaticItem1.articleFre, randoStaticItem1.articleGer, randoStaticItem1.articleJpn, randoStaticItem1.articleSpa);
+    if (!Ship_IsCStringEmpty(article1.c_str())) {
+        article1 += " ";
     }
-
-    CustomMessage::Replace(&entry.msg, "{{item1}}", randoStaticItem1.nameEng);
+    std::string item1 = LOCALIZED(randoStaticItem1.nameEng, randoStaticItem1.nameFre, randoStaticItem1.nameGer, randoStaticItem1.nameJpn, randoStaticItem1.nameSpa);
+    CustomMessage::Replace(&entry.msg, "{article1}", article1);
+    CustomMessage::Replace(&entry.msg, "{item1}", item1);
 
     auto& randoStaticItem2 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].randoItemId];
-
-    if (!Ship_IsCStringEmpty(randoStaticItem2.articleEng)) {
-        CustomMessage::Replace(&entry.msg, "{{article2}}", std::string(randoStaticItem2.articleEng) + " ");
-    } else {
-        CustomMessage::Replace(&entry.msg, "{{article2}}", "");
+    std::string article2 = LOCALIZED(randoStaticItem2.articleEng, randoStaticItem2.articleFre, randoStaticItem2.articleGer, randoStaticItem2.articleJpn, randoStaticItem2.articleSpa);
+    if (!Ship_IsCStringEmpty(article2.c_str())) {
+        article2 += " ";
     }
-
-    CustomMessage::Replace(&entry.msg, "{{item2}}", randoStaticItem2.nameEng);
+    std::string item2 = LOCALIZED(randoStaticItem2.nameEng, randoStaticItem2.nameFre, randoStaticItem2.nameGer, randoStaticItem2.nameJpn, randoStaticItem2.nameSpa);
+    CustomMessage::Replace(&entry.msg, "{article2}", article2);
+    CustomMessage::Replace(&entry.msg, "{item2}", item2);
 
     CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
@@ -45,19 +44,19 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
 void ApplyGreatFairyHint(u16* textId, bool* loadFromMessageTable, RandoCheckId randoCheckId) {
     CustomMessage::Entry entry = {
         .msg = LOCALIZED(
-            "%wPlease, find the Stray Fairies who match our color! We will reward you with %g{{article}}{{item}}%w",
-            "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
+            "%wPlease, find the Stray Fairies who match our color! We will reward you with {article}%g{item}%w",
+            "%wS'il te plaît,trouve les Fées Perdues de notre couleur! Nous te récompenserons avec {article}%g{item}%w",
+            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId].randoItemId];
-
-    if (!Ship_IsCStringEmpty(randoStaticItem.articleEng)) {
-        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.articleEng) + " ");
-    } else {
-        CustomMessage::Replace(&entry.msg, "{{article}}", "");
+    std::string article = LOCALIZED(randoStaticItem.articleEng, randoStaticItem.articleFre, randoStaticItem.articleGer, randoStaticItem.articleJpn, randoStaticItem.articleSpa);
+    if (!Ship_IsCStringEmpty(article.c_str())) {
+        article += " ";
     }
-
-    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.nameEng);
+    std::string item = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer, randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+    CustomMessage::Replace(&entry.msg, "{article}", article);
+    CustomMessage::Replace(&entry.msg, "{item}", item);
 
     CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);

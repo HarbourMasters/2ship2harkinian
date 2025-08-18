@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
@@ -10,7 +10,8 @@ extern "C" {
 void ApplyHookshotHint(u16* textId, bool* loadFromMessageTable) {
     std::string msg = LOCALIZED(
         "I overheard those Pirates talk about treasure in %y{{location}}%w that can help you reach the unreachable!",
-        "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        "J'ai entendu des Pirates parler d'un trésor à %y{{location}}%w qui pourrait t'aider à atteindre l'inaccessible!",
+        "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
     RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_HOOKSHOT);
     // TODO HATO: SCENE LOCALIZATION

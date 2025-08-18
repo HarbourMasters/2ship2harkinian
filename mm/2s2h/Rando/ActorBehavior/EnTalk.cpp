@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
@@ -19,14 +19,15 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
     RandoItemId randoItemId = RI_NONE;
 
     if (remainsHintIndex == 0) {
-        msg = LOCALIZED("        Witcher Wanted:\n"
-                        "These monsters are tormenting the "
-                        "local townfolk, will pay good money "
-                        "for their remains.",
-                        "TODO_FRENCH", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        msg = LOCALIZED(
+            "        Witcher Wanted:\nThese monsters are tormenting the local townfolk, will pay good money for their remains.",
+            "        Chasseur recherché:\nCes monstres tourmentent les habitants du village, bonne récompense pour leurs restes.",
+            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
     } else {
-        msg = "         %g{{boss}}%w:\n"
-              "Last seen in near %y{{location}}%w.";
+        msg = LOCALIZED(
+            "         %g{{boss}}%w:\nLast seen in near %y{{location}}%w.",
+            "         %g{{boss}}%w:\nAperçu dernièrement près de %y{{location}}%w.",
+            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
 
         switch (remainsHintIndex) {
             case 1:
