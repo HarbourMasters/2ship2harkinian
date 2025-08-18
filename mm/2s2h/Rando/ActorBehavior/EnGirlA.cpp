@@ -18,13 +18,6 @@ void EnGirlA_SetupAction(EnGirlA* enGirlA, EnGirlAActionFunc action);
 #define RANDO_DESC_TEXT_ID 0x083F
 #define RANDO_CHOICE_TEXT_ID 0x0840
 
-#define LOCALIZED(eng, fre, ger, jpn, spa)                   \
-    (gSaveContext.options.language == LANGUAGE_FRE   ? (fre) \
-     : gSaveContext.options.language == LANGUAGE_GER ? (ger) \
-     : gSaveContext.options.language == LANGUAGE_JPN ? (jpn) \
-     : gSaveContext.options.language == LANGUAGE_SPA ? (spa) \
-                                                     : (eng))
-
 static const std::vector<std::string> flavorTextsEng = {
     "Buy it, you won't regret it!",   "A must-have for any adventurer!", "A great gift for a friend!",
     "One of a kind, don't miss out!", "A great deal for the price!",     "On sale for a limited time!",
