@@ -1,4 +1,4 @@
-﻿#include "StaticData.h"
+#include "StaticData.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/ShipUtils.h"
 #include "2s2h/Rando/Rando.h"
