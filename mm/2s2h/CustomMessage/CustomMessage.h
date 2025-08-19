@@ -43,6 +43,7 @@ void Replace(std::string* msg, const std::string& placeholder, const std::string
 void AddLineBreaks(std::string* msg);
 void ReplaceColorChars(std::string* msg);
 void ReplaceSpecialChars(std::string* msg);
+void ReplaceGermanSpecialCases(std::string* msg);
 void EnsureMessageEnd(std::string* msg);
 Entry LoadVanillaMessageTableEntry(u16 textId);
 void LoadCustomMessageIntoFont(Entry entry);
