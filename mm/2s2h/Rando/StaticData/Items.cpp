@@ -459,7 +459,6 @@ std::string GetItemName(RandoItemId randoItemId, bool includeArticle) {
     }
 
     return result;
-}
 
 } // namespace StaticData
 
