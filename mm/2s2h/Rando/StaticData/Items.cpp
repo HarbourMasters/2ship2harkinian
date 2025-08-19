@@ -12,13 +12,13 @@ namespace Rando {
 
 namespace StaticData {
 
-#define RI(id, articleEng, nameEng, articleFre, nameFre, articleGer, articleGer2, nameGer, articleJpn, nameJpn, articleSpa,       \
-           nameSpa, type, itemId, getItemId, drawId)                                                                              \
-    {                                                                                                                             \
-        id, {                                                                                                                     \
-            id, #id, articleEng, nameEng, articleFre, nameFre, articleGer, articleGer2,nameGer, articleJpn, nameJpn, articleSpa,  \
-                nameSpa, type, itemId, getItemId, drawId                                                                          \
-        }                                                                                                                         \
+#define RI(id, articleEng, nameEng, articleFre, nameFre, articleGer, articleGer2, nameGer, articleJpn, nameJpn,       \
+           articleSpa, nameSpa, type, itemId, getItemId, drawId)                                                      \
+    {                                                                                                                 \
+        id, {                                                                                                         \
+            id, #id, articleEng, nameEng, articleFre, nameFre, articleGer, articleGer2, nameGer, articleJpn, nameJpn, \
+                articleSpa, nameSpa, type, itemId, getItemId, drawId                                                  \
+        }                                                                                                             \
     }
 
 // clang-format off
