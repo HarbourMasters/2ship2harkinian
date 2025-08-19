@@ -37,6 +37,7 @@ struct RandoStaticItem {
     const char* articleFre;
     const char* nameFre;
     const char* articleGer;
+    const char* articleGer2; // German use article variation depending on the context
     const char* nameGer;
     const char* articleJpn;
     const char* nameJpn;
