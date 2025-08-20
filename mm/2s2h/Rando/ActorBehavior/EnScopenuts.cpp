@@ -33,11 +33,11 @@ void Rando::ActorBehavior::InitEnScopenutsBehavior() {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_TERMINA_FIELD_GROTTO_SCRUB].randoItemId;
         const auto& item = Rando::StaticData::Items[randoItemId];
-        entry.msg =
-            LOCALIZED("Please! I'll sell you {article}%y{itemName}%w if you just keep this place a secret...\xE0",
-                      "S'il te plaît! Je te vends {article}%y{itemName}%w si tu gardes cet endroit secret...\xE0",
-                      "Oh, bitte! Ich verkaufe dir {article}%y{{itemName}}%w, aber bitte behalte dieses Geheimnis für dich!\xE0",
-                      "TODO_JAPANESE", "TODO_SPANISH");
+        entry.msg = LOCALIZED(
+            "Please! I'll sell you {article}%y{itemName}%w if you just keep this place a secret...\xE0",
+            "S'il te plaît! Je te vends {article}%y{itemName}%w si tu gardes cet endroit secret...\xE0",
+            "Oh, bitte! Ich verkaufe dir {article}%y{{itemName}}%w, aber bitte behalte dieses Geheimnis für dich!\xE0",
+            "TODO_JAPANESE", "TODO_SPANISH");
 
         std::string article =
             LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);

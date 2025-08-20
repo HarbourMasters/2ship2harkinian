@@ -47,9 +47,10 @@ void Rando::ActorBehavior::InitEnKujiyaBehavior() {
 
     COND_ID_HOOK(OnOpenText, 0x2b66, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = LOCALIZED("Congratulations! You win the jackpot:{article}%p{itemName}%w!\x19",
-                              "Félicitations! Vous remportez le gros lot:{article}%p{itemName}%w!\x19",
-                              "Gratulation! Du gewinnst {article}%p{{itemName}}%w!\x19", "TODO_JAPANESE", "TODO_SPANISH");
+        entry.msg =
+            LOCALIZED("Congratulations! You win the jackpot:{article}%p{itemName}%w!\x19",
+                      "Félicitations! Vous remportez le gros lot:{article}%p{itemName}%w!\x19",
+                      "Gratulation! Du gewinnst {article}%p{{itemName}}%w!\x19", "TODO_JAPANESE", "TODO_SPANISH");
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_LOTTERY].randoItemId;
         const auto& item = Rando::StaticData::Items[randoItemId];
         std::string article =
