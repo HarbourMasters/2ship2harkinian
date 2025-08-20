@@ -379,12 +379,13 @@ void BenMenu::AddSettings() {
 
     // Audio Settings
     path.sidebarName = "Audio";
+    path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Audio", 3);
     AddWidget(path, "Master Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gSettings.Audio.MasterVolume")
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the overall sound volume.")
-                     .ShowButtons(false)
+                     .ShowAdjustmentButtons(false)
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Main Music Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
@@ -394,7 +395,7 @@ void BenMenu::AddSettings() {
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the background music volume.")
-                     .ShowButtons(false)
+                     .ShowAdjustmentButtons(false)
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Sub Music Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
@@ -402,8 +403,11 @@ void BenMenu::AddSettings() {
         .Callback([](WidgetInfo& info) {
             AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
         })
-        .Options(
-            FloatSliderOptions().Tooltip("Adjust the sub music volume.").ShowButtons(false).Format("").IsPercentage());
+        .Options(FloatSliderOptions()
+                     .Tooltip("Adjust the sub music volume.")
+                     .ShowAdjustmentButtons(false)
+                     .Format("")
+                     .IsPercentage());
     AddWidget(path, "Sound Effects Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gSettings.Audio.SoundEffectsVolume")
         .Callback([](WidgetInfo& info) {
@@ -411,7 +415,7 @@ void BenMenu::AddSettings() {
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the sound effects volume.")
-                     .ShowButtons(false)
+                     .ShowAdjustmentButtons(false)
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Fanfare Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
@@ -419,8 +423,11 @@ void BenMenu::AddSettings() {
         .Callback([](WidgetInfo& info) {
             AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
         })
-        .Options(
-            FloatSliderOptions().Tooltip("Adjust the fanfare volume.").ShowButtons(false).Format("").IsPercentage());
+        .Options(FloatSliderOptions()
+                     .Tooltip("Adjust the fanfare volume.")
+                     .ShowAdjustmentButtons(false)
+                     .Format("")
+                     .IsPercentage());
     AddWidget(path, "Ambience Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gSettings.Audio.AmbienceVolume")
         .Callback([](WidgetInfo& info) {
@@ -428,7 +435,7 @@ void BenMenu::AddSettings() {
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the ambient sound volume.")
-                     .ShowButtons(false)
+                     .ShowAdjustmentButtons(false)
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Audio API", WIDGET_AUDIO_BACKEND);
@@ -460,7 +467,7 @@ void BenMenu::AddSettings() {
             FloatSliderOptions()
                 .Tooltip("Multiplies your output resolution by the value inputted, as a more intensive but effective "
                          "form of anti-aliasing.")
-                .ShowButtons(false)
+                .ShowAdjustmentButtons(false)
                 .IsPercentage()
                 .Format("")
                 .Min(0.5f)
@@ -864,6 +871,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Elegy of Emptiness Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.ElegyAnywhere")
         .Options(CheckboxOptions().Tooltip("Allows Elegy of Emptiness outside of Ikana."));
+    AddWidget(path, "Climb Anywhere", WIDGET_CVAR_CHECKBOX)
+        .CVar("gCheats.ClimbAnywhere")
+        .Options(CheckboxOptions().Tooltip("Allows climbing on most walls regardless of vines."));
     AddWidget(path, "Stop Time in Dungeons", WIDGET_CVAR_COMBOBOX)
         .CVar("gCheats.TempleTimeStop")
         .Options(
@@ -906,6 +916,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Prevent Diving Over Water", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.PreventDiveOverWater")
         .Options(CheckboxOptions().Tooltip("Prevents Link from automatically diving over bodies of water."));
+    AddWidget(path, "Underwater Ocarina", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.UnderwaterOcarina")
+        .Options(CheckboxOptions().Tooltip("Allows Zora to use the Ocarina of Time when grounded underwater."));
     AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.ManualJump")
         .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack."));
@@ -1042,6 +1055,9 @@ void BenMenu::AddEnhancements() {
         .Options(
             CheckboxOptions().Tooltip("The Oceanside Spider House squatter will not move in until the player interacts "
                                       "with him. Forced on for randomizers."));
+    AddWidget(path, "Oceanside wallet any day", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cycle.OceansideWalletAnyDay")
+        .Options(CheckboxOptions().Tooltip("Allows the wallet reward to be collected on any day."));
     AddWidget(path, "Unstable", WIDGET_SEPARATOR_TEXT).Options(WidgetOptions().Color(Colors::Orange));
     AddWidget(path, "Disable Save Delay", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.DisableSaveDelay")
@@ -1262,6 +1278,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Misc Interactions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipMiscInteractions")
         .Options(CheckboxOptions().Tooltip("This skips many minor cutscenes and interactions."));
+    AddWidget(path, "Skip Enemy Cutscenes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cutscenes.SkipEnemyCutscenes")
+        .Options(CheckboxOptions().Tooltip("Skips cutscenes specific to enemies and boss battles."));
     AddWidget(path, "Skip Item Get Cutscene", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Cutscenes.SkipGetItemCutscenes")
         .Options(ComboboxOptions()
@@ -1300,6 +1319,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Dampe Flame Digging", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.DampeDiggingSkip")
         .Options(CheckboxOptions().Tooltip("Only requires digging up one flame to spawn the big poe."));
+    AddWidget(path, "Fast Chests", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FastChests")
+        .Options(CheckboxOptions().Tooltip("Uses the quick kick animation for all chests in vanilla gameplay."));
     AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
         .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
