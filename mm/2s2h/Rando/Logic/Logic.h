@@ -95,6 +95,9 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
      (CUR_UPG_VALUE(UPG_WALLET) >= 2))
 #define HAS_ENOUGH_STRAY_FAIRIES(dungeonIndex) \
     (gSaveContext.save.saveInfo.inventory.strayFairies[dungeonIndex] >= RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES])
+#define FOUND_ALL_FROGS                                                                  \
+    (CHECK_WEEKEVENTREG(WEEKEVENTREG_33_01) && CHECK_WEEKEVENTREG(WEEKEVENTREG_32_40) && \
+     CHECK_WEEKEVENTREG(WEEKEVENTREG_32_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_33_02))
 
 #define EVENT(randoEvent, condition)         \
     {                                        \
