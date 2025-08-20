@@ -23,27 +23,35 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
                         "money for their remains.",
                         "    Chasseur recherché:\nCes monstres tourmentent les habitants du village, bonne "
                         "récompense pour leurs restes.",
-                        "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                        "            Kopfgeld:\n"
+                        "Diese Monster belästigen die "
+                        "Stadtbevölkerung. "
+                        "Sehr gute Bezahlung!",
+                        "TODO_JAPANESE", "TODO_SPANISH");
     } else {
         msg = LOCALIZED("         %g{{boss}}%w:\nLast seen in near %y{{location}}%w.",
-                        "         %g{{boss}}%w:\nAperçu dernièrement près de %y{{location}}%w.", "TODO_GERMAN",
-                        "TODO_JAPANESE", "TODO_SPANISH");
+                        "         %g{{boss}}%w:\nAperçu dernièrement près de %y{{location}}%w.",
+                        "         %g{{boss}}%w:\nZuletzt gesehen: %y{{location}}%w.", "TODO_JAPANESE", "TODO_SPANISH");
 
         switch (remainsHintIndex) {
             case 1:
-                CustomMessage::Replace(&msg, "{{boss}}", " Odolwa");
+                CustomMessage::Replace(&msg, "{{boss}}",
+                                       LOCALIZED(" Odolwa", " Odolwa", " Odolwa", " Odolwa", " Odolwa"));
                 randoItemId = RI_REMAINS_ODOLWA;
                 break;
             case 2:
-                CustomMessage::Replace(&msg, "{{boss}}", "  Goht");
+                CustomMessage::Replace(&msg, "{{boss}}",
+                                       LOCALIZED("  Goht", " Rhork", " Gohts ", "TODO_JAPANESE", "  Goht"));
                 randoItemId = RI_REMAINS_GOHT;
                 break;
             case 3:
-                CustomMessage::Replace(&msg, "{{boss}}", "  Gyorg");
+                CustomMessage::Replace(&msg, "{{boss}}",
+                                       LOCALIZED("  Gyorg", "  Gyorg", "Gyorgs ", "TODO_JAPANESE", "  Gyorg"));
                 randoItemId = RI_REMAINS_GYORG;
                 break;
             case 4:
-                CustomMessage::Replace(&msg, "{{boss}}", "Twinmold");
+                CustomMessage::Replace(&msg, "{{boss}}",
+                                       LOCALIZED("Twinmold", " Skorn", "Twinmolds ", "TODO_JAPANESE", "Twinmold"));
                 randoItemId = RI_REMAINS_TWINMOLD;
                 break;
         }

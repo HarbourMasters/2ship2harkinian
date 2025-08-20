@@ -35,9 +35,12 @@ void EnTab_OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
                           "\x02\xC3{item1}\x01 {price1} Rubis\x11"
                           "\x02{item2}\x01 {price2} Rubis\x11"
                           "\x02Rien",
-                          "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                          "\x02\xC3{item1}\x01 {price1} Rubine\x11"
+                          "\x02{item2}\x01 {price2} Rubine\x11"
+                          "\x02Nichts",
+                          "TODO_JAPANESE", "TODO_SPANISH");
 
-    std::string itemName1 = LOCALIZED("Milk", "Lait", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+    std::string itemName1 = LOCALIZED("Milk", "Lait", "Milch", "TODO_JAPANESE", "TODO_SPANISH");
     std::string itemPrice1 = "20";
     if (!milkPurchaseCheck.cycleObtained) {
         const auto& milkItem = Rando::StaticData::Items[riMilkPurchase];
@@ -45,7 +48,8 @@ void EnTab_OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
         itemPrice1 = std::to_string(milkPurchaseCheck.price);
     }
 
-    std::string itemName2 = LOCALIZED("Chateau Romani", "Cuvée Romani", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+    std::string itemName2 =
+        LOCALIZED("Chateau Romani", "Cuvée Romani", "Chateau Romani", "TODO_JAPANESE", "TODO_SPANISH");
     std::string itemPrice2 = "200";
     if (!chateauPurchaseCheck.cycleObtained) {
         const auto& chateauItem = Rando::StaticData::Items[riChateauPurchase];

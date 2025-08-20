@@ -16,7 +16,10 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
                          "maybe even {article2}%g{item2}%w if you are worthy.",
                          "%wS'il te plaît,trouve la Fée Perdue! Nous te récompenserons avec {article1}%g{item1}%w et "
                          "peut-être même {article2}%g{item2}%w si tu en es digne.",
-                         "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
+                         "%wBitte finde die %reine%w Verirrte Fee, die irgendwo in Termina weilt. Wir würden dir auch "
+                         "%g{{article1}}{{item1}}%w geben und vielleicht sogar %g{{article2}}{{item2}}%w, falls du "
+                         "dessen würdig bist.",
+                         "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem1 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY].randoItemId];
@@ -53,7 +56,9 @@ void ApplyGreatFairyHint(u16* textId, bool* loadFromMessageTable, RandoCheckId r
         .msg = LOCALIZED(
             "%wPlease, find the Stray Fairies who match our color! We will reward you with {article}%g{item}%w",
             "%wS'il te plaît,trouve les Fées Perdues de notre couleur! Nous te récompenserons avec {article}%g{item}%w",
-            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
+            "%wBitte, finde die Verirrten Feen die von %rgleicher Farbe%w wie wir sind. Wir würden dir auch "
+            "%g{{article}}{{item}}%w geben.",
+            "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId].randoItemId];

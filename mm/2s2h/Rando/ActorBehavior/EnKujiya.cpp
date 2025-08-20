@@ -20,11 +20,15 @@ void Rando::ActorBehavior::InitEnKujiyaBehavior() {
 
     COND_ID_HOOK(OnOpenText, 0x2b5c, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = LOCALIZED("Step right up! For a measly %p10 Rupees%w, your dreams could come true!\x11\x13\x12"
-                              "Guess all three numbers to win {article}%p{itemName}%w!\x19",
-                              "Approchez! Pour seulement %p10 Rubis%w, votre rêve peut devenir réalité!\x11\x13\x12"
-                              "Trouvez les trois numéros pour gagner {article}%p{itemName}%w!\x19",
-                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        entry.msg =
+            LOCALIZED("Step right up! For a measly %p10 Rupees%w, your dreams could come true!\x11\x13\x12"
+                      "Guess all three numbers to win {article}%p{itemName}%w!\x19",
+                      "Approchez! Pour seulement %p10 Rubis%w, votre rêve peut devenir réalité!\x11\x13\x12"
+                      "Trouvez les trois numéros pour gagner {article}%p{itemName}%w!\x19",
+                      "Du hast jetzt die Chance, dir für nur %p10 Rubine%w alle deine Wünsche zu erfüllen!\x11\x13\x12"
+                      "Wähle drei Nummern. Wenn sie gezogen werden, gewinnst du %p{{itemName}}%w. Nur %reiner%w kann "
+                      "gewinnen!\x19",
+                      "TODO_JAPANESE", "TODO_SPANISH");
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_LOTTERY].randoItemId;
         const auto& item = Rando::StaticData::Items[randoItemId];
         std::string article =
@@ -44,8 +48,8 @@ void Rando::ActorBehavior::InitEnKujiyaBehavior() {
     COND_ID_HOOK(OnOpenText, 0x2b66, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED("Congratulations! You win the jackpot:{article}%p{itemName}%w!\x19",
-                              "Félicitations! Vous remportez le gros lot:{article}%p{itemName}%w!\x19", "TODO_GERMAN",
-                              "TODO_JAPANESE", "TODO_SPANISH");
+                              "Félicitations! Vous remportez le gros lot:{article}%p{itemName}%w!\x19",
+                              "Gratulation! Du gewinnst %p{{itemName}}%w!\x19", "TODO_JAPANESE", "TODO_SPANISH");
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_LOTTERY].randoItemId;
         const auto& item = Rando::StaticData::Items[randoItemId];
         std::string article =

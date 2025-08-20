@@ -26,7 +26,10 @@ void EnIn_OnOpenPurchaseText(u16* textId, bool* loadFromMessageTable) {
                           "%p{{price}} Rubis%w pour {article}%y{{item}}%w!\x11"
                           "\xC2%gOui\x11"
                           "Non",
-                          "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                          "Für nur %p{{price}} Rubine%w bekommst du %y{{item}}%w!\x11"
+                          "\xC2%gHer damit!\x11"
+                          "Nein, danke!",
+                          "TODO_JAPANESE", "TODO_SPANISH");
 
     const auto& item = Rando::StaticData::Items[riMilkPurchase];
     std::string article =

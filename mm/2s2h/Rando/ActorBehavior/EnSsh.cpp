@@ -14,7 +14,8 @@ void ApplySwampSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
         .msg = LOCALIZED(
             "Make me...normal again...I'll give you %g{{article}}{{item}}%w...Please...help me...\xE0",
             "Rends-moi...normal à nouveau... Je te donnerai %g{{article}}{{item}}%w...S'il te plaît...aide-moi...\xE0",
-            "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
+            "Verwandle mich... zurück... Ich werde dir... %g{{article}}{{item}}%w geben... Bitte... Hilf mir...\xE0",
+            "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem =
@@ -41,7 +42,9 @@ void ApplyOceanSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
         .msg =
             LOCALIZED("Huh? How'd I get up here... Why do I have %g{{article}}{{item}}%w in my pocket...?\xE0",
                       "Hein? Comment je suis arrivé ici... Pourquoi j'ai %g{{article}}{{item}}%w dans ma poche...?\xE0",
-                      "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH")
+                      "Huch? Wie bin ich denn hier hin gekommen... Warum habe ich %g{{article}}{{item}}%w in meiner "
+                      "Tasche...?\xE0",
+                      "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_OCEAN_SPIDER_HOUSE_WALLET].randoItemId];

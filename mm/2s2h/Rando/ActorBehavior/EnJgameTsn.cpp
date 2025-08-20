@@ -33,14 +33,16 @@ void Rando::ActorBehavior::InitEnJgameTsnBehavior() {
                               "{article}%r{itemName}%w!\x19\xA8",
                               "Tu veux essayer mon %rjeu de saut%w pour %p20 Rubis%w? Si tu gagnes,je te donne "
                               "{article}%r{itemName}%w!\x19\xA8",
-                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                              "Für nur %p20 Rubine%w darfst du an einem %rSpiel%w teilnehmen, bei dem es "
+                              "%r{{itemName}}%w zu gewinnen gibt!\x19\xA8",
+                              "TODO_JAPANESE", "TODO_SPANISH");
 
         std::string itemName;
         std::string article;
         // The same-cycle repeat reward is a purple Rupee
         if (randoSaveCheck.cycleObtained) {
             article = "";
-            itemName = LOCALIZED("50 Rupees", "50 Rubis", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+            itemName = LOCALIZED("50 Rupees", "50 Rubis", "50 Rubine", "TODO_JAPANESE", "TODO_SPANISH");
         } else {
             const auto& item = Rando::StaticData::Items[randoSaveCheck.randoItemId];
             article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);

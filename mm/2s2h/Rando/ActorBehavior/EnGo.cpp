@@ -140,7 +140,15 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
                               "mais je peux t'en donner un pour\n"
                               "faire exploser le rocher près de la\n"
                               "piste.\x19",
-                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                              "Brauchst du ein %rPulverfass%w?\n"
+                              "Der Älteste meinte, dass ich Neulingen\n"
+                              "keine Pulverfässer verkaufen darf,\n"
+                              "\x12"
+                              "doch wenn du den Felsen der die\n"
+                              "Rennstrecke versperrt beseitigen könntest,\n"
+                              "würde ich eine Ausnahme machen."
+                              "\x19",
+                              "TODO_JAPANESE", "TODO_SPANISH");
 
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
@@ -164,7 +172,13 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
                               "avec un %rBaril de Poudre%w que je vais\n"
                               "te donner, alors je te donnerai\n"
                               "{itemArticle}%g{randoItem}%w.\x19",
-                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                              "Schaffst du es, den Felsen, der\n"
+                              "den Eingang zur %rRennstrecke%w ver-\n"
+                              "sperrt mit einem %rPulverfass%w zu\n"
+                              "zerstören, gebe ich dir\n"
+                              "%g{randoItem}%w!"
+                              "\x19",
+                              "TODO_JAPANESE", "TODO_SPANISH");
 
         const auto& item = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_GORON_VILLAGE_MEDIGORON].randoItemId];
         std::string itemArticle =
@@ -173,7 +187,7 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
             itemArticle += " ";
         }
         std::string randoItemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-        std::string powderKegArticle = LOCALIZED("the", "la", "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+        std::string powderKegArticle = LOCALIZED("the", "un", "ein", "TODO_JAPANESE", "TODO_SPANISH");
         if (!Ship_IsCStringEmpty(powderKegArticle.c_str())) {
             powderKegArticle += " ";
         }
@@ -198,7 +212,11 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
                               "près de la piste! Voici la récompense\n"
                               "que le Doyen a réservée à celui\n"
                               "qui y arriverait.",
-                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                              "Es sieht so aus, als wärst du er-\n"
+                              "folgreich gewesen! Hier ist die\n"
+                              "Belohnung, die der Älteste für den-\n"
+                              "jenigen der es schafft vorgesehen hat.",
+                              "TODO_JAPANESE", "TODO_SPANISH");
 
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::EnsureMessageEnd(&entry.msg);
@@ -216,7 +234,10 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
                                   "my %rPowder Kegs%w.",
                                   "Reviens me voir si tu veux\n"
                                   "des %rBarils de Poudre%w.",
-                                  "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                                  "Solltest du mehr %rPulverfässer%w\n"
+                                  "benötigen, besuche mich einfach\n"
+                                  "wieder.",
+                                  "TODO_JAPANESE", "TODO_SPANISH");
 
             CustomMessage::ReplaceSpecialChars(&entry.msg);
             CustomMessage::EnsureMessageEnd(&entry.msg);
@@ -237,7 +258,14 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
                                   "mon droit de te certifier pour porter\n"
                                   "des %rBarils de Poudre%w. Tu devras en trouver\n"
                                   "ailleurs d'abord.",
-                                  "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                                  "Entschuldige, der Älteste hat mir\n"
+                                  "verboten die offizielle Prüfung, um\n"
+                                  "%rPulverfässer%w tragen zu dürfen,\n"
+                                  "durchzuführen.\n"
+                                  "\x12"
+                                  "Du wirst wohl zuerst ein %rPulverfass%w\n"
+                                  "finden müssen.",
+                                  "TODO_JAPANESE", "TODO_SPANISH");
 
             CustomMessage::ReplaceSpecialChars(&entry.msg);
             CustomMessage::EnsureMessageEnd(&entry.msg);

@@ -29,7 +29,10 @@ void ApplyOathHint(u16* textId, bool* loadFromMessageTable) {
                         "were free, they couldn't save you.",
                         "Tu crois pouvoir me vaincre? Les Géants sont piégés et impuissants pour même m'arrêter. Même "
                         "libres,ils ne pourraient pas te sauver.",
-                        "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                        "Oh, komm schon... Glaubst du etwa, du könntest in dieser Form gegen mich antreten? Die Riesen "
+                        "sind gefangen und komplett machtlos. Selbst wenn sie jetzt noch kommen würden, könnten sie "
+                        "mit mir nicht mehr fertig werden! Hee, hee.",
+                        "TODO_JAPANESE", "TODO_SPANISH");
     } else {
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_SONG_OATH);
         const auto& item = Rando::StaticData::Items[RI_SONG_OATH];
@@ -43,7 +46,9 @@ void ApplyOathHint(u16* textId, bool* loadFromMessageTable) {
                         "too late! They can't help you now!",
                         "J'entends la Mélodie des Géants ({article}%y{{item}}%w) venant de %y{{location}}%w. Mais il "
                         "est trop tard! Ils ne peuvent plus t'aider!",
-                        "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                        "Ich kann den Gesang der Riesen hören, doch jetzt ist es sowieso zu spät %y{{location}}%w "
+                        "danach zu suchen! Sie können dir nicht mehr helfen!",
+                        "TODO_JAPANESE", "TODO_SPANISH");
         CustomMessage::Replace(&msg, "{article}", article);
         CustomMessage::Replace(&msg, "{{item}}", itemName);
         CustomMessage::Replace(&msg, "{{location}}",

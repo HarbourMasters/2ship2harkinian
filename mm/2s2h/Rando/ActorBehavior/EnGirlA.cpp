@@ -32,10 +32,14 @@ static const std::vector<std::string> flavorTextsFre = {
 };
 
 static const std::vector<std::string> flavorTextsGer = {
-    "Kaufen Sie es, Sie werden es nicht bereuen!", "Ein Muss für jeden Abenteurer!",
-    "Ein tolles Geschenk für einen Freund!",       "Einzigartig, verpassen Sie es nicht!",
-    "Ein großartiges Angebot für den Preis!",      "Nur für begrenzte Zeit im Angebot!",
-    "Holen Sie es sich, solange es heiß ist!",     "Verpassen Sie dieses Angebot nicht!",
+    "Schlag zu, du wirst es nicht bereuen!",
+    "Ein absolutes Muss für jeden Abenteurer!",
+    "Ein tolles Geschenk für einen Freund!",
+    "Nur ein Exemplar auf Lager!",
+    "Bei dem Preis, fast schon zu gut um wahr zu sein!",
+    "Zeitlich begrenztes Angebot, bloß nicht verpassen!",
+    "Brandheiß! Nur solange der Vorrat reicht!",
+    "Lass dir dieses Angebot nicht entgehen!",
 };
 
 static const std::vector<std::string> flavorTextsSpa = {
@@ -145,7 +149,8 @@ void renameStolenBombBag(u16* textId, bool* loadFromMessageTable) {
     entry.msg = LOCALIZED(
         "Tonight's special, stolen from the Bomb Shop: %r{{itemName}}%w. Check it out!\x19\xA8",
         "Spécial de ce soir, volé au Magasin de Bombes: %r{{itemName}}%w. Jetes-y un œil!\x19\xA8",
-        "Heute Abend spezial, gestohlen aus dem Bomben-Shop: %r{{itemName}}%w. Schau es dir an!\x19\xA8",
+        "Mein heutiges Spezialangebot, direkt vom Bomben-Shop... ausgeborgt: %r{{itemName}}%w. Du solltest rasch "
+        "zugreifen!\x19\xA8",
         "今夜の特別品、爆弾屋から盗んだ: %r{{itemName}}%w。チェックしてみて！\x19\xA8",
         "Especial de esta noche, robado de la Tienda de Bombas: %r{{itemName}}%w. ¡Échale un vistazo!\x19\xA8");
 
@@ -165,7 +170,7 @@ void renameSpecialBargain(u16* textId, bool* loadFromMessageTable) {
 
     entry.msg = LOCALIZED("Tonight's bargain: %r{{itemName}}%w. Check it out!\x19\xA8",
                           "L'affaire de ce soir: %r{{itemName}}%w. Jetes-y un œil!\x19\xA8",
-                          "Heute Abend Schnäppchen: %r{{itemName}}%w. Schau es dir an!\x19\xA8",
+                          "Mein heutiges Sonderangebot: %r{{itemName}}%w. Ein sehr ausgefallenes Stück!\x19\xA8",
                           "今夜のバーゲン: %r{{itemName}}%w。チェックしてみて！\x19\xA8",
                           "Ganga de esta noche: %r{{itemName}}%w. ¡Échale un vistazo!\x19\xA8");
 
@@ -182,8 +187,8 @@ void ReplaceCannotBuyMessage(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
         .msg = LOCALIZED("Sorry, you can't buy this right now.\xE0",
                          "Désolé, vous ne pouvez pas acheter ceci maintenant.\xE0",
-                         "Entschuldigung, Sie können das gerade nicht kaufen.\xE0",
-                         "すみません、今これは買えません。\xE0", "Lo siento, no puedes comprar esto ahora.\xE0"),
+                         "Nein, nein... Das kannst du gerade nicht kaufen.\xE0", "すみません、今これは買えません。\xE0",
+                         "Lo siento, no puedes comprar esto ahora.\xE0"),
     };
     CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
@@ -375,6 +380,7 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
             entry.msg += (*flavorTexts)[rand() % flavorTexts->size()];
         }
         entry.msg += "\x1A\xBF";
+        // TODO HATO GERMAN SPECIAL CASE FOR NAMES MAGICALLY CHANGING BECAUSE GERMAN IS WEIRD
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
@@ -401,8 +407,8 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
                       "\x01{{itemName}}: {{itemPrice}} Rupias\x11\x00");
         entry.msg += '\x00';
         entry.msg += LOCALIZED("I need a mushroom to make this.\x1A", "J'ai besoin d'un champignon pour faire ça.\x1A",
-                               "Ich brauche einen Pilz, um das zu machen.\x1A", "これを作るにはキノコが必要です。\x1A",
-                               "Necesito una seta para hacer esto.\x1A");
+                               "Ich brauche einen dieser duftenden Pilze um das herzustellen.\x1A",
+                               "これを作るにはキノコが必要です。\x1A", "Necesito una seta para hacer esto.\x1A");
 
         std::string itemName = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
                                          randoStaticItem.nameJpn, randoStaticItem.nameSpa);
@@ -426,7 +432,7 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED("I used this to make %r{{itemName}}%w, take it!\x19",
                               "J'ai utilisé ça pour faire %r{{itemName}}%w, prends-le!\x19",
-                              "Ich habe das benutzt, um %r{{itemName}}%w zu machen, nimm es!\x19",
+                              "Ich habe den Pilz benutzt um %r{{itemName}}%w zuzubereiten. Hier!\x19",
                               "これを使って%r{{itemName}}%wを作りました、どうぞ！\x19",
                               "Usé esto para hacer %r{{itemName}}%w, ¡tómalo!\x19");
 
@@ -458,8 +464,7 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         entry.msg = LOCALIZED(
             "If nothing devastating happens to Mommy tonight, we should be able to sell %r{{itemName}}%w.\x19\xA8",
             "Si rien de dévastateur n'arrive à Maman ce soir, nous devrions pouvoir vendre %r{{itemName}}%w.\x19\xA8",
-            "Wenn Mama heute Abend nichts Verheerendes passiert, sollten wir %r{{itemName}}%w verkaufen "
-            "können.\x19\xA8",
+            "Wenn Mami heute Nacht nichts zustößt, sollten wir %r{{itemName}}%w verkaufen können.\x19\xA8",
             "今夜ママに何も破滅的なことが起こらなければ、%r{{itemName}}%wを売ることができるはずです。\x19\xA8",
             "Si no le pasa nada devastador a Mamá esta noche, deberíamos poder vender %r{{itemName}}%w.\x19\xA8");
 
@@ -479,8 +484,8 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
             "Thanks to a mishap, we did not receive our %r{{itemName}}%w stock. Maybe next time...\x19\xA8",
             "À cause d'un accident, nous n'avons pas reçu notre stock de %r{{itemName}}%w. Peut-être la prochaine "
             "fois...\x19\xA8",
-            "Aufgrund eines Missgeschicks haben wir unseren %r{{itemName}}%w Vorrat nicht erhalten. Vielleicht "
-            "nächstes Mal...\x19\xA8",
+            "Wegen eines Missgeschicks, haben wir unsere %r{{itemName}}%w-Lieferung nicht erhalten. Vielleicht beim "
+            "nächsten Mal...\x19\xA8",
             "事故のため、%r{{itemName}}%wの在庫を受け取れませんでした。また次回...\x19\xA8",
             "Debido a un percance, no recibimos nuestro stock de %r{{itemName}}%w. Tal vez la próxima vez...\x19\xA8");
 
@@ -501,7 +506,7 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED("It's over... Now we'll never sell %r{{itemName}}%w...\x19\xA8",
                               "C'est fini... Maintenant nous ne vendrons plus jamais %r{{itemName}}%w...\x19\xA8",
-                              "Es ist vorbei... Jetzt werden wir nie %r{{itemName}}%w verkaufen...\x19\xA8",
+                              "Was für eine Schande... Jetzt können wir %r{{itemName}}%w niemals anbieten...\x19\xA8",
                               "終わりです...今度は%r{{itemName}}%wを売ることは絶対にありません...\x19\xA8",
                               "Se acabó... Ahora nunca venderemos %r{{itemName}}%w...\x19\xA8");
 
@@ -520,7 +525,7 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED("We just got some new stock: %r{{itemName}}%w.\x19\xA8",
                               "Nous venons de recevoir de nouveaux stocks: %r{{itemName}}%w.\x19\xA8",
-                              "Wir haben gerade neue Ware erhalten: %r{{itemName}}%w.\x19\xA8",
+                              "Wir haben gerade neue Ware rein bekommen: %r{{itemName}}%w.\x19\xA8",
                               "新しい在庫が入りました: %r{{itemName}}%w。\x19\xA8",
                               "Acabamos de recibir nuevo stock: %r{{itemName}}%w.\x19\xA8");
 

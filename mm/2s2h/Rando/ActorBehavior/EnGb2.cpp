@@ -43,7 +43,6 @@ void Rando::ActorBehavior::InitEnGb2Behavior() {
         if (RANDO_SAVE_CHECKS[RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART].obtained) {
             return;
         }
-
         const auto& item =
             Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART].randoItemId];
         std::string article =
@@ -52,7 +51,6 @@ void Rando::ActorBehavior::InitEnGb2Behavior() {
             article += " ";
         }
         std::string checkItemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED("If you are seeking the one who is\n"
                               "%rstrong%w than you are, you may find\n"
@@ -66,8 +64,15 @@ void Rando::ActorBehavior::InitEnGb2Behavior() {
                               "\x10"
                               "parmi des esprits tourmentés par\n"
                               "des regrets persistants.\xE0",
-                              "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
-
+                              "Jene, die hier sind, um den zu\n"
+                              "finden, der %rstärker%w ist als sie,\n"
+                              "finden vielleicht die Stärke und...\n"
+                              "\x10"
+                              "...%g{{itemName}}%w\n"
+                              "in einer Gruppe von Geistern,\n"
+                              "deren unerfülltes Verlangen nicht\n"
+                              "mit ihnen starb.\xE0",
+                              "TODO_JAPANESE", "TODO_SPANISH");
         CustomMessage::Replace(&entry.msg, "{article}", article);
         CustomMessage::Replace(&entry.msg, "{{itemName}}", checkItemName);
         CustomMessage::ReplaceSpecialChars(&entry.msg);

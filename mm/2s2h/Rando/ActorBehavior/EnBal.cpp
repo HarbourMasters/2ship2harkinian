@@ -32,7 +32,8 @@ void OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
                           "\x02\xC3%y{item1}%w\x01 {price1} Rubis\x11"
                           "\x02%y{item2}%w\x01 {price2} Rubis\x11"
                           "\x02Non merci",
-                          "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                          "\x02\xC3{item1}\x01 {price1} Rubine\x11\x02{item2}\x01 {price2} Rubine\x11\x02Nein, danke!",
+                          "TODO_JAPANESE", "TODO_SPANISH");
 
     const auto& item1 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId1].randoItemId];
     const auto& item2 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId2].randoItemId];
@@ -55,7 +56,7 @@ void OnOpenCantGetText(u16* textId, bool* loadFromMessageTable) {
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
     entry.msg = LOCALIZED("I'm sorry, but it seems I cannot sell this to you now.",
                           "Je suis désolé, mais il semble que je ne puisse pas te vendre ceci maintenant.",
-                          "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                          "...Häh? Aber das haben Sie bereits...", "TODO_JAPANESE", "TODO_SPANISH");
 
     CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);

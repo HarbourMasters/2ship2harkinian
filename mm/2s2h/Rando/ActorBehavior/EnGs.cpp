@@ -93,7 +93,8 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
             auto& saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
 
             entry.msg = LOCALIZED("They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
-                                  "Selon moi, {article}%g{{item}}%w est caché à %y{{location}}%w.", "TODO_GERMAN",
+                                  "Selon moi, {article}%g{{item}}%w est caché à %y{{location}}%w.",
+                                  "Man erzählt sich, dass %g{{item}}%w %y{{location}}%w versteckt sei.",
                                   "TODO_JAPANESE", "TODO_SPANISH");
 
             const auto& item = Rando::StaticData::Items[saveCheck.randoItemId];
@@ -122,9 +123,11 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
         }
 
         if (RANDO_SAVE_OPTIONS[RO_HINTS_PURCHASEABLE]) {
-            entry.msg += LOCALIZED("Trade %r{{rupees}} Rupees%w for a hint?\x02\x11\xC2No\x11Yes",
-                                   "Échanger %r{{rupees}} Rubis%w contre un indice?\x02\x11\xC2Non\x11Oui",
-                                   "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+            entry.msg +=
+                LOCALIZED("Trade %r{{rupees}} Rupees%w for a hint?\x02\x11\xC2No\x11Yes",
+                          "Échanger %r{{rupees}} Rubis%w contre un indice?\x02\x11\xC2Non\x11Oui",
+                          "Brauchst du einen Hinweis? Nur %r{{rupees}} Rubine%w!\x02\x11\xC2Zu teuer!\x11\Abgemacht!",
+                          "TODO_JAPANESE", "TODO_SPANISH");
             s32 cost = GetNormalizedCost();
             CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(cost));
 
@@ -142,27 +145,25 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
     COND_ID_HOOK(OnOpenText, SECOND_GS_MESSAGE, shouldRegister, [](u16* textId, bool* loadFromMessageTable) {
         MessageContext* msgCtx = &gPlayState->msgCtx;
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-
         if (RANDO_SAVE_OPTIONS[RO_HINTS_PURCHASEABLE]) {
             if (msgCtx->choiceIndex == 1) {
                 s32 cost = GetNormalizedCost();
-
                 RandoCheckId randoCheckId = GetRandomCheck(true);
                 if (gSaveContext.save.saveInfo.playerData.rupees < cost) {
                     entry.msg = LOCALIZED("Foolish... You don't have enough rupees...",
-                                          "Imprudent...Tu n'as pas assez de rubis...", "TODO_GERMAN", "TODO_JAPANESE",
-                                          "TODO_SPANISH");
+                                          "Imprudent...Tu n'as pas assez de rubis...",
+                                          "Narr... Du hast nicht genügend Rubine...", "TODO_JAPANESE", "TODO_SPANISH");
                 } else if (randoCheckId == RC_UNKNOWN) {
-                    entry.msg = LOCALIZED("I have no more hints for you...", "Je n'ai plus d'indices pour toi...",
-                                          "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
+                    entry.msg =
+                        LOCALIZED("I have no more hints for you...", "Je n'ai plus d'indices pour toi...",
+                                  "Ich habe keine weiteren Hinweise für dich...", "TODO_JAPANESE", "TODO_SPANISH");
                 } else {
                     RandoSaveCheck saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-
-                    entry.msg =
-                        LOCALIZED("Wise choice... They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
-                                  "Bonne décision... On dit que {article}%g{{item}}%w est caché à %y{{location}}%w.",
-                                  "TODO_GERMAN", "TODO_JAPANESE", "TODO_SPANISH");
-
+                    entry.msg = LOCALIZED(
+                        "Wise choice... They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
+                        "Sage décision... On dit que {article}%g{{item}}%w est caché à %y{{location}}%w.",
+                        "Kluge Entscheidung... Man erzählt sich, dass %g{{item}}%w %y{{location}}%w versteckt sei.",
+                        "TODO_JAPANESE", "TODO_SPANISH");
                     const auto& item = Rando::StaticData::Items[saveCheck.randoItemId];
                     std::string article =
                         LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
@@ -175,19 +176,18 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                     CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
                     CustomMessage::Replace(&entry.msg, "{{location}}",
                                            Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
-
                     gSaveContext.rupeeAccumulator -= cost;
                     cost *= 2;
                 }
             } else {
-                entry.msg = LOCALIZED("Foolish... Come back later when you have more sense.",
-                                      "Imprudent... Reviens plus tard quand tu seras plus sage.", "TODO_GERMAN",
-                                      "TODO_JAPANESE", "TODO_SPANISH");
+                entry.msg =
+                    LOCALIZED("Foolish... Come back later when you have more sense.",
+                              "Imprudent... Reviens plus tard quand tu seras plus sage.",
+                              "Narr... Komm später wieder wenn du bei Verstand bist.", "TODO_JAPANESE", "TODO_SPANISH");
             }
         } else {
             entry.msg = flavorText[Ship_Random(0, flavorText.size() - 1)];
         }
-
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
