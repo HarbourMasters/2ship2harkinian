@@ -74,11 +74,11 @@ void OverrideSubJsText(u16* textId, bool* loadFromMessageTable) {
                     if (questItem != QUEST_17 && !CHECK_QUEST_ITEM(questItem)) {
                         entry.msg = LOCALIZED("You need to find {article}%r{{item}}%w before you can play...",
                                               "Tu dois trouver {article}%r{{item}}%w avant de pouvoir jouer...",
-                                              "Du brauchst... {{item}} bevor wir... spielen können...", "TODO_JAPANESE",
+                                              "Du brauchst... {article}%r{{item}}%w bevor wir... spielen können...", "TODO_JAPANESE",
                                               "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;
                         const auto& item = Rando::StaticData::Items[itemId];
-                        std::string article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer,
+                        std::string article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer2,
                                                         item.articleJpn, item.articleSpa);
                         if (!Ship_IsCStringEmpty(article.c_str())) {
                             article += " ";

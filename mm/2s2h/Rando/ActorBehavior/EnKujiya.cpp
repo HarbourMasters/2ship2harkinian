@@ -49,11 +49,11 @@ void Rando::ActorBehavior::InitEnKujiyaBehavior() {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED("Congratulations! You win the jackpot:{article}%p{itemName}%w!\x19",
                               "Félicitations! Vous remportez le gros lot:{article}%p{itemName}%w!\x19",
-                              "Gratulation! Du gewinnst %p{{itemName}}%w!\x19", "TODO_JAPANESE", "TODO_SPANISH");
+                              "Gratulation! Du gewinnst {article}%p{{itemName}}%w!\x19", "TODO_JAPANESE", "TODO_SPANISH");
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_LOTTERY].randoItemId;
         const auto& item = Rando::StaticData::Items[randoItemId];
         std::string article =
-            LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+            LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
         if (!Ship_IsCStringEmpty(article.c_str())) {
             article += " ";
         }

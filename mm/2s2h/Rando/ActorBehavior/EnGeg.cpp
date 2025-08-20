@@ -29,7 +29,7 @@ void Rando::ActorBehavior::InitEnGegBehavior() {
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_MOUNTAIN_VILLAGE_DON_GERO_MASK].randoItemId;
         const auto& item = Rando::StaticData::Items[randoItemId];
         std::string article =
-            LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+            LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
         if (!Ship_IsCStringEmpty(article.c_str())) {
             article += " ";
         }
@@ -37,7 +37,7 @@ void Rando::ActorBehavior::InitEnGegBehavior() {
         entry.msg = LOCALIZED(
             "I could tell you really wanted {article}%y{itemName}%w! I'm going back to Goron Village.\xE0",
             "Je savais que tu voulais vraiment {article}%y{itemName}%w!Je retourne au Village Goron.\xE0",
-            "Ich habe gemerkt, dass du %y{{itemName}}%w wirklich haben wolltest! Ich kehre ins Dorf zurück.\xE0",
+            "Ich habe gemerkt, dass du {article}%y{{itemName}}%w wirklich haben wolltest! Ich kehre ins Dorf zurück.\xE0",
             "TODO_JAPANESE", "TODO_SPANISH");
 
         CustomMessage::Replace(&entry.msg, "{article}", article);

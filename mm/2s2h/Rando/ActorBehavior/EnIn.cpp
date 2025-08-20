@@ -33,7 +33,7 @@ void EnIn_OnOpenPurchaseText(u16* textId, bool* loadFromMessageTable) {
 
     const auto& item = Rando::StaticData::Items[riMilkPurchase];
     std::string article =
-        LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+        LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
     if (!Ship_IsCStringEmpty(article.c_str())) {
         article += " ";
     }

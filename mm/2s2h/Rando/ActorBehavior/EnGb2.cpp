@@ -46,7 +46,7 @@ void Rando::ActorBehavior::InitEnGb2Behavior() {
         const auto& item =
             Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART].randoItemId];
         std::string article =
-            LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+            LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
         if (!Ship_IsCStringEmpty(article.c_str())) {
             article += " ";
         }
@@ -68,7 +68,7 @@ void Rando::ActorBehavior::InitEnGb2Behavior() {
                               "finden, der %rstärker%w ist als sie,\n"
                               "finden vielleicht die Stärke und...\n"
                               "\x10"
-                              "...%g{{itemName}}%w\n"
+                              "...{article}%g{{itemName}}%w\n"
                               "in einer Gruppe von Geistern,\n"
                               "deren unerfülltes Verlangen nicht\n"
                               "mit ihnen starb.\xE0",

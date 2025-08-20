@@ -94,7 +94,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
             entry.msg = LOCALIZED("They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
                                   "Selon moi, {article}%g{{item}}%w est caché à %y{{location}}%w.",
-                                  "Man erzählt sich, dass %g{{item}}%w %y{{location}}%w versteckt sei.",
+                                  "Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w versteckt sei.",
                                   "TODO_JAPANESE", "TODO_SPANISH");
 
             const auto& item = Rando::StaticData::Items[saveCheck.randoItemId];
@@ -162,7 +162,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                     entry.msg = LOCALIZED(
                         "Wise choice... They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
                         "Sage décision... On dit que {article}%g{{item}}%w est caché à %y{{location}}%w.",
-                        "Kluge Entscheidung... Man erzählt sich, dass %g{{item}}%w %y{{location}}%w versteckt sei.",
+                        "Kluge Entscheidung... Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w versteckt sei.",
                         "TODO_JAPANESE", "TODO_SPANISH");
                     const auto& item = Rando::StaticData::Items[saveCheck.randoItemId];
                     std::string article =

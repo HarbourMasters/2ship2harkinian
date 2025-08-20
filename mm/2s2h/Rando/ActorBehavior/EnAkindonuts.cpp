@@ -26,11 +26,11 @@ void EnAkindonuts_ReplacePurchaseMessage(RandoCheckId randoCheckId, RandoInf ran
     entry.msg =
         LOCALIZED("I'll sell you {article}%g{{item}}%w for %r{{rupees}} Rupees%w!\xE0",
                   "Je te vends {article}%g{{item}}%w pour %r{{rupees}} Rubis%w!\xE0",
-                  "Ich verkaufe dir %g{{item}}%w für %r{{rupees}} Rubine%w!\xE0", "TODO_JAPANESE", "TODO_SPANISH");
+                  "Ich verkaufe dir {article}%g{{item}}%w für %r{{rupees}} Rubine%w!\xE0", "TODO_JAPANESE", "TODO_SPANISH");
 
     const auto& item = Rando::StaticData::Items[randoSaveCheck.randoItemId];
     std::string article =
-        LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+        LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
     if (!Ship_IsCStringEmpty(article.c_str())) {
         article += " ";
     }
@@ -128,13 +128,13 @@ void Rando::ActorBehavior::InitEnAkindonutsBehavior() {
                               "thinking about relocating to a new area.\xE0",
                               "Je vends {article}%g{{item}}%w et des %gHaricots Magiques%w aux Mojos, mais je pense à "
                               "déménager bientôt.\xE0",
-                              "Ich verkaufe %g{{item}} %wund %gWundererbsen%w an Dekus, aber eigentlich möchte ich von "
+                              "Ich verkaufe {article}%g{{item}} %wund %gWundererbsen%w an Dekus, aber eigentlich möchte ich von "
                               "hier wegziehen.\xE0",
                               "TODO_JAPANESE", "TODO_SPANISH");
 
         const auto& item = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_SOUTHERN_SWAMP_SCRUB_BEANS].randoItemId];
         std::string article =
-            LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+            LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
         if (!Ship_IsCStringEmpty(article.c_str())) {
             article += " ";
         }

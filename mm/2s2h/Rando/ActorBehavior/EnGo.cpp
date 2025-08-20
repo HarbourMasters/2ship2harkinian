@@ -176,13 +176,13 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
                               "den Eingang zur %rRennstrecke%w ver-\n"
                               "sperrt mit einem %rPulverfass%w zu\n"
                               "zerstören, gebe ich dir\n"
-                              "%g{randoItem}%w!"
+                              "{itemArticle}%g{randoItem}%w!"
                               "\x19",
                               "TODO_JAPANESE", "TODO_SPANISH");
 
         const auto& item = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_GORON_VILLAGE_MEDIGORON].randoItemId];
         std::string itemArticle =
-            LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+            LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
         if (!Ship_IsCStringEmpty(itemArticle.c_str())) {
             itemArticle += " ";
         }

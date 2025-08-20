@@ -34,7 +34,7 @@ void Rando::ActorBehavior::InitEnJgameTsnBehavior() {
                               "Tu veux essayer mon %rjeu de saut%w pour %p20 Rubis%w? Si tu gagnes,je te donne "
                               "{article}%r{itemName}%w!\x19\xA8",
                               "Für nur %p20 Rubine%w darfst du an einem %rSpiel%w teilnehmen, bei dem es "
-                              "%r{{itemName}}%w zu gewinnen gibt!\x19\xA8",
+                              "{article}%r{{itemName}}%w zu gewinnen gibt!\x19\xA8",
                               "TODO_JAPANESE", "TODO_SPANISH");
 
         std::string itemName;
@@ -45,7 +45,7 @@ void Rando::ActorBehavior::InitEnJgameTsnBehavior() {
             itemName = LOCALIZED("50 Rupees", "50 Rubis", "50 Rubine", "TODO_JAPANESE", "TODO_SPANISH");
         } else {
             const auto& item = Rando::StaticData::Items[randoSaveCheck.randoItemId];
-            article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
+            article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
             if (!Ship_IsCStringEmpty(article.c_str())) {
                 article += " ";
             }

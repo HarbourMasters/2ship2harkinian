@@ -24,7 +24,7 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
 
     auto& randoStaticItem1 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY].randoItemId];
     std::string article1 =
-        LOCALIZED(randoStaticItem1.articleEng, randoStaticItem1.articleFre, randoStaticItem1.articleGer,
+        LOCALIZED(randoStaticItem1.articleEng, randoStaticItem1.articleFre, randoStaticItem1.articleGer2,
                   randoStaticItem1.articleJpn, randoStaticItem1.articleSpa);
     if (!Ship_IsCStringEmpty(article1.c_str())) {
         article1 += " ";
@@ -36,7 +36,7 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
 
     auto& randoStaticItem2 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].randoItemId];
     std::string article2 =
-        LOCALIZED(randoStaticItem2.articleEng, randoStaticItem2.articleFre, randoStaticItem2.articleGer,
+        LOCALIZED(randoStaticItem2.articleEng, randoStaticItem2.articleFre, randoStaticItem2.articleGer2,
                   randoStaticItem2.articleJpn, randoStaticItem2.articleSpa);
     if (!Ship_IsCStringEmpty(article2.c_str())) {
         article2 += " ";
@@ -62,7 +62,7 @@ void ApplyGreatFairyHint(u16* textId, bool* loadFromMessageTable, RandoCheckId r
     };
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId].randoItemId];
-    std::string article = LOCALIZED(randoStaticItem.articleEng, randoStaticItem.articleFre, randoStaticItem.articleGer,
+    std::string article = LOCALIZED(randoStaticItem.articleEng, randoStaticItem.articleFre, randoStaticItem.articleGer2,
                                     randoStaticItem.articleJpn, randoStaticItem.articleSpa);
     if (!Ship_IsCStringEmpty(article.c_str())) {
         article += " ";
