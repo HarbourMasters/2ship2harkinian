@@ -167,14 +167,13 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                     // Set French adjective agreement based on article
                     std::string frenchHiddenAdjective =
                         CustomMessage::GetFrenchAdjectiveAgreement(article, "caché", "cachée");
-                    std::string frenchQueForm = CustomMessage::GetFrenchQueForm(article);
 
-                    entry.msg = LOCALIZED(
-                        "Wise choice... They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
-                        "Sage décision... Selon moi, {article}%g{{item}} %west {{caché}} à %y{{location}}%w.",
-                        "Kluge Entscheidung... Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w "
-                        "versteckt sei.",
-                        "TODO_JAPANESE", "TODO_SPANISH");
+                    entry.msg =
+                        LOCALIZED("Wise choice... They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
+                                  "Sage décision... Selon moi, {article}%g{{item}} %west {{caché}} à %y{{location}}%w.",
+                                  "Kluge Entscheidung... Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w "
+                                  "versteckt sei.",
+                                  "TODO_JAPANESE", "TODO_SPANISH");
 
                     std::string itemName =
                         LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
