@@ -77,10 +77,16 @@ void Rando::MiscBehavior::CheckQueue() {
                         } else if (Rando::StaticData::ShouldShowGetItemCutscene(randoItemId)) {
                             CustomMessage::StartTextbox(entry.msg + "\x1C\x02\x10", entry);
                         } else {
+                            // Notification system doesn't support color codes from the game so we clean them
+                            std::string tempPrefix = prefix, tempMessage = message;
+                            CustomMessage::Replace(&tempPrefix, "%r", "");
+                            CustomMessage::Replace(&tempPrefix, "%w", "");
+                            CustomMessage::Replace(&tempMessage, "%r", "");
+                            CustomMessage::Replace(&tempMessage, "%w", "");
                             Notification::Emit({
                                 .itemIcon = Rando::StaticData::GetIconTexturePath(randoItemId),
-                                .message = prefix,
-                                .suffix = message,
+                                .message = tempPrefix,
+                                .suffix = tempMessage,
                             });
                         }
                         Rando::GiveItem(randoItemId);

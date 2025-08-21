@@ -102,7 +102,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
             std::string frenchHiddenAdjective = CustomMessage::GetFrenchAdjectiveAgreement(article, "caché", "cachée");
 
             entry.msg = LOCALIZED("They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
-                                  "Selon moi, {article}%g{{item}}%west {{caché}} à %y{{location}}%w.",
+                                  "Selon moi, {article}%g{{item}} %west {{caché}} à %y{{location}}%w.",
                                   "Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w versteckt sei.",
                                   "TODO_JAPANESE", "TODO_SPANISH");
 
