@@ -82,7 +82,6 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
     COND_ID_HOOK(OnOpenText, FIRST_GS_MESSAGE, shouldRegister, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-
         if (RANDO_SAVE_OPTIONS[RO_HINTS_GOSSIP_STONES]) {
             RandoCheckId randoCheckId = GetRandomCheck();
             if (randoCheckId == RC_UNKNOWN) {
@@ -91,37 +90,38 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
             entry.autoFormat = false;
             auto& saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-
-            entry.msg = LOCALIZED("They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
-                                  "Selon moi, {article}%g{{item}}%w est caché à %y{{location}}%w.",
-                                  "Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w versteckt sei.",
-                                  "TODO_JAPANESE", "TODO_SPANISH");
-
             const auto& item = Rando::StaticData::Items[saveCheck.randoItemId];
+
             std::string article =
                 LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
             if (!Ship_IsCStringEmpty(article.c_str())) {
                 article += " ";
             }
+
+            // Set French adjective agreement based on article
+            std::string frenchHiddenAdjective = CustomMessage::GetFrenchAdjectiveAgreement(article, "caché", "cachée");
+
+            entry.msg = LOCALIZED("They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
+                                  "Selon moi, {article}%g{{item}}%west {{caché}} à %y{{location}}%w.",
+                                  "Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w versteckt sei.",
+                                  "TODO_JAPANESE", "TODO_SPANISH");
+
             std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
             CustomMessage::Replace(&entry.msg, "{article}", article);
             CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
+            CustomMessage::Replace(&entry.msg, "{{caché}}", frenchHiddenAdjective);
             CustomMessage::Replace(&entry.msg, "{{location}}",
                                    Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
-
             // Replace colors and special charcters before line break calculation
             CustomMessage::ReplaceColorChars(&entry.msg);
             CustomMessage::ReplaceSpecialChars(&entry.msg);
-
             CustomMessage::AddLineBreaks(&entry.msg);
-
             if (RANDO_SAVE_OPTIONS[RO_HINTS_PURCHASEABLE]) {
                 entry.msg += "\x10...\x13\x12";
             }
         } else {
             entry.msg = "";
         }
-
         if (RANDO_SAVE_OPTIONS[RO_HINTS_PURCHASEABLE]) {
             entry.msg +=
                 LOCALIZED("Trade %r{{rupees}} Rupees%w for a hint?\x02\x11\xC2No\x11Yes",
@@ -130,13 +130,10 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                           "TODO_JAPANESE", "TODO_SPANISH");
             s32 cost = GetNormalizedCost();
             CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(cost));
-
             CustomMessage::ReplaceColorChars(&entry.msg);
             CustomMessage::ReplaceSpecialChars(&entry.msg);
         }
-
         CustomMessage::EnsureMessageEnd(&entry.msg);
-
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
@@ -159,22 +156,32 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                                   "Ich habe keine weiteren Hinweise für dich...", "TODO_JAPANESE", "TODO_SPANISH");
                 } else {
                     RandoSaveCheck saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-                    entry.msg =
-                        LOCALIZED("Wise choice... They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
-                                  "Sage décision... On dit que {article}%g{{item}}%w est caché à %y{{location}}%w.",
-                                  "Kluge Entscheidung... Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w "
-                                  "versteckt sei.",
-                                  "TODO_JAPANESE", "TODO_SPANISH");
+
                     const auto& item = Rando::StaticData::Items[saveCheck.randoItemId];
                     std::string article =
                         LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
                     if (!Ship_IsCStringEmpty(article.c_str())) {
                         article += " ";
                     }
+
+                    // Set French adjective agreement based on article
+                    std::string frenchHiddenAdjective =
+                        CustomMessage::GetFrenchAdjectiveAgreement(article, "caché", "cachée");
+                    std::string frenchQueForm = CustomMessage::GetFrenchQueForm(article);
+
+                    entry.msg = LOCALIZED(
+                        "Wise choice... They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
+                        "Sage décision... On dit {{que}}{article}%g{{item}} %west {{caché}} à %y{{location}}%w.",
+                        "Kluge Entscheidung... Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w "
+                        "versteckt sei.",
+                        "TODO_JAPANESE", "TODO_SPANISH");
+
                     std::string itemName =
                         LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
                     CustomMessage::Replace(&entry.msg, "{article}", article);
                     CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
+                    CustomMessage::Replace(&entry.msg, "{{que}}", frenchQueForm);
+                    CustomMessage::Replace(&entry.msg, "{{caché}}", frenchHiddenAdjective);
                     CustomMessage::Replace(&entry.msg, "{{location}}",
                                            Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
                     gSaveContext.rupeeAccumulator -= cost;

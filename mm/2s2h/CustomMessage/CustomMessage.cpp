@@ -205,6 +205,36 @@ void CustomMessage::LoadCustomMessageIntoFont(CustomMessage::Entry entry) {
     memcpy(&font->msgBuf, buff, msgCtx->msgLength);
 }
 
+// Helper function to get the correct French adjective based on article gender
+std::string CustomMessage::GetFrenchAdjectiveAgreement(const std::string& article, const std::string& masculineForm,
+                                                       const std::string& feminineForm) {
+    std::string cleanArticle = article;
+    // Clean the article by removing trailing spaces
+    if (!cleanArticle.empty() && cleanArticle.back() == ' ') {
+        cleanArticle.pop_back();
+    }
+
+    // Check for feminine articles
+    if (cleanArticle == "une" || cleanArticle == "la") {
+        return feminineForm;
+    }
+    return masculineForm;
+}
+
+// Helper function to handle "que" -> "qu'" elision before vowels
+std::string CustomMessage::GetFrenchQueForm(const std::string& article) {
+    std::string cleanArticle = article;
+    // Clean the article by removing trailing spaces
+    if (!cleanArticle.empty() && cleanArticle.back() == ' ') {
+        cleanArticle.pop_back();
+    }
+
+    if (cleanArticle == "un" || cleanArticle == "une") {
+        return "qu'";
+    }
+    return "que ";
+}
+
 void CustomMessage::RegisterHooks() {
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnOpenText>(
         CUSTOM_MESSAGE_ID, [](u16* textId, bool* loadFromMessageTable) {
