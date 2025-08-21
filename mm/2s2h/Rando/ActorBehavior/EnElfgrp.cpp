@@ -25,7 +25,7 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
             "%wS'il te plaît,trouve la Fée Perdue! Nous te récompenserons avec {{article1}}%g{{itemName1}}%w et "
             "peut-être même {{article2}}%g{{itemName2}}%w si tu en es digne.",
             "%wBitte finde die %reine%w Verirrte Fee, die irgendwo in Termina weilt. Wir würden dir auch "
-            "%g{{article1}}{{itemName1}}%w geben und vielleicht sogar %g{{article2}}{{itemName2}}%w, falls du "
+            "{{article1}}%g{{itemName1}}%w geben und vielleicht sogar {{article2}}%g{{itemName2}}%w, falls du "
             "dessen würdig bist.",
             "TODO_JAPANESE", "TODO_SPANISH")
     };
