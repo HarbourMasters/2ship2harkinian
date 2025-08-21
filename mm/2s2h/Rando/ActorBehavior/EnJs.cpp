@@ -95,22 +95,22 @@ void OverrideSubJsText(u16* textId, bool* loadFromMessageTable) {
                 case RO_ACCESS_TRIALS_FORMS:
                     if (jsType == 1 && !HAS_ITEM(ITEM_MASK_DEKU)) {
                         entry.msg =
-                            LOCALIZED("You need to find the Deku Mask before you can play...",
-                                      "Tu dois trouver le Masque Mojo avant de pouvoir jouer...",
+                            LOCALIZED("You need to find the %gDeku Mask %wbefore you can play...",
+                                      "Tu dois trouver le %gMasque Mojo %wavant de pouvoir jouer...",
                                       "Du musst... die %gDeku-Schale%w finden... bevor wir... spielen können...",
                                       "TODO_JAPANESE", "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;
                     } else if (jsType == 2 && !HAS_ITEM(ITEM_MASK_GORON)) {
                         entry.msg =
-                            LOCALIZED("You need to find the Goron Mask before you can play...",
-                                      "Tu dois trouver le Masque Goron avant de pouvoir jouer...",
+                            LOCALIZED("You need to find the %rGoron Mask %rbefore you can play...",
+                                      "Tu dois trouver le %rMasque Goron %ravant de pouvoir jouer...",
                                       "Du musst... die %rGoronen-Haut%w finden... bevor wir... spielen können...",
                                       "TODO_JAPANESE", "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;
                     } else if (jsType == 3 && !HAS_ITEM(ITEM_MASK_ZORA)) {
                         entry.msg =
-                            LOCALIZED("You need to find the Zora Mask before you can play...",
-                                      "Tu dois trouver le Masque Zora avant de pouvoir jouer...",
+                            LOCALIZED("You need to find the %bZora Mask %wbefore you can play...",
+                                      "Tu dois trouver le %bMasque Zora %wavant de pouvoir jouer...",
                                       "Du musst... die %bZora-Schuppen%w finden... bevor wir... spielen können...",
                                       "TODO_JAPANESE", "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;

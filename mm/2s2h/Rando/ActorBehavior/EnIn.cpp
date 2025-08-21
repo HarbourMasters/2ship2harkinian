@@ -26,7 +26,7 @@ void EnIn_OnOpenPurchaseText(u16* textId, bool* loadFromMessageTable) {
                           "%p{{price}} Rubis%w pour {{article}}%y{{itemName}}%w!\x11"
                           "\xC2%gOui\x11"
                           "Non",
-                          "Für nur %p{{price}} Rubine%w bekommst du %y{{itemName}}%w!\x11"
+                          "Für nur %p{{price}} Rubine%w bekommst du {{article}}%y{{itemName}}%w!\x11"
                           "\xC2%gHer damit!\x11"
                           "Nein, danke!",
                           "TODO_JAPANESE", "TODO_SPANISH");

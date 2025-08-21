@@ -47,10 +47,9 @@ void ApplyOathHint(u16* textId, bool* loadFromMessageTable) {
             "too late! They can't help you now!",
             "J'entends la Mélodie des Géants ({{article}}%y{{itemName}}%w) venant de %y{{location}}%w. Mais il "
             "est trop tard! Ils ne peuvent plus t'aider!",
-            "Ich kann die Giganten über %y{{article}}{{itemName}}%w singen hören, doch jetzt ist es sowieso zu spät "
+            "Ich kann die Giganten über {{article}}%y{{itemName}}%w singen hören, doch jetzt ist es sowieso zu spät "
             "%y{{location}}%w danach zu suchen! Sie können dir nicht mehr helfen!",
-            "TODO_JAPANESE",
-            "TODO_SPANISH");
+            "TODO_JAPANESE", "TODO_SPANISH");
         CustomMessage::Replace(&msg, "{{article}}", article);
         CustomMessage::Replace(&msg, "{{itemName}}", itemName);
         CustomMessage::Replace(&msg, "{{location}}",
