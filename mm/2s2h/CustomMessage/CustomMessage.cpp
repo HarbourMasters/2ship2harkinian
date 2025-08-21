@@ -91,7 +91,7 @@ void CustomMessage::ReplaceSpecialChars(std::string* msg) {
 }
 
 void CustomMessage::AddLineBreaks(std::string* msg) {
-    const float MAX_TEXTBOX_WIDTH = 300.0f;
+    const float MAX_TEXTBOX_WIDTH = 290.0f;
     const int MAX_LINES_PER_PAGE = 4;
 
     float currentLineWidth = 0.0f;

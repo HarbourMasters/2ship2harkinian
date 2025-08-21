@@ -171,7 +171,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
                     entry.msg = LOCALIZED(
                         "Wise choice... They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
-                        "Sage décision... On dit {{que}}{article}%g{{item}} %west {{caché}} à %y{{location}}%w.",
+                        "Sage décision... Selon moi, {article}%g{{item}} %west {{caché}} à %y{{location}}%w.",
                         "Kluge Entscheidung... Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w "
                         "versteckt sei.",
                         "TODO_JAPANESE", "TODO_SPANISH");
@@ -180,7 +180,6 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                         LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
                     CustomMessage::Replace(&entry.msg, "{article}", article);
                     CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
-                    CustomMessage::Replace(&entry.msg, "{{que}}", frenchQueForm);
                     CustomMessage::Replace(&entry.msg, "{{caché}}", frenchHiddenAdjective);
                     CustomMessage::Replace(&entry.msg, "{{location}}",
                                            Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
