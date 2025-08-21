@@ -72,21 +72,23 @@ void OverrideSubJsText(u16* textId, bool* loadFromMessageTable) {
                             break;
                     }
                     if (questItem != QUEST_17 && !CHECK_QUEST_ITEM(questItem)) {
-                        entry.msg = LOCALIZED("You need to find {article}%r{{item}}%w before you can play...",
-                                              "Tu dois trouver {article}%r{{item}}%w avant de pouvoir jouer...",
-                                              "Du brauchst... {article}%r{{item}}%w bevor wir... spielen können...",
-                                              "TODO_JAPANESE", "TODO_SPANISH");
+                        entry.msg =
+                            LOCALIZED("You need to find {{article}}%r{{itemName}}%w before you can play...",
+                                      "Tu dois trouver {{article}}%r{{itemName}}%w avant de pouvoir jouer...",
+                                      "Du brauchst... {{article}}%r{{itemName}}%w bevor wir... spielen können...",
+                                      "TODO_JAPANESE", "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;
                         const auto& item = Rando::StaticData::Items[itemId];
                         std::string article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer2,
                                                         item.articleJpn, item.articleSpa);
-                        if (!Ship_IsCStringEmpty(article.c_str())) {
+                        if (!Ship_IsCStringEmpty(article.c_str()) &&
+                            article != "l'") { // Special case handling with l' french article
                             article += " ";
                         }
                         std::string itemName =
                             LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-                        CustomMessage::Replace(&entry.msg, "{article}", article);
-                        CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
+                        CustomMessage::Replace(&entry.msg, "{{article}}", article);
+                        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
                     }
                     break;
                 }

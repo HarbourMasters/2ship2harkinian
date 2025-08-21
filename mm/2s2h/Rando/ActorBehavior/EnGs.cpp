@@ -94,21 +94,22 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
             std::string article =
                 LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
-            if (!Ship_IsCStringEmpty(article.c_str())) {
+            if (!Ship_IsCStringEmpty(article.c_str()) &&
+                article != "l'") { // Special case handling with l' french article
                 article += " ";
             }
 
             // Set French adjective agreement based on article
             std::string frenchHiddenAdjective = CustomMessage::GetFrenchAdjectiveAgreement(article, "caché", "cachée");
 
-            entry.msg = LOCALIZED("They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
-                                  "Selon moi, {article}%g{{item}} %west {{caché}} à %y{{location}}%w.",
-                                  "Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w versteckt sei.",
+            entry.msg = LOCALIZED("They say {{article}}%g{{itemName}}%w is hidden at %y{{location}}%w.",
+                                  "Selon moi, {{article}}%g{{itemName}} %west {{caché}} à %y{{location}}%w.",
+                                  "Man erzählt sich, dass {{article}}%g{{itemName}}%w %y{{location}}%w versteckt sei.",
                                   "TODO_JAPANESE", "TODO_SPANISH");
 
             std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-            CustomMessage::Replace(&entry.msg, "{article}", article);
-            CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
+            CustomMessage::Replace(&entry.msg, "{{article}}", article);
+            CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
             CustomMessage::Replace(&entry.msg, "{{caché}}", frenchHiddenAdjective);
             CustomMessage::Replace(&entry.msg, "{{location}}",
                                    Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
@@ -160,7 +161,8 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                     const auto& item = Rando::StaticData::Items[saveCheck.randoItemId];
                     std::string article =
                         LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
-                    if (!Ship_IsCStringEmpty(article.c_str())) {
+                    if (!Ship_IsCStringEmpty(article.c_str()) &&
+                        article != "l'") { // Special case handling with l' french article
                         article += " ";
                     }
 
@@ -168,17 +170,17 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                     std::string frenchHiddenAdjective =
                         CustomMessage::GetFrenchAdjectiveAgreement(article, "caché", "cachée");
 
-                    entry.msg =
-                        LOCALIZED("Wise choice... They say {article}%g{{item}}%w is hidden at %y{{location}}%w.",
-                                  "Sage décision... Selon moi, {article}%g{{item}} %west {{caché}} à %y{{location}}%w.",
-                                  "Kluge Entscheidung... Man erzählt sich, dass {article}%g{{item}}%w %y{{location}}%w "
-                                  "versteckt sei.",
-                                  "TODO_JAPANESE", "TODO_SPANISH");
+                    entry.msg = LOCALIZED(
+                        "Wise choice... They say {{article}}%g{{itemName}}%w is hidden at %y{{location}}%w.",
+                        "Sage décision... Selon moi, {{article}}%g{{itemName}} %west {{caché}} à %y{{location}}%w.",
+                        "Kluge Entscheidung... Man erzählt sich, dass {{article}}%g{{itemName}}%w %y{{location}}%w "
+                        "versteckt sei.",
+                        "TODO_JAPANESE", "TODO_SPANISH");
 
                     std::string itemName =
                         LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-                    CustomMessage::Replace(&entry.msg, "{article}", article);
-                    CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
+                    CustomMessage::Replace(&entry.msg, "{{article}}", article);
+                    CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
                     CustomMessage::Replace(&entry.msg, "{{caché}}", frenchHiddenAdjective);
                     CustomMessage::Replace(&entry.msg, "{{location}}",
                                            Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));

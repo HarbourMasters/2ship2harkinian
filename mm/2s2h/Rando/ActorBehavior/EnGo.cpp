@@ -164,19 +164,19 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
                               "\x12"
                               "using a %rPowder Keg%w I'm about\n"
                               "to give you, then I'll give you\n"
-                              "{itemArticle}%g{randoItem}%w.\x19",
+                              "{{article}}%g{{itemName}}%w.\x19",
                               "Si tu peux %rdétruire%w le rocher\n"
                               "qui bloque l'entrée de la\n"
                               "%rPiste Goron%w près d'ici...\n"
                               "\x12"
                               "avec un %rBaril de Poudre%w que je vais\n"
                               "te donner, alors je te donnerai\n"
-                              "{itemArticle}%g{randoItem}%w.\x19",
+                              "{{article}}%g{{itemName}}%w.\x19",
                               "Schaffst du es, den Felsen, der\n"
                               "den Eingang zur %rRennstrecke%w ver-\n"
                               "sperrt mit einem %rPulverfass%w zu\n"
                               "zerstören, gebe ich dir\n"
-                              "{itemArticle}%g{randoItem}%w!"
+                              "{{article}}%g{{itemName}}%w!"
                               "\x19",
                               "TODO_JAPANESE", "TODO_SPANISH");
 
@@ -191,9 +191,9 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
         if (!Ship_IsCStringEmpty(powderKegArticle.c_str())) {
             powderKegArticle += " ";
         }
-        CustomMessage::Replace(&entry.msg, "{itemArticle}", itemArticle);
-        CustomMessage::Replace(&entry.msg, "{randoItem}", randoItemName);
-        CustomMessage::Replace(&entry.msg, "{article}", powderKegArticle);
+        CustomMessage::Replace(&entry.msg, "{{article}}", itemArticle);
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", randoItemName);
+        CustomMessage::Replace(&entry.msg, "{{kegArticle}}", powderKegArticle);
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;

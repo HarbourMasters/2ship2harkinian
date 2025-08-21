@@ -23,20 +23,20 @@ void EnAkindonuts_ReplacePurchaseMessage(RandoCheckId randoCheckId, RandoInf ran
     }
 
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-    entry.msg = LOCALIZED("I'll sell you {article}%g{{item}}%w for %r{{rupees}} Rupees%w!\xE0",
-                          "Je te vends {article}%g{{item}}%w pour %r{{rupees}} Rubis%w!\xE0",
-                          "Ich verkaufe dir {article}%g{{item}}%w für %r{{rupees}} Rubine%w!\xE0", "TODO_JAPANESE",
-                          "TODO_SPANISH");
+    entry.msg = LOCALIZED("I'll sell you {{article}}%g{{itemName}}%w for %r{{rupees}} Rupees%w!\xE0",
+                          "Je te vends {{article}}%g{{itemName}}%w pour %r{{rupees}} Rubis%w!\xE0",
+                          "Ich verkaufe dir {{article}}%g{{itemName}}%w für %r{{rupees}} Rubine%w!\xE0",
+                          "TODO_JAPANESE", "TODO_SPANISH");
 
     const auto& item = Rando::StaticData::Items[randoSaveCheck.randoItemId];
     std::string article =
         LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
-    if (!Ship_IsCStringEmpty(article.c_str())) {
+    if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
         article += " ";
     }
     std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-    CustomMessage::Replace(&entry.msg, "{article}", article);
-    CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
+    CustomMessage::Replace(&entry.msg, "{{article}}", article);
+    CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
     CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(cost));
 
     CustomMessage::ReplaceSpecialChars(&entry.msg);
@@ -125,23 +125,23 @@ void Rando::ActorBehavior::InitEnAkindonutsBehavior() {
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg = LOCALIZED(
-            "I sell {article}%g{{item}}%w and %gMagic Beans%w to Deku Scrubs, but recently I've been "
+            "I sell {{article}}%g{{itemName}}%w and %gMagic Beans%w to Deku Scrubs, but recently I've been "
             "thinking about relocating to a new area.\xE0",
-            "Je vends {article}%g{{item}}%w et des %gHaricots Magiques%w aux Mojos, mais je pense à "
+            "Je vends {{article}}%g{{itemName}}%w et des %gHaricots Magiques%w aux Mojos, mais je pense à "
             "déménager bientôt.\xE0",
-            "Ich verkaufe {article}%g{{item}} %wund %gWundererbsen%w an Dekus, aber eigentlich möchte ich von "
+            "Ich verkaufe {{article}}%g{{itemName}} %wund %gWundererbsen%w an Dekus, aber eigentlich möchte ich von "
             "hier wegziehen.\xE0",
             "TODO_JAPANESE", "TODO_SPANISH");
 
         const auto& item = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_SOUTHERN_SWAMP_SCRUB_BEANS].randoItemId];
         std::string article =
             LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
-        if (!Ship_IsCStringEmpty(article.c_str())) {
+        if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
             article += " ";
         }
         std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-        CustomMessage::Replace(&entry.msg, "{article}", article);
-        CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
+        CustomMessage::Replace(&entry.msg, "{{article}}", article);
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;

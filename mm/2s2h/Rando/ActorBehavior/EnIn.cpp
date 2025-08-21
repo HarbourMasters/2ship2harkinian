@@ -20,13 +20,13 @@ void EnIn_OnOpenPurchaseText(u16* textId, bool* loadFromMessageTable) {
 
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
 
-    entry.msg = LOCALIZED("%p{{price}} Rupees%w will do ya for one {article}%y{{item}}%w!\x11"
+    entry.msg = LOCALIZED("%p{{price}} Rupees%w will do ya for one {{article}}%y{{itemName}}%w!\x11"
                           "\xC2%gYes\x11"
                           "No",
-                          "%p{{price}} Rubis%w pour {article}%y{{item}}%w!\x11"
+                          "%p{{price}} Rubis%w pour {{article}}%y{{itemName}}%w!\x11"
                           "\xC2%gOui\x11"
                           "Non",
-                          "Für nur %p{{price}} Rubine%w bekommst du %y{{item}}%w!\x11"
+                          "Für nur %p{{price}} Rubine%w bekommst du %y{{itemName}}%w!\x11"
                           "\xC2%gHer damit!\x11"
                           "Nein, danke!",
                           "TODO_JAPANESE", "TODO_SPANISH");
@@ -34,16 +34,17 @@ void EnIn_OnOpenPurchaseText(u16* textId, bool* loadFromMessageTable) {
     const auto& item = Rando::StaticData::Items[riMilkPurchase];
     std::string article =
         LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
-    if (!Ship_IsCStringEmpty(article.c_str())) {
+    if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
         article += " ";
     }
+
     std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
     std::string itemPrice = std::to_string(milkPurchaseCheck.price);
 
     CustomMessage::ReplaceColorChars(&entry.msg);
     CustomMessage::ReplaceSpecialChars(&entry.msg);
-    CustomMessage::Replace(&entry.msg, "{article}", article);
-    CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
+    CustomMessage::Replace(&entry.msg, "{{article}}", article);
+    CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
     CustomMessage::Replace(&entry.msg, "{{price}}", itemPrice);
     CustomMessage::EnsureMessageEnd(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);

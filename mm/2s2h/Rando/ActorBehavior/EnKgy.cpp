@@ -47,20 +47,21 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
             const auto& item = Rando::StaticData::Items[randoRazorSwordSaveCheck.randoItemId];
             std::string article =
                 LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
-            if (!Ship_IsCStringEmpty(article.c_str())) {
+            if (!Ship_IsCStringEmpty(article.c_str()) &&
+                article != "l'") { // Special case handling with l' french article
                 article += " ";
             }
             std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
             entry.msg =
-                LOCALIZED("\nIf you want {article}%y{itemName}%w, it will cost you %p100 Rupees%w.\n\x10"
+                LOCALIZED("\nIf you want {{article}}%y{{itemName}}%w, it will cost you %p100 Rupees%w.\n\x10"
                           "So, do we have a deal?\n\xC2%gI'll buy it\nNo thanks\xBF",
-                          "\\nSi tu veux {article}%y{itemName}%w, ça te coûtera %p100 Rubis%w.\\n\\x10"
+                          "\\nSi tu veux {{article}}%y{{itemName}}%w, ça te coûtera %p100 Rubis%w.\\n\\x10"
                           "Alors, marché conclu ?\\n\\xC2%gJ'achète!\\nNon merci\\xBF",
-                          "\nWenn du {article}%y{itemName}%w haben willst, kostet dich das %p100 Rubine%w.\n\x10"
+                          "\nWenn du {{article}}%y{{itemName}}%w haben willst, kostet dich das %p100 Rubine%w.\n\x10"
                           "Kommen wir ins Geschäft?\n\xC2%gDas will ich!\nNein, danke!\xBF",
                           "TODO_JAPANESE", "TODO_SPANISH");
-            CustomMessage::Replace(&entry.msg, "{article}", article);
-            CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
+            CustomMessage::Replace(&entry.msg, "{{article}}", article);
+            CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
         }
 
         CustomMessage::ReplaceSpecialChars(&entry.msg);
@@ -81,16 +82,16 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
             article += " ";
         }
         entry.msg = LOCALIZED(
-            "Want to know a secret? If you bring me some Gold Dust, I can offer you {article}%r{itemName}%w.\xE0",
+            "Want to know a secret? If you bring me some Gold Dust, I can offer you {{article}}%r{{itemName}}%w.\xE0",
             "Tu veux savoir un secret? Si tu m'apportes de la Poudre d'Or, je peux t'offrir "
-            "{article}%r{itemName}%w.\xE0",
+            "{{article}}%r{{itemName}}%w.\xE0",
             "Zwar ist es ein Geheimnis, aber pass auf: Bringst du mir etwas %rGoldstaub%w, kann ich dir "
-            "{article}%r{itemName}%w "
+            "{{article}}%r{{itemName}}%w "
             "machen.\xE0",
             "TODO_JAPANESE", "TODO_SPANISH");
 
-        CustomMessage::Replace(&entry.msg, "{article}", article);
-        CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
+        CustomMessage::Replace(&entry.msg, "{{{article}}", article);
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
@@ -149,13 +150,13 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     COND_ID_HOOK(OnOpenText, 0xc49, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.msg =
-            LOCALIZED("Huh? You say that gold dust can be found at %r{location}%w?\x19",
-                      "Hein?Tu dis que la Poudre d'Or se trouve à %r{location}%w?\x19",
-                      "Wie? Was?!? Du meinst, dass %r{location}%w eine Flasche voll %rGoldstaub%w zu finden ist?\x19",
+            LOCALIZED("Huh? You say that gold dust can be found at %r{{location}}%w?\x19",
+                      "Hein?Tu dis que la Poudre d'Or se trouve à %r{{location}}%w?\x19",
+                      "Wie? Was?!? Du meinst, dass %r{{location}}%w eine Flasche voll %rGoldstaub%w zu finden ist?\x19",
                       "TODO_JAPANESE", "TODO_SPANISH");
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_BOTTLE_GOLD_DUST);
         // TODO HATO: SCENE LOCALIZATION
-        CustomMessage::Replace(&entry.msg, "{location}",
+        CustomMessage::Replace(&entry.msg, "{{location}}",
                                Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 
         CustomMessage::ReplaceSpecialChars(&entry.msg);
@@ -166,26 +167,26 @@ void Rando::ActorBehavior::InitEnKgyBehavior() {
     // "Gold dust happens to be first prize at the racetrack"
     COND_ID_HOOK(OnOpenText, 0xc4b, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = LOCALIZED("Gold dust can be found at %p{location}%w.\x10\Bring me that, and "
-                              "{article}%r{itemName}%w is all yours.\xE0",
-                              "La Poudre d'Or se trouve à %p{location}%w.\x10\Apporte-la moi,et "
-                              "{article}%r{itemName}%w est à toi.\xE0",
-                              "%rGoldstaub%w kann %p{location}%w gefunden werden.\x10"
-                              "Bring mir etwas davon und {article}%r{itemName}%w gehört dir.\xE0",
+        entry.msg = LOCALIZED("Gold dust can be found at %p{{location}}%w.\x10\Bring me that, and "
+                              "{{article}}%r{{itemName}}%w is all yours.\xE0",
+                              "La Poudre d'Or se trouve à %p{{location}}%w.\x10\Apporte-la moi,et "
+                              "{{article}}%r{{itemName}}%w est à toi.\xE0",
+                              "%rGoldstaub%w kann %p{{location}}%w gefunden werden.\x10"
+                              "Bring mir etwas davon und {{article}}%r{{itemName}}%w gehört dir.\xE0",
                               "TODO_JAPANESE", "TODO_SPANISH");
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_BOTTLE_GOLD_DUST);
         const auto& item =
             Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_MOUNTAIN_VILLAGE_SMITHY_GILDED_SWORD].randoItemId];
         std::string article =
             LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
-        if (!Ship_IsCStringEmpty(article.c_str())) {
+        if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
             article += " ";
         }
         std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-        CustomMessage::Replace(&entry.msg, "{article}", article);
-        CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
+        CustomMessage::Replace(&entry.msg, "{{article}}", article);
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
         // TODO HATO: SCENE LOCALIZATION
-        CustomMessage::Replace(&entry.msg, "{location}",
+        CustomMessage::Replace(&entry.msg, "{{location}}",
                                Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 
         CustomMessage::ReplaceSpecialChars(&entry.msg);

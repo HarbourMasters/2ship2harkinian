@@ -37,20 +37,21 @@ void ApplyOathHint(u16* textId, bool* loadFromMessageTable) {
         RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_SONG_OATH);
         const auto& item = Rando::StaticData::Items[RI_SONG_OATH];
         std::string article =
-            LOCALIZED(item.articleEng, item.articleFre, item.articleGer, item.articleJpn, item.articleSpa);
-        if (!Ship_IsCStringEmpty(article.c_str())) {
+            LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
+        if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
             article += " ";
         }
         std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-        msg = LOCALIZED("I can hear the Giants Melody ({article}%y{{item}}%w) coming from %y{{location}}%w. But it's "
-                        "too late! They can't help you now!",
-                        "J'entends la Mélodie des Géants ({article}%y{{item}}%w) venant de %y{{location}}%w. Mais il "
-                        "est trop tard! Ils ne peuvent plus t'aider!",
-                        "Ich kann den Gesang der Riesen hören, doch jetzt ist es sowieso zu spät %y{{location}}%w "
-                        "danach zu suchen! Sie können dir nicht mehr helfen!",
-                        "TODO_JAPANESE", "TODO_SPANISH");
-        CustomMessage::Replace(&msg, "{article}", article);
-        CustomMessage::Replace(&msg, "{{item}}", itemName);
+        msg = LOCALIZED(
+            "I can hear the Giants Melody ({{article}}%y{{itemName}}%w) coming from %y{{location}}%w. But it's "
+            "too late! They can't help you now!",
+            "J'entends la Mélodie des Géants ({{article}}%y{{itemName}}%w) venant de %y{{location}}%w. Mais il "
+            "est trop tard! Ils ne peuvent plus t'aider!",
+            "Ich kann die Riesen über {{article}}%y{{itemName}}%w singen hören, doch jetzt ist es sowieso zu "
+            "spät %y{{location}}%w danach zu suchen! Sie können dir nicht mehr helfen!",
+            "TODO_JAPANESE", "TODO_SPANISH");
+        CustomMessage::Replace(&msg, "{{article}}", article);
+        CustomMessage::Replace(&msg, "{{itemName}}", itemName);
         CustomMessage::Replace(&msg, "{{location}}",
                                Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
     }

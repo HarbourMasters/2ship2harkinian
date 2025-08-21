@@ -33,20 +33,21 @@ void Rando::ActorBehavior::InitEnScopenutsBehavior() {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         RandoItemId randoItemId = RANDO_SAVE_CHECKS[RC_TERMINA_FIELD_GROTTO_SCRUB].randoItemId;
         const auto& item = Rando::StaticData::Items[randoItemId];
-        entry.msg = LOCALIZED(
-            "Please! I'll sell you {article}%y{itemName}%w if you just keep this place a secret...\xE0",
-            "S'il te plaît! Je te vends {article}%y{itemName}%w si tu gardes cet endroit secret...\xE0",
-            "Oh, bitte! Ich verkaufe dir {article}%y{{itemName}}%w, aber bitte behalte dieses Geheimnis für dich!\xE0",
-            "TODO_JAPANESE", "TODO_SPANISH");
+        entry.msg =
+            LOCALIZED("Please! I'll sell you {{article}}%y{{itemName}}%w if you just keep this place a secret...\xE0",
+                      "S'il te plaît! Je te vends {{article}}%y{{itemName}}%w si tu gardes cet endroit secret...\xE0",
+                      "Oh, bitte! Ich verkaufe dir {{article}}%y{{itemName}}%w, aber bitte behalte dieses Geheimnis "
+                      "für dich!\xE0",
+                      "TODO_JAPANESE", "TODO_SPANISH");
 
         std::string article =
             LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
-        if (!Ship_IsCStringEmpty(article.c_str())) {
+        if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
             article += " ";
         }
         std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-        CustomMessage::Replace(&entry.msg, "{article}", article);
-        CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
+        CustomMessage::Replace(&entry.msg, "{{article}}", article);
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;

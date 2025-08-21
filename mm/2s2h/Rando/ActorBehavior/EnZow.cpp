@@ -12,7 +12,7 @@ void ApplyHookshotHint(u16* textId, bool* loadFromMessageTable) {
         "I overheard those Pirates talk about treasure in %y{{location}}%w that can help you reach the unreachable!",
         "J'ai entendu des Pirates parler d'un trésor à %y{{location}}%w qui pourrait t'aider à atteindre "
         "l'inaccessible!",
-        "Ich habe die weiblichen Piraten über einen Schatz %y{{location}}%w reden hören, mit dem du das unerreichbare "
+        "Ich habe die weiblichen Piraten über einen Schatz %y{{location}}%w reden hören, mit dem du das Unerreichbare "
         "erreichen kannst!"
         "\x12"
         "Wie?\n"

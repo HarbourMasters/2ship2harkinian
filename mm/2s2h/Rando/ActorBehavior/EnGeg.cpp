@@ -30,19 +30,19 @@ void Rando::ActorBehavior::InitEnGegBehavior() {
         const auto& item = Rando::StaticData::Items[randoItemId];
         std::string article =
             LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
-        if (!Ship_IsCStringEmpty(article.c_str())) {
+        if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
             article += " ";
         }
         std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
-        entry.msg =
-            LOCALIZED("I could tell you really wanted {article}%y{itemName}%w! I'm going back to Goron Village.\xE0",
-                      "Je savais que tu voulais vraiment {article}%y{itemName}%w!Je retourne au Village Goron.\xE0",
-                      "Ich habe gemerkt, dass du {article}%y{{itemName}}%w wirklich haben wolltest! Ich kehre ins Dorf "
-                      "zurück.\xE0",
-                      "TODO_JAPANESE", "TODO_SPANISH");
+        entry.msg = LOCALIZED(
+            "I could tell you really wanted {{article}}%y{{itemName}}%w! I'm going back to Goron Village.\xE0",
+            "Je savais que tu voulais vraiment {{article}}%y{{itemName}}%w!Je retourne au Village Goron.\xE0",
+            "Ich habe gemerkt, dass du {{article}}%y{{itemName}}%w wirklich haben wolltest! Ich kehre ins Dorf "
+            "zurück.\xE0",
+            "TODO_JAPANESE", "TODO_SPANISH");
 
-        CustomMessage::Replace(&entry.msg, "{article}", article);
-        CustomMessage::Replace(&entry.msg, "{itemName}", itemName);
+        CustomMessage::Replace(&entry.msg, "{{article}}", article);
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
         CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
