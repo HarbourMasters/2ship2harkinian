@@ -127,7 +127,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
             entry.msg +=
                 LOCALIZED("Trade %r{{rupees}} Rupees%w for a hint?\x02\x11\xC2No\x11Yes",
                           "Échanger %r{{rupees}} Rubis%w contre un indice?\x02\x11\xC2Non\x11Oui",
-                          "Brauchst du einen Hinweis? Nur %r{{rupees}} Rubine%w!\x02\x11\xC2Zu teuer!\x11\Abgemacht!",
+                          "Brauchst du einen Hinweis?\nNur %r{{rupees}} Rubine%w!\x02\x11\xC2Zu teuer!\x11\Abgemacht!",
                           "TODO_JAPANESE", "TODO_SPANISH");
             s32 cost = GetNormalizedCost();
             CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(cost));

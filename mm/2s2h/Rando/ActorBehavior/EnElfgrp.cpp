@@ -22,7 +22,7 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
         .msg = LOCALIZED(
             "%wPlease, find the Stray Fairy who's lost! We will reward you with {{article1}}%g{{itemName1}}%w and "
             "maybe even {{article2}}%g{{itemName2}}%w if you are worthy.",
-            "%wS'il te plaît,trouve la Fée Perdue! Nous te récompenserons avec {{article1}}%g{{itemName1}}%w et "
+            "%wS'il te plaît, trouve la Fée Perdue! Nous te récompenserons avec {{article1}}%g{{itemName1}}%w et "
             "peut-être même {{article2}}%g{{itemName2}}%w si tu en es digne.",
             "%wBitte finde die %reine%w Verirrte Fee, die irgendwo in Termina weilt. Wir würden dir auch "
             "{{article1}}%g{{itemName1}}%w geben und vielleicht sogar {{article2}}%g{{itemName2}}%w, falls du "
@@ -64,7 +64,7 @@ void ApplyGreatFairyHint(u16* textId, bool* loadFromMessageTable, RandoCheckId r
         .msg =
             LOCALIZED("%wPlease, find the Stray Fairies who match our color! We will reward you with "
                       "{{article}}%g{{itemName}}%w.",
-                      "%wS'il te plaît,trouve les Fées Perdues de notre couleur! Nous te récompenserons avec "
+                      "%wS'il te plaît, trouve les Fées Perdues de notre couleur! Nous te récompenserons avec "
                       "{{article}}%g{{itemName}}%w",
                       "%wBitte, finde die Verirrten Feen die von %rgleicher Farbe%w wie wir sind. Wir würden dir auch "
                       "{{article}}%g{{itemName}}%w geben.",

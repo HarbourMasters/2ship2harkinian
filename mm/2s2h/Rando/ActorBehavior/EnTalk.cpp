@@ -23,7 +23,7 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
                         "money for their remains.",
                         "    Chasseur recherché:\nCes monstres tourmentent les habitants du village, bonne "
                         "récompense pour leurs restes.",
-                        "            Kopfgeld:\n"
+                        "          Kopfgeld:\n"
                         "Diese Monster belästigen die "
                         "Stadtbevölkerung. "
                         "Sehr gute Bezahlung!",
@@ -41,17 +41,17 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
                 break;
             case 2:
                 CustomMessage::Replace(&msg, "{{boss}}",
-                                       LOCALIZED("  Goht", " Rhork", " Gohts ", "TODO_JAPANESE", "  Goht"));
+                                       LOCALIZED("  Goht", " Rhork", " Goht ", "TODO_JAPANESE", "  Goht"));
                 randoItemId = RI_REMAINS_GOHT;
                 break;
             case 3:
                 CustomMessage::Replace(&msg, "{{boss}}",
-                                       LOCALIZED("  Gyorg", "  Gyorg", "Gyorgs ", "TODO_JAPANESE", "  Gyorg"));
+                                       LOCALIZED("  Gyorg", "  Gyorg", "Gyorg ", "TODO_JAPANESE", "  Gyorg"));
                 randoItemId = RI_REMAINS_GYORG;
                 break;
             case 4:
                 CustomMessage::Replace(&msg, "{{boss}}",
-                                       LOCALIZED("Twinmold", " Skorn", "Twinmolds ", "TODO_JAPANESE", "Twinmold"));
+                                       LOCALIZED("Twinmold", " Skorn", "Twinmold ", "TODO_JAPANESE", "Twinmold"));
                 randoItemId = RI_REMAINS_TWINMOLD;
                 break;
         }

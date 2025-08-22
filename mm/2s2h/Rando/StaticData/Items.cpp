@@ -412,7 +412,7 @@ std::string GetItemName(RandoItemId randoItemId, bool includeArticle) {
             name = item.nameFre;
             break;
         case LANGUAGE_GER:
-            article = item.articleGer;
+            article = item.articleGer2;
             name = item.nameGer;
             break;
         case LANGUAGE_JPN:
