@@ -430,7 +430,8 @@ std::string GetItemName(RandoItemId randoItemId, bool includeArticle) {
             break;
     }
 
-    if (includeArticle && !Ship_IsCStringEmpty(article)) {
+    if (includeArticle && !Ship_IsCStringEmpty(article) &&
+        article != "l'") { // Special case handling with l' french article
         result += article;
         result += " ";
     }
