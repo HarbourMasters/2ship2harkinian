@@ -1631,6 +1631,15 @@ void DrawFlagsTab() {
                             .labelPosition = UIWidgets::LabelPosition::None,
                         });
 
+    if (selectedFlagSection == WEEK_EVENT_REG) { // Draw color legend
+        ImGui::SameLine();
+        ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Gray), ICON_FA_SQUARE "Persistent");
+        ImGui::SameLine();
+        ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::LightBlue), ICON_FA_SQUARE "Cycle");
+        ImGui::SameLine();
+        ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Orange), ICON_FA_SQUARE "Scene/Other");
+    }
+
     static int16_t selectedScene = 0;
     if (selectedFlagSection == PERMANENT_SCENE_FLAGS || selectedFlagSection == CYCLE_SCENE_FLAGS) {
         ImGui::SameLine();
