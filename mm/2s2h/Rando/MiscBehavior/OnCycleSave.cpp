@@ -87,6 +87,13 @@ void Rando::MiscBehavior::AfterEndOfCycleSave() {
                         ~(1 << (randoStaticCheck.flag & 0x1F));
                 }
                 break;
+            case FLAG_CYCL_SCENE_COLLECTIBLE:
+                // Clear the flag without triggering hook
+                if ((randoStaticCheck.flag > 0) && (randoStaticCheck.flag < 0x80)) {
+                    gPlayState->actorCtx.sceneFlags.collectible[(randoStaticCheck.flag & ~0x1F) >> 5] &=
+                        ~(1 << (randoStaticCheck.flag & 0x1F));
+                }
+                break;
                 // most of the others are handled by the game, with the exception of PERSISTENT_CYCLE_FLAGS_SET, not
                 // sure if any of these cases affect us yet so ignoring for now
         }
