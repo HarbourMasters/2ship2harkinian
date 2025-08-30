@@ -1187,7 +1187,7 @@ void DrawFlagTableArray8Mask(const FlagTable& flagTable, uint16_t row, uint8_t& 
         }
         if (ImGui::IsItemHovered()) {
             std::string label = WrappedText(flagEntry.description, 60).c_str();
-            label += fmt::format("{}0x{:02X} ({})", label.size() ? "\n" : "", flagIndex, flagIndex);
+            label += fmt::format("{}0x{:02X} ({})", label.size() ? "\n" : "", bitMask, flagIndex);
             ImGui::SetTooltip(label.c_str());
         }
         ImGui::PopStyleVar();
