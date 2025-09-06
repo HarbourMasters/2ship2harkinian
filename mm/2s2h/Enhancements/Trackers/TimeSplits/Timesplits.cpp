@@ -206,7 +206,7 @@ void UpdateSplitSettings(uint32_t settingName) {
 }
 
 void TimesplitsWindow::Draw() {
-    if (!CVarGetInteger("gWindows.Timesplits", 0)) {
+    if (!CVarGetInteger("gSettings.TimeSplits.Enable", 0)) {
         return;
     }
     ImGui::PushStyleColor(ImGuiCol_WindowBg, splitOpacity);

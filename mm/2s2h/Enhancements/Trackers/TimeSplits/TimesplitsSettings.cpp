@@ -223,7 +223,7 @@ void DrawOptions() {
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
 
         ImGui::TableNextColumn();
-        UIWidgets::CVarCheckbox("Enable Time Splits", "gWindows.Timesplits",
+        UIWidgets::CVarCheckbox("Enable Time Splits", "gSettings.TimeSplits.Enable",
                                 {
                                     .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                                 });

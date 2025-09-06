@@ -11,7 +11,7 @@ extern "C" {
 uint64_t GetUnixTimestamp();
 }
 
-#define CVAR_NAME "gWindows.Timesplits"
+#define CVAR_NAME "gSettings.TimeSplits.Enable"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 uint32_t GetCurrentActiveSplit(std::vector<TimesplitObject> list) {
