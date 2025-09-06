@@ -48,4 +48,6 @@ DEFINE_HOOK(OnOpenText, (u16 * textId, bool* loadFromMessageTable))
 DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should))
 DEFINE_HOOK(OnItemGive, (u8 item))
 
+DEFINE_HOOK(OnBottleContentsUpdate, (u8 item))
+
 DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, va_list originalArgs))
