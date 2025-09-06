@@ -224,15 +224,15 @@ void DrawOptions() {
 
         ImGui::TableNextColumn();
         UIWidgets::CVarCheckbox("Enable Time Splits", "gWindows.Timesplits",
-                            {
-                                .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                            });
+                                {
+                                    .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                });
 
         ImGui::TableNextColumn();
         if (UIWidgets::CVarCheckbox("Show Headers", "gSettings.TimeSplits.ShowHeaders",
-            {
-                .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-            })) {
+                                    {
+                                        .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                    })) {
             UpdateSplitSettings(SPLIT_HEADERS);
         };
 
@@ -258,7 +258,8 @@ void DrawItemList(const char* tableName, IndexRangeObject range, uint32_t tableS
             if (ImGui::ImageButton(std::to_string(item).c_str(),
                                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                        (const char*)gItemIcons[item]),
-                ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), GetColorTint(item))) {
+                                   ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                                   GetColorTint(item))) {
                 if (itemSubMenuList.contains(item)) {
                     shouldPopUpOpen = true;
                     popupItem = item;
@@ -279,7 +280,7 @@ void DrawItemList(const char* tableName, IndexRangeObject range, uint32_t tableS
 void TimesplitsSettingsWindow::DrawElement() {
     bool shouldRemoveEntry = false;
     uint32_t entryId = 0, entryIndex = 0;
-        
+
     DrawOptions();
     DrawActionButtons();
 
@@ -318,14 +319,11 @@ void TimesplitsSettingsWindow::DrawElement() {
 
         ImGui::TableNextColumn();
         if (ImGui::BeginTable("Item Lists", 4)) {
-            ImGui::TableSetupColumn("",
-                                    ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
-            ImGui::TableSetupColumn("",
-                                    ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
-            ImGui::TableSetupColumn("",
-                                    ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
-            
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
+
             ImGui::TableNextColumn();
             if (UIWidgets::Button("Inventory",
                                   {
@@ -365,7 +363,7 @@ void TimesplitsSettingsWindow::DrawElement() {
 
         ImGui::EndTable();
     }
-    
+
     if (shouldRemoveEntry) {
         RemoveSplitEntry(entryId, entryIndex);
         shouldRemoveEntry = false;
@@ -373,5 +371,4 @@ void TimesplitsSettingsWindow::DrawElement() {
 }
 
 void TimesplitsSettingsWindow::InitElement() {
-
 }

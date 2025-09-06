@@ -17,12 +17,7 @@ typedef enum SplitSettings {
     SPLIT_OPACITY,
 };
 
-typedef enum SplitStatus {
-    SPLIT_INACTIVE,
-    SPLIT_ACTIVE,
-    SPLIT_COMPLETE,
-    SPLIT_SKIPPED
-};
+typedef enum SplitStatus { SPLIT_INACTIVE, SPLIT_ACTIVE, SPLIT_COMPLETE, SPLIT_SKIPPED };
 
 typedef struct {
     uint32_t splitId;

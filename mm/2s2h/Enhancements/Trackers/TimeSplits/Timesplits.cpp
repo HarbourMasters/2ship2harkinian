@@ -69,7 +69,7 @@ SplitTextObject GetTimeDiffTextDisplay(TimesplitObject split) {
     switch (split.splitStatus) {
         case SPLIT_INACTIVE:
         case SPLIT_SKIPPED:
-            textDisplay.timeDisplay = split.splitPreviousBest; 
+            textDisplay.timeDisplay = split.splitPreviousBest;
             textDisplay.colorDisplay = COLOR_GREY;
             return textDisplay;
         case SPLIT_ACTIVE:
@@ -163,12 +163,15 @@ void DrawSplitsList() {
             // Current Time Column
             ImGui::TableNextColumn();
             TableCellCenteredText(GetCurrentTimeTextDisplay(splits).colorDisplay,
-                                  !gPlayState ? "--:--:--.-" : formatTimesplitTime(GetCurrentTimeTextDisplay(splits).timeDisplay).c_str());
+                                  !gPlayState
+                                      ? "--:--:--.-"
+                                      : formatTimesplitTime(GetCurrentTimeTextDisplay(splits).timeDisplay).c_str());
 
             // +/- Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(GetTimeDiffTextDisplay(splits).colorDisplay,
-                                  !gPlayState ? "--:--:--.-" : formatTimesplitTime(GetTimeDiffTextDisplay(splits).timeDisplay).c_str());
+            TableCellCenteredText(
+                GetTimeDiffTextDisplay(splits).colorDisplay,
+                !gPlayState ? "--:--:--.-" : formatTimesplitTime(GetTimeDiffTextDisplay(splits).timeDisplay).c_str());
 
             // Previous Best Column
             ImGui::TableNextColumn();
@@ -180,7 +183,7 @@ void DrawSplitsList() {
 
         ImGui::EndTable();
     }
-    
+
     ImGui::End();
 
     ImGui::PopStyleVar(2);
@@ -191,8 +194,8 @@ void UpdateSplitSettings(uint32_t settingName) {
     switch (settingName) {
         case SPLIT_HEADERS:
             tableColumnFlags = CVarGetInteger("gSettings.TimeSplits.ShowHeaders", 0)
-                                                   ? ImGuiTableColumnFlags_NoHeaderLabel
-                                                   : ImGuiTableColumnFlags_None;
+                                   ? ImGuiTableColumnFlags_NoHeaderLabel
+                                   : ImGuiTableColumnFlags_None;
             break;
         case SPLIT_OPACITY:
             splitOpacity.w = CVarGetInteger("gSettings.TimeSplits.Opacity", 0) ? 0 : 0.5f;
@@ -216,5 +219,5 @@ void TimesplitsWindow::InitElement() {
     UpdateSplitSettings(SPLIT_OPACITY);
 }
 
-//void TimesplitsWindow::DrawElement() {
-//}
+// void TimesplitsWindow::DrawElement() {
+// }

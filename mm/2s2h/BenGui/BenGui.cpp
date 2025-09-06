@@ -147,7 +147,8 @@ void SetupGuiElements() {
     mTimesplitsWindow = std::make_shared<TimesplitsWindow>("gWindows.Timesplits", "Time Splits Window");
     gui->AddGuiWindow(mTimesplitsWindow);
 
-    mTimesplitsSettingsWindow = std::make_shared<TimesplitsSettingsWindow>("gWindows.Timesplits.Settings", "Time Splits Settings Window");
+    mTimesplitsSettingsWindow =
+        std::make_shared<TimesplitsSettingsWindow>("gWindows.Timesplits.Settings", "Time Splits Settings Window");
     gui->AddGuiWindow(mTimesplitsSettingsWindow);
 
     mNotificationWindow = std::make_shared<Notification::Window>("gWindows.Notifications", "Notifications Window");

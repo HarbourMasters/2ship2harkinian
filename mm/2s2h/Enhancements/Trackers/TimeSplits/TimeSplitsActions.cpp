@@ -61,9 +61,9 @@ void HandlePopUpContext(uint32_t popupId) {
         uint32_t slotIndex = 0;
         for (auto& list : itemList) {
             SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(
-                std::to_string(list).c_str(),
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[list]),
+            if (ImGui::ImageButton(std::to_string(list).c_str(),
+                                   Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                                       (const char*)gItemIcons[list]),
                                    ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                                    GetColorTint(list))) {
                 AddSplitEntry(list);
@@ -114,10 +114,10 @@ void HandleDragAndDrop(std::vector<TimesplitObject>& splitList, size_t i) {
 }
 
 void CheckSplitsCompleted(uint32_t index) {
-     if (index == splitList.size() - 1) {
+    if (index == splitList.size() - 1) {
         gSaveContext.save.shipSaveInfo.fileCompletedAt = GetUnixTimestamp();
     } else {
-         splitList[index + 1].splitStatus = SPLIT_ACTIVE;
+        splitList[index + 1].splitStatus = SPLIT_ACTIVE;
     }
 }
 
@@ -136,9 +136,9 @@ void RemoveSplitEntry(uint32_t splitId, uint32_t index) {
     if (activeIndex != -1) {
         if (splitList[activeIndex].splitId == splitId) {
             CheckSplitsCompleted(activeIndex);
-        } 
-    } 
-    
+        }
+    }
+
     splitList.erase(splitList.begin() + index);
 }
 
@@ -177,14 +177,13 @@ void UpdateSplitStatus(uint32_t itemId) {
     }
 }
 
-
 void RegisterTimesplits() {
-    //COND_VB_SHOULD(VB_GIVE_ITEM_FROM_OFFER, CVAR, {
-    //    GetItemId* item = va_arg(args, GetItemId*);
-    //    Actor* actor = va_arg(args, Actor*);
-    //    
-    //    UpdateSplitStatus((uint32_t)*item);
-    //});
+    // COND_VB_SHOULD(VB_GIVE_ITEM_FROM_OFFER, CVAR, {
+    //     GetItemId* item = va_arg(args, GetItemId*);
+    //     Actor* actor = va_arg(args, Actor*);
+    //
+    //     UpdateSplitStatus((uint32_t)*item);
+    // });
 
     COND_HOOK(OnItemGive, CVAR, [](u8 item) {
         if (item == ITEM_HEART_PIECE_2) {
@@ -194,10 +193,7 @@ void RegisterTimesplits() {
         UpdateSplitStatus((uint32_t)item);
     });
 
-    COND_HOOK(OnBottleContentsUpdate, CVAR, [](u8 item) {
-        UpdateSplitStatus((uint32_t)item);
-    });
-
+    COND_HOOK(OnBottleContentsUpdate, CVAR, [](u8 item) { UpdateSplitStatus((uint32_t)item); });
 }
 
 static RegisterShipInitFunc initFunc(RegisterTimesplits, { CVAR_NAME });
