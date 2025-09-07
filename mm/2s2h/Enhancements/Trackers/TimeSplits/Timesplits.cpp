@@ -149,7 +149,8 @@ void DrawSplitsList() {
             SplitsPushImageButtonStyle();
             if (ImGui::ImageButton(
                     std::to_string(splits.splitId).c_str(),
-                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(splits.splitImage),
+                                   Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                                       (const char*)gItemIcons[splits.splitId]),
                     ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                     GetColorTint(splits.splitId))) {
                 SkipSplitEntry(i);

@@ -17,12 +17,16 @@ typedef enum SplitSettings {
     SPLIT_OPACITY,
 };
 
+typedef enum SplitFileActions {
+    SPLIT_SAVE,
+    SPLIT_LOAD,
+};
+
 typedef enum SplitStatus { SPLIT_INACTIVE, SPLIT_ACTIVE, SPLIT_COMPLETE, SPLIT_SKIPPED };
 
 typedef struct {
     uint32_t splitId;
     std::string splitName;
-    const char* splitImage;
     uint32_t splitCurrentTime;
     uint32_t splitPreviousBest;
     uint8_t splitStatus;

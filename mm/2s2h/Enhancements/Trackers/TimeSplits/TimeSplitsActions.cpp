@@ -5,6 +5,10 @@
 #include "Context.h"
 #include "Window.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include <fstream>
+#include <filesystem>
+
+using json = nlohmann::json;
 
 extern "C" {
 #include "variables.h"
@@ -13,6 +17,16 @@ uint64_t GetUnixTimestamp();
 
 #define CVAR_NAME "gSettings.TimeSplits.Enable"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
+
+nlohmann::json TimesplitObject_to_json(const TimesplitObject& split) {
+    return nlohmann::json{
+        { "splitId", split.splitId },
+        { "splitName", split.splitName },
+        { "splitCurrentTime", split.splitCurrentTime },
+        { "splitPreviousBest", split.splitPreviousBest },
+        { "splitStatus", SPLIT_INACTIVE },
+    };
+}
 
 uint32_t GetCurrentActiveSplit(std::vector<TimesplitObject> list) {
     for (size_t i = 0; i < splitList.size(); i++) {
@@ -89,7 +103,8 @@ void HandleDragAndDrop(std::vector<TimesplitObject>& splitList, size_t i) {
         ImGui::SetDragDropPayload("SPLIT_DRAG", &i, sizeof(size_t));
         ImGui::ImageButton(
             std::to_string(splitList[i].splitId).c_str(),
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(splitList[i].splitImage),
+                           Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                               (const char*)gItemIcons[splitList[i].splitId]),
             ImVec2(32.0f, 32.0f));
         ImGui::EndDragDropSource();
     }
@@ -177,6 +192,24 @@ void UpdateSplitStatus(uint32_t itemId) {
     }
 }
 
+void SplitSaveFileAction(uint32_t action, const char* listName) {
+    std::string filename = Ship::Context::GetPathRelativeToAppDirectory("timesplitdata.json");
+    json saveFile;
+    json listArray = nlohmann::json::array();
+
+    std::ifstream inputFile(filename);
+    if (inputFile.is_open()) {
+        inputFile >> saveFile;
+        inputFile.close();
+    }
+
+    if (action == SPLIT_SAVE) {
+        for (auto& data : splitList) {
+            listArray.push_back(TimesplitObject_to_json(data));
+        }
+    }
+}
+
 void RegisterTimesplits() {
     // COND_VB_SHOULD(VB_GIVE_ITEM_FROM_OFFER, CVAR, {
     //     GetItemId* item = va_arg(args, GetItemId*);
@@ -188,6 +221,9 @@ void RegisterTimesplits() {
     COND_HOOK(OnItemGive, CVAR, [](u8 item) {
         if (item == ITEM_HEART_PIECE_2) {
             item = ITEM_HEART_PIECE;
+        }
+        if (item == ITEM_LONGSHOT) {
+            item = ITEM_POTION_RED;
         }
 
         UpdateSplitStatus((uint32_t)item);
