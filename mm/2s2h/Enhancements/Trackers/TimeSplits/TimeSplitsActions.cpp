@@ -230,6 +230,7 @@ void RegisterTimesplits() {
     });
 
     COND_HOOK(OnBottleContentsUpdate, CVAR, [](u8 item) { UpdateSplitStatus((uint32_t)item); });
+    COND_HOOK(OnActorKill, CVAR, [](Actor* actor) { UpdateSplitStatus((uint32_t)actor->id); });
 }
 
 static RegisterShipInitFunc initFunc(RegisterTimesplits, { CVAR_NAME });

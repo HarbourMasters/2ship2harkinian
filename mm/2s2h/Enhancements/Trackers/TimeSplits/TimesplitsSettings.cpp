@@ -244,6 +244,12 @@ void DrawOptions() {
             UpdateSplitSettings(SPLIT_OPACITY);
         };
 
+        ImGui::TableNextColumn();
+        UIWidgets::CVarCheckbox("Highlight Active Split", "gSettings.TimeSplits.Highlight",
+                                {
+                                    .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                });
+
         ImGui::EndTable();
     }
 }

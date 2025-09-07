@@ -146,6 +146,11 @@ void DrawSplitsList() {
 
             // Item Image Column
             ImGui::TableNextColumn();
+
+            if (CVarGetInteger("gSettings.TimeSplits.Highlight", 0) && splits.splitStatus == SPLIT_ACTIVE) {
+                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(47, 79, 90, 255));
+            }
+
             SplitsPushImageButtonStyle();
             if (ImGui::ImageButton(
                     std::to_string(splits.splitId).c_str(),

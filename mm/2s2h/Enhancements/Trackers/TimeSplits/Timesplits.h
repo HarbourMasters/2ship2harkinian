@@ -15,6 +15,7 @@ class TimesplitsWindow : public Ship::GuiWindow {
 typedef enum SplitSettings {
     SPLIT_HEADERS,
     SPLIT_OPACITY,
+    SPLIT_HIGHLIGHT,
 };
 
 typedef enum SplitFileActions {
