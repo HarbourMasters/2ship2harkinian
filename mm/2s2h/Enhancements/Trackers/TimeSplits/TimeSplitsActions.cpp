@@ -210,6 +210,21 @@ void SplitSaveFileAction(uint32_t action, const char* listName) {
     }
 }
 
+//void UpdateSplitStatusTest(FlagType flagType, u32 flag) {
+//    uint32_t activeIndex = GetCurrentActiveSplit(splitList);
+//
+//    SPDLOG_INFO("Flag Type: {} | Flag: {}", std::to_string(flagType), std::to_string(flag));
+//
+//    if (flagType == FLAG_CYCL_SCENE_CLEARED_ROOM && gPlayState->sceneId == SCENE_MITURIN_BS) {
+//        int hi = 0;
+//    }
+//
+//
+//    if (activeIndex == -1) {
+//        return;
+//    }
+//}
+
 void RegisterTimesplits() {
     // COND_VB_SHOULD(VB_GIVE_ITEM_FROM_OFFER, CVAR, {
     //     GetItemId* item = va_arg(args, GetItemId*);
@@ -230,7 +245,8 @@ void RegisterTimesplits() {
     });
 
     COND_HOOK(OnBottleContentsUpdate, CVAR, [](u8 item) { UpdateSplitStatus((uint32_t)item); });
-    COND_HOOK(OnActorKill, CVAR, [](Actor* actor) { UpdateSplitStatus((uint32_t)actor->id); });
+    //COND_HOOK(OnActorKill, CVAR, [](Actor* actor) { UpdateSplitStatus((uint32_t)actor->id); });
+    //COND_HOOK(OnFlagSet, CVAR, [](FlagType flagType, u32 flag) { UpdateSplitStatusTest(flagType, flag); });
 }
 
 static RegisterShipInitFunc initFunc(RegisterTimesplits, { CVAR_NAME });
