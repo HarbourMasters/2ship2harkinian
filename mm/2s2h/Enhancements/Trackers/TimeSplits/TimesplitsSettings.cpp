@@ -287,6 +287,10 @@ void DrawItemList(const char* tableName, IndexRangeObject range, uint32_t tableS
                 }
             }
             UIWidgets::Tooltip(splitObjectList[i].splitName.c_str());
+            if (listName == "Bosses") {
+                ImGui::SameLine();
+                TableCellCenteredText(UIWidgets::ColorValues.at(UIWidgets::Colors::White), splitObjectList[i].splitName.c_str());
+            }
 
             SplitsPopImageButtonStyle();
         }
@@ -378,7 +382,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                                            })) {
                 range = GetIndexRange((uint32_t)SPLIT_KILLED_ODOLWA, (uint32_t)SPLIT_KILLED_MAJORA);
                 listName = "Bosses";
-                listColumns = 4;
+                listColumns = 1;
             }
             ImGui::EndTable();
         }
