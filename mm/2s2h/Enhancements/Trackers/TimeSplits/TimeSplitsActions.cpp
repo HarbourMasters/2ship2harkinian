@@ -47,16 +47,6 @@ TimesplitObject GetSplitObjectById(uint32_t itemId) {
     return splitObject;
 }
 
-TimesplitObject GetSplitObjectByName(std::string targetName) {
-    TimesplitObject splitObject;
-    for (auto& list : splitObjectList) {
-        if (list.splitName == targetName) {
-            splitObject = list;
-        }
-    }
-    return splitObject;
-}
-
 ImVec4 GetColorTint(uint32_t itemId) {
     auto findColor = songColorMap.find(itemId);
     if (findColor != songColorMap.end()) {

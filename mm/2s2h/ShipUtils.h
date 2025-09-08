@@ -11,6 +11,7 @@
 void LoadGuiTextures();
 std::string convertEnumToReadableName(const std::string& input);
 extern std::array<const char*, 11> digitList;
+extern std::string Ship_FormatTimeDisplay(uint32_t value);
 
 extern "C" {
 #endif

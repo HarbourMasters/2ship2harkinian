@@ -24,15 +24,6 @@ std::vector<TimesplitObject> splitList;
 ImGuiTableFlags tableColumnFlags = ImGuiTableColumnFlags_None;
 ImVec4 splitOpacity = { 0, 0, 0, 0.5f };
 
-std::string formatTimesplitTime(uint32_t value) {
-    uint32_t sec = value / 10;
-    uint32_t hh = sec / 3600;
-    uint32_t mm = (sec - hh * 3600) / 60;
-    uint32_t ss = sec - hh * 3600 - mm * 60;
-    uint32_t ds = value % 10;
-    return fmt::format("{}:{:0>2}:{:0>2}.{}", hh, mm, ss, ds);
-}
-
 SplitTextObject GetCurrentTimeTextDisplay(TimesplitObject split) {
     uint32_t totalTime = ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
     SplitTextObject textDisplay;
@@ -165,22 +156,22 @@ void DrawSplitsList() {
 
             // Current Time Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(
-                GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
+            TableCellCenteredText(GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
                 !gPlayState ? "--:--:--.-"
-                            : formatTimesplitTime(GetCurrentTimeTextDisplay(splitList[i]).timeDisplay).c_str());
+                            : Ship_FormatTimeDisplay(GetCurrentTimeTextDisplay(splitList[i]).timeDisplay).c_str());
 
             // +/- Column
             ImGui::TableNextColumn();
             TableCellCenteredText(GetTimeDiffTextDisplay(splitList[i]).colorDisplay,
                                   !gPlayState
                                       ? "--:--:--.-"
-                                      : formatTimesplitTime(GetTimeDiffTextDisplay(splitList[i]).timeDisplay).c_str());
+                            : Ship_FormatTimeDisplay(GetTimeDiffTextDisplay(splitList[i]).timeDisplay).c_str());
 
             // Previous Best Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(
-                COLOR_WHITE, !gPlayState ? "--:--:--.-" : formatTimesplitTime(splitList[i].splitPreviousBest).c_str());
+            TableCellCenteredText(COLOR_WHITE, !gPlayState
+                                                   ? "--:--:--.-"
+                                                   : Ship_FormatTimeDisplay(splitList[i].splitPreviousBest).c_str());
 
             ImGui::PopID();
         }
