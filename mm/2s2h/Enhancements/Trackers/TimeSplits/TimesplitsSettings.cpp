@@ -289,7 +289,8 @@ void DrawItemList(const char* tableName, IndexRangeObject range, uint32_t tableS
             UIWidgets::Tooltip(splitObjectList[i].splitName.c_str());
             if (listName == "Bosses") {
                 ImGui::SameLine();
-                TableCellCenteredText(UIWidgets::ColorValues.at(UIWidgets::Colors::White), splitObjectList[i].splitName.c_str());
+                TableCellCenteredText(UIWidgets::ColorValues.at(UIWidgets::Colors::White),
+                                      splitObjectList[i].splitName.c_str());
             }
 
             SplitsPopImageButtonStyle();
@@ -322,10 +323,11 @@ void TimesplitsSettingsWindow::DrawElement() {
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((ImGui::GetContentRegionAvail().x - 32.0f) * 0.5f));
 
             SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+            if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
+                                   Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                        GetItemImageById(splitList[i].splitId)),
-                    ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                    GetColorTint(splitList[i].splitId))) {
+                                   ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                                   GetColorTint(splitList[i].splitId))) {
                 shouldRemoveEntry = true;
                 entryId = splitList[i].splitId;
                 entryIndex = i;
@@ -378,8 +380,8 @@ void TimesplitsSettingsWindow::DrawElement() {
             }
             ImGui::TableNextColumn();
             if (UIWidgets::Button("Bosses", {
-                                               .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                           })) {
+                                                .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                            })) {
                 range = GetIndexRange((uint32_t)SPLIT_KILLED_ODOLWA, (uint32_t)SPLIT_KILLED_MAJORA);
                 listName = "Bosses";
                 listColumns = 1;

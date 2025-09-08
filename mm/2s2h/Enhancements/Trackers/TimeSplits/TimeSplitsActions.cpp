@@ -85,11 +85,10 @@ void HandlePopUpContext(uint32_t popupId) {
         uint32_t slotIndex = 0;
         for (auto& list : itemList) {
             SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(std::to_string(list).c_str(),
-                                   Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                                       GetItemImageById(list)),
-                                   ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                                   GetColorTint(list))) {
+            if (ImGui::ImageButton(
+                    std::to_string(list).c_str(),
+                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(GetItemImageById(list)),
+                    ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), GetColorTint(list))) {
                 AddSplitEntryById(list);
                 ImGui::CloseCurrentPopup();
                 shouldPopUpOpen = false;
@@ -114,7 +113,7 @@ void HandleDragAndDrop(size_t i) {
         ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
                            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                GetItemImageById(splitList[i].splitId)),
-            ImVec2(32.0f, 32.0f));
+                           ImVec2(32.0f, 32.0f));
         ImGui::EndDragDropSource();
     }
 

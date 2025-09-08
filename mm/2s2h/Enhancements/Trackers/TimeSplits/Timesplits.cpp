@@ -153,7 +153,7 @@ void DrawSplitsList() {
             if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
                                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                        GetItemImageById(splitList[i].splitId)),
-                    ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                                   ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                                    GetColorTint(splitList[i].splitId))) {
                 SkipSplitEntry(i);
             };
@@ -165,9 +165,9 @@ void DrawSplitsList() {
 
             // Current Time Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
-                                  !gPlayState
-                                      ? "--:--:--.-"
+            TableCellCenteredText(
+                GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
+                !gPlayState ? "--:--:--.-"
                             : formatTimesplitTime(GetCurrentTimeTextDisplay(splitList[i]).timeDisplay).c_str());
 
             // +/- Column
@@ -179,7 +179,8 @@ void DrawSplitsList() {
 
             // Previous Best Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(COLOR_WHITE, !gPlayState ? "--:--:--.-" : formatTimesplitTime(splitList[i].splitPreviousBest).c_str());
+            TableCellCenteredText(
+                COLOR_WHITE, !gPlayState ? "--:--:--.-" : formatTimesplitTime(splitList[i].splitPreviousBest).c_str());
 
             ImGui::PopID();
         }
