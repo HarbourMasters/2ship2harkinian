@@ -55,6 +55,7 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_water_effect/object_water_effect.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -1882,6 +1883,7 @@ void Boss03_UpdateCollision(Boss03* this, PlayState* play) {
                         Boss03_PlayUnderwaterSfx(&D_809E9848, NA_SE_EN_KONB_DEAD_OLD);
                         Boss03_PlayUnderwaterSfx(&D_809E9848, NA_SE_EN_KONB_DEAD2_OLD);
                         Boss03_SetupDeathCutscene(this, play);
+                        GameInteractor_ExecuteOnBossDefeated(this->actor.id); // 2S2H Time Splits
                         Enemy_StartFinishingBlow(play, &this->actor);
                     } else {
                         Boss03_SetupDamaged(this, play);

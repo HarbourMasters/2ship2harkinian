@@ -12,6 +12,14 @@ class TimesplitsWindow : public Ship::GuiWindow {
     void UpdateElement() override{};
 };
 
+typedef enum ExtendedSplitIds {
+    SPLIT_KILLED_ODOLWA = 256,
+    SPLIT_KILLED_GOHT,
+    SPLIT_KILLED_GYORG,
+    SPLIT_KILLED_TWINMOLD,
+    SPLIT_KILLED_MAJORA,
+};
+
 typedef enum SplitSettings {
     SPLIT_HEADERS,
     SPLIT_OPACITY,
@@ -50,12 +58,13 @@ extern std::map<uint32_t, ImVec4> songColorMap;
 extern bool shouldPopUpOpen;
 extern TimesplitObject GetSplitObjectById(uint32_t itemId);
 extern ImVec4 GetColorTint(uint32_t itemId);
+extern const char* GetItemImageById(uint32_t itemId);
 extern void SplitsPushImageButtonStyle();
 extern void SplitsPopImageButtonStyle();
 extern void HandlePopUpContext(uint32_t popupId);
-extern void HandleDragAndDrop(std::vector<TimesplitObject>& splitList, size_t i);
+extern void HandleDragAndDrop(size_t i);
 extern void UpdateSplitBests();
 extern void UpdateSplitSettings(uint32_t settingName);
 extern void SkipSplitEntry(uint32_t index);
-extern void AddSplitEntry(uint32_t itemId);
+extern void AddSplitEntryById(uint32_t itemId);
 extern void RemoveSplitEntry(uint32_t splitId, uint32_t index);

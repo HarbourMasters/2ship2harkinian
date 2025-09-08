@@ -179,6 +179,13 @@ void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPlayerPostLimbDraw>(player, limbIndex);
 }
 
+void GameInteractor_ExecuteOnBossDefeated(int16_t actorId) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnBossDefeated>(actorId);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnBossDefeated>(actorId, actorId);
+    GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::OnBossDefeated>((uintptr_t)actorId, actorId);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnBossDefeated>(actorId);
+}
+
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag) {
     SPDLOG_DEBUG("OnSceneFlagSet: sceneId: {}, flagType: {}, flag: {}", sceneId, (u32)flagType, flag);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneFlagSet>(sceneId, flagType, flag);

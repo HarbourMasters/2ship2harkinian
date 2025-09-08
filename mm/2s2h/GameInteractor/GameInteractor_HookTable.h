@@ -31,6 +31,7 @@ DEFINE_HOOK(OnActorDraw, (Actor * actor))
 DEFINE_HOOK(OnActorKill, (Actor * actor))
 DEFINE_HOOK(OnActorDestroy, (Actor * actor))
 DEFINE_HOOK(OnPlayerPostLimbDraw, (Player * player, s32 limbIndex))
+DEFINE_HOOK(OnBossDefeated, (int16_t actorId))
 
 DEFINE_HOOK(OnSceneFlagSet, (s16 sceneId, FlagType flagType, u32 flag))
 DEFINE_HOOK(OnSceneFlagUnset, (s16 sceneId, FlagType flagType, u32 flag))

@@ -14,6 +14,7 @@
 
 #include "2s2h/BenPort.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -1000,6 +1001,8 @@ void Boss07_Wrath_SetupDeath(Boss07* this, PlayState* play) {
         }
     }
     this->invincibilityTimer = 1000;
+
+    GameInteractor_ExecuteOnBossDefeated(this->actor.id); // 2S2H Time Splits
 }
 
 void Boss07_Wrath_Death(Boss07* this, PlayState* play) {

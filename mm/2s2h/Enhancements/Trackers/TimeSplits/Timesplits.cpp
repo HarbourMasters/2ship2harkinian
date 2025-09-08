@@ -140,49 +140,46 @@ void DrawSplitsList() {
         }
 
         for (size_t i = 0; i < splitList.size(); i++) {
-            auto& splits = splitList[i];
-
-            ImGui::PushID(splits.splitId);
+            ImGui::PushID(splitList[i].splitId);
 
             // Item Image Column
             ImGui::TableNextColumn();
 
-            if (CVarGetInteger("gSettings.TimeSplits.Highlight", 0) && splits.splitStatus == SPLIT_ACTIVE) {
+            if (CVarGetInteger("gSettings.TimeSplits.Highlight", 0) && splitList[i].splitStatus == SPLIT_ACTIVE) {
                 ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(47, 79, 90, 255));
             }
 
             SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(
-                    std::to_string(splits.splitId).c_str(),
+            if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
                                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                                       (const char*)gItemIcons[splits.splitId]),
+                                       GetItemImageById(splitList[i].splitId)),
                     ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                    GetColorTint(splits.splitId))) {
+                                   GetColorTint(splitList[i].splitId))) {
                 SkipSplitEntry(i);
             };
             SplitsPopImageButtonStyle();
 
             // Item Name Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(COLOR_WHITE, splits.splitName.c_str());
+            TableCellCenteredText(COLOR_WHITE, splitList[i].splitName.c_str());
 
             // Current Time Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(GetCurrentTimeTextDisplay(splits).colorDisplay,
+            TableCellCenteredText(GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
                                   !gPlayState
                                       ? "--:--:--.-"
-                                      : formatTimesplitTime(GetCurrentTimeTextDisplay(splits).timeDisplay).c_str());
+                            : formatTimesplitTime(GetCurrentTimeTextDisplay(splitList[i]).timeDisplay).c_str());
 
             // +/- Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(
-                GetTimeDiffTextDisplay(splits).colorDisplay,
-                !gPlayState ? "--:--:--.-" : formatTimesplitTime(GetTimeDiffTextDisplay(splits).timeDisplay).c_str());
+            TableCellCenteredText(GetTimeDiffTextDisplay(splitList[i]).colorDisplay,
+                                  !gPlayState
+                                      ? "--:--:--.-"
+                                      : formatTimesplitTime(GetTimeDiffTextDisplay(splitList[i]).timeDisplay).c_str());
 
             // Previous Best Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(COLOR_WHITE,
-                                  !gPlayState ? "--:--:--.-" : formatTimesplitTime(splits.splitPreviousBest).c_str());
+            TableCellCenteredText(COLOR_WHITE, !gPlayState ? "--:--:--.-" : formatTimesplitTime(splitList[i].splitPreviousBest).c_str());
 
             ImGui::PopID();
         }

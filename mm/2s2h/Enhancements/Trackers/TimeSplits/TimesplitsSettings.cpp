@@ -98,7 +98,12 @@ std::vector<TimesplitObject> splitObjectList = {
     { ITEM_WALLET_ADULT, 	 	"Adult Wallet" },
     { ITEM_BOMBERS_NOTEBOOK, 	"Bombers' Notebook" },
 
-    // Dungeon
+    // Dungeon Bosses
+    { SPLIT_KILLED_ODOLWA,      "Odolwa" },
+    { SPLIT_KILLED_GOHT,        "Goht" },
+    { SPLIT_KILLED_GYORG,       "Gyorg" },
+    { SPLIT_KILLED_TWINMOLD,    "Twinmold" },
+    { SPLIT_KILLED_MAJORA,      "Majora" },
 
 
     // Upgrade Items
@@ -185,6 +190,15 @@ const char* popupTooltip = "";
 IndexRangeObject range = GetIndexRange((uint32_t)ITEM_OCARINA_OF_TIME, (uint32_t)ITEM_BOTTLE);
 const char* listName = "Inventory";
 uint32_t listColumns = 6;
+TexturePtr itemImage;
+
+const char* GetItemImageById(uint32_t itemId) {
+    if (itemId >= SPLIT_KILLED_ODOLWA && itemId <= SPLIT_KILLED_MAJORA) {
+        return gDungeonMapSkullTex;
+    } else {
+        return (const char*)gItemIcons[itemId];
+    }
+}
 
 void DrawActionButtons() {
     if (ImGui::BeginTable("Action Buttons", 2)) {
@@ -257,21 +271,19 @@ void DrawOptions() {
 void DrawItemList(const char* tableName, IndexRangeObject range, uint32_t tableSize) {
     if (ImGui::BeginTable(tableName, tableSize)) {
         for (int i = range.startIndex; i <= range.endIndex; i++) {
-            auto item = splitObjectList[i].splitId;
-
             ImGui::TableNextColumn();
             SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(std::to_string(item).c_str(),
+            if (ImGui::ImageButton(std::to_string(splitObjectList[i].splitId).c_str(),
                                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                                       (const char*)gItemIcons[item]),
+                                       GetItemImageById(splitObjectList[i].splitId)),
                                    ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                                   GetColorTint(item))) {
-                if (itemSubMenuList.contains(item)) {
+                                   GetColorTint(splitObjectList[i].splitId))) {
+                if (itemSubMenuList.contains(splitObjectList[i].splitId)) {
                     shouldPopUpOpen = true;
-                    popupItem = item;
+                    popupItem = splitObjectList[i].splitId;
                     ImGui::OpenPopup("ItemSubMenu");
                 } else {
-                    AddSplitEntry(item);
+                    AddSplitEntryById(splitObjectList[i].splitId);
                 }
             }
             UIWidgets::Tooltip(splitObjectList[i].splitName.c_str());
@@ -303,23 +315,19 @@ void TimesplitsSettingsWindow::DrawElement() {
         ImGui::EndDisabled();
         ImGui::BeginChild("Preview List");
         for (size_t i = 0; i < splitList.size(); i++) {
-            auto& splits = splitList[i];
-
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((ImGui::GetContentRegionAvail().x - 32.0f) * 0.5f));
 
             SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(
-                    std::to_string(splits.splitId).c_str(),
-                                   Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                                       (const char*)gItemIcons[splits.splitId]),
+            if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                                       GetItemImageById(splitList[i].splitId)),
                     ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                    GetColorTint(splits.splitId))) {
+                    GetColorTint(splitList[i].splitId))) {
                 shouldRemoveEntry = true;
-                entryId = splits.splitId;
+                entryId = splitList[i].splitId;
                 entryIndex = i;
             };
 
-            HandleDragAndDrop(splitList, i);
+            HandleDragAndDrop(i);
             SplitsPopImageButtonStyle();
         }
         ImGui::EndChild();
@@ -362,6 +370,14 @@ void TimesplitsSettingsWindow::DrawElement() {
                                            })) {
                 range = GetIndexRange((uint32_t)ITEM_REMAINS_ODOLWA, (uint32_t)ITEM_BOMBERS_NOTEBOOK);
                 listName = "Quest";
+                listColumns = 4;
+            }
+            ImGui::TableNextColumn();
+            if (UIWidgets::Button("Bosses", {
+                                               .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                           })) {
+                range = GetIndexRange((uint32_t)SPLIT_KILLED_ODOLWA, (uint32_t)SPLIT_KILLED_MAJORA);
+                listName = "Bosses";
                 listColumns = 4;
             }
             ImGui::EndTable();

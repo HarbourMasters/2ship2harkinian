@@ -47,6 +47,16 @@ TimesplitObject GetSplitObjectById(uint32_t itemId) {
     return splitObject;
 }
 
+TimesplitObject GetSplitObjectByName(std::string targetName) {
+    TimesplitObject splitObject;
+    for (auto& list : splitObjectList) {
+        if (list.splitName == targetName) {
+            splitObject = list;
+        }
+    }
+    return splitObject;
+}
+
 ImVec4 GetColorTint(uint32_t itemId) {
     auto findColor = songColorMap.find(itemId);
     if (findColor != songColorMap.end()) {
@@ -77,10 +87,10 @@ void HandlePopUpContext(uint32_t popupId) {
             SplitsPushImageButtonStyle();
             if (ImGui::ImageButton(std::to_string(list).c_str(),
                                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                                       (const char*)gItemIcons[list]),
+                                       GetItemImageById(list)),
                                    ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                                    GetColorTint(list))) {
-                AddSplitEntry(list);
+                AddSplitEntryById(list);
                 ImGui::CloseCurrentPopup();
                 shouldPopUpOpen = false;
             }
@@ -98,13 +108,12 @@ void HandlePopUpContext(uint32_t popupId) {
     }
 }
 
-void HandleDragAndDrop(std::vector<TimesplitObject>& splitList, size_t i) {
+void HandleDragAndDrop(size_t i) {
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
         ImGui::SetDragDropPayload("SPLIT_DRAG", &i, sizeof(size_t));
-        ImGui::ImageButton(
-            std::to_string(splitList[i].splitId).c_str(),
+        ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
                            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                               (const char*)gItemIcons[splitList[i].splitId]),
+                               GetItemImageById(splitList[i].splitId)),
             ImVec2(32.0f, 32.0f));
         ImGui::EndDragDropSource();
     }
@@ -116,7 +125,6 @@ void HandleDragAndDrop(std::vector<TimesplitObject>& splitList, size_t i) {
                 auto item = splitList[srcIndex];
                 splitList.erase(splitList.begin() + srcIndex);
 
-                // adjust index if needed (erase shifts indices)
                 if (srcIndex < i) {
                     i--;
                 }
@@ -136,7 +144,7 @@ void CheckSplitsCompleted(uint32_t index) {
     }
 }
 
-void AddSplitEntry(uint32_t itemId) {
+void AddSplitEntryById(uint32_t itemId) {
     TimesplitObject splitObject = GetSplitObjectById(itemId);
 
     if (splitList.size() == 0) {
@@ -172,7 +180,7 @@ void UpdateSplitBests() {
     }
 }
 
-void UpdateSplitStatus(uint32_t itemId) {
+void UpdateSplitStatusById(uint32_t itemId) {
     uint32_t activeIndex = GetCurrentActiveSplit(splitList);
 
     if (activeIndex == -1) {
@@ -189,6 +197,34 @@ void UpdateSplitStatus(uint32_t itemId) {
         } else {
             splitList[activeIndex + 1].splitStatus = SPLIT_ACTIVE;
         }
+    }
+}
+
+void GetSplitByActorId(int16_t actorId) {
+    uint32_t activeIndex = GetCurrentActiveSplit(splitList);
+
+    switch (actorId) {
+        case ACTOR_BOSS_01:
+            UpdateSplitStatusById(SPLIT_KILLED_ODOLWA);
+            break;
+        case ACTOR_BOSS_02:
+            UpdateSplitStatusById(SPLIT_KILLED_TWINMOLD);
+            break;
+        case ACTOR_BOSS_03:
+            UpdateSplitStatusById(SPLIT_KILLED_GYORG);
+            break;
+        case ACTOR_BOSS_07:
+            UpdateSplitStatusById(SPLIT_KILLED_MAJORA);
+            break;
+        case ACTOR_BOSS_HAKUGIN:
+            UpdateSplitStatusById(SPLIT_KILLED_GOHT);
+            break;
+        default:
+            break;
+    }
+
+    if (activeIndex == -1) {
+        return;
     }
 }
 
@@ -210,29 +246,7 @@ void SplitSaveFileAction(uint32_t action, const char* listName) {
     }
 }
 
-//void UpdateSplitStatusTest(FlagType flagType, u32 flag) {
-//    uint32_t activeIndex = GetCurrentActiveSplit(splitList);
-//
-//    SPDLOG_INFO("Flag Type: {} | Flag: {}", std::to_string(flagType), std::to_string(flag));
-//
-//    if (flagType == FLAG_CYCL_SCENE_CLEARED_ROOM && gPlayState->sceneId == SCENE_MITURIN_BS) {
-//        int hi = 0;
-//    }
-//
-//
-//    if (activeIndex == -1) {
-//        return;
-//    }
-//}
-
 void RegisterTimesplits() {
-    // COND_VB_SHOULD(VB_GIVE_ITEM_FROM_OFFER, CVAR, {
-    //     GetItemId* item = va_arg(args, GetItemId*);
-    //     Actor* actor = va_arg(args, Actor*);
-    //
-    //     UpdateSplitStatus((uint32_t)*item);
-    // });
-
     COND_HOOK(OnItemGive, CVAR, [](u8 item) {
         if (item == ITEM_HEART_PIECE_2) {
             item = ITEM_HEART_PIECE;
@@ -241,12 +255,11 @@ void RegisterTimesplits() {
             item = ITEM_POTION_RED;
         }
 
-        UpdateSplitStatus((uint32_t)item);
+        UpdateSplitStatusById((uint32_t)item);
     });
 
-    COND_HOOK(OnBottleContentsUpdate, CVAR, [](u8 item) { UpdateSplitStatus((uint32_t)item); });
-    //COND_HOOK(OnActorKill, CVAR, [](Actor* actor) { UpdateSplitStatus((uint32_t)actor->id); });
-    //COND_HOOK(OnFlagSet, CVAR, [](FlagType flagType, u32 flag) { UpdateSplitStatusTest(flagType, flag); });
+    COND_HOOK(OnBottleContentsUpdate, CVAR, [](u8 item) { UpdateSplitStatusById((uint32_t)item); });
+    COND_HOOK(OnBossDefeated, CVAR, [](int16_t actorId) { GetSplitByActorId(actorId); });
 }
 
 static RegisterShipInitFunc initFunc(RegisterTimesplits, { CVAR_NAME });
