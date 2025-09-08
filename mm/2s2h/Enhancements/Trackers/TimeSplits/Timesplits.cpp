@@ -156,15 +156,16 @@ void DrawSplitsList() {
 
             // Current Time Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
+            TableCellCenteredText(
+                GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
                 !gPlayState ? "--:--:--.-"
                             : Ship_FormatTimeDisplay(GetCurrentTimeTextDisplay(splitList[i]).timeDisplay).c_str());
 
             // +/- Column
             ImGui::TableNextColumn();
-            TableCellCenteredText(GetTimeDiffTextDisplay(splitList[i]).colorDisplay,
-                                  !gPlayState
-                                      ? "--:--:--.-"
+            TableCellCenteredText(
+                GetTimeDiffTextDisplay(splitList[i]).colorDisplay,
+                !gPlayState ? "--:--:--.-"
                             : Ship_FormatTimeDisplay(GetTimeDiffTextDisplay(splitList[i]).timeDisplay).c_str());
 
             // Previous Best Column
