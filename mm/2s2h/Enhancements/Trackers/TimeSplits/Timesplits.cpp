@@ -101,7 +101,7 @@ SplitTextObject GetTimeDiffTextDisplay(TimesplitObject split) {
     }
 }
 
-inline void TableCellCenteredText(ImVec4 color, const char* text) {
+void TableCellCenteredText(ImVec4 color, const char* text) {
     float textHeight = ImGui::GetTextLineHeight();
     float offsetY = (32.0f - textHeight + 10.0f) * 0.5f;
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + offsetY);
