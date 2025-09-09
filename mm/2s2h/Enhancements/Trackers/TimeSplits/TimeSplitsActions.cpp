@@ -12,7 +12,8 @@ using json = nlohmann::json;
 
 extern "C" {
 #include "variables.h"
-uint64_t GetUnixTimestamp();
+#include "overlays\actors\ovl_Bg_Dy_Yoseizo\z_bg_dy_yoseizo.h"
+        uint64_t GetUnixTimestamp();
 }
 
 #define CVAR_NAME "gSettings.TimeSplits.Enable"
@@ -298,6 +299,29 @@ void RegisterTimesplits() {
 
     COND_HOOK(OnBottleContentsUpdate, CVAR, [](u8 item) { UpdateSplitStatusById((uint32_t)item); });
     COND_HOOK(OnBossDefeated, CVAR, [](int16_t actorId) { GetSplitByActorId(actorId); });
+
+    COND_VB_SHOULD(VB_GIVE_ITEM_FROM_GREAT_FAIRY, CVAR, {
+        Actor* actor = va_arg(args, Actor*);
+        uint32_t itemId = -1;
+
+        if (GREAT_FAIRY_GET_TYPE(actor) == GREAT_FAIRY_TYPE_MAGIC) {
+            if (gSaveContext.save.saveInfo.playerData.isMagicAcquired != true) {
+                itemId = SPLIT_SINGLE_MAGIC;
+            }
+        } else if (GREAT_FAIRY_GET_TYPE(actor) == GREAT_FAIRY_TYPE_WISDOM) {
+            if (gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired != true) {
+                itemId = SPLIT_DOUBLE_MAGIC;
+            }
+        } else if (GREAT_FAIRY_GET_TYPE(actor) == GREAT_FAIRY_TYPE_COURAGE) {
+            if (gSaveContext.save.saveInfo.playerData.doubleDefense != true) {
+                itemId = SPLIT_DOUBLE_DEFENSE;
+            }
+        }
+
+        if (itemId != -1) {
+            UpdateSplitStatusById(itemId);
+        }
+    });
 }
 
 static RegisterShipInitFunc initFunc(RegisterTimesplits, { CVAR_NAME });

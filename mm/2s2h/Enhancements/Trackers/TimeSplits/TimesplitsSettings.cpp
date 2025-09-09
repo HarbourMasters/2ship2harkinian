@@ -98,6 +98,10 @@ std::vector<TimesplitObject> splitObjectList = {
     { ITEM_WALLET_ADULT, 	 	"Adult Wallet" },
     { ITEM_BOMBERS_NOTEBOOK, 	"Bombers' Notebook" },
 
+    // Quest II
+    { SPLIT_SINGLE_MAGIC,       "Single Magic" },
+    { SPLIT_DOUBLE_DEFENSE,     "Double Defense" },
+
     // Dungeon Bosses
     { SPLIT_KILLED_ODOLWA,      "Odolwa" },
     { SPLIT_KILLED_GOHT,        "Goht" },
@@ -118,6 +122,7 @@ std::vector<TimesplitObject> splitObjectList = {
     { ITEM_SWORD_GILDED, 	    "Gilded Sword" },
     { ITEM_SHIELD_MIRROR, 	    "Mirror Shield" },
     { ITEM_WALLET_GIANT, 	    "Giant Wallet" },
+    { SPLIT_DOUBLE_MAGIC,       "Double Magic" },
 
     // Trade Items
     { ITEM_DEED_LAND, 			"Land Title Deed" },
@@ -166,6 +171,7 @@ std::map<uint32_t, std::vector<uint32_t>> itemSubMenuList = {
     { ITEM_SWORD_KOKIRI,    { ITEM_SWORD_KOKIRI, ITEM_SWORD_RAZOR, ITEM_SWORD_GILDED } },
     { ITEM_SHIELD_HERO,     { ITEM_SHIELD_HERO, ITEM_SHIELD_MIRROR } },
     { ITEM_WALLET_ADULT,    { ITEM_WALLET_ADULT, ITEM_WALLET_GIANT } },
+    { SPLIT_SINGLE_MAGIC,   { SPLIT_SINGLE_MAGIC, SPLIT_DOUBLE_MAGIC } },
     // clang-format on
 };
 
@@ -196,10 +202,24 @@ std::vector<std::string> savedLists;
 uint32_t selectedIndex = 0;
 
 const char* GetItemImageById(uint32_t itemId) {
-    if (itemId >= SPLIT_KILLED_ODOLWA && itemId <= SPLIT_KILLED_MAJORA) {
-        return gDungeonMapSkullTex;
-    } else {
-        return (const char*)gItemIcons[itemId];
+    switch (itemId) {
+        case SPLIT_KILLED_ODOLWA:
+        case SPLIT_KILLED_GOHT:
+        case SPLIT_KILLED_GYORG:
+        case SPLIT_KILLED_TWINMOLD:
+        case SPLIT_KILLED_MAJORA:
+            return gDungeonMapSkullTex;
+        case SPLIT_SINGLE_MAGIC:
+            return (const char*)gItemIcons[ITEM_MAGIC_JAR_SMALL];
+        case SPLIT_DOUBLE_MAGIC:
+            return (const char*)gItemIcons[ITEM_MAGIC_JAR_BIG];
+        case SPLIT_DOUBLE_DEFENSE:
+            return (const char*)gItemIcons[ITEM_HEART_CONTAINER];
+        default:
+            if (itemId <= ITEM_NONE) {
+                return (const char*)gItemIcons[itemId];
+            }
+            break;
     }
 }
 
@@ -442,7 +462,11 @@ void TimesplitsSettingsWindow::DrawElement() {
             }
             ImGui::EndTable();
         }
+
         DrawItemList(listName, range, listColumns);
+        if (listName == "Quest") {
+            DrawItemList("Quest II", GetIndexRange((uint32_t)SPLIT_SINGLE_MAGIC, (uint32_t)SPLIT_DOUBLE_DEFENSE), 3);
+        }
 
         ImGui::EndTable();
     }

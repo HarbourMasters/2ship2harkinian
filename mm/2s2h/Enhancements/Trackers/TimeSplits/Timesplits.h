@@ -18,6 +18,9 @@ typedef enum ExtendedSplitIds {
     SPLIT_KILLED_GYORG,
     SPLIT_KILLED_TWINMOLD,
     SPLIT_KILLED_MAJORA,
+    SPLIT_SINGLE_MAGIC,
+    SPLIT_DOUBLE_MAGIC,
+    SPLIT_DOUBLE_DEFENSE,
 };
 
 typedef enum SplitSettings {
