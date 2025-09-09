@@ -13,7 +13,7 @@ using json = nlohmann::json;
 extern "C" {
 #include "variables.h"
 #include "overlays\actors\ovl_Bg_Dy_Yoseizo\z_bg_dy_yoseizo.h"
-        uint64_t GetUnixTimestamp();
+uint64_t GetUnixTimestamp();
 }
 
 #define CVAR_NAME "gSettings.TimeSplits.Enable"

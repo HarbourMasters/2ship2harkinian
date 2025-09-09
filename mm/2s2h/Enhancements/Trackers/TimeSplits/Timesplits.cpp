@@ -177,7 +177,7 @@ void DrawSplitsList() {
 
             ImGui::PopID();
         }
-        
+
         ImGui::EndTable();
     }
 
