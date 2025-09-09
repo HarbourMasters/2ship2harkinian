@@ -404,7 +404,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                                   {
                                       .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                                   })) {
-                range = GetIndexRange((uint32_t)ITEM_HEART_PIECE, (uint32_t)ITEM_BOTTLE);
+                range = GetIndexRange((uint32_t)ITEM_OCARINA_OF_TIME, (uint32_t)ITEM_BOTTLE);
                 listName = "Inventory";
                 listColumns = 6;
             }
