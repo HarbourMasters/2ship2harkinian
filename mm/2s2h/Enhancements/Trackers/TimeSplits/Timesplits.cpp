@@ -126,7 +126,7 @@ void DrawSplitsList() {
         ImGui::TableSetupColumn("Item Name");
         ImGui::TableSetupColumn("Current Time");
         ImGui::TableSetupColumn("+/-");
-        ImGui::TableSetupColumn("Prev. Best  ");
+        ImGui::TableSetupColumn("Previous Best ");
         if (tableColumnFlags != ImGuiTableColumnFlags_None) {
             ImGui::TableHeadersRow();
         }
@@ -177,7 +177,7 @@ void DrawSplitsList() {
 
             ImGui::PopID();
         }
-
+        
         ImGui::EndTable();
     }
 
