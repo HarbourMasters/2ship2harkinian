@@ -28,6 +28,16 @@ nlohmann::json TimesplitObject_to_json(const TimesplitObject& split) {
     };
 }
 
+TimesplitObject json_to_TimesplitObject(const nlohmann::json& jsonSplit) {
+    TimesplitObject split;
+    split.splitId = jsonSplit["splitId"];
+    split.splitName = jsonSplit["splitName"].get<std::string>();
+    split.splitCurrentTime = jsonSplit["splitCurrentTime"];
+    split.splitPreviousBest = jsonSplit["splitPreviousBest"];
+    split.splitStatus = jsonSplit["splitStatus"];
+    return split;
+}
+
 uint32_t GetCurrentActiveSplit(std::vector<TimesplitObject> list) {
     for (size_t i = 0; i < splitList.size(); i++) {
         if (splitList[i].splitStatus == SPLIT_ACTIVE) {
@@ -217,8 +227,8 @@ void GetSplitByActorId(int16_t actorId) {
     }
 }
 
-void SplitSaveFileAction(uint32_t action, const char* listName) {
-    std::string filename = Ship::Context::GetPathRelativeToAppDirectory("timesplitdata.json");
+void SplitSaveFileAction(uint32_t action, std::string listName) {
+    std::string filename = Ship::Context::GetPathRelativeToAppDirectory("2S2HTimeSplitData.json");
     json saveFile;
     json listArray = nlohmann::json::array();
 
@@ -232,10 +242,49 @@ void SplitSaveFileAction(uint32_t action, const char* listName) {
         for (auto& data : splitList) {
             listArray.push_back(TimesplitObject_to_json(data));
         }
+        saveFile[listName] = listArray;
+
+        std::ofstream outputFile(filename);
+        if (outputFile.is_open()) {
+            outputFile << saveFile.dump(4);
+            outputFile.close();
+        }
+    }
+
+    if (action == SPLIT_LOAD) {
+        if (saveFile.contains(listName)) {
+            listArray = saveFile[listName];
+            splitList.clear();
+
+            for (auto& data : listArray) {
+                splitList.push_back(json_to_TimesplitObject(data));
+            }
+            splitList[0].splitStatus = SPLIT_ACTIVE;
+        }
+    }
+
+    if (action == SPLIT_RETRIEVE) {
+        savedLists.clear();
+
+        for (auto& data : saveFile.items()) {
+            savedLists.push_back(data.key());
+        }
+        if (savedLists.size() == 0) {
+            savedLists.push_back("Create a List First");
+        }
     }
 }
 
 void RegisterTimesplits() {
+    if (!std::filesystem::exists(Ship::Context::GetPathRelativeToAppDirectory("2S2HTimeSplitData.json"))) {
+        json initFile;
+        std::ofstream file(Ship::Context::GetPathRelativeToAppDirectory("2S2HTimeSplitData.json"));
+        file << initFile.dump(4);
+        file.close();
+    }
+
+    SplitSaveFileAction(SPLIT_RETRIEVE, "");
+
     COND_HOOK(OnItemGive, CVAR, [](u8 item) {
         if (item == ITEM_HEART_PIECE_2) {
             item = ITEM_HEART_PIECE;

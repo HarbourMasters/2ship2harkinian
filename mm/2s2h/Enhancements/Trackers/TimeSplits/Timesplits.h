@@ -29,6 +29,7 @@ typedef enum SplitSettings {
 typedef enum SplitFileActions {
     SPLIT_SAVE,
     SPLIT_LOAD,
+    SPLIT_RETRIEVE,
 };
 
 typedef enum SplitStatus { SPLIT_INACTIVE, SPLIT_ACTIVE, SPLIT_COMPLETE, SPLIT_SKIPPED };
@@ -53,6 +54,7 @@ typedef struct {
 
 extern std::vector<TimesplitObject> splitList;
 extern std::vector<TimesplitObject> splitObjectList;
+extern std::vector<std::string> savedLists;
 extern std::map<uint32_t, std::vector<uint32_t>> itemSubMenuList;
 extern std::map<uint32_t, ImVec4> songColorMap;
 extern bool shouldPopUpOpen;
@@ -69,3 +71,4 @@ extern void UpdateSplitSettings(uint32_t settingName);
 extern void SkipSplitEntry(uint32_t index);
 extern void AddSplitEntryById(uint32_t itemId);
 extern void RemoveSplitEntry(uint32_t splitId, uint32_t index);
+extern void SplitSaveFileAction(uint32_t action, std::string listName);

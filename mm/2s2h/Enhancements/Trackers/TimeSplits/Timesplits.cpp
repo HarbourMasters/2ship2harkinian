@@ -4,6 +4,7 @@
 #include "public/bridge/consolevariablebridge.h"
 #include "Context.h"
 #include "Window.h"
+#include "2s2h/BenGui/UIWidgets.hpp"
 
 extern "C" {
 #include "variables.h"

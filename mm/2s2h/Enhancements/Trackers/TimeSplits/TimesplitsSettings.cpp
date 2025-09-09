@@ -191,6 +191,9 @@ IndexRangeObject range = GetIndexRange((uint32_t)ITEM_OCARINA_OF_TIME, (uint32_t
 const char* listName = "Inventory";
 uint32_t listColumns = 6;
 TexturePtr itemImage;
+std::string listInputName;
+std::vector<std::string> savedLists;
+uint32_t selectedIndex = 0;
 
 const char* GetItemImageById(uint32_t itemId) {
     if (itemId >= SPLIT_KILLED_ODOLWA && itemId <= SPLIT_KILLED_MAJORA) {
@@ -200,38 +203,8 @@ const char* GetItemImageById(uint32_t itemId) {
     }
 }
 
-void DrawActionButtons() {
-    if (ImGui::BeginTable("Action Buttons", 2)) {
-        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
-        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
-
-        ImGui::TableNextColumn();
-        if (UIWidgets::Button("New Attempt", {
-                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                             })) {
-            if (splitList.size() == 0) {
-                return;
-            }
-
-            for (auto& splits : splitList) {
-                splits.splitStatus = SPLIT_INACTIVE;
-            }
-            splitList[0].splitStatus = SPLIT_ACTIVE;
-        }
-
-        ImGui::TableNextColumn();
-        if (UIWidgets::Button("Update Splits",
-                              {
-                                  .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                              })) {
-            UpdateSplitBests();
-        }
-        ImGui::EndTable();
-    }
-}
-
 void DrawOptions() {
-    if (ImGui::BeginTable("Action Buttons", 3)) {
+    if (ImGui::BeginTable("Options", 3)) {
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
@@ -263,6 +236,87 @@ void DrawOptions() {
                                 {
                                     .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                                 });
+
+        ImGui::EndTable();
+    }
+}
+
+void DrawActionButtons() {
+    if (ImGui::BeginTable("Action Buttons", 2)) {
+        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+
+        ImGui::TableNextColumn();
+        UIWidgets::InputString("New List", &listInputName,
+                               {
+                                   .labelPosition = UIWidgets::LabelPosition::None,
+                                   .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                   .placeholder = "Enter new list name",
+                               });
+
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Create List", {
+                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                             })) {
+            SplitSaveFileAction(SPLIT_SAVE, listInputName);
+            SplitSaveFileAction(SPLIT_RETRIEVE, "");
+        }
+
+        ImGui::TableNextColumn();
+        UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+        if (ImGui::BeginCombo("##savedSplits", savedLists[selectedIndex].c_str())) {
+            for (int i = 0; i < savedLists.size(); i++) {
+                if (ImGui::Selectable(savedLists[i].c_str())) {
+                    selectedIndex = i;
+                    break;
+                }
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::PopItemWidth();
+        UIWidgets::PopStyleCombobox();
+
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Save Splits", {
+                                                 .size = { (ImGui::GetContentRegionAvail().x * 0.5f), 0 },
+                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                             })) {
+            if (savedLists[0] != "Create a List First") {
+                SplitSaveFileAction(SPLIT_SAVE, savedLists[selectedIndex]);
+            }
+        }
+        ImGui::SameLine();
+        if (UIWidgets::Button("Load Splits", {
+                                                 .size = { (ImGui::GetContentRegionAvail().x), 0 },
+                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                             })) {
+            if (savedLists[0] != "Create a List First") {
+                SplitSaveFileAction(SPLIT_LOAD, savedLists[selectedIndex]);
+            }
+        }
+
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("New Attempt", {
+                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                             })) {
+            if (splitList.size() == 0) {
+                return;
+            }
+
+            for (auto& splits : splitList) {
+                splits.splitStatus = SPLIT_INACTIVE;
+            }
+            splitList[0].splitStatus = SPLIT_ACTIVE;
+        }
+
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Update Splits",
+                              {
+                                  .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                              })) {
+            UpdateSplitBests();
+        }
 
         ImGui::EndTable();
     }
