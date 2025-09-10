@@ -1,8 +1,10 @@
 #include "2s2h/resource/importer/AnimationFactory.h"
 #include "2s2h/resource/type/Animation.h"
 #include "2s2h/resource/importer/PlayerAnimationFactory.h"
-#include <libultraship/libultraship.h>
-#include "spdlog/spdlog.h"
+#include "Context.h"
+#include "ResourceManager.h"
+
+#include <spdlog/spdlog.h>
 
 namespace SOH {
 std::shared_ptr<Ship::IResource>

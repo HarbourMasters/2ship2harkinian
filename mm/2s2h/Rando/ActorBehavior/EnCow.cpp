@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 
 extern "C" {
 #include "variables.h"
@@ -75,7 +75,7 @@ void Rando::ActorBehavior::InitEnCowBehavior() {
         ((EnCow*)actor)->flags |= EN_COW_FLAG_WONT_GIVE_MILK;
 
         RandoSaveCheck& randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-        if (!randoSaveCheck.shuffled || randoSaveCheck.obtained) {
+        if (!randoSaveCheck.shuffled || randoSaveCheck.cycleObtained) {
             *should = true;
             return;
         }

@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 
 extern "C" {
 #include "variables.h"
@@ -33,5 +33,5 @@ void Rando::ActorBehavior::InitEnBabaBehavior() {
     });
 
     COND_VB_SHOULD(VB_HAVE_BLAST_MASK, IS_RANDO,
-                   { *should = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_NORTH_BOMB_LADY].obtained; });
+                   { *should = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_NORTH_BOMB_LADY].cycleObtained; });
 }

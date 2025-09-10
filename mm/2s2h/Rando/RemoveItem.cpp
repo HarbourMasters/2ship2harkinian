@@ -1,5 +1,4 @@
 #include "Rando/Rando.h"
-#include <libultraship/libultraship.h>
 
 extern "C" {
 #include "variables.h"
@@ -360,6 +359,18 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_SOUL_ODOLWA:
         case RI_SOUL_TWINMOLD:
             Flags_ClearRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (randoItemId - RI_SOUL_GOHT));
+            break;
+        case RI_FROG_BLUE:
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_33_01);
+            break;
+        case RI_FROG_CYAN:
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_32_40);
+            break;
+        case RI_FROG_PINK:
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_32_80);
+            break;
+        case RI_FROG_WHITE:
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_33_02);
             break;
         // Ignore Ammo
         case RI_BOMBCHU:
