@@ -62,7 +62,7 @@ extern std::map<uint32_t, std::vector<uint32_t>> itemSubMenuList;
 extern std::map<uint32_t, ImVec4> songColorMap;
 extern bool shouldPopUpOpen;
 extern TimesplitObject GetSplitObjectById(uint32_t itemId);
-extern ImVec4 GetColorTint(uint32_t itemId);
+extern ImVec2 GetItemImageSizeById(uint32_t itemId);
 extern void TableCellCenteredText(ImVec4 color, const char* text);
 extern const char* GetItemImageById(uint32_t itemId);
 extern void SplitsPushImageButtonStyle();

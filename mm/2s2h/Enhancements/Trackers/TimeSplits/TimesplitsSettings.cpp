@@ -19,12 +19,6 @@ extern "C" {
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "GameInteractor/GameInteractor.h"
 
-std::map<uint32_t, ImVec4> songColorMap = {
-    { ITEM_SONG_SONATA, ImVec4(0.588f, 1.0f, 0.392f, 1.0f) }, { ITEM_SONG_LULLABY, ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
-    { ITEM_SONG_NOVA, ImVec4(0.392f, 0.588f, 1.0f, 1.0f) },   { ITEM_SONG_ELEGY, ImVec4(1.0f, 0.627f, 0.0f, 1.0f) },
-    { ITEM_SONG_OATH, ImVec4(1.0f, 0.392f, 1.0f, 1.0f) },
-};
-
 std::vector<TimesplitObject> splitObjectList = {
     // clang-format off
     { ITEM_HEART_PIECE, "Piece of Heart" },
@@ -223,6 +217,15 @@ const char* GetItemImageById(uint32_t itemId) {
     }
 }
 
+ImVec2 GetItemImageSizeById(uint32_t itemId) {
+    float defaultImageSize = 32.0f;
+    if (itemId >= ITEM_SONG_SONATA && itemId <= ITEM_SONG_SUN) {
+        return ImVec2(defaultImageSize / 1.5f, defaultImageSize);
+    } else {
+        return ImVec2(defaultImageSize, defaultImageSize);
+    }
+}
+
 void DrawOptions() {
     if (ImGui::BeginTable("Options", 3)) {
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
@@ -350,8 +353,8 @@ void DrawItemList(const char* tableName, IndexRangeObject range, uint32_t tableS
             if (ImGui::ImageButton(std::to_string(splitObjectList[i].splitId).c_str(),
                                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                        GetItemImageById(splitObjectList[i].splitId)),
-                                   ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                                   GetColorTint(splitObjectList[i].splitId))) {
+                                   GetItemImageSizeById(splitObjectList[i].splitId), ImVec2(0, 0), ImVec2(1, 1),
+                                   ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(splitObjectList[i].splitId))) {
                 if (itemSubMenuList.contains(splitObjectList[i].splitId)) {
                     shouldPopUpOpen = true;
                     popupItem = splitObjectList[i].splitId;
@@ -400,8 +403,8 @@ void TimesplitsSettingsWindow::DrawElement() {
             if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
                                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                        GetItemImageById(splitList[i].splitId)),
-                                   ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                                   GetColorTint(splitList[i].splitId))) {
+                                   GetItemImageSizeById(splitList[i].splitId), ImVec2(0, 0), ImVec2(1, 1),
+                                   ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(splitList[i].splitId))) {
                 shouldRemoveEntry = true;
                 entryId = splitList[i].splitId;
                 entryIndex = i;

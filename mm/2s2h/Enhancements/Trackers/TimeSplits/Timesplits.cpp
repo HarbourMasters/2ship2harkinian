@@ -145,8 +145,8 @@ void DrawSplitsList() {
             if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
                                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                        GetItemImageById(splitList[i].splitId)),
-                                   ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                                   GetColorTint(splitList[i].splitId))) {
+                                   GetItemImageSizeById(splitList[i].splitId), ImVec2(0, 0), ImVec2(1, 1),
+                                   ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(splitList[i].splitId))) {
                 SkipSplitEntry(i);
             };
             SplitsPopImageButtonStyle();

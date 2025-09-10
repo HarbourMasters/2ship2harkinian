@@ -58,15 +58,6 @@ TimesplitObject GetSplitObjectById(uint32_t itemId) {
     return splitObject;
 }
 
-ImVec4 GetColorTint(uint32_t itemId) {
-    auto findColor = songColorMap.find(itemId);
-    if (findColor != songColorMap.end()) {
-        return findColor->second;
-    } else {
-        return ImVec4(1, 1, 1, 1);
-    }
-}
-
 void HandlePopUpContext(uint32_t popupId) {
     if (shouldPopUpOpen && ImGui::BeginPopup("ItemSubMenu")) {
         std::vector<uint32_t> itemList;
@@ -89,7 +80,8 @@ void HandlePopUpContext(uint32_t popupId) {
             if (ImGui::ImageButton(
                     std::to_string(list).c_str(),
                     Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(GetItemImageById(list)),
-                    ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), GetColorTint(list))) {
+                    GetItemImageSizeById(list), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                    Ship_GetItemColorTint(list))) {
                 AddSplitEntryById(list);
                 ImGui::CloseCurrentPopup();
                 shouldPopUpOpen = false;
@@ -114,7 +106,8 @@ void HandleDragAndDrop(size_t i) {
         ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
                            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                GetItemImageById(splitList[i].splitId)),
-                           ImVec2(32.0f, 32.0f));
+                           GetItemImageSizeById(splitList[i].splitId), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                           Ship_GetItemColorTint(splitList[i].splitId));
         ImGui::EndDragDropSource();
     }
 
@@ -318,7 +311,7 @@ void RegisterTimesplits() {
 
     COND_VB_SHOULD(VB_GIVE_ITEM_FROM_GREAT_FAIRY, CVAR, {
         Actor* actor = va_arg(args, Actor*);
-        
+
         GetSplitByActorId(actor->id, GREAT_FAIRY_GET_TYPE(actor));
     });
 
