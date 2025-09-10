@@ -1,7 +1,6 @@
-
-
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 
 extern "C" {
 #include "variables.h"
@@ -58,7 +57,8 @@ void Rando::ActorBehavior::InitEnInBehavior() {
         }
     });
 
-    COND_VB_SHOULD(VB_HAVE_GARO_MASK, IS_RANDO, { *should = RANDO_SAVE_CHECKS[RC_GORMAN_TRACK_GARO_MASK].obtained; });
+    COND_VB_SHOULD(VB_HAVE_GARO_MASK, IS_RANDO,
+                   { *should = RANDO_SAVE_CHECKS[RC_GORMAN_TRACK_GARO_MASK].cycleObtained; });
 
     // RC_GORMAN_MILK_PURCHASE
 

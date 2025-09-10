@@ -1,4 +1,4 @@
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/ShipInit.hpp"
@@ -59,7 +59,7 @@ void RegisterGibdoTradeSequenceOptions() {
         *should = false;
 
         EnTalkGibud* gibudCtx = va_arg(args, EnTalkGibud*);
-        bool doEndTradeMessage = va_arg(args, bool);
+        bool doEndTradeMessage = (bool)va_arg(args, int);
 
         if (doEndTradeMessage) {
             Message_StartTextbox(gPlayState, 0x138A, &gibudCtx->actor);

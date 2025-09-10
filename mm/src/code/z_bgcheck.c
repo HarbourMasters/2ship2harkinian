@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "public/bridge/consolevariablebridge.h"
 
 #define DYNA_RAYCAST_FLOORS 1
 #define DYNA_RAYCAST_WALLS 2
@@ -4206,6 +4207,9 @@ WallType SurfaceType_GetWallType(CollisionContext* colCtx, CollisionPoly* poly, 
 }
 
 s32 SurfaceType_GetWallFlags(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
+    if (GameInteractor_Should(VB_BE_CLIMBABLE_SURFACE, false)) {
+        return sWallFlags[SurfaceType_GetWallType(colCtx, poly, bgId)] | WALL_FLAG_3;
+    }
     return sWallFlags[SurfaceType_GetWallType(colCtx, poly, bgId)];
 }
 

@@ -1,5 +1,6 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/ShipUtils.h"
 #include "2s2h/Rando/Logic/Logic.h"
 
@@ -109,7 +110,7 @@ void Rando::ActorBehavior::InitDmStkBehavior() {
 
     COND_VB_SHOULD(VB_STK_HAVE_OCARINA, IS_RANDO, {
         auto randoSaveCheck = RANDO_SAVE_CHECKS[RC_CLOCK_TOWER_ROOF_OCARINA];
-        *should = !randoSaveCheck.obtained;
+        *should = !randoSaveCheck.cycleObtained;
     });
 
     COND_ID_HOOK(OnOpenText, 0x2013, IS_RANDO && RANDO_SAVE_OPTIONS[RO_HINTS_OATH_TO_ORDER], ApplyOathHint);

@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 
 extern "C" {
 #include "variables.h"
@@ -25,7 +25,7 @@ void Rando::ActorBehavior::InitEnDnhBehavior() {
 
         if (cmdId == MSCRIPT_CMD_BRANCH_ON_ITEM) {
             *should = false;
-            if (!RANDO_SAVE_CHECKS[RC_TOURIST_INFORMATION_PICTOBOX].obtained) {
+            if (!RANDO_SAVE_CHECKS[RC_TOURIST_INFORMATION_PICTOBOX].cycleObtained) {
                 return;
             } else {
                 skipCmds.clear();

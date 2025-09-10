@@ -1,4 +1,3 @@
-#include <libultraship/libultraship.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
@@ -95,7 +94,9 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_GHOST_HUT] = RandoRegion{ .sceneId = SCENE_TOUGITES,
         .checks = {
-            CHECK(RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART, CHECK_MAX_HP(4)),
+            // The first three sisters can be damaged with almost anything, but Meg requires ranged attacks.
+            // Not using CAN_USE_EXPLOSIVE here, as the Blast Mask cannot reach, and the Powder Keg can only be used once.
+            CHECK(RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART, CHECK_MAX_HP(4) && (CAN_USE_PROJECTILE || HAS_ITEM(ITEM_BOMB) || HAS_ITEM(ITEM_BOMBCHU))),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(IKANA_CANYON, 1),                 ENTRANCE(GHOST_HUT, 0), true),
@@ -112,6 +113,20 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_IKANA_CANYON_GROTTO] = RandoRegion{ .name = "Ikana Canyon Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_IKANA_CANYON_GROTTO_CHEST, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_01, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_02, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_03, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_04, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_05, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_06, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_07, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_08, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_09, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_10, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_11, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_12, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_13, true),
+            CHECK(RC_IKANA_CANYON_GROTTO_GRASS_14, true),
         },
         .connections = {
             CONNECTION(RR_IKANA_CANYON_LOWER, true), // TODO: Grotto mapping
@@ -161,6 +176,9 @@ static RegisterShipInitFunc initFunc([]() {
             // May consider cutting Deku and Goron from this since getting down as them may be seen as a trick. But its possible and is pretty easy to do.
             CONNECTION(RR_IKANA_CANYON_LOWER, true),
         },
+        .events = {
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+        },
         .oneWayEntrances = {
             ENTRANCE(IKANA_CANYON, 4), // From Song of Soaring
             ENTRANCE(IKANA_CANYON, 15), // From Stone Tower Temple Blue Warp
@@ -169,12 +187,37 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_IKANA_GRAVEYARD_GROTTO] = RandoRegion{ .name = "Ikana Graveyard Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_IKANA_GRAVEYARD_GROTTO, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_01, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_02, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_03, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_04, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_05, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_06, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_07, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_08, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_09, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_10, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_11, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_12, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_13, true),
+            CHECK(RC_IKANA_GRAVEYARD_GROTTO_GRASS_14, true),
         },
         .connections = {
             CONNECTION(RR_IKANA_GRAVEYARD_LOWER, true), // TODO: Grotto mapping
         },
     };
     Regions[RR_IKANA_GRAVEYARD_LOWER] = RandoRegion{ .name = "Lower", .sceneId = SCENE_BOTI,
+        .checks = {
+            CHECK(RC_IKANA_GRAVEYARD_GRASS_01, true),
+            CHECK(RC_IKANA_GRAVEYARD_GRASS_02, true),
+            CHECK(RC_IKANA_GRAVEYARD_GRASS_03, true),
+            CHECK(RC_IKANA_GRAVEYARD_GRASS_04, true),
+            CHECK(RC_IKANA_GRAVEYARD_GRASS_05, true),
+            CHECK(RC_IKANA_GRAVEYARD_GRASS_06, true),
+            CHECK(RC_IKANA_GRAVEYARD_GRASS_07, true),
+            CHECK(RC_IKANA_GRAVEYARD_GRASS_08, true),
+            CHECK(RC_IKANA_GRAVEYARD_GRASS_09, true),
+        },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ROAD_TO_IKANA, 2),                ENTRANCE(IKANA_GRAVEYARD, 0), true),
             EXIT(ENTRANCE(DAMPES_HOUSE, 0),                          ONE_WAY_EXIT, HAS_ITEM(ITEM_MASK_CAPTAIN)), // Day 3 hole
@@ -199,7 +242,7 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_IKANA_GREAT_FAIRY_FOUNTAIN] = RandoRegion{ .name = "Ikana", .sceneId = SCENE_YOUSEI_IZUMI,
         .checks = {
-            CHECK(RC_IKANA_GREAT_FAIRY, HAS_ALL_STRAY_FAIRIES(DUNGEON_INDEX_STONE_TOWER_TEMPLE)),
+            CHECK(RC_IKANA_GREAT_FAIRY, HAS_ENOUGH_STRAY_FAIRIES(DUNGEON_INDEX_STONE_TOWER_TEMPLE)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(IKANA_CANYON, 11),                ENTRANCE(FAIRY_FOUNTAIN, 4), true),
@@ -249,6 +292,20 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_ROAD_TO_IKANA_GROTTO] = RandoRegion{ .name = "Road to Ikana Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_ROAD_TO_IKANA_GROTTO_CHEST, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_01, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_02, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_03, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_04, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_05, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_06, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_07, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_08, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_09, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_10, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_11, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_12, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_13, true),
+            CHECK(RC_ROAD_TO_IKANA_GROTTO_GRASS_14, true),
         },
         .connections = {
             CONNECTION(RR_ROAD_TO_IKANA_FIELD_SIDE, true), // TODO: Grotto mapping

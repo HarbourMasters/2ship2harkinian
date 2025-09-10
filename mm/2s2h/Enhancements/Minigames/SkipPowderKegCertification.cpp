@@ -1,13 +1,14 @@
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/Rando.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Go/z_en_go.h"
 }
 
-#define CVAR_NAME "gEnhancements.Minigames.PowderKegCertification"
+#define CVAR_NAME "gEnhancements.Timesavers.PowderKegCertification"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterPowderKegCertification() {
