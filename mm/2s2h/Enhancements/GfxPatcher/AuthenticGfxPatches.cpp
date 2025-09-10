@@ -1,8 +1,7 @@
 #include "AuthenticGfxPatches.h"
-#include "libultraship/libultraship.h"
-#include <cstring>
-
+#include "public/bridge/consolevariablebridge.h"
 extern "C" {
+#include "gfx.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_fz/object_fz.h"
 #include "objects/object_ik/object_ik.h"
@@ -15,6 +14,7 @@ void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int ind
 void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName);
 char* ResourceMgr_LoadTexOrDListByName(const char* path);
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
+char* ResourceMgr_LoadVtxArrayByName(const char* path);
 }
 
 #define dgameplay_keep_Tex_00CA30_Overflow "__OTR__objects/gameplay_keep/gameplay_keep_Tex_00CA30_Overflow"
@@ -310,9 +310,38 @@ void PatchClockTownBuildingGeometry() {
     }
 }
 
+Vtx southClockTownRampVtx[5] = {
+    { { { -393, 200, -1253 }, 0, { 1253, -2385 }, { 208, 118, 0, 255 } } },
+    { { { -393, 200, -1400 }, 0, { 0, -2385 }, { 208, 118, 0, 255 } } },
+    { { { -513, 151, -1253 }, 0, { 1253, -727 }, { 208, 118, 0, 255 } } },
+    { { { -640, 100, -1400 }, 0, { 0, 1024 }, { 208, 118, 0, 255 } } },
+    { { { -640, 100, -1253 }, 0, { 1253, 1024 }, { 208, 118, 0, 255 } } },
+};
+
+void PatchGeometrySeams() {
+    static Gfx southClockTownRampDL[] = {
+        gsSPVertex(southClockTownRampVtx + 0, 5, 0),
+        gsSP2Triangles(0, 1, 2, 0, 1, 3, 2, 0),
+        gsSP1Triangle(3, 4, 2, 0),
+        // Restore the unmodified vertices after the seam patch
+        gsSPVertex(
+            (Vtx*)ResourceMgr_LoadVtxArrayByName("__OTR__scenes/nonmq/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00Vtx_002A90") +
+                14,
+            32, 0),
+        gsSPEndDisplayList(),
+    };
+    if (CVarGetInteger("gEnhancements.Graphics.FixSceneGeometrySeams", 0)) {
+        ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00DL_0032D0", "clockTownRampSeam", 49,
+                                   gsSPDisplayList(southClockTownRampDL));
+    } else {
+        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00DL_0032D0", "clockTownRampSeam");
+    }
+}
+
 void GfxPatcher_ApplyGeometryIssuePatches() {
     PatchKnifeChamberRoomGeometry();
     PatchClockTownBuildingGeometry();
+    PatchGeometrySeams();
 }
 
 void GfxPatcher_ApplyTransitionWipePatch() {

@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 
 extern "C" {
 #include "variables.h"
@@ -31,7 +31,8 @@ void Rando::ActorBehavior::InitEnTrtBehavior() {
             return;
         }
         if (!RANDO_SAVE_CHECKS[RC_HAGS_POTION_SHOP_KOTAKE].shuffled ||
-            RANDO_SAVE_CHECKS[RC_HAGS_POTION_SHOP_KOTAKE].cycleObtained) {
+            RANDO_SAVE_CHECKS[RC_HAGS_POTION_SHOP_KOTAKE].cycleObtained ||
+            (*item != GI_POTION_RED_BOTTLE && *item != GI_POTION_RED)) {
             return;
         }
 

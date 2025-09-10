@@ -1,5 +1,4 @@
 #include "Rando/Rando.h"
-#include <libultraship/libultraship.h>
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/DrawFuncs.h"
@@ -445,6 +444,12 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             break;
         case RI_SOUL_TWINMOLD:
             DrawTwinmold();
+            break;
+        case RI_FROG_BLUE:
+        case RI_FROG_CYAN:
+        case RI_FROG_PINK:
+        case RI_FROG_WHITE:
+            DrawMinifrog(randoItemId, actor);
             break;
         case RI_TRIFORCE_PIECE_PREVIOUS:
         case RI_TRIFORCE_PIECE: {

@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "z64vismono.h"
 #include "z64visfbuf.h"
+#include "public/bridge/consolevariablebridge.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 s16 sTransitionFillTimer;
@@ -649,7 +650,7 @@ void Play_UpdateTransition(PlayState* this) {
                 }
             }
 
-            if (!D_801D0D54) {
+            if (!D_801D0D54 && GameInteractor_Should(VB_SETUP_TRANSITION, true)) {
                 Play_SetupTransition(this, Play_ChooseDynamicTransition(this, this->transitionType));
             }
 
@@ -1809,6 +1810,9 @@ Camera* Play_GetCamera(PlayState* this, s16 camId) {
  * @return bit-packed success if each of the params were applied
  */
 s32 Play_SetCameraAtEye(PlayState* this, s16 camId, Vec3f* at, Vec3f* eye) {
+    if (!GameInteractor_Should(VB_SET_CAMERA_AT_EYE, true)) {
+        return false;
+    }
     s32 successfullySet = 0;
     s16 camIdx = (camId == CAM_ID_NONE) ? this->activeCamId : camId;
     Camera* camera = this->cameraPtrs[camIdx];
@@ -1865,6 +1869,9 @@ s32 Play_SetCameraAtEyeUp(PlayState* this, s16 camId, Vec3f* at, Vec3f* eye, Vec
  * @return true if the fov was successfully set
  */
 s32 Play_SetCameraFov(PlayState* this, s16 camId, f32 fov) {
+    if (!GameInteractor_Should(VB_SET_CAMERA_FOV, true)) {
+        return false;
+    }
     s32 successfullySet = Camera_SetViewParam(this->cameraPtrs[camId], CAM_VIEW_FOV, &fov) & 1;
 
     if (1) {}
