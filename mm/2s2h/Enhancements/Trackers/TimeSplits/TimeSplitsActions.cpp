@@ -12,7 +12,7 @@ using json = nlohmann::json;
 
 extern "C" {
 #include "variables.h"
-#include "overlays\actors\ovl_Bg_Dy_Yoseizo\z_bg_dy_yoseizo.h"
+#include "overlays/actors/ovl_Bg_Dy_Yoseizo/z_bg_dy_yoseizo.h"
 uint64_t GetUnixTimestamp();
 }
 
@@ -200,7 +200,7 @@ void UpdateSplitStatusById(uint32_t itemId) {
     }
 }
 
-void GetSplitByActorId(int16_t actorId) {
+void GetSplitByActorId(int16_t actorId, uint32_t specialType = 0) {
     uint32_t activeIndex = GetCurrentActiveSplit(splitList);
 
     switch (actorId) {
@@ -218,6 +218,22 @@ void GetSplitByActorId(int16_t actorId) {
             break;
         case ACTOR_BOSS_HAKUGIN:
             UpdateSplitStatusById(SPLIT_KILLED_GOHT);
+            break;
+        case ACTOR_BG_DY_YOSEIZO:
+        case ACTOR_EN_ELFGRP:
+            if (specialType == GREAT_FAIRY_TYPE_MAGIC) {
+                if (gSaveContext.save.saveInfo.playerData.isMagicAcquired != true) {
+                    UpdateSplitStatusById(SPLIT_SINGLE_MAGIC);
+                }
+            } else if (specialType == GREAT_FAIRY_TYPE_WISDOM) {
+                if (gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired != true) {
+                    UpdateSplitStatusById(SPLIT_DOUBLE_MAGIC);
+                }
+            } else if (specialType == GREAT_FAIRY_TYPE_COURAGE) {
+                if (gSaveContext.save.saveInfo.playerData.doubleDefense != true) {
+                    UpdateSplitStatusById(SPLIT_DOUBLE_DEFENSE);
+                }
+            }
             break;
         default:
             break;
@@ -302,25 +318,14 @@ void RegisterTimesplits() {
 
     COND_VB_SHOULD(VB_GIVE_ITEM_FROM_GREAT_FAIRY, CVAR, {
         Actor* actor = va_arg(args, Actor*);
-        uint32_t itemId = -1;
+        
+        GetSplitByActorId(actor->id, GREAT_FAIRY_GET_TYPE(actor));
+    });
 
-        if (GREAT_FAIRY_GET_TYPE(actor) == GREAT_FAIRY_TYPE_MAGIC) {
-            if (gSaveContext.save.saveInfo.playerData.isMagicAcquired != true) {
-                itemId = SPLIT_SINGLE_MAGIC;
-            }
-        } else if (GREAT_FAIRY_GET_TYPE(actor) == GREAT_FAIRY_TYPE_WISDOM) {
-            if (gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired != true) {
-                itemId = SPLIT_DOUBLE_MAGIC;
-            }
-        } else if (GREAT_FAIRY_GET_TYPE(actor) == GREAT_FAIRY_TYPE_COURAGE) {
-            if (gSaveContext.save.saveInfo.playerData.doubleDefense != true) {
-                itemId = SPLIT_DOUBLE_DEFENSE;
-            }
-        }
+    COND_VB_SHOULD(VB_GIVE_ITEM_FROM_STRAY_FAIRY_MANAGER, CVAR, {
+        Actor* actor = va_arg(args, Actor*);
 
-        if (itemId != -1) {
-            UpdateSplitStatusById(itemId);
-        }
+        GetSplitByActorId(actor->id, GREAT_FAIRY_GET_TYPE(actor));
     });
 }
 
