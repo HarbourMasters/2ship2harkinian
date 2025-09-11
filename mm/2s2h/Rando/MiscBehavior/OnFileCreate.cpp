@@ -216,10 +216,13 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         // pool
                         auto it = std::find(excludedChecks.begin(), excludedChecks.end(), randoCheckId);
                         if (it != excludedChecks.end()) {
-                            itemPool.push_back(Rando::StaticData::Checks[randoCheckId].randoItemId);
-                            randoStaticCheck.randoItemId = RI_JUNK;
+                            RandoItemId vanillaItem = Rando::StaticData::Checks[randoCheckId].randoItemId;
+                            itemPool.push_back(vanillaItem);
+
                             RANDO_SAVE_CHECKS[randoCheckId].randoItemId = RI_JUNK;
                             RANDO_SAVE_CHECKS[randoCheckId].skipped = true;
+                            RANDO_SAVE_CHECKS[randoCheckId].shuffled = false;
+
                             continue;
                         }
 

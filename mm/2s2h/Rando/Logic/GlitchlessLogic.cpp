@@ -96,6 +96,10 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
 
                     RandoItemId randoItemId;
 
+                    if (randoCheckId == RC_ANCIENT_CASTLE_OF_IKANA_BOSS) {
+                        int hi = 0;
+                    }
+
                     if (isShuffled) {
                         randoItemId = itemPool.back();
                         itemPool.pop_back();
@@ -108,7 +112,11 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
                         SPDLOG_TRACE("Check: {}:{}", Rando::StaticData::Checks[randoCheckId].name,
                                      Rando::StaticData::Items[randoItemId].spoilerName);
                     } else {
-                        randoItemId = Rando::StaticData::Checks[randoCheckId].randoItemId;
+                        if (RANDO_SAVE_CHECKS[randoCheckId].skipped) {
+                            randoItemId = RI_JUNK;
+                        } else {
+                            randoItemId = Rando::StaticData::Checks[randoCheckId].randoItemId;
+                        }
                     }
 
                     RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoItemId;
