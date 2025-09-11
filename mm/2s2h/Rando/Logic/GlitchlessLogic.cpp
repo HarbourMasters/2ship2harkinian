@@ -96,10 +96,6 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
 
                     RandoItemId randoItemId;
 
-                    if (randoCheckId == RC_ANCIENT_CASTLE_OF_IKANA_BOSS) {
-                        int hi = 0;
-                    }
-
                     if (isShuffled) {
                         randoItemId = itemPool.back();
                         itemPool.pop_back();

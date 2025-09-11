@@ -494,7 +494,6 @@ static void DrawLocationsTab() {
     static ImGuiTextFilter excludedFilter;
     UIWidgets::PushStyleCombobox(menuThemeColor);
     excludedFilter.Draw("##filter", ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Clear All").x - 30.0f);
-    // UIWidgets::PopStyleCombobox();
     if (!excludedFilter.IsActive()) {
         ImGui::SameLine(18.0f);
         ImGui::Text("Excluded Search");
