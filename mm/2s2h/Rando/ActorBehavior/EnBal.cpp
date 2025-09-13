@@ -1,6 +1,7 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/ShipUtils.h"
 
 extern "C" {
 #include "variables.h"
@@ -25,16 +26,28 @@ void OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
     entry.autoFormat = false;
 
-    entry.msg = "\x02\xC3{item1}\x01 {price1} Rupees\x11"
-                "\x02{item2}\x01 {price2} Rupees\x11"
-                "\x02No thanks";
+    entry.msg = LOCALIZED(
+        "\x02\xC3%y{{itemName1}}%w\x01 {{price1}} Rupees\x11"
+        "\x02%y{{itemName2}}%w\x01 {{price2}} Rupees\x11"
+        "\x02No thanks",
+        "\x02\xC3%y{{itemName1}}%w\x01 {{price1}} Rubis\x11"
+        "\x02%y{{itemName2}}%w\x01 {{price2}} Rubis\x11"
+        "\x02Non merci",
+        "\x02\xC3{{itemName1}}\x01 {{price1}} Rubine\x11\x02{{itemName2}}\x01 {{price2}} Rubine\x11\x02Nein, danke!",
+        "TODO_JAPANESE", "TODO_SPANISH");
 
-    CustomMessage::Replace(&entry.msg, "{item1}",
-                           Rando::StaticData::GetItemName(RANDO_SAVE_CHECKS[randoCheckId1].randoItemId, false));
-    CustomMessage::Replace(&entry.msg, "{item2}",
-                           Rando::StaticData::GetItemName(RANDO_SAVE_CHECKS[randoCheckId2].randoItemId, false));
-    CustomMessage::Replace(&entry.msg, "{price1}", std::to_string(RANDO_SAVE_CHECKS[randoCheckId1].price));
-    CustomMessage::Replace(&entry.msg, "{price2}", std::to_string(RANDO_SAVE_CHECKS[randoCheckId2].price));
+    const auto& item1 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId1].randoItemId];
+    const auto& item2 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId2].randoItemId];
+
+    std::string itemName1 = LOCALIZED(item1.nameEng, item1.nameFre, item1.nameGer, item1.nameJpn, item1.nameSpa);
+    std::string itemName2 = LOCALIZED(item2.nameEng, item2.nameFre, item2.nameGer, item2.nameJpn, item2.nameSpa);
+
+    CustomMessage::Replace(&entry.msg, "{{itemName1}}", itemName1);
+    CustomMessage::Replace(&entry.msg, "{{itemName2}}", itemName2);
+    CustomMessage::Replace(&entry.msg, "{{price1}}", std::to_string(RANDO_SAVE_CHECKS[randoCheckId1].price));
+    CustomMessage::Replace(&entry.msg, "{{price2}}", std::to_string(RANDO_SAVE_CHECKS[randoCheckId2].price));
+    CustomMessage::ReplaceColorChars(&entry.msg);
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::EnsureMessageEnd(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
@@ -42,7 +55,11 @@ void OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
 
 void OnOpenCantGetText(u16* textId, bool* loadFromMessageTable) {
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-    entry.msg = "I'm sorry, but it seems I cannot sell this to you now.";
+    entry.msg = LOCALIZED("I'm sorry, but it seems I cannot sell this to you now.",
+                          "Je suis désolé, mais il semble que je ne puisse pas te vendre ceci maintenant.",
+                          "...Häh? Aber das haben Sie bereits...", "TODO_JAPANESE", "TODO_SPANISH");
+
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 };

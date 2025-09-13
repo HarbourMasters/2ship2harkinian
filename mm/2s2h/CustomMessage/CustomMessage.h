@@ -7,6 +7,13 @@
 #define BUFFER_SIZE 1280
 #define MESSAGE_HEADER_SIZE 11
 
+#define LOCALIZED(eng, fre, ger, jpn, spa)                   \
+    (gSaveContext.options.language == LANGUAGE_FRE   ? (fre) \
+     : gSaveContext.options.language == LANGUAGE_GER ? (ger) \
+     : gSaveContext.options.language == LANGUAGE_JPN ? (jpn) \
+     : gSaveContext.options.language == LANGUAGE_SPA ? (spa) \
+                                                     : (eng))
+
 #ifdef __cplusplus
 
 extern "C" {
@@ -35,9 +42,16 @@ void SetActiveCustomMessage(std::string msg, Entry options = {});
 void Replace(std::string* msg, const std::string& placeholder, const std::string& value);
 void AddLineBreaks(std::string* msg);
 void ReplaceColorChars(std::string* msg);
+void ReplaceSpecialChars(std::string* msg);
 void EnsureMessageEnd(std::string* msg);
 Entry LoadVanillaMessageTableEntry(u16 textId);
 void LoadCustomMessageIntoFont(Entry entry);
+// French grammar helpers
+std::string GetFrenchAdjectiveAgreement(const std::string& article, const std::string& masculineForm,
+                                        const std::string& feminineForm);
+std::string GetFrenchQueForm(const std::string& article);
+// German grammar helper
+void ReplaceGermanSpecialCases(std::string* msg);
 } // namespace CustomMessage
 
 #endif // __cplusplus

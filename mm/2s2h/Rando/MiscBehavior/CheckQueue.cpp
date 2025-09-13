@@ -27,13 +27,10 @@ void Rando::MiscBehavior::CheckQueue() {
     if (queued) {
         return;
     }
-
     for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
         auto randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-
         if (randoSaveCheck.eligible) {
             queued = true;
-
             GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
                 .showGetItemCutscene =
                     Rando::StaticData::ShouldShowGetItemCutscene(ConvertItem(randoSaveCheck.randoItemId, randoCheckId)),
@@ -43,17 +40,36 @@ void Rando::MiscBehavior::CheckQueue() {
                         auto& randoSaveCheck = RANDO_SAVE_CHECKS[CUSTOM_ITEM_PARAM];
                         RandoItemId randoItemId =
                             Rando::ConvertItem(randoSaveCheck.randoItemId, (RandoCheckId)CUSTOM_ITEM_PARAM);
-                        std::string prefix = "You found";
+
+                        std::string prefix;
                         std::string message = Rando::StaticData::GetItemName(randoItemId);
 
                         if (randoItemId == RI_JUNK) {
                             randoItemId = Rando::CurrentJunkItem();
                         }
 
+                        switch (gSaveContext.options.language) {
+                            case LANGUAGE_FRE:
+                                prefix = "Vous obtenez%r";
+                                break;
+                            case LANGUAGE_GER:
+                                prefix = "Du hast%r " + message + "%w erhalten";
+                                message = ""; // Clear message since it's already in prefix for German and need that for
+                                              // that "erhalten support"
+                                break;
+                            case LANGUAGE_SPA:
+                                prefix = "¡Obtiene%r";
+                                break;
+                            case LANGUAGE_ENG:
+                            default:
+                                prefix = "You got%r";
+                                break;
+                        }
+
                         CustomMessage::Entry entry = {
                             .textboxType = 2,
                             .icon = Rando::StaticData::GetIconForZMessage(randoItemId),
-                            .msg = prefix + " " + message + "!",
+                            .msg = message.empty() ? prefix + "%w!" : prefix + " " + message + "%w!",
                         };
 
                         if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {
@@ -61,10 +77,16 @@ void Rando::MiscBehavior::CheckQueue() {
                         } else if (Rando::StaticData::ShouldShowGetItemCutscene(randoItemId)) {
                             CustomMessage::StartTextbox(entry.msg + "\x1C\x02\x10", entry);
                         } else {
+                            // Notification system doesn't support color codes from the game so we clean them
+                            std::string tempPrefix = prefix, tempMessage = message;
+                            CustomMessage::Replace(&tempPrefix, "%r", "");
+                            CustomMessage::Replace(&tempPrefix, "%w", "");
+                            CustomMessage::Replace(&tempMessage, "%r", "");
+                            CustomMessage::Replace(&tempMessage, "%w", "");
                             Notification::Emit({
                                 .itemIcon = Rando::StaticData::GetIconTexturePath(randoItemId),
-                                .message = prefix,
-                                .suffix = message,
+                                .message = tempPrefix,
+                                .suffix = tempMessage,
                             });
                         }
                         Rando::GiveItem(randoItemId);

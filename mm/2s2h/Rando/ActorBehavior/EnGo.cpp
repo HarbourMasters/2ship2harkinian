@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/Rando/Logic/Logic.h"
 #include "2s2h/Rando/StaticData/StaticData.h"
@@ -126,13 +126,31 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
     COND_ID_HOOK(OnOpenText, 0x0C81, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         Audio_PlaySfx(NA_SE_EN_GOLON_WAKE_UP); // Original script plays this as part of the text.
-        entry.msg = "Want a %rPowder Keg%w?\n";
-        entry.msg += "The Goron Elder said I can't sell my\n";
-        entry.msg += "Powder Kegs to anyone new,\n";
-        entry.msg += "\x12";
-        entry.msg += "but I can give you one to\n";
-        entry.msg += "blow up the boulder near the track.\x19";
+        entry.msg = LOCALIZED("Want a %rPowder Keg%w?\n"
+                              "The Goron Elder said I can't sell my\n"
+                              "a %rPowder Kegs%w to anyone new,\n"
+                              "\x12"
+                              "but I can give you one to\n"
+                              "blow up the boulder near the track.\x19",
+                              "Tu veux un %rBaril de Poudre%w?\n"
+                              "Le Doyen Goron a dit que je ne peux\n"
+                              "pas vendre de %rBarils de Poudre%w\n"
+                              "aux nouveaux,"
+                              "\x12"
+                              "mais je peux t'en donner un pour\n"
+                              "faire exploser le rocher près de la\n"
+                              "piste.\x19",
+                              "Brauchst du ein %rPulverfass%w?\n"
+                              "Der Älteste meinte, dass ich Neulingen\n"
+                              "keine Pulverfässer verkaufen darf,\n"
+                              "\x12"
+                              "doch wenn du den Felsen der die\n"
+                              "Rennstrecke versperrt beseitigen könntest,\n"
+                              "würde ich eine Ausnahme machen."
+                              "\x19",
+                              "TODO_JAPANESE", "TODO_SPANISH");
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -140,18 +158,43 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
     COND_ID_HOOK(OnOpenText, 0x0C83, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         Audio_PlaySfx(NA_SE_EN_GOLON_WAKE_UP); // Original script plays this as part of the text.
-        entry.msg = "If you can %rdestroy%w the boulder\n";
-        entry.msg += "that blocks the entrance to the\n";
-        entry.msg += "%rGoron Racetrack%w near here ...\n";
-        entry.msg += "\x12";
-        entry.msg += "using the %rPowder Keg%w I'm about\n";
-        entry.msg += "to give you, then I'll give you\n";
-        entry.msg += "%g{randoItem}%w.";
-        entry.msg += "\x19";
+        entry.msg = LOCALIZED("If you can %rdestroy%w the boulder\n"
+                              "that blocks the entrance to the\n"
+                              "%rGoron Racetrack%w near here ...\n"
+                              "\x12"
+                              "using a %rPowder Keg%w I'm about\n"
+                              "to give you, then I'll give you\n"
+                              "{{article}}%g{{itemName}}%w.\x19",
+                              "Si tu peux %rdétruire%w le rocher\n"
+                              "qui bloque l'entrée de la\n"
+                              "%rPiste Goron%w près d'ici...\n"
+                              "\x12"
+                              "avec un %rBaril de Poudre%w que je vais\n"
+                              "te donner, alors je te donnerai\n"
+                              "{{article}}%g{{itemName}}%w.\x19",
+                              "Schaffst du es, den Felsen, der\n"
+                              "den Eingang zur %rRennstrecke%w ver-\n"
+                              "sperrt mit einem %rPulverfass%w zu\n"
+                              "zerstören, gebe ich dir\n"
+                              "{{article}}%g{{itemName}}%w!"
+                              "\x19",
+                              "TODO_JAPANESE", "TODO_SPANISH");
 
-        CustomMessage::Replace(
-            &entry.msg, "{randoItem}",
-            Rando::StaticData::GetItemName(RANDO_SAVE_CHECKS[RC_GORON_VILLAGE_MEDIGORON].randoItemId, true));
+        const auto& item = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_GORON_VILLAGE_MEDIGORON].randoItemId];
+        std::string itemArticle =
+            LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
+        if (!Ship_IsCStringEmpty(itemArticle.c_str())) {
+            itemArticle += " ";
+        }
+        std::string randoItemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
+        std::string powderKegArticle = LOCALIZED("the", "un", "ein", "TODO_JAPANESE", "TODO_SPANISH");
+        if (!Ship_IsCStringEmpty(powderKegArticle.c_str())) {
+            powderKegArticle += " ";
+        }
+        CustomMessage::Replace(&entry.msg, "{{article}}", itemArticle);
+        CustomMessage::Replace(&entry.msg, "{{itemName}}", randoItemName);
+        CustomMessage::Replace(&entry.msg, "{{kegArticle}}", powderKegArticle);
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
@@ -161,11 +204,21 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         Audio_PlaySfx(NA_SE_EN_GOLON_VOICE_EATFULL); // Original script plays this as part of the text.
-        entry.msg = "I heard you cleared the boulder\n";
-        entry.msg += "near the racetrack! Here's the\n";
-        entry.msg += "reward the Elder set aside for \n";
-        entry.msg += "anyone who could do it.";
+        entry.msg = LOCALIZED("I heard you cleared the boulder\n"
+                              "near the racetrack! Here's the\n"
+                              "reward the Elder set aside for \n"
+                              "anyone who could do it.",
+                              "J'ai entendu que tu as dégagé le rocher\n"
+                              "près de la piste! Voici la récompense\n"
+                              "que le Doyen a réservée à celui\n"
+                              "qui y arriverait.",
+                              "Es sieht so aus, als wärst du er-\n"
+                              "folgreich gewesen! Hier ist die\n"
+                              "Belohnung, die der Älteste für den-\n"
+                              "jenigen der es schafft vorgesehen hat.",
+                              "TODO_JAPANESE", "TODO_SPANISH");
 
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::EnsureMessageEnd(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
@@ -177,9 +230,16 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
 
             auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
             Audio_PlaySfx(NA_SE_EN_GOLON_VOICE_GENERAL); // Original script plays this as part of the text.
-            entry.msg = "Come back if you're interested in\n";
-            entry.msg += "my Powder Kegs.";
+            entry.msg = LOCALIZED("Come back if you're interested in\n"
+                                  "my %rPowder Kegs%w.",
+                                  "Reviens me voir si tu veux\n"
+                                  "des %rBarils de Poudre%w.",
+                                  "Solltest du mehr %rPulverfässer%w\n"
+                                  "benötigen, besuche mich einfach\n"
+                                  "wieder.",
+                                  "TODO_JAPANESE", "TODO_SPANISH");
 
+            CustomMessage::ReplaceSpecialChars(&entry.msg);
             CustomMessage::EnsureMessageEnd(&entry.msg);
             CustomMessage::LoadCustomMessageIntoFont(entry);
             *loadFromMessageTable = false;
@@ -190,11 +250,24 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
         if (!HAS_ITEM(ITEM_POWDER_KEG)) {
             auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
             Audio_PlaySfx(NA_SE_EN_GOLON_VOICE_GENERAL); // Original script plays this as part of the text.
-            entry.msg = "Sorry, but the Goron Elder revoked\n";
-            entry.msg += "my ability to certify you to carry\n";
-            entry.msg += "my Powder Kegs. You'll have to find\n";
-            entry.msg += "one somewhere else first, goro.";
+            entry.msg = LOCALIZED("Sorry, but the Goron Elder revoked\n"
+                                  "my ability to certify you to carry\n"
+                                  "my %rPowder Kegs%w. You'll have to find\n"
+                                  "one somewhere else first, goro.",
+                                  "Désolé,mais le Doyen Goron a retiré\n"
+                                  "mon droit de te certifier pour porter\n"
+                                  "des %rBarils de Poudre%w. Tu devras en trouver\n"
+                                  "ailleurs d'abord.",
+                                  "Entschuldige, der Älteste hat mir\n"
+                                  "verboten die offizielle Prüfung, um\n"
+                                  "%rPulverfässer%w tragen zu dürfen,\n"
+                                  "durchzuführen.\n"
+                                  "\x12"
+                                  "Du wirst wohl zuerst ein %rPulverfass%w\n"
+                                  "finden müssen.",
+                                  "TODO_JAPANESE", "TODO_SPANISH");
 
+            CustomMessage::ReplaceSpecialChars(&entry.msg);
             CustomMessage::EnsureMessageEnd(&entry.msg);
             CustomMessage::LoadCustomMessageIntoFont(entry);
             *loadFromMessageTable = false;

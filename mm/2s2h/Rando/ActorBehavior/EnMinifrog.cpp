@@ -1,4 +1,5 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
+
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 
@@ -87,12 +88,26 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
             (EnMinifrog*)Actor_FindNearby(gPlayState, &player->actor, ACTOR_EN_MINIFROG, ACTORCAT_NPC, 100.0f);
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg = "Why, Don Gero! I'm not joining that choir unless someone finds my other hiding spot. "
-                    "Take this and don't follow me.";
+        entry.msg =
+            LOCALIZED("Why, Don Gero! I'm not joining that choir unless someone finds my other hiding spot. "
+                      "Take this and don't follow me.",
+                      "Eh bien, Don Gero! Je ne rejoindrai pas cette chorale à moins que quelqu'un trouve mon "
+                      "autre cachette. Prends ça et ne me suis pas.",
+                      "Hey, Don Gero! Wenn du mich noch ein zweites Mal finden kannst, werde ich dem Chor beitreten. "
+                      "Viel Spaß beim Suchen! Nimm diese kleine Aufmerksamkeit.",
+                      "TODO_JAPANESE", "TODO_SPANISH");
         if (enMinifrog != NULL && CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[enMinifrog->frogIndex])) {
-            entry.msg = "Why, Don Gero! Since you found my other hiding spot, I'll join the choir. "
-                        "Take this and meet me in the mountains.";
+            entry.msg =
+                LOCALIZED("Why, Don Gero! Since you found my other hiding spot, I'll join the choir. "
+                          "Take this and meet me in the mountains.",
+                          "Eh bien, Don Gero! Puisque tu as trouvé mon autre cachette, je rejoindrai le "
+                          "chorale. Prends ça et retrouve-moi dans les montagnes.",
+                          "Hey, Don Gero! Da du mich jetzt schon zwei Mal gefunden hast, werde ich dem Chor beitreten. "
+                          "Hier ist ein Geschenk von mir. Wir sehen uns in den Bergen.",
+                          "TODO_JAPANESE", "TODO_SPANISH");
         }
+
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });

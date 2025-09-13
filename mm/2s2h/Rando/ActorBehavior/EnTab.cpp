@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "Rando/MiscBehavior/MiscBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
@@ -29,29 +29,41 @@ void EnTab_OnOpenShopText(u16* textId, bool* loadFromMessageTable) {
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
     entry.autoFormat = false;
 
-    entry.msg = "\x02\xC3{item1}\x01 {price1} Rupees\x11"
-                "\x02{item2}\x01 {price2} Rupees\x11"
-                "\x02Nothing";
+    entry.msg = LOCALIZED("\x02\xC3{{itemName1}}\x01 {{price1}} Rupees\x11"
+                          "\x02{{itemName2}}\x01 {{price2}} Rupees\x11"
+                          "\x02Nothing",
+                          "\x02\xC3{{itemName1}}\x01 {{price1}} Rubis\x11"
+                          "\x02{{itemName2}}\x01 {{price2}} Rubis\x11"
+                          "\x02Rien",
+                          "\x02\xC3{{itemName1}}\x01 {{price1}} Rubine\x11"
+                          "\x02{{itemName2}}\x01 {{price2}} Rubine\x11"
+                          "\x02Nichts",
+                          "TODO_JAPANESE", "TODO_SPANISH");
 
-    std::string itemName1 = "Milk";
+    std::string itemName1 = LOCALIZED("Milk", "Lait", "Milch", "TODO_JAPANESE", "TODO_SPANISH");
     std::string itemPrice1 = "20";
     if (!milkPurchaseCheck.cycleObtained) {
-        itemName1 = Rando::StaticData::Items[riMilkPurchase].name;
+        const auto& milkItem = Rando::StaticData::Items[riMilkPurchase];
+        itemName1 = LOCALIZED(milkItem.nameEng, milkItem.nameFre, milkItem.nameGer, milkItem.nameJpn, milkItem.nameSpa);
         itemPrice1 = std::to_string(milkPurchaseCheck.price);
     }
 
-    std::string itemName2 = "Chateau Romani";
+    std::string itemName2 =
+        LOCALIZED("Chateau Romani", "Cuvée Romani", "Chateau Romani", "TODO_JAPANESE", "TODO_SPANISH");
     std::string itemPrice2 = "200";
     if (!chateauPurchaseCheck.cycleObtained) {
-        itemName2 = Rando::StaticData::Items[riChateauPurchase].name;
+        const auto& chateauItem = Rando::StaticData::Items[riChateauPurchase];
+        itemName2 = LOCALIZED(chateauItem.nameEng, chateauItem.nameFre, chateauItem.nameGer, chateauItem.nameJpn,
+                              chateauItem.nameSpa);
         itemPrice2 = std::to_string(chateauPurchaseCheck.price);
     }
 
-    CustomMessage::Replace(&entry.msg, "{item1}", itemName1);
-    CustomMessage::Replace(&entry.msg, "{item2}", itemName2);
-    CustomMessage::Replace(&entry.msg, "{price1}", itemPrice1);
-    CustomMessage::Replace(&entry.msg, "{price2}", itemPrice2);
+    CustomMessage::Replace(&entry.msg, "{{itemName1}}", itemName1);
+    CustomMessage::Replace(&entry.msg, "{{itemName2}}", itemName2);
+    CustomMessage::Replace(&entry.msg, "{{price1}}", itemPrice1);
+    CustomMessage::Replace(&entry.msg, "{{price2}}", itemPrice2);
     CustomMessage::EnsureMessageEnd(&entry.msg);
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 };

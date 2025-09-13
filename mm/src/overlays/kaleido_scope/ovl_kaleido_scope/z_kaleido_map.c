@@ -9,6 +9,9 @@
 #include "interface/icon_item_field_static/icon_item_field_static.h"
 #include "interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "interface/icon_item_jpn_static/icon_item_jpn_static.h"
+#include "interface/ger_icon_item_static/ger_icon_item_static.h"
+#include "interface/fra_icon_item_static/fra_icon_item_static.h"
+#include "interface/esp_icon_item_static/esp_icon_item_static.h"
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
 
 #include "BenPort.h"
@@ -115,6 +118,26 @@ TexturePtr sDungeonTitleTextures[] = {
     gPauseStoneTowerTitleENGTex, // DUNGEON_INDEX_STONE_TOWER_TEMPLE
 };
 
+// #region 2S2H [PAL + GC]
+TexturePtr sDungeonTitleTexturesGC[] = {
+    gPauseWoodfallTitleGCENGTex,   // DUNGEON_INDEX_WOODFALL_TEMPLE
+    gPauseSnowheadTitleGCENGTex,   // DUNGEON_INDEX_SNOWHEAD_TEMPLE
+    gPauseGreatBayTitleGCENGTex,   // DUNGEON_INDEX_GREAT_BAY_TEMPLE
+    gPauseStoneTowerTitleGCENGTex, // DUNGEON_INDEX_STONE_TOWER_TEMPLE
+};
+
+TexturePtr sDungeonTitleTexturesGCPAL[][4] = {
+    { gPauseWoodfallTitleGCENGTex, gPauseSnowheadTitleGCENGTex, gPauseGreatBayTitleGCENGTex,
+      gPauseStoneTowerTitleGCENGTex },
+    { gPauseWoodfallTitleGCGERTex, gPauseSnowheadTitleGCGERTex, gPauseGreatBayTitleGCGERTex,
+      gPauseStoneTowerTitleGCGERTex },
+    { gPauseWoodfallTitleGCFRATex, gPauseSnowheadTitleGCFRATex, gPauseGreatBayTitleGCFRATex,
+      gPauseStoneTowerTitleGCFRATex },
+    { gPauseWoodfallTitleGCESPTex, gPauseSnowheadTitleGCESPTex, gPauseGreatBayTitleGCESPTex,
+      gPauseStoneTowerTitleGCESPTex },
+};
+// #endregion
+
 s16 sDungeonMapFloorIconPosY[] = { 67, 81, 95, 109, 123 };
 
 void KaleidoScope_DrawDungeonMap(PlayState* play) {
@@ -187,8 +210,20 @@ void KaleidoScope_DrawDungeonMap(PlayState* play) {
     gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
 
     // QUAD_MAP_PAGE_DUNGEON_TITLE
-    POLY_OPA_DISP =
-        Gfx_DrawTexQuadIA8(POLY_OPA_DISP, sDungeonTitleTextures[((void)0, gSaveContext.dungeonIndex)], 128, 16, 0);
+    if (ResourceMgr_GetGamePlatform(0) == GAME_PLATFORM_GC) {
+        if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+            POLY_OPA_DISP = Gfx_DrawTexQuad4b(
+                POLY_OPA_DISP,
+                sDungeonTitleTexturesGCPAL[gSaveContext.options.language - 1][((void)0, gSaveContext.dungeonIndex)],
+                G_IM_FMT_IA, 128, 16, 0);
+        } else {
+            POLY_OPA_DISP = Gfx_DrawTexQuad4b(
+                POLY_OPA_DISP, sDungeonTitleTexturesGC[((void)0, gSaveContext.dungeonIndex)], G_IM_FMT_IA, 128, 16, 0);
+        }
+    } else {
+        POLY_OPA_DISP =
+            Gfx_DrawTexQuadIA8(POLY_OPA_DISP, sDungeonTitleTextures[((void)0, gSaveContext.dungeonIndex)], 128, 16, 0);
+    }
 
     gDPPipeSync(POLY_OPA_DISP++);
 

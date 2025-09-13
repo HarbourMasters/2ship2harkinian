@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
@@ -11,19 +11,28 @@ extern "C" {
 
 void ApplySwampSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
-        .msg = "Make me...normal again...I'll give you %g{{article}}{{item}}%w...Please...help me...\xE0",
+        .msg = LOCALIZED("Make me...normal again...I'll give you {{article}}%g{{itemName}}%w...Please...help me...\xE0",
+                         "Rends-moi...normal à nouveau... Je te donnerai {{article}}%g{{itemName}}%w...S'il te "
+                         "plaît...aide-moi...\xE0",
+                         "Verwandle mich... zurück... Ich werde dir... {{article}}%g{{itemName}}%w geben... Bitte... "
+                         "Hilf mir...\xE0",
+                         "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem =
         Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_SWAMP_SPIDER_HOUSE_MASK_OF_TRUTH].randoItemId];
 
-    if (!Ship_IsCStringEmpty(randoStaticItem.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.article) + " ");
-    } else {
-        CustomMessage::Replace(&entry.msg, "{{article}}", "");
+    std::string article = LOCALIZED(randoStaticItem.articleEng, randoStaticItem.articleFre, randoStaticItem.articleGer2,
+                                    randoStaticItem.articleJpn, randoStaticItem.articleSpa);
+    if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
+        article += " ";
     }
 
-    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.name);
+    std::string name = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                 randoStaticItem.nameJpn, randoStaticItem.nameSpa);
+
+    CustomMessage::Replace(&entry.msg, "{{article}}", article);
+    CustomMessage::Replace(&entry.msg, "{{itemName}}", name);
 
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
@@ -31,19 +40,29 @@ void ApplySwampSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
 
 void ApplyOceanSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
-        .msg = "Huh? How'd I get up here... Why do I have %g{{article}}{{item}}%w in my pocket...?\xE0",
+        .msg = LOCALIZED(
+            "Huh? How'd I get up here... Why do I have {{article}}%g{{itemName}}%w in my pocket...?\xE0",
+            "Hein? Comment je suis arrivé ici... Pourquoi j'ai {{article}}%g{{itemName}}%w dans ma poche...?\xE0",
+            "Huch? Wie bin ich denn hier hin gekommen... Warum habe ich {{article}}%g{{itemName}}%w in meiner "
+            "Tasche...?\xE0",
+            "TODO_JAPANESE", "TODO_SPANISH")
     };
 
     auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_OCEAN_SPIDER_HOUSE_WALLET].randoItemId];
 
-    if (!Ship_IsCStringEmpty(randoStaticItem.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.article) + " ");
-    } else {
-        CustomMessage::Replace(&entry.msg, "{{article}}", "");
+    std::string article = LOCALIZED(randoStaticItem.articleEng, randoStaticItem.articleFre, randoStaticItem.articleGer2,
+                                    randoStaticItem.articleJpn, randoStaticItem.articleSpa);
+    if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
+        article += " ";
     }
 
-    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.name);
+    std::string name = LOCALIZED(randoStaticItem.nameEng, randoStaticItem.nameFre, randoStaticItem.nameGer,
+                                 randoStaticItem.nameJpn, randoStaticItem.nameSpa);
 
+    CustomMessage::Replace(&entry.msg, "{{article}}", article);
+    CustomMessage::Replace(&entry.msg, "{{itemName}}", name);
+
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }

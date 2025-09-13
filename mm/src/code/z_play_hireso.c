@@ -261,6 +261,15 @@ TexturePtr sBombersNotebookDayTextures[] = {
     gBombersNotebookDayFinalENGTex,
 };
 
+// #region 2S2H [PAL]
+TexturePtr sBombersNotebookDayTexturesPAL[][3] = {
+    { gBombersNotebookDay1stENGTex, gBombersNotebookDay2ndENGTex, gBombersNotebookDayFinalENGTex },
+    { gBombersNotebookDay1stGERTex, gBombersNotebookDay2ndGERTex, gBombersNotebookDayFinalGERTex },
+    { gBombersNotebookDay1stFRATex, gBombersNotebookDay2ndFRATex, gBombersNotebookDayFinalFRATex },
+    { gBombersNotebookDay1stESPTex, gBombersNotebookDay2ndESPTex, gBombersNotebookDayFinalESPTex },
+};
+// #endregion
+
 #define DEFINE_EVENT(_enum, icon, _colorFlag, _description, _completedMessage, _completedFlag) icon,
 
 s32 sBombersNotebookEventIcons[] = {
@@ -315,9 +324,15 @@ void BombersNotebook_DrawHeaders(Gfx** gfxP) {
 
     gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, 255);
     for (i = 0, rectLeft = 124; i < ARRAY_COUNT(sBombersNotebookDayTextures); i++, rectLeft += 150) {
-        gDPLoadTextureBlock(gfx++, sBombersNotebookDayTextures[i], G_IM_FMT_IA, G_IM_SIZ_8b, 48, 22, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                            G_TX_NOLOD);
+        if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+            gDPLoadTextureBlock(gfx++, sBombersNotebookDayTexturesPAL[gSaveContext.options.language - 1][i],
+                                G_IM_FMT_IA, G_IM_SIZ_8b, 48, 22, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock(gfx++, sBombersNotebookDayTextures[i], G_IM_FMT_IA, G_IM_SIZ_8b, 48, 22, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        }
         BombersNotebook_DrawScisTexRect(&gfx, rectLeft * 4, 77 * 4, (rectLeft + 48) * 4, 99 * 4, 0, 0, 0, 1 << 10,
                                         1 << 10);
     }

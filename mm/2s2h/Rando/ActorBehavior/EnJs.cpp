@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/Rando/Logic/Logic.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
@@ -38,8 +38,13 @@ void OverrideSubJsText(u16* textId, bool* loadFromMessageTable) {
                     }
 
                     if (Rando::Logic::MoonMaskCount() < requiredMasks) {
-                        entry.msg =
-                            "You need more masks to play... Come back when you have at least {{requiredMasks}}...";
+                        entry.msg = LOCALIZED(
+                            "You need more masks to play... Come back when you have at least %r{{requiredMasks}}%w...",
+                            "Il te faut plus de masques pour jouer... Reviens quand tu en auras au moins "
+                            "%r{{requiredMasks}}%w...",
+                            "Masken... Du hast... nicht genug davon. Ich werde mit dir spielen... wenn du mindestens "
+                            "{{requiredMasks}} hast...",
+                            "TODO_JAPANESE", "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;
                         CustomMessage::Replace(&entry.msg, "{{requiredMasks}}", std::to_string(requiredMasks));
                     }
@@ -67,26 +72,53 @@ void OverrideSubJsText(u16* textId, bool* loadFromMessageTable) {
                             break;
                     }
                     if (questItem != QUEST_17 && !CHECK_QUEST_ITEM(questItem)) {
-                        entry.msg = "You need to find {{item}} before you can play...";
+                        entry.msg =
+                            LOCALIZED("You need to find {{article}}%r{{itemName}}%w before you can play...",
+                                      "Tu dois trouver {{article}}%r{{itemName}}%w avant de pouvoir jouer...",
+                                      "Du brauchst... {{article}}%r{{itemName}}%w bevor wir... spielen können...",
+                                      "TODO_JAPANESE", "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;
-                        CustomMessage::Replace(&entry.msg, "{{item}}", Rando::StaticData::GetItemName(itemId));
+                        const auto& item = Rando::StaticData::Items[itemId];
+                        std::string article = LOCALIZED(item.articleEng, item.articleFre, item.articleGer2,
+                                                        item.articleJpn, item.articleSpa);
+                        if (!Ship_IsCStringEmpty(article.c_str()) &&
+                            article != "l'") { // Special case handling with l' french article
+                            article += " ";
+                        }
+                        std::string itemName =
+                            LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
+                        CustomMessage::Replace(&entry.msg, "{{article}}", article);
+                        CustomMessage::Replace(&entry.msg, "{{itemName}}", itemName);
                     }
                     break;
                 }
                 case RO_ACCESS_TRIALS_FORMS:
                     if (jsType == 1 && !HAS_ITEM(ITEM_MASK_DEKU)) {
-                        entry.msg = "You need to find the Deku Mask before you can play...";
+                        entry.msg =
+                            LOCALIZED("You need to find the %gDeku Mask %wbefore you can play...",
+                                      "Tu dois trouver le %gMasque Mojo %wavant de pouvoir jouer...",
+                                      "Du musst... die %gDeku-Schale%w finden... bevor wir... spielen können...",
+                                      "TODO_JAPANESE", "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;
                     } else if (jsType == 2 && !HAS_ITEM(ITEM_MASK_GORON)) {
-                        entry.msg = "You need to find the Goron Mask before you can play...";
+                        entry.msg =
+                            LOCALIZED("You need to find the %rGoron Mask %rbefore you can play...",
+                                      "Tu dois trouver le %rMasque Goron %ravant de pouvoir jouer...",
+                                      "Du musst... die %rGoronen-Haut%w finden... bevor wir... spielen können...",
+                                      "TODO_JAPANESE", "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;
                     } else if (jsType == 3 && !HAS_ITEM(ITEM_MASK_ZORA)) {
-                        entry.msg = "You need to find the Zora Mask before you can play...";
+                        entry.msg =
+                            LOCALIZED("You need to find the %bZora Mask %wbefore you can play...",
+                                      "Tu dois trouver le %bMasque Zora %wavant de pouvoir jouer...",
+                                      "Du musst... die %bZora-Schuppen%w finden... bevor wir... spielen können...",
+                                      "TODO_JAPANESE", "TODO_SPANISH");
                         entry.nextMessageID = 0x2216;
                     }
                     break;
             }
 
+            CustomMessage::ReplaceSpecialChars(&entry.msg);
             CustomMessage::LoadCustomMessageIntoFont(entry);
             *loadFromMessageTable = false;
             break;
@@ -95,6 +127,7 @@ void OverrideSubJsText(u16* textId, bool* loadFromMessageTable) {
         case 0x2216: {
             auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
             entry.msg = "...\xE0";
+            CustomMessage::ReplaceSpecialChars(&entry.msg);
             CustomMessage::LoadCustomMessageIntoFont(entry);
             *loadFromMessageTable = false;
             return;
@@ -111,13 +144,18 @@ void OverrideMainJsText(u16* textId, bool* loadFromMessageTable) {
         case 0x21FC: {
             if (!RANDO_SAVE_CHECKS[RC_MOON_FIERCE_DEITY_MASK].cycleObtained && Rando::Logic::MoonMaskCount() >= 20) {
                 RANDO_SAVE_CHECKS[RC_MOON_FIERCE_DEITY_MASK].eligible = true;
-                entry.msg = "You... You seem strong... I have a gift for you...";
+                entry.msg = LOCALIZED("You... You seem strong... I have a gift for you...",
+                                      "Toi... Tu sembles fort... J'ai un cadeau pour toi...",
+                                      "Du... Du scheinst stark zu sein... Ich habe etwas für dich...", "TODO_JAPANESE",
+                                      "TODO_SPANISH");
                 entry.nextMessageID = 0x21FD;
                 override = true;
             }
 
             if (Rando::Logic::RemainsCount() < RANDO_SAVE_OPTIONS[RO_ACCESS_MAJORA_REMAINS_COUNT]) {
-                entry.msg = "You are not strong enough to play with me...";
+                entry.msg = LOCALIZED(
+                    "You are not strong enough to play with me...", "Tu n'es pas assez fort pour jouer avec moi...",
+                    "Du bist... nicht stark genug... um mit mir zu spielen...", "TODO_JAPANESE", "TODO_SPANISH");
                 entry.nextMessageID = 0x21FD;
                 override = true;
             }
@@ -137,6 +175,7 @@ void OverrideMainJsText(u16* textId, bool* loadFromMessageTable) {
         }
     }
     if (override) {
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     }

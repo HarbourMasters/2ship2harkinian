@@ -18,13 +18,28 @@ static const ALIGN_ASSET(2) char gOptionsDividerMiddleVtx[] = dgOptionsDividerMi
 #define dgOptionsDividerBottomVtx "__OTR__overlays/ovl_file_choose/gOptionsDividerBottomVtx"
 static const ALIGN_ASSET(2) char gOptionsDividerBottomVtx[] = dgOptionsDividerBottomVtx;
 
-// #region GC US Support
+// #region MultiVersion Support
 
+// GC
 #define dgOptionsDividerVtx "__OTR__overlays/ovl_file_choose/gOptionsDividerVtx"
 static const ALIGN_ASSET(2) char gOptionsDividerVtx[] = dgOptionsDividerVtx;
 
-#define dD_80813EB0_ce0 "__OTR__overlays/ovl_file_choose/D_80813EB0_ce0"
-static const ALIGN_ASSET(2) char D_80813EB0_ce0[] = dD_80813EB0_ce0;
+#define dD_80813EB0_GC "__OTR__overlays/ovl_file_choose/D_80813EB0_GC"
+static const ALIGN_ASSET(2) char D_80813EB0_GC[] = dD_80813EB0_GC;
+
+#define dD_80813F30_GC "__OTR__overlays/ovl_file_choose/D_80813F30_GC"
+static const ALIGN_ASSET(2) char D_80813F30_GC[] = dD_80813F30_GC;
+
+// GC US
+#define dD_80813DF0_ce0 "__OTR__overlays/ovl_file_choose/D_80813DF0_ce0"
+static const ALIGN_ASSET(2) char D_80813DF0_ce0[] = dD_80813DF0_ce0;
+
+// GC PAL
+#define dD_808153B0_cp0 "__OTR__overlays/ovl_file_choose/D_808153B0_cp0"
+static const ALIGN_ASSET(2) char D_808153B0_cp0[] = dD_808153B0_cp0;
+
+#define dD_80814F70_cp0 "__OTR__overlays/ovl_file_choose/D_80814F70_cp0"
+static const ALIGN_ASSET(2) char D_80814F70_cp0[] = dD_80814F70_cp0;
 
 // #endregion
 

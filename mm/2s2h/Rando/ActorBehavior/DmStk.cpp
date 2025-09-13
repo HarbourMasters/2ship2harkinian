@@ -1,4 +1,4 @@
-#include "ActorBehavior.h"
+﻿#include "ActorBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/ShipUtils.h"
@@ -25,21 +25,43 @@ void ApplyOathHint(u16* textId, bool* loadFromMessageTable) {
     }
 
     if (Rando::Logic::RemainsCount() < RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT]) {
-        msg = "You think you can defeat me? The Giants are trapped and powerless to stop me. Even if they were free, "
-              "they couldn't save you.";
+        msg = LOCALIZED("You think you can defeat me? The Giants are trapped and powerless to stop me. Even if they "
+                        "were free, they couldn't save you.",
+                        "Tu crois pouvoir me vaincre? Les Géants sont piégés et impuissants pour même m'arrêter. Même "
+                        "libres,ils ne pourraient pas te sauver.",
+                        "Oh, komm schon... Glaubst du etwa, du könntest in dieser Form gegen mich antreten? Die Riesen "
+                        "sind gefangen und komplett machtlos. Selbst wenn sie jetzt noch kommen würden, könnten sie "
+                        "mit mir nicht mehr fertig werden! Hee, hee.",
+                        "TODO_JAPANESE", "TODO_SPANISH");
     } else {
-        msg = "I can hear the Giants Melody coming from "
-              "%y{{location}}%w. But it's too late! They can't help you now!";
+        RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_SONG_OATH);
+        const auto& item = Rando::StaticData::Items[RI_SONG_OATH];
+        std::string article =
+            LOCALIZED(item.articleEng, item.articleFre, item.articleGer2, item.articleJpn, item.articleSpa);
+        if (!Ship_IsCStringEmpty(article.c_str()) && article != "l'") { // Special case handling with l' french article
+            article += " ";
+        }
+        std::string itemName = LOCALIZED(item.nameEng, item.nameFre, item.nameGer, item.nameJpn, item.nameSpa);
+        msg = LOCALIZED(
+            "I can hear the Giants Melody ({{article}}%y{{itemName}}%w) coming from %y{{location}}%w. But it's "
+            "too late! They can't help you now!",
+            "J'entends la Mélodie des Géants ({{article}}%y{{itemName}}%w) venant de %y{{location}}%w. Mais il "
+            "est trop tard! Ils ne peuvent plus t'aider!",
+            "Ich kann die Giganten über {{article}}%y{{itemName}}%w singen hören, doch jetzt ist es sowieso zu spät "
+            "%y{{location}}%w danach zu suchen! Sie können dir nicht mehr helfen!",
+            "TODO_JAPANESE", "TODO_SPANISH");
+        CustomMessage::Replace(&msg, "{{article}}", article);
+        CustomMessage::Replace(&msg, "{{itemName}}", itemName);
+        CustomMessage::Replace(&msg, "{{location}}",
+                               Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
     }
-
-    RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_SONG_OATH);
-    CustomMessage::Replace(&msg, "{{location}}", Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 
     CustomMessage::Entry entry = {
         .nextMessageID = (u16)0xFFFF,
         .msg = msg,
     };
 
+    CustomMessage::ReplaceSpecialChars(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }

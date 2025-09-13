@@ -74,4 +74,33 @@ static const ALIGN_ASSET(2) char gTitleScreenInsertControllerTextTex[] = dgTitle
 
 #define dgTitleScreenMajorasMaskTex "__OTR__objects/object_mag/gTitleScreenMajorasMaskTex"
 static const ALIGN_ASSET(2) char gTitleScreenMajorasMaskTex[] = dgTitleScreenMajorasMaskTex;
+
+// #region 2S2H [PAL]
+
+#define dgTitleScreenControllerNotConnectedTextENGTex "__OTR__objects/object_mag/gTitleScreenControllerNotConnectedTextENGTex"
+static const ALIGN_ASSET(2) char gTitleScreenControllerNotConnectedTextENGTex[] = dgTitleScreenControllerNotConnectedTextENGTex;
+
+#define dgTitleScreenControllerNotConnectedTextGERTex "__OTR__objects/object_mag/gTitleScreenControllerNotConnectedTextGERTex"
+static const ALIGN_ASSET(2) char gTitleScreenControllerNotConnectedTextGERTex[] = dgTitleScreenControllerNotConnectedTextGERTex;
+
+#define dgTitleScreenControllerNotConnectedTextFRATex "__OTR__objects/object_mag/gTitleScreenControllerNotConnectedTextFRATex"
+static const ALIGN_ASSET(2) char gTitleScreenControllerNotConnectedTextFRATex[] = dgTitleScreenControllerNotConnectedTextFRATex;
+
+#define dgTitleScreenControllerNotConnectedTextESPTex "__OTR__objects/object_mag/gTitleScreenControllerNotConnectedTextESPTex"
+static const ALIGN_ASSET(2) char gTitleScreenControllerNotConnectedTextESPTex[] = dgTitleScreenControllerNotConnectedTextESPTex;
+
+#define dgTitleScreenInsertControllerTextENGTex "__OTR__objects/object_mag/gTitleScreenInsertControllerTextENGTex"
+static const ALIGN_ASSET(2) char gTitleScreenInsertControllerTextENGTex[] = dgTitleScreenInsertControllerTextENGTex;
+
+#define dgTitleScreenInsertControllerTextGERTex "__OTR__objects/object_mag/gTitleScreenInsertControllerTextGERTex"
+static const ALIGN_ASSET(2) char gTitleScreenInsertControllerTextGERTex[] = dgTitleScreenInsertControllerTextGERTex;
+
+#define dgTitleScreenInsertControllerTextFRATex "__OTR__objects/object_mag/gTitleScreenInsertControllerTextFRATex"
+static const ALIGN_ASSET(2) char gTitleScreenInsertControllerTextFRATex[] = dgTitleScreenInsertControllerTextFRATex;
+
+#define dgTitleScreenInsertControllerTextESPTex "__OTR__objects/object_mag/gTitleScreenInsertControllerTextESPTex"
+static const ALIGN_ASSET(2) char gTitleScreenInsertControllerTextESPTex[] = dgTitleScreenInsertControllerTextESPTex;
+
+// #endregion
+
 #endif // OBJECTS_OBJECT_MAG_H

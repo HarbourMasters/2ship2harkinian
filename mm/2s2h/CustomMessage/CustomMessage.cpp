@@ -1,4 +1,4 @@
-
+﻿
 #include "CustomMessage.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 
@@ -40,8 +40,58 @@ void CustomMessage::ReplaceColorChars(std::string* msg) {
     CustomMessage::Replace(msg, "%p", "\x06");
 }
 
+void CustomMessage::ReplaceSpecialChars(std::string* msg) {
+    CustomMessage::Replace(msg, "\n", "\x11");
+    CustomMessage::Replace(msg, "À", "\x80");
+    CustomMessage::Replace(msg, "Á", "\x81");
+    CustomMessage::Replace(msg, "Â", "\x82");
+    CustomMessage::Replace(msg, "Ä", "\x83");
+    CustomMessage::Replace(msg, "Ç", "\x84");
+    CustomMessage::Replace(msg, "È", "\x85");
+    CustomMessage::Replace(msg, "É", "\x86");
+    CustomMessage::Replace(msg, "Ê", "\x87");
+    CustomMessage::Replace(msg, "Ë", "\x88");
+    CustomMessage::Replace(msg, "Ì", "\x89");
+    CustomMessage::Replace(msg, "Í", "\x8A");
+    CustomMessage::Replace(msg, "Î", "\x8B");
+    CustomMessage::Replace(msg, "Ï", "\x8C");
+    CustomMessage::Replace(msg, "Ñ", "\x8D");
+    CustomMessage::Replace(msg, "Ò", "\x8E");
+    CustomMessage::Replace(msg, "Ó", "\x8F");
+    CustomMessage::Replace(msg, "Ô", "\x90");
+    CustomMessage::Replace(msg, "Ö", "\x91");
+    CustomMessage::Replace(msg, "Ù", "\x92");
+    CustomMessage::Replace(msg, "Ú", "\x93");
+    CustomMessage::Replace(msg, "Û", "\x94");
+    CustomMessage::Replace(msg, "Ü", "\x95");
+    CustomMessage::Replace(msg, "ß", "\x96");
+    CustomMessage::Replace(msg, "à", "\x97");
+    CustomMessage::Replace(msg, "á", "\x98");
+    CustomMessage::Replace(msg, "â", "\x99");
+    CustomMessage::Replace(msg, "ä", "\x9A");
+    CustomMessage::Replace(msg, "ç", "\x9B");
+    CustomMessage::Replace(msg, "è", "\x9C");
+    CustomMessage::Replace(msg, "é", "\x9D");
+    CustomMessage::Replace(msg, "ê", "\x9E");
+    CustomMessage::Replace(msg, "ë", "\x9F");
+    CustomMessage::Replace(msg, "ì", "\xA0");
+    CustomMessage::Replace(msg, "í", "\xA1");
+    CustomMessage::Replace(msg, "î", "\xA2");
+    CustomMessage::Replace(msg, "ï", "\xA3");
+    CustomMessage::Replace(msg, "ñ", "\xA4");
+    CustomMessage::Replace(msg, "ò", "\xA5");
+    CustomMessage::Replace(msg, "ó", "\xA6");
+    CustomMessage::Replace(msg, "ô", "\xA7");
+    CustomMessage::Replace(msg, "ö", "\xA8");
+    CustomMessage::Replace(msg, "ù", "\xA9");
+    CustomMessage::Replace(msg, "ú", "\xAA");
+    CustomMessage::Replace(msg, "û", "\xAB");
+    CustomMessage::Replace(msg, "ü", "\xAC");
+    CustomMessage::Replace(msg, "¡", "\xAD");
+}
+
 void CustomMessage::AddLineBreaks(std::string* msg) {
-    const float MAX_TEXTBOX_WIDTH = 300.0f;
+    const float MAX_TEXTBOX_WIDTH = 280.0f;
     const int MAX_LINES_PER_PAGE = 4;
 
     float currentLineWidth = 0.0f;
@@ -137,6 +187,7 @@ void CustomMessage::LoadCustomMessageIntoFont(CustomMessage::Entry entry) {
 
     if (entry.autoFormat) {
         CustomMessage::ReplaceColorChars(&entry.msg);
+        CustomMessage::ReplaceSpecialChars(&entry.msg);
         CustomMessage::Replace(&entry.msg, "\n", "\x11");
         CustomMessage::AddLineBreaks(&entry.msg);
         CustomMessage::EnsureMessageEnd(&entry.msg);
@@ -152,6 +203,36 @@ void CustomMessage::LoadCustomMessageIntoFont(CustomMessage::Entry entry) {
 
     msgCtx->msgLength = entry.msg.length() + MESSAGE_HEADER_SIZE;
     memcpy(&font->msgBuf, buff, msgCtx->msgLength);
+}
+
+// Helper function to get the correct French adjective based on article gender
+std::string CustomMessage::GetFrenchAdjectiveAgreement(const std::string& article, const std::string& masculineForm,
+                                                       const std::string& feminineForm) {
+    std::string cleanArticle = article;
+    // Clean the article by removing trailing spaces
+    if (!cleanArticle.empty() && cleanArticle.back() == ' ') {
+        cleanArticle.pop_back();
+    }
+
+    // Check for feminine articles
+    if (cleanArticle == "une" || cleanArticle == "la") {
+        return feminineForm;
+    }
+    return masculineForm;
+}
+
+// Helper function to handle "que" -> "qu'" elision before vowels
+std::string CustomMessage::GetFrenchQueForm(const std::string& article) {
+    std::string cleanArticle = article;
+    // Clean the article by removing trailing spaces
+    if (!cleanArticle.empty() && cleanArticle.back() == ' ') {
+        cleanArticle.pop_back();
+    }
+
+    if (cleanArticle == "un" || cleanArticle == "une") {
+        return "qu'";
+    }
+    return "que ";
 }
 
 void CustomMessage::RegisterHooks() {
