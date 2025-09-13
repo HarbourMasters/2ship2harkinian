@@ -43,6 +43,9 @@ void HandleConfirmingState(PauseContext* pauseCtx, Input* input) {
                 gHorseIsMounted = false;
             }
 
+            // Clear pictograph/camera event flag to prevent UI state from persisting after warp
+            CLEAR_EVENTINF(EVENTINF_41);
+
             Interface_SetAButtonDoAction(gPlayState, DO_ACTION_NONE);
             pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
             sPauseMenuVerticalOffset = -6240.0f;
