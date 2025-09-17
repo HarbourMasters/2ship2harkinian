@@ -118,66 +118,68 @@ void DrawSplitsList() {
     ImGui::Begin("Timesplits", nullptr,
                  ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDocking |
                      ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
-
-    if (ImGui::BeginTable("Splits", 5, ImGuiTableFlags_Hideable | ImGuiTableFlags_Reorderable)) {
-        ImGui::TableSetupColumn("Item Image", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel,
-                                28.0f);
-        ImGui::TableSetupColumn("Item Name");
-        ImGui::TableSetupColumn("Current Time");
-        ImGui::TableSetupColumn("+/-");
-        ImGui::TableSetupColumn("Previous Best ");
-        if (tableColumnFlags != ImGuiTableColumnFlags_None) {
-            ImGui::TableHeadersRow();
-        }
-
-        for (size_t i = 0; i < splitList.size(); i++) {
-            ImGui::PushID(splitList[i].splitId);
-
-            // Item Image Column
-            ImGui::TableNextColumn();
-
-            if (CVarGetInteger("gSettings.TimeSplits.Highlight", 0) && splitList[i].splitStatus == SPLIT_ACTIVE) {
-                ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(47, 79, 90, 255));
+    if (ImGui::BeginChild("SplitChild", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar)) {
+        if (ImGui::BeginTable("Splits", 5, ImGuiTableFlags_Hideable | ImGuiTableFlags_Reorderable)) {
+            ImGui::TableSetupColumn("Item Image",
+                                    ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel, 28.0f);
+            ImGui::TableSetupColumn("Item Name");
+            ImGui::TableSetupColumn("Current Time");
+            ImGui::TableSetupColumn("+/-");
+            ImGui::TableSetupColumn("Previous Best ");
+            if (tableColumnFlags != ImGuiTableColumnFlags_None) {
+                ImGui::TableHeadersRow();
             }
 
-            SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
-                                   Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                                       GetItemImageById(splitList[i].splitId)),
-                                   GetItemImageSizeById(splitList[i].splitId), ImVec2(0, 0), ImVec2(1, 1),
-                                   ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(splitList[i].splitId))) {
-                SkipSplitEntry(i);
-            };
-            SplitsPopImageButtonStyle();
+            for (size_t i = 0; i < splitList.size(); i++) {
+                ImGui::PushID(splitList[i].splitId);
 
-            // Item Name Column
-            ImGui::TableNextColumn();
-            TableCellCenteredText(COLOR_WHITE, splitList[i].splitName.c_str());
+                // Item Image Column
+                ImGui::TableNextColumn();
 
-            // Current Time Column
-            ImGui::TableNextColumn();
-            TableCellCenteredText(
-                GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
-                !gPlayState ? "--:--:--.-"
-                            : Ship_FormatTimeDisplay(GetCurrentTimeTextDisplay(splitList[i]).timeDisplay).c_str());
+                if (CVarGetInteger("gSettings.TimeSplits.Highlight", 0) && splitList[i].splitStatus == SPLIT_ACTIVE) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(47, 79, 90, 255));
+                }
 
-            // +/- Column
-            ImGui::TableNextColumn();
-            TableCellCenteredText(
-                GetTimeDiffTextDisplay(splitList[i]).colorDisplay,
-                !gPlayState ? "--:--:--.-"
-                            : Ship_FormatTimeDisplay(GetTimeDiffTextDisplay(splitList[i]).timeDisplay).c_str());
+                SplitsPushImageButtonStyle();
+                if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
+                                       Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                                           GetItemImageById(splitList[i].splitId)),
+                                       GetItemImageSizeById(splitList[i].splitId), ImVec2(0, 0), ImVec2(1, 1),
+                                       ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(splitList[i].splitId))) {
+                    SkipSplitEntry(i);
+                };
+                SplitsPopImageButtonStyle();
 
-            // Previous Best Column
-            ImGui::TableNextColumn();
-            TableCellCenteredText(COLOR_WHITE, !gPlayState
-                                                   ? "--:--:--.-"
-                                                   : Ship_FormatTimeDisplay(splitList[i].splitPreviousBest).c_str());
+                // Item Name Column
+                ImGui::TableNextColumn();
+                TableCellCenteredText(COLOR_WHITE, splitList[i].splitName.c_str());
 
-            ImGui::PopID();
+                // Current Time Column
+                ImGui::TableNextColumn();
+                TableCellCenteredText(
+                    GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
+                    !gPlayState ? "--:--:--.-"
+                                : Ship_FormatTimeDisplay(GetCurrentTimeTextDisplay(splitList[i]).timeDisplay).c_str());
+
+                // +/- Column
+                ImGui::TableNextColumn();
+                TableCellCenteredText(
+                    GetTimeDiffTextDisplay(splitList[i]).colorDisplay,
+                    !gPlayState ? "--:--:--.-"
+                                : Ship_FormatTimeDisplay(GetTimeDiffTextDisplay(splitList[i]).timeDisplay).c_str());
+
+                // Previous Best Column
+                ImGui::TableNextColumn();
+                TableCellCenteredText(COLOR_WHITE,
+                                      !gPlayState ? "--:--:--.-"
+                                                  : Ship_FormatTimeDisplay(splitList[i].splitPreviousBest).c_str());
+
+                ImGui::PopID();
+            }
+
+            ImGui::EndTable();
         }
-
-        ImGui::EndTable();
+        ImGui::EndChild();
     }
 
     ImGui::End();
