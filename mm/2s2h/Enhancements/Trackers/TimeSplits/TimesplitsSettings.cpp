@@ -19,6 +19,116 @@ extern "C" {
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "GameInteractor/GameInteractor.h"
 
+std::vector<TimesplitObject> sceneObjectList = {
+    // Misc. Areas
+    { SCENE_LOST_WOODS, "Lost Woods (Intro)" },
+    { SCENE_OPENINGDAN, "Before Clock Town" },
+    { SCENE_KAKUSIANA, "Lone Peak Shrine & Grottos" },
+    { SCENE_YOUSEI_IZUMI, "Fairy's Fountain" },
+    { SCENE_KYOJINNOMA, "Giants' Chamber" },
+    // Clock Town Areas
+    { SCENE_TOWN, "East Clock Town" },
+    { SCENE_ICHIBA, "West Clock Town" },
+    { SCENE_BACKTOWN, "North Clock Town" },
+    { SCENE_CLOCKTOWER, "South Clock Town" },
+    { SCENE_INSIDETOWER, "Clock Tower Interior" },
+    { SCENE_OKUJOU, "Clock Tower Rooftop" },
+    { SCENE_ALLEY, "Laundry Pool" },
+    { SCENE_YADOYA, "Stock Pot Inn" },
+    { SCENE_DOUJOU, "Swordsman's School" },
+    { SCENE_AYASHIISHOP, "Curiosity Shop" },
+    { SCENE_8ITEMSHOP, "Trading Post" },
+    { SCENE_BOMYA, "Bomb Shop" },
+    { SCENE_BOWLING, "Honey & Darling's Shop" },
+    { SCENE_SONCHONOIE, "The Mayor's Residence" },
+    { SCENE_DEKUTES, "Deku Scrub Playground" },
+    { SCENE_TAKARAKUJI, "Lottery Shop" },
+    { SCENE_TAKARAYA, "Treasure Chest Shop" },
+    { SCENE_MILK_BAR, "Milk Bar" },
+    { SCENE_SYATEKI_MIZU, "Town Shooting Gallery" },
+    { SCENE_POSTHOUSE, "Post Office" },
+    // Termina Field Region
+    { SCENE_00KEIKOKU, "Termina Field" },
+    { SCENE_F01, "Romani Ranch" },
+    { SCENE_TENMON_DAI, "Astral Observatory" },
+    { SCENE_ROMANYMAE, "Milk Road" },
+    { SCENE_KOEPONARACE, "Gorman Track" },
+    { SCENE_OMOYA, "Mama's House & Barn" },
+    { SCENE_F01_B, "Doggy Racetrack" },
+    { SCENE_F01C, "Cucco Shack" },
+    // Woodfall Region
+    { SCENE_24KEMONOMITI, "Road to Southern Swamp" },
+    { SCENE_20SICHITAI, "Southern Swamp (poison)" },
+    { SCENE_20SICHITAI2, "Southern Swamp (Clear)" },
+    { SCENE_22DEKUCITY, "Deku Palace" },
+    { SCENE_21MITURINMAE, "Woodfall" },
+    { SCENE_MITURIN, "Woodfall Temple" },
+    { SCENE_MITURIN_BS, "Odolwa's Lair" },
+    { SCENE_26SARUNOMORI, "Woods of Mystery" },
+    { SCENE_WITCH_SHOP, "Magic Hags' Potion Shop" },
+    { SCENE_MAP_SHOP, "Tourist Information" },
+    { SCENE_DANPEI, "Deku Shrine" },
+    { SCENE_DEKU_KING, "Deku King's Chamber" },
+    { SCENE_SYATEKI_MORI, "Swamp Shooting Gallery" },
+    { SCENE_KINSTA1, "Swamp Spider House" },
+    // Snowhead Region
+    { SCENE_13HUBUKINOMITI, "Path to Mountain Village" },
+    { SCENE_10YUKIYAMANOMURA, "Mountain Village (winter)" },
+    { SCENE_10YUKIYAMANOMURA2, "Mountain Village (spring)" },
+    { SCENE_17SETUGEN, "Path to Goron Village (winter)" },
+    { SCENE_17SETUGEN2, "Path to Goron Village (spring)" },
+    { SCENE_11GORONNOSATO, "Goron Village (winter)" },
+    { SCENE_11GORONNOSATO2, "Goron Village (spring)" },
+    { SCENE_GORONRACE, "Goron Racetrack" },
+    { SCENE_14YUKIDAMANOMITI, "Path to Snowhead" },
+    { SCENE_12HAKUGINMAE, "Snowhead" },
+    { SCENE_HAKUGIN, "Snowhead Temple" },
+    { SCENE_HAKUGIN_BS, "Goht's Lair" },
+    { SCENE_KAJIYA, "Mountain Smithy" },
+    { SCENE_GORON_HAKA, "Goron Graveyard" },
+    { SCENE_16GORON_HOUSE, "Goron Shrine" },
+    { SCENE_GORONSHOP, "Goron Shop" },
+    // Great Bay Region
+    { SCENE_30GYOSON, "Great Bay Coast" },
+    { SCENE_31MISAKI, "Zora Cape" },
+    { SCENE_SINKAI, "Pinnacle Rock" },
+    { SCENE_KAIZOKU, "Pirates' Fortress" },
+    { SCENE_TORIDE, "Pirates' Fortress Moat" },
+    { SCENE_PIRATE, "Pirates' Fortress Interior" },
+    { SCENE_SEA, "Great Bay Temple" },
+    { SCENE_SEA_BS, "Gyorg's Lair" },
+    { SCENE_35TAKI, "Waterfall Rapids" },
+    { SCENE_FISHERMAN, "Fisherman's Hut" },
+    { SCENE_LABO, "Marine Research Lab" },
+    { SCENE_KINDAN2, "Oceanside Spider House" },
+    { SCENE_33ZORACITY, "Zora Hall" },
+    // Ikana Region
+    { SCENE_IKANAMAE, "Road to Ikana" },
+    { SCENE_IKANA, "Ikana Canyon" },
+    { SCENE_BOTI, "Ikana Graveyard" },
+    { SCENE_HAKASHITA, "Beneath the Graveyard" },
+    { SCENE_F40, "Stone Tower" },
+    { SCENE_F41, "Inverted Stone Tower" },
+    { SCENE_INISIE_N, "Stone Tower Temple" },
+    { SCENE_INISIE_BS, "Twinmold's Lair" },
+    { SCENE_INISIE_R, "Inverted Stone Tower Temple" },
+    { SCENE_CASTLE, "Ancient Castle of Ikana" },
+    { SCENE_IKNINSIDE, "Igos du Ikana's Lair" },
+    { SCENE_DANPEI2TEST, "Beneath Graveyard and Dampe's House" },
+    { SCENE_REDEAD, "Beneath the Well" },
+    { SCENE_SECOM, "Sakon's Hideout" },
+    { SCENE_TOUGITES, "Ghost Hut" },
+    { SCENE_MUSICHOUSE, "Music Box House" },
+    { SCENE_RANDOM, "Secret Shrine" },
+    // The Moon
+    { SCENE_SOUGEN, "The Moon" },
+    { SCENE_LAST_DEKU, "Moon Deku Trial" },
+    { SCENE_LAST_GORON, "Moon Goron Trial" },
+    { SCENE_LAST_ZORA, "Moon Zora Trial" },
+    { SCENE_LAST_LINK, "Moon Link Trial" },
+    { SCENE_LAST_BS, "Majora's Lair" },
+};
+
 std::vector<TimesplitObject> splitObjectList = {
     // clang-format off
     { ITEM_HEART_PIECE, "Piece of Heart" },
@@ -219,7 +329,7 @@ const char* GetItemImageById(uint32_t itemId) {
 
 ImVec2 GetItemImageSizeById(uint32_t itemId) {
     float defaultImageSize = 32.0f;
-    if (itemId >= ITEM_SONG_SONATA && itemId <= ITEM_SONG_SUN) {
+    if ((itemId >= ITEM_SONG_SONATA && itemId <= ITEM_SONG_SUN) || itemId == ITEM_SONG_LULLABY_INTRO) {
         return ImVec2(defaultImageSize / 1.5f, defaultImageSize);
     } else {
         return ImVec2(defaultImageSize, defaultImageSize);
@@ -345,6 +455,36 @@ void DrawActionButtons() {
     }
 }
 
+void DrawEntranceList() {
+    if (ImGui::BeginChild("Entrance List")) {
+        if (ImGui::BeginTable("Entrances", 1)) {
+            for (auto& scene : sceneObjectList) {
+                ImGui::TableNextColumn();
+                ImGui::PushID(scene.splitId);
+                SplitsPushImageButtonStyle();
+                // if (ImGui::ImageButton(
+                //         std::to_string(scene.splitId).c_str(), ICON_FA_FORT_AWESOME, ImVec2(32.0f, 32.0f))) {
+                //     AddSplitEntryBySceneId(scene.splitId);
+                // }
+
+                if (ImGui::ImageButton(
+                        std::to_string(scene.splitId).c_str(),
+                        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gPauseUnusedCursorTex),
+                        ImVec2(32.0f, 32.0f))) {
+                    AddSplitEntryBySceneId(scene.splitId);
+                };
+                ImGui::SameLine();
+                TableCellCenteredText(UIWidgets::ColorValues.at(UIWidgets::Colors::White), scene.splitName.c_str());
+
+                SplitsPopImageButtonStyle();
+                ImGui::PopID();
+            }
+            ImGui::EndTable();
+        }
+        ImGui::EndChild();
+    }
+}
+
 void DrawItemList(const char* tableName, IndexRangeObject range, uint32_t tableSize) {
     if (ImGui::BeginTable(tableName, tableSize)) {
         for (int i = range.startIndex; i <= range.endIndex; i++) {
@@ -384,10 +524,12 @@ void TimesplitsSettingsWindow::DrawElement() {
     DrawOptions();
     DrawActionButtons();
 
-    if (ImGui::BeginTable("Split Settings", 2)) {
+    if (ImGui::BeginTable("Split Settings", 3)) {
         ImGui::TableSetupColumn("Preview", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel,
-                                85.0f);
-        ImGui::TableSetupColumn("Item Lists", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
+                                88.0f);
+        ImGui::TableSetupColumn("Item Categories",
+                                ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel, 120.0f);
+        ImGui::TableSetupColumn("Item Grids", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
 
         ImGui::TableNextColumn();
         ImGui::BeginDisabled();
@@ -400,21 +542,69 @@ void TimesplitsSettingsWindow::DrawElement() {
             ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((ImGui::GetContentRegionAvail().x - 32.0f) * 0.5f));
 
             SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
-                                   Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                                       GetItemImageById(splitList[i].splitId)),
-                                   GetItemImageSizeById(splitList[i].splitId), ImVec2(0, 0), ImVec2(1, 1),
-                                   ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(splitList[i].splitId))) {
+            if (ImGui::ImageButton(
+                    std::to_string(splitList[i].splitId).c_str(),
+                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                        splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
+                                                                    : gPauseUnusedCursorTex),
+                    splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageSizeById(splitList[i].splitId)
+                                                                : ImVec2(32.0f, 32.0f),
+                    ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                    splitList[i].splitType == SPLIT_TYPE_NORMAL ? Ship_GetItemColorTint(splitList[i].splitId)
+                                                                : ImVec4(1, 1, 1, 1))) {
                 shouldRemoveEntry = true;
                 entryId = splitList[i].splitId;
                 entryIndex = i;
             };
+            UIWidgets::Tooltip(splitList[i].splitName.c_str());
 
             HandleDragAndDrop(i);
             SplitsPopImageButtonStyle();
         }
         ImGui::EndChild();
 
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Inventory", {
+                                               .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                           })) {
+            range = GetIndexRange((uint32_t)ITEM_OCARINA_OF_TIME, (uint32_t)ITEM_BOTTLE);
+            listName = "Inventory";
+            listColumns = 6;
+        }
+        if (UIWidgets::Button("Masks", {
+                                           .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                       })) {
+            range = GetIndexRange((uint32_t)ITEM_MASK_POSTMAN, (uint32_t)ITEM_MASK_FIERCE_DEITY);
+            listName = "Masks";
+            listColumns = 6;
+        }
+        if (UIWidgets::Button("Songs", {
+                                           .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                       })) {
+            range = GetIndexRange((uint32_t)ITEM_SONG_TIME, (uint32_t)ITEM_SONG_OATH);
+            listName = "Songs";
+            listColumns = 5;
+        }
+        if (UIWidgets::Button("Quest", {
+                                           .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                       })) {
+            range = GetIndexRange((uint32_t)ITEM_REMAINS_ODOLWA, (uint32_t)ITEM_BOMBERS_NOTEBOOK);
+            listName = "Quest";
+            listColumns = 4;
+        }
+        if (UIWidgets::Button("Bosses", {
+                                            .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                        })) {
+            range = GetIndexRange((uint32_t)SPLIT_KILLED_ODOLWA, (uint32_t)SPLIT_KILLED_MAJORA);
+            listName = "Bosses";
+            listColumns = 1;
+        }
+        if (UIWidgets::Button("Entrances", {
+                                               .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                           })) {
+            listName = "Entrances";
+        }
+        /*
         ImGui::TableNextColumn();
         if (ImGui::BeginTable("Item Lists", 4)) {
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
@@ -463,12 +653,24 @@ void TimesplitsSettingsWindow::DrawElement() {
                 listName = "Bosses";
                 listColumns = 1;
             }
+            ImGui::TableNextColumn();
+            if (UIWidgets::Button("Entrances", {
+                                                .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                            })) {
+                listName = "Entrances";
+            }
             ImGui::EndTable();
         }
-
-        DrawItemList(listName, range, listColumns);
-        if (listName == "Quest") {
-            DrawItemList("Quest II", GetIndexRange((uint32_t)SPLIT_SINGLE_MAGIC, (uint32_t)SPLIT_DOUBLE_DEFENSE), 3);
+        */
+        ImGui::TableNextColumn();
+        if (listName != "Entrances") {
+            DrawItemList(listName, range, listColumns);
+            if (listName == "Quest") {
+                DrawItemList("Quest II", GetIndexRange((uint32_t)SPLIT_SINGLE_MAGIC, (uint32_t)SPLIT_DOUBLE_DEFENSE),
+                             3);
+            }
+        } else {
+            DrawEntranceList();
         }
 
         ImGui::EndTable();

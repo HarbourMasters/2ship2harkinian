@@ -13,6 +13,7 @@ uint64_t GetUnixTimestamp();
 
 #include "ShipUtils.h"
 #include "interface/parameter_static/parameter_static.h"
+#include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "GameInteractor/GameInteractor.h"
 
 // ImVec4 Colors
@@ -141,11 +142,16 @@ void DrawSplitsList() {
                 }
 
                 SplitsPushImageButtonStyle();
-                if (ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
-                                       Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                                           GetItemImageById(splitList[i].splitId)),
-                                       GetItemImageSizeById(splitList[i].splitId), ImVec2(0, 0), ImVec2(1, 1),
-                                       ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(splitList[i].splitId))) {
+                if (ImGui::ImageButton(
+                        std::to_string(splitList[i].splitId).c_str(),
+                        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                            splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
+                                                                        : gPauseUnusedCursorTex),
+                        splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageSizeById(splitList[i].splitId)
+                                                                    : ImVec2(32.0f, 32.0f),
+                        ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                        splitList[i].splitType == SPLIT_TYPE_NORMAL ? Ship_GetItemColorTint(splitList[i].splitId)
+                                                                    : ImVec4(1, 1, 1, 1))) {
                     SkipSplitEntry(i);
                 };
                 SplitsPopImageButtonStyle();

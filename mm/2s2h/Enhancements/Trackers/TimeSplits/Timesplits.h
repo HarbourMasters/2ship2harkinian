@@ -36,6 +36,7 @@ typedef enum SplitFileActions {
 };
 
 typedef enum SplitStatus { SPLIT_INACTIVE, SPLIT_ACTIVE, SPLIT_COMPLETE, SPLIT_SKIPPED };
+typedef enum SplitTypes { SPLIT_TYPE_NORMAL, SPLIT_TYPE_SCENE };
 
 typedef struct {
     uint32_t splitId;
@@ -43,6 +44,7 @@ typedef struct {
     uint32_t splitCurrentTime;
     uint32_t splitPreviousBest;
     uint8_t splitStatus;
+    uint32_t splitType;
 } TimesplitObject;
 
 typedef struct {
@@ -57,6 +59,7 @@ typedef struct {
 
 extern std::vector<TimesplitObject> splitList;
 extern std::vector<TimesplitObject> splitObjectList;
+extern std::vector<TimesplitObject> sceneObjectList;
 extern std::vector<std::string> savedLists;
 extern std::map<uint32_t, std::vector<uint32_t>> itemSubMenuList;
 extern std::map<uint32_t, ImVec4> songColorMap;
@@ -72,6 +75,7 @@ extern void HandleDragAndDrop(size_t i);
 extern void UpdateSplitBests();
 extern void UpdateSplitSettings(uint32_t settingName);
 extern void SkipSplitEntry(uint32_t index);
+extern void AddSplitEntryBySceneId(uint32_t sceneId);
 extern void AddSplitEntryById(uint32_t itemId);
 extern void RemoveSplitEntry(uint32_t splitId, uint32_t index);
 extern void SplitSaveFileAction(uint32_t action, std::string listName);

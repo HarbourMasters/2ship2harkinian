@@ -8,6 +8,8 @@
 #include <fstream>
 #include <filesystem>
 
+#include "assets/archives/icon_item_static/icon_item_static_yar.h"
+
 using json = nlohmann::json;
 
 extern "C" {
@@ -26,6 +28,7 @@ nlohmann::json TimesplitObject_to_json(const TimesplitObject& split) {
         { "splitCurrentTime", split.splitCurrentTime },
         { "splitPreviousBest", split.splitPreviousBest },
         { "splitStatus", SPLIT_INACTIVE },
+        { "splitType", split.splitType },
     };
 }
 
@@ -36,6 +39,12 @@ TimesplitObject json_to_TimesplitObject(const nlohmann::json& jsonSplit) {
     split.splitCurrentTime = jsonSplit["splitCurrentTime"];
     split.splitPreviousBest = jsonSplit["splitPreviousBest"];
     split.splitStatus = jsonSplit["splitStatus"];
+    if (jsonSplit.contains("splitType")) {
+        split.splitType = jsonSplit["splitType"];
+    } else {
+        split.splitType = SPLIT_TYPE_NORMAL;
+    }
+
     return split;
 }
 
@@ -46,6 +55,18 @@ uint32_t GetCurrentActiveSplit(std::vector<TimesplitObject> list) {
         }
     }
     return -1;
+}
+
+TimesplitObject GetSplitObjectBySceneId(uint32_t sceneId) {
+    TimesplitObject splitObject;
+    for (auto& list : sceneObjectList) {
+        if (list.splitId == sceneId) {
+            splitObject = list;
+            splitObject.splitType = SPLIT_TYPE_SCENE;
+            break;
+        }
+    }
+    return splitObject;
 }
 
 TimesplitObject GetSplitObjectById(uint32_t itemId) {
@@ -105,9 +126,13 @@ void HandleDragAndDrop(size_t i) {
         ImGui::SetDragDropPayload("SPLIT_DRAG", &i, sizeof(size_t));
         ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
                            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                               GetItemImageById(splitList[i].splitId)),
-                           GetItemImageSizeById(splitList[i].splitId), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                           Ship_GetItemColorTint(splitList[i].splitId));
+                               splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
+                                                                           : gPauseUnusedCursorTex),
+                           splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageSizeById(splitList[i].splitId)
+                                                                       : ImVec2(32.0f, 32.0f),
+                           ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                           splitList[i].splitType == SPLIT_TYPE_NORMAL ? Ship_GetItemColorTint(splitList[i].splitId)
+                                                                       : ImVec4(1, 1, 1, 1));
         ImGui::EndDragDropSource();
     }
 
@@ -135,6 +160,15 @@ void CheckSplitsCompleted(uint32_t index) {
     } else {
         splitList[index + 1].splitStatus = SPLIT_ACTIVE;
     }
+}
+
+void AddSplitEntryBySceneId(uint32_t sceneId) {
+    TimesplitObject splitObject = GetSplitObjectBySceneId(sceneId);
+
+    if (splitList.size() == 0) {
+        splitObject.splitStatus = SPLIT_ACTIVE;
+    }
+    splitList.push_back(splitObject);
 }
 
 void AddSplitEntryById(uint32_t itemId) {
@@ -169,6 +203,26 @@ void UpdateSplitBests() {
     for (auto& splits : splitList) {
         if (splits.splitCurrentTime < splits.splitPreviousBest || splits.splitPreviousBest == 0) {
             splits.splitPreviousBest = splits.splitCurrentTime;
+        }
+    }
+}
+
+void UpdateSplitStatusBySceneId(uint32_t sceneId) {
+    uint32_t activeIndex = GetCurrentActiveSplit(splitList);
+
+    if (activeIndex == -1) {
+        return;
+    }
+
+    if (splitList[activeIndex].splitType == SPLIT_TYPE_SCENE && splitList[activeIndex].splitId == sceneId) {
+        splitList[activeIndex].splitCurrentTime =
+            ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
+        splitList[activeIndex].splitStatus = SPLIT_COMPLETE;
+
+        if (activeIndex == splitList.size() - 1) {
+            CheckSplitsCompleted(activeIndex);
+        } else {
+            splitList[activeIndex + 1].splitStatus = SPLIT_ACTIVE;
         }
     }
 }
@@ -320,6 +374,7 @@ void RegisterTimesplits() {
 
         GetSplitByActorId(actor->id, GREAT_FAIRY_GET_TYPE(actor));
     });
+    COND_HOOK(OnSceneInit, CVAR, [](s8 sceneId, s8 spawnNum) { UpdateSplitStatusBySceneId(sceneId); });
 }
 
 static RegisterShipInitFunc initFunc(RegisterTimesplits, { CVAR_NAME });
