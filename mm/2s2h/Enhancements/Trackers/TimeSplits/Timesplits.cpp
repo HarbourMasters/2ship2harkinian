@@ -111,18 +111,24 @@ void SplitsPopImageButtonStyle() {
     ImGui::PopStyleColor(3);
 }
 
-void DrawSplitsList() {
+void DrawSplitsList(bool isMain) {
+    float columnSizeMultiplier = isMain ? 1.0f : 1.25f;
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 7.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(10, 0));
 
-    ImGui::Begin("Timesplits", nullptr,
-                 ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDocking |
-                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar);
+    if (isMain) {
+        ImGui::Begin("Timesplits", nullptr,
+                     ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoDocking |
+                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollWithMouse |
+                         ImGuiWindowFlags_NoScrollbar);
+    }
+
     if (ImGui::BeginChild("SplitChild", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar)) {
         if (ImGui::BeginTable("Splits", 5, ImGuiTableFlags_Hideable | ImGuiTableFlags_Reorderable)) {
             ImGui::TableSetupColumn("Item Image",
-                                    ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel, 28.0f);
+                                    ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel,
+                                    (28.0f * columnSizeMultiplier));
             ImGui::TableSetupColumn("Item Name");
             ImGui::TableSetupColumn("Current Time");
             ImGui::TableSetupColumn("+/-");
@@ -188,7 +194,9 @@ void DrawSplitsList() {
         ImGui::EndChild();
     }
 
-    ImGui::End();
+    if (isMain) {
+        ImGui::End();
+    }
 
     ImGui::PopStyleVar(2);
     ImGui::PopStyleColor(1);
@@ -214,7 +222,7 @@ void TimesplitsWindow::Draw() {
         return;
     }
     ImGui::PushStyleColor(ImGuiCol_WindowBg, splitOpacity);
-    DrawSplitsList();
+    DrawSplitsList(true);
     ImGui::PopStyleColor();
 }
 

@@ -582,6 +582,8 @@ void TimesplitsSettingsWindow::DrawElement() {
         if (ImGui::BeginTabItem("List Options")) {
             DrawOptions();
             DrawActionButtons();
+            ImGui::SeparatorText("Current Splits");
+            DrawSplitsList(false);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Split Entries")) {

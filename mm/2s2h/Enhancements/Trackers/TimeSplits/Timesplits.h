@@ -79,3 +79,4 @@ extern void AddSplitEntryBySceneId(uint32_t sceneId);
 extern void AddSplitEntryById(uint32_t itemId);
 extern void RemoveSplitEntry(uint32_t splitId, uint32_t index);
 extern void SplitSaveFileAction(uint32_t action, std::string listName);
+extern void DrawSplitsList(bool isMain);
