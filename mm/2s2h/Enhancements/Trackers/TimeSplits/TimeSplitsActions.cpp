@@ -101,7 +101,7 @@ void HandlePopUpContext(uint32_t popupId) {
             if (ImGui::ImageButton(
                     std::to_string(list).c_str(),
                     Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(GetItemImageById(list)),
-                    GetItemImageSizeById(list), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                    GetItemImageSizeById(list) * 1.5f, ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                     Ship_GetItemColorTint(list))) {
                 AddSplitEntryById(list);
                 ImGui::CloseCurrentPopup();

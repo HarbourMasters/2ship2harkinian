@@ -19,6 +19,9 @@ extern "C" {
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "GameInteractor/GameInteractor.h"
 
+IndexRangeObject sceneRange = { 0, 98 };
+uint32_t sceneFilterIndex = 0;
+
 std::vector<TimesplitObject> sceneObjectList = {
     // Misc. Areas
     { SCENE_LOST_WOODS, "Lost Woods (Intro)" },
@@ -276,8 +279,47 @@ std::map<uint32_t, std::vector<uint32_t>> itemSubMenuList = {
     { ITEM_SHIELD_HERO,     { ITEM_SHIELD_HERO, ITEM_SHIELD_MIRROR } },
     { ITEM_WALLET_ADULT,    { ITEM_WALLET_ADULT, ITEM_WALLET_GIANT } },
     { SPLIT_SINGLE_MAGIC,   { SPLIT_SINGLE_MAGIC, SPLIT_DOUBLE_MAGIC } },
-    // clang-format on
 };
+
+static std::vector<const char*> sceneAreaNameMap = {
+    "All Scenes",
+    "Miscellaneous",
+    "Clock Town",
+    "Termina Field & Romani's Ranch",
+    "Woodfall Region",
+    "Snowhead Region",
+    "Great Bay Region",
+    "Ikana Region",
+    "The Moon",
+};
+
+static std::unordered_map<const char*, IndexRangeObject> sceneAreaRangeMap = {
+    { "All Scenes",                     { SCENE_LOST_WOODS, SCENE_LAST_BS } },
+    { "Miscellaneous",                  { SCENE_LOST_WOODS, SCENE_KYOJINNOMA } },
+    { "Clock Town",                     { SCENE_TOWN, SCENE_POSTHOUSE } },
+    { "Termina Field & Romani's Ranch", { SCENE_00KEIKOKU, SCENE_F01C } },
+    { "Woodfall Region",                { SCENE_24KEMONOMITI, SCENE_KINSTA1 } },
+    { "Snowhead Region",                { SCENE_13HUBUKINOMITI, SCENE_GORONSHOP } },
+    { "Great Bay Region",               { SCENE_30GYOSON, SCENE_33ZORACITY } },
+    { "Ikana Region",                   { SCENE_IKANAMAE, SCENE_RANDOM } },
+    { "The Moon",                       { SCENE_SOUGEN, SCENE_LAST_BS } },
+};
+// clang-format on
+
+IndexRangeObject GetSceneIndexRange(uint32_t start, uint32_t end) {
+    IndexRangeObject setRange = { 0, 0 };
+
+    for (size_t i = 0; i < sceneObjectList.size(); i++) {
+        if (sceneObjectList[i].splitId == start) {
+            setRange.startIndex = static_cast<int>(i);
+        }
+        if (sceneObjectList[i].splitId == end) {
+            setRange.endIndex = static_cast<int>(i);
+        }
+    }
+
+    return setRange;
+}
 
 IndexRangeObject GetIndexRange(uint32_t start, uint32_t end) {
     IndexRangeObject setRange = { 0, 0 };
@@ -456,29 +498,43 @@ void DrawActionButtons() {
 }
 
 void DrawEntranceList() {
+    UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+    if (ImGui::BeginCombo("##SceneFilter", sceneAreaNameMap[sceneFilterIndex])) {
+        for (int i = 0; i < sceneAreaNameMap.size(); i++) {
+            if (ImGui::Selectable(sceneAreaNameMap[i])) {
+                sceneFilterIndex = i;
+                sceneRange = GetSceneIndexRange(sceneAreaRangeMap.at(sceneAreaNameMap[i]).startIndex,
+                                                sceneAreaRangeMap.at(sceneAreaNameMap[i]).endIndex);
+                break;
+            }
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::PopItemWidth();
+    UIWidgets::PopStyleCombobox();
+
     if (ImGui::BeginChild("Entrance List")) {
-        if (ImGui::BeginTable("Entrances", 1)) {
-            for (auto& scene : sceneObjectList) {
+        if (ImGui::BeginTable("Entrances", 2)) {
+            for (int i = sceneRange.startIndex; i <= sceneRange.endIndex; i++) {
                 ImGui::TableNextColumn();
-                ImGui::PushID(scene.splitId);
+                ImGui::PushID(sceneObjectList[i].splitId);
                 SplitsPushImageButtonStyle();
-                // if (ImGui::ImageButton(
-                //         std::to_string(scene.splitId).c_str(), ICON_FA_FORT_AWESOME, ImVec2(32.0f, 32.0f))) {
-                //     AddSplitEntryBySceneId(scene.splitId);
-                // }
 
                 if (ImGui::ImageButton(
-                        std::to_string(scene.splitId).c_str(),
+                        std::to_string(sceneObjectList[i].splitId).c_str(),
                         Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gPauseUnusedCursorTex),
                         ImVec2(32.0f, 32.0f))) {
-                    AddSplitEntryBySceneId(scene.splitId);
+                    AddSplitEntryBySceneId(sceneObjectList[i].splitId);
                 };
                 ImGui::SameLine();
-                TableCellCenteredText(UIWidgets::ColorValues.at(UIWidgets::Colors::White), scene.splitName.c_str());
+                TableCellCenteredText(UIWidgets::ColorValues.at(UIWidgets::Colors::White),
+                                      sceneObjectList[i].splitName.c_str());
 
                 SplitsPopImageButtonStyle();
                 ImGui::PopID();
             }
+
             ImGui::EndTable();
         }
         ImGui::EndChild();
@@ -493,7 +549,7 @@ void DrawItemList(const char* tableName, IndexRangeObject range, uint32_t tableS
             if (ImGui::ImageButton(std::to_string(splitObjectList[i].splitId).c_str(),
                                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                        GetItemImageById(splitObjectList[i].splitId)),
-                                   GetItemImageSizeById(splitObjectList[i].splitId), ImVec2(0, 0), ImVec2(1, 1),
+                                   GetItemImageSizeById(splitObjectList[i].splitId) * 1.5f, ImVec2(0, 0), ImVec2(1, 1),
                                    ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(splitObjectList[i].splitId))) {
                 if (itemSubMenuList.contains(splitObjectList[i].splitId)) {
                     shouldPopUpOpen = true;
@@ -521,160 +577,119 @@ void TimesplitsSettingsWindow::DrawElement() {
     bool shouldRemoveEntry = false;
     uint32_t entryId = 0, entryIndex = 0;
 
-    DrawOptions();
-    DrawActionButtons();
+    UIWidgets::PushStyleTabs(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+    if (ImGui::BeginTabBar("Timesplit Settings Tabs")) {
+        if (ImGui::BeginTabItem("List Options")) {
+            DrawOptions();
+            DrawActionButtons();
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Split Entries")) {
+            if (ImGui::BeginTable("Split Settings", 3)) {
+                ImGui::TableSetupColumn("Preview",
+                                        ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel, 88.0f);
+                ImGui::TableSetupColumn("Item Categories",
+                                        ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel, 120.0f);
+                ImGui::TableSetupColumn("Item Grids",
+                                        ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
 
-    if (ImGui::BeginTable("Split Settings", 3)) {
-        ImGui::TableSetupColumn("Preview", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel,
-                                88.0f);
-        ImGui::TableSetupColumn("Item Categories",
-                                ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel, 120.0f);
-        ImGui::TableSetupColumn("Item Grids", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
+                ImGui::TableNextColumn();
+                ImGui::BeginDisabled();
+                UIWidgets::Button("Preview", {
+                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                             });
+                ImGui::EndDisabled();
+                ImGui::BeginChild("Preview List");
+                for (size_t i = 0; i < splitList.size(); i++) {
+                    ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((ImGui::GetContentRegionAvail().x - 50.0f) * 0.5f));
 
-        ImGui::TableNextColumn();
-        ImGui::BeginDisabled();
-        UIWidgets::Button("Preview", {
-                                         .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                     });
-        ImGui::EndDisabled();
-        ImGui::BeginChild("Preview List");
-        for (size_t i = 0; i < splitList.size(); i++) {
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((ImGui::GetContentRegionAvail().x - 32.0f) * 0.5f));
+                    SplitsPushImageButtonStyle();
+                    if (ImGui::ImageButton(
+                            std::to_string(splitList[i].splitId).c_str(),
+                            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                                splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
+                                                                            : gPauseUnusedCursorTex),
+                            splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageSizeById(splitList[i].splitId)
+                                                                        : ImVec2(32.0f, 32.0f),
+                            ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                            splitList[i].splitType == SPLIT_TYPE_NORMAL ? Ship_GetItemColorTint(splitList[i].splitId)
+                                                                        : ImVec4(1, 1, 1, 1))) {
+                        shouldRemoveEntry = true;
+                        entryId = splitList[i].splitId;
+                        entryIndex = i;
+                    };
+                    UIWidgets::Tooltip(splitList[i].splitName.c_str());
 
-            SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(
-                    std::to_string(splitList[i].splitId).c_str(),
-                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                        splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
-                                                                    : gPauseUnusedCursorTex),
-                    splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageSizeById(splitList[i].splitId)
-                                                                : ImVec2(32.0f, 32.0f),
-                    ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                    splitList[i].splitType == SPLIT_TYPE_NORMAL ? Ship_GetItemColorTint(splitList[i].splitId)
-                                                                : ImVec4(1, 1, 1, 1))) {
-                shouldRemoveEntry = true;
-                entryId = splitList[i].splitId;
-                entryIndex = i;
-            };
-            UIWidgets::Tooltip(splitList[i].splitName.c_str());
+                    HandleDragAndDrop(i);
+                    SplitsPopImageButtonStyle();
+                }
+                ImGui::EndChild();
 
-            HandleDragAndDrop(i);
-            SplitsPopImageButtonStyle();
-        }
-        ImGui::EndChild();
+                ImGui::TableNextColumn();
+                if (UIWidgets::Button("Inventory",
+                                      {
+                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                      })) {
+                    range = GetIndexRange((uint32_t)ITEM_OCARINA_OF_TIME, (uint32_t)ITEM_BOTTLE);
+                    listName = "Inventory";
+                    listColumns = 6;
+                }
+                if (UIWidgets::Button("Masks",
+                                      {
+                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                      })) {
+                    range = GetIndexRange((uint32_t)ITEM_MASK_POSTMAN, (uint32_t)ITEM_MASK_FIERCE_DEITY);
+                    listName = "Masks";
+                    listColumns = 6;
+                }
+                if (UIWidgets::Button("Songs",
+                                      {
+                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                      })) {
+                    range = GetIndexRange((uint32_t)ITEM_SONG_TIME, (uint32_t)ITEM_SONG_OATH);
+                    listName = "Songs";
+                    listColumns = 5;
+                }
+                if (UIWidgets::Button("Quest",
+                                      {
+                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                      })) {
+                    range = GetIndexRange((uint32_t)ITEM_REMAINS_ODOLWA, (uint32_t)ITEM_BOMBERS_NOTEBOOK);
+                    listName = "Quest";
+                    listColumns = 4;
+                }
+                if (UIWidgets::Button("Bosses",
+                                      {
+                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                      })) {
+                    range = GetIndexRange((uint32_t)SPLIT_KILLED_ODOLWA, (uint32_t)SPLIT_KILLED_MAJORA);
+                    listName = "Bosses";
+                    listColumns = 1;
+                }
+                if (UIWidgets::Button("Entrances",
+                                      {
+                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                      })) {
+                    listName = "Entrances";
+                }
+                ImGui::TableNextColumn();
+                if (listName != "Entrances") {
+                    DrawItemList(listName, range, listColumns);
+                    if (listName == "Quest") {
+                        DrawItemList("Quest II",
+                                     GetIndexRange((uint32_t)SPLIT_SINGLE_MAGIC, (uint32_t)SPLIT_DOUBLE_DEFENSE), 3);
+                    }
+                } else {
+                    DrawEntranceList();
+                }
 
-        ImGui::TableNextColumn();
-        if (UIWidgets::Button("Inventory", {
-                                               .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                           })) {
-            range = GetIndexRange((uint32_t)ITEM_OCARINA_OF_TIME, (uint32_t)ITEM_BOTTLE);
-            listName = "Inventory";
-            listColumns = 6;
-        }
-        if (UIWidgets::Button("Masks", {
-                                           .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                       })) {
-            range = GetIndexRange((uint32_t)ITEM_MASK_POSTMAN, (uint32_t)ITEM_MASK_FIERCE_DEITY);
-            listName = "Masks";
-            listColumns = 6;
-        }
-        if (UIWidgets::Button("Songs", {
-                                           .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                       })) {
-            range = GetIndexRange((uint32_t)ITEM_SONG_TIME, (uint32_t)ITEM_SONG_OATH);
-            listName = "Songs";
-            listColumns = 5;
-        }
-        if (UIWidgets::Button("Quest", {
-                                           .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                       })) {
-            range = GetIndexRange((uint32_t)ITEM_REMAINS_ODOLWA, (uint32_t)ITEM_BOMBERS_NOTEBOOK);
-            listName = "Quest";
-            listColumns = 4;
-        }
-        if (UIWidgets::Button("Bosses", {
-                                            .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                        })) {
-            range = GetIndexRange((uint32_t)SPLIT_KILLED_ODOLWA, (uint32_t)SPLIT_KILLED_MAJORA);
-            listName = "Bosses";
-            listColumns = 1;
-        }
-        if (UIWidgets::Button("Entrances", {
-                                               .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                           })) {
-            listName = "Entrances";
-        }
-        /*
-        ImGui::TableNextColumn();
-        if (ImGui::BeginTable("Item Lists", 4)) {
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoHeaderLabel);
-
-            ImGui::TableNextColumn();
-            if (UIWidgets::Button("Inventory",
-                                  {
-                                      .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                  })) {
-                range = GetIndexRange((uint32_t)ITEM_OCARINA_OF_TIME, (uint32_t)ITEM_BOTTLE);
-                listName = "Inventory";
-                listColumns = 6;
+                ImGui::EndTable();
             }
-            ImGui::TableNextColumn();
-            if (UIWidgets::Button("Masks", {
-                                               .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                           })) {
-                range = GetIndexRange((uint32_t)ITEM_MASK_POSTMAN, (uint32_t)ITEM_MASK_FIERCE_DEITY);
-                listName = "Masks";
-                listColumns = 6;
-            }
-            ImGui::TableNextColumn();
-            if (UIWidgets::Button("Songs", {
-                                               .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                           })) {
-                range = GetIndexRange((uint32_t)ITEM_SONG_TIME, (uint32_t)ITEM_SONG_OATH);
-                listName = "Songs";
-                listColumns = 5;
-            }
-            ImGui::TableNextColumn();
-            if (UIWidgets::Button("Quest", {
-                                               .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                           })) {
-                range = GetIndexRange((uint32_t)ITEM_REMAINS_ODOLWA, (uint32_t)ITEM_BOMBERS_NOTEBOOK);
-                listName = "Quest";
-                listColumns = 4;
-            }
-            ImGui::TableNextColumn();
-            if (UIWidgets::Button("Bosses", {
-                                                .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                            })) {
-                range = GetIndexRange((uint32_t)SPLIT_KILLED_ODOLWA, (uint32_t)SPLIT_KILLED_MAJORA);
-                listName = "Bosses";
-                listColumns = 1;
-            }
-            ImGui::TableNextColumn();
-            if (UIWidgets::Button("Entrances", {
-                                                .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-                                            })) {
-                listName = "Entrances";
-            }
-            ImGui::EndTable();
+            ImGui::EndTabItem();
         }
-        */
-        ImGui::TableNextColumn();
-        if (listName != "Entrances") {
-            DrawItemList(listName, range, listColumns);
-            if (listName == "Quest") {
-                DrawItemList("Quest II", GetIndexRange((uint32_t)SPLIT_SINGLE_MAGIC, (uint32_t)SPLIT_DOUBLE_DEFENSE),
-                             3);
-            }
-        } else {
-            DrawEntranceList();
-        }
-
-        ImGui::EndTable();
+        ImGui::EndTabBar();
     }
+    UIWidgets::PopStyleTabs();
 
     if (shouldRemoveEntry) {
         RemoveSplitEntry(entryId, entryIndex);
