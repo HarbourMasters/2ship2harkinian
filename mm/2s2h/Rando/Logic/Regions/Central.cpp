@@ -148,6 +148,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_01,  true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_02,  true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_03,  true),
+            CHECK(RC_CLOCK_TOWN_LAUNDRY_FROG,                   HAS_ITEM(ITEM_MASK_DON_GERO)),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_GURU_GURU,              true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_SMALL_CRATE,            true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_POOL_GRASS_01, true),
@@ -161,9 +162,6 @@ static RegisterShipInitFunc initFunc([]() {
                  (CHECK_WEEKEVENTREG(WEEKEVENTREG_BOMBERS_NOTEBOOK_EVENT_MET_KAFEI) && ((DAY(3) && TIME_AT_LEAST(13, 0)) || (NIGHT(3) && TIME_BEFORE(22, 0))))
             )
         },
-        .events = {
-            EVENT(RE_ACCESS_FROG_WHITE, true),
-        }
     };
     Regions[RR_CLOCK_TOWN_NORTH] = RandoRegion{ .sceneId = SCENE_BACKTOWN,
         .checks = {

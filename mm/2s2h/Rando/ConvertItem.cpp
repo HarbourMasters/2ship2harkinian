@@ -235,6 +235,10 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_STONE_TOWER_STRAY_FAIRY:
         case RI_GS_TOKEN_SWAMP:
         case RI_GS_TOKEN_OCEAN:
+        case RI_FROG_BLUE:
+        case RI_FROG_CYAN:
+        case RI_FROG_PINK:
+        case RI_FROG_WHITE:
             if (hasObtainedCheck) {
                 return false;
             }
@@ -571,9 +575,13 @@ RandoItemId Rando::ConvertItem(RandoItemId randoItemId, RandoCheckId randoCheckI
                 }
                 break;
             case RI_BOTTLE_MILK:
-            case RI_BOTTLE_CHATEAU_ROMANI:
                 if (Inventory_HasEmptyBottle()) {
                     return RI_MILK_REFILL;
+                }
+                break;
+            case RI_BOTTLE_CHATEAU_ROMANI:
+                if (Inventory_HasEmptyBottle()) {
+                    return RI_CHATEAU_ROMANI_REFILL;
                 }
                 break;
             case RI_BOTTLE_RED_POTION:

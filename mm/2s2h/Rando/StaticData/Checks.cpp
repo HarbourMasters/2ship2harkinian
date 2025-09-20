@@ -51,7 +51,7 @@ std::map<RandoCheckId, RandoStaticCheck> Checks = {
     RC(RC_CLOCK_TOWN_GREAT_FAIRY_ALT,                                    RCTYPE_NPC,              SCENE_YOUSEI_IZUMI,             FLAG_NONE,                   0x00,                                                                RI_MASK_GREAT_FAIRY),
     RC(RC_CLOCK_TOWN_GREAT_FAIRY,                                        RCTYPE_NPC,              SCENE_YOUSEI_IZUMI,             FLAG_NONE,                   0x00,                                                                RI_PROGRESSIVE_MAGIC),
     RC(RC_CLOCK_TOWN_LAUNDRY_GURU_GURU,                                  RCTYPE_NPC,              SCENE_ALLEY,                    FLAG_WEEK_EVENT_REG,         WEEKEVENTREG_38_40,                                                  RI_MASK_BREMEN),
-    RC(RC_CLOCK_TOWN_NORTH_BOMB_LADY,                                    RCTYPE_NPC,              SCENE_BACKTOWN,                 FLAG_CYCL_SCENE_COLLECTIBLE, WEEKEVENTREG_BOMBERS_NOTEBOOK_EVENT_RECEIVED_BLAST_MASK,             RI_MASK_BLAST),
+    RC(RC_CLOCK_TOWN_NORTH_BOMB_LADY,                                    RCTYPE_NPC,              SCENE_BACKTOWN,                 FLAG_WEEK_EVENT_REG,         WEEKEVENTREG_BOMBERS_NOTEBOOK_EVENT_RECEIVED_BLAST_MASK,             RI_MASK_BLAST),
     RC(RC_CLOCK_TOWN_NORTH_TINGLE_MAP_01,                                RCTYPE_TINGLE_SHOP,      SCENE_BACKTOWN,                 FLAG_NONE,                   0x00,                                                                RI_TINGLE_MAP_CLOCK_TOWN),
     RC(RC_CLOCK_TOWN_NORTH_TINGLE_MAP_02,                                RCTYPE_TINGLE_SHOP,      SCENE_BACKTOWN,                 FLAG_NONE,                   0x00,                                                                RI_TINGLE_MAP_WOODFALL),
     RC(RC_CLOCK_TOWN_NORTH_TREE_PIECE_OF_HEART,                          RCTYPE_HEART,            SCENE_BACKTOWN,                 FLAG_CYCL_SCENE_COLLECTIBLE, 0x0A,                                                                RI_HEART_PIECE),
@@ -1371,6 +1371,11 @@ std::map<RandoCheckId, RandoStaticCheck> Checks = {
     RC(RC_TWIN_ISLANDS_SMALL_SNOWBALL_05,                                RCTYPE_SNOWBALL,         SCENE_17SETUGEN,                FLAG_NONE,                   0x0,                                                                 RI_JUNK),
     RC(RC_TWIN_ISLANDS_SMALL_SNOWBALL_06,                                RCTYPE_SNOWBALL,         SCENE_17SETUGEN,                FLAG_NONE,                   0x0,                                                                 RI_JUNK),
 
+    // Frogs //
+    RC(RC_CLOCK_TOWN_LAUNDRY_FROG,                                       RCTYPE_FROG,             SCENE_ALLEY,                    FLAG_NONE,                   0x00,                                                                RI_FROG_WHITE),
+    RC(RC_GREAT_BAY_TEMPLE_GEKKO_FROG,                                   RCTYPE_FROG,             SCENE_SEA,                      FLAG_NONE,                   0x00,                                                                RI_FROG_PINK),
+    RC(RC_SOUTHERN_SWAMP_FROG,                                           RCTYPE_FROG,             SCENE_20SICHITAI,               FLAG_NONE,                   0x00,                                                                RI_FROG_BLUE),
+    RC(RC_WOODFALL_TEMPLE_GEKKO_FROG,                                    RCTYPE_FROG,             SCENE_MITURIN,                  FLAG_NONE,                   0x00,                                                                RI_FROG_CYAN),
 
     // Grass //
     RC(RC_CLOCK_TOWN_LAUNDRY_POOL_GRASS_01,             RCTYPE_GRASS, SCENE_ALLEY,              FLAG_NONE, 0x0, RI_JUNK),

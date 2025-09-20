@@ -95,7 +95,11 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
 #define CAN_AFFORD(rc)                                                                                                \
     ((RANDO_SAVE_CHECKS[rc].price < 100) || (RANDO_SAVE_CHECKS[rc].price <= 200 && CUR_UPG_VALUE(UPG_WALLET) >= 1) || \
      (CUR_UPG_VALUE(UPG_WALLET) >= 2))
-#define HAS_ALL_STRAY_FAIRIES(dungeonIndex) (gSaveContext.save.saveInfo.inventory.strayFairies[dungeonIndex] >= 15)
+#define HAS_ENOUGH_STRAY_FAIRIES(dungeonIndex) \
+    (gSaveContext.save.saveInfo.inventory.strayFairies[dungeonIndex] >= RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES])
+#define FOUND_ALL_FROGS                                                                  \
+    (CHECK_WEEKEVENTREG(WEEKEVENTREG_33_01) && CHECK_WEEKEVENTREG(WEEKEVENTREG_32_40) && \
+     CHECK_WEEKEVENTREG(WEEKEVENTREG_32_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_33_02))
 // Time capability evaluation for logic: true if any owned half-day satisfies
 #define OWNED_HALF(i)                                          \
     ((i) == 0   ? RANDO_SAVE_CHECKS[RC_CLOCK_DAY_1].obtained   \
