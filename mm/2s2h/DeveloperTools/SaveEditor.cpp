@@ -911,7 +911,8 @@ void DrawItemsAndMasksTab() {
                 int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(clockItem);
                 bool isOwned = Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex);
 
-                std::string buttonText = isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
+                std::string buttonText =
+                    isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
                 static std::string tooltipText = "";
                 if (!isOwned) {
                     tooltipText = "You don't own " + std::string(clockNames[i]);
@@ -932,7 +933,8 @@ void DrawItemsAndMasksTab() {
                 int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(clockItem);
                 bool isOwned = Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex);
 
-                std::string buttonText = isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
+                std::string buttonText =
+                    isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
                 static std::string tooltipText = "";
                 if (!isOwned) {
                     tooltipText = "You don't own " + std::string(clockNames[i]);

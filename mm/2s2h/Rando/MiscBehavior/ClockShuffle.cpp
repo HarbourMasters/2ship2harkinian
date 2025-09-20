@@ -275,12 +275,12 @@ void SetTimeToHalfDayStart(int halfDayIndex) {
 
     // Handle music state for the time change
     gSaveContext.seqId = NA_BGM_DISABLED;
-    
+
     // Set appropriate sequence state based on transition type
     if (!IsCurrentlyNightTime(config->startTime)) {
-        gSceneSeqState = SCENESEQ_MORNING;  // Day transition
+        gSceneSeqState = SCENESEQ_MORNING; // Day transition
     } else {
-        gSceneSeqState = SCENESEQ_DEFAULT;  // Night transition
+        gSceneSeqState = SCENESEQ_DEFAULT; // Night transition
     }
 }
 
@@ -333,7 +333,7 @@ void ProcessHalfDayTransition(Actor* timeActor, int fromHalfDay, int toHalfDay) 
             // Set time to terminal state (Day 3, midnight)
             SetGameTime(3, TERMINAL_STATE_TIME);
             gSaveContext.seqId = NA_BGM_DISABLED;
-            gSceneSeqState = SCENESEQ_DEFAULT;  // Terminal state
+            gSceneSeqState = SCENESEQ_DEFAULT; // Terminal state
         } else {
             // Use the music-aware function for proper time and music handling
             SetTimeToHalfDayStart(nextOwnedHalfDay);
