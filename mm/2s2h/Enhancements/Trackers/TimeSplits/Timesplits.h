@@ -58,11 +58,13 @@ typedef struct {
 } IndexRangeObject;
 
 extern std::vector<TimesplitObject> splitList;
+extern std::vector<TimesplitObject> comparisonList;
 extern std::vector<TimesplitObject> splitObjectList;
 extern std::vector<TimesplitObject> sceneObjectList;
 extern std::vector<std::string> savedLists;
 extern std::map<uint32_t, std::vector<uint32_t>> itemSubMenuList;
 extern std::map<uint32_t, ImVec4> songColorMap;
+extern uint32_t comparedIndex;
 extern bool shouldPopUpOpen;
 extern TimesplitObject GetSplitObjectById(uint32_t itemId);
 extern ImVec2 GetItemImageSizeById(uint32_t itemId);
@@ -80,3 +82,4 @@ extern void AddSplitEntryById(uint32_t itemId);
 extern void RemoveSplitEntry(uint32_t splitId, uint32_t index);
 extern void SplitSaveFileAction(uint32_t action, std::string listName);
 extern void DrawSplitsList(bool isMain);
+extern void SplitLoadComparisonList();

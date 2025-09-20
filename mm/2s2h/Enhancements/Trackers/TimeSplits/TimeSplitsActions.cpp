@@ -291,6 +291,27 @@ void GetSplitByActorId(int16_t actorId, uint32_t specialType = 0) {
     }
 }
 
+void SplitLoadComparisonList() {
+    std::string filename = Ship::Context::GetPathRelativeToAppDirectory("2S2HTimeSplitData.json");
+    json compareFile;
+    json listArray = nlohmann::json::array();
+
+    std::ifstream inputFile(filename);
+    if (inputFile.is_open()) {
+        inputFile >> compareFile;
+        inputFile.close();
+    }
+
+    if (compareFile.contains(savedLists[comparedIndex])) {
+        listArray = compareFile[savedLists[comparedIndex]];
+        comparisonList.clear();
+
+        for (auto& data : listArray) {
+            comparisonList.push_back(json_to_TimesplitObject(data));
+        }
+    }
+}
+
 void SplitSaveFileAction(uint32_t action, std::string listName) {
     std::string filename = Ship::Context::GetPathRelativeToAppDirectory("2S2HTimeSplitData.json");
     json saveFile;

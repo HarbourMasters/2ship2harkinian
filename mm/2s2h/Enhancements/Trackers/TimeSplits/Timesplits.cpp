@@ -21,8 +21,11 @@ uint64_t GetUnixTimestamp();
 #define COLOR_GREY ImVec4(0.78f, 0.78f, 0.78f, 1.00f)
 #define COLOR_GREEN ImVec4(0.10f, 1.00f, 0.10f, 1.00f)
 #define COLOR_RED ImVec4(1.00f, 0.00f, 0.00f, 1.00f)
+#define COLOR_LIGHTGREEN ImVec4(0.42f, 0.86f, 0.38f, 1.0f)
+#define COLOR_LIGHTRED ImVec4(0.87f, 0.40f, 0.40f, 1.0f)
 
 std::vector<TimesplitObject> splitList;
+std::vector<TimesplitObject> comparisonList;
 ImGuiTableFlags tableColumnFlags = ImGuiTableColumnFlags_None;
 ImVec4 splitOpacity = { 0, 0, 0, 0.5f };
 
@@ -54,6 +57,21 @@ SplitTextObject GetCurrentTimeTextDisplay(TimesplitObject split) {
             break;
     }
 }
+
+SplitTextObject GetComparisonTimeTextDisplay(TimesplitObject split, TimesplitObject splitCompare) {
+    uint32_t totalTime = ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
+    SplitTextObject textDisplay;
+
+    if (totalTime <= splitCompare.splitPreviousBest) {
+        textDisplay.timeDisplay = splitCompare.splitPreviousBest - totalTime;
+        textDisplay.colorDisplay = COLOR_LIGHTGREEN;
+    } else {
+        textDisplay.timeDisplay = totalTime - splitCompare.splitPreviousBest;
+        textDisplay.colorDisplay = COLOR_LIGHTRED;
+    }
+
+    return textDisplay;
+};
 
 SplitTextObject GetTimeDiffTextDisplay(TimesplitObject split) {
     uint32_t totalTime = ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
@@ -112,7 +130,7 @@ void SplitsPopImageButtonStyle() {
 }
 
 void DrawSplitsList(bool isMain) {
-    float columnSizeMultiplier = isMain ? 1.0f : 1.25f;
+    float columnSizeMultiplier = isMain ? 1.0f : 1.5f;
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 7.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(10, 0));
@@ -138,7 +156,7 @@ void DrawSplitsList(bool isMain) {
             }
 
             for (size_t i = 0; i < splitList.size(); i++) {
-                ImGui::PushID(splitList[i].splitId);
+                ImGui::PushID(i);
 
                 // Item Image Column
                 ImGui::TableNextColumn();
@@ -149,7 +167,7 @@ void DrawSplitsList(bool isMain) {
 
                 SplitsPushImageButtonStyle();
                 if (ImGui::ImageButton(
-                        std::to_string(splitList[i].splitId).c_str(),
+                        std::to_string(i).c_str(),
                         Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                             splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
                                                                         : gPauseUnusedCursorTex),
@@ -172,6 +190,9 @@ void DrawSplitsList(bool isMain) {
                     GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
                     !gPlayState ? "--:--:--.-"
                                 : Ship_FormatTimeDisplay(GetCurrentTimeTextDisplay(splitList[i]).timeDisplay).c_str());
+                if (CVarGetInteger("gSettings.TimeSplits.Compare", 0) && comparisonList.size() != 0) {
+                    ImGui::TextColored(COLOR_GREY, savedLists[comparedIndex].c_str());
+                }
 
                 // +/- Column
                 ImGui::TableNextColumn();
@@ -179,12 +200,24 @@ void DrawSplitsList(bool isMain) {
                     GetTimeDiffTextDisplay(splitList[i]).colorDisplay,
                     !gPlayState ? "--:--:--.-"
                                 : Ship_FormatTimeDisplay(GetTimeDiffTextDisplay(splitList[i]).timeDisplay).c_str());
+                if (CVarGetInteger("gSettings.TimeSplits.Compare", 0) && comparisonList.size() != 0) {
+                    ImGui::TextColored(
+                        GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).colorDisplay,
+                                       i < comparisonList.size()
+                                           ? Ship_FormatTimeDisplay(GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).timeDisplay).c_str()
+                                           : "No Data");
+                }
 
                 // Previous Best Column
                 ImGui::TableNextColumn();
                 TableCellCenteredText(COLOR_WHITE,
                                       !gPlayState ? "--:--:--.-"
                                                   : Ship_FormatTimeDisplay(splitList[i].splitPreviousBest).c_str());
+                if (CVarGetInteger("gSettings.TimeSplits.Compare", 0) && comparisonList.size() != 0) {
+                    ImGui::TextColored(COLOR_GREY, i < comparisonList.size()
+                                           ? Ship_FormatTimeDisplay(comparisonList[i].splitPreviousBest).c_str()
+                                                       : "No Data");
+                }
 
                 ImGui::PopID();
             }

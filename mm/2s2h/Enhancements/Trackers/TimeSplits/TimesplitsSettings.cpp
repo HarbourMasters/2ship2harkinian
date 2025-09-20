@@ -346,6 +346,7 @@ TexturePtr itemImage;
 std::string listInputName;
 std::vector<std::string> savedLists;
 uint32_t selectedIndex = 0;
+uint32_t comparedIndex = 0;
 
 const char* GetItemImageById(uint32_t itemId) {
     switch (itemId) {
@@ -412,6 +413,30 @@ void DrawOptions() {
                                     .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                                 });
 
+        //ImGui::TableNextColumn();
+        //UIWidgets::CVarCheckbox("Compare Splits", "gSettings.TimeSplits.Compare",
+        //                        {
+        //                            .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+        //                        });
+        //
+        //if (CVarGetInteger("gSettings.TimeSplits.Compare", 0)) {
+        //    ImGui::TableNextColumn();
+        //    UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+        //    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+        //    if (ImGui::BeginCombo("##compareSplits", savedLists[comparedIndex].c_str())) {
+        //        for (int i = 0; i < savedLists.size(); i++) {
+        //            if (ImGui::Selectable(savedLists[i].c_str())) {
+        //                comparedIndex = i;
+        //                SplitLoadComparisonList();
+        //                break;
+        //            }
+        //        }
+        //        ImGui::EndCombo();
+        //    }
+        //    ImGui::PopItemWidth();
+        //    UIWidgets::PopStyleCombobox();
+        //}
+        
         ImGui::EndTable();
     }
 }
@@ -604,10 +629,10 @@ void TimesplitsSettingsWindow::DrawElement() {
                 ImGui::BeginChild("Preview List");
                 for (size_t i = 0; i < splitList.size(); i++) {
                     ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ((ImGui::GetContentRegionAvail().x - 50.0f) * 0.5f));
-
+                    ImGui::PushID(i);
                     SplitsPushImageButtonStyle();
                     if (ImGui::ImageButton(
-                            std::to_string(splitList[i].splitId).c_str(),
+                            std::to_string(i).c_str(),
                             Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                 splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
                                                                             : gPauseUnusedCursorTex),
@@ -624,6 +649,7 @@ void TimesplitsSettingsWindow::DrawElement() {
 
                     HandleDragAndDrop(i);
                     SplitsPopImageButtonStyle();
+                    ImGui::PopID();
                 }
                 ImGui::EndChild();
 
