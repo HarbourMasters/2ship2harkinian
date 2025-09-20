@@ -3,6 +3,7 @@
 extern "C" {
 #include "functions.h"
 #include "variables.h"
+#include "overlays/gamestates/ovl_daytelop/z_daytelop.h"
 }
 
 void Rando::MiscBehavior::OnSceneInit(s16 sceneId, s8 spawnNum) {
@@ -12,4 +13,6 @@ void Rando::MiscBehavior::OnSceneInit(s16 sceneId, s8 spawnNum) {
     if (sceneId == SCENE_OKUJOU) {
         interfaceCtx->restrictions.masks = 0;
     }
+
+    // ClockShuffle daytelop handling removed
 }

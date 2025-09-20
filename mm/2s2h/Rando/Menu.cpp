@@ -201,29 +201,21 @@ static void DrawLocationsTab() {
     CVarCheckbox("Shuffle Owl Statues", Rando::StaticData::Options[RO_SHUFFLE_OWL_STATUES].cvar);
     CVarCheckbox("Shuffle Shops", Rando::StaticData::Options[RO_SHUFFLE_SHOPS].cvar);
     CVarCheckbox("Shuffle Tingle Maps", Rando::StaticData::Options[RO_SHUFFLE_TINGLE_SHOPS].cvar);
-    CVarCheckbox("Clocks as Items", Rando::StaticData::Options[RO_CLOCKS_AS_ITEMS].cvar);
-    static std::unordered_map<int32_t, const char*> crashOptions = {
-        { 0, "Crash: Vanilla" },
-        { 1, "Crash: New Cycle Moon" },
-    };
-    {
-        int32_t value = CVarGetInteger(Rando::StaticData::Options[RO_CLOCKS_CRASH_BEHAVIOR].cvar, 0);
-        if (UIWidgets::Combobox<int32_t>("Moon Crash Behavior", &value, &crashOptions)) {
-            CVarSetInteger(Rando::StaticData::Options[RO_CLOCKS_CRASH_BEHAVIOR].cvar, value);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        }
-    }
-    static std::unordered_map<int32_t, const char*> clockModeOptions = {
-        { RO_CLOCKS_MODE_SEPARATE, "Clocks: Separate" },
-        { RO_CLOCKS_MODE_ASCENDING, "Clocks: Ascending (start Day 1)" },
-        { RO_CLOCKS_MODE_DESCENDING, "Clocks: Descending (start Night 3)" },
-    };
-    {
-        int32_t value =
-            CVarGetInteger(Rando::StaticData::Options[RO_CLOCKS_PROGRESSIVE_MODE].cvar, RO_CLOCKS_MODE_SEPARATE);
-        if (UIWidgets::Combobox<int32_t>("Clocks Progression", &value, &clockModeOptions)) {
-            CVarSetInteger(Rando::StaticData::Options[RO_CLOCKS_PROGRESSIVE_MODE].cvar, value);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    CVarCheckbox("Clock Shuffle", Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar);
+    // Only show clock progression options when clock shuffle is enabled
+    if (CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar, 0)) {
+        static std::unordered_map<int32_t, const char*> clockModeOptions = {
+            { RO_CLOCK_SHUFFLE_RANDOM, "Separate Half-Days (each day/night is separate)" },
+            { RO_CLOCK_SHUFFLE_ASCENDING, "Progressive: Day 1 → Night 1 → Day 2 → Night 2 → Day 3 → Night 3" },
+            { RO_CLOCK_SHUFFLE_DESCENDING, "Progressive: Night 3 → Day 3 → Night 2 → Day 2 → Night 1 → Day 1" },
+        };
+        {
+            int32_t value =
+                CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, RO_CLOCK_SHUFFLE_RANDOM);
+            if (UIWidgets::Combobox<int32_t>("Clock Progression Mode", &value, &clockModeOptions)) {
+                CVarSetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, value);
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+            }
         }
     }
     CVarCheckbox("Shuffle Boss Remains", Rando::StaticData::Options[RO_SHUFFLE_BOSS_REMAINS].cvar);

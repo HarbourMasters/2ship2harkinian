@@ -34,7 +34,6 @@ void InitEnDaiBehavior();
 void InitEnDnhBehavior();
 void InitEnElfgrpBehavior();
 void InitEnElforgBehavior();
-void InitEnTest4Behavior();
 void InitEnFish2Behavior();
 void InitEnFsnBehavior();
 void InitEnFuBehavior();

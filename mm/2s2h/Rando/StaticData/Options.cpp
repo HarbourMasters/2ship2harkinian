@@ -45,9 +45,8 @@ std::map<RandoOptionId, RandoStaticOption> Options = {
     RO(RO_STARTING_ITEMS_3,            2048),
     RO(RO_STARTING_MAPS_AND_COMPASSES, RO_GENERIC_OFF),
     RO(RO_STARTING_RUPEES,             RO_GENERIC_OFF),
-    RO(RO_CLOCKS_AS_ITEMS,             RO_GENERIC_OFF),
-    RO(RO_CLOCKS_CRASH_BEHAVIOR,       0), // 0 = Vanilla, 1 = New Cycle Moon
-    RO(RO_CLOCKS_PROGRESSIVE_MODE,     RO_CLOCKS_MODE_SEPARATE),
+    RO(RO_CLOCK_SHUFFLE,             RO_GENERIC_OFF),
+    RO(RO_CLOCK_SHUFFLE_PROGRESSIVE,     RO_CLOCK_SHUFFLE_RANDOM),
 };
 // clang-format on
 

@@ -392,6 +392,15 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_OWL_ZORA_CAPE:
             DrawOwlStatue();
             break;
+        case RI_CLOCK_DAY_1:
+        case RI_CLOCK_NIGHT_1:
+        case RI_CLOCK_DAY_2:
+        case RI_CLOCK_NIGHT_2:
+        case RI_CLOCK_DAY_3:
+        case RI_CLOCK_NIGHT_3:
+        case RI_CLOCK_PROGRESSIVE:
+            DrawClock(randoItemId);
+            break;
         case RI_PROGRESSIVE_LULLABY:
         case RI_PROGRESSIVE_MAGIC:
         case RI_PROGRESSIVE_BOW:
@@ -428,6 +437,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_PROGRESSIVE_MAGIC:
         case RI_SINGLE_MAGIC:
         case RI_DOUBLE_MAGIC:
+        case RI_CLOCK_PROGRESSIVE:
             DrawSparkles(randoItemId, actor);
             break;
         default:

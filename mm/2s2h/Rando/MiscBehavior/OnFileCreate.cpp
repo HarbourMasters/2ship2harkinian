@@ -3,7 +3,7 @@
 #include "Rando/Logic/Logic.h"
 #include <boost_custom/container_hash/hash_32.hpp>
 #include "public/bridge/consolevariablebridge.h"
-#include "Rando/Utils.h"
+#include "ClockShuffle.h"
 #include <spdlog/spdlog.h>
 
 extern "C" {
@@ -217,14 +217,14 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 }
 
                 // Inject clocks as items when enabled
-                if (RANDO_SAVE_OPTIONS[RO_CLOCKS_AS_ITEMS]) {
-                    int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCKS_PROGRESSIVE_MODE];
-                    if (clockMode == RO_CLOCKS_MODE_SEPARATE) {
+                if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
+                    int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
+                    if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
                         // Grant one random half-day and remove it from the pool to avoid instant crash
                         int initialClockHalf = Ship_Random(0, 6); // 0..5 map to D1..N3
 
                         // Own the selected half
-                        Rando::TimeUtils::OwnHalfDay(initialClockHalf);
+                        Rando::ClockItems::GivePlayerHalfDay(initialClockHalf);
 
                         // Seed day/time to match the selected half
                         switch (initialClockHalf) {
@@ -262,7 +262,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         for (int i = 0; i < 6; ++i) {
                             if (i == initialClockHalf)
                                 continue;
-                            RandoItemId clockItem = Rando::TimeUtils::ClockItemFromHalfIndex(i);
+                            RandoItemId clockItem = Rando::ClockItems::GetClockItemFromHalfDayIndex(i);
                             if (clockItem != RI_UNKNOWN)
                                 itemPool.push_back(clockItem);
                         }

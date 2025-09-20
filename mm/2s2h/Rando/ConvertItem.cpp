@@ -1,4 +1,5 @@
 #include "Rando/Rando.h"
+#include "Rando/MiscBehavior/ClockShuffle.h"
 #include "2s2h/ShipUtils.h"
 #include <cassert>
 
@@ -476,41 +477,17 @@ RandoItemId Rando::ConvertItem(RandoItemId randoItemId, RandoCheckId randoCheckI
         switch (randoItemId) {
             case RI_CLOCK_PROGRESSIVE: {
                 // Choose the next clock according to mode and current owned half-days
-                int mode = RANDO_SAVE_OPTIONS[RO_CLOCKS_PROGRESSIVE_MODE];
+                int mode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
                 // Build list in target order
                 RandoItemId ascending[] = { RI_CLOCK_DAY_1,   RI_CLOCK_NIGHT_1, RI_CLOCK_DAY_2,
                                             RI_CLOCK_NIGHT_2, RI_CLOCK_DAY_3,   RI_CLOCK_NIGHT_3 };
                 RandoItemId descending[] = { RI_CLOCK_NIGHT_3, RI_CLOCK_DAY_3,   RI_CLOCK_NIGHT_2,
                                              RI_CLOCK_DAY_2,   RI_CLOCK_NIGHT_1, RI_CLOCK_DAY_1 };
-                RandoItemId* order = (mode == RO_CLOCKS_MODE_DESCENDING) ? descending : ascending;
+                RandoItemId* order = (mode == RO_CLOCK_SHUFFLE_DESCENDING) ? descending : ascending;
                 for (int i = 0; i < 6; ++i) {
-                    switch (order[i]) {
-                        case RI_CLOCK_DAY_1:
-                            if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY1))
-                                return RI_CLOCK_DAY_1;
-                            break;
-                        case RI_CLOCK_NIGHT_1:
-                            if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT1))
-                                return RI_CLOCK_NIGHT_1;
-                            break;
-                        case RI_CLOCK_DAY_2:
-                            if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY2))
-                                return RI_CLOCK_DAY_2;
-                            break;
-                        case RI_CLOCK_NIGHT_2:
-                            if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT2))
-                                return RI_CLOCK_NIGHT_2;
-                            break;
-                        case RI_CLOCK_DAY_3:
-                            if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY3))
-                                return RI_CLOCK_DAY_3;
-                            break;
-                        case RI_CLOCK_NIGHT_3:
-                            if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT3))
-                                return RI_CLOCK_NIGHT_3;
-                            break;
-                        default:
-                            break;
+                    int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(order[i]);
+                    if (halfIndex >= 0 && !Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex)) {
+                        return order[i];
                     }
                 }
                 // All owned; degrade to junk

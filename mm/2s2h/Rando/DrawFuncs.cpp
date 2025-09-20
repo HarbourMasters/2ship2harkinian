@@ -1,10 +1,12 @@
 #include "DrawFuncs.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "Rando/Types.h"
 #include "BenPort.h"
 
 extern "C" {
 #include <functions.h>
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "objects/object_obj_tokeidai/object_obj_tokeidai.h"
 
 // clang-format off
 // Boss Includes
@@ -193,4 +195,48 @@ extern void DrawMajora() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 232, 128, 21 }, { 3.0f, 3.0f, 3.0f });
+}
+
+// Clock function implementation
+extern void DrawClock(RandoItemId randoItemId) {
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+
+    // Collectible scale (half vanilla wall clock size)
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+
+    // Determine visual properties based on clock type
+    bool isNightClock =
+        (randoItemId == RI_CLOCK_NIGHT_1 || randoItemId == RI_CLOCK_NIGHT_2 || randoItemId == RI_CLOCK_NIGHT_3);
+    s16 sunMoonRotation = isNightClock ? 0x8000 : 0; // Moon for night, sun for day
+    s32 hour = isNightClock ? 18 : 12;               // 6 PM for night, 12 PM for day
+    s16 clockRotation = (s16)(s32)(hour * (0x10000 / 24.0f));
+
+    // Minute ring (rotates with clock face)
+    Matrix_Push();
+    Matrix_RotateZS(-clockRotation * 2, MTXMODE_APPLY);
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gClockTowerMinuteRingDL);
+    Matrix_Pop();
+
+    // Clock center and hands
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gClockTowerClockCenterAndHandDL);
+
+    // Clock face with rotation and colors
+    Matrix_RotateZS(-clockRotation * 2, MTXMODE_APPLY);
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0xFF, 255, 255, 255, 255);
+    gDPSetEnvColor(POLY_OPA_DISP++, 100, 100, 120, 255);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gWallClockClockFaceDL);
+
+    // Sun/Moon panel with positioning and colors
+    Matrix_Translate(0.0f, -1112.0f, -19.6f, MTXMODE_APPLY);
+    Matrix_RotateYS(sunMoonRotation, MTXMODE_APPLY);
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0xFF, 255, 220, 180, 255);
+    gDPSetEnvColor(POLY_OPA_DISP++, 150, 100, 50, 255);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gClockTowerSunAndMoonPanelDL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
 }

@@ -1,5 +1,5 @@
 #include "Rando/Rando.h"
-#include "Rando/Utils.h"
+#include "Rando/MiscBehavior/ClockShuffle.h"
 
 extern "C" {
 #include "variables.h"
@@ -283,25 +283,25 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_TINGLE_MAP_STONE_TOWER:
             CLEAR_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_STONE_TOWER);
             break;
-        // Clocks as Items: clear dedicated rando flags
+        // Clocks as Items: use RandoSaveCheck system
         case RI_CLOCK_DAY_1:
         case RI_CLOCK_NIGHT_1:
         case RI_CLOCK_DAY_2:
         case RI_CLOCK_NIGHT_2:
         case RI_CLOCK_DAY_3:
         case RI_CLOCK_NIGHT_3: {
-            int half = Rando::TimeUtils::HalfIndexFromClockItem(randoItemId);
+            int half = Rando::ClockItems::GetHalfDayIndexFromClockItem(randoItemId);
             if (half >= 0) {
-                Rando::TimeUtils::UnownHalfDay(half);
+                Rando::ClockItems::TakeAwayHalfDay(half);
             }
             break;
         }
         case RI_CLOCK_PROGRESSIVE: {
             // Remove highest-owned per current mode
-            const bool descending = (RANDO_SAVE_OPTIONS[RO_CLOCKS_PROGRESSIVE_MODE] == RO_CLOCKS_MODE_DESCENDING);
-            int toRemove = Rando::TimeUtils::FindOwnedHalfForProgressiveRemoval(descending);
+            const bool descending = (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE] == RO_CLOCK_SHUFFLE_DESCENDING);
+            int toRemove = Rando::ClockItems::FindEarliestOwnedHalfDay(descending);
             if (toRemove >= 0) {
-                Rando::TimeUtils::UnownHalfDay(toRemove);
+                Rando::ClockItems::TakeAwayHalfDay(toRemove);
             }
             break;
         }

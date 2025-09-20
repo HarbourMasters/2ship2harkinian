@@ -1,5 +1,5 @@
 #include "Rando/Rando.h"
-#include "Rando/Utils.h"
+#include "Rando/MiscBehavior/ClockShuffle.h"
 
 extern "C" {
 #include "variables.h"
@@ -241,16 +241,16 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_OWL_ZORA_CAPE:
             Sram_ActivateOwl(OWL_WARP_ZORA_CAPE);
             break;
-        // Clocks as Items: set dedicated rando flags only; no quest/event flags
+        // Clocks as Items: use RandoSaveCheck system
         case RI_CLOCK_DAY_1:
         case RI_CLOCK_NIGHT_1:
         case RI_CLOCK_DAY_2:
         case RI_CLOCK_NIGHT_2:
         case RI_CLOCK_DAY_3:
         case RI_CLOCK_NIGHT_3: {
-            int half = Rando::TimeUtils::HalfIndexFromClockItem(randoItemId);
+            int half = Rando::ClockItems::GetHalfDayIndexFromClockItem(randoItemId);
             if (half >= 0) {
-                Rando::TimeUtils::OwnHalfDay(half);
+                Rando::ClockItems::GivePlayerHalfDay(half);
             }
             break;
         }

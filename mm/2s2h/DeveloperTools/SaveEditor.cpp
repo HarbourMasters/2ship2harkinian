@@ -2,6 +2,7 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Rando/Rando.h"
+#include "2s2h/Rando/MiscBehavior/ClockShuffle.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/BenGui/Notification.h"
@@ -878,6 +879,37 @@ void DrawItemsAndMasksTab() {
     UIWidgets::Checkbox("Safe Mode", &safeMode);
 
     if (gSaveContext.save.shipSaveInfo.saveType == SAVETYPE_RANDO) {
+        // Clock Items Management Section
+        ImGui::SeparatorText("Clock Items");
+
+        // Individual clock items in 3x2 grid
+        RandoItemId clockItems[] = { RI_CLOCK_DAY_1,   RI_CLOCK_NIGHT_1, RI_CLOCK_DAY_2,
+                                     RI_CLOCK_NIGHT_2, RI_CLOCK_DAY_3,   RI_CLOCK_NIGHT_3 };
+
+        const char* clockNames[] = { "Day 1", "Night 1", "Day 2", "Night 2", "Day 3", "Night 3" };
+
+        // Calculate button width for 3-column grid with proper spacing
+        float availableWidth = ImGui::GetContentRegionAvail().x;
+        float buttonWidth = (availableWidth - (2 * ImGui::GetStyle().ItemSpacing.x)) / 3.0f;
+
+        for (int i = 0; i < 6; i++) {
+            RandoItemId clockItem = clockItems[i];
+            int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(clockItem);
+            bool isOwned = Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex);
+
+            if (isOwned) {
+                if (UIWidgets::Button(("Remove " + std::string(clockNames[i])).c_str(),
+                                      { .size = ImVec2(buttonWidth, 0.0f) })) {
+                    Rando::RemoveItem(clockItem);
+                }
+                // Create 3x2 grid layout
+                if ((i + 1) % 3 != 0) {
+                    ImGui::SameLine();
+                }
+            }
+        }
+
+        ImGui::Spacing();
         ImGui::SeparatorText("Queue Randomizer Item Gives");
 
         static ImGuiTextFilter riFilter;

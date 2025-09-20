@@ -521,12 +521,17 @@ void CheckTrackerWindow::Draw() {
     ImGui::PopStyleVar(1);
 
     // Compact Clocks-as-Items indicator row
-    if (RANDO_SAVE_OPTIONS[RO_CLOCKS_AS_ITEMS] && CVAR_CLOCK_SEGMENTS_SHOW) {
+    if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] && CVAR_CLOCK_SEGMENTS_SHOW) {
         ImGui::SetNextWindowBgAlpha(trackerBG.w);
-        ImGui::SetNextWindowPos(ImVec2(CVAR_CLOCK_SEGMENTS_POS_X, CVAR_CLOCK_SEGMENTS_POS_Y), ImGuiCond_Always);
-        ImGui::Begin("Clock Segments", nullptr,
-                     ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoTitleBar |
-                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoMove);
+        ImGui::SetNextWindowPos(ImVec2(CVAR_CLOCK_SEGMENTS_POS_X, CVAR_CLOCK_SEGMENTS_POS_Y), ImGuiCond_FirstUseEver);
+        bool showClockSegments = true;
+        ImGui::Begin("Clock Segments", &showClockSegments,
+                     ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize);
+
+        // Close button in the title bar
+        if (!showClockSegments) {
+            CVarSetInteger(CVAR_NAME_CLOCK_SEGMENTS_SHOW, 0);
+        }
         auto seg = [&](const char* label, bool owned) {
             ImGui::SameLine(0, 8.0f);
             ImGui::TextColored(owned ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)
@@ -534,29 +539,18 @@ void CheckTrackerWindow::Draw() {
                                "%s", label);
         };
         ImGui::Text("Clocks:");
-        seg("D1", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY1));
-        seg("N1", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT1));
-        seg("D2", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY2));
-        seg("N2", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT2));
-        seg("D3", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY3));
-        seg("N3", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT3));
-        ImGui::End();
+        seg("D1", RANDO_SAVE_CHECKS[RC_CLOCK_DAY_1].obtained);
+        seg("N1", RANDO_SAVE_CHECKS[RC_CLOCK_NIGHT_1].obtained);
+        seg("D2", RANDO_SAVE_CHECKS[RC_CLOCK_DAY_2].obtained);
+        seg("N2", RANDO_SAVE_CHECKS[RC_CLOCK_NIGHT_2].obtained);
+        seg("D3", RANDO_SAVE_CHECKS[RC_CLOCK_DAY_3].obtained);
+        seg("N3", RANDO_SAVE_CHECKS[RC_CLOCK_NIGHT_3].obtained);
 
-        // Allow dragging to reposition; persist when released
-        ImGui::SetNextWindowBgAlpha(0.0f);
-        ImGui::Begin("Clock Segments DragHitbox", nullptr,
-                     ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar |
-                         ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoBringToFrontOnFocus |
-                         ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoSavedSettings |
-                         ImGuiWindowFlags_AlwaysAutoResize);
-        ImGui::SetWindowPos(ImVec2(CVAR_CLOCK_SEGMENTS_POS_X, CVAR_CLOCK_SEGMENTS_POS_Y), ImGuiCond_Always);
-        ImGui::InvisibleButton("clock_segments_drag", ImVec2(140, 18));
-        if (ImGui::IsItemActive() && ImGui::IsMouseDragging(ImGuiMouseButton_Left)) {
-            ImVec2 delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Left);
-            CVarSetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_X, CVAR_CLOCK_SEGMENTS_POS_X + delta.x);
-            CVarSetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_Y, CVAR_CLOCK_SEGMENTS_POS_Y + delta.y);
-            ImGui::ResetMouseDragDelta(ImGuiMouseButton_Left);
-        }
+        // Save position when moved
+        ImVec2 currentPos = ImGui::GetWindowPos();
+        CVarSetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_X, currentPos.x);
+        CVarSetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_Y, currentPos.y);
+
         ImGui::End();
     }
 }
@@ -570,6 +564,7 @@ void SettingsWindow::DrawElement() {
         UIWidgets::CVarCheckbox("Hide Skipped Checks", CVAR_NAME_HIDE_SKIPPED);
         UIWidgets::CVarCheckbox("Auto Scroll To Current Scene", CVAR_NAME_SCROLL_TO_SCENE);
         UIWidgets::CVarCheckbox("Only Show Current Scene", CVAR_NAME_SHOW_CURRENT_SCENE);
+        UIWidgets::CVarCheckbox("Show Clock Segments", CVAR_NAME_CLOCK_SEGMENTS_SHOW);
 
         ImGui::TableNextColumn();
 

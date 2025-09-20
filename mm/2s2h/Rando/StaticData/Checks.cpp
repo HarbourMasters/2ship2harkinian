@@ -2223,6 +2223,15 @@ std::map<RandoCheckId, RandoStaticCheck> Checks = {
     RC(RC_ZORA_CAPE_GROTTO_GRASS_13,                    RCTYPE_GRASS, SCENE_KAKUSIANA,          FLAG_NONE, 0x0, RI_JUNK),
     RC(RC_ZORA_CAPE_GROTTO_GRASS_14,                    RCTYPE_GRASS, SCENE_KAKUSIANA,          FLAG_NONE, 0x0, RI_JUNK),
 
+    // Clock as Items checks
+    RC(RC_CLOCK_DAY_1,                                   RCTYPE_CLOCK, SCENE_MAX,                FLAG_NONE, 0x00,                                                RI_CLOCK_DAY_1),
+    RC(RC_CLOCK_NIGHT_1,                                 RCTYPE_CLOCK, SCENE_MAX,                FLAG_NONE, 0x00,                                                RI_CLOCK_NIGHT_1),
+    RC(RC_CLOCK_DAY_2,                                   RCTYPE_CLOCK, SCENE_MAX,                FLAG_NONE, 0x00,                                                RI_CLOCK_DAY_2),
+    RC(RC_CLOCK_NIGHT_2,                                 RCTYPE_CLOCK, SCENE_MAX,                FLAG_NONE, 0x00,                                                RI_CLOCK_NIGHT_2),
+    RC(RC_CLOCK_DAY_3,                                   RCTYPE_CLOCK, SCENE_MAX,                FLAG_NONE, 0x00,                                                RI_CLOCK_DAY_3),
+    RC(RC_CLOCK_NIGHT_3,                                 RCTYPE_CLOCK, SCENE_MAX,                FLAG_NONE, 0x00,                                                RI_CLOCK_NIGHT_3),
+    RC(RC_CLOCK_PROGRESSIVE,                             RCTYPE_CLOCK, SCENE_MAX,                FLAG_NONE, 0x00,                                                RI_CLOCK_PROGRESSIVE),
+
 };
 // clang-format on
 

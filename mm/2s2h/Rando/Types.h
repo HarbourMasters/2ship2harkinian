@@ -21,6 +21,7 @@ typedef enum {
     RCTYPE_SONG,
     RCTYPE_STRAY_FAIRY,
     RCTYPE_TINGLE_SHOP,
+    RCTYPE_CLOCK,
     RCTYPE_MAX,
 } RandoCheckType;
 
@@ -2229,6 +2230,15 @@ typedef enum {
     RC_ZORA_CAPE_GROTTO_GRASS_13,
     RC_ZORA_CAPE_GROTTO_GRASS_14,
 
+    // Clock as Items checks
+    RC_CLOCK_DAY_1,
+    RC_CLOCK_NIGHT_1,
+    RC_CLOCK_DAY_2,
+    RC_CLOCK_NIGHT_2,
+    RC_CLOCK_DAY_3,
+    RC_CLOCK_NIGHT_3,
+    RC_CLOCK_PROGRESSIVE,
+
     RC_MAX,
 } RandoCheckId;
 
@@ -2758,11 +2768,8 @@ typedef enum {
     RO_STARTING_ITEMS_3,
     RO_STARTING_MAPS_AND_COMPASSES,
     RO_STARTING_RUPEES,
-    // Clocks as Items setting and crash behavior
-    RO_CLOCKS_AS_ITEMS,
-    RO_CLOCKS_CRASH_BEHAVIOR,
-    // Clocks progression mode (separate/ascending/descending)
-    RO_CLOCKS_PROGRESSIVE_MODE,
+    RO_CLOCK_SHUFFLE,
+    RO_CLOCK_SHUFFLE_PROGRESSIVE,
     RO_MAX,
 } RandoOptionId;
 
@@ -2801,10 +2808,10 @@ typedef enum {
 
 // Clocks as Items progressive mode
 typedef enum {
-    RO_CLOCKS_MODE_SEPARATE,
-    RO_CLOCKS_MODE_ASCENDING,
-    RO_CLOCKS_MODE_DESCENDING,
-} RandoOptionClocksMode;
+    RO_CLOCK_SHUFFLE_RANDOM,
+    RO_CLOCK_SHUFFLE_ASCENDING,
+    RO_CLOCK_SHUFFLE_DESCENDING,
+} RandoClockShuffleOptions;
 
 typedef enum {
     RANDO_INF_PURCHASED_BEANS_FROM_SOUTHERN_SWAMP_SCRUB,
@@ -2825,13 +2832,6 @@ typedef enum {
     RANDO_INF_OBTAINED_SOUL_OF_MAJORA,
     RANDO_INF_OBTAINED_SOUL_OF_ODOLWA,
     RANDO_INF_OBTAINED_SOUL_OF_TWINMOLD,
-    // Clocks as Items ownership flags
-    RANDO_INF_OBTAINED_CLOCK_DAY1,
-    RANDO_INF_OBTAINED_CLOCK_NIGHT1,
-    RANDO_INF_OBTAINED_CLOCK_DAY2,
-    RANDO_INF_OBTAINED_CLOCK_NIGHT2,
-    RANDO_INF_OBTAINED_CLOCK_DAY3,
-    RANDO_INF_OBTAINED_CLOCK_NIGHT3,
     RANDO_INF_MAX,
 } RandoInf;
 
