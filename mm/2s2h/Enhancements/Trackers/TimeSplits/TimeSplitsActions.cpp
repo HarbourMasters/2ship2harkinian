@@ -377,6 +377,9 @@ void RegisterTimesplits() {
         if (item == ITEM_LONGSHOT) {
             item = ITEM_POTION_RED;
         }
+        if (item >= ITEM_BOMBCHUS_20 && item <= ITEM_BOMBCHUS_5) {
+            item = ITEM_BOMBCHU;
+        }
 
         UpdateSplitStatusById((uint32_t)item);
     });

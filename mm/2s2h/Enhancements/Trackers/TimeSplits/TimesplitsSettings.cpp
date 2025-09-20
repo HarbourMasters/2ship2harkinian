@@ -413,29 +413,29 @@ void DrawOptions() {
                                     .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                                 });
 
-        //ImGui::TableNextColumn();
-        //UIWidgets::CVarCheckbox("Compare Splits", "gSettings.TimeSplits.Compare",
-        //                        {
-        //                            .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
-        //                        });
-        //
-        //if (CVarGetInteger("gSettings.TimeSplits.Compare", 0)) {
-        //    ImGui::TableNextColumn();
-        //    UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
-        //    ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-        //    if (ImGui::BeginCombo("##compareSplits", savedLists[comparedIndex].c_str())) {
-        //        for (int i = 0; i < savedLists.size(); i++) {
-        //            if (ImGui::Selectable(savedLists[i].c_str())) {
-        //                comparedIndex = i;
-        //                SplitLoadComparisonList();
-        //                break;
-        //            }
-        //        }
-        //        ImGui::EndCombo();
-        //    }
-        //    ImGui::PopItemWidth();
-        //    UIWidgets::PopStyleCombobox();
-        //}
+        ImGui::TableNextColumn();
+        UIWidgets::CVarCheckbox("Compare Splits", "gSettings.TimeSplits.Compare",
+                                {
+                                    .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                });
+        
+        if (CVarGetInteger("gSettings.TimeSplits.Compare", 0)) {
+            ImGui::TableNextColumn();
+            UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+            ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
+            if (ImGui::BeginCombo("##compareSplits", savedLists[comparedIndex].c_str())) {
+                for (int i = 0; i < savedLists.size(); i++) {
+                    if (ImGui::Selectable(savedLists[i].c_str())) {
+                        comparedIndex = i;
+                        SplitLoadComparisonList();
+                        break;
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            ImGui::PopItemWidth();
+            UIWidgets::PopStyleCombobox();
+        }
         
         ImGui::EndTable();
     }
