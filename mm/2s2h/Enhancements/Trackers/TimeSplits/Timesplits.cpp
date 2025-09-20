@@ -63,17 +63,22 @@ SplitTextObject GetComparisonTimeTextDisplay(TimesplitObject split, TimesplitObj
     SplitTextObject textDisplay;
 
     textDisplay.timeDisplay = splitCompare.splitPreviousBest;
-    if (split.splitStatus == SPLIT_ACTIVE) {
-        if (totalTime <= splitCompare.splitPreviousBest) {
-            textDisplay.colorDisplay = COLOR_LIGHTGREEN;
-        } else {
-            textDisplay.colorDisplay = COLOR_LIGHTRED;
-        }
+    if (splitCompare.splitPreviousBest == 0) {
+        textDisplay.timeDisplay = splitCompare.splitPreviousBest;
+        textDisplay.colorDisplay = COLOR_GREY;
     } else {
-        if (split.splitCurrentTime <= splitCompare.splitPreviousBest) {
-            textDisplay.colorDisplay = COLOR_LIGHTRED;
+        if (split.splitStatus == SPLIT_ACTIVE) {
+            if (totalTime <= splitCompare.splitPreviousBest) {
+                textDisplay.colorDisplay = COLOR_LIGHTGREEN;
+            } else {
+                textDisplay.colorDisplay = COLOR_LIGHTRED;
+            }
         } else {
-            textDisplay.colorDisplay = COLOR_LIGHTGREEN;
+            if (split.splitCurrentTime <= splitCompare.splitPreviousBest) {
+                textDisplay.colorDisplay = COLOR_LIGHTRED;
+            } else {
+                textDisplay.colorDisplay = COLOR_LIGHTGREEN;
+            }
         }
     }
 
@@ -257,6 +262,14 @@ void UpdateSplitSettings(uint32_t settingName) {
         case SPLIT_OPACITY:
             splitOpacity.w = CVarGetInteger("gSettings.TimeSplits.Opacity", 0) ? 0 : 0.5f;
             break;
+        case SPLIT_COMPARE:
+            if (CVarGetInteger("gSettings.TimeSplits.Compare", 0)) {
+                SplitSaveFileAction(SPLIT_RETRIEVE, "");
+                if (savedLists.size() != 0) {
+                    SplitLoadComparisonList();
+                }
+            }
+            break;
         default:
             break;
     }
@@ -274,6 +287,7 @@ void TimesplitsWindow::Draw() {
 void TimesplitsWindow::InitElement() {
     UpdateSplitSettings(SPLIT_HEADERS);
     UpdateSplitSettings(SPLIT_OPACITY);
+    UpdateSplitSettings(SPLIT_COMPARE);
 }
 
 // void TimesplitsWindow::DrawElement() {

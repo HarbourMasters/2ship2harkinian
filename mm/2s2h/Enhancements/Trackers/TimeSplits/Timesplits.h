@@ -27,6 +27,7 @@ typedef enum SplitSettings {
     SPLIT_HEADERS,
     SPLIT_OPACITY,
     SPLIT_HIGHLIGHT,
+    SPLIT_COMPARE,
 };
 
 typedef enum SplitFileActions {
