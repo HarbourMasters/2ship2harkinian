@@ -205,9 +205,9 @@ static void DrawLocationsTab() {
     // Only show clock progression options when clock shuffle is enabled
     if (CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar, 0)) {
         static std::unordered_map<int32_t, const char*> clockModeOptions = {
-            { RO_CLOCK_SHUFFLE_RANDOM, "Separate Half-Days (each day/night is separate)" },
-            { RO_CLOCK_SHUFFLE_ASCENDING, "Progressive: Day 1 → Night 1 → Day 2 → Night 2 → Day 3 → Night 3" },
-            { RO_CLOCK_SHUFFLE_DESCENDING, "Progressive: Night 3 → Day 3 → Night 2 → Day 2 → Night 1 → Day 1" },
+            { RO_CLOCK_SHUFFLE_RANDOM, "Random" },
+            { RO_CLOCK_SHUFFLE_ASCENDING, "Progressive: Ascending" },
+            { RO_CLOCK_SHUFFLE_DESCENDING, "Progressive: Descending" },
         };
         {
             int32_t value =

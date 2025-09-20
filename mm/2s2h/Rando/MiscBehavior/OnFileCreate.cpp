@@ -221,7 +221,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     }
                 }
 
-                // Inject clocks as items when enabled
                 if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
                     int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
                     if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {

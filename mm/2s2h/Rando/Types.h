@@ -2817,7 +2817,6 @@ typedef enum {
     RO_ACCESS_TRIALS_OPEN,
 } RandoOptionAccessTrials;
 
-// Clocks as Items progressive mode
 typedef enum {
     RO_CLOCK_SHUFFLE_RANDOM,
     RO_CLOCK_SHUFFLE_ASCENDING,

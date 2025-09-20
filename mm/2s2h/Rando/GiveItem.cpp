@@ -241,7 +241,6 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_OWL_ZORA_CAPE:
             Sram_ActivateOwl(OWL_WARP_ZORA_CAPE);
             break;
-        // Clocks as Items: use RandoSaveCheck system
         case RI_CLOCK_DAY_1:
         case RI_CLOCK_NIGHT_1:
         case RI_CLOCK_DAY_2:

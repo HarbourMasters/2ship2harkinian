@@ -283,7 +283,6 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_TINGLE_MAP_STONE_TOWER:
             CLEAR_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_STONE_TOWER);
             break;
-        // Clocks as Items: use RandoSaveCheck system
         case RI_CLOCK_DAY_1:
         case RI_CLOCK_NIGHT_1:
         case RI_CLOCK_DAY_2:

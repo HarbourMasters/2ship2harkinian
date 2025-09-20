@@ -526,7 +526,7 @@ void CheckTrackerWindow::Draw() {
         ImGui::SetNextWindowBgAlpha(trackerBG.w);
         ImGui::SetNextWindowPos(ImVec2(CVAR_CLOCK_SEGMENTS_POS_X, CVAR_CLOCK_SEGMENTS_POS_Y), ImGuiCond_FirstUseEver);
         bool showClockSegments = true;
-        ImGui::Begin("Clock Segments", &showClockSegments,
+        ImGui::Begin("Clock Items", &showClockSegments,
                      ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize);
 
         // Close button in the title bar

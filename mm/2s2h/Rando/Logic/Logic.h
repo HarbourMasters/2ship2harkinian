@@ -18,8 +18,6 @@ namespace Rando {
 
 namespace Logic {
 
-// Time is evaluated via owned half-days; generation temporarily grants time capability via flags
-
 void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions);
 RandoRegionId GetRegionIdFromEntrance(s32 entrance);
 void ApplyFrenchVanillaLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,

@@ -257,6 +257,7 @@ void SetGameTime(u8 day, u16 time) {
     gSaveContext.save.eventDayCount = day;
 }
 
+// Set time to half-day start with proper music handling
 void SetTimeToHalfDayStart(int halfDayIndex) {
     // Don't try to set time for terminal state
     if (halfDayIndex == ClockItems::TERMINAL_STATE) {
@@ -265,9 +266,22 @@ void SetTimeToHalfDayStart(int halfDayIndex) {
 
     // Get the configuration for this half-day
     const HalfDayTimeConfig* config = GetHalfDayTimeConfig(halfDayIndex);
+    if (!config) {
+        return;
+    }
 
     // Set time to the start of this half-day
     SetGameTime(config->dayNumber, config->startTime);
+
+    // Handle music state for the time change
+    gSaveContext.seqId = NA_BGM_DISABLED;
+    
+    // Set appropriate sequence state based on transition type
+    if (!IsCurrentlyNightTime(config->startTime)) {
+        gSceneSeqState = SCENESEQ_MORNING;  // Day transition
+    } else {
+        gSceneSeqState = SCENESEQ_DEFAULT;  // Night transition
+    }
 }
 
 // Force a scene transition to reload the current area
@@ -305,9 +319,9 @@ void ProcessHalfDayTransition(Actor* timeActor, int fromHalfDay, int toHalfDay) 
         return;
     }
 
-    // Get all owned half-days and find the next one after the target
+    // Get all owned half-days and find the next one after the source half day
     const u8 ownedHalfDaysMask = ClockItems::GetAllOwnedHalfDaysMask();
-    int nextOwnedHalfDay = ClockItems::FindNextOwnedHalfDayAfter(toHalfDay, ownedHalfDaysMask);
+    int nextOwnedHalfDay = ClockItems::FindNextOwnedHalfDayAfter(fromHalfDay, ownedHalfDaysMask);
 
     // Set up redirect state using simple globals
     sIsRedirecting = true;
@@ -318,12 +332,11 @@ void ProcessHalfDayTransition(Actor* timeActor, int fromHalfDay, int toHalfDay) 
         if (nextOwnedHalfDay == ClockItems::TERMINAL_STATE) {
             // Set time to terminal state (Day 3, midnight)
             SetGameTime(3, TERMINAL_STATE_TIME);
+            gSaveContext.seqId = NA_BGM_DISABLED;
+            gSceneSeqState = SCENESEQ_DEFAULT;  // Terminal state
         } else {
-            // Set time to the start of the next owned half-day
-            const HalfDayTimeConfig* targetConfig = GetHalfDayTimeConfig(nextOwnedHalfDay);
-            if (targetConfig) {
-                SetGameTime(targetConfig->dayNumber, targetConfig->startTime);
-            }
+            // Use the music-aware function for proper time and music handling
+            SetTimeToHalfDayStart(nextOwnedHalfDay);
         }
 
         // Update global tracking to the target half-day after the time change

@@ -886,35 +886,66 @@ void DrawItemsAndMasksTab() {
     }
     UIWidgets::Checkbox("Safe Mode", &safeMode);
 
-    if (gSaveContext.save.shipSaveInfo.saveType == SAVETYPE_RANDO) {
+    if (gSaveContext.save.shipSaveInfo.saveType == SAVETYPE_RANDO &&
+        CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar, 0)) {
         // Clock Items Management Section
         ImGui::SeparatorText("Clock Items");
 
-        // Individual clock items in 3x2 grid
-        RandoItemId clockItems[] = { RI_CLOCK_DAY_1,   RI_CLOCK_NIGHT_1, RI_CLOCK_DAY_2,
-                                     RI_CLOCK_NIGHT_2, RI_CLOCK_DAY_3,   RI_CLOCK_NIGHT_3 };
+        // Individual clock items in 3x2 grid with static positioning
+        RandoItemId clockItems[] = { RI_CLOCK_DAY_1,   RI_CLOCK_DAY_2,   RI_CLOCK_DAY_3,
+                                     RI_CLOCK_NIGHT_1, RI_CLOCK_NIGHT_2, RI_CLOCK_NIGHT_3 };
 
-        const char* clockNames[] = { "Day 1", "Night 1", "Day 2", "Night 2", "Day 3", "Night 3" };
+        const char* clockNames[] = { "Day 1", "Day 2", "Day 3", "Night 1", "Night 2", "Night 3" };
 
-        // Calculate button width for 3-column grid with proper spacing
-        float availableWidth = ImGui::GetContentRegionAvail().x;
-        float buttonWidth = (availableWidth - (2 * ImGui::GetStyle().ItemSpacing.x)) / 3.0f;
+        // Use table for static positioning - 3 columns, 2 rows
+        if (ImGui::BeginTable("ClockItemsTable", 3, ImGuiTableFlags_None)) {
+            ImGui::TableSetupColumn("Day 1", ImGuiTableColumnFlags_WidthStretch);
+            ImGui::TableSetupColumn("Day 2", ImGuiTableColumnFlags_WidthStretch);
+            ImGui::TableSetupColumn("Day 3", ImGuiTableColumnFlags_WidthStretch);
 
-        for (int i = 0; i < 6; i++) {
-            RandoItemId clockItem = clockItems[i];
-            int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(clockItem);
-            bool isOwned = Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex);
+            // First row - Day items
+            ImGui::TableNextRow();
+            for (int i = 0; i < 3; i++) {
+                ImGui::TableNextColumn();
+                RandoItemId clockItem = clockItems[i];
+                int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(clockItem);
+                bool isOwned = Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex);
 
-            if (isOwned) {
-                if (UIWidgets::Button(("Remove " + std::string(clockNames[i])).c_str(),
-                                      { .size = ImVec2(buttonWidth, 0.0f) })) {
+                std::string buttonText = isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
+                static std::string tooltipText = "";
+                if (!isOwned) {
+                    tooltipText = "You don't own " + std::string(clockNames[i]);
+                }
+                UIWidgets::ButtonOptions buttonOpts;
+                buttonOpts.disabled = !isOwned;
+                buttonOpts.disabledTooltip = !isOwned ? tooltipText.c_str() : "";
+                if (UIWidgets::Button(buttonText.c_str(), buttonOpts)) {
                     Rando::RemoveItem(clockItem);
                 }
-                // Create 3x2 grid layout
-                if ((i + 1) % 3 != 0) {
-                    ImGui::SameLine();
+            }
+
+            // Second row - Night items
+            ImGui::TableNextRow();
+            for (int i = 3; i < 6; i++) {
+                ImGui::TableNextColumn();
+                RandoItemId clockItem = clockItems[i];
+                int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(clockItem);
+                bool isOwned = Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex);
+
+                std::string buttonText = isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
+                static std::string tooltipText = "";
+                if (!isOwned) {
+                    tooltipText = "You don't own " + std::string(clockNames[i]);
+                }
+                UIWidgets::ButtonOptions buttonOpts;
+                buttonOpts.disabled = !isOwned;
+                buttonOpts.disabledTooltip = !isOwned ? tooltipText.c_str() : "";
+                if (UIWidgets::Button(buttonText.c_str(), buttonOpts)) {
+                    Rando::RemoveItem(clockItem);
                 }
             }
+
+            ImGui::EndTable();
         }
 
         ImGui::Spacing();

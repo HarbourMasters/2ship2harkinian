@@ -426,7 +426,6 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_SOUL_ODOLWA:
         case RI_SOUL_TWINMOLD:
             return !Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (randoItemId - RI_SOUL_GOHT));
-        // Clocks as Items are always obtainable (logic handled by time gating)
         case RI_CLOCK_DAY_1:
         case RI_CLOCK_NIGHT_1:
         case RI_CLOCK_DAY_2:
