@@ -418,7 +418,7 @@ void DrawOptions() {
                                 {
                                     .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                                 });
-        
+
         if (CVarGetInteger("gSettings.TimeSplits.Compare", 0)) {
             ImGui::TableNextColumn();
             UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
@@ -436,7 +436,7 @@ void DrawOptions() {
             ImGui::PopItemWidth();
             UIWidgets::PopStyleCombobox();
         }
-        
+
         ImGui::EndTable();
     }
 }

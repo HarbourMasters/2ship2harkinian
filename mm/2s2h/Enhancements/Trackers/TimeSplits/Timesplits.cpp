@@ -76,7 +76,6 @@ SplitTextObject GetComparisonTimeTextDisplay(TimesplitObject split, TimesplitObj
             textDisplay.colorDisplay = COLOR_LIGHTGREEN;
         }
     }
-    
 
     return textDisplay;
 };
@@ -85,45 +84,45 @@ SplitTextObject GetTimeDiffTextDisplay(TimesplitObject split) {
     uint32_t totalTime = ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
     SplitTextObject textDisplay;
 
-     if (split.splitPreviousBest == 0) {
+    if (split.splitPreviousBest == 0) {
         textDisplay.timeDisplay = totalTime;
         textDisplay.colorDisplay = COLOR_WHITE;
         return textDisplay;
-     } else {
-         switch (split.splitStatus) {
-             case SPLIT_INACTIVE:
-             case SPLIT_SKIPPED:
-                 textDisplay.timeDisplay = split.splitPreviousBest;
-                 textDisplay.colorDisplay = COLOR_GREY;
-                 return textDisplay;
-             case SPLIT_ACTIVE:
-                 if (totalTime > split.splitPreviousBest) {
-                     textDisplay.timeDisplay = totalTime - split.splitPreviousBest;
-                     textDisplay.colorDisplay = COLOR_RED;
-                 } else if (totalTime == split.splitPreviousBest) {
-                     textDisplay.timeDisplay = totalTime;
-                     textDisplay.colorDisplay = COLOR_WHITE;
-                 } else if (totalTime < split.splitPreviousBest) {
-                     textDisplay.timeDisplay = split.splitPreviousBest - totalTime;
-                     textDisplay.colorDisplay = COLOR_GREEN;
-                 }
-                 return textDisplay;
-             case SPLIT_COMPLETE:
-                 if (split.splitCurrentTime > split.splitPreviousBest) {
-                     textDisplay.timeDisplay = split.splitCurrentTime - split.splitPreviousBest;
-                     textDisplay.colorDisplay = COLOR_RED;
-                 } else if (split.splitCurrentTime == split.splitPreviousBest) {
-                     textDisplay.timeDisplay = split.splitCurrentTime;
-                     textDisplay.colorDisplay = COLOR_WHITE;
-                 } else if (split.splitCurrentTime < split.splitPreviousBest) {
-                     textDisplay.timeDisplay = split.splitPreviousBest - split.splitCurrentTime;
-                     textDisplay.colorDisplay = COLOR_GREEN;
-                 }
-                 return textDisplay;
-             default:
-                 break;
-         }
-     }
+    } else {
+        switch (split.splitStatus) {
+            case SPLIT_INACTIVE:
+            case SPLIT_SKIPPED:
+                textDisplay.timeDisplay = split.splitPreviousBest;
+                textDisplay.colorDisplay = COLOR_GREY;
+                return textDisplay;
+            case SPLIT_ACTIVE:
+                if (totalTime > split.splitPreviousBest) {
+                    textDisplay.timeDisplay = totalTime - split.splitPreviousBest;
+                    textDisplay.colorDisplay = COLOR_RED;
+                } else if (totalTime == split.splitPreviousBest) {
+                    textDisplay.timeDisplay = totalTime;
+                    textDisplay.colorDisplay = COLOR_WHITE;
+                } else if (totalTime < split.splitPreviousBest) {
+                    textDisplay.timeDisplay = split.splitPreviousBest - totalTime;
+                    textDisplay.colorDisplay = COLOR_GREEN;
+                }
+                return textDisplay;
+            case SPLIT_COMPLETE:
+                if (split.splitCurrentTime > split.splitPreviousBest) {
+                    textDisplay.timeDisplay = split.splitCurrentTime - split.splitPreviousBest;
+                    textDisplay.colorDisplay = COLOR_RED;
+                } else if (split.splitCurrentTime == split.splitPreviousBest) {
+                    textDisplay.timeDisplay = split.splitCurrentTime;
+                    textDisplay.colorDisplay = COLOR_WHITE;
+                } else if (split.splitCurrentTime < split.splitPreviousBest) {
+                    textDisplay.timeDisplay = split.splitPreviousBest - split.splitCurrentTime;
+                    textDisplay.colorDisplay = COLOR_GREEN;
+                }
+                return textDisplay;
+            default:
+                break;
+        }
+    }
 }
 
 void TableCellCenteredText(ImVec4 color, const char* text) {
@@ -214,7 +213,11 @@ void DrawSplitsList(bool isMain) {
                 if (CVarGetInteger("gSettings.TimeSplits.Compare", 0) && comparisonList.size() != 0) {
                     !gPlayState ? ImGui::TextColored(COLOR_WHITE, "--:--:--.-")
                     : i < comparisonList.size()
-                        ? ImGui::TextColored(GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).colorDisplay, Ship_FormatTimeDisplay(GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).timeDisplay).c_str())
+                        ? ImGui::TextColored(
+                              GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).colorDisplay,
+                              Ship_FormatTimeDisplay(
+                                  GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).timeDisplay)
+                                  .c_str())
                         : ImGui::TextColored(COLOR_GREY, "No Data");
                 }
 
@@ -222,9 +225,10 @@ void DrawSplitsList(bool isMain) {
                 ImGui::TableNextColumn();
                 TableCellCenteredText(COLOR_WHITE, Ship_FormatTimeDisplay(splitList[i].splitPreviousBest).c_str());
                 if (CVarGetInteger("gSettings.TimeSplits.Compare", 0) && comparisonList.size() != 0) {
-                    ImGui::TextColored(COLOR_GREY, i < comparisonList.size()
+                    ImGui::TextColored(COLOR_GREY,
+                                       i < comparisonList.size()
                                            ? Ship_FormatTimeDisplay(comparisonList[i].splitPreviousBest).c_str()
-                                                       : "No Data");
+                                           : "No Data");
                 }
 
                 ImGui::PopID();
