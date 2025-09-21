@@ -161,7 +161,8 @@ void DrawSplitsList(bool isMain) {
     }
 
     if (ImGui::BeginChild("SplitChild", ImVec2(0, 0), true, ImGuiWindowFlags_NoScrollbar)) {
-        if (ImGui::BeginTable("Splits", 5, ImGuiTableFlags_Hideable | ImGuiTableFlags_Reorderable)) {
+        if (ImGui::BeginTable("Splits", 5,
+                              ImGuiTableFlags_ScrollY | ImGuiTableFlags_Hideable | ImGuiTableFlags_Reorderable)) {
             ImGui::TableSetupColumn("Item Image",
                                     ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel,
                                     (28.0f * columnSizeMultiplier));
@@ -170,6 +171,7 @@ void DrawSplitsList(bool isMain) {
             ImGui::TableSetupColumn("+/-");
             ImGui::TableSetupColumn("Previous Best ");
             if (tableColumnFlags != ImGuiTableColumnFlags_None) {
+                ImGui::TableSetupScrollFreeze(0, 1);
                 ImGui::TableHeadersRow();
             }
 
@@ -237,6 +239,10 @@ void DrawSplitsList(bool isMain) {
                 }
 
                 ImGui::PopID();
+
+                if (CVarGetInteger("gSettings.TimeSplits.Follow", 0) && splitList[i].splitStatus == SPLIT_ACTIVE) {
+                    ImGui::SetScrollHereY();
+                }
             }
 
             ImGui::EndTable();
