@@ -20,7 +20,8 @@ extern s32 gHorseIsMounted;
 extern "C" bool PauseOwlWarp_IsOwlWarpEnabled() {
     return CVAR && CHECK_QUEST_ITEM(QUEST_SONG_SOARING) &&
            gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0 &&
-           gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE;
+           gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE &&
+           gPlayState->interfaceCtx.restrictions.songOfSoaring == 0;
 }
 
 void HandleConfirmingState(PauseContext* pauseCtx, Input* input) {
