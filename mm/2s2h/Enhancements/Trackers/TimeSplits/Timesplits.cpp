@@ -52,6 +52,9 @@ SplitTextObject GetCurrentTimeTextDisplay(TimesplitObject split) {
             } else if (split.splitCurrentTime < split.splitPreviousBest) {
                 textDisplay.colorDisplay = COLOR_GREEN;
             }
+            if (split.splitPreviousBest == 0) {
+                textDisplay.colorDisplay = COLOR_WHITE;
+            }
             return textDisplay;
         default:
             break;
@@ -89,44 +92,44 @@ SplitTextObject GetTimeDiffTextDisplay(TimesplitObject split) {
     uint32_t totalTime = ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
     SplitTextObject textDisplay;
 
-    if (split.splitPreviousBest == 0) {
-        textDisplay.timeDisplay = totalTime;
-        textDisplay.colorDisplay = COLOR_WHITE;
-        return textDisplay;
-    } else {
-        switch (split.splitStatus) {
-            case SPLIT_INACTIVE:
-            case SPLIT_SKIPPED:
-                textDisplay.timeDisplay = split.splitPreviousBest;
-                textDisplay.colorDisplay = COLOR_GREY;
-                return textDisplay;
-            case SPLIT_ACTIVE:
-                if (totalTime > split.splitPreviousBest) {
-                    textDisplay.timeDisplay = totalTime - split.splitPreviousBest;
-                    textDisplay.colorDisplay = COLOR_RED;
-                } else if (totalTime == split.splitPreviousBest) {
-                    textDisplay.timeDisplay = totalTime;
-                    textDisplay.colorDisplay = COLOR_WHITE;
-                } else if (totalTime < split.splitPreviousBest) {
-                    textDisplay.timeDisplay = split.splitPreviousBest - totalTime;
-                    textDisplay.colorDisplay = COLOR_GREEN;
-                }
-                return textDisplay;
-            case SPLIT_COMPLETE:
-                if (split.splitCurrentTime > split.splitPreviousBest) {
-                    textDisplay.timeDisplay = split.splitCurrentTime - split.splitPreviousBest;
-                    textDisplay.colorDisplay = COLOR_RED;
-                } else if (split.splitCurrentTime == split.splitPreviousBest) {
-                    textDisplay.timeDisplay = split.splitCurrentTime;
-                    textDisplay.colorDisplay = COLOR_WHITE;
-                } else if (split.splitCurrentTime < split.splitPreviousBest) {
-                    textDisplay.timeDisplay = split.splitPreviousBest - split.splitCurrentTime;
-                    textDisplay.colorDisplay = COLOR_GREEN;
-                }
-                return textDisplay;
-            default:
-                break;
-        }
+    switch (split.splitStatus) {
+        case SPLIT_INACTIVE:
+        case SPLIT_SKIPPED:
+            textDisplay.timeDisplay = split.splitPreviousBest;
+            textDisplay.colorDisplay = COLOR_GREY;
+            return textDisplay;
+        case SPLIT_ACTIVE:
+            if (totalTime > split.splitPreviousBest) {
+                textDisplay.timeDisplay = totalTime - split.splitPreviousBest;
+                textDisplay.colorDisplay = COLOR_RED;
+            } else if (totalTime == split.splitPreviousBest) {
+                textDisplay.timeDisplay = totalTime;
+                textDisplay.colorDisplay = COLOR_WHITE;
+            } else if (totalTime < split.splitPreviousBest) {
+                textDisplay.timeDisplay = split.splitPreviousBest - totalTime;
+                textDisplay.colorDisplay = COLOR_GREEN;
+            }
+            if (split.splitPreviousBest == 0) {
+                textDisplay.colorDisplay = COLOR_WHITE;
+            }
+            return textDisplay;
+        case SPLIT_COMPLETE:
+            if (split.splitCurrentTime > split.splitPreviousBest) {
+                textDisplay.timeDisplay = split.splitCurrentTime - split.splitPreviousBest;
+                textDisplay.colorDisplay = COLOR_RED;
+            } else if (split.splitCurrentTime == split.splitPreviousBest) {
+                textDisplay.timeDisplay = split.splitCurrentTime;
+                textDisplay.colorDisplay = COLOR_WHITE;
+            } else if (split.splitCurrentTime < split.splitPreviousBest) {
+                textDisplay.timeDisplay = split.splitPreviousBest - split.splitCurrentTime;
+                textDisplay.colorDisplay = COLOR_GREEN;
+            }
+            if (split.splitPreviousBest == 0) {
+                textDisplay.colorDisplay = COLOR_WHITE;
+            }
+            return textDisplay;
+        default:
+            break;
     }
 }
 
