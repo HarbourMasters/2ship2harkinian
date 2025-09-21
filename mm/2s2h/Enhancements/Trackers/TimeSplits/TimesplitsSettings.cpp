@@ -390,6 +390,7 @@ void DrawOptions() {
                                 {
                                     .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                                 });
+        UIWidgets::Tooltip("Enables the Time Split system, splits will not occur with this unchecked.");
 
         ImGui::TableNextColumn();
         if (UIWidgets::CVarCheckbox("Show Headers", "gSettings.TimeSplits.ShowHeaders",
@@ -398,6 +399,7 @@ void DrawOptions() {
                                     })) {
             UpdateSplitSettings(SPLIT_HEADERS);
         };
+        UIWidgets::Tooltip("Shows the column names in the Split List.");
 
         ImGui::TableNextColumn();
         if (UIWidgets::CVarCheckbox("Hide Background", "gSettings.TimeSplits.Opacity",
@@ -406,18 +408,23 @@ void DrawOptions() {
                                     })) {
             UpdateSplitSettings(SPLIT_OPACITY);
         };
+        UIWidgets::Tooltip("Hides the background of the Splits List.\n"
+                           "Note: The background will display if the window extrudes from the main game window.");
 
         ImGui::TableNextColumn();
         UIWidgets::CVarCheckbox("Highlight Active Split", "gSettings.TimeSplits.Highlight",
                                 {
                                     .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                                 });
+        UIWidgets::Tooltip("Highlights the row with the current Active Split.");
 
         ImGui::TableNextColumn();
         UIWidgets::CVarCheckbox("Follow Active Split", "gSettings.TimeSplits.Follow",
                                 {
                                     .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                                 });
+        UIWidgets::Tooltip("Forces the Split List window to keep the Active Split visible.\n"
+                           "Note: This prevents user scrolling, disable to restore control.");
 
         ImGui::EndTable();
     }
@@ -426,6 +433,7 @@ void DrawOptions() {
                             {
                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
                             });
+    UIWidgets::Tooltip("Enables Split Comparisons between lists, this will integrate within the Split List.");
 
     if (CVarGetInteger("gSettings.TimeSplits.Compare", 0)) {
         ImGui::SameLine();
