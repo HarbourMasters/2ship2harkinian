@@ -619,7 +619,7 @@ int ItemTrackerWindow::DrawMisc(int columns, int prevDrawnColumns) {
     // ImGui::SetCursorPos(pos);
     // DrawItem(const_cast<char*>(gQuestIconPieceOfHeartTex), false, mIconSize);
 
-    return 1;
+    return 2;
 }
 
 static int RoundDown(int orig, int nearest) {
