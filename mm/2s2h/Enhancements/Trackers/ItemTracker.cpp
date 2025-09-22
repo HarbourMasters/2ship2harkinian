@@ -598,10 +598,10 @@ int ItemTrackerWindow::DrawMisc(int columns, int prevDrawnColumns) {
     ImGui::BeginGroup();
     DrawOwlFace(gSaveContext.save.saveInfo.playerData.owlActivationFlags == 0);
     DrawItemCount(TRACKER_ITEM_OWL_ACTIVATIONS, pos);
-    pos = ImVec2((4 * (mIconSize + mIconSpacing) + 8.0f),
-                 (prevDrawnColumns * (mIconSize + mIconSpacing)) + 8.0f + topPadding);
-    ImGui::SetCursorPos(pos);
     ImGui::EndGroup();
+    pos = ImVec2((0 * (mIconSize + mIconSpacing) + 8.0f),
+                 ((prevDrawnColumns + 1) * (mIconSize + mIconSpacing)) + 8.0f + topPadding);
+    ImGui::SetCursorPos(pos);
     ImGui::BeginGroup();
     DrawItem((char*)gTriforcePieceTex,
              RANDO_SAVE_OPTIONS[Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].randoOptionId] == 0, mIconSize);
