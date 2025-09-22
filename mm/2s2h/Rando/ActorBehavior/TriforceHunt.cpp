@@ -6,13 +6,6 @@ extern "C" {
 #include "functions.h"
 }
 
-bool isGameplayPaused() {
-    return (Player_InBlockingCsMode(gPlayState, GET_PLAYER(gPlayState)) || gPlayState->pauseCtx.state != 0 ||
-            gPlayState->msgCtx.msgMode != MSGMODE_NONE);
-}
-
-bool creditsWarpActive = false;
-
 void Rando::ActorBehavior::InitTriforceHuntBehavior() {
     bool shouldRegister = IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES;
 
@@ -21,16 +14,12 @@ void Rando::ActorBehavior::InitTriforceHuntBehavior() {
             return;
         }
 
-        if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces >=
+        if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces ==
             RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
-            creditsWarpActive = true;
-        }
-
-        if (creditsWarpActive && !isGameplayPaused()) {
-            creditsWarpActive = false;
-            gPlayState->nextEntrance = ENTRANCE(TERMINA_FIELD, 0);
-            gSaveContext.nextCutsceneIndex = 0xFFF7;
-            gPlayState->transitionTrigger = TRANS_TRIGGER_START;
+            GameInteractor::Instance->events.emplace_back(GIEventTransition{ .entrance = ENTRANCE(TERMINA_FIELD, 0),
+                                                                             .cutsceneIndex = 0xFFF7,
+                                                                             .transitionTrigger = TRANS_TRIGGER_START,
+                                                                             .transitionType = TRANS_TYPE_FADE_BLACK });
         }
 
         // Blocks the ability to beat the game through killing Majora until all Triforce Pieces are found.

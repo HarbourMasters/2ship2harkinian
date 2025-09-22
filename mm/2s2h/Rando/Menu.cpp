@@ -239,13 +239,23 @@ static void DrawLocationsTab() {
                       .Max(CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, 15))
                       .DefaultValue(15));
     if (CVarSliderInt("Shuffled Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar,
-                      IntSliderOptions({}).Min(1).Max(100).DefaultValue(15))) {
+                      IntSliderOptions({}).Min(1).Max(1000).DefaultValue(15).Tooltip(
+                          "If the maximum amount of placeable pieces exceeds what will allow the seed to generate, the "
+                          "amount will be adjusted automatically."))) {
         if (CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar, 15) >
             CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, 15)) {
             CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
                            CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, 15));
         }
     }
+    ImGui::SeparatorText("Actual Triforce Shuffle Data");
+    if (gPlayState) {
+        ImGui::Text("Pieces Required: %i", RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]);
+        ImGui::Text("Pieces Shuffled: %i", RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX]);
+    } else {
+        ImGui::Text("Load into a File...");
+    }
+
     ImGui::EndDisabled();
     ImGui::EndChild();
     ImGui::BeginChild("randoLocationsExclusions", ImVec2(0, 0));
