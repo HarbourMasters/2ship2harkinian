@@ -109,8 +109,6 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
                                      Rando::StaticData::Items[randoItemId].spoilerName);
                     } else {
                         if (RANDO_SAVE_CHECKS[randoCheckId].skipped) {
-                            randoItemId = RI_JUNK;
-                        } else {
                             randoItemId = Rando::StaticData::Checks[randoCheckId].randoItemId;
                         }
                     }

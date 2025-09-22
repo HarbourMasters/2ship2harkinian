@@ -221,7 +221,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                             RANDO_SAVE_CHECKS[randoCheckId].randoItemId = RI_JUNK;
                             RANDO_SAVE_CHECKS[randoCheckId].skipped = true;
-                            RANDO_SAVE_CHECKS[randoCheckId].shuffled = false;
 
                             continue;
                         }
