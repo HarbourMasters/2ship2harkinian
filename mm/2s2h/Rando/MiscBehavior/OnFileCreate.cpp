@@ -222,13 +222,24 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 }
 
                 if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
+                    // Add clock shuffle items to the pool
+                    for (int i = RI_CLOCK_DAY_1; i <= RI_CLOCK_NIGHT_3; i++) {
+                        itemPool.push_back((RandoItemId)i);
+                    }
                     int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
                     if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
-                        // Grant one random half-day and remove it from the pool to avoid instant crash
+                        // Grant one random half-day and remove it from the pool
                         int initialClockHalf = Ship_Random(0, 6); // 0..5 map to D1..N3
 
                         // Own the selected half
-                        Rando::ClockItems::GivePlayerHalfDay(initialClockHalf);
+                        Flags_SetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + initialClockHalf));
+
+                        // Remove the granted half-day from the item pool
+                        RandoItemId grantedItem = static_cast<RandoItemId>(RI_CLOCK_DAY_1 + initialClockHalf);
+                        auto it = std::find(itemPool.begin(), itemPool.end(), grantedItem);
+                        if (it != itemPool.end()) {
+                            itemPool.erase(it);
+                        }
 
                         // Seed day/time to match the selected half
                         switch (initialClockHalf) {

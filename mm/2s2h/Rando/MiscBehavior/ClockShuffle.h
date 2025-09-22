@@ -8,8 +8,6 @@ extern "C" {
 #include "functions.h"
 }
 
-#define RANDO_SAVE_CHECKS gSaveContext.save.shipSaveInfo.rando.randoSaveChecks
-
 namespace Rando {
 namespace ClockItems {
 
@@ -17,11 +15,6 @@ RandoItemId GetClockItemFromHalfDayIndex(int halfDayIndex);
 
 int GetHalfDayIndexFromClockItem(RandoItemId clockItemId);
 int FindEarliestOwnedHalfDay(bool searchFromEnd = false);
-
-bool DoesPlayerOwnHalfDay(int halfDayIndex);
-
-void GivePlayerHalfDay(int halfDayIndex);
-void TakeAwayHalfDay(int halfDayIndex);
 
 } // namespace ClockItems
 

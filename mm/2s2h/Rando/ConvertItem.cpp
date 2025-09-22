@@ -432,6 +432,7 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_CLOCK_NIGHT_2:
         case RI_CLOCK_DAY_3:
         case RI_CLOCK_NIGHT_3:
+            return !Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 + (randoItemId - RI_CLOCK_DAY_1));
         case RI_CLOCK_PROGRESSIVE:
             return true;
         // These items are technically fine to receive again because they don't do anything, but we'll convert them to
@@ -489,7 +490,8 @@ RandoItemId Rando::ConvertItem(RandoItemId randoItemId, RandoCheckId randoCheckI
                 RandoItemId* order = (mode == RO_CLOCK_SHUFFLE_DESCENDING) ? descending : ascending;
                 for (int i = 0; i < 6; ++i) {
                     int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(order[i]);
-                    if (halfIndex >= 0 && !Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex)) {
+                    if (halfIndex >= 0 &&
+                        !Flags_GetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfIndex))) {
                         return order[i];
                     }
                 }

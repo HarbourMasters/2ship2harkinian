@@ -887,7 +887,7 @@ void DrawItemsAndMasksTab() {
     UIWidgets::Checkbox("Safe Mode", &safeMode);
 
     if (gSaveContext.save.shipSaveInfo.saveType == SAVETYPE_RANDO &&
-        CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar, 0)) {
+        CVarGetInteger("gRando.Options.RO_CLOCK_SHUFFLE", 0)) {
         // Clock Items Management Section
         ImGui::SeparatorText("Clock Items");
 
@@ -909,7 +909,7 @@ void DrawItemsAndMasksTab() {
                 ImGui::TableNextColumn();
                 RandoItemId clockItem = clockItems[i];
                 int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(clockItem);
-                bool isOwned = Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex);
+                bool isOwned = Flags_GetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfIndex));
 
                 std::string buttonText =
                     isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
@@ -931,7 +931,7 @@ void DrawItemsAndMasksTab() {
                 ImGui::TableNextColumn();
                 RandoItemId clockItem = clockItems[i];
                 int halfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(clockItem);
-                bool isOwned = Rando::ClockItems::DoesPlayerOwnHalfDay(halfIndex);
+                bool isOwned = Flags_GetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfIndex));
 
                 std::string buttonText =
                     isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
@@ -949,7 +949,10 @@ void DrawItemsAndMasksTab() {
 
             ImGui::EndTable();
         }
+    }
 
+    // Queue Randomizer Item Gives section - moved outside of clock shuffle condition
+    if (gSaveContext.save.shipSaveInfo.saveType == SAVETYPE_RANDO) {
         ImGui::Spacing();
         ImGui::SeparatorText("Queue Randomizer Item Gives");
 

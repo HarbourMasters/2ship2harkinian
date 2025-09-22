@@ -32,11 +32,13 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
 std::vector<int32_t> incompatibleWithFrenchVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
     RO_PLENTIFUL_ITEMS,
+    RO_CLOCK_SHUFFLE,
 };
 
 std::vector<int32_t> incompatibleWithVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
     RO_PLENTIFUL_ITEMS,
+    RO_CLOCK_SHUFFLE,
 };
 
 namespace BenGui {
@@ -60,12 +62,14 @@ void ClearIncompatibleSetting() {
         case RO_LOGIC_FRENCH_VANILLA:
             CVarClear(Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
             CVarClear(Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
+            CVarClear(Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar);
             // TODO: Handle Starting Items to ensure starting sword/shield
             break;
         // Similar to French Vanilla, Vanilla can't add items without corresponding checks
         case RO_LOGIC_VANILLA:
             CVarClear(Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
             CVarClear(Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
+            CVarClear(Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar);
             break;
         default:
             break;

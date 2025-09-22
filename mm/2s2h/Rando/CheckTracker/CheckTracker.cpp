@@ -540,12 +540,12 @@ void CheckTrackerWindow::Draw() {
                                "%s", label);
         };
         ImGui::Text("Clocks:");
-        seg("D1", RANDO_SAVE_CHECKS[RC_CLOCK_DAY_1].obtained);
-        seg("N1", RANDO_SAVE_CHECKS[RC_CLOCK_NIGHT_1].obtained);
-        seg("D2", RANDO_SAVE_CHECKS[RC_CLOCK_DAY_2].obtained);
-        seg("N2", RANDO_SAVE_CHECKS[RC_CLOCK_NIGHT_2].obtained);
-        seg("D3", RANDO_SAVE_CHECKS[RC_CLOCK_DAY_3].obtained);
-        seg("N3", RANDO_SAVE_CHECKS[RC_CLOCK_NIGHT_3].obtained);
+        seg("D1", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1));
+        seg("N1", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_1));
+        seg("D2", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_2));
+        seg("N2", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_2));
+        seg("D3", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_3));
+        seg("N3", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_3));
 
         // Save position when moved
         ImVec2 currentPos = ImGui::GetWindowPos();

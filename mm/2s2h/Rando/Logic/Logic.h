@@ -99,28 +99,41 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
     (CHECK_WEEKEVENTREG(WEEKEVENTREG_33_01) && CHECK_WEEKEVENTREG(WEEKEVENTREG_32_40) && \
      CHECK_WEEKEVENTREG(WEEKEVENTREG_32_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_33_02))
 // Time capability evaluation for logic: true if any owned half-day satisfies
-#define OWNED_HALF(i)                                          \
-    ((i) == 0   ? RANDO_SAVE_CHECKS[RC_CLOCK_DAY_1].obtained   \
-     : (i) == 1 ? RANDO_SAVE_CHECKS[RC_CLOCK_NIGHT_1].obtained \
-     : (i) == 2 ? RANDO_SAVE_CHECKS[RC_CLOCK_DAY_2].obtained   \
-     : (i) == 3 ? RANDO_SAVE_CHECKS[RC_CLOCK_NIGHT_2].obtained \
-     : (i) == 4 ? RANDO_SAVE_CHECKS[RC_CLOCK_DAY_3].obtained   \
-     : (i) == 5 ? RANDO_SAVE_CHECKS[RC_CLOCK_NIGHT_3].obtained \
+#define OWNED_HALF(i)                                                 \
+    ((i) == 0   ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1)   \
+     : (i) == 1 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_1) \
+     : (i) == 2 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_2)   \
+     : (i) == 3 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_2) \
+     : (i) == 4 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_3)   \
+     : (i) == 5 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_3) \
                 : false)
-#define CLOCKS_FILTER                                                                                             \
-    (!RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] || OWNED_HALF(0) || OWNED_HALF(1) || OWNED_HALF(2) || OWNED_HALF(3) || \
-     OWNED_HALF(4) || OWNED_HALF(5))
+#define CLOCKS_FILTER                                          \
+    (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || \
+     (OWNED_HALF(0) || OWNED_HALF(1) || OWNED_HALF(2) || OWNED_HALF(3) || OWNED_HALF(4) || OWNED_HALF(5)))
 // Any-owned semantics: day and night are satisfied if any owned half corresponds
-#define IS_NIGHT (CLOCKS_FILTER && (OWNED_HALF(1) || OWNED_HALF(3) || OWNED_HALF(5)))
-#define IS_DAY (CLOCKS_FILTER && (OWNED_HALF(0) || OWNED_HALF(2) || OWNED_HALF(4)))
+#define IS_NIGHT      \
+    (CLOCKS_FILTER && \
+     (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || (OWNED_HALF(1) || OWNED_HALF(3) || OWNED_HALF(5))))
+#define IS_DAY        \
+    (CLOCKS_FILTER && \
+     (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || (OWNED_HALF(0) || OWNED_HALF(2) || OWNED_HALF(4))))
 // Day N satisfied if either day or night half of N is owned
-#define DAY(n)                                                       \
-    (CLOCKS_FILTER && ((n) == 1   ? (OWNED_HALF(0) || OWNED_HALF(1)) \
-                       : (n) == 2 ? (OWNED_HALF(2) || OWNED_HALF(3)) \
-                       : (n) == 3 ? (OWNED_HALF(4) || OWNED_HALF(5)) \
-                                  : false))
-#define NIGHT(n) (DAY(n) && ((n) == 1 ? OWNED_HALF(1) : (n) == 2 ? OWNED_HALF(3) : (n) == 3 ? OWNED_HALF(5) : false))
-#define DAYTIME(n) (DAY(n) && ((n) == 1 ? OWNED_HALF(0) : (n) == 2 ? OWNED_HALF(2) : (n) == 3 ? OWNED_HALF(4) : false))
+#define DAY(n)                                                                                                 \
+    (CLOCKS_FILTER &&                                                                                          \
+     (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || ((n) == 1   ? (OWNED_HALF(0) || OWNED_HALF(1)) \
+                                                                 : (n) == 2 ? (OWNED_HALF(2) || OWNED_HALF(3)) \
+                                                                 : (n) == 3 ? (OWNED_HALF(4) || OWNED_HALF(5)) \
+                                                                            : false)))
+#define NIGHT(n)                                                                                      \
+    (DAY(n) && (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || ((n) == 1   ? OWNED_HALF(1) \
+                                                                           : (n) == 2 ? OWNED_HALF(3) \
+                                                                           : (n) == 3 ? OWNED_HALF(5) \
+                                                                                      : false)))
+#define DAYTIME(n)                                                                                    \
+    (DAY(n) && (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || ((n) == 1   ? OWNED_HALF(0) \
+                                                                           : (n) == 2 ? OWNED_HALF(2) \
+                                                                           : (n) == 3 ? OWNED_HALF(4) \
+                                                                                      : false)))
 // Coarse hour windows map to day/night halves for logic purposes
 #define TIME_AT_LEAST(h, m) ((h) >= 18 ? IS_NIGHT : IS_DAY)
 #define TIME_BEFORE(h, m) ((h) < 6 ? IS_NIGHT : IS_DAY)

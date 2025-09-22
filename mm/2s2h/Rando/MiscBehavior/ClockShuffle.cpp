@@ -65,50 +65,13 @@ RandoItemId GetClockItemFromHalfDayIndex(int halfDayIndex) {
     return clockItemMap[halfDayIndex];
 }
 
-bool DoesPlayerOwnHalfDay(int halfDayIndex) {
-    if (halfDayIndex < 0 || halfDayIndex >= HALF_COUNT) {
-        return false;
-    }
-
-    // Get the check ID for this half-day (RC_CLOCK_DAY_1 + index)
-    RandoCheckId checkId = static_cast<RandoCheckId>(RC_CLOCK_DAY_1 + halfDayIndex);
-
-    // Check if the player has obtained this check
-    return RANDO_SAVE_CHECKS[checkId].obtained;
-}
-
-void GivePlayerHalfDay(int halfDayIndex) {
-    if (halfDayIndex < 0 || halfDayIndex >= HALF_COUNT) {
-        return;
-    }
-
-    // Get the check ID for this half-day
-    RandoCheckId checkId = static_cast<RandoCheckId>(RC_CLOCK_DAY_1 + halfDayIndex);
-
-    // Mark both the check and cycle as obtained
-    RANDO_SAVE_CHECKS[checkId].obtained = true;
-    RANDO_SAVE_CHECKS[checkId].cycleObtained = true;
-}
-
-void TakeAwayHalfDay(int halfDayIndex) {
-    if (halfDayIndex < 0 || halfDayIndex >= HALF_COUNT) {
-        return;
-    }
-
-    // Get the check ID for this half-day
-    RandoCheckId checkId = static_cast<RandoCheckId>(RC_CLOCK_DAY_1 + halfDayIndex);
-
-    // Mark both the check and cycle as not obtained
-    RANDO_SAVE_CHECKS[checkId].obtained = false;
-    RANDO_SAVE_CHECKS[checkId].cycleObtained = false;
-}
-
 u8 GetAllOwnedHalfDaysMask() {
     u8 ownedMask = 0;
 
     // Check each half-day and set the corresponding bit if owned
     for (int halfDayIndex = 0; halfDayIndex < HALF_COUNT; ++halfDayIndex) {
-        if (DoesPlayerOwnHalfDay(halfDayIndex)) {
+        RandoInf clockFlag = static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfDayIndex);
+        if (Flags_GetRandoInf(clockFlag)) {
             ownedMask |= (1 << halfDayIndex);
         }
     }
@@ -120,14 +83,16 @@ int FindEarliestOwnedHalfDay(bool searchFromEnd) {
     if (searchFromEnd) {
         // Search from the end (latest half-days first)
         for (int halfDayIndex = HALF_COUNT - 1; halfDayIndex >= 0; --halfDayIndex) {
-            if (DoesPlayerOwnHalfDay(halfDayIndex)) {
+            RandoInf clockFlag = static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfDayIndex);
+            if (Flags_GetRandoInf(clockFlag)) {
                 return halfDayIndex;
             }
         }
     } else {
         // Search from the beginning (earliest half-days first)
         for (int halfDayIndex = 0; halfDayIndex < HALF_COUNT; ++halfDayIndex) {
-            if (DoesPlayerOwnHalfDay(halfDayIndex)) {
+            RandoInf clockFlag = static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfDayIndex);
+            if (Flags_GetRandoInf(clockFlag)) {
                 return halfDayIndex;
             }
         }
@@ -197,6 +162,7 @@ static int sLastKnownHalfDay = -1;
 static bool sIsRedirecting = false;
 static int sRedirectTarget = -1;
 static HOOK_ID sPlayDestroyHook = 0;
+static u8 sPreservedHopCounter = 0;
 
 // ============================================================================
 // TIME DETECTION AND CONFIGURATION
@@ -312,11 +278,19 @@ void ProcessHalfDayTransition(Actor* timeActor, int fromHalfDay, int toHalfDay) 
     const bool playerOwnsTarget =
         (toHalfDay == ClockItems::TERMINAL_STATE || toHalfDay < 0 || toHalfDay >= ClockItems::HALF_COUNT)
             ? true
-            : ClockItems::DoesPlayerOwnHalfDay(toHalfDay);
+            : Flags_GetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + toHalfDay));
 
     // If they own it, let vanilla logic handle it
     if (playerOwnsTarget) {
         return;
+    }
+
+    // Preserve Deku hop counter before transition
+    Player* player = GET_PLAYER(gPlayState);
+    if (player != nullptr && player->transformation == PLAYER_FORM_DEKU) {
+        sPreservedHopCounter = player->remainingHopsCounter;
+    } else {
+        sPreservedHopCounter = 0;
     }
 
     // Get all owned half-days and find the next one after the source half day
@@ -377,7 +351,10 @@ void OnTimeTransitionDetected(Actor* timeActor, bool* should) {
 
         const bool isTargetTerminalState = (currentHalfDay == ClockItems::TERMINAL_STATE);
         const bool isFromTerminalState = (sLastKnownHalfDay == ClockItems::TERMINAL_STATE);
-        const bool playerOwnsTarget = isTargetTerminalState ? true : ClockItems::DoesPlayerOwnHalfDay(currentHalfDay);
+        const bool playerOwnsTarget =
+            isTargetTerminalState
+                ? true
+                : Flags_GetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + currentHalfDay));
 
         // If transitioning from terminal state, always allow it (terminal state allows transitions out)
         if (isFromTerminalState) {
@@ -405,8 +382,8 @@ void OnFileLoad() {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_TEST4, RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE],
                  [](Actor* actor, bool* should) { OnTimeTransitionDetected(actor, should); });
 
-    // Initial time correction
-    if (gPlayState == nullptr) {
+    // Initial time correction, exclude owl saves
+    if (gPlayState == nullptr && !gSaveContext.save.isOwlSave) {
         const int earliestOwnedHalfDay = ClockItems::FindEarliestOwnedHalfDay(false);
         if (earliestOwnedHalfDay != -1) {
             SetTimeToHalfDayStart(earliestOwnedHalfDay);
@@ -415,7 +392,7 @@ void OnFileLoad() {
 
     COND_HOOK(OnPlayDestroy, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], []() {
         if (gSaveContext.save.day == 0 && gSaveContext.save.time == DAY_0_0559_TIME) {
-            if (ClockItems::DoesPlayerOwnHalfDay(ClockItems::HALF_DAY1_DAY)) {
+            if (Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1)) {
                 // Player owns Day 1, allow natural progression
             } else {
                 const int earliestOwnedHalfDay = ClockItems::FindEarliestOwnedHalfDay(false);
@@ -423,6 +400,17 @@ void OnFileLoad() {
                     SetTimeToHalfDayStart(earliestOwnedHalfDay);
                 }
             }
+        }
+    });
+
+    // Restore preserved Deku hop counter after scene transitions
+    COND_ID_HOOK(OnActorInit, ACTOR_PLAYER, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], [](Actor* actor) {
+        if (sPreservedHopCounter > 0) {
+            Player* player = (Player*)actor;
+            if (player->transformation == PLAYER_FORM_DEKU) {
+                player->remainingHopsCounter = sPreservedHopCounter;
+            }
+            sPreservedHopCounter = 0;
         }
     });
 }

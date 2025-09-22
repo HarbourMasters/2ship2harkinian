@@ -289,10 +289,7 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_CLOCK_NIGHT_2:
         case RI_CLOCK_DAY_3:
         case RI_CLOCK_NIGHT_3: {
-            int half = Rando::ClockItems::GetHalfDayIndexFromClockItem(randoItemId);
-            if (half >= 0) {
-                Rando::ClockItems::TakeAwayHalfDay(half);
-            }
+            Flags_ClearRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 + (randoItemId - RI_CLOCK_DAY_1));
             break;
         }
         case RI_CLOCK_PROGRESSIVE: {
@@ -300,7 +297,7 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
             const bool descending = (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE] == RO_CLOCK_SHUFFLE_DESCENDING);
             int toRemove = Rando::ClockItems::FindEarliestOwnedHalfDay(descending);
             if (toRemove >= 0) {
-                Rando::ClockItems::TakeAwayHalfDay(toRemove);
+                Flags_ClearRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + toRemove));
             }
             break;
         }

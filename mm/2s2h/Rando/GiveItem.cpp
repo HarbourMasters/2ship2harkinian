@@ -247,10 +247,7 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_CLOCK_NIGHT_2:
         case RI_CLOCK_DAY_3:
         case RI_CLOCK_NIGHT_3: {
-            int half = Rando::ClockItems::GetHalfDayIndexFromClockItem(randoItemId);
-            if (half >= 0) {
-                Rando::ClockItems::GivePlayerHalfDay(half);
-            }
+            Flags_SetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 + (randoItemId - RI_CLOCK_DAY_1));
             break;
         }
         case RI_CLOCK_PROGRESSIVE: {
