@@ -248,13 +248,6 @@ static void DrawLocationsTab() {
                            CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, 15));
         }
     }
-    ImGui::SeparatorText("Actual Triforce Shuffle Data");
-    if (gPlayState) {
-        ImGui::Text("Pieces Required: %i", RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]);
-        ImGui::Text("Pieces Shuffled: %i", RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX]);
-    } else {
-        ImGui::Text("Load into a File...");
-    }
 
     ImGui::EndDisabled();
     ImGui::EndChild();
