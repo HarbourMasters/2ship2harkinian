@@ -28,7 +28,7 @@ void Rando::ActorBehavior::InitTriforceHuntBehavior() {
 
         if (creditsWarpActive && !isGameplayPaused()) {
             creditsWarpActive = false;
-            gPlayState->nextEntrance = 0x5400;
+            gPlayState->nextEntrance = ENTRANCE(TERMINA_FIELD, 0);
             gSaveContext.nextCutsceneIndex = 0xFFF7;
             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
         }
