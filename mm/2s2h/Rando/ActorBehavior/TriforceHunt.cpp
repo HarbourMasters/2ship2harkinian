@@ -7,8 +7,8 @@ extern "C" {
 }
 
 bool isGameplayPaused() {
-    return (Player_InBlockingCsMode(gPlayState, GET_PLAYER(gPlayState)) ||
-            gPlayState->pauseCtx.state != 0 || gPlayState->msgCtx.msgMode != MSGMODE_NONE);
+    return (Player_InBlockingCsMode(gPlayState, GET_PLAYER(gPlayState)) || gPlayState->pauseCtx.state != 0 ||
+            gPlayState->msgCtx.msgMode != MSGMODE_NONE);
 }
 
 bool creditsWarpActive = false;
