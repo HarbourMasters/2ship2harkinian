@@ -313,7 +313,7 @@ void DrawTriforcePiece(RandoItemId randoItemId) {
     Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
     gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
-    if (currentTriforcePieces == RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
+    if (currentTriforcePieces >= RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
         gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gTriforcePieceCompletedDL);
     } else {
         if (randoItemId == RI_TRIFORCE_PIECE_PREVIOUS) {
@@ -452,10 +452,9 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             DrawMinifrog(randoItemId, actor);
             break;
         case RI_TRIFORCE_PIECE_PREVIOUS:
-        case RI_TRIFORCE_PIECE: {
+        case RI_TRIFORCE_PIECE:
             DrawTriforcePiece(randoItemId);
             break;
-        }
         case RI_NONE:
         case RI_UNKNOWN:
             break;

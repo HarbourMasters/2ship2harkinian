@@ -50,7 +50,7 @@ void Rando::MiscBehavior::CheckQueue() {
                             randoItemId = Rando::CurrentJunkItem();
                         }
                         if (randoItemId == RI_TRIFORCE_PIECE) {
-                            if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces + 1 ==
+                            if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces + 1 >=
                                 RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
                                 prefix = "You";
                                 message = "completed the Triforce";

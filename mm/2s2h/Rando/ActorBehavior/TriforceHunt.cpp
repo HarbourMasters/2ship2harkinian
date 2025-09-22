@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 
 extern "C" {
 #include "variables.h"
@@ -7,10 +7,8 @@ extern "C" {
 }
 
 bool isGameplayPaused() {
-    return (Player_InBlockingCsMode(gPlayState, GET_PLAYER(gPlayState)) || gPlayState->pauseCtx.state != 0 ||
-            gPlayState->msgCtx.msgMode != 0)
-               ? true
-               : false;
+    return (Player_InBlockingCsMode(gPlayState, GET_PLAYER(gPlayState)) ||
+            gPlayState->pauseCtx.state != 0 || gPlayState->msgCtx.msgMode != MSGMODE_NONE);
 }
 
 bool creditsWarpActive = false;
@@ -23,7 +21,7 @@ void Rando::ActorBehavior::InitTriforceHuntBehavior() {
             return;
         }
 
-        if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces ==
+        if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces >=
             RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
             creditsWarpActive = true;
         }
@@ -34,7 +32,9 @@ void Rando::ActorBehavior::InitTriforceHuntBehavior() {
             gSaveContext.nextCutsceneIndex = 0xFFF7;
             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
         }
-        if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces ==
+
+        // Blocks the ability to beat the game through killing Majora until all Triforce Pieces are found.
+        if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces >=
                 RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] &&
             !Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_MAJORA)) {
             Rando::GiveItem(RI_SOUL_MAJORA);

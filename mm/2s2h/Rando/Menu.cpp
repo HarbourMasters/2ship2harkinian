@@ -236,7 +236,7 @@ static void DrawLocationsTab() {
     CVarSliderInt("Required Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
                   IntSliderOptions({})
                       .Min(1)
-                      .Max(CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, 1))
+                      .Max(CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, 15))
                       .DefaultValue(15));
     if (CVarSliderInt("Shuffled Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar,
                       IntSliderOptions({}).Min(1).Max(100).DefaultValue(15))) {
