@@ -1,6 +1,7 @@
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/Rando/MiscBehavior/ClockShuffle.h"
 
 extern "C" {
 #include "variables.h"
@@ -24,10 +25,16 @@ void RegisterSkipSoTCutscenes() {
             gSaveContext.save.cutsceneIndex == 0xFFF7) {
             gSaveContext.save.cutsceneIndex = 0;
 
-            // Clock shuffle handles it's own time setting
-            if (!CVarGetInteger("gRando.Options.RO_CLOCK_SHUFFLE", 0)) {
-                // Normally set by EnTest6
-                gSaveContext.save.eventDayCount = 0;
+            // Normally set by EnTest6
+            gSaveContext.save.eventDayCount = 0;
+
+            // Set time appropraitely if clock shuffle is enabled
+            if (CVarGetInteger("gRando.Options.RO_CLOCK_SHUFFLE", 0)) {
+                const int earliestOwnedHalfDay = Rando::ClockItems::FindEarliestOwnedHalfDay(false);
+                if (earliestOwnedHalfDay != -1) {
+                    Rando::ClockShuffle::SetTimeToHalfDayStart(earliestOwnedHalfDay);
+                }
+            } else {
                 gSaveContext.save.day = 0;
                 gSaveContext.save.time = CLOCK_TIME(6, 0) - 1;
             }
@@ -37,11 +44,8 @@ void RegisterSkipSoTCutscenes() {
                 // Use ENTRANCE(SOUTH_CLOCK_TOWN, 10) if we ever add a story cutscene skip for the flash backs
                 gSaveContext.save.entrance = ENTRANCE(LOST_WOODS, 1);
 
-                // Clock shuffle handles it's own transition
-                if (!CVarGetInteger("gRando.Options.RO_CLOCK_SHUFFLE", 0)) {
-                    // Re-execute VB_PLAY_TRANSITION_CS with the new entrance so that skip story cutscene hooks see it
-                    GameInteractor_Should(VB_PLAY_TRANSITION_CS, true);
-                }
+                // Re-execute VB_PLAY_TRANSITION_CS with the new entrance so that skip story cutscene hooks see it
+                GameInteractor_Should(VB_PLAY_TRANSITION_CS, true);
             } else {
                 // Directly to Dawn of... in clock town
                 gSaveContext.save.entrance = ENTRANCE(SOUTH_CLOCK_TOWN, 0);

@@ -21,6 +21,7 @@ int FindEarliestOwnedHalfDay(bool searchFromEnd = false);
 namespace ClockShuffle {
 
 void OnFileLoad();
+void SetTimeToHalfDayStart(int halfDayIndex);
 
 } // namespace ClockShuffle
 } // namespace Rando
