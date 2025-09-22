@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 
 extern "C" {
 #include "variables.h"
@@ -9,6 +9,8 @@ extern "C" {
 }
 
 void Swim_Ability(Player* player) {
+    // This is Honey & Darlings Shop, touching the water ends the minigame as its vanilla behaivor.
+    // No reason to handle it a second time here.
     if (gPlayState->sceneId == SCENE_BOWLING) {
         return;
     }
@@ -23,11 +25,7 @@ void Swim_Ability(Player* player) {
 }
 
 void Rando::ActorBehavior::InitPlayerBehavior() {
-    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, IS_RANDO, [](Actor* actor) {
-        if (!RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM]) {
-            return;
-        }
-
+    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM], [](Actor* actor) {
         if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SWIM)) {
             Swim_Ability(GET_PLAYER(gPlayState));
         }
