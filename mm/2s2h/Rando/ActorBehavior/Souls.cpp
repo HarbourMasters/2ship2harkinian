@@ -11,7 +11,7 @@ void func_80B0CF24(BossHakugin*, PlayState*);
 }
 
 bool shouldMajoraRegister() {
-    bool registerStatus = false;
+    bool registerStatus = false; 
     if (IS_RANDO) {
         if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES ||
             RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
