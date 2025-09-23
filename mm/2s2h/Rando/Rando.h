@@ -10,9 +10,6 @@
 #define RANDO_SAVE_OPTIONS gSaveContext.save.shipSaveInfo.rando.randoSaveOptions
 #define RANDO_EVENTS gSaveContext.save.shipSaveInfo.rando.randoEvents
 
-#define DEFAULT_TRIFORCE_PIECES_MIN 1
-#define DEFAULT_TRIFORCE_PIECES_MAX 15
-
 namespace Rando {
 
 void Init();

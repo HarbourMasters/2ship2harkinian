@@ -236,13 +236,17 @@ static void DrawLocationsTab() {
     CVarSliderInt(
         "Required Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
         IntSliderOptions({})
-            .Min(DEFAULT_TRIFORCE_PIECES_MIN)
+            .Min(1)
             .Max(CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX))
             .DefaultValue(DEFAULT_TRIFORCE_PIECES_MAX));
-    if (CVarSliderInt("Shuffled Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar,
-                      IntSliderOptions({}).Min(1).Max(1000).DefaultValue(15).Tooltip(
-                          "If the maximum amount of placeable pieces exceeds what will allow the seed to generate, the "
-                          "amount will be adjusted automatically."))) {
+    if (CVarSliderInt(
+            "Shuffled Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar,
+            IntSliderOptions({})
+                .Min(1)
+                .Max(1000)
+                .DefaultValue(DEFAULT_TRIFORCE_PIECES_MAX)
+                .Tooltip("If the maximum amount of placeable pieces exceeds what will allow the seed to generate, the "
+                         "amount will be adjusted automatically."))) {
         if (CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar, DEFAULT_TRIFORCE_PIECES_MAX) >
             CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX)) {
             CVarGetInteger(
