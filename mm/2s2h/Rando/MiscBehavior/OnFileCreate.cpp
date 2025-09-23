@@ -363,11 +363,14 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     }
                 }
 
-                // Update Required Triforce Pieces if piecesShuffled falls below requirement
+                // Update Required Triforce Pieces if piecesShuffled falls below max shuffled
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
-                    RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX] = piecesShuffled;
-                    if (piecesShuffled < RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
-                        RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] = piecesShuffled;
+                    if (piecesShuffled != RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX]) {
+                        float currentRatio = ((float)RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] /
+                                              (float)RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX]);
+
+                        RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX] = piecesShuffled;
+                        RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] = (piecesShuffled * currentRatio) + 1;
                     }
                 }
 
