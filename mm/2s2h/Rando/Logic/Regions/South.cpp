@@ -341,8 +341,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_30, true),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(MAGIC_HAGS_POTION_SHOP, 0),       ENTRANCE(SOUTHERN_SWAMP_POISONED, 5), true)),
-            EXIT(ENTRANCE(WOODS_OF_MYSTERY, 0),             ENTRANCE(SOUTHERN_SWAMP_POISONED, 7), true)),
+            EXIT(ENTRANCE(MAGIC_HAGS_POTION_SHOP, 0),       ENTRANCE(SOUTHERN_SWAMP_POISONED, 5), true),
+            EXIT(ENTRANCE(WOODS_OF_MYSTERY, 0),             ENTRANCE(SOUTHERN_SWAMP_POISONED, 7), true),
         },
         .connections = {
             CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, (RANDO_EVENTS[RE_SOUTHERN_SWAMP_KILL_OCTOROK] || RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE])),
