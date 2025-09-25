@@ -96,7 +96,13 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
 
                     RandoItemId randoItemId;
 
-                    if (isShuffled) {
+                    if (RANDO_SAVE_CHECKS[randoCheckId].skipped) {
+                        randoItemId = RI_JUNK;
+                        auto findIt = std::find(itemPool.begin(), itemPool.end(), RI_JUNK);
+                        if (findIt != itemPool.end()) {
+                            itemPool.erase(findIt);
+                        }
+                    } else if (isShuffled) {
                         randoItemId = itemPool.back();
                         itemPool.pop_back();
 
@@ -108,9 +114,7 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
                         SPDLOG_TRACE("Check: {}:{}", Rando::StaticData::Checks[randoCheckId].name,
                                      Rando::StaticData::Items[randoItemId].spoilerName);
                     } else {
-                        if (RANDO_SAVE_CHECKS[randoCheckId].skipped) {
-                            randoItemId = Rando::StaticData::Checks[randoCheckId].randoItemId;
-                        }
+                        randoItemId = Rando::StaticData::Checks[randoCheckId].randoItemId;
                     }
 
                     RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoItemId;

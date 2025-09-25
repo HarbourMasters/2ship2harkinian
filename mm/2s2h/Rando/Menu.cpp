@@ -431,6 +431,12 @@ static void DrawItemsTab() {
 }
 
 static void DrawLocationsTab() {
+    if (CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, RO_LOGIC_GLITCHLESS) >= RO_LOGIC_FRENCH_VANILLA) {
+        ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Red),
+                           "This setting is not compatible with French Vanilla or Vanilla Logic.");
+        return;
+    }
+
     auto menuThemeColor = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", LightBlue));
     bool clearExcluded = false;
     if (!isExcludedInitialized) {

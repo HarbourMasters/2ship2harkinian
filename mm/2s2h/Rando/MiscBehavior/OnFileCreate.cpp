@@ -213,16 +213,19 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         }
 
                         // Skip checks that have been excluded in the Locations menu and add their vanilla item to the
-                        // pool
-                        auto it = std::find(excludedChecks.begin(), excludedChecks.end(), randoCheckId);
-                        if (it != excludedChecks.end()) {
-                            RandoItemId vanillaItem = Rando::StaticData::Checks[randoCheckId].randoItemId;
-                            itemPool.push_back(vanillaItem);
+                        // pool except if Logic is set to Vanilla or French Vanilla.
+                        if (RANDO_SAVE_OPTIONS[RO_LOGIC] <= RO_LOGIC_NEARLY_NO_LOGIC) {
+                            auto it = std::find(excludedChecks.begin(), excludedChecks.end(), randoCheckId);
+                            if (it != excludedChecks.end()) {
+                                RandoItemId vanillaItem = Rando::StaticData::Checks[randoCheckId].randoItemId;
+                                itemPool.push_back(vanillaItem);
 
-                            RANDO_SAVE_CHECKS[randoCheckId].randoItemId = RI_JUNK;
-                            RANDO_SAVE_CHECKS[randoCheckId].skipped = true;
+                                RANDO_SAVE_CHECKS[randoCheckId].randoItemId = RI_JUNK;
+                                RANDO_SAVE_CHECKS[randoCheckId].skipped = true;
 
-                            continue;
+                                checkPool.insert({ randoCheckId, true });
+                                continue;
+                            }
                         }
 
                         checkPool.insert({ randoCheckId, true });
