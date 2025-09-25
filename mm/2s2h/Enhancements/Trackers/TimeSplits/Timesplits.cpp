@@ -250,8 +250,8 @@ void DrawSplitsList(bool isMain) {
 
             ImGui::EndTable();
         }
-        ImGui::EndChild();
     }
+    ImGui::EndChild();
 
     if (isMain) {
         ImGui::End();
