@@ -399,7 +399,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_CLOCK_DAY_3:
         case RI_CLOCK_NIGHT_3:
         case RI_CLOCK_PROGRESSIVE:
-            DrawClock(randoItemId);
+            DrawClock(randoItemId, actor);
             break;
         case RI_PROGRESSIVE_LULLABY:
         case RI_PROGRESSIVE_MAGIC:

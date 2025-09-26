@@ -14,6 +14,6 @@ void DrawTwinmold();
 void DrawMinifrog(RandoItemId randoItemId, Actor* actor);
 
 // Clock Function
-void DrawClock(RandoItemId randoItemId);
+void DrawClock(RandoItemId randoItemId, Actor* actor);
 
 #endif

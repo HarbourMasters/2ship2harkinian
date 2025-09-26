@@ -24,7 +24,26 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 
 // Other Actor Includes
 /* Minifrog */  #include "objects/object_fr/object_fr.h"
+/* Clock */     #include "overlays/actors/ovl_Obj_Tokeidai/z_obj_tokeidai.h"
 // clang-format on
+
+// Clock
+void ObjTokeidai_RotateOnMinuteChange(ObjTokeidai* thisx, s32 playSfx);
+void ObjTokeidai_RotateOnHourChange(ObjTokeidai* thisx, PlayState* play);
+}
+
+// Clock Functions
+#define DEG_TO_BINANG(deg) (s16)((deg) * (0x10000 / 360.0f))
+#define GET_GAME_HOUR() ((gSaveContext.save.time * 24) / 0x10000)
+#define GET_GAME_MINUTES() ((gSaveContext.save.time * 1440) / 0x10000 % 60)
+
+static inline s16 GetClockHourRotation(s32 hours, s32 minutes) {
+    f32 totalHours = hours % 12 + (minutes / 60.0f);
+    return DEG_TO_BINANG(totalHours * (360.0f / 12.0f));
+}
+
+static inline s16 GetClockMinuteRotation(s32 minutes) {
+    return DEG_TO_BINANG(minutes * (360.0f / 60.0f));
 }
 
 // Soul Effects
@@ -265,45 +284,48 @@ extern void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
-// Clock function implementation
-extern void DrawClock(RandoItemId randoItemId) {
+extern void DrawClock(RandoItemId randoItemId, Actor* actor) {
     OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    ObjTokeidai* clockActor = (ObjTokeidai*)actor;
+    clockActor->clockTime = gSaveContext.save.time;
+    static u32 lastUpdate = 0;
+
+    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
+        lastUpdate = gPlayState->state.frames;
+        ObjTokeidai_RotateOnMinuteChange(clockActor, true);
+        ObjTokeidai_RotateOnHourChange(clockActor, gPlayState);
+    }
+
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Translate(0.0f, clockActor->yTranslation, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(0.015f, 0.015f, 0.015f, MTXMODE_APPLY);
+    Matrix_Translate(0.0f, 0.0f, -1791.0f, MTXMODE_APPLY);
+    Matrix_RotateXS(-clockActor->xRotation, MTXMODE_APPLY);
+    Matrix_Translate(0.0f, 0.0f, 1791.0f, MTXMODE_APPLY);
 
-    // Collectible scale (half vanilla wall clock size)
-    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-
-    // Determine visual properties based on clock type
-    bool isNightClock =
-        (randoItemId == RI_CLOCK_NIGHT_1 || randoItemId == RI_CLOCK_NIGHT_2 || randoItemId == RI_CLOCK_NIGHT_3);
-    s16 sunMoonRotation = isNightClock ? 0x8000 : 0; // Moon for night, sun for day
-    s32 hour = isNightClock ? 18 : 12;               // 6 PM for night, 12 PM for day
-    s16 clockRotation = (s16)(s32)(hour * (0x10000 / 24.0f));
-
-    // Minute ring (rotates with clock face)
     Matrix_Push();
-    Matrix_RotateZS(-clockRotation * 2, MTXMODE_APPLY);
+    Matrix_RotateZS(-clockActor->minuteRingOrExteriorGearRotation, MTXMODE_APPLY);
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gClockTowerMinuteRingDL);
     Matrix_Pop();
 
-    // Clock center and hands
+    Matrix_Translate(0.0f, 0.0f, clockActor->clockFaceZTranslation, MTXMODE_APPLY);
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gClockTowerClockCenterAndHandDL);
 
-    // Clock face with rotation and colors
-    Matrix_RotateZS(-clockRotation * 2, MTXMODE_APPLY);
+    Matrix_RotateZS(-clockActor->clockFaceRotation * 2, MTXMODE_APPLY);
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0xFF, 255, 255, 255, 255);
-    gDPSetEnvColor(POLY_OPA_DISP++, 100, 100, 120, 255);
-    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gWallClockClockFaceDL);
+    if (OBJ_TOKEIDAI_TYPE(&clockActor->actor) == OBJ_TOKEIDAI_TYPE_WALL_CLOCK ||
+        OBJ_TOKEIDAI_TYPE(&clockActor->actor) == OBJ_TOKEIDAI_TYPE_SMALL_WALL_CLOCK) {
+        gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gWallClockClockFaceDL);
+    } else {
+        gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gClockTowerClockFaceDL);
+    }
 
-    // Sun/Moon panel with positioning and colors
     Matrix_Translate(0.0f, -1112.0f, -19.6f, MTXMODE_APPLY);
-    Matrix_RotateYS(sunMoonRotation, MTXMODE_APPLY);
+    Matrix_RotateYS(clockActor->sunMoonPanelRotation, MTXMODE_APPLY);
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0xFF, 255, 220, 180, 255);
-    gDPSetEnvColor(POLY_OPA_DISP++, 150, 100, 50, 255);
     gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gClockTowerSunAndMoonPanelDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
