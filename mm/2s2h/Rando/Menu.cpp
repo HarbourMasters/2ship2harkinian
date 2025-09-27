@@ -14,6 +14,11 @@ std::unordered_map<int32_t, const char*> logicOptions = {
     { RO_LOGIC_VANILLA, "Vanilla" },
 };
 
+std::unordered_map<int32_t, const char*> majoraAccessOptions = {
+    { RO_ACCESS_MAJORA_REMAINS, "Remains Required to Fight Majora" },
+    { RO_ACCESS_MAJORA_MASKS,   "Masks Required to Fight Majora" },
+};
+
 std::unordered_map<int32_t, const char*> accessDungeonOptions = {
     { RO_ACCESS_DUNGEONS_FORM_AND_SONG, "Requires Transformation & Song" },
     { RO_ACCESS_DUNGEONS_FORM_OR_SONG, "Requires Transformation or Song" },
@@ -178,9 +183,24 @@ static void DrawLogicConditionsTab() {
                        "Requires Only Transformation - Requires only the correct form.\n\n"
                        "Requires Only Song - Requires only the correct song.\n\n"
                        "Open - Dungeons will be open with no requirements.");
-    UIWidgets::CVarSliderInt("Majora Access Remains Required",
-                             Rando::StaticData::Options[RO_ACCESS_MAJORA_REMAINS_COUNT].cvar,
-                             IntSliderOptions().Min(0).Max(4).DefaultValue(0));
+    UIWidgets::CVarCombobox("Majora Access Type",
+                        Rando::StaticData::Options[RO_ACCESS_MAJORA_TYPE].cvar,
+                        &majoraAccessOptions);
+
+    switch (CVarGetInteger(Rando::StaticData::Options[RO_ACCESS_MAJORA_TYPE].cvar,
+                        RO_ACCESS_MAJORA_REMAINS)) {
+        case RO_ACCESS_MAJORA_REMAINS:
+            UIWidgets::CVarSliderInt("Majora Access Remains Required",
+                                    Rando::StaticData::Options[RO_ACCESS_MAJORA_REMAINS_COUNT].cvar,
+                                    IntSliderOptions().Min(0).Max(4).DefaultValue(0));
+            break;
+
+        case RO_ACCESS_MAJORA_MASKS:
+            UIWidgets::CVarSliderInt("Majora Access Masks Required",
+                                    Rando::StaticData::Options[RO_ACCESS_MAJORA_MASKS_COUNT].cvar,
+                                    IntSliderOptions().Min(0).Max(20).DefaultValue(0));
+            break;
+    }
     UIWidgets::CVarSliderInt("Moon Access Remains Required",
                              Rando::StaticData::Options[RO_ACCESS_MOON_REMAINS_COUNT].cvar,
                              IntSliderOptions().Min(0).Max(4).DefaultValue(4));
