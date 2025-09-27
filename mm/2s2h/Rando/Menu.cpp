@@ -19,6 +19,11 @@ std::unordered_map<int32_t, const char*> majoraAccessOptions = {
     { RO_ACCESS_MAJORA_MASKS,   "Masks Required to Fight Majora" },
 };
 
+std::unordered_map<int32_t, const char*> moonAccessOptions = {
+    { RO_ACCESS_MOON_REMAINS, "Remains Required to Access the Moon" },
+    { RO_ACCESS_MOON_MASKS,   "Masks Required to Access the Moon" },
+};
+
 std::unordered_map<int32_t, const char*> accessDungeonOptions = {
     { RO_ACCESS_DUNGEONS_FORM_AND_SONG, "Requires Transformation & Song" },
     { RO_ACCESS_DUNGEONS_FORM_OR_SONG, "Requires Transformation or Song" },
@@ -201,9 +206,24 @@ static void DrawLogicConditionsTab() {
                                     IntSliderOptions().Min(0).Max(20).DefaultValue(0));
             break;
     }
-    UIWidgets::CVarSliderInt("Moon Access Remains Required",
-                             Rando::StaticData::Options[RO_ACCESS_MOON_REMAINS_COUNT].cvar,
-                             IntSliderOptions().Min(0).Max(4).DefaultValue(4));
+    UIWidgets::CVarCombobox("Moon Access Type",
+                        Rando::StaticData::Options[RO_ACCESS_MOON_TYPE].cvar,
+                        &moonAccessOptions);
+
+    switch (CVarGetInteger(Rando::StaticData::Options[RO_ACCESS_MOON_TYPE].cvar,
+                        RO_ACCESS_MOON_REMAINS)) {
+        case RO_ACCESS_MOON_REMAINS:
+            UIWidgets::CVarSliderInt("Moon Access Remains Required",
+                                    Rando::StaticData::Options[RO_ACCESS_MOON_REMAINS_COUNT].cvar,
+                                    IntSliderOptions().Min(0).Max(4).DefaultValue(4));
+            break;
+
+        case RO_ACCESS_MOON_MASKS:
+            UIWidgets::CVarSliderInt("Moon Access Masks Required",
+                                    Rando::StaticData::Options[RO_ACCESS_MOON_MASKS_COUNT].cvar,
+                                    IntSliderOptions().Min(0).Max(20).DefaultValue(20));
+            break;
+    }
     UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, &accessTrialsOptions);
     ImGui::EndChild();
     ImGui::BeginChild("randoLogicTricks", ImVec2(0, 0));
