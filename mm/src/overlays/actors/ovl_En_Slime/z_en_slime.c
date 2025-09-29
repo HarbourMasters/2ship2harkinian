@@ -1249,12 +1249,15 @@ void EnSlime_Draw(Actor* thisx, PlayState* play) {
         Matrix_Translate(this->actor.world.pos.x, this->actor.world.pos.y + (2000.0f * this->actor.scale.y),
                          this->actor.world.pos.z, MTXMODE_NEW);
 
-        if (GameInteractor_Should(VB_DRAW_SLIME_BODY_ITEM, true, this)) {
-            Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+        if (GameInteractor_Should(VB_DRAW_SLIME_RANDO_ITEM, true, this)) {
+            if (GameInteractor_Should(VB_DRAW_SLIME_BODY_ITEM, true, this)) {
+                Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
-            gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)this->itemDropTex);
-            gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-            gSPDisplayList(POLY_OPA_DISP++, gItemDropDL);
+                gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)this->itemDropTex);
+                gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx),
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPDisplayList(POLY_OPA_DISP++, gItemDropDL);
+            }
         }
     }
 
