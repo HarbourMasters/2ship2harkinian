@@ -129,31 +129,18 @@ void Rando::ActorBehavior::InitEnemyDropBehavior() {
         }
     });
 
-    // TODO Draw RI in Slime Body
     COND_VB_SHOULD(VB_DRAW_SLIME_RANDO_ITEM, IS_RANDO, {
         if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_DROPS] == RO_GENERIC_OFF) {
             return;
         }
-        *should = false;
-        return;
 
-        // EnSlime* slime = va_arg(args, EnSlime*);
-        // RandoItemId randoItemId =
-        // Rando::ConvertItem(RANDO_SAVE_CHECKS[GetRandoCheckByActorId(ACTOR_EN_SLIME)].randoItemId,
-        //                    GetRandoCheckByActorId(ACTOR_EN_SLIME));
-        // GetItemDrawId itemDraw = Rando::StaticData::Items[randoItemId].drawId;
-        //
-        //
-        //
-        // OPEN_DISPS(gPlayState->state.gfxCtx);
-        // Matrix_RotateYS(slime->actor.shape.rot.y, MTXMODE_APPLY);
-        // Matrix_Scale(0.25f, 0.25f, 0.25f, MTXMODE_APPLY);
-        //
-        // gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)slime->itemDropTex);
-        // gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx),
-        //           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        // gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gItemDropDL);
-        //
-        // CLOSE_DISPS(gPlayState->state.gfxCtx);
+        EnSlime* slime = va_arg(args, EnSlime*);
+        RandoItemId randoItemId = RANDO_SAVE_CHECKS[GetRandoCheckByActorId(ACTOR_EN_SLIME)].randoItemId;
+
+        Matrix_RotateYS(slime->actor.shape.rot.y, MTXMODE_APPLY);
+        Matrix_Scale(0.25f, 0.25f, 0.25f, MTXMODE_APPLY);
+        Rando::DrawItem(randoItemId);
+
+        *should = false;
     });
 }

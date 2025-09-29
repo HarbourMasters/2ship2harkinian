@@ -920,7 +920,7 @@ s16 func_800A7650(s16 dropId) {
 }
 
 Actor* Item_DropCollectible(PlayState* play, Vec3f* spawnPos, u32 params) {
-    if (!(GameInteractor_Should(VB_ENEMY_DROP_COLLECTIBLE, true, spawnPos))) {
+    if (!(GameInteractor_Should(VB_ENEMY_DROP_COLLECTIBLE, true, *spawnPos))) {
         return;
     }
 
@@ -1339,7 +1339,7 @@ u8 sDropTableAmounts[DROP_TABLE_SIZE * DROP_TABLE_NUMBER] = {
 };
 
 void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnPos, s16 params) {
-    if (!(GameInteractor_Should(VB_ENEMY_DROP_COLLECTIBLE, true, spawnPos))) {
+    if (!(GameInteractor_Should(VB_ENEMY_DROP_COLLECTIBLE, true, *spawnPos))) {
         return;
     }
 
