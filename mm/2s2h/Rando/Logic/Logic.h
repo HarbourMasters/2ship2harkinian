@@ -124,7 +124,7 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
 
 inline bool CanReachRegions(std::vector<RandoRegionId> regionList) {
     std::set<RandoRegionId> reachableRegions;
-    FindReachableRegions(GetRegionIdFromEntrance(gPlayState->nextEntrance), reachableRegions);
+    FindReachableRegions(GetRegionIdFromEntrance(gSaveContext.save.entrance), reachableRegions);
     for (auto& target : regionList) {
         if (reachableRegions.count(target) > 0) {
             return true;
