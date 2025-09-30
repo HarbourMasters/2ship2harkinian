@@ -6,6 +6,25 @@
 using namespace Rando::Logic;
 
 // clang-format off
+
+/*
+ * This is a rather unwieldy condition that is needed in multiple places in this file. Since this is used for
+ * connections and thus is not displayed in the tracker, this is fine for now. There are three ways to get past the Big
+ * Octo:
+ *
+ * 1. Boat ride. This takes Link to a landing in the next region and thus has no additional requirements.
+ * 2. Kill the Big Octo. This means the water is still in a poison state, so swimming is not logically considered due to
+ *    the damage boost method not being logically considered. This piece may need expanded as tricks and glitches are
+ *    logically introduced.
+ * 3. Clear Woodfall Temple. The water is clear in this state, so swimming comes into question. Either Link uses the
+ *    swim ability, he hops over the water as Deku, or he uses one of the forms tall enough to walk through the water.
+ *    This may also be expanded if FD is ever logically considered.
+ */
+#define CAN_GET_PAST_OCTOROK \
+    (RANDO_EVENTS[RE_SOUTHERN_SWAMP_RIDE_BOAT] || \
+    (RANDO_EVENTS[RE_SOUTHERN_SWAMP_KILL_OCTOROK] && CAN_BE_DEKU) || \
+    (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && (CAN_USE_ABILITY(SWIM) || CAN_BE_DEKU || CAN_BE_ZORA || CAN_BE_GORON)))
+
 static RegisterShipInitFunc initFunc([]() {
     Regions[RR_DEKU_KINGS_CHAMBER_HOLDING_CELL] = RandoRegion{ .name = "Holding Cell", .sceneId = SCENE_DEKU_KING,
         .checks = {
@@ -241,7 +260,7 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, true), // TODO: Grotto mapping
         },
     };
-    Regions[RR_SOUTHERN_SWAMP_NEAR_TOURIST] = RandoRegion{ .name = "North Tourist Section", .sceneId = SCENE_20SICHITAI,
+    Regions[RR_SOUTHERN_SWAMP_NORTH] = RandoRegion{ .name = "North Tourist Section", .sceneId = SCENE_20SICHITAI,
         .checks = {
             CHECK(RC_SOUTHERN_SWAMP_PIECE_OF_HEART, CAN_BE_DEKU && Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_LAND)),
             CHECK(RC_SOUTHERN_SWAMP_SCRUB_DEED, Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_LAND)),
@@ -279,7 +298,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(TOURIST_INFORMATION, 0),          ENTRANCE(SOUTHERN_SWAMP_POISONED, 1), true),
         },
         .connections = {
-            CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, (RANDO_EVENTS[RE_SOUTHERN_SWAMP_KILL_OCTOROK] || RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE])),
+            CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, CAN_GET_PAST_OCTOROK),
     		CONNECTION(RR_SOUTHERN_SWAMP_NEAR_WOODS, (CAN_BE_HUMAN && CAN_USE_ABILITY(SWIM)) || (CAN_BE_DEKU || CAN_BE_ZORA || CAN_BE_GORON)),
         },
         .events = {
@@ -345,8 +364,8 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(WOODS_OF_MYSTERY, 0),             ENTRANCE(SOUTHERN_SWAMP_POISONED, 7), true),
         },
         .connections = {
-            CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, (RANDO_EVENTS[RE_SOUTHERN_SWAMP_KILL_OCTOROK] || RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE])),
-    		CONNECTION(RR_SOUTHERN_SWAMP_NEAR_TOURIST, (CAN_BE_HUMAN && CAN_USE_ABILITY(SWIM)) || (CAN_BE_DEKU || CAN_BE_ZORA || CAN_BE_GORON)),
+            CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, CAN_GET_PAST_OCTOROK),
+    		CONNECTION(RR_SOUTHERN_SWAMP_NORTH, (CAN_BE_HUMAN && CAN_USE_ABILITY(SWIM)) || (CAN_BE_DEKU || CAN_BE_ZORA || CAN_BE_GORON)),
         },
         .events = {
             EVENT(RE_ACCESS_SPRING_WATER, true),
@@ -369,8 +388,8 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(SWAMP_SPIDER_HOUSE, 0),           ENTRANCE(SOUTHERN_SWAMP_POISONED, 8), CAN_LIGHT_TORCH_NEAR_ANOTHER && (CAN_BE_DEKU || RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE])),
         },
         .connections = {
-            CONNECTION(RR_SOUTHERN_SWAMP_NEAR_TOURIST, (RANDO_EVENTS[RE_SOUTHERN_SWAMP_KILL_OCTOROK] || RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]) && ((CAN_BE_HUMAN && CAN_USE_ABILITY(SWIM)) || (CAN_BE_DEKU || CAN_BE_ZORA || CAN_BE_GORON))),
-            CONNECTION(RR_SOUTHERN_SWAMP_NEAR_WOODS, (RANDO_EVENTS[RE_SOUTHERN_SWAMP_KILL_OCTOROK] || RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]) && ((CAN_BE_HUMAN && CAN_USE_ABILITY(SWIM)) || (CAN_BE_DEKU || CAN_BE_ZORA || CAN_BE_GORON))),
+            CONNECTION(RR_SOUTHERN_SWAMP_NORTH, CAN_GET_PAST_OCTOROK),
+            CONNECTION(RR_SOUTHERN_SWAMP_NEAR_WOODS, CAN_GET_PAST_OCTOROK),
             CONNECTION(RR_SOUTHERN_SWAMP_GROTTO, CAN_BE_DEKU), // TODO: Grotto mapping
         },
         .events = {
@@ -397,7 +416,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 1),      ENTRANCE(TOURIST_INFORMATION, 0), true),
         },
         .events = {
-            EVENT(RE_SOUTHERN_SWAMP_KILL_OCTOROK, RANDO_EVENTS[RE_SAVED_KOUME] || CAN_ACCESS(PICTOGRAPH_SWAMP_GENERIC)),
+            EVENT(RE_SOUTHERN_SWAMP_RIDE_BOAT, RANDO_EVENTS[RE_SAVED_KOUME] || CAN_ACCESS(PICTOGRAPH_SWAMP_GENERIC)),
         },
     };
     Regions[RR_WOODFALL_GREAT_FAIRY_FOUNTAIN] = RandoRegion{ .name = "Woodfall", .sceneId = SCENE_YOUSEI_IZUMI,
@@ -410,13 +429,8 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_WOODFALL] = RandoRegion{ .sceneId = SCENE_21MITURINMAE,
         .checks = {
-            CHECK(RC_WOODFALL_ENTRANCE_CHEST, CAN_BE_DEKU || RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]),
+            CHECK(RC_WOODFALL_ENTRANCE_CHEST, CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && (CAN_BE_ZORA || CAN_BE_GORON || CAN_USE_ABILITY(SWIM)))),
             CHECK(RC_WOODFALL_PIECE_OF_HEART_CHEST, CAN_BE_DEKU),
-            CHECK(RC_WOODFALL_OWL_STATUE, CAN_USE_SWORD),
-            CHECK(RC_WOODFALL_NEAR_OWL_CHEST, CAN_BE_DEKU),
-            CHECK(RC_WOODFALL_POT_01, CAN_BE_DEKU || CAN_OWL_WARP(OWL_WARP_WOODFALL)),
-            CHECK(RC_WOODFALL_POT_02, CAN_BE_DEKU || CAN_OWL_WARP(OWL_WARP_WOODFALL)),
-            CHECK(RC_WOODFALL_POT_03, CAN_BE_DEKU || CAN_OWL_WARP(OWL_WARP_WOODFALL)),
             CHECK(RC_WOODFALL_FREESTANDING_RUPEE, CAN_BE_DEKU),
             CHECK(RC_WOODFALL_GRASS_01, true),
             CHECK(RC_WOODFALL_GRASS_02, true),
@@ -427,9 +441,26 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 2),      ENTRANCE(WOODFALL, 0), true),
-            EXIT(ENTRANCE(WOODFALL_TEMPLE, 0),              ENTRANCE(WOODFALL, 1), CanAccessDungeon(DUNGEON_INDEX_WOODFALL_TEMPLE)),
             EXIT(ENTRANCE(FAIRY_FOUNTAIN, 1),               ENTRANCE(WOODFALL, 2), CAN_BE_DEKU),
             EXIT(ENTRANCE(WOODFALL_TEMPLE, 2),              ENTRANCE(WOODFALL, 3), RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]),
+        },
+        .connections = {
+            CONNECTION(RR_WOODFALL_OWL_STATUE_PLATFORM, CAN_BE_DEKU),
+        },
+    };
+    Regions[RR_WOODFALL_OWL_STATUE_PLATFORM] = RandoRegion{ .name = "Owl Statue Platform", .sceneId = SCENE_21MITURINMAE,
+        .checks = {
+            CHECK(RC_WOODFALL_OWL_STATUE, CAN_USE_SWORD),
+            CHECK(RC_WOODFALL_NEAR_OWL_CHEST, CAN_BE_DEKU),
+            CHECK(RC_WOODFALL_POT_01, true),
+            CHECK(RC_WOODFALL_POT_02, true),
+            CHECK(RC_WOODFALL_POT_03, true),
+        },
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(WOODFALL_TEMPLE, 0),              ENTRANCE(WOODFALL, 1), CAN_BE_DEKU && CanAccessDungeon(DUNGEON_INDEX_WOODFALL_TEMPLE)),
+        },
+        .connections = {
+            CONNECTION(RR_WOODFALL, CAN_BE_DEKU),
         },
     };
     Regions[RR_WOODS_OF_MYSTERY_GROTTO] = RandoRegion{ .name = "Woods of Mystery Grotto", .sceneId = SCENE_KAKUSIANA,
