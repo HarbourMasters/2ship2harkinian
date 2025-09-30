@@ -4,8 +4,17 @@
 #include "Window.h"
 #include "ConsoleWindow.h"
 #include "2s2h/BenPort.h"
+#include "2s2h/resource/type/Scene.h"
+#include "2s2h/resource/type/scenecommand/SceneCommand.h"
+#include "2s2h/resource/type/scenecommand/SetActorList.h"
+#include "2s2h/resource/type/scenecommand/SetRoomList.h"
 #include <vector>
 #include <string>
+#include <utils/StringHelper.h>
+#include <nlohmann/json.hpp>
+#include <fstream>
+#include <filesystem>
+#include <spdlog/spdlog.h>
 
 extern "C" {
 #include <z64.h>
@@ -16,6 +25,11 @@ extern "C" {
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/gamestates/ovl_title/z_title.h"
 }
+
+extern std::unordered_map<s16, const char*> actorNames;
+extern std::unordered_map<s16, const char*> sceneNames;
+
+extern Ship::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName);
 
 #define CMD_REGISTER Ship::Context::GetInstance()->GetConsole()->AddCommand
 // TODO: Commands should be using the output passed in.
@@ -259,6 +273,99 @@ static bool QuitHandler(std::shared_ptr<Ship::Console> Console, const std::vecto
     return 0;
 }
 
+void traverseScene(std::string sceneName, std::string roomName, SOH::Scene* scene, std::set<std::string>* sceneSet,
+                   nlohmann::json* actorsJson, std::string* output) {
+    if (scene == nullptr) {
+        return;
+    }
+    for (auto& sceneCmd : scene->commands) {
+        switch ((SceneCommandTypeId)sceneCmd->cmdId) {
+            case SCENE_CMD_ID_ACTOR_LIST: {
+                SOH::SetActorList* actorList = (SOH::SetActorList*)sceneCmd.get();
+                std::string locationName = sceneName;
+                if (roomName != "") {
+                    int roomNum = roomName.find("_room");
+                    locationName += ", " + roomName.substr(roomNum + 1, 7); // roomName;
+                }
+                for (auto& actorSpawn : actorList->actorList) {
+                    actorSpawn.id &= 0x1FFF; // Mask out rotation flags
+                    // SPDLOG_INFO("Actor spawn: {}", actorSpawn.id);
+                    if (actorSpawn.id >= ACTOR_ID_MAX || actorSpawn.id < ACTOR_PLAYER)
+                        continue;
+                    // SPDLOG_INFO("Actor spawn: {}, params: {}", actorNames[actorSpawn.id], actorSpawn.params);
+                    // *output += fmt::format("\t\t{} {}\n", actorNames[actorSpawn.id], actorSpawn.params);
+                    // TODO: Take half day bit into account
+                    sceneSet->emplace(actorNames[actorSpawn.id]); // TODO: No, put rooms. maybe
+                    std::set<std::string> actorSceneSet;
+                    if (!actorsJson->contains(actorNames[actorSpawn.id])) {
+                        (*actorsJson)[actorNames[actorSpawn.id]] = actorSceneSet = {};
+                    }
+                    actorSceneSet = (*actorsJson)[actorNames[actorSpawn.id]];
+                    actorSceneSet.emplace(locationName);
+                    (*actorsJson)[actorNames[actorSpawn.id]] = actorSceneSet;
+                }
+            } break;
+            case SCENE_CMD_ID_ROOM_LIST: {
+                SOH::SetRoomList* roomList = (SOH::SetRoomList*)sceneCmd.get();
+                for (auto& room : roomList->rooms) {
+                    // SPDLOG_INFO("Room: {}", room.fileName);
+                    // *output += fmt::format("\tRoom: {} \n", room.fileName);
+                    SOH::Scene* sceneRoom = (SOH::Scene*)OTRPlay_LoadFile(gPlayState, room.fileName);
+                    traverseScene(sceneName, room.fileName, sceneRoom, sceneSet, actorsJson, output);
+                }
+            } break;
+            default:
+                break;
+        }
+    }
+}
+
+static bool SceneDumpHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
+                             std::string* output) {
+    nlohmann::json scenesJson = {};
+    nlohmann::json actorsJson = {};
+    for (int sceneId = SCENE_20SICHITAI2; sceneId < SCENE_MAX; sceneId++) {
+        SceneTableEntry* sceneTableEntry = &gSceneTable[sceneId];
+        if (sceneTableEntry->segment.fileName == nullptr) {
+            continue;
+        }
+        std::string scenePath = StringHelper::Sprintf("scenes/nonmq/%s/%s", sceneTableEntry->segment.fileName,
+                                                      sceneTableEntry->segment.fileName);
+        SOH::Scene* scene =
+            (SOH::Scene*)OTRPlay_LoadFile(gPlayState, scenePath.c_str()); // Takes PlayState arg, but does not use it
+        // SPDLOG_INFO("Scene: {}, titleTextId: {}, commands: {}", scenePath, sceneTableEntry->titleTextId,
+        // scene->commands.size()); *output += fmt::format("Scene: {}, titleTextId: {}, commands: {}", scenePath,
+        // sceneTableEntry->titleTextId, scene->commands.size());
+        std::set<std::string> sceneSet = {};
+        traverseScene(sceneNames[sceneId], "", scene, &sceneSet, &actorsJson, output);
+        scenesJson[sceneNames[sceneId]] = sceneSet;
+    }
+    /*
+     * Structure:
+     * {
+     *  "scenes": {
+     *              "sceneId": [setOfActors]
+     *            },
+     *  "actors": {
+     *             "actorId": [setOfScenes]
+     *            }
+     * }
+     */
+    nlohmann::json result = { { "scenes", scenesJson }, { "actors", actorsJson } };
+
+    try {
+        std::ofstream o("sceneDump.json");
+        o << std::setw(4) << result << std::endl;
+        o.close();
+    } catch (...) {
+        *output = "Failed to write sceneDump file";
+        SPDLOG_ERROR("Failed to write sceneDump file");
+        return 1;
+    }
+    *output = "Dumped scene data to sceneDump.json";
+    return 0;
+}
+
 void DebugConsole_Init(void) {
     // Console
     CMD_REGISTER("file_select", { FileSelectHandler, "Returns to the file select." });
@@ -295,4 +402,7 @@ void DebugConsole_Init(void) {
                           { { "x", Ship::ArgumentType::NUMBER, true },
                             { "y", Ship::ArgumentType::NUMBER, true },
                             { "z", Ship::ArgumentType::NUMBER, true } } });
+
+    // Data
+    CMD_REGISTER("dump_scene", { SceneDumpHandler, "Dumps scene data, TBD" });
 }
