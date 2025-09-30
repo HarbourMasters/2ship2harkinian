@@ -2,6 +2,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/DrawFuncs.h"
+#include "2s2h_assets.h"
 
 extern "C" {
 #include "variables.h"
@@ -296,6 +297,23 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+void DrawAbilityItem(RandoItemId randoItemId) {
+    Gfx* abilityItemModel[1] = {
+        (Gfx*)gAbilitySwimDL,
+    };
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+
+    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+
+    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)abilityItemModel[randoItemId - RI_ABILITY_SWIM]);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
 void DrawSparkles(RandoItemId randoItemId, Actor* actor) {
     if (actor == NULL) {
         return;
@@ -422,7 +440,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             DrawMinifrog(randoItemId, actor);
             break;
         case RI_ABILITY_SWIM:
-            GetItem_Draw(gPlayState, Rando::StaticData::Items[RI_PENDANT_OF_MEMORIES].drawId);
+            DrawAbilityItem(randoItemId);
             break;
         case RI_NONE:
         case RI_UNKNOWN:
