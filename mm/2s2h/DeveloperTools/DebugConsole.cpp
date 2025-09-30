@@ -14,7 +14,6 @@
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <filesystem>
-#include <spdlog/spdlog.h>
 
 extern "C" {
 #include <z64.h>
@@ -273,8 +272,8 @@ static bool QuitHandler(std::shared_ptr<Ship::Console> Console, const std::vecto
     return 0;
 }
 
-void traverseScene(std::string sceneName, std::string roomName, SOH::Scene* scene, std::set<std::string>* sceneSet,
-                   nlohmann::json* actorsJson, std::string* output) {
+void traverseScene(std::string sceneName, std::string roomName, SOH::Scene* scene, std::set<std::string>& sceneSet,
+                   nlohmann::json& actorsJson, std::string* output) {
     if (scene == nullptr) {
         return;
     }
@@ -285,31 +284,37 @@ void traverseScene(std::string sceneName, std::string roomName, SOH::Scene* scen
                 std::string locationName = sceneName;
                 if (roomName != "") {
                     int roomNum = roomName.find("_room");
-                    locationName += ", " + roomName.substr(roomNum + 1, 7); // roomName;
+                    locationName += ", " + roomName.substr(roomNum + 1, 7);
                 }
                 for (auto& actorSpawn : actorList->actorList) {
-                    actorSpawn.id &= 0x1FFF; // Mask out rotation flags
-                    // SPDLOG_INFO("Actor spawn: {}", actorSpawn.id);
-                    if (actorSpawn.id >= ACTOR_ID_MAX || actorSpawn.id < ACTOR_PLAYER)
+                    s16 actorId = actorSpawn.id & 0x1FFF; // Mask out rotation flags
+                    if (actorId >= ACTOR_ID_MAX || actorId < ACTOR_PLAYER)
                         continue;
-                    // SPDLOG_INFO("Actor spawn: {}, params: {}", actorNames[actorSpawn.id], actorSpawn.params);
-                    // *output += fmt::format("\t\t{} {}\n", actorNames[actorSpawn.id], actorSpawn.params);
-                    // TODO: Take half day bit into account
-                    sceneSet->emplace(actorNames[actorSpawn.id]); // TODO: No, put rooms. maybe
-                    std::set<std::string> actorSceneSet;
-                    if (!actorsJson->contains(actorNames[actorSpawn.id])) {
-                        (*actorsJson)[actorNames[actorSpawn.id]] = actorSceneSet = {};
+
+                    // Handle half day spawns
+                    s32 actorEntryHalfDayBit = ((actorSpawn.rot.x & 7) << 7) | (actorSpawn.rot.z & 0x7F);
+                    s32 appearsDuringDay = actorEntryHalfDayBit & HALFDAYBIT_DAWNS;
+                    s32 appearsDuringNight = actorEntryHalfDayBit & HALFDAYBIT_NIGHTS;
+                    std::string timeLocation = "";
+                    if (appearsDuringDay && !appearsDuringNight) {
+                        timeLocation += " (Day only)";
+                    } else if (!appearsDuringDay && appearsDuringNight) {
+                        timeLocation += " (Night only)";
                     }
-                    actorSceneSet = (*actorsJson)[actorNames[actorSpawn.id]];
-                    actorSceneSet.emplace(locationName);
-                    (*actorsJson)[actorNames[actorSpawn.id]] = actorSceneSet;
+
+                    sceneSet.emplace(actorNames[actorId]); // TODO: No, put rooms. maybe
+                    std::set<std::string> actorSceneSet;
+                    if (!actorsJson.contains(actorNames[actorId])) {
+                        actorsJson[actorNames[actorId]] = actorSceneSet = {};
+                    }
+                    actorSceneSet = (std::set<std::string>)actorsJson[actorNames[actorId]];
+                    actorSceneSet.emplace(locationName + timeLocation);
+                    actorsJson[actorNames[actorId]] = actorSceneSet;
                 }
             } break;
             case SCENE_CMD_ID_ROOM_LIST: {
                 SOH::SetRoomList* roomList = (SOH::SetRoomList*)sceneCmd.get();
                 for (auto& room : roomList->rooms) {
-                    // SPDLOG_INFO("Room: {}", room.fileName);
-                    // *output += fmt::format("\tRoom: {} \n", room.fileName);
                     SOH::Scene* sceneRoom = (SOH::Scene*)OTRPlay_LoadFile(gPlayState, room.fileName);
                     traverseScene(sceneName, room.fileName, sceneRoom, sceneSet, actorsJson, output);
                 }
@@ -333,11 +338,8 @@ static bool SceneDumpHandler(std::shared_ptr<Ship::Console> Console, const std::
                                                       sceneTableEntry->segment.fileName);
         SOH::Scene* scene =
             (SOH::Scene*)OTRPlay_LoadFile(gPlayState, scenePath.c_str()); // Takes PlayState arg, but does not use it
-        // SPDLOG_INFO("Scene: {}, titleTextId: {}, commands: {}", scenePath, sceneTableEntry->titleTextId,
-        // scene->commands.size()); *output += fmt::format("Scene: {}, titleTextId: {}, commands: {}", scenePath,
-        // sceneTableEntry->titleTextId, scene->commands.size());
         std::set<std::string> sceneSet = {};
-        traverseScene(sceneNames[sceneId], "", scene, &sceneSet, &actorsJson, output);
+        traverseScene(sceneNames[sceneId], "", scene, sceneSet, actorsJson, output);
         scenesJson[sceneNames[sceneId]] = sceneSet;
     }
     /*
@@ -404,5 +406,6 @@ void DebugConsole_Init(void) {
                             { "z", Ship::ArgumentType::NUMBER, true } } });
 
     // Data
-    CMD_REGISTER("dump_scene", { SceneDumpHandler, "Dumps scene data, TBD" });
+    CMD_REGISTER("dump_scenes",
+                 { SceneDumpHandler, "Scans through all scenes and actor spawns and dumps them to a JSON file." });
 }
