@@ -1,0 +1,8 @@
+<DisplayList Version="0">
+	<CallDisplayList Path="objects/object_ability_swim/mat_gAbilitySwimDL_flippers"/>
+	<CallDisplayList Path="objects/object_ability_swim/gAbilitySwimDL_tri_0"/>
+	<CallDisplayList Path="objects/object_ability_swim/mat_gAbilitySwimDL_flippers2"/>
+	<CallDisplayList Path="objects/object_ability_swim/gAbilitySwimDL_tri_1"/>
+	<EndDisplayList/>
+</DisplayList>
+
