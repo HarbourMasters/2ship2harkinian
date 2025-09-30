@@ -6,6 +6,8 @@ extern "C" {
 #include "functions.h"
 
 #include "include/z64player.h"
+extern s32 Player_SetAction(PlayState* play, Player* player, PlayerActionFunc actionFunc, s32 arg3);
+extern void Player_Action_1(Player* player, PlayState* play);
 }
 
 void RespawnOnWaterTouch(Player* player) {
@@ -16,11 +18,9 @@ void RespawnOnWaterTouch(Player* player) {
     }
 
     if (player->stateFlags1 & PLAYER_STATE1_8000000) {
-        gPlayState->nextEntrance = gSaveContext.respawn->entrance;
-        gPlayState->transitionTrigger = TRANS_TRIGGER_START;
-        gPlayState->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
-        player->stateFlags1 |= PLAYER_STATE1_200;
-        Audio_PlaySfx(NA_SE_SY_DEKUNUTS_JUMP_FAILED);
+        // Mimic Deku Hop failure behavior
+        Player_SetAction(gPlayState, player, Player_Action_1, 0);
+        player->stateFlags1 |= PLAYER_STATE1_20000000;
     }
 }
 
