@@ -4,8 +4,10 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include <string.h>
 #include "BenPort.h"
+#include "build.h"
 
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "public/bridge/consolevariablebridge.h"
 
 void Sram_SyncWriteToFlash(SramContext* sramCtx, s32 curPage, s32 numPages);
 void func_80147414(SramContext* sramCtx, s32 fileNum, s32 arg2);
@@ -740,6 +742,8 @@ void Sram_ResetSave(void) {
     gSaveContext.save.isOwlSave = false;
 
     memset(&gSaveContext.save.saveInfo, 0, sizeof(SaveInfo));
+    // 2S2H
+    memset(&gSaveContext.save.shipSaveInfo, 0, sizeof(ShipSaveInfo));
 }
 
 /**
@@ -1007,8 +1011,13 @@ void Sram_InitNewSave(void) {
 
     // #region 2S2H
     memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
+    memcpy(&gSaveContext.save.shipSaveInfo.commitHash, &gGitCommitHash,
+           sizeof(gSaveContext.save.shipSaveInfo.commitHash));
     gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
-    // #endregion
+    gSaveContext.save.shipSaveInfo.saveType = SAVETYPE_VANILLA;
+    gSaveContext.save.shipSaveInfo.fileCreatedAt = 0;
+    gSaveContext.save.shipSaveInfo.fileCompletedAt = 0;
+    //  #endregion
 
     Sram_GenerateRandomSaveFields();
 }
@@ -1232,7 +1241,12 @@ void Sram_InitDebugSave(void) {
 
     // #region 2S2H
     memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
+    memcpy(&gSaveContext.save.shipSaveInfo.commitHash, &gGitCommitHash,
+           sizeof(gSaveContext.save.shipSaveInfo.commitHash));
     gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
+    gSaveContext.save.shipSaveInfo.saveType = SAVETYPE_VANILLA;
+    gSaveContext.save.shipSaveInfo.fileCreatedAt = 0;
+    gSaveContext.save.shipSaveInfo.fileCompletedAt = 0;
     // #endregion
 
     Sram_GenerateRandomSaveFields();
@@ -1591,6 +1605,8 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                     }
                     fileSelect->maskCount[sp76] = maskCount;
                     fileSelect->heartPieceCount[sp76] = GET_QUEST_HEART_PIECE_COUNT;
+
+                    GameInteractor_ExecuteOnFileSelectSaveLoad(sp76, false, &gSaveContext);
                 }
 
                 if (sp6E == 1) {
@@ -1706,6 +1722,8 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                         }
                         fileSelect->maskCount[sp76] = maskCount;
                         fileSelect->heartPieceCount[sp76] = GET_QUEST_HEART_PIECE_COUNT;
+
+                        GameInteractor_ExecuteOnFileSelectSaveLoad(sp76 - 2, true, &gSaveContext);
                     }
 
                     if (sp6E == 1) {
@@ -1832,6 +1850,8 @@ void Sram_CopySave(FileSelectState* fileSelect2, SramContext* sramCtx) {
             fileSelect->maskCount[fileSelect->copyDestFileIndex + FILE_NUM_OWL_SAVE_OFFSET] = maskCount;
             fileSelect->heartPieceCount[fileSelect->copyDestFileIndex + FILE_NUM_OWL_SAVE_OFFSET] =
                 GET_QUEST_HEART_PIECE_COUNT;
+
+            GameInteractor_ExecuteOnFileSelectSaveLoad(fileSelect->copyDestFileIndex, true, &gSaveContext);
         }
 
         // clear buffer
@@ -1877,6 +1897,8 @@ void Sram_CopySave(FileSelectState* fileSelect2, SramContext* sramCtx) {
 
         fileSelect->maskCount[fileSelect->copyDestFileIndex] = maskCount;
         fileSelect->heartPieceCount[fileSelect->copyDestFileIndex] = GET_QUEST_HEART_PIECE_COUNT;
+
+        GameInteractor_ExecuteOnFileSelectSaveLoad(fileSelect->copyDestFileIndex, false, &gSaveContext);
     }
 
     gSaveContext.save.time = D_801F6AF0;
@@ -1943,6 +1965,8 @@ void Sram_InitSave(FileSelectState* fileSelect2, SramContext* sramCtx) {
 
         fileSelect->maskCount[fileSelect->buttonIndex] = maskCount;
         fileSelect->heartPieceCount[fileSelect->buttonIndex] = GET_QUEST_HEART_PIECE_COUNT;
+
+        GameInteractor_ExecuteOnFileSelectSaveLoad(fileSelect->buttonIndex, false, &gSaveContext);
     }
 
     gSaveContext.save.time = D_801F6AF0;

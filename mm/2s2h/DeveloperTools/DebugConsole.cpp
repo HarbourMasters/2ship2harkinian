@@ -1,6 +1,8 @@
 #include "DebugConsole.h"
 
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
+#include "Window.h"
+#include "ConsoleWindow.h"
 #include "2s2h/BenPort.h"
 #include <vector>
 #include <string>
@@ -86,7 +88,7 @@ static bool ActorSpawnHandler(std::shared_ptr<Ship::Console> Console, const std:
 static bool LoadSceneHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>&,
                              std::string* output) {
     gSaveContext.respawnFlag = 0;
-    gSaveContext.seqId = 0xFF;
+    gSaveContext.seqId = NA_BGM_DISABLED;
     gSaveContext.gameMode = 0;
 
     return 0;

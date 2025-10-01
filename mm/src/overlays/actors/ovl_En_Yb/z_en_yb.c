@@ -6,6 +6,7 @@
 
 #include "z_en_yb.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
 
@@ -136,7 +137,7 @@ void EnYb_Destroy(Actor* thisx, PlayState* play) {
 }
 
 void func_80BFA2FC(PlayState* play) {
-    if (INV_CONTENT(ITEM_MASK_KAMARO) == ITEM_MASK_KAMARO) {
+    if (GameInteractor_Should(VB_HAVE_KAMAROS_MASK, INV_CONTENT(ITEM_MASK_KAMARO) == ITEM_MASK_KAMARO)) {
         Message_BombersNotebookQueueEvent(play, BOMBERS_NOTEBOOK_EVENT_RECEIVED_KAMAROS_MASK);
     }
     Message_BombersNotebookQueueEvent(play, BOMBERS_NOTEBOOK_EVENT_MET_KAMARO);
@@ -305,7 +306,8 @@ void EnYb_Talk(EnYb* this, PlayState* play) {
                     Message_CloseTextbox(play);
                     this->actionFunc = EnYb_Idle;
 
-                } else if (INV_CONTENT(ITEM_MASK_KAMARO) == ITEM_MASK_KAMARO) {
+                } else if (GameInteractor_Should(VB_HAVE_KAMAROS_MASK,
+                                                 INV_CONTENT(ITEM_MASK_KAMARO) == ITEM_MASK_KAMARO)) {
                     Message_ContinueTextbox(play, 0x147D); // I am counting on you
                     func_80BFA2FC(play);
 

@@ -10,6 +10,7 @@
 #include "overlays/actors/ovl_En_Elf/z_en_elf.h"
 #include "objects/object_gs/object_gs.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
 
@@ -197,7 +198,7 @@ void func_80997D38(EnGs* this, PlayState* play) {
 }
 
 void func_80997DEC(EnGs* this, PlayState* play) {
-    if (Player_GetMask(play) == PLAYER_MASK_TRUTH) {
+    if (GameInteractor_Should(VB_GS_CONSIDER_MASK_OF_TRUTH_EQUIPPED, Player_GetMask(play) == PLAYER_MASK_TRUTH, this)) {
         this->unk_210 = 0x20D1;
     } else {
         this->unk_210 = 0x20D0;
@@ -255,7 +256,9 @@ void func_80997E4C(EnGs* this, PlayState* play) {
                             default:
                                 break;
                         }
-                        Message_ContinueTextbox(play, this->unk_210);
+                        if (GameInteractor_Should(VB_GS_CONTINUE_TEXTBOX, true, this)) {
+                            Message_ContinueTextbox(play, this->unk_210);
+                        }
                         break;
 
                     default:
@@ -699,8 +702,8 @@ s32 func_80998F9C(EnGs* this, PlayState* play) {
         this->unk_1B0[0].x = this->unk_1E4 + 1.0f;
         this->unk_1B0[0].y = this->unk_1DC + 1.0f;
         if (sp48 == 0.0f) {
-            this->unk_1DC = 2.0f * M_PI / 9.0000002;
-            this->unk_1E0 = M_PI / 9.0000002;
+            this->unk_1DC = 2.0f * M_PIf / 9.0000002;
+            this->unk_1E0 = M_PIf / 9.0000002;
             this->unk_19D = 4;
         }
     }

@@ -7,6 +7,7 @@
 #include "z_obj_kibako.h"
 #include "objects/gameplay_dangeon_keep/gameplay_dangeon_keep.h"
 #include "objects/object_kibako/object_kibako.h"
+#include "GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_CAN_PRESS_SWITCH)
 
@@ -82,6 +83,10 @@ static InitChainEntry sInitChain[] = {
 };
 
 void ObjKibako_SpawnCollectible(ObjKibako* this, PlayState* play) {
+    if (!GameInteractor_Should(VB_BARREL_OR_CRATE_DROP_COLLECTIBLE, true, this)) {
+        return;
+    }
+
     s32 dropItem00Id;
 
     if (this->isDropCollected == 0) {
@@ -255,7 +260,9 @@ void func_80926B54(ObjKibako* this, PlayState* play) {
     Actor_UpdateBgCheckInfo(play, &this->actor, 18.0f, 15.0f, 0.0f,
                             UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_40);
     if (Object_IsLoaded(&play->objectCtx, this->objectSlot)) {
-        this->actor.draw = ObjKibako_Draw;
+        if (GameInteractor_Should(VB_CRATE_DRAW_BE_OVERRIDDEN, true, this)) {
+            this->actor.draw = ObjKibako_Draw;
+        }
         this->actor.objectSlot = this->objectSlot;
         ObjKibako_SetupIdle(this);
     }

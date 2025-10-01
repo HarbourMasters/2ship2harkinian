@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "z64vismono.h"
 #include "z64visfbuf.h"
+#include "public/bridge/consolevariablebridge.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 s16 sTransitionFillTimer;
@@ -633,13 +634,13 @@ void Play_UpdateTransition(PlayState* this) {
                     (!Environment_IsFinalHours(this) || (Entrance_GetSceneId(this->nextEntrance + sceneLayer) < 0) ||
                      (AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN) != NA_BGM_FINAL_HOURS))) {
                     Audio_MuteAllSeqExceptSystemAndOcarina(20);
-                    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                    gSaveContext.seqId = NA_BGM_DISABLED;
                     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                 }
 
                 if (Environment_IsForcedSequenceDisabled()) {
                     Audio_MuteAllSeqExceptSystemAndOcarina(20);
-                    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                    gSaveContext.seqId = NA_BGM_DISABLED;
                     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                 }
 
@@ -649,7 +650,7 @@ void Play_UpdateTransition(PlayState* this) {
                 }
             }
 
-            if (!D_801D0D54) {
+            if (!D_801D0D54 && GameInteractor_Should(VB_SETUP_TRANSITION, true)) {
                 Play_SetupTransition(this, Play_ChooseDynamicTransition(this, this->transitionType));
             }
 
@@ -1809,6 +1810,9 @@ Camera* Play_GetCamera(PlayState* this, s16 camId) {
  * @return bit-packed success if each of the params were applied
  */
 s32 Play_SetCameraAtEye(PlayState* this, s16 camId, Vec3f* at, Vec3f* eye) {
+    if (!GameInteractor_Should(VB_SET_CAMERA_AT_EYE, true)) {
+        return false;
+    }
     s32 successfullySet = 0;
     s16 camIdx = (camId == CAM_ID_NONE) ? this->activeCamId : camId;
     Camera* camera = this->cameraPtrs[camIdx];
@@ -1865,6 +1869,9 @@ s32 Play_SetCameraAtEyeUp(PlayState* this, s16 camId, Vec3f* at, Vec3f* eye, Vec
  * @return true if the fov was successfully set
  */
 s32 Play_SetCameraFov(PlayState* this, s16 camId, f32 fov) {
+    if (!GameInteractor_Should(VB_SET_CAMERA_FOV, true)) {
+        return false;
+    }
     s32 successfullySet = Camera_SetViewParam(this->cameraPtrs[camId], CAM_VIEW_FOV, &fov) & 1;
 
     if (1) {}
@@ -2288,7 +2295,8 @@ void Play_Init(GameState* thisx) {
         }
 
         // "First cycle" Termina Field
-        if (INV_CONTENT(ITEM_OCARINA_OF_TIME) != ITEM_OCARINA_OF_TIME) {
+        if (GameInteractor_Should(VB_TERMINA_FIELD_BE_EMPTY,
+                                  INV_CONTENT(ITEM_OCARINA_OF_TIME) != ITEM_OCARINA_OF_TIME)) {
             if ((scene == ENTR_SCENE_TERMINA_FIELD) &&
                 (((void)0, gSaveContext.save.entrance) != ENTRANCE(TERMINA_FIELD, 10))) {
                 gSaveContext.nextCutsceneIndex = 0xFFF4;

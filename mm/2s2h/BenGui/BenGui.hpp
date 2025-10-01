@@ -1,19 +1,16 @@
 #ifndef BenGui_hpp
 #define BenGui_hpp
 
-#include <stdio.h>
-#include "BenMenuBar.h"
-#include "DeveloperTools/SaveEditor.h"
-#include "DeveloperTools/ActorViewer.h"
-#include "DeveloperTools/CollisionViewer.h"
-#include "DeveloperTools/EventLog.h"
-#include "BenInputEditorWindow.h"
+#include <BenGui/UIWidgets.hpp>
 
 namespace BenGui {
     void SetupHooks();
     void SetupGuiElements();
     void Draw();
     void Destroy();
+    UIWidgets::Colors GetMenuThemeColor();
 }
+
+#define THEME_COLOR BenGui::GetMenuThemeColor()
 
 #endif /* BenGui_hpp */

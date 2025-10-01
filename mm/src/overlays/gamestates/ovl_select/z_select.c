@@ -9,8 +9,9 @@
 #include "z64view.h"
 #include "libc/alloca.h"
 #include "overlays/gamestates/ovl_title/z_title.h"
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/DeveloperTools/BetterMapSelect.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 void MapSelect_LoadConsoleLogo(MapSelectState* this) {
     STOP_GAMESTATE(&this->state);
@@ -34,6 +35,8 @@ void MapSelect_LoadGame(MapSelectState* this, u32 entrance, s32 spawn) {
             gSaveContext.cycleSceneFlags[i].clearedRoom = gSaveContext.save.saveInfo.permanentSceneFlags[i].clearedRoom;
             gSaveContext.cycleSceneFlags[i].collectible = gSaveContext.save.saveInfo.permanentSceneFlags[i].collectible;
         }
+
+        GameInteractor_ExecuteOnSaveLoad(gSaveContext.fileNum);
         // #endregion
     }
 
@@ -47,6 +50,7 @@ void MapSelect_LoadGame(MapSelectState* this, u32 entrance, s32 spawn) {
     CLEAR_EVENTINF(EVENTINF_41);
     CLEAR_EVENTINF(EVENTINF_TRIGGER_DAYTELOP);
     gSaveContext.save.equippedMask = PLAYER_MASK_NONE;
+    memset(gSaveContext.masksGivenOnMoon, 0, 27);
     // #endregion
 
     gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
@@ -78,7 +82,7 @@ void MapSelect_LoadGame(MapSelectState* this, u32 entrance, s32 spawn) {
     }
 
     gSaveContext.respawn[RESPAWN_MODE_DOWN].entrance = 0xFFFF;
-    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+    gSaveContext.seqId = NA_BGM_DISABLED;
     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
     gSaveContext.showTitleCard = true;
     gSaveContext.respawnFlag = 0;
@@ -1124,8 +1128,14 @@ void MapSelect_Init(GameState* thisx) {
     }
 
     GameState_SetFramerateDivisor(&this->state, 1);
+
+    // 2S2H [Enhancement] Init better menu and abort early to retain player form
+    BetterMapSelect_Init(this);
+    if (CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0)) {
+        return;
+    }
+
     gSaveContext.save.cutsceneIndex = 0;
     gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
     gSaveContext.save.linkAge = 0;
-    BetterMapSelect_Init(this);
 }

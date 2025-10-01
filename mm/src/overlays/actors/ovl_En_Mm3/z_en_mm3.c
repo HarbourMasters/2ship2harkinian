@@ -209,8 +209,7 @@ void func_80A6F5E4(EnMm3* this, PlayState* play) {
                 } else {
                     func_80A70084(this, play);
                     if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED,
-                                              Player_GetMask(play) == PLAYER_MASK_BUNNY),
-                        GET_PLAYER(play)) {
+                                              Player_GetMask(play) == PLAYER_MASK_BUNNY, GET_PLAYER(play))) {
                         Message_StartTextbox(play, 0x27A0, &this->actor);
                         this->unk_2B4 = 0x27A0;
                     } else {
@@ -308,7 +307,9 @@ void func_80A6F5E4(EnMm3* this, PlayState* play) {
         this->unk_2AC--;
         if (this->unk_2AC == 0) {
             if (gSaveContext.timerCurTimes[TIMER_ID_POSTMAN] == SECONDS_TO_TIMER(10)) {
-                Audio_PlayFanfare(NA_BGM_GET_ITEM | 0x900);
+                // BENTODO This had | 0x900 which interfered with the 16 bit sequence IDs. Removing it doesn't seem to
+                // anything bad.
+                Audio_PlayFanfare(NA_BGM_GET_ITEM);
             } else {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
             }
@@ -348,8 +349,7 @@ void func_80A6F9DC(EnMm3* this, PlayState* play) {
 
                     player->stateFlags1 |= PLAYER_STATE1_20;
                     if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED,
-                                              Player_GetMask(play) == PLAYER_MASK_BUNNY),
-                        player) {
+                                              Player_GetMask(play) == PLAYER_MASK_BUNNY, player)) {
                         Interface_StartPostmanTimer(0, POSTMAN_MINIGAME_BUNNY_HOOD_ON);
                     } else {
                         Interface_StartPostmanTimer(0, POSTMAN_MINIGAME_BUNNY_HOOD_OFF);
@@ -418,7 +418,7 @@ void func_80A6FBFC(EnMm3* this, PlayState* play) {
     } else {
         Actor_OfferTalk(&this->actor, play, this->actor.xzDistToPlayer + 10.0f);
         func_80123E90(play, &this->actor);
-        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, Player_GetMask(play) == PLAYER_MASK_BUNNY), player) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, Player_GetMask(play) == PLAYER_MASK_BUNNY, player)) {
             Audio_PlaySfx(NA_SE_SY_STOPWATCH_TIMER_INF - SFX_FLAG);
         } else {
             Audio_PlaySfx(NA_SE_SY_STOPWATCH_TIMER_3 - SFX_FLAG);
@@ -505,8 +505,8 @@ s32 func_80A6FFAC(EnMm3* this, PlayState* play) {
 void func_80A70084(EnMm3* this, PlayState* play) {
     switch (GET_PLAYER_FORM) {
         case PLAYER_FORM_HUMAN:
-            if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, Player_GetMask(play) == PLAYER_MASK_BUNNY),
-                GET_PLAYER(play)) {
+            if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, Player_GetMask(play) == PLAYER_MASK_BUNNY,
+                                      GET_PLAYER(play))) {
                 this->unk_2B2 |= 0x10;
                 this->unk_2B2 |= 1;
             } else {

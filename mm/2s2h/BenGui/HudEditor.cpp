@@ -1,4 +1,3 @@
-
 #include "HudEditor.h"
 #include "macros.h"
 
@@ -235,7 +234,7 @@ void HudEditorWindow::DrawElement() {
                 break;
             }
         }
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
 
     for (int i = HUD_EDITOR_ELEMENT_B; i < HUD_EDITOR_ELEMENT_MAX; i++) {
@@ -266,14 +265,14 @@ void HudEditorWindow::DrawElement() {
 
             CVarSetColor(hudEditorElements[i].colorCvar, colorSelected);
             CVarSetInteger(hudEditorElements[i].colorChangedCvar, true);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         }
         ImGui::SameLine();
         if (ImGui::Button(ICON_FA_REFRESH)) {
             float color[4] = { defaultColor[0], defaultColor[1], defaultColor[2], defaultColor[3] };
             CVarClear(hudEditorElements[i].colorCvar);
             CVarClear(hudEditorElements[i].colorChangedCvar);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         }
         ImGui::SameLine();
         if (UIWidgets::CVarCombobox("Mode", hudEditorElements[i].modeCvar, modeNames,
@@ -290,7 +289,7 @@ void HudEditorWindow::DrawElement() {
                 ImGui::TableNextColumn();
                 UIWidgets::CVarSliderInt("X", hudEditorElements[i].xCvar,
                                          {
-                                             .showButtons = false,
+                                             .showAdjustmentButtons = false,
                                              .format = "X: %d",
                                              .min = -10,
                                              .max = 330,
@@ -300,7 +299,7 @@ void HudEditorWindow::DrawElement() {
                 ImGui::TableNextColumn();
                 UIWidgets::CVarSliderInt("Y", hudEditorElements[i].yCvar,
                                          {
-                                             .showButtons = false,
+                                             .showAdjustmentButtons = false,
                                              .format = "Y: %d",
                                              .min = -10,
                                              .max = 250,
@@ -310,7 +309,7 @@ void HudEditorWindow::DrawElement() {
                 ImGui::TableNextColumn();
                 UIWidgets::CVarSliderFloat("Scale", hudEditorElements[i].scaleCvar,
                                            {
-                                               .showButtons = false,
+                                               .showAdjustmentButtons = false,
                                                .format = "Scale: %.2f",
                                                .min = 0.25f,
                                                .max = 4.0f,

@@ -1,15 +1,14 @@
 ﻿#include "BenPort.h"
-#include <libultraship/libultraship.h>
 #include "global.h"
 #include <Blob.h>
 #include <memory>
 #include <cassert>
 #include <utils/StringHelper.h>
 #include <DisplayList.h>
+#include <public/bridge/resourcebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/resource/type/Scene.h"
 #include "2s2h/resource/type/CollisionHeader.h"
-#include "2s2h/resource/type/Cutscene.h"
 #include "2s2h/resource/type/Path.h"
 #include "2s2h/resource/type/scenecommand/SetCameraSettings.h"
 #include "2s2h/resource/type/scenecommand/SetCutscenes.h"
@@ -283,7 +282,9 @@ void Scene_CommandTimeSettings(PlayState* play, SOH::ISceneCommand* cmd) {
     }
 
     // Increase time speed during first cycle
-    if ((gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] == ITEM_NONE) && (play->envCtx.sceneTimeSpeed != 0)) {
+    if (GameInteractor_Should(VB_FASTER_FIRST_CYCLE,
+                              (gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] == ITEM_NONE) &&
+                                  (play->envCtx.sceneTimeSpeed != 0))) {
         play->envCtx.sceneTimeSpeed = 5;
     }
 
@@ -338,8 +339,7 @@ void Scene_CommandSoundSettings(PlayState* play, SOH::ISceneCommand* cmd) {
     play->sequenceCtx.seqId = settings->settings.seqId;
     play->sequenceCtx.ambienceId = settings->settings.natureAmbienceId;
 
-    if (gSaveContext.seqId == (u8)NA_BGM_DISABLED ||
-        AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN) == NA_BGM_FINAL_HOURS) {
+    if (gSaveContext.seqId == NA_BGM_DISABLED || AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN) == NA_BGM_FINAL_HOURS) {
         Audio_SetSpec(settings->settings.reverb); // BENTODO Verify if this should be reverb
     }
 }

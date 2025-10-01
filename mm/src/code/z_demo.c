@@ -9,6 +9,7 @@
 #include "overlays/actors/ovl_En_Elf/z_en_elf.h"
 #include <string.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "luslog.h"
 
 s16 sCutsceneQuakeIndex;
 struct CutsceneCamera sCutsceneCameraInfo;
@@ -1015,8 +1016,10 @@ void CutsceneCmd_Text(PlayState* play, CutsceneContext* csCtx, CsCmdText* cmd) {
             sCutsceneTextboxType = CS_TEXT_TYPE_1;
             sCurTextId = cmd->textId;
             if (cmd->type == CS_TEXT_TYPE_BOSSES_REMAINS) {
-                if (CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) && CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
-                    CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) && CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD)) {
+                if (GameInteractor_Should(VB_MEET_MOON_REQUIREMENTS, CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) &&
+                                                                         CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
+                                                                         CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) &&
+                                                                         CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD))) {
                     if (cmd->altTextId1 != 0xFFFF) {
                         Message_StartTextbox(play, cmd->altTextId1, NULL);
                     }

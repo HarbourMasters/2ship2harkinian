@@ -6,6 +6,7 @@
 
 #include "z_en_akindonuts.h"
 #include "objects/object_dnt/object_dnt.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -328,7 +329,8 @@ s32 func_80BED140(PlayState* play) {
 }
 
 s32 func_80BED208(EnAkindonuts* this) {
-    if ((u32)INV_CONTENT(ITEM_MAGIC_BEANS) != ITEM_MAGIC_BEANS) {
+    if (!GameInteractor_Should(VB_AKINDONUTS_CONSIDER_ELIGIBLE_FOR_BEAN_REFILL,
+                               !((u32)INV_CONTENT(ITEM_MAGIC_BEANS) != ITEM_MAGIC_BEANS), this)) {
         return 0;
     }
 
@@ -346,11 +348,12 @@ s32 func_80BED208(EnAkindonuts* this) {
 }
 
 s32 func_80BED27C(EnAkindonuts* this) {
-    if (GET_CUR_UPG_VALUE(UPG_BOMB_BAG) == 3) {
+    if (GameInteractor_Should(VB_AKINDONUTS_CONSIDER_BOMB_BAG_PURCHASED, GET_CUR_UPG_VALUE(UPG_BOMB_BAG) == 3, this)) {
         return 2;
     }
 
-    if (GET_CUR_UPG_VALUE(UPG_BOMB_BAG) < 2) {
+    if (!GameInteractor_Should(VB_AKINDONUTS_CONSIDER_ELIGIBLE_FOR_BOMB_BAG, !(GET_CUR_UPG_VALUE(UPG_BOMB_BAG) < 2),
+                               this)) {
         return 0;
     }
 
@@ -364,7 +367,7 @@ s32 func_80BED27C(EnAkindonuts* this) {
 }
 
 s32 func_80BED2FC(EnAkindonuts* this) {
-    if (!Inventory_HasEmptyBottle()) {
+    if (!GameInteractor_Should(VB_AKINDONUTS_CONSIDER_ELIGIBLE_FOR_POTION_REFILL, Inventory_HasEmptyBottle(), this)) {
         return 2;
     }
 
@@ -378,7 +381,7 @@ s32 func_80BED2FC(EnAkindonuts* this) {
 }
 
 s32 func_80BED35C(EnAkindonuts* this) {
-    if (!Inventory_HasEmptyBottle()) {
+    if (!GameInteractor_Should(VB_AKINDONUTS_CONSIDER_ELIGIBLE_FOR_POTION_REFILL, Inventory_HasEmptyBottle(), this)) {
         return 2;
     }
 

@@ -6,6 +6,7 @@
 #include "variables.h"
 #include "macros.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include "public/bridge/consolevariablebridge.h"
 
 void GameOver_Init(PlayState* play) {
     play->gameOverCtx.state = GAMEOVER_INACTIVE;
@@ -52,7 +53,7 @@ void GameOver_Update(PlayState* play) {
 
             gSaveContext.nayrusLoveTimer = 2000;
             gSaveContext.save.saveInfo.playerData.tatlTimer = 0;
-            gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+            gSaveContext.seqId = NA_BGM_DISABLED;
             gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
             gSaveContext.eventInf[0] = 0;
             gSaveContext.eventInf[1] = 0;

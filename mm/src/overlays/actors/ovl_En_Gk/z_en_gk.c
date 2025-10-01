@@ -6,6 +6,8 @@
 
 #include "z_en_gk.h"
 
+#include "2s2h/GameInteractor/GameInteractor.h"
+
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY)
 
 #define THIS ((EnGk*)thisx)
@@ -878,7 +880,9 @@ void func_80B51EA4(EnGk* this, PlayState* play) {
 void func_80B51FD0(EnGk* this, PlayState* play) {
     if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_CALMED_GORON_ELDERS_SON)) {
         if (this->unk_1E4 & 2) {
-            Audio_PlaySfx_AtFixedPos(&this->actor.projectedPos, NA_SE_EN_GOLON_KID_CRY - SFX_FLAG);
+            if (GameInteractor_Should(VB_PLAY_GORON_CHILD_CRY, true)) {
+                Audio_PlaySfx_AtFixedPos(&this->actor.projectedPos, NA_SE_EN_GOLON_KID_CRY - SFX_FLAG);
+            }
         } else {
             this->unk_1E4 |= 2;
         }
@@ -908,7 +912,9 @@ void func_80B5202C(EnGk* this, PlayState* play) {
         if (this->unk_1E4 & 2) {
             if ((play->msgCtx.ocarinaMode != OCARINA_MODE_ACTIVE) && (play->msgCtx.ocarinaMode != OCARINA_MODE_EVENT) &&
                 (play->csCtx.state == CS_STATE_IDLE)) {
-                Audio_PlaySfx_AtFixedPos(&this->actor.projectedPos, NA_SE_EN_GOLON_KID_CRY - SFX_FLAG);
+                if (GameInteractor_Should(VB_PLAY_GORON_CHILD_CRY, true)) {
+                    Audio_PlaySfx_AtFixedPos(&this->actor.projectedPos, NA_SE_EN_GOLON_KID_CRY - SFX_FLAG);
+                }
             }
         } else {
             this->unk_1E4 |= 2;

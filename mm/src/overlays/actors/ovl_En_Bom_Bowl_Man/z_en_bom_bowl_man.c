@@ -6,6 +6,7 @@
 
 #include "z_en_bom_bowl_man.h"
 #include "objects/object_cs/object_cs.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY)
 
@@ -156,8 +157,15 @@ void EnBomBowlMan_Init(Actor* thisx, PlayState* play) {
     this->path = SubS_GetPathByIndex(play, this->pathIndex, ENBOMBOWLMAN_PATH_INDEX_NONE);
     this->unk_2C8 = 80.0f;
 
-    if ((gSaveContext.save.entrance == ENTRANCE(EAST_CLOCK_TOWN, 2)) && CHECK_WEEKEVENTREG(WEEKEVENTREG_73_80) &&
-        !CHECK_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK)) {
+    // 2S2H There are two VB's here, one so we can override the entrance requirement, another to override the bombers
+    // notebook requirement
+    if (GameInteractor_Should(VB_SETUP_EAST_CLOCK_TOWN_BOM_BOWL_MAN,
+                              (gSaveContext.save.entrance == ENTRANCE(EAST_CLOCK_TOWN, 2)) &&
+                                  GameInteractor_Should(VB_BE_ELIGBLE_FOR_BOMBERS_NOTEBOOK,
+                                                        CHECK_WEEKEVENTREG(WEEKEVENTREG_73_80) &&
+                                                            !CHECK_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK),
+                                                        this),
+                              this)) {
         this->csId3 = this->actor.csId;
         if (this->csId3 == 0) {
             Actor_Kill(&this->actor);
@@ -253,9 +261,9 @@ void func_809C4BC4(EnBomBowlMan* this, PlayState* play) {
 
     if (CutsceneManager_GetCurrentCsId() == CS_ID_GLOBAL_TALK) {
         CutsceneManager_Stop(CS_ID_GLOBAL_TALK);
-        CutsceneManager_Queue(this->csId1);
-    } else if (!CutsceneManager_IsNext(this->csId1)) {
-        CutsceneManager_Queue(this->csId1);
+        CutsceneManager_Queue(this->csIdList[2]);
+    } else if (!CutsceneManager_IsNext(this->csIdList[2])) {
+        CutsceneManager_Queue(this->csIdList[2]);
     }
 
     EnBomBowlMan_ChangeAnim(this, ENBOMBOWLMAN_ANIM_3, 1.0f);
@@ -275,16 +283,16 @@ void func_809C4DA4(EnBomBowlMan* this, PlayState* play) {
 
         if (CutsceneManager_GetCurrentCsId() == CS_ID_GLOBAL_TALK) {
             CutsceneManager_Stop(CS_ID_GLOBAL_TALK);
-            CutsceneManager_Queue(this->csId1);
+            CutsceneManager_Queue(this->csIdList[2]);
             return;
         }
 
-        if (!CutsceneManager_IsNext(this->csId1)) {
-            CutsceneManager_Queue(this->csId1);
+        if (!CutsceneManager_IsNext(this->csIdList[2])) {
+            CutsceneManager_Queue(this->csIdList[2]);
             return;
         }
 
-        CutsceneManager_StartWithPlayerCs(this->csId1, &this->actor);
+        CutsceneManager_StartWithPlayerCs(this->csIdList[2], &this->actor);
         this->unk_2B8 = 1;
         this->unk_2C0 = 0;
         this->unk_2D4 = this->actor.yawTowardsPlayer;
@@ -307,7 +315,7 @@ void func_809C4DA4(EnBomBowlMan* this, PlayState* play) {
             case 0:
                 this->unk_2C0 = 1;
                 D_809C6104 = 1;
-                Camera_SetTargetActor(Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csId1)),
+                Camera_SetTargetActor(Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csIdList[2])),
                                       &this->unk_2D8->actor);
                 this->unk_2D4 = 0;
                 this->unk_2BC = 10;
@@ -326,10 +334,12 @@ void func_809C4DA4(EnBomBowlMan* this, PlayState* play) {
 
             case 2:
                 if (player->transformation == PLAYER_FORM_HUMAN) {
-                    this->unk_2B8 = 2;
-                    CutsceneManager_Stop(this->csId1);
-                    func_809C59A4(this, play);
-                    sp28 = true;
+                    if (GameInteractor_Should(VB_BOM_BOWL_MAN_GIVE_ITEM, true, this)) {
+                        this->unk_2B8 = 2;
+                        CutsceneManager_Stop(this->csIdList[2]);
+                        func_809C59A4(this, play);
+                        sp28 = true;
+                    }
                 } else {
                     this->unk_2C0 = 3;
                     play->msgCtx.msgLength = 0;
@@ -337,11 +347,11 @@ void func_809C4DA4(EnBomBowlMan* this, PlayState* play) {
                     D_809C6100 = 1;
                     if (CutsceneManager_GetCurrentCsId() == CS_ID_GLOBAL_TALK) {
                         CutsceneManager_Stop(CS_ID_GLOBAL_TALK);
-                        CutsceneManager_Queue(this->csId2);
-                    } else if (!CutsceneManager_IsNext(this->csId2)) {
-                        CutsceneManager_Queue(this->csId2);
+                        CutsceneManager_Queue(this->csIdList[3]);
+                    } else if (!CutsceneManager_IsNext(this->csIdList[3])) {
+                        CutsceneManager_Queue(this->csIdList[3]);
                     }
-                    CutsceneManager_Stop(this->csId1);
+                    CutsceneManager_Stop(this->csIdList[2]);
                     this->actionFunc = func_809C5B1C;
                     sp28 = true;
                 }
@@ -358,7 +368,7 @@ void func_809C4DA4(EnBomBowlMan* this, PlayState* play) {
 
             case 4:
                 if (this->unk_2B8 != 2) {
-                    CutsceneManager_Stop(this->csId1);
+                    CutsceneManager_Stop(this->csIdList[2]);
                 }
                 play->msgCtx.msgLength = 0;
                 EnBomBowlMan_ChangeAnim(this, ENBOMBOWLMAN_ANIM_1, 1.0f);
@@ -594,11 +604,11 @@ void func_809C5AA4(EnBomBowlMan* this, PlayState* play) {
 void func_809C5B1C(EnBomBowlMan* this, PlayState* play) {
     if (CutsceneManager_GetCurrentCsId() == CS_ID_GLOBAL_TALK) {
         CutsceneManager_Stop(CS_ID_GLOBAL_TALK);
-        CutsceneManager_Queue(this->csId2);
-    } else if (!CutsceneManager_IsNext(this->csId2)) {
-        CutsceneManager_Queue(this->csId2);
+        CutsceneManager_Queue(this->csIdList[3]);
+    } else if (!CutsceneManager_IsNext(this->csIdList[3])) {
+        CutsceneManager_Queue(this->csIdList[3]);
     } else {
-        CutsceneManager_StartWithPlayerCs(this->csId2, &this->actor);
+        CutsceneManager_StartWithPlayerCs(this->csIdList[3], &this->actor);
         func_809C5BA0(this);
     }
 }
@@ -636,7 +646,7 @@ void func_809C5BF4(EnBomBowlMan* this, PlayState* play) {
         }
 
         if (this->unk_2F4 == 0) {
-            subCam = Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csId2));
+            subCam = Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csIdList[3]));
 
             if (D_809C6100 > 5) {
                 Player* player = GET_PLAYER(play);

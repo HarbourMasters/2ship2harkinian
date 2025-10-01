@@ -1,4 +1,4 @@
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
@@ -10,28 +10,19 @@ extern "C" {
 #define CVAR_NAME "gEnhancements.PlayerActions.InstantRecall"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-void Player_ReturnBoomerangs() {
-    Player* player = GET_PLAYER(gPlayState);
+void ReturnBoomerang(Actor* actor) {
+    EnBoom* boomerang = (EnBoom*)actor;
 
-    if (player == NULL) {
-        return;
-    }
-
-    EnBoom* boomerangs = (EnBoom*)player->boomerangActor;
-
-    // Kill both boomerangs
-    if (boomerangs != NULL) {
-        Actor_Kill(&boomerangs->actor);
-        if (boomerangs->actor.child != NULL) {
-            Actor_Kill(boomerangs->actor.child);
-        }
+    // Kill the boomerang as long as it is not carrying an actor
+    if (boomerang->unk_1C8 == NULL) {
+        Actor_Kill(&boomerang->actor);
     }
 }
 
 void RegisterInstantRecall() {
     COND_ID_HOOK(OnActorUpdate, ACTOR_EN_BOOM, CVAR, [](Actor* actor) {
         if (CHECK_BTN_ALL(gPlayState->state.input->press.button, BTN_B)) {
-            Player_ReturnBoomerangs();
+            ReturnBoomerang(actor);
         }
     });
 }

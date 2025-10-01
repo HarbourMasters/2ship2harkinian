@@ -3,10 +3,10 @@
 #include <fstream>
 #include <filesystem>
 #include <nlohmann/json.hpp>
-#include <libultraship/libultraship.h>
 
 #include "BenJsonConversions.hpp"
 #include "BenPort.h"
+#include "Window.h"
 
 extern "C" {
 #include "z64save.h"
@@ -40,13 +40,14 @@ const std::filesystem::path savesFolderPath(Ship::Context::GetPathRelativeToAppD
 // - Create the migration file in the Migrations folder with the name `{CURRENT_SAVE_VERSION}.cpp`
 // - Add the migration function definition below and add it to the `migrations` map with the key being the previous
 // version
-const uint32_t CURRENT_SAVE_VERSION = 5;
+const uint32_t CURRENT_SAVE_VERSION = 6;
 
 void SaveManager_Migration_1(nlohmann::json& j);
 void SaveManager_Migration_2(nlohmann::json& j);
 void SaveManager_Migration_3(nlohmann::json& j);
 void SaveManager_Migration_4(nlohmann::json& j);
 void SaveManager_Migration_5(nlohmann::json& j);
+void SaveManager_Migration_6(nlohmann::json& j);
 
 const std::unordered_map<uint32_t, std::function<void(nlohmann::json&)>> migrations = {
     // Pre-1.0.0 Migrations, deprecated
@@ -56,6 +57,7 @@ const std::unordered_map<uint32_t, std::function<void(nlohmann::json&)>> migrati
     { 3, SaveManager_Migration_4 },
     // Base Migration
     { 4, SaveManager_Migration_5 },
+    { 5, SaveManager_Migration_6 },
 };
 
 int SaveManager_MigrateSave(nlohmann::json& j) {
@@ -100,7 +102,7 @@ int SaveManager_MigrateSave(nlohmann::json& j) {
     }
 }
 
-void SaveManager_WriteSaveFile(std::filesystem::path fileName, nlohmann::json j) {
+void SaveManager_WriteSaveFile(const std::filesystem::path& fileName, nlohmann::json j) {
     const std::filesystem::path filePath = savesFolderPath / fileName;
 
     if (!std::filesystem::exists(savesFolderPath)) {
@@ -114,7 +116,7 @@ void SaveManager_WriteSaveFile(std::filesystem::path fileName, nlohmann::json j)
     } catch (...) { SPDLOG_ERROR("Failed to write save file"); }
 }
 
-void SaveManager_DeleteSaveFile(std::filesystem::path fileName) {
+void SaveManager_DeleteSaveFile(const std::filesystem::path& fileName) {
     const std::filesystem::path filePath = savesFolderPath / fileName;
 
     try {
@@ -124,7 +126,7 @@ void SaveManager_DeleteSaveFile(std::filesystem::path fileName) {
     } catch (...) { SPDLOG_ERROR("Failed to delete save file"); }
 }
 
-int SaveManager_ReadSaveFile(std::filesystem::path fileName, nlohmann::json& j) {
+int SaveManager_ReadSaveFile(const std::filesystem::path& fileName, nlohmann::json& j) {
     const std::filesystem::path filePath = savesFolderPath / fileName;
 
     if (!std::filesystem::exists(filePath)) {
@@ -142,7 +144,7 @@ int SaveManager_ReadSaveFile(std::filesystem::path fileName, nlohmann::json& j) 
     }
 }
 
-void SaveManager_MoveInvalidSaveFile(std::filesystem::path fileName, std::string message) {
+void SaveManager_MoveInvalidSaveFile(const std::filesystem::path& fileName, const std::string& message) {
     const std::filesystem::path filePath = savesFolderPath / fileName;
     const std::filesystem::path backupFilePath =
         savesFolderPath / (fileName.stem().string() + "_invalid_" + std::to_string(std::time(nullptr)) + ".json");
@@ -240,7 +242,7 @@ std::string SaveManager_GetFileNameFromFlashSave(FlashSave flashSave) {
     return "file" + std::to_string(fileNum) + (isBackup ? "backup" : "") + ".json";
 }
 
-bool SaveManager_HandleFileDropped(std::string filePath) {
+bool SaveManager_HandleFileDropped(char* filePath) {
     try {
         std::ifstream fileStream(filePath);
 
@@ -497,6 +499,11 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
             SaveManager_MoveInvalidSaveFile(fileName,
                                             "Failed to parse save json, the original file has been backed up.");
             return -1;
+        } catch (...) {
+            SPDLOG_ERROR("Failed to parse owl save json");
+            SaveManager_MoveInvalidSaveFile(fileName,
+                                            "Failed to parse save json, the original file has been backed up.");
+            return -1;
         }
     } else {
         if (!j.contains("newCycleSave")) {
@@ -514,6 +521,11 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
             return 0;
         } catch (nlohmann::json::exception& je) {
             SPDLOG_ERROR("Failed to parse new cycle save json: {}", je.what());
+            SaveManager_MoveInvalidSaveFile(fileName,
+                                            "Failed to parse save json, the original file has been backed up.");
+            return -1;
+        } catch (...) {
+            SPDLOG_ERROR("Failed to parse new cycle save json");
             SaveManager_MoveInvalidSaveFile(fileName,
                                             "Failed to parse save json, the original file has been backed up.");
             return -1;

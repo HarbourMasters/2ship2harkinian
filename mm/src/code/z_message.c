@@ -7,6 +7,7 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 #include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
@@ -15,6 +16,7 @@
 #include <string.h>
 
 #include "2s2h_assets.h"
+#include "public/bridge/consolevariablebridge.h"
 
 const char* gBombersNotebookPhotos[] = {
     gBombersNotebookPhotoAnjuTex,
@@ -3280,7 +3282,8 @@ void Message_OpenText(PlayState* play, u16 textId) {
     Player* player = GET_PLAYER(play);
     f32 var_fv0;
 
-    GameInteractor_ExecuteOnOpenText(textId);
+    bool loadFromMessageTable = true;
+    GameInteractor_ExecuteOnOpenText(&textId, &loadFromMessageTable);
 
     // BENTODO do this somewhere else
     gSaveContext.options.language = LANGUAGE_ENG;
@@ -3358,7 +3361,9 @@ void Message_OpenText(PlayState* play, u16 textId) {
     sCharTexScale = 1024.0f / msgCtx->textCharScale;
     D_801F6B08 = 1024.0f / var_fv0;
     // BENTODO all of these
-    if (msgCtx->textIsCredits) {
+    if (!loadFromMessageTable) {
+        // no-op
+    } else if (msgCtx->textIsCredits) {
         Message_FindCreditsMessage(play, textId);
         MessageTableEntry* msgEntry = (MessageTableEntry*)font->messageStart;
         msgCtx->msgLength = msgEntry->msgSize;
@@ -4580,8 +4585,15 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                 bool vanillaOwnedSongCheck = (msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN) ||
                                              (msgCtx->ocarinaStaff->state == OCARINA_SONG_INVERTED_TIME) ||
                                              (msgCtx->ocarinaStaff->state == OCARINA_SONG_DOUBLE_TIME) ||
-                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO) ||
-                                             CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO);
+                // 0xFE means the staff is up but nothing has been played
+                // 0xFF means no staff is up
+                //! @bug states 0xFE and 0xFF will index CHECK_QUEST_ITEM Out of bounds, causing ASAN to crash.
+                // 2S2H [Port] Fix this OOB with a check.
+                if (msgCtx->ocarinaStaff->state != 0xFE && msgCtx->ocarinaStaff->state != 0xFF) {
+                    vanillaOwnedSongCheck =
+                        vanillaOwnedSongCheck || CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+                }
 
                 if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_SCARECROW_SPAWN) {
                     if (msgCtx->ocarinaStaff->state == OCARINA_SONG_EVAN_PART1) {

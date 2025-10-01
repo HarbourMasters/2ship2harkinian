@@ -20,6 +20,8 @@
 #include "objects/object_kaizoku_obj/object_kaizoku_obj.h"
 #include "objects/object_last_obj/object_last_obj.h"
 
+#include "2s2h/GameInteractor/GameInteractor.h"
+
 #define FLAGS (ACTOR_FLAG_10)
 
 #define THIS ((DoorShutter*)thisx)
@@ -294,7 +296,7 @@ s32 func_808A0E28(DoorShutter* this, PlayState* play) {
         ShutterInfo* shutterInfo = &D_808A21B0[this->unk_164];
         f32 temp_f0 = func_808A0D90(play, this, 0.0f, shutterInfo->unk_0A, shutterInfo->unk_0B);
 
-        if (fabsf(temp_f0) < 50.0f) {
+        if (GameInteractor_Should(VB_BE_NEAR_DOOR, fabsf(temp_f0) < 50.0f, &temp_f0)) {
             s16 temp_v0_2 = BINANG_SUB(player->actor.shape.rot.y, this->slidingDoor.dyna.actor.shape.rot.y);
 
             if (temp_f0 > 0.0f) {
@@ -370,8 +372,10 @@ void func_808A1090(DoorShutter* this, PlayState* play) {
             }
 
             if (this->doorType == 6) {
-                if (gSaveContext.save.saveInfo.playerData.healthCapacity <
-                    (DOORSHUTTER_GET_1F(&this->slidingDoor.dyna.actor) * 0x10)) {
+                if (GameInteractor_Should(VB_DOOR_HEALTH_CHECK_FAIL,
+                                          gSaveContext.save.saveInfo.playerData.healthCapacity <
+                                              (DOORSHUTTER_GET_1F(&this->slidingDoor.dyna.actor) * 0x10),
+                                          this)) {
                     player->doorType = PLAYER_DOORTYPE_TALKING;
                     this->slidingDoor.dyna.actor.textId = 0x14FC;
                 }
@@ -707,10 +711,10 @@ void DoorShutter_Draw(Actor* thisx, PlayState* play) {
                           Math_Vec3f_Yaw(&play->view.eye, &this->slidingDoor.dyna.actor.world.pos);
 
                 if (ABS_ALT(yaw) < 0x4000) {
-                    Matrix_RotateYF(M_PI, MTXMODE_APPLY);
+                    Matrix_RotateYF(M_PIf, MTXMODE_APPLY);
                 }
             } else if (this->slidingDoor.dyna.actor.room == transitionEntry->sides[0].room) {
-                Matrix_RotateYF(M_PI, MTXMODE_APPLY);
+                Matrix_RotateYF(M_PIf, MTXMODE_APPLY);
             }
         } else if (this->doorType == 5) {
             gSPSegment(POLY_OPA_DISP++, 0x08, Lib_SegmentedToVirtual(D_808A22DC[this->slidingDoor.unk_15E]));
