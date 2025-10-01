@@ -1,9 +1,12 @@
 #include "ClockShuffle.h"
 #include "Rando/Rando.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
+#include "public/bridge/consolevariablebridge.h"
 
 extern "C" {
 #include "z64game.h"
+#include "overlays/gamestates/ovl_daytelop/z_daytelop.h"
 }
 
 namespace Rando {
@@ -139,10 +142,24 @@ constexpr u16 DAWN_TIME = CLOCK_TIME(6, 0);           // 6:00 AM - start of day
 constexpr u16 DUSK_TIME = CLOCK_TIME(18, 0);          // 6:00 PM - start of night
 constexpr u16 DAWN_END_TIME = CLOCK_TIME(5, 59);      // 5:59 AM - end of night
 constexpr u16 DUSK_END_TIME = CLOCK_TIME(17, 59);     // 5:59 PM - end of day
-constexpr u16 TERMINAL_STATE_TIME = CLOCK_TIME(0, 0); // 12:00 AM - terminal state time (used for fallback states)
 constexpr u16 DAY_0_0559_TIME = CLOCK_TIME(6, 0) - 1; // Day 0, 5:59 AM - Cycle Reset Time
 // Vanilla uses CLOCK_TIME(6, 0) - 1 = 16383, NOT CLOCK_TIME(5, 59) = 16338 for cycle resets
 // This 45-unit difference has to be accounted for.
+
+// ============================================================================
+// TERMINAL TIME HELPER FUNCTIONS
+// ============================================================================
+
+// Convert slider minutes (0-359) to CLOCK_TIME format
+u16 MinutesToClockTime(int minutes) {
+    return CLOCK_TIME(0, minutes); // 00:00 + minutes
+}
+
+// Get the configured terminal state time from the rando option
+u16 GetConfiguredTerminalTime() {
+    int terminalMinutes = CVarGetInteger("gRando.Options.RO_CLOCK_TERMINAL_TIME", 0);
+    return MinutesToClockTime(terminalMinutes);
+}
 
 // Configuration for each half-day's timing and behavior
 constexpr HalfDayTimeConfig HALF_DAY_CONFIGS[] = {
@@ -163,6 +180,7 @@ static bool sIsRedirecting = false;
 static int sRedirectTarget = -1;
 static HOOK_ID sPlayDestroyHook = 0;
 static u8 sPreservedHopCounter = 0;
+static int sPendingDayTelopDay = -1; // Day to show DayTelop for (-1 = none pending)
 
 // ============================================================================
 // TIME DETECTION AND CONFIGURATION
@@ -195,8 +213,8 @@ int GetCurrentHalfDayIndex() {
     }
 
     // This is what ClockShuffle treats as a "buffer" period before the moon crash.
-    // TODO: Make the buffer length configurable.
-    if (currentDay == 3 && currentTime >= TERMINAL_STATE_TIME && currentTime < DAWN_TIME) {
+    // The buffer length is now configurable via RO_CLOCK_TERMINAL_TIME.
+    if (currentDay == 3 && currentTime >= GetConfiguredTerminalTime() && currentTime < DAWN_TIME) {
         return ClockItems::TERMINAL_STATE;
     }
 
@@ -248,6 +266,17 @@ void SetTimeToHalfDayStart(int halfDayIndex) {
     } else {
         gSceneSeqState = SCENESEQ_DEFAULT; // Night transition
     }
+}
+
+// Trigger DayTelop for a specific day (shows "Dawn of Day X")
+void TriggerDayTelopForDay(PlayState* play, int targetDay) {
+    // Set time to targetDay directly (VB_SUPPRESS_DAY_INCREMENT prevents DayTelop from incrementing it)
+    SetGameTime(targetDay, DAWN_TIME);
+
+    // Set up DayTelop transition (similar to EnTest4 logic for fresh cycles)
+    gSaveContext.gameMode = GAMEMODE_NORMAL;
+    STOP_GAMESTATE(&play->state);
+    SET_NEXT_GAMESTATE(&play->state, DayTelop_Init, sizeof(DayTelopState));
 }
 
 // Force a scene transition to reload the current area
@@ -304,13 +333,21 @@ void ProcessHalfDayTransition(Actor* timeActor, int fromHalfDay, int toHalfDay) 
     // Set up a hook to apply the time change after the scene is destroyed
     sPlayDestroyHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayDestroy>([nextOwnedHalfDay]() {
         if (nextOwnedHalfDay == ClockItems::TERMINAL_STATE) {
-            // Set time to terminal state (Day 3, midnight)
-            SetGameTime(3, TERMINAL_STATE_TIME);
+            // Set time to terminal state (Day 3, configured terminal time)
+            SetGameTime(3, GetConfiguredTerminalTime());
             gSaveContext.seqId = NA_BGM_DISABLED;
             gSceneSeqState = SCENESEQ_DEFAULT; // Terminal state
         } else {
-            // Use the music-aware function for proper time and music handling
-            SetTimeToHalfDayStart(nextOwnedHalfDay);
+            // Check if target is a day half (even indices: 0, 2, 4)
+            bool isDayHalf = (nextOwnedHalfDay % 2 == 0);
+            if (isDayHalf) {
+                // Set up DayTelop for day halves to show "Dawn of Day X"
+                int targetDay = (nextOwnedHalfDay / 2) + 1; // Convert half-day index to day number
+                sPendingDayTelopDay = targetDay;            // Set flag for OnSceneInit to trigger
+            } else {
+                // Use normal time setting for night halves
+                SetTimeToHalfDayStart(nextOwnedHalfDay);
+            }
         }
 
         // Update global tracking to the target half-day after the time change
@@ -378,6 +415,11 @@ void OnTimeTransitionDetected(Actor* timeActor, bool* should) {
 // PUBLIC API
 // ============================================================================
 
+// Set up a pending DayTelop for a specific day (used by external systems)
+void SetPendingDayTelop(int targetDay) {
+    sPendingDayTelopDay = targetDay;
+}
+
 void OnFileLoad() {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_TEST4, RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE],
                  [](Actor* actor, bool* should) { OnTimeTransitionDetected(actor, should); });
@@ -386,9 +428,32 @@ void OnFileLoad() {
     if (gPlayState == nullptr && !gSaveContext.save.isOwlSave) {
         const int earliestOwnedHalfDay = ClockItems::FindEarliestOwnedHalfDay(false);
         if (earliestOwnedHalfDay != -1) {
-            SetTimeToHalfDayStart(earliestOwnedHalfDay);
+            // For day halves, set up DayTelop to show proper "Dawn of Day X" telop
+            if (earliestOwnedHalfDay == ClockItems::HALF_DAY1_DAY ||
+                earliestOwnedHalfDay == ClockItems::HALF_DAY2_DAY ||
+                earliestOwnedHalfDay == ClockItems::HALF_DAY3_DAY) {
+                // Convert half-day index to day number and mark for DayTelop
+                int targetDay =
+                    (earliestOwnedHalfDay / 2) + 1; // HALF_DAY1_DAY=0 -> day 1, HALF_DAY2_DAY=2 -> day 2, etc.
+                sPendingDayTelopDay = targetDay;
+            } else {
+                // For night halves, just set the time normally
+                SetTimeToHalfDayStart(earliestOwnedHalfDay);
+            }
         }
     }
+
+    COND_HOOK(OnSceneInit, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], [](s16 sceneId, s8 spawnNum) {
+        // Handle pending DayTelop, but delay if player is in Clock Tower Interior
+        if (sPendingDayTelopDay != -1 && gPlayState != nullptr) {
+            // Don't trigger DayTelop if we're in Clock Tower Interior (narratively inconsistent)
+            if (sceneId != SCENE_INSIDETOWER) {
+                TriggerDayTelopForDay(gPlayState, sPendingDayTelopDay);
+                sPendingDayTelopDay = -1; // Clear the pending flag
+            }
+            // If in Clock Tower Interior, keep sPendingDayTelopDay set for next scene
+        }
+    });
 
     COND_HOOK(OnPlayDestroy, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], []() {
         if (gSaveContext.save.day == 0 && gSaveContext.save.time == DAY_0_0559_TIME) {
@@ -397,7 +462,16 @@ void OnFileLoad() {
             } else {
                 const int earliestOwnedHalfDay = ClockItems::FindEarliestOwnedHalfDay(false);
                 if (earliestOwnedHalfDay != -1) {
-                    SetTimeToHalfDayStart(earliestOwnedHalfDay);
+                    // Check if target is a day half (even indices: 0, 2, 4)
+                    bool isDayHalf = (earliestOwnedHalfDay % 2 == 0);
+                    if (isDayHalf) {
+                        // Set up DayTelop for day halves to show "Dawn of Day X"
+                        int targetDay = (earliestOwnedHalfDay / 2) + 1; // Convert half-day index to day number
+                        sPendingDayTelopDay = targetDay;                // Set flag for OnSceneInit to trigger
+                    } else {
+                        // Use normal time setting for night halves
+                        SetTimeToHalfDayStart(earliestOwnedHalfDay);
+                    }
                 }
             }
         }
@@ -412,6 +486,105 @@ void OnFileLoad() {
             }
             sPreservedHopCounter = 0;
         }
+    });
+
+    // Suppress day increments during DayTelop execution
+    COND_VB_SHOULD(VB_SUPPRESS_DAY_INCREMENT, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] && sPendingDayTelopDay,
+                   { *should = true; });
+
+    // Hook all Song of Double Time message IDs with a single handler
+    COND_HOOK(
+        OnOpenText, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], [](u16* textId, bool* loadFromMessageTable) {
+            // Check if this is a Song of Double Time message
+            if (*textId == 0x1B91 || *textId == 0x1B90 || *textId == 0x1B8F || *textId == 0x1B92 || *textId == 0x1B8E) {
+                auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
+
+                // Get current half-day and find next owned half-day
+                int currentHalfDay = GetCurrentHalfDayIndex();
+                u8 ownedHalfDaysMask = ClockItems::GetAllOwnedHalfDaysMask();
+                int nextOwnedHalfDay = ClockItems::FindNextOwnedHalfDayAfter(currentHalfDay, ownedHalfDaysMask);
+
+                std::string destinationText;
+                if (nextOwnedHalfDay == ClockItems::TERMINAL_STATE) {
+                    destinationText = "%rFinal Hours%w";
+                } else {
+                    // Convert half-day index to readable text
+                    int targetDay = (nextOwnedHalfDay / 2) + 1;
+                    bool isNight = (nextOwnedHalfDay % 2 == 1);
+
+                    if (isNight) {
+                        destinationText = "%rNight of ";
+                        if (targetDay == 1)
+                            destinationText += "First";
+                        else if (targetDay == 2)
+                            destinationText += "Second";
+                        else if (targetDay == 3)
+                            destinationText += "Third";
+                        destinationText += " Day%w";
+                    } else {
+                        destinationText = "%rDawn of the ";
+                        if (targetDay == 1)
+                            destinationText += "First";
+                        else if (targetDay == 2)
+                            destinationText += "Second";
+                        else if (targetDay == 3)
+                            destinationText += "Third";
+                        destinationText += " Day%w";
+                    }
+                }
+
+                entry.msg = "Time moves strangely...\nProceed to " + destinationText + "?\n%gYes\nNo\xC2";
+
+                CustomMessage::LoadCustomMessageIntoFont(entry);
+                *loadFromMessageTable = false;
+            }
+        });
+
+    COND_VB_SHOULD(VB_TIME_UNTIL_MOON_CRASH_CALCULATION, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], {
+        *should = false; // Skip vanilla calculation
+
+        // Get the time variable that was passed
+        u32* timeVar = va_arg(args, u32*);
+
+        // Calculate owned time remaining
+        u8 ownedHalfDaysMask = ClockItems::GetAllOwnedHalfDaysMask();
+        u32 totalHours = 0;
+
+        for (int halfDayIndex = 0; halfDayIndex < ClockItems::HALF_COUNT; ++halfDayIndex) {
+            if (ownedHalfDaysMask & (1 << halfDayIndex)) {
+                totalHours += 12; // Each half-day is 12 hours
+            }
+        }
+
+        // Add final hours based on configured terminal time if we're in terminal state
+        if (GetCurrentHalfDayIndex() == ClockItems::TERMINAL_STATE) {
+            // Calculate remaining hours from configured terminal time to 6:00 AM
+            u16 terminalTime = GetConfiguredTerminalTime();
+            u16 dawnTime = DAWN_TIME;
+
+            // Calculate time difference (terminal time to dawn)
+            u32 timeDiff;
+            if (terminalTime <= dawnTime) {
+                timeDiff = dawnTime - terminalTime;
+            } else {
+                // Handle wrap-around (e.g., 23:00 to 06:00)
+                timeDiff = (DAWN_TIME + CLOCK_TIME(24, 0)) - terminalTime;
+            }
+
+            // Convert to hours (round up to ensure we don't under-calculate)
+            u32 terminalHours = (timeDiff + CLOCK_TIME_HOUR - 1) / CLOCK_TIME_HOUR;
+            totalHours += terminalHours;
+        }
+
+        u32 ownedTime = totalHours * CLOCK_TIME_HOUR;
+
+        // Compensate for the -1 minute offset that vanilla uses
+        // Vanilla uses CLOCK_TIME(6, 0) - 1, Clock Shuffle uses CLOCK_TIME(6, 0)
+        // So we need to add 1 minute to match vanilla behavior
+        ownedTime += CLOCK_TIME_MINUTE;
+
+        // Set the time variable to our calculated value
+        *timeVar = ownedTime;
     });
 }
 

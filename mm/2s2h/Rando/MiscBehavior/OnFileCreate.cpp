@@ -222,58 +222,24 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 }
 
                 if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
-                    // Add clock shuffle items to the pool
-                    for (int i = RI_CLOCK_DAY_1; i <= RI_CLOCK_NIGHT_3; i++) {
-                        itemPool.push_back((RandoItemId)i);
-                    }
                     int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
+                    int initialClockHalf;
+
                     if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
-                        // Grant one random half-day and remove it from the pool
-                        int initialClockHalf = Ship_Random(0, 6); // 0..5 map to D1..N3
+                        // Grant one random half-day
+                        initialClockHalf = Ship_Random(0, 6); // 0..5 map to D1..N3
+                    } else {
+                        // Progressive modes: grant first half-day in sequence
+                        initialClockHalf = (clockMode == RO_CLOCK_SHUFFLE_ASCENDING) ? 0 : 5;
+                    }
 
-                        // Own the selected half
-                        Flags_SetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + initialClockHalf));
+                    // Own the selected half
+                    Flags_SetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + initialClockHalf));
 
-                        // Remove the granted half-day from the item pool
-                        RandoItemId grantedItem = static_cast<RandoItemId>(RI_CLOCK_DAY_1 + initialClockHalf);
-                        auto it = std::find(itemPool.begin(), itemPool.end(), grantedItem);
-                        if (it != itemPool.end()) {
-                            itemPool.erase(it);
-                        }
+                    // ClockShuffle.cpp will handle time setting on file load
 
-                        // Seed day/time to match the selected half
-                        switch (initialClockHalf) {
-                            case 0:
-                                gSaveContext.save.day = 1;
-                                gSaveContext.save.time = CLOCK_TIME(6, 0);
-                                break;
-                            case 1:
-                                gSaveContext.save.day = 1;
-                                gSaveContext.save.time = CLOCK_TIME(18, 0);
-                                break;
-                            case 2:
-                                gSaveContext.save.day = 2;
-                                gSaveContext.save.time = CLOCK_TIME(6, 0);
-                                break;
-                            case 3:
-                                gSaveContext.save.day = 2;
-                                gSaveContext.save.time = CLOCK_TIME(18, 0);
-                                break;
-                            case 4:
-                                gSaveContext.save.day = 3;
-                                gSaveContext.save.time = CLOCK_TIME(6, 0);
-                                break;
-                            case 5:
-                                gSaveContext.save.day = 3;
-                                gSaveContext.save.time = CLOCK_TIME(18, 0);
-                                break;
-                        }
-
-                        // Keep isNight consistent for any early reads before environment init recalculates it
-                        gSaveContext.save.isNight = (gSaveContext.save.time >= CLOCK_TIME(18, 0)) ||
-                                                    (gSaveContext.save.time < CLOCK_TIME(6, 0));
-
-                        // Push all separate clocks except the granted starting one
+                    if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
+                        // Add remaining 5 individual clock items to pool
                         for (int i = 0; i < 6; ++i) {
                             if (i == initialClockHalf)
                                 continue;
@@ -282,6 +248,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                                 itemPool.push_back(clockItem);
                         }
                     } else {
+                        // Add 5 progressive clock items to pool (6 total - 1 granted = 5 remaining)
                         for (int i = 0; i < 5; ++i)
                             itemPool.push_back(RI_CLOCK_PROGRESSIVE);
                     }

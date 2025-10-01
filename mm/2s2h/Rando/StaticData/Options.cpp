@@ -49,6 +49,7 @@ std::map<RandoOptionId, RandoStaticOption> Options = {
     RO(RO_STARTING_RUPEES,             RO_GENERIC_OFF),
     RO(RO_CLOCK_SHUFFLE,             RO_GENERIC_OFF),
     RO(RO_CLOCK_SHUFFLE_PROGRESSIVE,     RO_CLOCK_SHUFFLE_RANDOM),
+    RO(RO_CLOCK_TERMINAL_TIME,       0), // Default: 00:00 (midnight)
 };
 // clang-format on
 

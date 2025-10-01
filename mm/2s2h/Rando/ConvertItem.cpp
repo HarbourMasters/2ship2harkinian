@@ -482,6 +482,12 @@ RandoItemId Rando::ConvertItem(RandoItemId randoItemId, RandoCheckId randoCheckI
             case RI_CLOCK_PROGRESSIVE: {
                 // Choose the next clock according to mode and current owned half-days
                 int mode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
+
+                if (mode == RO_CLOCK_SHUFFLE_RANDOM) {
+                    // Random mode should never have progressive items
+                    return RI_JUNK;
+                }
+
                 // Build list in target order
                 RandoItemId ascending[] = { RI_CLOCK_DAY_1,   RI_CLOCK_NIGHT_1, RI_CLOCK_DAY_2,
                                             RI_CLOCK_NIGHT_2, RI_CLOCK_DAY_3,   RI_CLOCK_NIGHT_3 };

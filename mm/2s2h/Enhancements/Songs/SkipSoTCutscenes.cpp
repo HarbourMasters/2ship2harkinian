@@ -28,11 +28,20 @@ void RegisterSkipSoTCutscenes() {
             // Normally set by EnTest6
             gSaveContext.save.eventDayCount = 0;
 
-            // Set time appropraitely if clock shuffle is enabled
+            // Set time appropriately if clock shuffle is enabled
             if (CVarGetInteger("gRando.Options.RO_CLOCK_SHUFFLE", 0)) {
                 const int earliestOwnedHalfDay = Rando::ClockItems::FindEarliestOwnedHalfDay(false);
                 if (earliestOwnedHalfDay != -1) {
-                    Rando::ClockShuffle::SetTimeToHalfDayStart(earliestOwnedHalfDay);
+                    // Check if target is a day half (even indices: 0, 2, 4)
+                    bool isDayHalf = (earliestOwnedHalfDay % 2 == 0);
+                    if (isDayHalf) {
+                        // Set up DayTelop for day halves to show "Dawn of Day X"
+                        int targetDay = (earliestOwnedHalfDay / 2) + 1;     // Convert half-day index to day number
+                        Rando::ClockShuffle::SetPendingDayTelop(targetDay); // Set flag for OnSceneInit to trigger
+                    } else {
+                        // Use normal time setting for night halves
+                        Rando::ClockShuffle::SetTimeToHalfDayStart(earliestOwnedHalfDay);
+                    }
                 }
             } else {
                 gSaveContext.save.day = 0;

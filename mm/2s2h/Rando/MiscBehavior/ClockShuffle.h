@@ -22,6 +22,7 @@ namespace ClockShuffle {
 
 void OnFileLoad();
 void SetTimeToHalfDayStart(int halfDayIndex);
+void SetPendingDayTelop(int targetDay);
 
 } // namespace ClockShuffle
 } // namespace Rando

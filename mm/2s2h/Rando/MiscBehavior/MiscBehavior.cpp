@@ -1,6 +1,5 @@
 #include "MiscBehavior.h"
 #include "2s2h/Rando/Logic/Logic.h"
-#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "variables.h"

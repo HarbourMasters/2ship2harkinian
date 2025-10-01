@@ -4,6 +4,7 @@
 #include "assets/interface/message_texture_static/message_texture_static.h"
 #include <stdio.h>
 #include "public/bridge/consolevariablebridge.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 f32 sNESFontWidths[160] = {
     8.0f,  8.0f,  6.0f,  9.0f,  9.0f,  14.0f, 12.0f, 3.0f,  7.0f,  7.0f,  7.0f,  9.0f,  4.0f,  6.0f,  4.0f,  9.0f,
@@ -203,7 +204,9 @@ void Message_LoadTimeNES(PlayState* play, u8 curChar, s32* offset, f32* arg3, s1
     s16 i;
 
     if (curChar == 0xCF) {
-        timeLeft = TIME_UNTIL_MOON_CRASH;
+        if (GameInteractor_Should(VB_TIME_UNTIL_MOON_CRASH_CALCULATION, true, &timeLeft)) {
+            timeLeft = TIME_UNTIL_MOON_CRASH;
+        }
     } else {
         timeLeft = TIME_UNTIL_NEW_DAY;
     }
@@ -1639,7 +1642,9 @@ void Message_DecodeNES(PlayState* play) {
 
             msgCtx->decodedBuffer.schar[decodedBufPos] = 0;
         } else if (curChar == 0xE7) {
-            timeToMoonCrash = TIME_UNTIL_MOON_CRASH;
+            if (GameInteractor_Should(VB_TIME_UNTIL_MOON_CRASH_CALCULATION, true, &timeToMoonCrash)) {
+                timeToMoonCrash = TIME_UNTIL_MOON_CRASH;
+            }
             digits[0] = 0;
             digits[1] = TIME_TO_HOURS_F_ALT(timeToMoonCrash);
 

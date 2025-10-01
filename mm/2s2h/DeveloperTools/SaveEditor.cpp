@@ -951,7 +951,7 @@ void DrawItemsAndMasksTab() {
         }
     }
 
-    // Queue Randomizer Item Gives section - moved outside of clock shuffle condition
+    // Queue Randomizer Item Gives section
     if (gSaveContext.save.shipSaveInfo.saveType == SAVETYPE_RANDO) {
         ImGui::Spacing();
         ImGui::SeparatorText("Queue Randomizer Item Gives");
