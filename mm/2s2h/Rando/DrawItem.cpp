@@ -299,7 +299,7 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
 
 void DrawAbilityItem(RandoItemId randoItemId) {
     Gfx* abilityItemModel[1] = {
-        (Gfx*)gAbilitySwimDL,
+        (Gfx*)gGiFlippersDL,
     };
 
     OPEN_DISPS(gPlayState->state.gfxCtx);
