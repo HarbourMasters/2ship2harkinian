@@ -297,19 +297,24 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
-void DrawAbilityItem(RandoItemId randoItemId) {
+void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
     Gfx* abilityItemModel[1] = {
         (Gfx*)gGiFlippersDL,
     };
+
+    Gfx* test = ResourceMgr_LoadGfxByName(gGiFlippersDL);
+    if (test == nullptr) {
+        return; // fail safe if the resource wasn't found
+    }
 
     OPEN_DISPS(gPlayState->state.gfxCtx);
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+    //Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
     gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
-    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)abilityItemModel[randoItemId - RI_ABILITY_SWIM]);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gGiFlippersDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
@@ -440,7 +445,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             DrawMinifrog(randoItemId, actor);
             break;
         case RI_ABILITY_SWIM:
-            DrawAbilityItem(randoItemId);
+            DrawAbilityItem(randoItemId, actor);
             break;
         case RI_NONE:
         case RI_UNKNOWN:
