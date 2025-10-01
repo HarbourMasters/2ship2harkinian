@@ -302,19 +302,14 @@ void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
         (Gfx*)gGiFlippersDL,
     };
 
-    Gfx* test = ResourceMgr_LoadGfxByName(gGiFlippersDL);
-    if (test == nullptr) {
-        return; // fail safe if the resource wasn't found
-    }
-
     OPEN_DISPS(gPlayState->state.gfxCtx);
 
-    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    //Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
-    //Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
-
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
-    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gGiFlippersDL);
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gGiFlippersDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }

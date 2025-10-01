@@ -1,8 +1,8 @@
 <DisplayList Version="0">
-	<CallDisplayList Path="objects/custom/mat_gGiFlippersDL_flippers2"/>
-	<CallDisplayList Path="objects/custom/gGiFlippersDL_tri_0"/>
-	<CallDisplayList Path="objects/custom/mat_gGiFlippersDL_flippers"/>
-	<CallDisplayList Path="objects/custom/gGiFlippersDL_tri_1"/>
+	<CallDisplayList Path="objects/object_ability_swim/mat_gGiFlippersDL_flippers2"/>
+	<CallDisplayList Path="objects/object_ability_swim/gGiFlippersDL_tri_0"/>
+	<CallDisplayList Path="objects/object_ability_swim/mat_gGiFlippersDL_flippers"/>
+	<CallDisplayList Path="objects/object_ability_swim/gGiFlippersDL_tri_1"/>
 	<PipeSync/>
 	<SetGeometryMode G_LIGHTING="1" />
 	<ClearGeometryMode G_TEXTURE_GEN="1" />
