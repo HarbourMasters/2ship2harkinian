@@ -30,6 +30,7 @@ inline bool CanGetPastBigOcto() {
     return false;
 }
 
+// clang-format off
 static RegisterShipInitFunc initFunc([]() {
     Regions[RR_DEKU_KINGS_CHAMBER_HOLDING_CELL] = RandoRegion{ .name = "Holding Cell", .sceneId = SCENE_DEKU_KING,
         .checks = {
