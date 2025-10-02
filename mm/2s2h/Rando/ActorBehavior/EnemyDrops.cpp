@@ -32,6 +32,7 @@ std::unordered_map<int16_t, RandoCheckId> actorIdToRandoCheckIdMap = {
     { ACTOR_EN_CROW, RC_ENEMY_DROP_GUAY },
     { ACTOR_EN_IK, RC_ENEMY_DROP_IRON_KNUCKLE },
     { ACTOR_EN_FIREFLY, RC_ENEMY_DROP_KEESE },
+    { ACTOR_EN_NEO_REEBA, RC_ENEMY_DROP_LEEVER },
     { ACTOR_EN_RR, RC_ENEMY_DROP_LIKE_LIKE },
     { ACTOR_EN_DEKUNUTS, RC_ENEMY_DROP_MAD_SCRUB },
     { ACTOR_EN_KAREBABA, RC_ENEMY_DROP_MINI_BABA },
@@ -65,8 +66,7 @@ Actor* FindActor(Vec3f position) {
 
     Actor* currentActor = actorList.first;
     for (size_t i = 0; i < actorList.length; i++) {
-        if (currentActor->world.pos.x != position.x && currentActor->world.pos.y != position.y &&
-            currentActor->world.pos.z != position.z) {
+        if (currentActor->world.pos.x != position.x && currentActor->world.pos.z != position.z) {
             currentActor = currentActor->next;
         } else {
             return currentActor;

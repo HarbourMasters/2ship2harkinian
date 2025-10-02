@@ -317,6 +317,9 @@ inline bool CanKillEnemy(ActorId EnemyId) {
             return (CAN_USE_PROJECTILE);
         case ACTOR_EN_BAGUO: // Nejiron
             return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_NEO_REEBA: // Leever
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK));
         default: // Incorrect actor ID inputed.
             assert(false);
             return false;
