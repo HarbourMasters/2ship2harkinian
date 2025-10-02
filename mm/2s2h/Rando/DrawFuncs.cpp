@@ -152,6 +152,21 @@ void DrawEnRealBombchu_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList,
     }
 }
 
+s32 DrawEnSkb_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
+    s16 sins;
+    if (limbIndex == 11) {
+        OPEN_DISPS(play->state.gfxCtx);
+
+        sins = fabsf(Math_SinS(play->gameplayFrames * 6000) * 95.0f) + 160.0f;
+
+        gDPPipeSync(POLY_OPA_DISP++);
+        gDPSetEnvColor(POLY_OPA_DISP++, sins, sins, sins, 255);
+
+        CLOSE_DISPS(play->state.gfxCtx);
+    }
+    return false;
+}
+
 // Enemy Soul Draw Functions
 extern void DrawArmos() {
     static bool initialized = false;
@@ -952,7 +967,7 @@ extern void DrawStalchild() {
         SkelAnime_Update(&skelAnime);
     }
 
-    SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
+    SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, DrawEnSkb_OverrideLimbDraw, NULL, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
