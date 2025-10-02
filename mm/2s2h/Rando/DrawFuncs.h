@@ -10,6 +10,9 @@ void DrawMajora();
 void DrawOdolwa();
 void DrawTwinmold();
 
+// Enemy Functions
+void DrawAlien();
+
 // Other Actor Functions
 void DrawMinifrog(RandoItemId randoItemId, Actor* actor);
 

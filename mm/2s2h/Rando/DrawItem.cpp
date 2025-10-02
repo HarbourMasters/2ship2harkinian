@@ -400,6 +400,9 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_PROGRESSIVE_WALLET:
             Rando::DrawItem(Rando::ConvertItem(randoItemId), actor);
             break;
+        case RI_SOUL_ALIEN:
+            DrawAlien();
+            break;
         case RI_SOUL_GOHT:
             DrawGoht();
             break;

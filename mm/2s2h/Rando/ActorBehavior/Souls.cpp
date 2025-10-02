@@ -1,5 +1,6 @@
 #include "ActorBehavior.h"
 #include "public/bridge/consolevariablebridge.h"
+#include "Rando/DrawFuncs.h"
 
 extern "C" {
 #include "variables.h"
@@ -9,6 +10,10 @@ extern "C" {
 
 void func_80B0CF24(BossHakugin*, PlayState*);
 }
+
+std::unordered_map<RandoItemId, std::tuple<std::function<void()>, std::vector<ActorId>, RandoInf>> soulMap = {
+    { RI_SOUL_ALIEN, { DrawAlien, { ACTOR_EN_INVADEPOH }, RANDO_INF_OBTAINED_SOUL_OF_ALIENS } },
+};
 
 void ShouldActorUpdate(Actor* actor, bool* should, RandoInf randoInf) {
     if (!Flags_GetRandoInf(randoInf)) {

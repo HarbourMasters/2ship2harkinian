@@ -270,8 +270,8 @@ static void DrawItemsTab() {
                                        "that must be found in order for their corresponding boss to spawn.",
                             .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_BOSS_SOULS),
                             .disabledTooltip = "Incompatible with current Logic Setting" } }));
-    CVarCheckbox("Enemy Souls", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Enemy Souls", Rando::StaticData::Options[RO_SHUFFLE_ENEMY_SOULS].cvar,
+                 CheckboxOptions({ { .disabled = false, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn3", ImVec2(columnWidth, halfHeight));

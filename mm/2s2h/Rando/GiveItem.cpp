@@ -257,6 +257,9 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_TWINMOLD:
             Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (randoItemId - RI_SOUL_GOHT));
             break;
+        case RI_SOUL_ALIEN:
+            Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ALIENS);
+            break;
         case RI_FROG_BLUE:
             SET_WEEKEVENTREG(WEEKEVENTREG_33_01);
             break;

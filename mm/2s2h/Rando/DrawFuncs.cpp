@@ -20,6 +20,9 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Twinmold */  #include "objects/object_boss02/object_boss02.h"
 /* Majora */    #include "objects/object_boss07/object_boss07.h"
 
+// Enemy Includes
+/* Alien */     #include "assets/objects/object_uch/object_uch.h"
+
 // Other Actor Includes
 /* Minifrog */  #include "objects/object_fr/object_fr.h"
 // clang-format on
@@ -66,6 +69,37 @@ void EnMinifrogPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* 
 
         CLOSE_DISPS(play->state.gfxCtx);
     }
+}
+
+// Enemy Soul Draw Functions
+extern void DrawAlien() {
+    static bool initialized = false;
+    static SkelAnime skelAnime;
+    static Vec3s jointTable[ALIEN_LIMB_MAX];
+    static Vec3s morphTable[ALIEN_LIMB_MAX];
+    static u32 lastUpdate = 0;
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Gfx_SetupDL60_XluNoCD(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.007f, 0.007f, 0.007f, MTXMODE_APPLY);
+    Matrix_Translate(0, 0, 0, MTXMODE_APPLY);
+
+    if (!initialized) {
+        initialized = true;
+        SkelAnime_InitFlex(gPlayState, &skelAnime, (FlexSkeletonHeader*)&gAlienSkel, (AnimationHeader*)&gAlienFloatAnim,
+                           jointTable, morphTable, ALIEN_LIMB_MAX);
+    }
+    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
+        lastUpdate = gPlayState->state.frames;
+        SkelAnime_Update(&skelAnime);
+    }
+    Scene_SetRenderModeXlu(gPlayState, 0, 1);
+    AnimatedMat_Draw(gPlayState, (AnimatedMaterial*)Lib_SegmentedToVirtual((void*)gAlienEmptyTexAnim));
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 10, 138, 46 }, { 30.0f, 30.0f, 30.0f });
 }
 
 // Boss Souls
