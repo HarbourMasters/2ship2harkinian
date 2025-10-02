@@ -944,8 +944,8 @@ extern void DrawStalchild() {
 
     if (!initialized) {
         initialized = true;
-        SkelAnime_Init(gPlayState, &skelAnime, (SkeletonHeader*)&gStalchildSkel,
-                       (AnimationHeader*)&gStalchildSaluteAnim, jointTable, morphTable, STALCHILD_LIMB_MAX);
+        SkelAnime_Init(gPlayState, &skelAnime, (SkeletonHeader*)&gStalchildSkel, (AnimationHeader*)&gStalchildIdleAnim,
+                       jointTable, morphTable, STALCHILD_LIMB_MAX);
     }
     if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
         lastUpdate = gPlayState->state.frames;
