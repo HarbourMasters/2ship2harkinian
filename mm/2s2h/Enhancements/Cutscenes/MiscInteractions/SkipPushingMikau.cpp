@@ -13,7 +13,7 @@ extern "C" {
 
 void RegisterSkipPushingMikau() {
     COND_ID_HOOK(ShouldActorInit, ACTOR_EN_ZOG, CVAR, [](Actor* actor, bool* should) {
-        if (IS_RANDO && CAN_USE_ABILITY(SWIM)) {
+        if (IS_RANDO && !CAN_USE_ABILITY(SWIM)) {
             // This skip would circumvent logical requirements if the player cannot swim yet
             return;
         }
