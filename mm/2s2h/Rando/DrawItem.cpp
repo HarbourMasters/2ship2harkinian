@@ -2,6 +2,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/DrawFuncs.h"
+#include "ActorBehavior/Souls.h"
 
 extern "C" {
 #include "variables.h"
@@ -296,6 +297,13 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+void DrawSoul(RandoItemId randoItemId) {
+    auto it = soulMap.find(randoItemId);
+    if (it != soulMap.end()) {
+        std::get<0>(it->second)();
+    }
+}
+
 void DrawSparkles(RandoItemId randoItemId, Actor* actor) {
     if (actor == NULL) {
         return;
@@ -400,8 +408,36 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_PROGRESSIVE_WALLET:
             Rando::DrawItem(Rando::ConvertItem(randoItemId), actor);
             break;
-        case RI_SOUL_ALIEN:
-            DrawAlien();
+        case RI_SOUL_ARMOS:
+        case RI_SOUL_BAT:
+        case RI_SOUL_BEAMOS:
+        case RI_SOUL_BOE:
+        case RI_SOUL_BOMBCHU:
+        case RI_SOUL_DEATH_ARMOS:
+        case RI_SOUL_DEKU_BABA:
+        case RI_SOUL_DINOLFOS:
+        case RI_SOUL_DODONGO:
+        case RI_SOUL_EENO:
+        case RI_SOUL_GARO:
+        case RI_SOUL_GRASSHOPPER:
+        case RI_SOUL_GUAY:
+        case RI_SOUL_IRON_KNUCKLE:
+        case RI_SOUL_KEESE:
+        case RI_SOUL_LEEVER:
+        case RI_SOUL_MAD_SCRUB:
+        case RI_SOUL_OCTOROK:
+        case RI_SOUL_PEAHAT:
+        case RI_SOUL_REDEAD:
+        case RI_SOUL_SHELLBLADE:
+        case RI_SOUL_SKULLFISH:
+        case RI_SOUL_SKULLTULA:
+        case RI_SOUL_SLIME:
+        case RI_SOUL_SNAPPER:
+        case RI_SOUL_STALCHILD:
+        case RI_SOUL_TEKTITE:
+        case RI_SOUL_WALLMASTER:
+        case RI_SOUL_WOLFOS:
+            DrawSoul(randoItemId);
             break;
         case RI_SOUL_GOHT:
             DrawGoht();

@@ -255,10 +255,38 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_MAJORA:
         case RI_SOUL_ODOLWA:
         case RI_SOUL_TWINMOLD:
-            Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (randoItemId - RI_SOUL_GOHT));
-            break;
-        case RI_SOUL_ALIEN:
-            Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ALIENS);
+            // Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (randoItemId - RI_SOUL_GOHT));
+            // break;
+        case RI_SOUL_ARMOS:
+        case RI_SOUL_BAT:
+        case RI_SOUL_BEAMOS:
+        case RI_SOUL_BOE:
+        case RI_SOUL_BOMBCHU:
+        case RI_SOUL_DEATH_ARMOS:
+        case RI_SOUL_DEKU_BABA:
+        case RI_SOUL_DINOLFOS:
+        case RI_SOUL_DODONGO:
+        case RI_SOUL_EENO:
+        case RI_SOUL_GARO:
+        case RI_SOUL_GRASSHOPPER:
+        case RI_SOUL_GUAY:
+        case RI_SOUL_IRON_KNUCKLE:
+        case RI_SOUL_KEESE:
+        case RI_SOUL_LEEVER:
+        case RI_SOUL_MAD_SCRUB:
+        case RI_SOUL_OCTOROK:
+        case RI_SOUL_PEAHAT:
+        case RI_SOUL_REDEAD:
+        case RI_SOUL_SHELLBLADE:
+        case RI_SOUL_SKULLFISH:
+        case RI_SOUL_SKULLTULA:
+        case RI_SOUL_SLIME:
+        case RI_SOUL_SNAPPER:
+        case RI_SOUL_STALCHILD:
+        case RI_SOUL_TEKTITE:
+        case RI_SOUL_WALLMASTER:
+        case RI_SOUL_WOLFOS:
+            Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ARMOS + (randoItemId - RI_SOUL_ARMOS));
             break;
         case RI_FROG_BLUE:
             SET_WEEKEVENTREG(WEEKEVENTREG_33_01);
