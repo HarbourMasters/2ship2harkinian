@@ -30,9 +30,8 @@ inline bool CanGetPastBigOcto() {
     return false;
 }
 
-static RegisterShipInitFunc initFunc(
-    []() {
-        Regions[RR_DEKU_KINGS_CHAMBER_HOLDING_CELL] = RandoRegion{ .name = "Holding Cell", .sceneId = SCENE_DEKU_KING,
+static RegisterShipInitFunc initFunc([]() {
+    Regions[RR_DEKU_KINGS_CHAMBER_HOLDING_CELL] = RandoRegion{ .name = "Holding Cell", .sceneId = SCENE_DEKU_KING,
         .checks = {
             CHECK(RC_DEKU_KINGS_CHAMBER_MONKEY, CAN_BE_DEKU && HAS_ITEM(ITEM_OCARINA_OF_TIME)),
         },
@@ -40,7 +39,7 @@ static RegisterShipInitFunc initFunc(
             EXIT(ENTRANCE(DEKU_PALACE, 3),                  ENTRANCE(DEKU_KINGS_CHAMBER, 1), true),
         },
     };
-        Regions[RR_DEKU_KINGS_CHAMBER] = RandoRegion{ .sceneId = SCENE_DEKU_KING,
+    Regions[RR_DEKU_KINGS_CHAMBER] = RandoRegion{ .sceneId = SCENE_DEKU_KING,
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(DEKU_PALACE, 2),                  ENTRANCE(DEKU_KINGS_CHAMBER, 0), true),
         },
@@ -49,7 +48,7 @@ static RegisterShipInitFunc initFunc(
             EVENT(RE_RETURN_DEKU_PRINCESS, HAS_BOTTLE && CAN_ACCESS(DEKU_PRINCESS)),
         }
     };
-        Regions[RR_DEKU_PALACE_BEAN_SALESMAN_GROTTO] = RandoRegion{ .name = "Deku Palace Bean Salesman Grotto", .sceneId = SCENE_KAKUSIANA,
+    Regions[RR_DEKU_PALACE_BEAN_SALESMAN_GROTTO] = RandoRegion{ .name = "Deku Palace Bean Salesman Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_DEKU_PALACE_GROTTO_CHEST, CAN_GROW_BEAN_PLANT || HAS_ITEM(ITEM_HOOKSHOT)),
             CHECK(RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_01, true),
@@ -70,7 +69,7 @@ static RegisterShipInitFunc initFunc(
             EXIT(ENTRANCE(DEKU_PALACE, 9),                  ENTRANCE(GROTTOS, 12), true), // TODO: Grotto mapping
         },
     };
-        Regions[RR_DEKU_PALACE_INSIDE] = RandoRegion{ .name = "Inside", .sceneId = SCENE_22DEKUCITY,
+    Regions[RR_DEKU_PALACE_INSIDE] = RandoRegion{ .name = "Inside", .sceneId = SCENE_22DEKUCITY,
         .checks = {
             CHECK(RC_DEKU_PALACE_PIECE_OF_HEART,    true),
             CHECK(RC_DEKU_PALACE_POT_01, CAN_BE_DEKU),
@@ -109,7 +108,7 @@ static RegisterShipInitFunc initFunc(
             CONNECTION(RR_DEKU_PALACE_OUTSIDE, true),
         },
     };
-        Regions[RR_DEKU_PALACE_OUTSIDE] = RandoRegion{ .name = "Outside", .sceneId = SCENE_22DEKUCITY,
+    Regions[RR_DEKU_PALACE_OUTSIDE] = RandoRegion{ .name = "Outside", .sceneId = SCENE_22DEKUCITY,
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 3),      ENTRANCE(DEKU_PALACE, 0), true),
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 4),      ENTRANCE(DEKU_PALACE, 5), CAN_BE_DEKU), // Treetop
@@ -119,7 +118,7 @@ static RegisterShipInitFunc initFunc(
             CONNECTION(RR_DEKU_PALACE_INSIDE, CAN_BE_DEKU),
         },
     };
-        Regions[RR_DEKU_SHRINE_ENTRANCE] = RandoRegion{ .name = "Entrance", .sceneId = SCENE_DANPEI,
+    Regions[RR_DEKU_SHRINE_ENTRANCE] = RandoRegion{ .name = "Entrance", .sceneId = SCENE_DANPEI,
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(DEKU_PALACE, 4),                  ENTRANCE(DEKU_SHRINE, 0), true),
         },
@@ -127,7 +126,7 @@ static RegisterShipInitFunc initFunc(
             CONNECTION(RR_DEKU_SHRINE, RANDO_EVENTS[RE_RETURN_DEKU_PRINCESS]),
         },
     };
-        Regions[RR_DEKU_SHRINE] = RandoRegion{ .sceneId = SCENE_DANPEI,
+    Regions[RR_DEKU_SHRINE] = RandoRegion{ .sceneId = SCENE_DANPEI,
         .checks = {
             CHECK(RC_DEKU_SHRINE_FREESTANDING_RUPEE_01,             true),
             CHECK(RC_DEKU_SHRINE_FREESTANDING_RUPEE_02,             true),
@@ -167,7 +166,7 @@ static RegisterShipInitFunc initFunc(
             CONNECTION(RR_DEKU_SHRINE_ENTRANCE, RANDO_EVENTS[RE_RETURN_DEKU_PRINCESS]),
         },
     };
-        Regions[RR_MAGIC_HAGS_POTION_SHOP] = RandoRegion{ .sceneId = SCENE_WITCH_SHOP,
+    Regions[RR_MAGIC_HAGS_POTION_SHOP] = RandoRegion{ .sceneId = SCENE_WITCH_SHOP,
         .checks = {
             CHECK(RC_HAGS_POTION_SHOP_FREESTANDING_RUPEE, true),
             // TODO: Add CAN_ACCESS(MUSHROOM) once that is shuffled.
@@ -183,7 +182,7 @@ static RegisterShipInitFunc initFunc(
             EVENT(RE_ACCESS_RED_POTION_REFILL, true),
         },
     };
-        Regions[RR_ROAD_TO_SOUTHERN_SWAMP_GROTTO] = RandoRegion{ .name = "Road to Southern Swamp Grotto", .sceneId = SCENE_KAKUSIANA,
+    Regions[RR_ROAD_TO_SOUTHERN_SWAMP_GROTTO] = RandoRegion{ .name = "Road to Southern Swamp Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GROTTO_CHEST, true),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GROTTO_GRASS_01, true),
@@ -205,7 +204,7 @@ static RegisterShipInitFunc initFunc(
             CONNECTION(RR_ROAD_TO_SOUTHERN_SWAMP, true), // TODO: Grotto mapping
         },
     };
-        Regions[RR_ROAD_TO_SOUTHERN_SWAMP] = RandoRegion{ .sceneId = SCENE_24KEMONOMITI,
+    Regions[RR_ROAD_TO_SOUTHERN_SWAMP] = RandoRegion{ .sceneId = SCENE_24KEMONOMITI,
         .checks = {
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_PIECE_OF_HEART, CAN_USE_PROJECTILE || HAS_ITEM(ITEM_BOMBCHU)),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_TINGLE_MAP_01, CAN_USE_PROJECTILE && CAN_AFFORD(RC_ROAD_TO_SOUTHERN_SWAMP_TINGLE_MAP_01)),
@@ -244,7 +243,7 @@ static RegisterShipInitFunc initFunc(
             EVENT(RE_ACCESS_SPRING_WATER, true),
         },
     };
-        Regions[RR_SOUTHERN_SWAMP_GROTTO] = RandoRegion{ .name = "Southern Swamp Grotto", .sceneId = SCENE_KAKUSIANA,
+    Regions[RR_SOUTHERN_SWAMP_GROTTO] = RandoRegion{ .name = "Southern Swamp Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_SOUTHERN_SWAMP_GROTTO_CHEST, true),
             CHECK(RC_SOUTHERN_SWAMP_GROTTO_GRASS_01, true),
@@ -266,7 +265,7 @@ static RegisterShipInitFunc initFunc(
             CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, true), // TODO: Grotto mapping
         },
     };
-        Regions[RR_SOUTHERN_SWAMP_NORTH] = RandoRegion{ .name = "North Tourist Section", .sceneId = SCENE_20SICHITAI,
+    Regions[RR_SOUTHERN_SWAMP_NORTH] = RandoRegion{ .name = "North Tourist Section", .sceneId = SCENE_20SICHITAI,
         .checks = {
             CHECK(RC_SOUTHERN_SWAMP_PIECE_OF_HEART, CAN_BE_DEKU && Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_LAND)),
             CHECK(RC_SOUTHERN_SWAMP_SCRUB_DEED, Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_LAND)),
@@ -317,7 +316,7 @@ static RegisterShipInitFunc initFunc(
             ENTRANCE(SOUTHERN_SWAMP_POISONED, 10), // From Song of Soaring
         }
     };
-        Regions[RR_SOUTHERN_SWAMP_NEAR_WOODS] = RandoRegion{ .name = "North Woods Section", .sceneId = SCENE_20SICHITAI,
+    Regions[RR_SOUTHERN_SWAMP_NEAR_WOODS] = RandoRegion{ .name = "North Woods Section", .sceneId = SCENE_20SICHITAI,
         .checks = {
             CHECK(RC_SOUTHERN_SWAMP_FROG, HAS_ITEM(ITEM_MASK_DON_GERO)),
             CHECK(RC_SOUTHERN_SWAMP_POISON_POT_01, true),
@@ -383,7 +382,7 @@ static RegisterShipInitFunc initFunc(
             ENTRANCE(SOUTHERN_SWAMP_POISONED, 9), // From river in Ikana
         }
     };
-        Regions[RR_SOUTHERN_SWAMP_SOUTH] = RandoRegion{ .name = "South Section", .sceneId = SCENE_20SICHITAI,
+    Regions[RR_SOUTHERN_SWAMP_SOUTH] = RandoRegion{ .name = "South Section", .sceneId = SCENE_20SICHITAI,
         .checks = {
             CHECK(RC_SOUTHERN_SWAMP_SONG_OF_SOARING, CAN_BE_DEKU),
         },
@@ -402,7 +401,7 @@ static RegisterShipInitFunc initFunc(
             EVENT(RE_ACCESS_PICTOGRAPH_SWAMP_GENERIC, HAS_ITEM(ITEM_PICTOGRAPH_BOX)) //Adding here to future proof for later when map shuffle is in.
         }
     };
-        Regions[RR_SWAMP_SHOOTING_GALLERY] = RandoRegion{ .sceneId = SCENE_SYATEKI_MORI,
+    Regions[RR_SWAMP_SHOOTING_GALLERY] = RandoRegion{ .sceneId = SCENE_SYATEKI_MORI,
         .checks = {
             CHECK(RC_SWAMP_SHOOTING_GALLERY_HIGH_SCORE, HAS_ITEM(ITEM_BOW)),
             CHECK(RC_SWAMP_SHOOTING_GALLERY_PERFECT_SCORE, HAS_ITEM(ITEM_BOW)),
@@ -411,7 +410,7 @@ static RegisterShipInitFunc initFunc(
             EXIT(ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2),       ENTRANCE(SWAMP_SHOOTING_GALLERY, 0), true),
         },
     };
-        Regions[RR_TOURIST_INFORMATION] = RandoRegion{ .sceneId = SCENE_MAP_SHOP,
+    Regions[RR_TOURIST_INFORMATION] = RandoRegion{ .sceneId = SCENE_MAP_SHOP,
         .checks = {
             // Also requires poison to not be cleared
             CHECK(RC_TOURIST_INFORMATION_ARCHERY, RANDO_EVENTS[RE_SAVED_KOUME] && RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE]),
@@ -425,7 +424,7 @@ static RegisterShipInitFunc initFunc(
             EVENT(RE_SOUTHERN_SWAMP_RIDE_BOAT, RANDO_EVENTS[RE_SAVED_KOUME] || CAN_ACCESS(PICTOGRAPH_SWAMP_GENERIC)),
         },
     };
-        Regions[RR_WOODFALL_GREAT_FAIRY_FOUNTAIN] = RandoRegion{ .name = "Woodfall", .sceneId = SCENE_YOUSEI_IZUMI,
+    Regions[RR_WOODFALL_GREAT_FAIRY_FOUNTAIN] = RandoRegion{ .name = "Woodfall", .sceneId = SCENE_YOUSEI_IZUMI,
         .checks = {
             CHECK(RC_WOODFALL_GREAT_FAIRY, HAS_ENOUGH_STRAY_FAIRIES(DUNGEON_INDEX_WOODFALL_TEMPLE)),
         },
@@ -433,7 +432,7 @@ static RegisterShipInitFunc initFunc(
             EXIT(ENTRANCE(WOODFALL, 2),                     ENTRANCE(FAIRY_FOUNTAIN, 1), true),
         },
     };
-        Regions[RR_WOODFALL] = RandoRegion{ .sceneId = SCENE_21MITURINMAE,
+    Regions[RR_WOODFALL] = RandoRegion{ .sceneId = SCENE_21MITURINMAE,
         .checks = {
             CHECK(RC_WOODFALL_ENTRANCE_CHEST, CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && (CAN_BE_ZORA || CAN_BE_GORON || CAN_USE_ABILITY(SWIM)))),
             CHECK(RC_WOODFALL_PIECE_OF_HEART_CHEST, CAN_BE_DEKU),
@@ -454,7 +453,7 @@ static RegisterShipInitFunc initFunc(
             CONNECTION(RR_WOODFALL_OWL_STATUE_PLATFORM, CAN_BE_DEKU),
         },
     };
-        Regions[RR_WOODFALL_OWL_STATUE_PLATFORM] = RandoRegion{ .name = "Owl Statue Platform", .sceneId = SCENE_21MITURINMAE,
+    Regions[RR_WOODFALL_OWL_STATUE_PLATFORM] = RandoRegion{ .name = "Owl Statue Platform", .sceneId = SCENE_21MITURINMAE,
         .checks = {
             CHECK(RC_WOODFALL_OWL_STATUE, CAN_USE_SWORD),
             CHECK(RC_WOODFALL_NEAR_OWL_CHEST, CAN_BE_DEKU),
@@ -469,7 +468,7 @@ static RegisterShipInitFunc initFunc(
             CONNECTION(RR_WOODFALL, CAN_BE_DEKU),
         },
     };
-        Regions[RR_WOODS_OF_MYSTERY_GROTTO] = RandoRegion{ .name = "Woods of Mystery Grotto", .sceneId = SCENE_KAKUSIANA,
+    Regions[RR_WOODS_OF_MYSTERY_GROTTO] = RandoRegion{ .name = "Woods of Mystery Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_WOODS_OF_MYSTERY_GROTTO_CHEST, true),
             CHECK(RC_WOODS_OF_MYSTERY_GROTTO_GRASS_01, true),
@@ -491,7 +490,7 @@ static RegisterShipInitFunc initFunc(
             CONNECTION(RR_WOODS_OF_MYSTERY, true), // TODO: Grotto mapping
         },
     };
-        Regions[RR_WOODS_OF_MYSTERY] = RandoRegion{ .sceneId = SCENE_26SARUNOMORI,
+    Regions[RR_WOODS_OF_MYSTERY] = RandoRegion{ .sceneId = SCENE_26SARUNOMORI,
         .checks = {
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_01, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_02, true),
@@ -525,6 +524,5 @@ static RegisterShipInitFunc initFunc(
             EVENT(RE_SAVED_KOUME, HAS_BOTTLE && (CAN_ACCESS(RED_POTION_REFILL) || CAN_ACCESS(BLUE_POTION_REFILL))),
         },
     };
-    },
-    {});
+}, {});
 // clang-format on
