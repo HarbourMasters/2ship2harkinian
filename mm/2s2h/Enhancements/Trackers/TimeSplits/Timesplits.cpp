@@ -1,6 +1,5 @@
 
 #include "Timesplits.h"
-#include <spdlog/fmt/fmt.h>
 #include "public/bridge/consolevariablebridge.h"
 #include "Context.h"
 #include "Window.h"
@@ -16,6 +15,8 @@ uint64_t GetUnixTimestamp();
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "GameInteractor/GameInteractor.h"
 
+#define BLANK_SPLIT "--:--:--.-"
+
 // ImVec4 Colors
 #define COLOR_WHITE ImVec4(1.00f, 1.00f, 1.00f, 1.00f)
 #define COLOR_GREY ImVec4(0.78f, 0.78f, 0.78f, 1.00f)
@@ -29,8 +30,11 @@ std::vector<TimesplitObject> comparisonList;
 ImGuiTableFlags tableColumnFlags = ImGuiTableColumnFlags_None;
 ImVec4 splitOpacity = { 0, 0, 0, 0.5f };
 
+uint32_t GetTotalTime() {
+    return ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
+}
+
 SplitTextObject GetCurrentTimeTextDisplay(TimesplitObject split) {
-    uint32_t totalTime = ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
     SplitTextObject textDisplay;
 
     switch (split.splitStatus) {
@@ -40,7 +44,7 @@ SplitTextObject GetCurrentTimeTextDisplay(TimesplitObject split) {
             textDisplay.colorDisplay = COLOR_GREY;
             return textDisplay;
         case SPLIT_ACTIVE:
-            textDisplay.timeDisplay = totalTime;
+            textDisplay.timeDisplay = GetTotalTime();
             textDisplay.colorDisplay = COLOR_WHITE;
             return textDisplay;
         case SPLIT_COMPLETE:
@@ -62,7 +66,6 @@ SplitTextObject GetCurrentTimeTextDisplay(TimesplitObject split) {
 }
 
 SplitTextObject GetComparisonTimeTextDisplay(TimesplitObject split, TimesplitObject splitCompare) {
-    uint32_t totalTime = ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
     SplitTextObject textDisplay;
 
     textDisplay.timeDisplay = splitCompare.splitPreviousBest;
@@ -71,7 +74,7 @@ SplitTextObject GetComparisonTimeTextDisplay(TimesplitObject split, TimesplitObj
         textDisplay.colorDisplay = COLOR_GREY;
     } else {
         if (split.splitStatus == SPLIT_ACTIVE) {
-            if (totalTime <= splitCompare.splitPreviousBest) {
+            if (GetTotalTime() <= splitCompare.splitPreviousBest) {
                 textDisplay.colorDisplay = COLOR_LIGHTGREEN;
             } else {
                 textDisplay.colorDisplay = COLOR_LIGHTRED;
@@ -86,10 +89,9 @@ SplitTextObject GetComparisonTimeTextDisplay(TimesplitObject split, TimesplitObj
     }
 
     return textDisplay;
-};
+}
 
 SplitTextObject GetTimeDiffTextDisplay(TimesplitObject split) {
-    uint32_t totalTime = ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt) / 100);
     SplitTextObject textDisplay;
 
     switch (split.splitStatus) {
@@ -99,14 +101,14 @@ SplitTextObject GetTimeDiffTextDisplay(TimesplitObject split) {
             textDisplay.colorDisplay = COLOR_GREY;
             return textDisplay;
         case SPLIT_ACTIVE:
-            if (totalTime > split.splitPreviousBest) {
-                textDisplay.timeDisplay = totalTime - split.splitPreviousBest;
+            if (GetTotalTime() > split.splitPreviousBest) {
+                textDisplay.timeDisplay = GetTotalTime() - split.splitPreviousBest;
                 textDisplay.colorDisplay = COLOR_RED;
-            } else if (totalTime == split.splitPreviousBest) {
-                textDisplay.timeDisplay = totalTime;
+            } else if (GetTotalTime() == split.splitPreviousBest) {
+                textDisplay.timeDisplay = GetTotalTime();
                 textDisplay.colorDisplay = COLOR_WHITE;
-            } else if (totalTime < split.splitPreviousBest) {
-                textDisplay.timeDisplay = split.splitPreviousBest - totalTime;
+            } else if (GetTotalTime() < split.splitPreviousBest) {
+                textDisplay.timeDisplay = split.splitPreviousBest - GetTotalTime();
                 textDisplay.colorDisplay = COLOR_GREEN;
             }
             if (split.splitPreviousBest == 0) {
@@ -211,17 +213,17 @@ void DrawSplitsList(bool isMain) {
                 ImGui::TableNextColumn();
                 TableCellCenteredText(
                     GetCurrentTimeTextDisplay(splitList[i]).colorDisplay,
-                    !gPlayState ? "--:--:--.-"
+                    !gPlayState ? BLANK_SPLIT
                                 : Ship_FormatTimeDisplay(GetCurrentTimeTextDisplay(splitList[i]).timeDisplay).c_str());
 
                 // +/- Column
                 ImGui::TableNextColumn();
                 TableCellCenteredText(
                     GetTimeDiffTextDisplay(splitList[i]).colorDisplay,
-                    !gPlayState ? "--:--:--.-"
+                    !gPlayState ? BLANK_SPLIT
                                 : Ship_FormatTimeDisplay(GetTimeDiffTextDisplay(splitList[i]).timeDisplay).c_str());
                 if (CVarGetInteger("gSettings.TimeSplits.Compare", 0) && comparisonList.size() != 0) {
-                    !gPlayState ? ImGui::TextColored(COLOR_WHITE, "--:--:--.-")
+                    !gPlayState ? ImGui::TextColored(COLOR_WHITE, BLANK_SPLIT)
                     : i < comparisonList.size()
                         ? ImGui::TextColored(
                               GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).colorDisplay,
