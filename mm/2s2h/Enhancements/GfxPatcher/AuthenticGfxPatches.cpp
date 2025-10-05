@@ -367,8 +367,8 @@ void GfxPatcher_ApplyFierceDeityGIPatch() {
 }
 
 void GfxPatcher_ApplySmithyChimneyFirePatch() {
-    // object_omoya_obj_DL_0001A0 has an extraneous gsSPPopMatrix(G_MTX_MODELVIEW) command, which can deplete the matrix
-    // stack and result in sometimes fatal UB. Just no-op the pop command.
+    // object_yukimura_obj_DL_000F98 has an extraneous gsSPPopMatrix(G_MTX_MODELVIEW) command, which can deplete the
+    // matrix stack and result in sometimes fatal UB. Just no-op the pop command.
     ResourceMgr_PatchGfxByName(object_yukimura_obj_DL_000F98, "smithyChimneyFireFix", 31, gsSPNoOp());
 }
 
