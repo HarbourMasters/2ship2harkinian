@@ -27,6 +27,7 @@ std::unordered_map<RandoItemId, std::tuple<std::function<void()>, std::vector<Ac
     { RI_SOUL_GARO,         { DrawGaroMaster,   { ACTOR_EN_JSO2, ACTOR_EN_JSO }, RANDO_INF_OBTAINED_SOUL_OF_GARO_MASTERS } },
     { RI_SOUL_GRASSHOPPER,  { DrawGrasshopper,  { ACTOR_EN_GRASSHOPPER }, RANDO_INF_OBTAINED_SOUL_OF_GRASSHOPPERS } },
     { RI_SOUL_GUAY,         { DrawGuay,         { ACTOR_EN_CROW, ACTOR_EN_RUPPECROW }, RANDO_INF_OBTAINED_SOUL_OF_GUAYS } },
+    { RI_SOUL_HIPLOOP,      { DrawHiploop,      { ACTOR_EN_PP }, RANDO_INF_OBTAINED_SOUL_OF_HIPLOOPS } },
     { RI_SOUL_IRON_KNUCKLE, { DrawIronKnuckle,  { ACTOR_EN_IK }, RANDO_INF_OBTAINED_SOUL_OF_IRON_KNUCKLES } },
     { RI_SOUL_KEESE,        { DrawKeese,        { ACTOR_EN_FIREFLY }, RANDO_INF_OBTAINED_SOUL_OF_KEESE } },
     { RI_SOUL_LEEVER,       { DrawLeever,       { ACTOR_EN_NEO_REEBA }, RANDO_INF_OBTAINED_SOUL_OF_LEEVERS } },

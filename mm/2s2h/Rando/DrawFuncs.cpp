@@ -34,6 +34,7 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Garo Master */   #include "assets/objects/object_jso/object_jso.h"
 /* Grasshopper */   #include "assets/objects/object_grasshopper/object_grasshopper.h"
 /* Guay */          #include "assets/objects/object_crow/object_crow.h"
+/* Hiploop */       #include "assets/objects/object_pp/object_pp.h"
 /* Iron Knuckle */  #include "assets/objects/object_ik/object_ik.h"
 /* Keese */         #include "assets/objects/object_firefly/object_firefly.h"
 /* Leever */        #include "assets/objects/object_rb/object_rb.h"
@@ -555,6 +556,35 @@ extern void DrawGuay() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 6.0f, 6.0f, 6.0f });
+}
+
+extern void DrawHiploop() {
+    static bool initialized = false;
+    static SkelAnime skelAnime;
+    static Vec3s jointTable[HIPLOOP_LIMB_MAX];
+    static Vec3s morphTable[HIPLOOP_LIMB_MAX];
+    static u32 lastUpdate = 0;
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    Matrix_Translate(0, -1400.0f, 0, MTXMODE_APPLY);
+
+    if (!initialized) {
+        initialized = true;
+        SkelAnime_InitFlex(gPlayState, &skelAnime, (FlexSkeletonHeader*)&gHiploopSkel,
+                           (AnimationHeader*)&gHiploopChargeAnim, jointTable, morphTable, HIPLOOP_LIMB_MAX);
+    }
+    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
+        lastUpdate = gPlayState->state.frames;
+        SkelAnime_Update(&skelAnime);
+    }
+    Scene_SetRenderModeXlu(gPlayState, 0, 1);
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
 }
 
 extern void DrawIronKnuckle() {

@@ -180,6 +180,7 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_SOUL_GRASSHOPPER,           "the",  "Soul of Grasshoppers",       RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
 	RI(RI_SOUL_GOHT,                  "the",  "Soul of Goht",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_GUAY,                  "the",  "Soul of Guays",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_HIPLOOP,               "the",  "Soul of Hiploops",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
 	RI(RI_SOUL_GYORG,                 "the",  "Soul of Gyorg",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_IRON_KNUCKLE,          "the",  "Soul of Iron Knuckles",      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_KEESE,                 "the",  "Soul of Keese",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),

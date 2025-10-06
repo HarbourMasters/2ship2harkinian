@@ -270,6 +270,7 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_GARO:
         case RI_SOUL_GRASSHOPPER:
         case RI_SOUL_GUAY:
+        case RI_SOUL_HIPLOOP:
         case RI_SOUL_IRON_KNUCKLE:
         case RI_SOUL_KEESE:
         case RI_SOUL_LEEVER:

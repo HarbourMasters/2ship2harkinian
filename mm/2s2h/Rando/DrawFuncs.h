@@ -24,6 +24,7 @@ void DrawEeno();
 void DrawGaroMaster();
 void DrawGrasshopper();
 void DrawGuay();
+void DrawHiploop();
 void DrawIronKnuckle();
 void DrawKeese();
 void DrawLeever();
