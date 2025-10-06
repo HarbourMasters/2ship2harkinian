@@ -323,6 +323,8 @@ inline bool CanKillEnemy(ActorId EnemyId) {
         case ACTOR_EN_PP:
             return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
                     HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_PR2:
+            return (CAN_BE_ZORA && HAS_MAGIC);
         default: // Incorrect actor ID inputed.
             assert(false);
             return false;
