@@ -5,6 +5,7 @@
 #include "2s2h/BenGui/Notification.h"
 #include "2s2h/Rando/StaticData/StaticData.h"
 #include "2s2h/ShipUtils.h"
+#include "Traps.h"
 
 extern "C" {
 #include "variables.h"
@@ -50,10 +51,15 @@ void Rando::MiscBehavior::CheckQueue() {
                             randoItemId = Rando::CurrentJunkItem();
                         }
 
+                        if (randoItemId == RI_TRAP) {
+                            prefix = "";
+                            message = GetTrapMessage();
+                        }
+
                         CustomMessage::Entry entry = {
                             .textboxType = 2,
                             .icon = Rando::StaticData::GetIconForZMessage(randoItemId),
-                            .msg = prefix + " " + message + "!",
+                            .msg = (prefix == "" ? "" : prefix + " ") + message + (randoItemId == RI_TRAP ? "" : "!"),
                         };
 
                         if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {

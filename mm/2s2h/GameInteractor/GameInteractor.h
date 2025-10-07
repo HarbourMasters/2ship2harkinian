@@ -382,7 +382,11 @@ struct GIEventTransition {
     u8 transitionType;
 };
 
-typedef std::variant<GIEventNone, GIEventGiveItem, GIEventSpawnActor, GIEventTransition> GIEvent;
+struct GIEventTrap {
+    std::function<void()> action;
+};
+
+typedef std::variant<GIEventNone, GIEventGiveItem, GIEventSpawnActor, GIEventTransition, GIEventTrap> GIEvent;
 
 class GameInteractor {
   public:

@@ -475,6 +475,11 @@ void ProcessEvents(Actor* actor) {
                         e->rotZ, e->params);
         }
         GameInteractor::Instance->currentEvent = GIEventNone{};
+    } else if (auto e = std::get_if<GIEventTrap>(&nextEvent)) {
+        if (e->action) {
+            e->action();
+        }
+        GameInteractor::Instance->currentEvent = GIEventNone{};
     }
 
     GameInteractor::Instance->events.erase(GameInteractor::Instance->events.begin());
