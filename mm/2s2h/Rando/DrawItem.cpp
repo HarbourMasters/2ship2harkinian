@@ -296,6 +296,29 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+void DrawTrapModel(RandoItemId randoItemId, Actor* actor) {
+    static int previousRandoItemId = RI_UNKNOWN;
+    uint32_t seed = gSaveContext.save.shipSaveInfo.rando.finalSeed / 100000;
+    int posXY = (int)gPlayState->sceneId + seed;
+
+    if (actor != NULL) {
+        posXY += abs(actor->world.pos.x + actor->world.pos.y);
+    }
+
+    int drawRandoItemId = posXY % (int)RI_MAX - 2;
+
+    if (drawRandoItemId == RI_UNKNOWN || drawRandoItemId >= RI_TRAP) {
+        drawRandoItemId++;
+    }
+
+    if (drawRandoItemId == previousRandoItemId) {
+        drawRandoItemId = (drawRandoItemId + 1) % (int)RI_MAX - 2;
+    }
+    previousRandoItemId = drawRandoItemId;
+
+    Rando::DrawItem((RandoItemId)drawRandoItemId, actor);
+}
+
 void DrawSparkles(RandoItemId randoItemId, Actor* actor) {
     if (actor == NULL) {
         return;
@@ -332,14 +355,6 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         func_800B8118(actor, gPlayState, 0);
         func_800B8050(actor, gPlayState, 0);
     }
-
-    if (randoItemId == RI_TRAP) {
-        static int newItem = rand() % (int)RI_MAX - 2;
-        if (newItem == RI_UNKNOWN || newItem >= RI_TRAP) {
-            newItem++;
-        }
-        randoItemId = (RandoItemId)newItem;
-    };
 
     switch (randoItemId) {
         case RI_JUNK:
@@ -430,6 +445,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             DrawMinifrog(randoItemId, actor);
             break;
         case RI_TRAP:
+            DrawTrapModel(randoItemId, actor);
             break;
         case RI_NONE:
         case RI_UNKNOWN:
