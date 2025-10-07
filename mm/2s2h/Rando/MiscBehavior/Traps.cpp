@@ -8,15 +8,20 @@ void func_80833B18(PlayState* play, Player* thisx, s32 arg2, f32 speed, f32 velo
                    s32 invincibilityTimer);
 }
 
-int roll = 0;
+int roll = TRAP_FREEZE;
+
+int RollTrapType() {
+    roll = rand() % TRAP_MAX;
+    return roll;
+}
+
+std::vector<std::string> freezeTrapMessages = {
+    "This item is available in the %bRando DLC%w.",
+};
 
 std::vector<std::string> blastTrapMessages = {
     "Coming to you live from the %yThunderdome%w!",
     "There was supposed to be an Earth shattering %yKaboom%w!",
-};
-
-std::vector<std::string> freezeTrapMessages = {
-    "This item is available in the %bRando DLC%w.",
 };
 
 std::vector<std::string> shockTrapMessages = {
@@ -24,13 +29,13 @@ std::vector<std::string> shockTrapMessages = {
 };
 
 std::map<TrapTypes, std::vector<std::string>> trapMessageList = {
-    { TRAP_BLAST, blastTrapMessages },
     { TRAP_FREEZE, freezeTrapMessages },
+    { TRAP_BLAST, blastTrapMessages },
     { TRAP_SHOCK, shockTrapMessages },
 };
 
 std::string GetTrapMessage() {
-    roll = rand() % TRAP_MAX;
+    RollTrapType();
     std::vector<std::string> trapMessages = trapMessageList.at((TrapTypes)roll);
     return trapMessages[rand() % trapMessages.size()];
 }
@@ -41,16 +46,16 @@ void Rando::MiscBehavior::OfferTrapItem() {
     }
 
     switch (roll) {
+        case TRAP_FREEZE:
+            GameInteractor::Instance->events.emplace_back(
+                GIEventTrap{ .action = []() { func_80833B18(gPlayState, GET_PLAYER(gPlayState), 3, 0, 0, 0, 0); } });
+            break;
         case TRAP_BLAST:
             GameInteractor::Instance->events.emplace_back(GIEventTrap{ .action = []() {
                 Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_BOM, GET_PLAYER(gPlayState)->actor.world.pos.x,
                             GET_PLAYER(gPlayState)->actor.world.pos.y, GET_PLAYER(gPlayState)->actor.world.pos.z, 1, 0,
                             0, 0);
             } });
-            break;
-        case TRAP_FREEZE:
-            GameInteractor::Instance->events.emplace_back(
-                GIEventTrap{ .action = []() { func_80833B18(gPlayState, GET_PLAYER(gPlayState), 3, 0, 0, 0, 0); } });
             break;
         case TRAP_SHOCK:
             GameInteractor::Instance->events.emplace_back(
