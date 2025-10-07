@@ -184,13 +184,8 @@ inline uint32_t RemainsCount() {
 }
 
 inline bool MeetsMoonRequirements() {
-    switch (RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_TYPE]){
-        case RO_ACCESS_MOON_REMAINS:
-            return RemainsCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT];
-        case RO_ACCESS_MOON_MASKS:
-            return MoonMaskCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_MASKS_COUNT];
-    }
-    
+    return RemainsCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT] &&
+           MoonMaskCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_MASKS_COUNT];
 }
 
 inline bool CanKillEnemy(ActorId EnemyId) {
