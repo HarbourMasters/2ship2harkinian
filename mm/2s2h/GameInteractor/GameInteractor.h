@@ -366,7 +366,9 @@ struct GIEventSpawnActor {
     f32 posX;
     f32 posY;
     f32 posZ;
-    s16 rot;
+    s16 rotX;
+    s16 rotY;
+    s16 rotZ;
     s32 params;
     // if true, the coordinates are made relative to the player's position and rotation, 0 rotation is facing the same
     // direction as the player, x+ is to the players right, y+ is up, z+ is in front of the player

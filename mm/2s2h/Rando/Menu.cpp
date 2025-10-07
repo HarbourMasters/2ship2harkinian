@@ -257,6 +257,18 @@ static void DrawItemsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, halfHeight));
+    CVarCheckbox("Shuffle Traps", Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar,
+                 CheckboxOptions({ { .tooltip = "Ice Trap time!" } }));
+    CVarSliderInt(
+        "##trapcount", Rando::StaticData::Options[RO_TRAP_AMOUNT].cvar,
+        IntSliderOptions({ { .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                             .disabledTooltip = "How many Traps are shuffled into the Item Pool." } })
+            .LabelPosition(LabelPosition::None)
+            .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
+            .Format("Traps: %i")
+            .Min(1)
+            .Max(10)
+            .DefaultValue(5));
     CVarCheckbox(
         "Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar,
         CheckboxOptions({ { .tooltip = "Major items, masks, and keys will have an extra copy added to the item pool. \n"

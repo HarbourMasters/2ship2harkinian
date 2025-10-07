@@ -333,6 +333,14 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         func_800B8050(actor, gPlayState, 0);
     }
 
+    if (randoItemId == RI_TRAP) {
+        static int newItem = rand() % (int)RI_MAX - 2;
+        if (newItem == RI_UNKNOWN || newItem >= RI_TRAP) {
+            newItem++;
+        }
+        randoItemId = (RandoItemId)newItem;
+    };
+
     switch (randoItemId) {
         case RI_JUNK:
             Rando::DrawItem(Rando::CurrentJunkItem(), actor);
@@ -420,6 +428,8 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_FROG_PINK:
         case RI_FROG_WHITE:
             DrawMinifrog(randoItemId, actor);
+            break;
+        case RI_TRAP:
             break;
         case RI_NONE:
         case RI_UNKNOWN:

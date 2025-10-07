@@ -276,6 +276,18 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     throw std::runtime_error("No items in logic");
                 }
 
+                // Handle Shuffling Traps
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRAPS] == RO_GENERIC_YES) {
+                    for (int i = 0; i < RANDO_SAVE_OPTIONS[RO_TRAP_AMOUNT]; i++) {
+                        for (int i = 0; i < itemPool.size(); i++) {
+                            if (itemPool[i] == RI_JUNK) {
+                                itemPool[i] = RI_TRAP;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 int heartPiecesRemoved = 0;
                 // Add/Remove junk items to/from the pool to make the item pool size match the check pool size
                 while (checkPool.size() != itemPool.size()) {

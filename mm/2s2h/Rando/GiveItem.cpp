@@ -1,4 +1,5 @@
 #include "Rando/Rando.h"
+#include "Rando/MiscBehavior/MiscBehavior.h"
 
 extern "C" {
 #include "variables.h"
@@ -268,6 +269,9 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             break;
         case RI_FROG_WHITE:
             SET_WEEKEVENTREG(WEEKEVENTREG_33_02);
+            break;
+        case RI_TRAP:
+            Rando::MiscBehavior::OfferTrapItem();
             break;
         case RI_JUNK:
         case RI_NONE:
