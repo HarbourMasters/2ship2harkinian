@@ -240,8 +240,7 @@ static void DrawLocationsTab() {
 
 static void DrawItemsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
-    f32 halfHeight = ImGui::GetContentRegionAvail().y / 3 - (ImGui::GetStyle().ItemSpacing.y * 2);
-    ImGui::BeginChild("randoItemsColumn1", ImVec2(columnWidth, halfHeight));
+    ImGui::BeginChild("randoItemsColumn1", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
     CVarCheckbox("Bronze Scale", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Deku Stick Bag", "gPlaceholderBool",
@@ -254,21 +253,17 @@ static void DrawItemsTab() {
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Infinite Upgrades", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Song of Double Time", "gPlaceholderBool",
+                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Inverted Song of Time", "gPlaceholderBool",
+                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Saria's Song", "gPlaceholderBool",
+                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Sun's Song", "gPlaceholderBool",
+                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
     ImGui::SameLine();
-    ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, halfHeight));
-    CVarCheckbox("Shuffle Traps", Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar,
-                 CheckboxOptions({ { .tooltip = "Ice Trap time!" } }));
-    CVarSliderInt(
-        "##trapcount", Rando::StaticData::Options[RO_TRAP_AMOUNT].cvar,
-        IntSliderOptions({ { .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
-                             .disabledTooltip = "How many Traps are shuffled into the Item Pool." } })
-            .LabelPosition(LabelPosition::None)
-            .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
-            .Format("Traps: %i")
-            .Min(1)
-            .Max(10)
-            .DefaultValue(5));
+    ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
     CVarCheckbox(
         "Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar,
         CheckboxOptions({ { .tooltip = "Major items, masks, and keys will have an extra copy added to the item pool. \n"
@@ -286,16 +281,31 @@ static void DrawItemsTab() {
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
     ImGui::SameLine();
-    ImGui::BeginChild("randoItemsColumn3", ImVec2(columnWidth, halfHeight));
-    CVarCheckbox("Song of Double Time", "gPlaceholderBool",
+    ImGui::BeginChild("randoItemsColumn3", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
+    CVarCheckbox("Shuffle Traps", Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar,
+                 CheckboxOptions({ { .tooltip = "Ice Trap time!" } }));
+    CVarSliderInt(
+        "##trapcount", Rando::StaticData::Options[RO_TRAP_AMOUNT].cvar,
+        IntSliderOptions({ { .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                             .disabledTooltip = "How many Traps are shuffled into the Item Pool." } })
+            .LabelPosition(LabelPosition::None)
+            .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
+            .Format("Traps: %i")
+            .Min(1)
+            .Max(10)
+            .DefaultValue(5));
+    ImGui::SeparatorText("Toggle Trap Types");
+    CVarCheckbox("Freeze Traps", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Inverted Song of Time", "gPlaceholderBool",
+    CVarCheckbox("Shock Traps", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Saria's Song", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Sun's Song", "gPlaceholderBool",
+    CVarCheckbox("Blast Traps", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
+}
+
+static void DrawStartingItemsTab() {
+    f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     ImGui::BeginChild("randoItemsStarting", ImVec2(0, 0));
     ImGui::BeginChild("randoStartingItemsColumn1", ImVec2(columnWidth, 0));
     ImGui::SeparatorText("Starting Options");
@@ -475,6 +485,11 @@ void Rando::RegisterMenu() {
     mBenMenu->AddSidebarEntry("Rando", "Items", 1);
     path.sidebarName = "Items";
     mBenMenu->AddWidget(path, "Items", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawItemsTab(); });
+    mBenMenu->AddSidebarEntry("Rando", "Starting Items", 1);
+    path.sidebarName = "Starting Items";
+    mBenMenu->AddWidget(path, "Starting Items", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        DrawStartingItemsTab();
+    });
     mBenMenu->AddSidebarEntry("Rando", "Hints", 1);
     path.sidebarName = "Hints";
     mBenMenu->AddWidget(path, "Hints", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawHintsTab(); });

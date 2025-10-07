@@ -20,7 +20,7 @@ std::vector<std::string> freezeTrapMessages = {
 };
 
 std::vector<std::string> shockTrapMessages = {
-    "%gCLEAR%w!",
+    "We're losing him!\n%gCLEAR%w",
 };
 
 std::map<TrapTypes, std::vector<std::string>> trapMessageList = {
@@ -40,9 +40,6 @@ void Rando::MiscBehavior::OfferTrapItem() {
         return;
     }
 
-    Player* player = GET_PLAYER(gPlayState);
-
-    // roll = TRAP_SHOCK;
     switch (roll) {
         case TRAP_BLAST:
             GameInteractor::Instance->events.emplace_back(GIEventTrap{ .action = []() {
