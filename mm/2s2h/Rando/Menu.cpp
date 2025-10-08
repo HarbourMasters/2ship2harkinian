@@ -286,8 +286,9 @@ static void DrawItemsTab() {
                  CheckboxOptions({ { .tooltip = "Ice Trap time!" } }));
     CVarSliderInt(
         "##trapcount", Rando::StaticData::Options[RO_TRAP_AMOUNT].cvar,
-        IntSliderOptions({ { .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
-                             .disabledTooltip = "How many Traps are shuffled into the Item Pool." } })
+        IntSliderOptions({ { .tooltip = "How many Traps are shuffled into the Item Pool.",
+                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                             .disabledTooltip = "Shuffle Traps is disabled." } })
             .LabelPosition(LabelPosition::None)
             .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
             .Format("Traps: %i")
@@ -295,12 +296,21 @@ static void DrawItemsTab() {
             .Max(10)
             .DefaultValue(5));
     ImGui::SeparatorText("Toggle Trap Types");
-    CVarCheckbox("Freeze Traps", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Shock Traps", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Blast Traps", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox(
+        "Freeze Traps", "gRando.Traps.Freeze",
+        CheckboxOptions({ { .tooltip = "Enables Freeze Traps.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Blast Traps", "gRando.Traps.Blast",
+        CheckboxOptions({ { .tooltip = "Enables Blast Traps.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Shock Traps", "gRando.Traps.Shock",
+        CheckboxOptions({ { .tooltip = "Enables Shock Traps.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
     ImGui::EndChild();
 }
 

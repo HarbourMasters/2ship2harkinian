@@ -297,7 +297,6 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
 }
 
 void DrawTrapModel(RandoItemId randoItemId, Actor* actor) {
-    static int previousRandoItemId = RI_UNKNOWN;
     uint32_t seed = gSaveContext.save.shipSaveInfo.rando.finalSeed / 100000;
     int posXY = (int)gPlayState->sceneId + seed;
 
@@ -310,11 +309,6 @@ void DrawTrapModel(RandoItemId randoItemId, Actor* actor) {
     if (drawRandoItemId == RI_UNKNOWN || drawRandoItemId >= RI_TRAP) {
         drawRandoItemId++;
     }
-
-    if (drawRandoItemId == previousRandoItemId) {
-        drawRandoItemId = (drawRandoItemId + 1) % (int)RI_MAX - 2;
-    }
-    previousRandoItemId = drawRandoItemId;
 
     Rando::DrawItem((RandoItemId)drawRandoItemId, actor);
 }

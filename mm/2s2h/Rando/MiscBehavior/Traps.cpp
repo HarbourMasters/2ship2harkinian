@@ -1,4 +1,5 @@
 #include "Traps.h"
+#include "public/bridge/consolevariablebridge.h"
 #include "MiscBehavior.h"
 
 extern "C" {
@@ -8,10 +9,30 @@ void func_80833B18(PlayState* play, Player* thisx, s32 arg2, f32 speed, f32 velo
                    s32 invincibilityTimer);
 }
 
+std::map<TrapTypes, const char*> trapToCvarMap = {
+    { TRAP_FREEZE, "gRando.Traps.Freeze" },
+    { TRAP_BLAST, "gRando.Traps.Blast" },
+    { TRAP_SHOCK, "gRando.Traps.Shock" },
+};
+
+std::vector<TrapTypes> getEnabledTrapTypes() {
+    std::vector<TrapTypes> enabledTrapTypes;
+    for (auto& trap : trapToCvarMap) {
+        if (CVarGetInteger(trap.second, 0)) {
+            enabledTrapTypes.push_back(trap.first);
+        }
+    }
+    if (enabledTrapTypes.size() == 0) {
+        enabledTrapTypes.push_back(TRAP_FREEZE);
+    }
+    return enabledTrapTypes;
+};
+
 int roll = TRAP_FREEZE;
 
 int RollTrapType() {
-    roll = rand() % TRAP_MAX;
+    auto enabledTraps = getEnabledTrapTypes();
+    roll = enabledTraps[rand() % enabledTraps.size()];
     return roll;
 }
 
