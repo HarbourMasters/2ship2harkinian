@@ -298,16 +298,45 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
 
 void DrawTrapModel(RandoItemId randoItemId, Actor* actor) {
     uint32_t seed = gSaveContext.save.shipSaveInfo.rando.finalSeed / 100000;
-    int posXY = (int)gPlayState->sceneId + seed;
+    int actorData = (int)gPlayState->sceneId + seed;
 
     if (actor != NULL) {
-        posXY += abs(actor->world.pos.x + actor->world.pos.y);
+        actorData += abs(actor->home.pos.x + actor->home.pos.y + actor->params);
     }
 
-    int drawRandoItemId = posXY % (int)RI_MAX - 2;
+    int drawRandoItemId = actorData % (int)RI_MAX - 2;
 
     if (drawRandoItemId == RI_UNKNOWN || drawRandoItemId >= RI_TRAP) {
         drawRandoItemId++;
+    }
+
+    // Handle Progressive Items
+    switch (drawRandoItemId) {
+        case RI_BOMB_BAG_20:
+        case RI_BOMB_BAG_30:
+        case RI_BOMB_BAG_40:
+            drawRandoItemId = RI_PROGRESSIVE_BOMB_BAG;
+            break;
+        case RI_BOW:
+        case RI_QUIVER_40:
+        case RI_QUIVER_50:
+            drawRandoItemId = RI_PROGRESSIVE_BOW;
+            break;
+        case RI_SINGLE_MAGIC:
+        case RI_DOUBLE_MAGIC:
+            drawRandoItemId = RI_PROGRESSIVE_MAGIC;
+            break;
+        case RI_SWORD_GILDED:
+        case RI_SWORD_KOKIRI:
+        case RI_SWORD_RAZOR:
+            drawRandoItemId = RI_PROGRESSIVE_SWORD;
+            break;
+        case RI_WALLET_ADULT:
+        case RI_WALLET_GIANT:
+            drawRandoItemId = RI_PROGRESSIVE_WALLET;
+            break;
+        default:
+            break;
     }
 
     Rando::DrawItem((RandoItemId)drawRandoItemId, actor);
