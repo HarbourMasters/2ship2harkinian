@@ -311,6 +311,11 @@ static void DrawItemsTab() {
         CheckboxOptions({ { .tooltip = "Enables Shock Traps.",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Jinx Traps", "gRando.Traps.Jinx",
+        CheckboxOptions({ { .tooltip = "Enables Jinx Traps.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
     ImGui::EndChild();
 }
 

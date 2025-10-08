@@ -13,6 +13,7 @@ std::map<TrapTypes, const char*> trapToCvarMap = {
     { TRAP_FREEZE, "gRando.Traps.Freeze" },
     { TRAP_BLAST, "gRando.Traps.Blast" },
     { TRAP_SHOCK, "gRando.Traps.Shock" },
+    { TRAP_JINX, "gRando.Traps.Jinx" },
 };
 
 std::vector<TrapTypes> getEnabledTrapTypes() {
@@ -53,6 +54,7 @@ std::map<TrapTypes, std::vector<std::string>> trapMessageList = {
     { TRAP_FREEZE, freezeTrapMessages },
     { TRAP_BLAST, blastTrapMessages },
     { TRAP_SHOCK, shockTrapMessages },
+    { TRAP_JINX, freezeTrapMessages },
 };
 
 std::string GetTrapMessage() {
@@ -81,6 +83,12 @@ void Rando::MiscBehavior::OfferTrapItem() {
         case TRAP_SHOCK:
             GameInteractor::Instance->events.emplace_back(
                 GIEventTrap{ .action = []() { func_80833B18(gPlayState, GET_PLAYER(gPlayState), 4, 0, 0, 0, 0); } });
+            break;
+        case TRAP_JINX:
+            GameInteractor::Instance->events.emplace_back(GIEventTrap{ .action = []() {
+                Actor_PlaySfx(&GET_PLAYER(gPlayState)->actor, NA_SE_EN_BUBLE_BITE);
+                gSaveContext.jinxTimer = 1200;
+            } });
             break;
         default:
             break;
