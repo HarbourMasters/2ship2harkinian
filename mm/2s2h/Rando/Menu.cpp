@@ -316,6 +316,12 @@ static void DrawItemsTab() {
         CheckboxOptions({ { .tooltip = "Enables Jinx Traps.",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox( // This only spawns a Like Like, more enemies may be added in the future but each would need fine
+                  // tuning
+        "Like Like Traps", "gRando.Traps.Enemy",
+        CheckboxOptions({ { .tooltip = "Enables Like Like Traps.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
     ImGui::EndChild();
 }
 
