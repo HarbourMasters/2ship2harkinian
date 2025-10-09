@@ -15,6 +15,8 @@ extern "C" {
 #include "objects/object_sek/object_sek.h"
 #include "objects/object_st/object_st.h"
 
+#include "assets/overlays/ovl_Arrow_Ice/ovl_Arrow_Ice.h"
+
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
 }
 
@@ -296,7 +298,20 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
-void DrawTrapModel(RandoItemId randoItemId, Actor* actor) {
+void DrawTrapModel() { // Placeholder, need Trap Model
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+
+    // Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+
+    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gIceArrowModelDL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void DrawRandomTrapModel(RandoItemId randoItemId, Actor* actor) {
     uint32_t seed = gSaveContext.save.shipSaveInfo.rando.finalSeed / 100000;
     int actorData = (int)gPlayState->sceneId + seed;
 
@@ -304,7 +319,7 @@ void DrawTrapModel(RandoItemId randoItemId, Actor* actor) {
         actorData += abs(actor->home.pos.x + actor->home.pos.y + actor->params);
     }
 
-    int drawRandoItemId = actorData % (int)RI_MAX - 2;
+    int drawRandoItemId = actorData % (int)RI_MAX - 3;
 
     if (drawRandoItemId == RI_UNKNOWN || drawRandoItemId >= RI_TRAP) {
         drawRandoItemId++;
@@ -468,7 +483,10 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             DrawMinifrog(randoItemId, actor);
             break;
         case RI_TRAP:
-            DrawTrapModel(randoItemId, actor);
+            DrawRandomTrapModel(randoItemId, actor);
+            break;
+        case RI_MAX_TRAP:
+            DrawTrapModel();
             break;
         case RI_NONE:
         case RI_UNKNOWN:

@@ -7,6 +7,8 @@
 #include "2s2h/ShipUtils.h"
 #include "Traps.h"
 
+#include "spdlog/spdlog.h"
+
 extern "C" {
 #include "variables.h"
 extern TexturePtr gItemIcons[131];
@@ -86,7 +88,11 @@ void Rando::MiscBehavior::CheckQueue() {
 
                         // If the item has been given, the CUSTOM_ITEM_PARAM is set to the RI, prior to that it's the RC
                         if (CUSTOM_ITEM_FLAGS & CustomItem::CALLED_ACTION) {
-                            randoItemId = (RandoItemId)CUSTOM_ITEM_PARAM;
+                            if ((RandoItemId)CUSTOM_ITEM_PARAM == RI_TRAP) {
+                                randoItemId = RI_MAX_TRAP;
+                            } else {
+                                randoItemId = (RandoItemId)CUSTOM_ITEM_PARAM;
+                            }
                         } else {
                             auto& randoSaveCheck = RANDO_SAVE_CHECKS[CUSTOM_ITEM_PARAM];
                             randoItemId =
