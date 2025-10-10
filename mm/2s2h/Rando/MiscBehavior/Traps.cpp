@@ -20,8 +20,10 @@ int trapDelay = -1;
 TrapTypes currentTrap = TRAP_MAX;
 
 std::map<TrapTypes, const char*> trapToCvarMap = {
-    { TRAP_FREEZE, "gRando.Traps.Freeze" }, { TRAP_BLAST, "gRando.Traps.Blast" }, { TRAP_SHOCK, "gRando.Traps.Shock" },
-    { TRAP_JINX, "gRando.Traps.Jinx" },     { TRAP_ENEMY, "gRando.Traps.Enemy" }, { TRAP_TIME, "gRando.Traps.Time" },
+    { TRAP_FREEZE, "gRando.Traps.Freeze" }, { TRAP_BLAST, "gRando.Traps.Blast" },
+    { TRAP_SHOCK, "gRando.Traps.Shock" },   { TRAP_JINX, "gRando.Traps.Jinx" },
+    { TRAP_WALLET, "gRando.Traps.Wallet" }, { TRAP_ENEMY, "gRando.Traps.Enemy" },
+    { TRAP_TIME, "gRando.Traps.Time" },
 };
 
 std::vector<TrapTypes> getEnabledTrapTypes() {
@@ -107,6 +109,39 @@ void Rando::MiscBehavior::OfferTrapItem() {
             GameInteractor::Instance->events.emplace_back(GIEventTrap{ .action = []() {
                 Actor_PlaySfx(&GET_PLAYER(gPlayState)->actor, NA_SE_EN_BUBLE_BITE);
                 gSaveContext.jinxTimer = 1200;
+            } });
+            break;
+        case TRAP_WALLET:
+            GameInteractor::Instance->events.emplace_back(GIEventTrap{ .action = []() {
+                int16_t currentRupees = gSaveContext.save.saveInfo.playerData.rupees;
+                if (currentRupees != 0) {
+                    Vec3f positional = GET_PLAYER(gPlayState)->actor.world.pos;
+                    positional.y = GET_PLAYER(gPlayState)->actor.world.pos.y + 100.0f;
+                    Item00Type rupee = ITEM00_RUPEE_GREEN;
+                    int16_t spawnedRupees = 0;
+                    int16_t remainingRupees = currentRupees;
+                    for (int i = spawnedRupees; spawnedRupees < remainingRupees;) {
+                        if (currentRupees >= 20) {
+                            rupee = ITEM00_RUPEE_RED;
+                            spawnedRupees += 20;
+                            Rupees_ChangeBy(-20);
+                            currentRupees -= 20;
+                        } else if (currentRupees >= 5) {
+                            rupee = ITEM00_RUPEE_BLUE;
+                            spawnedRupees += 5;
+                            Rupees_ChangeBy(-5);
+                            currentRupees -= 5;
+                        } else if (currentRupees >= 1) {
+                            rupee = ITEM00_RUPEE_GREEN;
+                            spawnedRupees += 1;
+                            Rupees_ChangeBy(-1);
+                            currentRupees -= 1;
+                        }
+                        EnItem00* rupeeActor = (EnItem00*)Item_DropCollectible(gPlayState, &positional, rupee);
+                        rupeeActor->actor.speed = Rand_CenteredFloat(5.0f);
+                        rupeeActor->unk152 = 600; // Extending Time before Despawning
+                    }
+                }
             } });
             break;
         case TRAP_ENEMY:
