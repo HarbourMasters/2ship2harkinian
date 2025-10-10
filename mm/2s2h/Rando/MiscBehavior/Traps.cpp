@@ -24,22 +24,6 @@ std::map<TrapTypes, const char*> trapToCvarMap = {
     { TRAP_JINX, "gRando.Traps.Jinx" },     { TRAP_ENEMY, "gRando.Traps.Enemy" }, { TRAP_TIME, "gRando.Traps.Time" },
 };
 
-/* TODO: Handle being kicked out of a place in a cleaner way
-std::unordered_map<SceneId, std::pair<int, std::pair<s32, s32>>> kickOutMap{
-    { SCENE_8ITEMSHOP, { 0x1883, { CLOCK_TIME(21, 0), CLOCK_TIME(22, 0) } } },
-    { SCENE_TAKARAKUJI, { 0x1887, { CLOCK_TIME(23, 0), CLOCK_TIME(6, 0) } } },
-    { SCENE_DOUJOU, { 0x1807, { CLOCK_TIME(23, 0), CLOCK_TIME(0, 30) } } },
-    { SCENE_MILK_BAR, { 0x1889, { CLOCK_TIME(22, 0), CLOCK_TIME(5, 0) } } },
-    { SCENE_BOWLING, { 0x1886, { CLOCK_TIME(22, 0), CLOCK_TIME(6, 0) } } },
-    { SCENE_TAKARAYA, { 0x1892, { CLOCK_TIME(22, 0), CLOCK_TIME(6, 0) } } },
-    { SCENE_SYATEKI_MIZU, { 0x188f, { CLOCK_TIME(22, 0), CLOCK_TIME(6, 0) } } },
-    { SCENE_SONCHONOIE, { 0x1889, { CLOCK_TIME(20, 0), CLOCK_TIME(10, 0) } } },
-    { SCENE_AYASHIISHOP, { 0x1889, { CLOCK_TIME(5, 0), CLOCK_TIME(22, 0) } } },
-    { SCENE_SYATEKI_MORI, { 0x1884, { CLOCK_TIME(22, 0), CLOCK_TIME(6, 0) } } },
-    { SCENE_POSTHOUSE, { 0x1889, { CLOCK_TIME(23, 59), CLOCK_TIME(9, 0) } } },
-};
-*/
-
 std::vector<TrapTypes> getEnabledTrapTypes() {
     std::vector<TrapTypes> enabledTrapTypes;
     for (auto& trap : trapToCvarMap) {
@@ -163,47 +147,6 @@ void Rando::MiscBehavior::OfferTrapItem() {
                 TransitionFade_SetColor(&gPlayState->unk_18E48, 0x000000);
                 R_TRANS_FADE_FLASH_ALPHA_STEP = -1;
                 Player_PlaySfx(GET_PLAYER(gPlayState), NA_SE_SY_TRANSFORM_MASK_FLASH);
-                /* TODO: Handle being kicked out of a place in a cleaner way
-                for (auto& kick : kickOutMap) {
-                    SceneId checked_scene = kick.first;
-                    s32 close_time = kick.second.second.first;
-                    s32 reopen_time = kick.second.second.second;
-                    int msg_id = kick.second.first;
-                    bool past_midnight = previous_time > new_time;
-                    bool triggered = false;
-                    if (gPlayState->sceneId == checked_scene) {
-                        if (checked_scene == SCENE_POSTHOUSE && CURRENT_DAY == 3) {
-                            // Special case for Postoffice, it does not close on day 3
-                            continue;
-                        } else {
-                            // Handles midnight crossing edgecases
-                            if (reopen_time < close_time) {
-                                if (gSaveContext.save.time >= close_time) {
-                                    // For cases where it is triggered before midnight, but closes before midnight, but
-                                    // reopens after midnight.
-                                    triggered = true;
-                                } else if (previous_time <= close_time && gSaveContext.save.time <= reopen_time &&
-                                           past_midnight) {
-                                    // For cases where it is triggered through midnight, closes before midnight, but
-                                    // reopens after midnight.
-                                    triggered = true;
-                                }
-                            }
-                            if (gSaveContext.save.time >= close_time && gSaveContext.save.time <= reopen_time) {
-                                // For cases where it does not trigger through midnight, closes before midnight, and
-                                // reopens before midnight.
-                                triggered = true;
-                            }
-                        }
-                        if (triggered) {
-                            Message_StartTextbox(gPlayState, msg_id, NULL);
-                            currentTrap = (TrapTypes)roll;
-                            trapDelay = 3;
-                            break;
-                        }
-                    }
-                }
-                */
             } });
             break;
         default:
