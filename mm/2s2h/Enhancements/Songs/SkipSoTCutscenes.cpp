@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/MiscBehavior/ClockShuffle.h"
+#include "2s2h/Rando/Logic/Logic.h"
 
 extern "C" {
 #include "variables.h"
@@ -29,7 +30,7 @@ void RegisterSkipSoTCutscenes() {
             gSaveContext.save.eventDayCount = 0;
 
             // Set time appropriately if clock shuffle is enabled
-            if (CVarGetInteger("gRando.Options.RO_CLOCK_SHUFFLE", 0)) {
+            if (IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
                 const int earliestOwnedHalfDay = Rando::ClockItems::FindEarliestOwnedHalfDay(false);
                 if (earliestOwnedHalfDay != -1) {
                     // Check if target is a day half (even indices: 0, 2, 4)

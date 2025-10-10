@@ -9,6 +9,42 @@ namespace Logic {
 
 std::unordered_map<RandoRegionId, RandoRegion> Regions = {};
 
+// Thread-local storage for current region time during check evaluation
+thread_local uint64_t gCurrentRegionTime = 0;
+
+// Time expansion function - expands accessible time forward with stay restrictions
+// Implements OoTMM's sequential expansion: if a stay restriction fails, expansion stops permanently
+inline uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region) {
+    uint64_t expanded = timeSlices;
+    bool canWait = false;
+
+    for (int i = 0; i < TIME_SLICE_COUNT; ++i) {
+        uint64_t mask = (TIME_BIT_ONE << i);
+
+        if (timeSlices & mask) {
+            // We can be at this time
+            canWait = true;
+            expanded |= mask;
+        } else if (canWait) {
+            // Check if we can wait to this time
+            auto it = region.timeStayRestrictions.find(static_cast<TimeSlice>(i));
+            if (it != region.timeStayRestrictions.end()) {
+                // Explicit restriction exists
+                if (it->second()) {
+                    expanded |= mask; // Condition passed, add time
+                } else {
+                    canWait = false; // Kicked out, STOP expansion
+                }
+            } else {
+                // No restriction = default true, can stay
+                expanded |= mask;
+            }
+        }
+    }
+
+    return expanded;
+}
+
 RandoRegionId GetRegionIdFromEntrance(s32 entrance) {
     static std::unordered_map<s32, RandoRegionId> entranceToRegionId;
     if (entranceToRegionId.empty()) {
@@ -32,23 +68,45 @@ RandoRegionId GetRegionIdFromEntrance(s32 entrance) {
     return RR_MAX;
 }
 
-void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions) {
-    auto& randoRegion = Rando::Logic::Regions[currentRegion];
+void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions,
+                          std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates) {
+    auto& sourceRegion = Regions[currentRegion];
+    auto& sourceTimeState = regionTimeStates[currentRegion];
 
-    for (auto& [connectedRegionId, condition] : randoRegion.connections) {
-        // Check if the region is accessible and hasn’t been visited yet
+    // Expand time if player can wait in this region
+    uint64_t currentTime = sourceTimeState.timeSlices;
+    if (sourceTimeState.canStayOverTime) {
+        currentTime = ExpandTimeForward(currentTime, sourceRegion);
+        sourceTimeState.timeSlices = currentTime;
+    }
+
+    // Set global time for check evaluation
+    gCurrentRegionTime = currentTime;
+
+    // Explore connections
+    for (auto& [connectedRegionId, condition] : sourceRegion.connections) {
         if (reachableRegions.count(connectedRegionId) == 0 && condition.first()) {
-            reachableRegions.insert(connectedRegionId);                // Mark region as visited
-            FindReachableRegions(connectedRegionId, reachableRegions); // Recursively visit neighbors
+            reachableRegions.insert(connectedRegionId);
+
+            auto& targetRegion = Regions[connectedRegionId];
+            regionTimeStates[connectedRegionId] = { .timeSlices = currentTime,
+                                                    .canStayOverTime = targetRegion.canStayOverTime };
+
+            FindReachableRegions(connectedRegionId, reachableRegions, regionTimeStates);
         }
     }
 
-    for (auto& [exitId, regionExit] : randoRegion.exits) {
+    // Explore exits
+    for (auto& [exitId, regionExit] : sourceRegion.exits) {
         RandoRegionId connectedRegionId = GetRegionIdFromEntrance(exitId);
-        // Check if the region is accessible and hasn’t been visited yet
         if (reachableRegions.count(connectedRegionId) == 0 && regionExit.condition()) {
-            reachableRegions.insert(connectedRegionId);                // Mark region as visited
-            FindReachableRegions(connectedRegionId, reachableRegions); // Recursively visit neighbors
+            reachableRegions.insert(connectedRegionId);
+
+            auto& targetRegion = Regions[connectedRegionId];
+            regionTimeStates[connectedRegionId] = { .timeSlices = currentTime,
+                                                    .canStayOverTime = targetRegion.canStayOverTime };
+
+            FindReachableRegions(connectedRegionId, reachableRegions, regionTimeStates);
         }
     }
 }

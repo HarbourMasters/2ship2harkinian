@@ -205,48 +205,6 @@ static void DrawLocationsTab() {
     CVarCheckbox("Shuffle Owl Statues", Rando::StaticData::Options[RO_SHUFFLE_OWL_STATUES].cvar);
     CVarCheckbox("Shuffle Shops", Rando::StaticData::Options[RO_SHUFFLE_SHOPS].cvar);
     CVarCheckbox("Shuffle Tingle Maps", Rando::StaticData::Options[RO_SHUFFLE_TINGLE_SHOPS].cvar);
-    CVarCheckbox("Shuffle Clock", Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar,
-                 CheckboxOptions({ { .tooltip = "Breaks the 3-day cycle into 6 separate half-days (Day 1 Day/Night, "
-                                                "Day 2 Day/Night, Day 3 Day/Night) that must be unlocked as items. "
-                                                "Players can only access time periods they've obtained. Attempting to "
-                                                "access unowned time redirects to the next owned half-day." } }));
-    // Only show clock progression options when clock shuffle is enabled
-    if (CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar, 0)) {
-        static std::unordered_map<int32_t, const char*> clockModeOptions = {
-            { RO_CLOCK_SHUFFLE_RANDOM, "Random" },
-            { RO_CLOCK_SHUFFLE_ASCENDING, "Progressive: Ascending" },
-            { RO_CLOCK_SHUFFLE_DESCENDING, "Progressive: Descending" },
-        };
-        {
-            int32_t value =
-                CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, RO_CLOCK_SHUFFLE_RANDOM);
-            if (UIWidgets::Combobox<int32_t>("Clock Progression Mode", &value, &clockModeOptions)) {
-                CVarSetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, value);
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-            }
-            UIWidgets::Tooltip("Random: All 6 half-days shuffled randomly. Player starts with one random half-day.\n\n"
-                               "Progressive Ascending: Unlocks half-days in order (D1, N1, D2, N2, D3, N3).\n\n"
-                               "Progressive Descending: Unlocks half-days in reverse order (N3, D3, N2, D2, N1, D1).");
-        }
-        // Terminal time slider (Final Hours start time)
-        {
-            int32_t terminalMinutes = CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar, 0);
-            int hours = terminalMinutes / 60;
-            int minutes = terminalMinutes % 60;
-
-            ImGui::Spacing();
-            ImGui::Text("Final Hours Start Time: %02d:%02d", hours, minutes);
-            ImGui::Spacing();
-            UIWidgets::CVarSliderInt("Final Hours Start Time", Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar,
-                                     UIWidgets::IntSliderOptions().Min(0).Max(359).DefaultValue(0).LabelPosition(
-                                         UIWidgets::LabelPosition::None));
-            ImGui::Spacing();
-
-            UIWidgets::Tooltip("Controls when the final hours countdown begins (00:00 to 05:59). "
-                               "When you run out of owned half-days, this allows the player control over how much "
-                               "time is left before the moon crash.");
-        }
-    }
     CVarCheckbox("Shuffle Boss Remains", Rando::StaticData::Options[RO_SHUFFLE_BOSS_REMAINS].cvar);
     CVarCheckbox("Shuffle Cows", Rando::StaticData::Options[RO_SHUFFLE_COWS].cvar);
     CVarCheckbox("Shuffle Gold Skulltula Tokens", Rando::StaticData::Options[RO_SHUFFLE_GOLD_SKULLTULAS].cvar);
@@ -318,6 +276,51 @@ static void DrawItemsTab() {
                             .disabledTooltip = "Incompatible with current Logic Setting" } }));
     CVarCheckbox("Enemy Souls", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Clock Fragments", Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar,
+                 CheckboxOptions({ { .tooltip = "Breaks the 3-day cycle into 6 separate half-days (Day 1 Day/Night, "
+                                                "Day 2 Day/Night, Day 3 Day/Night) that must be unlocked as items. "
+                                                "Players can only access time periods they've obtained. Attempting to "
+                                                "access unowned time redirects to the next owned half-day.",
+                                     .disabled = IncompatibleWithLogicSetting(RO_CLOCK_SHUFFLE),
+                                     .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    // Only show clock progression options when clock fragments is enabled
+    if (CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar, 0)) {
+        static std::unordered_map<int32_t, const char*> clockModeOptions = {
+            { RO_CLOCK_SHUFFLE_RANDOM, "Random" },
+            { RO_CLOCK_SHUFFLE_ASCENDING, "Progressive: Ascending" },
+            { RO_CLOCK_SHUFFLE_DESCENDING, "Progressive: Descending" },
+        };
+        {
+            int32_t value =
+                CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, RO_CLOCK_SHUFFLE_RANDOM);
+            if (UIWidgets::Combobox<int32_t>("Clock Progression Mode", &value, &clockModeOptions)) {
+                CVarSetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, value);
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+            }
+            UIWidgets::Tooltip("Random: All 6 half-days shuffled randomly. Player starts with one random half-day.\n\n"
+                               "Progressive Ascending: Unlocks half-days in order (D1, N1, D2, N2, D3, N3).\n\n"
+                               "Progressive Descending: Unlocks half-days in reverse order (N3, D3, N2, D2, N1, D1).");
+        }
+        // Terminal time slider (Final Hours start time)
+        {
+            int32_t terminalMinutes = CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar, 0);
+            int hours = terminalMinutes / 60;
+            int minutes = terminalMinutes % 60;
+
+            ImGui::Spacing();
+            ImGui::Text("Final Hours Start Time: %02d:%02d", hours, minutes);
+            ImGui::Spacing();
+            UIWidgets::CVarSliderInt("Final Hours Start Time", Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar,
+                                     UIWidgets::IntSliderOptions().Min(0).Max(359).DefaultValue(0).LabelPosition(
+                                         UIWidgets::LabelPosition::None));
+            ImGui::Spacing();
+
+            UIWidgets::Tooltip("Controls when the final hours countdown begins (00:00 to 05:59). "
+                               "When you run out of owned half-days, this allows the player control over how much "
+                               "time is left before the moon crash.\n\n"
+                               "This setting is baked into the seed and cannot be changed after generation.");
+        }
+    }
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn3", ImVec2(columnWidth, halfHeight));

@@ -40,9 +40,6 @@ static std::unordered_map<s32, s32> betterSceneIndex = {
 #define CVAR_NAME_TRACKER_OPACITY "gRando.CheckTracker.Opacity"
 #define CVAR_NAME_TRACKER_SCALE "gRando.CheckTracker.Scale"
 #define CVAR_NAME_SHOW_CURRENT_SCENE "gRando.CheckTracker.ShowCurrentScene"
-#define CVAR_NAME_CLOCK_SEGMENTS_SHOW "gRando.CheckTracker.ShowClockSegments"
-#define CVAR_NAME_CLOCK_SEGMENTS_POS_X "gRando.CheckTracker.ClockSegments.X"
-#define CVAR_NAME_CLOCK_SEGMENTS_POS_Y "gRando.CheckTracker.ClockSegments.Y"
 #define CVAR_SHOW_CHECK_TRACKER CVarGetInteger(CVAR_NAME_SHOW_CHECK_TRACKER, 0)
 #define CVAR_SHOW_LOGIC CVarGetInteger(CVAR_NAME_SHOW_LOGIC, 0)
 #define CVAR_HIDE_COLLECTED CVarGetInteger(CVAR_NAME_HIDE_COLLECTED, 0)
@@ -51,9 +48,6 @@ static std::unordered_map<s32, s32> betterSceneIndex = {
 #define CVAR_TRACKER_OPACITY CVarGetFloat(CVAR_NAME_TRACKER_OPACITY, 0.5f)
 #define CVAR_TRACKER_SCALE CVarGetFloat(CVAR_NAME_TRACKER_SCALE, 1.0f)
 #define CVAR_SHOW_CURRENT_SCENE CVarGetInteger(CVAR_NAME_SHOW_CURRENT_SCENE, 0)
-#define CVAR_CLOCK_SEGMENTS_SHOW CVarGetInteger(CVAR_NAME_CLOCK_SEGMENTS_SHOW, 1)
-#define CVAR_CLOCK_SEGMENTS_POS_X CVarGetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_X, 32.0f)
-#define CVAR_CLOCK_SEGMENTS_POS_Y CVarGetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_Y, 64.0f)
 
 static bool sExpandedHeadersToggle = true;
 static bool sExpandedHeadersState = true;
@@ -90,6 +84,7 @@ std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_SONG*/ gItemIconSongNoteTex,
     /*RCTYPE_STRAY_FAIRY*/ gStrayFairyGreatBayIconTex,
     /*RCTYPE_TINGLE_SHOP*/ gItemIconAdultsWalletTex,
+    /*RCTYPE_CLOCK*/ gItemIconSongNoteTex,
 };
 
 static constexpr ImVec4 tintColor = {};
@@ -153,11 +148,14 @@ bool checkTrackerShouldShowRow(bool obtained, bool skipped) {
 
 void CheckTrackerDrawLogicalList() {
     std::set<RandoRegionId> reachableRegions = {};
+    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates;
+    regionTimeStates[RR_MAX] = { .timeSlices = (1ULL << Rando::Logic::TIME_DAY1_AM_06_00), .canStayOverTime = false };
+
     // Get connected entrances from starting & warp points
-    Rando::Logic::FindReachableRegions(RR_MAX, reachableRegions);
+    Rando::Logic::FindReachableRegions(RR_MAX, reachableRegions, regionTimeStates);
     // Get connected regions from current entrance (TODO: Make this optional)
     Rando::Logic::FindReachableRegions(Rando::Logic::GetRegionIdFromEntrance(gSaveContext.save.entrance),
-                                       reachableRegions);
+                                       reachableRegions, regionTimeStates);
 
     std::vector<RandoRegionId> sortedRegionIds;
     for (auto& regionId : reachableRegions) {
@@ -303,13 +301,19 @@ void RefreshChecksInLogic() {
         RR_MAX,
         Rando::Logic::GetRegionIdFromEntrance(gSaveContext.save.entrance),
     };
+    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates;
+    regionTimeStates[RR_MAX] = { .timeSlices = (1ULL << Rando::Logic::TIME_DAY1_AM_06_00), .canStayOverTime = false };
+
     // Get connected entrances from starting & warp points
-    Rando::Logic::FindReachableRegions(RR_MAX, reachableRegions);
+    Rando::Logic::FindReachableRegions(RR_MAX, reachableRegions, regionTimeStates);
     // Get connected regions from current entrance (TODO: Make this optional)
     Rando::Logic::FindReachableRegions(Rando::Logic::GetRegionIdFromEntrance(gSaveContext.save.entrance),
-                                       reachableRegions);
+                                       reachableRegions, regionTimeStates);
     for (RandoRegionId regionId : reachableRegions) {
         auto& randoRegion = Rando::Logic::Regions[regionId];
+
+        // Set current region time for check evaluation
+        Rando::Logic::gCurrentRegionTime = regionTimeStates[regionId].timeSlices;
         std::vector<std::pair<RandoCheckId, std::string>> availableChecks;
 
         for (auto& [randoCheckId, accessLogicFunc] : randoRegion.checks) {
@@ -520,40 +524,6 @@ void CheckTrackerWindow::Draw() {
 
     ImGui::PopStyleColor(4);
     ImGui::PopStyleVar(1);
-
-    // Compact Clocks-as-Items indicator row
-    if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] && CVAR_CLOCK_SEGMENTS_SHOW) {
-        ImGui::SetNextWindowBgAlpha(trackerBG.w);
-        ImGui::SetNextWindowPos(ImVec2(CVAR_CLOCK_SEGMENTS_POS_X, CVAR_CLOCK_SEGMENTS_POS_Y), ImGuiCond_FirstUseEver);
-        bool showClockSegments = true;
-        ImGui::Begin("Clock Items", &showClockSegments,
-                     ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_AlwaysAutoResize);
-
-        // Close button in the title bar
-        if (!showClockSegments) {
-            CVarSetInteger(CVAR_NAME_CLOCK_SEGMENTS_SHOW, 0);
-        }
-        auto seg = [&](const char* label, bool owned) {
-            ImGui::SameLine(0, 8.0f);
-            ImGui::TextColored(owned ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)
-                                     : UIWidgets::ColorValues.at(UIWidgets::Colors::Gray),
-                               "%s", label);
-        };
-        ImGui::Text("Clocks:");
-        seg("D1", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1));
-        seg("N1", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_1));
-        seg("D2", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_2));
-        seg("N2", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_2));
-        seg("D3", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_3));
-        seg("N3", Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_3));
-
-        // Save position when moved
-        ImVec2 currentPos = ImGui::GetWindowPos();
-        CVarSetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_X, currentPos.x);
-        CVarSetFloat(CVAR_NAME_CLOCK_SEGMENTS_POS_Y, currentPos.y);
-
-        ImGui::End();
-    }
 }
 
 void SettingsWindow::DrawElement() {
@@ -565,7 +535,6 @@ void SettingsWindow::DrawElement() {
         UIWidgets::CVarCheckbox("Hide Skipped Checks", CVAR_NAME_HIDE_SKIPPED);
         UIWidgets::CVarCheckbox("Auto Scroll To Current Scene", CVAR_NAME_SCROLL_TO_SCENE);
         UIWidgets::CVarCheckbox("Only Show Current Scene", CVAR_NAME_SHOW_CURRENT_SCENE);
-        UIWidgets::CVarCheckbox("Show Clock Segments", CVAR_NAME_CLOCK_SEGMENTS_SHOW);
 
         ImGui::TableNextColumn();
 

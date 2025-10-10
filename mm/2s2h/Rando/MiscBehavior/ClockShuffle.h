@@ -2,6 +2,7 @@
 #define RANDO_CLOCK_SHUFFLE_H
 
 #include "Rando/Types.h"
+#include <string>
 
 extern "C" {
 #include "variables.h"
@@ -23,6 +24,8 @@ namespace ClockShuffle {
 void OnFileLoad();
 void SetTimeToHalfDayStart(int halfDayIndex);
 void SetPendingDayTelop(int targetDay);
+bool IsTimeOwnedForClockShuffle(s32 day, u16 time);
+std::string GetTimeDescriptionForMessage(s32 day, u16 time);
 
 } // namespace ClockShuffle
 } // namespace Rando

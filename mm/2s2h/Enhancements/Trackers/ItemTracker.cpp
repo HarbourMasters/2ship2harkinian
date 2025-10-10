@@ -2,11 +2,13 @@
 #include "public/bridge/consolevariablebridge.h"
 #include "Context.h"
 #include "config/Config.h"
+#include "2s2h/Rando/Rando.h"
 #include <bit>
 
 extern "C" {
 #include "z64save.h"
 #include "variables.h"
+#include "functions.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
@@ -58,6 +60,7 @@ ItemTrackerWindow::~ItemTrackerWindow() {
     config->SetInteger(CFG_TRACKER_ITEM("SongsDrawMode"), (int8_t)mItemDrawModes[SECTION_SONGS]);
     config->SetInteger(CFG_TRACKER_ITEM("StrayFairiesDrawMode"), (int8_t)mItemDrawModes[SECTION_STRAY_FAIRIES]);
     config->SetInteger(CFG_TRACKER_ITEM("GoldSkulltulasDrawMode"), (int8_t)mItemDrawModes[SECTION_GOLD_SKULLTULAS]);
+    config->SetInteger(CFG_TRACKER_ITEM("ClocksDrawMode"), (int8_t)mItemDrawModes[SECTION_CLOCKS]);
     config->SetInteger(CFG_TRACKER_ITEM("DungeonDrawMode"), (int8_t)mItemDrawModes[SECTION_DUNGEON]);
 
     config->Save();
@@ -101,6 +104,8 @@ void ItemTrackerWindow::LoadSettings() {
         CFG_TRACKER_ITEM("StrayFairiesDrawMode"), (int32_t)ItemTrackerDisplayType::MainWindow);
     mItemDrawModes[SECTION_GOLD_SKULLTULAS] = (ItemTrackerDisplayType)config->GetInteger(
         CFG_TRACKER_ITEM("GoldSkulltulasDrawMode"), (int32_t)ItemTrackerDisplayType::MainWindow);
+    mItemDrawModes[SECTION_CLOCKS] = (ItemTrackerDisplayType)config->GetInteger(
+        CFG_TRACKER_ITEM("ClocksDrawMode"), (int32_t)ItemTrackerDisplayType::MainWindow);
     mItemDrawModes[SECTION_DUNGEON] = (ItemTrackerDisplayType)config->GetInteger(
         CFG_TRACKER_ITEM("DungeonDrawMode"), (int32_t)ItemTrackerDisplayType::MainWindow);
 }
@@ -697,6 +702,67 @@ int ItemTrackerWindow::DrawGoldSkulltulas(int columns, int prevDrawnColumns) {
     return 1;
 }
 
+int ItemTrackerWindow::DrawClocks(int columns, int prevDrawnColumns) {
+    // Only show if clock shuffle is enabled
+    if (!RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
+        return 0;
+    }
+
+    int topPadding = 0;
+
+    // Clock segment labels
+    const char* clockLabels[6] = { "D1", "N1", "D2", "N2", "D3", "N3" };
+
+    // Sun/moon textures are 24x24, scale to match 36x36 item icons
+    constexpr float clockToIconScale = 36.0f / 24.0f;
+    const float iconScale = mIconSize / 36.0f;
+    const ImVec2 scaledClockSize(clockToIconScale * 24.0f * iconScale, clockToIconScale * 24.0f * iconScale);
+
+    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+
+    // Draw 6 separate clock icons
+    for (size_t i = 0; i < 6; i++) {
+        int row = prevDrawnColumns + (i / columns);
+        int column = i % columns;
+        ImVec2 pos = ImVec2((column * (mIconSize + mIconSpacing) + 8.0f),
+                            (row * (mIconSize + mIconSpacing)) + 8.0f + topPadding);
+
+        ImGui::SetCursorPos(pos);
+        ImGui::BeginGroup();
+
+        // Get the clock icon for this segment
+        RandoItemId clockItemId = static_cast<RandoItemId>(RI_CLOCK_DAY_1 + i);
+        const char* iconPath = Rando::StaticData::GetIconTexturePath(clockItemId);
+
+        // Check if this clock segment is collected
+        bool isCollected = Flags_GetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + i));
+
+        // Apply color tinting: yellow/orange for day (sun), blue/silver for night (moon)
+        bool isDay = (i % 2 == 0);                                // Even indices are day clocks
+        ImVec4 baseTint = isDay ? ImVec4(1.0f, 0.9f, 0.3f, 1.0f)  // Sun: yellow/orange
+                                : ImVec4(0.6f, 0.7f, 1.0f, 1.0f); // Moon: light blue
+
+        // Apply fading if not collected
+        ImVec4 color =
+            isCollected ? baseTint : ImVec4(baseTint.x * 0.5f, baseTint.y * 0.5f, baseTint.z * 0.5f, baseTint.w * 0.5f);
+
+        ImGui::Image(gui->GetTextureByName(iconPath), scaledClockSize, ImVec2(0, 0), ImVec2(1, 1), color, tintCol);
+
+        // Draw label at bottom of icon (same position as ammo counts)
+        ImGui::SetWindowFontScale(mTextSize / 13.0f);
+        ImVec2 iconScreenPos = ImGui::GetCursorScreenPos();
+        float labelX = iconScreenPos.x + (mIconSize / 2.0f) - (ImGui::CalcTextSize(clockLabels[i]).x / 2.0f);
+        float labelY = iconScreenPos.y - (mTextOffset / 36.0f) * mIconSize;
+        ImGui::SetCursorScreenPos({ labelX, labelY });
+        ImGui::Text("%s", clockLabels[i]);
+        ImGui::SetWindowFontScale(1.0f);
+
+        ImGui::EndGroup();
+    }
+
+    return 1;
+}
+
 int ItemTrackerWindow::DrawSongs(int columns, int prevDrawnColumns) {
     int topPadding = 0;
 
@@ -890,6 +956,20 @@ void ItemTrackerWindow::DrawItemsInRows(int columns) {
         }
     }
 
+    if (mItemDrawModes[SECTION_CLOCKS] != ItemTrackerDisplayType::Hidden) {
+        int drawPos = mainWindowPos;
+        if (mItemDrawModes[SECTION_CLOCKS] == ItemTrackerDisplayType::Separate) {
+            drawPos = 0;
+            BeginFloatingWindows("Clocks");
+        }
+        advancedBy = DrawClocks(6, drawPos);
+        if (mItemDrawModes[SECTION_CLOCKS] == ItemTrackerDisplayType::Separate) {
+            EndFloatingWindows();
+        } else {
+            mainWindowPos += advancedBy;
+        }
+    }
+
     if (mItemDrawModes[SECTION_DUNGEON] != ItemTrackerDisplayType::Hidden) {
         int drawPos = mainWindowPos;
         if (mItemDrawModes[SECTION_DUNGEON] == ItemTrackerDisplayType::Separate) {
@@ -959,6 +1039,24 @@ void ItemTrackerWindow::Draw() {
 }
 void ItemTrackerWindow::InitElement() {
     LoadSettings();
+
+    // Load sun/moon textures from parameter_static into ImGui cache
+    auto resourceMgr = Ship::Context::GetInstance()->GetResourceManager();
+    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+
+    // Load sun texture
+    auto sunTextureRes =
+        std::static_pointer_cast<Fast::Texture>(resourceMgr->LoadResourceProcess(gThreeDayClockSunHourTex));
+    if (sunTextureRes != nullptr) {
+        gui->LoadGuiTexture(gThreeDayClockSunHourTex, *sunTextureRes, ImVec4(1, 1, 1, 1));
+    }
+
+    // Load moon texture
+    auto moonTextureRes =
+        std::static_pointer_cast<Fast::Texture>(resourceMgr->LoadResourceProcess(gThreeDayClockMoonHourTex));
+    if (moonTextureRes != nullptr) {
+        gui->LoadGuiTexture(gThreeDayClockMoonHourTex, *moonTextureRes, ImVec4(1, 1, 1, 1));
+    }
 }
 
 void ItemTrackerWindow::DrawElement() {

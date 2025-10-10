@@ -146,9 +146,9 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_HAGS_POTION_SHOP_FREESTANDING_RUPEE, true),
             // TODO: Add CAN_ACCESS(MUSHROOM) once that is shuffled.
-            CHECK(RC_HAGS_POTION_SHOP_ITEM_01, CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_01) && HAS_ITEM(ITEM_MASK_SCENTS) && HAS_BOTTLE),
-            CHECK(RC_HAGS_POTION_SHOP_ITEM_02, CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_02)),
-            CHECK(RC_HAGS_POTION_SHOP_ITEM_03, CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_03)),
+            CHECK(RC_HAGS_POTION_SHOP_ITEM_01, (FIRST_DAY() || RANDO_EVENTS[RE_SAVED_KOUME]) && CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_01) && HAS_ITEM(ITEM_MASK_SCENTS) && HAS_BOTTLE),
+            CHECK(RC_HAGS_POTION_SHOP_ITEM_02, (FIRST_DAY() || RANDO_EVENTS[RE_SAVED_KOUME]) && CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_02)),
+            CHECK(RC_HAGS_POTION_SHOP_ITEM_03, (FIRST_DAY() || RANDO_EVENTS[RE_SAVED_KOUME]) && CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_03)),
             CHECK(RC_HAGS_POTION_SHOP_KOTAKE, true),
         },
         .exits = { //     TO                                         FROM
@@ -209,17 +209,13 @@ static RegisterShipInitFunc initFunc([]() {
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 1),                ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 0), true),
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 0),      ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 1), true),
-            EXIT(ENTRANCE(SWAMP_SHOOTING_GALLERY, 0),       ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2),
-                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
-                 (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
-                 (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
-            ),
+            EXIT(ENTRANCE(SWAMP_SHOOTING_GALLERY, 0),       ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2), BEFORE(TIME_NIGHT1_PM_10_00) || BETWEEN(TIME_DAY2_AM_06_00, TIME_NIGHT2_PM_10_00) || BETWEEN(TIME_DAY3_AM_06_00, TIME_NIGHT3_PM_10_00)),
         },
         .connections = {
             CONNECTION(RR_ROAD_TO_SOUTHERN_SWAMP_GROTTO, true), // TODO: Grotto mapping
         },
         .events = {
-            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, IS_DAY && HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
             EVENT(RE_ACCESS_SPRING_WATER, true),
         },
     };
@@ -361,25 +357,11 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_SWAMP_SHOOTING_GALLERY] = RandoRegion{ .sceneId = SCENE_SYATEKI_MORI,
         .checks = {
-            CHECK(RC_SWAMP_SHOOTING_GALLERY_HIGH_SCORE,
-                  HAS_ITEM(ITEM_BOW) && (
-                      (NIGHT(1) && TIME_BEFORE(22, 0)) ||
-                      (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
-                      (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
-                  )),
-            CHECK(RC_SWAMP_SHOOTING_GALLERY_PERFECT_SCORE,
-                  HAS_ITEM(ITEM_BOW) && (
-                      (NIGHT(1) && TIME_BEFORE(22, 0)) ||
-                      (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
-                      (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
-                  )),
+            CHECK(RC_SWAMP_SHOOTING_GALLERY_HIGH_SCORE, HAS_ITEM(ITEM_BOW) && (BEFORE(TIME_NIGHT1_PM_10_00) || BETWEEN(TIME_DAY2_AM_06_00, TIME_NIGHT2_PM_10_00) || BETWEEN(TIME_DAY3_AM_06_00, TIME_NIGHT3_PM_10_00))),
+            CHECK(RC_SWAMP_SHOOTING_GALLERY_PERFECT_SCORE, HAS_ITEM(ITEM_BOW) && (BEFORE(TIME_NIGHT1_PM_10_00) || BETWEEN(TIME_DAY2_AM_06_00, TIME_NIGHT2_PM_10_00) || BETWEEN(TIME_DAY3_AM_06_00, TIME_NIGHT3_PM_10_00))),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2),       ENTRANCE(SWAMP_SHOOTING_GALLERY, 0),
-                 (NIGHT(1) && TIME_BEFORE(22, 0)) ||
-                 (DAY(2) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0)) ||
-                 (DAY(3) && TIME_AT_LEAST(6, 0) && TIME_BEFORE(22, 0))
-            ),
+            EXIT(ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2),       ENTRANCE(SWAMP_SHOOTING_GALLERY, 0), true),
         },
     };
     Regions[RR_TOURIST_INFORMATION] = RandoRegion{ .sceneId = SCENE_MAP_SHOP,
@@ -447,21 +429,21 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODS_OF_MYSTERY_GROTTO_GRASS_14, true),
         },
         .connections = {
-            CONNECTION(RR_WOODS_OF_MYSTERY, true), // TODO: Grotto mapping
+            CONNECTION(RR_WOODS_OF_MYSTERY, SECOND_DAY()), // TODO: Grotto mapping
         },
     };
     Regions[RR_WOODS_OF_MYSTERY] = RandoRegion{ .sceneId = SCENE_26SARUNOMORI,
         .checks = {
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_01, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_02, true),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_01, FIRST_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_02, FIRST_DAY()),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_03, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_04, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_05, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_06, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_07, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_08, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_09, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_10, true),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_09, FINAL_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_10, FINAL_DAY()),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_11, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_12, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_13, true),
@@ -478,7 +460,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 7),      ENTRANCE(WOODS_OF_MYSTERY, 0), true),
         },
         .connections = {
-            CONNECTION(RR_WOODS_OF_MYSTERY_GROTTO, true), // TODO: Grotto mapping
+            CONNECTION(RR_WOODS_OF_MYSTERY_GROTTO, SECOND_DAY()), // TODO: Grotto mapping
         },
         .events = {
             EVENT(RE_SAVED_KOUME, HAS_BOTTLE && (CAN_ACCESS(RED_POTION_REFILL) || CAN_ACCESS(BLUE_POTION_REFILL))),

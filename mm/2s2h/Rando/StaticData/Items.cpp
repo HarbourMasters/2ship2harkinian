@@ -373,6 +373,16 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return (const char*)gItemIcons[ITEM_SONG_LULLABY];
         case RI_PROGRESSIVE_MAGIC:
             return (const char*)gItemIcons[ITEM_MAGIC_JAR_SMALL];
+        case RI_CLOCK_DAY_1:
+        case RI_CLOCK_DAY_2:
+        case RI_CLOCK_DAY_3:
+            return (const char*)gThreeDayClockSunHourTex;
+        case RI_CLOCK_NIGHT_1:
+        case RI_CLOCK_NIGHT_2:
+        case RI_CLOCK_NIGHT_3:
+            return (const char*)gThreeDayClockMoonHourTex;
+        case RI_CLOCK_PROGRESSIVE:
+            return (const char*)gThreeDayClockSunHourTex;
         default:
             break;
     }

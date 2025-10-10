@@ -293,9 +293,11 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
             break;
         }
         case RI_CLOCK_PROGRESSIVE: {
-            // Remove highest-owned per current mode
+            // Remove most recently earned half-day per current mode
             const bool descending = (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE] == RO_CLOCK_SHUFFLE_DESCENDING);
-            int toRemove = Rando::ClockItems::FindEarliestOwnedHalfDay(descending);
+            // For ascending mode, remove the latest (search from end)
+            // For descending mode, remove the earliest (search from front)
+            int toRemove = Rando::ClockItems::FindEarliestOwnedHalfDay(!descending);
             if (toRemove >= 0) {
                 Flags_ClearRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + toRemove));
             }

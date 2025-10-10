@@ -39,6 +39,8 @@ void ApplyFrenchVanillaLogicToSaveContext(std::unordered_map<RandoCheckId, bool>
     std::unordered_map<RandoCheckId, RandoPoolEntry> currentCheckPool;
     std::set<RandoRegionId> currentReachableRegions = { RR_MAX };
     std::set<std::pair<RandoEvent, std::function<bool()>>*> currentEventsTriggered;
+    std::unordered_map<RandoRegionId, RegionTimeState> regionTimeStates; // Dummy (no time logic)
+    regionTimeStates[RR_MAX] = { .timeSlices = TIME_ALL_SLICES, .canStayOverTime = true };
 
     // Used for backtracking
     std::vector<RandoPoolPlacement> placements;
@@ -90,7 +92,7 @@ void ApplyFrenchVanillaLogicToSaveContext(std::unordered_map<RandoCheckId, bool>
         int currentAmountOfNewlyAccessibleRegions = newlyAccessibleRegions.size();
         std::set<RandoRegionId> currentReachableRegionsCopy = currentReachableRegions;
         for (RandoRegionId regionId : currentReachableRegions) {
-            FindReachableRegions(regionId, currentReachableRegions);
+            FindReachableRegions(regionId, currentReachableRegions, regionTimeStates);
         }
         // Difference between the new and old reachable regions
         std::set_difference(currentReachableRegions.begin(), currentReachableRegions.end(),

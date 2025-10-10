@@ -302,7 +302,7 @@ extern void DrawClock(RandoItemId randoItemId, Actor* actor) {
             break;
     }
 
-    if (clockActor != nullptr) {
+    if (clockActor != nullptr && clockActor->actor.id == ACTOR_OBJ_TOKEIDAI) {
         clockActor->clockTime = gSaveContext.save.time;
 
         if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {

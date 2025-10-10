@@ -26,6 +26,10 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
     std::unordered_map<RandoCheckId, bool> checksInLogic;
     std::set<std::pair<RandoEvent, std::function<bool()>>*> eventsInLogic;
 
+    // Initialize time tracking - start at Day 1, 6:00 AM
+    std::unordered_map<RandoRegionId, RegionTimeState> regionTimeStates;
+    regionTimeStates[RR_MAX] = { .timeSlices = (TIME_BIT_ONE << TIME_DAY1_AM_06_00), .canStayOverTime = false };
+
     RandoCheckId checkWithJunk = RC_UNKNOWN;
     std::set<RandoItemId> nonJunkItemsThatWeHaveTried;
     std::vector<RandoCheckId> checksWithJunk;
@@ -69,7 +73,7 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
         // Crawl through all reachable regions and add any new reachable regions
         auto prevRegionsInLogicSize = regionsInLogic.size();
         for (RandoRegionId regionId : regionsInLogic) {
-            FindReachableRegions(regionId, regionsInLogic);
+            FindReachableRegions(regionId, regionsInLogic, regionTimeStates);
         }
         if (regionsInLogic.size() != prevRegionsInLogicSize) {
             regionsInLogicChanged = true;
@@ -77,6 +81,9 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
 
         for (RandoRegionId regionId : regionsInLogic) {
             auto& randoRegion = Regions[regionId];
+
+            // Set current region time for check evaluation
+            gCurrentRegionTime = regionTimeStates[regionId].timeSlices;
 
             // Apply any new events
             for (auto& randoEvent : randoRegion.events) {

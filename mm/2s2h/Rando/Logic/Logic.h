@@ -18,7 +18,72 @@ namespace Rando {
 
 namespace Logic {
 
-void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions);
+// Time slice enum - 45 granular time points throughout MM's 3-day cycle
+enum TimeSlice {
+    TIME_DAY1_AM_06_00 = 0,
+    TIME_DAY1_AM_07_00,
+    TIME_DAY1_AM_08_00,
+    TIME_DAY1_AM_10_00,
+    TIME_DAY1_PM_01_45,
+    TIME_DAY1_PM_03_00,
+    TIME_DAY1_PM_04_00,
+    TIME_NIGHT1_PM_06_00,
+    TIME_NIGHT1_PM_08_00,
+    TIME_NIGHT1_PM_09_00,
+    TIME_NIGHT1_PM_10_00,
+    TIME_NIGHT1_PM_11_00,
+    TIME_NIGHT1_AM_12_00,
+    TIME_NIGHT1_AM_02_30,
+    TIME_NIGHT1_AM_04_00,
+    TIME_NIGHT1_AM_05_00,
+    TIME_DAY2_AM_06_00,
+    TIME_DAY2_AM_07_00,
+    TIME_DAY2_AM_08_00,
+    TIME_DAY2_AM_10_00,
+    TIME_DAY2_AM_11_30,
+    TIME_DAY2_PM_02_00,
+    TIME_DAY2_PM_04_00,
+    TIME_NIGHT2_PM_06_00,
+    TIME_NIGHT2_PM_08_00,
+    TIME_NIGHT2_PM_09_00,
+    TIME_NIGHT2_PM_10_00,
+    TIME_NIGHT2_PM_11_00,
+    TIME_NIGHT2_AM_12_00,
+    TIME_NIGHT2_AM_04_00,
+    TIME_NIGHT2_AM_05_00,
+    TIME_DAY3_AM_06_00,
+    TIME_DAY3_AM_07_00,
+    TIME_DAY3_AM_08_00,
+    TIME_DAY3_AM_10_00,
+    TIME_DAY3_AM_11_30,
+    TIME_DAY3_PM_01_00,
+    TIME_NIGHT3_PM_06_00,
+    TIME_NIGHT3_PM_08_00,
+    TIME_NIGHT3_PM_09_00,
+    TIME_NIGHT3_PM_10_00,
+    TIME_NIGHT3_PM_11_00,
+    TIME_NIGHT3_AM_12_00,
+    TIME_NIGHT3_AM_04_00,
+    TIME_NIGHT3_AM_05_00 // = 44
+};
+
+// Time slice count and bitmask constants
+// Derived from enum - update if last enum value changes
+constexpr int TIME_SLICE_COUNT = TIME_NIGHT3_AM_05_00 + 1;
+constexpr uint64_t TIME_BIT_ONE = 1ULL;              // Base value for bit shifting
+constexpr uint64_t TIME_ALL_SLICES = 0x1FFFFFFFFFFF; // All 45 time bits set
+
+// Time state for tracking time accessibility during logic solving
+struct RegionTimeState {
+    uint64_t timeSlices;
+    bool canStayOverTime;
+};
+
+// Thread-local current region time for check evaluation
+extern thread_local uint64_t gCurrentRegionTime;
+
+void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions,
+                          std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates);
 RandoRegionId GetRegionIdFromEntrance(s32 entrance);
 void ApplyFrenchVanillaLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
                                           std::vector<RandoItemId>& itemPool);
@@ -42,6 +107,10 @@ struct RandoRegion {
     std::unordered_map<RandoRegionId, std::pair<std::function<bool()>, std::string>> connections;
     std::vector<std::pair<RandoEvent, std::function<bool()>>> events;
     std::set<s32> oneWayEntrances;
+    uint64_t timeSlices = 0;     // Bitfield: accessible time slices (bits 0-44)
+    bool canStayOverTime = true; // Can player wait for time to pass? (default true for most regions)
+    std::unordered_map<TimeSlice, std::function<bool()>>
+        timeStayRestrictions; // Time slices where staying is restricted
 };
 
 extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
@@ -98,45 +167,6 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
 #define FOUND_ALL_FROGS                                                                  \
     (CHECK_WEEKEVENTREG(WEEKEVENTREG_33_01) && CHECK_WEEKEVENTREG(WEEKEVENTREG_32_40) && \
      CHECK_WEEKEVENTREG(WEEKEVENTREG_32_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_33_02))
-// Time capability evaluation for logic: true if any owned half-day satisfies
-#define OWNED_HALF(i)                                                 \
-    ((i) == 0   ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1)   \
-     : (i) == 1 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_1) \
-     : (i) == 2 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_2)   \
-     : (i) == 3 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_2) \
-     : (i) == 4 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_3)   \
-     : (i) == 5 ? Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_NIGHT_3) \
-                : false)
-#define CLOCKS_FILTER                                          \
-    (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || \
-     (OWNED_HALF(0) || OWNED_HALF(1) || OWNED_HALF(2) || OWNED_HALF(3) || OWNED_HALF(4) || OWNED_HALF(5)))
-// Any-owned semantics: day and night are satisfied if any owned half corresponds
-#define IS_NIGHT      \
-    (CLOCKS_FILTER && \
-     (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || (OWNED_HALF(1) || OWNED_HALF(3) || OWNED_HALF(5))))
-#define IS_DAY        \
-    (CLOCKS_FILTER && \
-     (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || (OWNED_HALF(0) || OWNED_HALF(2) || OWNED_HALF(4))))
-// Day N satisfied if either day or night half of N is owned
-#define DAY(n)                                                                                                 \
-    (CLOCKS_FILTER &&                                                                                          \
-     (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || ((n) == 1   ? (OWNED_HALF(0) || OWNED_HALF(1)) \
-                                                                 : (n) == 2 ? (OWNED_HALF(2) || OWNED_HALF(3)) \
-                                                                 : (n) == 3 ? (OWNED_HALF(4) || OWNED_HALF(5)) \
-                                                                            : false)))
-#define NIGHT(n)                                                                                      \
-    (DAY(n) && (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || ((n) == 1   ? OWNED_HALF(1) \
-                                                                           : (n) == 2 ? OWNED_HALF(3) \
-                                                                           : (n) == 3 ? OWNED_HALF(5) \
-                                                                                      : false)))
-#define DAYTIME(n)                                                                                    \
-    (DAY(n) && (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_OFF || ((n) == 1   ? OWNED_HALF(0) \
-                                                                           : (n) == 2 ? OWNED_HALF(2) \
-                                                                           : (n) == 3 ? OWNED_HALF(4) \
-                                                                                      : false)))
-// Coarse hour windows map to day/night halves for logic purposes
-#define TIME_AT_LEAST(h, m) ((h) >= 18 ? IS_NIGHT : IS_DAY)
-#define TIME_BEFORE(h, m) ((h) < 6 ? IS_NIGHT : IS_DAY)
 
 #define EVENT(randoEvent, condition)         \
     {                                        \
@@ -159,6 +189,10 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
         check, {                                              \
             [] { return condition; }, LogicString(#condition) \
         }                                                     \
+    }
+#define STAY(timeSlice, condition)          \
+    {                                       \
+        timeSlice, [] { return condition; } \
     }
 
 inline std::string LogicString(std::string condition) {
@@ -225,6 +259,133 @@ inline uint32_t RemainsCount() {
 inline bool MeetsMoonRequirements() {
     return RemainsCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT];
 }
+
+// ============================================================================
+// CLOCK OWNERSHIP HELPERS
+// ============================================================================
+
+inline uint32_t ClockCount() {
+    uint32_t count = 0;
+    for (int i = 0; i < 6; ++i) {
+        if (Flags_GetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + i))) {
+            count++;
+        }
+    }
+    return count;
+}
+
+inline bool SettingClocks() {
+    return RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] != 0;
+}
+
+inline bool ClockSeparate(int halfDayIndex) {
+    if (halfDayIndex < 0 || halfDayIndex >= 6)
+        return false;
+    return Flags_GetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfDayIndex));
+}
+
+inline bool ClockAscending(int count) {
+    // Only works in ascending mode
+    if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE] != RO_CLOCK_SHUFFLE_ASCENDING) {
+        return false;
+    }
+    return ClockCount() >= count;
+}
+
+inline bool ClockDescending(int count) {
+    // Only works in descending mode
+    if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE] != RO_CLOCK_SHUFFLE_DESCENDING) {
+        return false;
+    }
+    return ClockCount() >= count;
+}
+
+// ============================================================================
+// TIME OPERATOR FUNCTIONS
+// ============================================================================
+
+inline bool RawAt(TimeSlice slice) {
+    return (gCurrentRegionTime & (TIME_BIT_ONE << slice)) != 0;
+}
+
+inline bool RawBefore(TimeSlice slice) {
+    if (slice == 0)
+        return false;
+    uint64_t mask = (TIME_BIT_ONE << slice) - 1;
+    return (gCurrentRegionTime & mask) != 0;
+}
+
+inline bool RawAfter(TimeSlice slice) {
+    uint64_t mask = ~((TIME_BIT_ONE << slice) - 1) & TIME_ALL_SLICES;
+    return (gCurrentRegionTime & mask) != 0;
+}
+
+inline bool RawBetween(TimeSlice start, TimeSlice end) {
+    uint64_t mask = ((TIME_BIT_ONE << end) - 1) & ~((TIME_BIT_ONE << start) - 1);
+    return (gCurrentRegionTime & mask) != 0;
+}
+
+// ============================================================================
+// CLOCK ITEM MACROS
+// ============================================================================
+
+#define CLOCK_DAY1() (!SettingClocks() || ClockSeparate(0) || ClockAscending(1) || ClockDescending(6))
+#define CLOCK_NIGHT1() (!SettingClocks() || ClockSeparate(1) || ClockAscending(2) || ClockDescending(5))
+#define CLOCK_DAY2() (!SettingClocks() || ClockSeparate(2) || ClockAscending(3) || ClockDescending(4))
+#define CLOCK_NIGHT2() (!SettingClocks() || ClockSeparate(3) || ClockAscending(4) || ClockDescending(3))
+#define CLOCK_DAY3() (!SettingClocks() || ClockSeparate(4) || ClockAscending(5) || ClockDescending(2))
+#define CLOCK_NIGHT3() (!SettingClocks() || ClockSeparate(5) || ClockAscending(6) || ClockDescending(1))
+
+// ============================================================================
+// COMPOSITE TIME CHECKS
+// ============================================================================
+
+#define IS_DAY1() (RawBefore(TIME_NIGHT1_PM_06_00) && CLOCK_DAY1())
+#define IS_NIGHT1() (RawBetween(TIME_NIGHT1_PM_06_00, TIME_DAY2_AM_06_00) && CLOCK_NIGHT1())
+#define IS_DAY2() (RawBetween(TIME_DAY2_AM_06_00, TIME_NIGHT2_PM_06_00) && CLOCK_DAY2())
+#define IS_NIGHT2() (RawBetween(TIME_NIGHT2_PM_06_00, TIME_DAY3_AM_06_00) && CLOCK_NIGHT2())
+#define IS_DAY3() (RawBetween(TIME_DAY3_AM_06_00, TIME_NIGHT3_PM_06_00) && CLOCK_DAY3())
+#define IS_NIGHT3() (RawAfter(TIME_NIGHT3_PM_06_00) && CLOCK_NIGHT3())
+
+#define IS_DAY() (IS_DAY1() || IS_DAY2() || IS_DAY3())
+#define IS_NIGHT() (IS_NIGHT1() || IS_NIGHT2() || IS_NIGHT3())
+#define FIRST_DAY() (IS_DAY1() || IS_NIGHT1())
+#define SECOND_DAY() (IS_DAY2() || IS_NIGHT2())
+#define FINAL_DAY() (IS_DAY3() || IS_NIGHT3())
+
+// ============================================================================
+// PUBLIC TIME API
+// ============================================================================
+
+#define AT(slice)    \
+    (RawAt(slice) && \
+     (!SettingClocks() || IS_DAY1() || IS_NIGHT1() || IS_DAY2() || IS_NIGHT2() || IS_DAY3() || IS_NIGHT3()))
+#define BEFORE(slice)    \
+    (RawBefore(slice) && \
+     (!SettingClocks() || IS_DAY1() || IS_NIGHT1() || IS_DAY2() || IS_NIGHT2() || IS_DAY3() || IS_NIGHT3()))
+#define AFTER(slice)    \
+    (RawAfter(slice) && \
+     (!SettingClocks() || IS_DAY1() || IS_NIGHT1() || IS_DAY2() || IS_NIGHT2() || IS_DAY3() || IS_NIGHT3()))
+#define BETWEEN(s, e)    \
+    (RawBetween(s, e) && \
+     (!SettingClocks() || IS_DAY1() || IS_NIGHT1() || IS_DAY2() || IS_NIGHT2() || IS_DAY3() || IS_NIGHT3()))
+
+#define MIDNIGHT()                                                                                             \
+    (BETWEEN(TIME_NIGHT1_AM_12_00, TIME_DAY2_AM_06_00) || BETWEEN(TIME_NIGHT2_AM_12_00, TIME_DAY3_AM_06_00) || \
+     AFTER(TIME_NIGHT3_AM_12_00))
+
+// ============================================================================
+// COMPLEX TIME MACROS
+// ============================================================================
+
+#define GRANDMA_STORY_1()                                                                                   \
+    (BEFORE(TIME_DAY1_PM_04_00) || BETWEEN(TIME_DAY2_AM_06_00, TIME_DAY2_PM_04_00) ||                       \
+     (IS_DAY1() && (CLOCK_NIGHT1() || CLOCK_DAY2() || CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())) || \
+     (IS_DAY2() && (CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())))
+
+#define GRANDMA_STORY_2()                                                                 \
+    ((IS_DAY1() && (CLOCK_DAY2() || CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())) || \
+     (IS_DAY2() && (CLOCK_DAY3() || CLOCK_NIGHT3())))
 
 inline bool CanKillEnemy(ActorId EnemyId) {
     switch (EnemyId) {

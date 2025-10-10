@@ -46,7 +46,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_1_BATS_POT_03, true),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(IKANA_GRAVEYARD, 3),              ENTRANCE(BENEATH_THE_GRAVERYARD, 1), NIGHT(1)),
+            EXIT(ENTRANCE(IKANA_GRAVEYARD, 3),              ENTRANCE(BENEATH_THE_GRAVERYARD, 1), true),
         },
         .connections = {
             CONNECTION(RR_BENEATH_THE_GRAVEYARD_NIGHT_1_BOSS, CAN_LIGHT_TORCH_NEAR_ANOTHER),
@@ -86,7 +86,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_2_BEFORE_PIT_POT_02, true),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(IKANA_GRAVEYARD, 2),              ENTRANCE(BENEATH_THE_GRAVERYARD, 0), NIGHT(2)),
+            EXIT(ENTRANCE(IKANA_GRAVEYARD, 2),              ENTRANCE(BENEATH_THE_GRAVERYARD, 0), true),
         },
         .connections = {
             CONNECTION(RR_BENEATH_THE_GRAVEYARD_NIGHT_2_GRAVE_AFTER_PIT, HAS_MAGIC && HAS_ITEM(ITEM_LENS_OF_TRUTH)),
@@ -145,7 +145,7 @@ static RegisterShipInitFunc initFunc([]() {
                 Must NOT have helped the Bomb Shop old lady on this cycle(Kafei does not show up if you do, as Sakon never visits the shop to be followed.)
                 Must have delivered the Letter to Kafei and met Kafei.(Sakon just does not show up otherwise, as odd as that may sound.)
             */
-            EXIT(ENTRANCE(SAKONS_HIDEOUT, 0),               ENTRANCE(IKANA_CANYON, 6), Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI)),
+            EXIT(ENTRANCE(SAKONS_HIDEOUT, 0),               ENTRANCE(IKANA_CANYON, 6), RANDO_EVENTS[RE_MEET_KAFEI] && AT(TIME_NIGHT3_PM_06_00)),
             EXIT(ENTRANCE(SECRET_SHRINE, 0),                ENTRANCE(IKANA_CANYON, 12), true),
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 9),               ONE_WAY_EXIT, true),
         },
@@ -177,7 +177,7 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_IKANA_CANYON_LOWER, true),
         },
         .events = {
-            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, IS_DAY && HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
         },
         .oneWayEntrances = {
             ENTRANCE(IKANA_CANYON, 4), // From Song of Soaring
@@ -220,9 +220,9 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ROAD_TO_IKANA, 2),                ENTRANCE(IKANA_GRAVEYARD, 0), true),
-            EXIT(ENTRANCE(DAMPES_HOUSE, 0),                          ONE_WAY_EXIT, HAS_ITEM(ITEM_MASK_CAPTAIN) && NIGHT(3)), // Day 3 hole
-            EXIT(ENTRANCE(BENEATH_THE_GRAVERYARD, 0),       ENTRANCE(IKANA_GRAVEYARD, 2), HAS_ITEM(ITEM_MASK_CAPTAIN) && NIGHT(2)), // Day 2 hole
-            EXIT(ENTRANCE(BENEATH_THE_GRAVERYARD, 1),       ENTRANCE(IKANA_GRAVEYARD, 3), HAS_ITEM(ITEM_MASK_CAPTAIN) && NIGHT(1)), // Day 1 hole
+            EXIT(ENTRANCE(DAMPES_HOUSE, 0),                          ONE_WAY_EXIT, HAS_ITEM(ITEM_MASK_CAPTAIN) && IS_NIGHT3()), // Day 3 hole
+            EXIT(ENTRANCE(BENEATH_THE_GRAVERYARD, 0),       ENTRANCE(IKANA_GRAVEYARD, 2), HAS_ITEM(ITEM_MASK_CAPTAIN) && IS_NIGHT2()), // Day 2 hole
+            EXIT(ENTRANCE(BENEATH_THE_GRAVERYARD, 1),       ENTRANCE(IKANA_GRAVEYARD, 3), HAS_ITEM(ITEM_MASK_CAPTAIN) && IS_NIGHT1()), // Day 1 hole
         },
         .connections = {
             CONNECTION(RR_IKANA_GRAVEYARD_UPPER, CAN_PLAY_SONG(SONATA)),
