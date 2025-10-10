@@ -45,27 +45,56 @@ int RollTrapType() {
     return roll;
 }
 
-std::vector<std::string> defaultTrapMessages = { "This item is available in the %bRando DLC%w.",
-                                                 "This is what happens when %gCaladius%w is left unsupervised." };
+// clang-format off
+std::vector<std::string> defaultTrapMessages = { 
+    "This item is available in the %bRando DLC%w.",
+    "This is what happens when %gCaladius%w is left unsupervised.",
+    "Oh no!",
+    "Uh oh!",
+    "KEKW",
+    "We've been trying to reach you about your Horses %gextended warranty%w.",
+    "Admit it, you wish this was %gGreg%w.",
+    "Error 404: Item Not Found",
+};
 
 std::vector<std::string> freezeTrapMessages = {
     "%rOcarina of Time%w called, they want their %bIce Trap%w back.",
+    "Greetings from %bSnowhead%w! Wish you were here.",
+    "This item was too %bcool%w for you anyway.",
+    "Let me see your best %bKing Zora%w impersonation.",
+    "There's no business like %bSnow%w business!",
+    "How much does a polar bear weigh? Enough to break the %bice%w.",
+    "You found the %yTrifo%w... Wait, nevermind...",
+    "Quick Time Event! Don't die.",
 };
 
 std::vector<std::string> blastTrapMessages = {
     "Coming to you live from the %yThunderdome%w!",
     "There was supposed to be an Earth shattering %yKaboom%w!",
+    "Pardon me while I %yburst%w.",
+    "This is not the greatest %yblast%w in the world, this is just a tribute.",
+    "Hey look, this %yitem%w is ticking!",
+
 };
 
 std::vector<std::string> shockTrapMessages = {
     "We're losing him!\n%gCLEAR%w",
+    "It's got what %gplants%w need.",
+    "On todays episode of Grey's Anatomy...",
+    "I'm giving it all I've got, captain!",
+    "Now simulating a CD in a Microwave.",
 };
 
 std::vector<std::string> timeTrapMessages = {
-    "Time flashes before your eyes!",         "You have played the Sun's Song!",
-    "The Goddess of Time smites you!",        "Spent an hour and a half admiring this fake item.",
-    "You found a great place to take a nap!", "Break time! Not like the world is ending right?",
+    "%yTime%w flashes before your eyes!",
+    "You have played the %ySun's Song%w!",
+    "The %rGoddess of Time%w smites you!",
+    "Spent an hour and a half admiring this %bfake item%w.",
+    "You found a great place to take a nap!",
+    "Break time! Not like the world is ending right?",
+    "I just need you to tell me how to get to the %ytime machine%w.",
 };
+// clang-format on
 
 std::map<TrapTypes, std::vector<std::string>> trapMessageList = {
     { TRAP_FREEZE, freezeTrapMessages },
