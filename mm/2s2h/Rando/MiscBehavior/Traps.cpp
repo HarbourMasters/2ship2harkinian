@@ -55,6 +55,7 @@ std::vector<std::string> defaultTrapMessages = {
     "We've been trying to reach you about your Horses %gextended warranty%w.",
     "Admit it, you wish this was %gGreg%w.",
     "Error 404: Item Not Found",
+    "Get dunked on!",
 };
 
 std::vector<std::string> freezeTrapMessages = {
@@ -74,7 +75,8 @@ std::vector<std::string> blastTrapMessages = {
     "Pardon me while I %yburst%w.",
     "This is not the greatest %yblast%w in the world, this is just a tribute.",
     "Hey look, this %yitem%w is ticking!",
-
+    "This is sure to make %gPamela%w leave the house.",
+    "You found a %yDodongo Snack%w!",
 };
 
 std::vector<std::string> shockTrapMessages = {
@@ -83,6 +85,25 @@ std::vector<std::string> shockTrapMessages = {
     "On todays episode of Grey's Anatomy...",
     "I'm giving it all I've got, captain!",
     "Now simulating a CD in a Microwave.",
+    "Hang in there, for %gMeryl%w."
+};
+
+std::vector<std::string> jinxTrapMessages = {
+    "Looks like someone's got a case of the %bMondays%w. :( ",
+    "Your wrist hurts! The doctor says no more swords.",
+};
+
+std::vector<std::string> walletTrapMessages = {
+    "Spare some %rchange$w?",
+    "%rBreaking News%w: the Moon hasn't crashed, but Termina's economy sure has."
+};
+
+std::vector<std::string> enemyTrapMessages = {
+    "You made a new friend!",
+    // Like Like Specific, will need to adjust if new enemies are added.
+    "Someone likes you! They %rLike Like%w you!",
+    "You don't need a shield anyway.",
+    "This item sucks.",
 };
 
 std::vector<std::string> timeTrapMessages = {
@@ -93,6 +114,7 @@ std::vector<std::string> timeTrapMessages = {
     "You found a great place to take a nap!",
     "Break time! Not like the world is ending right?",
     "I just need you to tell me how to get to the %ytime machine%w.",
+    "Mweep",
 };
 // clang-format on
 
@@ -100,6 +122,8 @@ std::map<TrapTypes, std::vector<std::string>> trapMessageList = {
     { TRAP_FREEZE, freezeTrapMessages },
     { TRAP_BLAST, blastTrapMessages },
     { TRAP_SHOCK, shockTrapMessages },
+    { TRAP_JINX, jinxTrapMessages },
+    { TRAP_ENEMY, enemyTrapMessages },
     { TRAP_TIME, timeTrapMessages },
 };
 
