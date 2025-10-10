@@ -56,6 +56,7 @@ std::vector<std::string> defaultTrapMessages = {
     "Admit it, you wish this was %gGreg%w.",
     "Error 404: Item Not Found",
     "Get dunked on!",
+    "This %rTrap%w is brought to you by today's sponsor...\n%gRaid Shadow Legends%w!",
 };
 
 std::vector<std::string> freezeTrapMessages = {
