@@ -24,6 +24,7 @@ std::map<TrapTypes, const char*> trapToCvarMap = {
     { TRAP_JINX, "gRando.Traps.Jinx" },     { TRAP_ENEMY, "gRando.Traps.Enemy" }, { TRAP_TIME, "gRando.Traps.Time" },
 };
 
+/* TODO: Handle being kicked out of a place in a cleaner way
 std::unordered_map<SceneId, std::pair<int, std::pair<s32, s32>>> kickOutMap{
     { SCENE_8ITEMSHOP, { 0x1883, { CLOCK_TIME(21, 0), CLOCK_TIME(22, 0) } } },
     { SCENE_TAKARAKUJI, { 0x1887, { CLOCK_TIME(23, 0), CLOCK_TIME(6, 0) } } },
@@ -37,6 +38,7 @@ std::unordered_map<SceneId, std::pair<int, std::pair<s32, s32>>> kickOutMap{
     { SCENE_SYATEKI_MORI, { 0x1884, { CLOCK_TIME(22, 0), CLOCK_TIME(6, 0) } } },
     { SCENE_POSTHOUSE, { 0x1889, { CLOCK_TIME(23, 59), CLOCK_TIME(9, 0) } } },
 };
+*/
 
 std::vector<TrapTypes> getEnabledTrapTypes() {
     std::vector<TrapTypes> enabledTrapTypes;
@@ -161,7 +163,7 @@ void Rando::MiscBehavior::OfferTrapItem() {
                 TransitionFade_SetColor(&gPlayState->unk_18E48, 0x000000);
                 R_TRANS_FADE_FLASH_ALPHA_STEP = -1;
                 Player_PlaySfx(GET_PLAYER(gPlayState), NA_SE_SY_TRANSFORM_MASK_FLASH);
-
+                /* TODO: Handle being kicked out of a place in a cleaner way
                 for (auto& kick : kickOutMap) {
                     SceneId checked_scene = kick.first;
                     s32 close_time = kick.second.second.first;
@@ -201,6 +203,7 @@ void Rando::MiscBehavior::OfferTrapItem() {
                         }
                     }
                 }
+                */
             } });
             break;
         default:
@@ -209,22 +212,24 @@ void Rando::MiscBehavior::OfferTrapItem() {
 }
 
 void Rando::MiscBehavior::InitTrapBehavior() {
-    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRAPS] == 1, [](Actor* actor) {
-        if (trapDelay == 0) {
-            switch (currentTrap) {
-                case TRAP_TIME:
-                    gPlayState->nextEntrance = gPlayState->setupExitList[256 & 0x1F];
-                    gPlayState->transitionTrigger = TRANS_TRIGGER_START;
-                    Actor_PlaySfx(&GET_PLAYER(gPlayState)->actor, NA_SE_OC_DOOR_OPEN);
-                    break;
-                default:
-                    break;
+    /* TODO: Handle being kicked out of a place in a cleaner way
+        COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRAPS] == 1, [](Actor* actor) {
+            if (trapDelay == 0) {
+                switch (currentTrap) {
+                    case TRAP_TIME:
+                        gPlayState->nextEntrance = gPlayState->setupExitList[256 & 0x1F];
+                        gPlayState->transitionTrigger = TRANS_TRIGGER_START;
+                        Actor_PlaySfx(&GET_PLAYER(gPlayState)->actor, NA_SE_OC_DOOR_OPEN);
+                        break;
+                    default:
+                        break;
+                }
+                currentTrap = TRAP_MAX;
+                trapDelay--;
             }
-            currentTrap = TRAP_MAX;
-            trapDelay--;
-        }
-        if (trapDelay > 0) {
-            trapDelay--;
-        }
-    })
+            if (trapDelay > 0) {
+                trapDelay--;
+            }
+        })
+    */
 }
