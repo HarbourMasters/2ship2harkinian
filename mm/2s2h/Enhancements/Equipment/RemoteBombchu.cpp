@@ -1,4 +1,4 @@
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
@@ -17,7 +17,19 @@ void EnBomChu_UpdateRotation(EnBomChu*);
 static bool focused = false;
 static EnBomChu* activeBombchu = nullptr;
 
+bool IsBombchuFocused() {
+    return focused;
+}
+
+static void ReleaseBombchuFocus() {
+    Player* player = GET_PLAYER(gPlayState);
+    Camera_SetFocalActor(Play_GetCamera(gPlayState, player->subCamId), &player->actor);
+    player->stateFlags1 &= ~PLAYER_STATE1_20;
+    focused = false;
+}
+
 void RegisterRemoteBombchu() {
+    // Link can deploy multiple bombchus at once. Only assume control of the last placed one.
     COND_ID_HOOK(OnActorInit, ACTOR_EN_BOM_CHU, CVAR, [](Actor* actor) { activeBombchu = (EnBomChu*)actor; });
 
     COND_ID_HOOK(OnActorDestroy, ACTOR_EN_BOM_CHU, CVAR, [](Actor* actor) {
@@ -27,9 +39,7 @@ void RegisterRemoteBombchu() {
             activeBombchu = nullptr;
 
             if (focused) {
-                Camera_SetFocalActor(Play_GetCamera(gPlayState, player->subCamId), &player->actor);
-                player->stateFlags1 &= ~PLAYER_STATE1_20;
-                focused = false;
+                ReleaseBombchuFocus();
             }
         }
     });
@@ -73,9 +83,7 @@ void RegisterRemoteBombchu() {
 
             if (input->press.button & BTN_A) {
                 activeBombchu = nullptr;
-                Camera_SetFocalActor(Play_GetCamera(gPlayState, player->subCamId), &player->actor);
-                player->stateFlags1 &= ~PLAYER_STATE1_20;
-                focused = false;
+                ReleaseBombchuFocus();
             }
         }
     });
