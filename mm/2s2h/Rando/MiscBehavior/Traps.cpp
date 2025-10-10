@@ -117,7 +117,6 @@ std::vector<std::string> timeTrapMessages = {
     "I just need you to tell me how to get to the %ytime machine%w.",
     "Mweep",
 };
-// clang-format on
 
 std::map<TrapTypes, std::vector<std::string>> trapMessageList = {
     { TRAP_FREEZE, freezeTrapMessages },
@@ -127,6 +126,7 @@ std::map<TrapTypes, std::vector<std::string>> trapMessageList = {
     { TRAP_ENEMY, enemyTrapMessages },
     { TRAP_TIME, timeTrapMessages },
 };
+// clang-format on
 
 std::string GetTrapMessage() {
     RollTrapType();
