@@ -322,6 +322,11 @@ static void DrawItemsTab() {
         CheckboxOptions({ { .tooltip = "Enables Like Like Traps.",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Time Traps", "gRando.Traps.Time",
+        CheckboxOptions({ { .tooltip = "Speeds up time when triggered.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
     ImGui::EndChild();
 }
 
