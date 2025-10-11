@@ -7,8 +7,6 @@
 #include "2s2h/ShipUtils.h"
 #include "Traps.h"
 
-#include "spdlog/spdlog.h"
-
 extern "C" {
 #include "variables.h"
 extern TexturePtr gItemIcons[131];

@@ -6,9 +6,16 @@
 extern "C" {
 #include "variables.h"
 #include "functions.h"
+#include "overlays/actors/ovl_En_Time_Tag/z_en_time_tag.h"
 void func_80833B18(PlayState* play, Player* thisx, s32 arg2, f32 speed, f32 velocityY, s16 arg5,
                    s32 invincibilityTimer);
+void EnTimeTag_KickOut_Transition(EnTimeTag* enTimeTag, PlayState* play);
 }
+
+#define MORNING_TIME 0x4000
+#define DAY_LENGTH 0x10000
+// Adjust so that 6 A.M. is 0 and 5:59 A.M. is 0xFFFF
+#define ZERO_DAY_START(time) (((u16)(time - MORNING_TIME) % DAY_LENGTH))
 
 extern void UpdateGameTime(u16 gameTime);
 
@@ -212,8 +219,7 @@ void Rando::MiscBehavior::OfferTrapItem() {
             GameInteractor::Instance->events.emplace_back(GIEventTrap{ .action = []() {
                 u16 previous_time = gSaveContext.save.time;
                 u16 new_time = gSaveContext.save.time + timeSkipInterval;
-                u16 morning_time = 16429;
-                if (previous_time < morning_time && new_time >= morning_time) {
+                if (previous_time < MORNING_TIME && new_time >= MORNING_TIME) {
                     // Handles case where Night -> Day
                     if (gSaveContext.save.day != 3) {
                         gSaveContext.save.day++;
@@ -227,7 +233,7 @@ void Rando::MiscBehavior::OfferTrapItem() {
                         gPlayState->envCtx.lightningState = LIGHTNING_OFF;
                     } else {
                         // Handles Moonfall case, prevents skipping past it by setting time right before Moonfall.
-                        UpdateGameTime(morning_time - (timeSkipInterval / 10));
+                        UpdateGameTime(MORNING_TIME - (timeSkipInterval / 10));
                     }
                 } else {
                     // Every other case
@@ -236,32 +242,38 @@ void Rando::MiscBehavior::OfferTrapItem() {
                 TransitionFade_SetColor(&gPlayState->unk_18E48, 0x000000);
                 R_TRANS_FADE_FLASH_ALPHA_STEP = -1;
                 Player_PlaySfx(GET_PLAYER(gPlayState), NA_SE_SY_TRANSFORM_MASK_FLASH);
+
+                // Handle kickouts, if needed
+                EnTimeTag* enTimeTag = (EnTimeTag*)Actor_FindNearby(gPlayState, &GET_PLAYER(gPlayState)->actor,
+                                                                    ACTOR_EN_TIME_TAG, ACTORCAT_ITEMACTION, 99999.9f);
+                if (enTimeTag != nullptr) {
+                    TimeTagType timeTagType = (TimeTagType)TIMETAG_GET_TYPE(&enTimeTag->actor);
+                    if (timeTagType == TIMETAG_KICKOUT_DOOR || timeTagType >= TIMETAG_KICKOUT_FINAL_HOURS) {
+                        s16 kickoutHour = TIMETAG_KICKOUT_HOUR(&enTimeTag->actor);
+                        s16 kickoutMinute = TIMETAG_KICKOUT_MINUTE(&enTimeTag->actor);
+                        s32 kickoutTime = CLOCK_TIME(kickoutHour, kickoutMinute);
+                        kickoutTime = ZERO_DAY_START(kickoutTime);
+                        previous_time = ZERO_DAY_START(previous_time);
+                        new_time = ZERO_DAY_START(new_time);
+                        // If we were here before the kickout time, and now it's after, then get out of my house
+                        if (previous_time <= kickoutTime && new_time >= kickoutTime) {
+                            // Unless this is the Stock Pot Inn, and the room key is obtained
+                            if (!(gPlayState->sceneId == SCENE_YADOYA &&
+                                  Flags_GetRandoInf(RANDO_INF_OBTAINED_ROOM_KEY))) {
+                                currentTrap = (TrapTypes)roll;
+                                trapDelay = 3;
+                                // This comes from EnTimeTag_KickOut_WaitForTime
+                                Player_SetCsActionWithHaltedActors(gPlayState, &enTimeTag->actor, PLAYER_CSACTION_WAIT);
+                                Message_StartTextbox(gPlayState, 0x1883 + TIMETAG_KICKOUT_GET_TEXT(&enTimeTag->actor),
+                                                     NULL);
+                                enTimeTag->actionFunc = EnTimeTag_KickOut_Transition;
+                            }
+                        }
+                    }
+                }
             } });
             break;
         default:
             break;
     }
-}
-
-void Rando::MiscBehavior::InitTrapBehavior() {
-    /* TODO: Handle being kicked out of a place in a cleaner way
-        COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRAPS] == 1, [](Actor* actor) {
-            if (trapDelay == 0) {
-                switch (currentTrap) {
-                    case TRAP_TIME:
-                        gPlayState->nextEntrance = gPlayState->setupExitList[256 & 0x1F];
-                        gPlayState->transitionTrigger = TRANS_TRIGGER_START;
-                        Actor_PlaySfx(&GET_PLAYER(gPlayState)->actor, NA_SE_OC_DOOR_OPEN);
-                        break;
-                    default:
-                        break;
-                }
-                currentTrap = TRAP_MAX;
-                trapDelay--;
-            }
-            if (trapDelay > 0) {
-                trapDelay--;
-            }
-        })
-    */
 }
