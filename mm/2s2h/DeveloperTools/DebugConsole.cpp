@@ -14,6 +14,7 @@
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <filesystem>
+#include <spdlog/fmt/fmt.h>
 
 extern "C" {
 #include <z64.h>
@@ -272,7 +273,7 @@ static bool QuitHandler(std::shared_ptr<Ship::Console> Console, const std::vecto
     return 0;
 }
 
-void traverseScene(std::string sceneName, std::string roomName, SOH::Scene* scene, std::set<std::string>& sceneSet,
+void traverseScene(std::string sceneName, std::string roomName, SOH::Scene* scene, std::vector<std::string>& sceneSet,
                    nlohmann::json& actorsJson, std::string* output) {
     if (scene == nullptr) {
         return;
@@ -297,18 +298,26 @@ void traverseScene(std::string sceneName, std::string roomName, SOH::Scene* scen
                     s32 appearsDuringNight = actorEntryHalfDayBit & HALFDAYBIT_NIGHTS;
                     std::string timeLocation = "";
                     if (appearsDuringDay && !appearsDuringNight) {
-                        timeLocation += " (Day only)";
+                        timeLocation = " (Day only)";
                     } else if (!appearsDuringDay && appearsDuringNight) {
-                        timeLocation += " (Night only)";
+                        timeLocation = " (Night only)";
                     }
 
-                    sceneSet.emplace(actorNames[actorId]); // TODO: No, put rooms. maybe
-                    std::set<std::string> actorSceneSet;
+                    // TODO: Figure out how object dependency works
+                    // Put room in its own child object?
+                    sceneSet.emplace_back(fmt::format("{}{}{} (params: {:#04x}), (pos x:{}, y:{}, z:{}), (rot: x:{}, y:{}, z:{})",
+                                                      roomName, actorNames[actorId], timeLocation, (u16)actorSpawn.params,
+                                                      actorSpawn.pos.x, actorSpawn.pos.y, actorSpawn.pos.z,
+                                                      actorSpawn.rot.x, actorSpawn.rot.y, actorSpawn.rot.z));
+                    std::set<std::string> actorSceneSet; // TODO: Figure out vector, so we know the actorlistindex. sets may not have deterministic order
                     if (!actorsJson.contains(actorNames[actorId])) {
                         actorsJson[actorNames[actorId]] = actorSceneSet = {};
                     }
                     actorSceneSet = (std::set<std::string>)actorsJson[actorNames[actorId]];
-                    actorSceneSet.emplace(locationName + timeLocation);
+                    actorSceneSet.emplace(fmt::format("{}{} (params: {:#04x}), (pos x:{}, y:{}, z:{}), (rot: x:{}, y:{}, z:{})",
+                                                      locationName, timeLocation, (u16)actorSpawn.params,
+                                                      actorSpawn.pos.x, actorSpawn.pos.y, actorSpawn.pos.z,
+                                                      actorSpawn.rot.x, actorSpawn.rot.y, actorSpawn.rot.z));
                     actorsJson[actorNames[actorId]] = actorSceneSet;
                 }
             } break;
@@ -327,6 +336,10 @@ void traverseScene(std::string sceneName, std::string roomName, SOH::Scene* scen
 
 static bool SceneDumpHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                              std::string* output) {
+    // TODO: if args(1), assume that's an actor id and only dump that info
+    // args(0) will always be dump_scenes
+    // Could get crazy with redefining the actor and scene tables so that the ids are human readable, then just find that in the list and do things that way
+    // for now, just take integer ids
     nlohmann::json scenesJson = {};
     nlohmann::json actorsJson = {};
     for (int sceneId = SCENE_20SICHITAI2; sceneId < SCENE_MAX; sceneId++) {
@@ -338,7 +351,7 @@ static bool SceneDumpHandler(std::shared_ptr<Ship::Console> Console, const std::
                                                       sceneTableEntry->segment.fileName);
         SOH::Scene* scene =
             (SOH::Scene*)OTRPlay_LoadFile(gPlayState, scenePath.c_str()); // Takes PlayState arg, but does not use it
-        std::set<std::string> sceneSet = {};
+        std::vector<std::string> sceneSet = {};
         traverseScene(sceneNames[sceneId], "", scene, sceneSet, actorsJson, output);
         scenesJson[sceneNames[sceneId]] = sceneSet;
     }
