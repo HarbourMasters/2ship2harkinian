@@ -295,6 +295,7 @@ void processActorSpawns(std::string sceneName, std::string roomName, SOH::SetAct
         roomName = roomName.substr(roomNum + 1, 7);
         locationName += ", " + roomName;
     }
+    int actorListIndex = 0;
     for (auto& actorSpawn : actorList->actorList) {
         s16 actorId = actorSpawn.id & 0x1FFF; // Mask out rotation flags
         if (actorId >= ACTOR_ID_MAX || actorId < ACTOR_PLAYER)
@@ -334,19 +335,20 @@ void processActorSpawns(std::string sceneName, std::string roomName, SOH::SetAct
             }
         }
 
-        sceneSet.emplace_back(
-            fmt::format("{}: {}{}{} (params: {:#04x}), (pos x:{}, y:{}, z:{}), (rot: x:{}, y:{}, z:{})", roomName,
-                        actorNames[actorId], objectStatus, timeLocation, (u16)actorSpawn.params, actorSpawn.pos.x,
-                        actorSpawn.pos.y, actorSpawn.pos.z, actorSpawn.rot.x, actorSpawn.rot.y, actorSpawn.rot.z));
+        sceneSet.emplace_back(fmt::format(
+            "{}: (actorListIndex: {}) {}{}{} (params: {:#04x}), (pos x:{}, y:{}, z:{}), (rot: x:{}, y:{}, z:{})",
+            roomName, actorListIndex++, actorNames[actorId], objectStatus, timeLocation, (u16)actorSpawn.params,
+            actorSpawn.pos.x, actorSpawn.pos.y, actorSpawn.pos.z, actorSpawn.rot.x, actorSpawn.rot.y,
+            actorSpawn.rot.z));
         std::vector<std::string> actorSceneList;
         if (!actorsJson.contains(actorNames[actorId])) {
             actorsJson[actorNames[actorId]] = nlohmann::json::array();
         }
         actorSceneList = actorsJson[actorNames[actorId]].get<std::vector<std::string>>();
         actorSceneList.emplace_back(
-            fmt::format("{}{} (params: {:#04x}), (pos x:{}, y:{}, z:{}), (rot: x:{}, y:{}, z:{})", locationName,
-                        timeLocation, (u16)actorSpawn.params, actorSpawn.pos.x, actorSpawn.pos.y, actorSpawn.pos.z,
-                        actorSpawn.rot.x, actorSpawn.rot.y, actorSpawn.rot.z));
+            fmt::format("{}{} (actorListIndex: {}) (params: {:#04x}), (pos x:{}, y:{}, z:{}), (rot: x:{}, y:{}, z:{})",
+                        locationName, timeLocation, actorListIndex, (u16)actorSpawn.params, actorSpawn.pos.x,
+                        actorSpawn.pos.y, actorSpawn.pos.z, actorSpawn.rot.x, actorSpawn.rot.y, actorSpawn.rot.z));
         actorsJson[actorNames[actorId]] = actorSceneList;
     }
 }
