@@ -196,6 +196,15 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_WOODFALL_SMALL_KEY,         "a",    "Woodfall Small Key",         RITYPE_SMALL_KEY,       ITEM_KEY_SMALL,                  GI_KEY_SMALL,                GID_KEY_SMALL),
     RI(RI_WOODFALL_STRAY_FAIRY,       "a",    "Woodfall Stray Fairy",       RITYPE_STRAY_FAIRY,     ITEM_STRAY_FAIRIES,              GI_STRAY_FAIRY,              GID_NONE),
 };
+
+std::unordered_map<StartingItemCategory, std::vector<RandoItemId>> NewStartingItemsMap = {
+    { STARTING_ITEMS_INVENTORY, { RI_OCARINA,     RI_PROGRESSIVE_BOW, RI_ARROW_FIRE,
+                                  RI_ARROW_ICE,   RI_ARROW_LIGHT,     RI_PROGRESSIVE_BOMB_BAG,
+                                  RI_BOMBCHU,     RI_DEKU_STICK,      RI_DEKU_NUT,
+                                  RI_MAGIC_BEAN,  RI_POWDER_KEG,      RI_PICTOGRAPH_BOX,
+                                  RI_LENS,        RI_HOOKSHOT,        RI_GREAT_FAIRY_SWORD,
+                                  RI_BOTTLE_EMPTY } },
+};
 // clang-format on
 
 std::vector<RandoItemId> StartingItemsMap = {

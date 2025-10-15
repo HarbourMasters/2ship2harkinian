@@ -43,6 +43,7 @@ struct RandoStaticItem {
 };
 
 extern std::map<RandoItemId, RandoStaticItem> Items;
+extern std::unordered_map<StartingItemCategory, std::vector<RandoItemId>> NewStartingItemsMap;
 extern std::vector<RandoItemId> StartingItemsMap;
 
 RandoItemId GetItemIdFromName(const char* name);
