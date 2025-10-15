@@ -9,7 +9,7 @@ extern "C" {
 #include "variables.h"
 #include "overlays/actors/ovl_Boss_07/z_boss_07.h"
 uint64_t GetUnixTimestamp();
-void Boss07_Wrath_Death(Boss07*, PlayState*);
+void Boss07_Wrath_DeathCutscene(Boss07*, PlayState*);
 }
 
 #include "ShipUtils.h"
@@ -91,7 +91,7 @@ void DisplayOverlayWindow::InitElement() {
 
     COND_ID_HOOK(OnActorUpdate, ACTOR_BOSS_07, true, [](Actor* actor) {
         Boss07* boss = (Boss07*)actor;
-        if (boss->actionFunc == Boss07_Wrath_Death && gSaveContext.save.shipSaveInfo.fileCompletedAt == 0) {
+        if (boss->actionFunc == Boss07_Wrath_DeathCutscene && gSaveContext.save.shipSaveInfo.fileCompletedAt == 0) {
             gSaveContext.save.shipSaveInfo.fileCompletedAt = GetUnixTimestamp();
         }
     })
