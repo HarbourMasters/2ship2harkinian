@@ -1,8 +1,9 @@
 #include "global.h"
+#include "z64voice.h"
 
 #include "GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
-#include "2s2h/GameInteractor/GameInteractor.h"
+#include "public/bridge/consolevariablebridge.h"
 
 typedef struct {
     /* 0x0 */ s8 x;
@@ -3685,7 +3686,7 @@ void Audio_Update(void) {
     if ((AudioSeq_UpdateAudioHeapReset() == 0) && !AudioSeq_ResetReverb()) {
         AudioOcarina_SetCustomSequence();
         AudioOcarina_Update();
-        func_801A5118();
+        AudioVoice_Update();
         Audio_StepFreqLerp(&sRiverFreqScaleLerp);
         Audio_StepFreqLerp(&sWaterfallFreqScaleLerp);
         Audio_UpdateRiverSoundVolumes();
@@ -5494,6 +5495,10 @@ void Audio_StartMorningSceneSequence(u16 seqId) {
 }
 
 void Audio_PlaySceneSequence(u16 seqId, u8 dayMinusOne) {
+    if (GameInteractor_Should(VB_PLAY_SCENE_SEQUENCE, false, &sRequestedSceneSeqId, &sPrevMainBgmSeqId, &seqId)) {
+        return;
+    }
+
     if (sRequestedSceneSeqId != seqId) {
         if (seqId == NA_BGM_AMBIENCE) {
             Audio_PlayAmbience(AMBIENCE_ID_08);
@@ -5808,11 +5813,7 @@ void Audio_SetSequenceMode(u8 seqMode) {
             if (seqMode != (sPrevSeqMode & 0x7F)) {
                 if (seqMode == SEQ_MODE_ENEMY) {
                     // If only seqMode = SEQ_MODE_ENEMY (Start)
-                    if (gActiveSeqs[SEQ_PLAYER_BGM_SUB].volScales[1] - sBgmEnemyVolume < 0) {
-                        volumeFadeInTimer = -(gActiveSeqs[SEQ_PLAYER_BGM_SUB].volScales[1] - sBgmEnemyVolume);
-                    } else {
-                        volumeFadeInTimer = gActiveSeqs[SEQ_PLAYER_BGM_SUB].volScales[1] - sBgmEnemyVolume;
-                    }
+                    volumeFadeInTimer = ABS_ALT(gActiveSeqs[SEQ_PLAYER_BGM_SUB].volScales[1] - sBgmEnemyVolume);
 
                     AudioSeq_SetVolumeScale(SEQ_PLAYER_BGM_SUB, VOL_SCALE_INDEX_BGM_SUB, sBgmEnemyVolume,
                                             volumeFadeInTimer);
@@ -6560,7 +6561,7 @@ void Audio_ResetForAudioHeapStep1(s32 specId) {
     AudioSfx_ResetSfxChannelState();
     AudioSeq_ResetActiveSequences();
     AudioSfx_Reset();
-    func_801A4FD8();
+    AudioVoice_ResetWord();
     if (gAudioSpecId == 0xB) {
         AudioSfx_MuteBanks((1 << BANK_PLAYER) | (1 << BANK_ITEM) | (1 << BANK_ENV) | (1 << BANK_ENEMY) |
                            (1 << BANK_OCARINA) | (1 << BANK_VOICE));
@@ -6573,5 +6574,5 @@ void Audio_UnusedReset(void) {
     Audio_ResetData();
     AudioSfx_ResetSfxChannelState();
     AudioSfx_Init(1);
-    func_801A4FD8();
+    AudioVoice_ResetWord();
 }

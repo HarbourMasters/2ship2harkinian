@@ -1,21 +1,21 @@
 #include "ShipUtils.h"
-#include <libultraship/libultraship.h>
 #include "assets/2s2h_assets.h"
 #include <string>
 #include <random>
+#include <vector>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
-#include <boost/random/uniform_real_distribution.hpp>
 #include <boost_custom/container_hash/hash_32.hpp>
-
+#include "public/bridge/consolevariablebridge.h"
+#include "Context.h"
+#include "Window.h"
 // Image Icons
 #include "assets/interface/parameter_static/parameter_static.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
-#include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/interface/icon_item_field_static/icon_item_field_static.h"
-#include "assets/archives/icon_item_static/icon_item_static_yar.h"
+#include "assets/objects/gameplay_keep/gameplay_keep.h"
 
 extern "C" {
 #include "z64.h"
@@ -45,7 +45,7 @@ std::unordered_map<s16, const char*> sceneNames = {
 #undef DEFINE_SCENE_UNSET
 
 // These textures are not in existing lists that we iterate over.
-std::vector<const char*> miscellaneousTextures = {
+std::array<const char*, 22> miscellaneousTextures = {
     gArcheryScoreIconTex,
     gBarrelTrackerIcon,
     gChestTrackerIcon,
@@ -63,12 +63,34 @@ std::vector<const char*> miscellaneousTextures = {
     gStrayFairyStoneTowerIconTex,
     gStrayFairyWoodfallIconTex,
     gTimerClockIconTex,
+    gTriforcePieceTex,
     gWorldMapOwlFaceTex,
+    gameplay_keep_Tex_053140,
+    gDungeonMapSkullTex,
+    gPauseUnusedCursorTex,
 };
 
-std::vector<const char*> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
-                                       gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
-                                       gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
+std::array<const char*, 11> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
+                                          gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
+                                          gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
+
+std::map<uint32_t, ImVec4> itemColorMap = {
+    { ITEM_SONG_SONATA, ImVec4(0.588f, 1.0f, 0.392f, 1.0f) },
+    { ITEM_SONG_LULLABY, ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
+    { ITEM_SONG_NOVA, ImVec4(0.392f, 0.588f, 1.0f, 1.0f) },
+    { ITEM_SONG_ELEGY, ImVec4(1.0f, 0.627f, 0.0f, 1.0f) },
+    { ITEM_SONG_OATH, ImVec4(1.0f, 0.392f, 1.0f, 1.0f) },
+    { ITEM_SONG_LULLABY_INTRO, ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
+};
+
+ImVec4 Ship_GetItemColorTint(uint32_t itemId) {
+    auto findColor = itemColorMap.find(itemId);
+    if (findColor != itemColorMap.end()) {
+        return findColor->second;
+    } else {
+        return ImVec4(1, 1, 1, 1);
+    }
+}
 
 extern "C" const char* Ship_GetSceneName(s16 sceneId) {
     if (sceneNames.contains(sceneId)) {
@@ -76,6 +98,15 @@ extern "C" const char* Ship_GetSceneName(s16 sceneId) {
     }
 
     return "Unknown";
+}
+
+std::string Ship_FormatTimeDisplay(uint32_t value) {
+    uint32_t sec = value / 10;
+    uint32_t hh = sec / 3600;
+    uint32_t mm = (sec - hh * 3600) / 60;
+    uint32_t ss = sec - hh * 3600 - mm * 60;
+    uint32_t ds = value % 10;
+    return fmt::format("{}:{:0>2}:{:0>2}.{}", hh, mm, ss, ds);
 }
 
 constexpr f32 fourByThree = 4.0f / 3.0f;
@@ -180,25 +211,23 @@ extern "C" s32 Ship_Random(s32 min, s32 max) {
 }
 
 void LoadGuiTextures() {
-    for (TexturePtr entry : gItemIcons) {
-        const char* path = static_cast<const char*>(entry);
+    for (const TexturePtr entry : gItemIcons) {
+        auto path = static_cast<const char*>(entry);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
     }
-    for (TexturePtr entry : gQuestIcons) {
-        const char* path = static_cast<const char*>(entry);
+    for (const TexturePtr entry : gQuestIcons) {
+        auto path = static_cast<const char*>(entry);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
     }
-    for (TexturePtr entry : gBombersNotebookPhotos) {
-        const char* path = static_cast<const char*>(entry);
+    for (const TexturePtr entry : gBombersNotebookPhotos) {
+        auto path = static_cast<const char*>(entry);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
     }
-    for (auto& entry : miscellaneousTextures) {
-        const char* path = static_cast<const char*>(entry);
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
+    for (const auto entry : miscellaneousTextures) {
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(entry, entry, ImVec4(1, 1, 1, 1));
     }
-    for (auto& entry : digitList) {
-        const char* path = static_cast<const char*>(entry);
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
+    for (const auto entry : digitList) {
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(entry, entry, ImVec4(1, 1, 1, 1));
     }
 }
 

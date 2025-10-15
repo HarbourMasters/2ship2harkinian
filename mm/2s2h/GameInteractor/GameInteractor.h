@@ -147,6 +147,7 @@ typedef enum {
     VB_DEKU_GUARD_SHOW_SEARCH_BALLS,
     VB_DISPLAY_SONG_OF_DOUBLE_TIME_PROMPT,
     VB_SMITHY_START_UPGRADING_SWORD,
+    VB_SMITHY_CHECK_FOR_SWORD,
     VB_SMITHY_CHECK_FOR_RAZOR_SWORD,
     VB_SMITHY_CHECK_FOR_GILDED_SWORD,
     VB_HAVE_BLAST_MASK,
@@ -163,9 +164,9 @@ typedef enum {
     VB_OWL_STATUE_ACTIVATE,
     VB_OWL_STATUE_BE_ACTIVE,
     VB_HAVE_HEALED_PAMELAS_FATHER,
-    VB_WIN_MALON_PRACTICE,
-    VB_MALON_CONSIDER_EPONA_SONG_GIVEN,
-    VB_GIVE_ITEM_FROM_MALON,
+    VB_WIN_ROMANI_PRACTICE,
+    VB_ROMANI_CONSIDER_EPONA_SONG_GIVEN,
+    VB_GIVE_ITEM_FROM_ROMANI,
     VB_DOOR_HEALTH_CHECK_FAIL,
     VB_GIVE_LOTTERY_WINNINGS,
     VB_GIVE_HONEY_DARLING_REWARD,
@@ -185,6 +186,10 @@ typedef enum {
     VB_ITEM_GIVE_SWORD_SET_FORM_EQUIP,
     VB_POT_DRAW_BE_OVERRIDDEN,
     VB_CRATE_DRAW_BE_OVERRIDDEN,
+    VB_KUSA_BUSH_DRAW_BE_OVERRIDDEN,
+    VB_OBJGRASS_OPA_DRAW_BE_OVERRIDDEN,
+    VB_OBJGRASS_XLU_DRAW_BE_OVERRIDDEN,
+    VB_CARRY_GRASS_DRAW_BE_OVERRIDDEN,
     VB_HAVE_MAGIC_FOR_TINGLE,
     VB_GIVE_KEATON_MASK,
     VB_GIVE_LETTER_TO_MAMA,
@@ -219,6 +224,7 @@ typedef enum {
     VB_GIBDO_TRADE_SEQUENCE_TAKE_MORE_THAN_ONE_ITEM,
     VB_GIBDO_TRADE_SEQUENCE_DO_TRADE,
     VB_GET_ITEM_ACTION_FROM_MASK,
+    VB_GRASS_DROP_COLLECTIBLE,
     VB_GRANT_MAGIC_UPON_REQUEST,
     VB_SCOPENUTS_CONSIDER_FIRST_CYCLE,
     VB_JS_OVERRIDE_MASK_CHECK,
@@ -235,6 +241,19 @@ typedef enum {
     VB_PLAY_GORON_CHILD_CRY,
     VB_SNOWBALL_DROP_COLLECTIBLE,
     VB_SNOWBALL_SET_FLAG,
+    VB_START_JUMPSLASH,
+    VB_DESPAWN_FROG,
+    VB_SETUP_TRANSITION,
+    VB_BE_NEAR_DOOR,
+    VB_LOAD_PLAYER_ANIMATION_FRAME,
+    VB_PLAY_SCENE_SEQUENCE,
+    VB_DISABLE_ITEM_UNDERWATER,
+    VB_PLAY_SLOW_CHEST_CS,
+    VB_BE_CLIMBABLE_SURFACE,
+    VB_PLAYER_CUTSCENE_ACTION,
+    VB_SET_CAMERA_AT_EYE,
+    VB_SET_CAMERA_FOV,
+    VB_USE_ITEM_CONSIDER_ITEM_ACTION,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -242,6 +261,7 @@ typedef enum {
     GI_INVERT_CAMERA_RIGHT_STICK_Y,
     GI_INVERT_MOVEMENT_X,
     GI_INVERT_SHIELD_X,
+    GI_INVERT_SHIELD_Y,
     GI_INVERT_SHOP_X,
     GI_INVERT_HORSE_X,
     GI_INVERT_ZORA_SWIM_X,
@@ -270,14 +290,12 @@ typedef enum {
 
 #ifdef __cplusplus
 
-#include "2s2h/CustomMessage/CustomMessage.h"
 #include <vector>
 #include <functional>
 #include <map>
 #include <unordered_map>
 #include <cstdint>
 #include <algorithm>
-#include <variant>
 
 #include <version>
 #ifdef __cpp_lib_source_location
@@ -713,6 +731,7 @@ void GameInteractor_ExecuteOnActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorKill(Actor* actor);
 void GameInteractor_ExecuteOnActorDestroy(Actor* actor);
 void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex);
+void GameInteractor_ExecuteOnBossDefeated(s16 actorId);
 
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 flag);
@@ -729,6 +748,8 @@ void GameInteractor_ExecuteOnOpenText(u16* textId, bool* loadFromMessageTable);
 
 bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
+
+void GameInteractor_ExecuteOnBottleContentsUpdate(u8 item);
 
 bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
 #define REGISTER_VB_SHOULD(flag, body)                                                      \

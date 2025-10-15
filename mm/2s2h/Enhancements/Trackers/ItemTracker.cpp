@@ -1,8 +1,9 @@
 #include "ItemTracker.h"
-#include "libultraship/libultraship.h"
+#include "public/bridge/consolevariablebridge.h"
 #include "Context.h"
 #include "config/Config.h"
 #include <bit>
+#include "Rando/Rando.h"
 
 extern "C" {
 #include "z64save.h"
@@ -12,6 +13,7 @@ extern "C" {
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/interface/icon_item_field_static/icon_item_field_static.h"
 #include "assets/interface/parameter_static/parameter_static.h"
+#include "2s2h_assets.h"
 }
 
 #define CFG_TRACKER_ITEM(var) ("ItemTracker." var)
@@ -29,6 +31,7 @@ typedef enum {
     TRACKER_ITEM_KEY_SNOWHEAD,
     TRACKER_ITEM_KEY_GREAT_BAY,
     TRACKER_ITEM_KEY_STONE_TONER,
+    TRACKER_ITEM_TRIFORCE_PIECES,
 } ItemTrackerItems;
 
 using namespace Ship;
@@ -137,7 +140,7 @@ void EndFloatingWindows() {
 
 static constexpr ImVec4 opaqueTex = { 1.0f, 1.0f, 1.0f, 1.0f };
 static constexpr ImVec4 fadedTex = { 0.5f, 0.5f, 0.5f, 0.5f };
-
+static constexpr ImVec4 tintCol = {};
 void DrawItem(char* tex, bool drawFaded, float itemSize) {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
     if (!gui->HasTextureByName(tex)) {
@@ -145,7 +148,7 @@ void DrawItem(char* tex, bool drawFaded, float itemSize) {
     }
 
     ImGui::Image(gui->GetTextureByName(tex), ImVec2(itemSize, itemSize), ImVec2(0, 0), ImVec2(1, 1),
-                 drawFaded ? fadedTex : opaqueTex);
+                 drawFaded ? fadedTex : opaqueTex, tintCol);
 }
 
 void DrawItemTinted(char* tex, bool drawFaded, float itemSize, ImVec4 tintColor) {
@@ -157,7 +160,7 @@ void DrawItemTinted(char* tex, bool drawFaded, float itemSize, ImVec4 tintColor)
     ImVec4 opacityMix = drawFaded ? fadedTex : opaqueTex;
     ImVec4 color = ImVec4(opacityMix.x * tintColor.x, opacityMix.y * tintColor.y, opacityMix.z * tintColor.z,
                           opacityMix.w * tintColor.w);
-    ImGui::Image(gui->GetTextureByName(tex), ImVec2(itemSize, itemSize), ImVec2(0, 0), ImVec2(1, 1), color);
+    ImGui::Image(gui->GetTextureByName(tex), ImVec2(itemSize, itemSize), ImVec2(0, 0), ImVec2(1, 1), color, tintCol);
 }
 
 static constexpr std::array<ImVec4, 5> songInfo = {
@@ -190,7 +193,7 @@ void ItemTrackerWindow::DrawNote(size_t songIndex, bool drawFaded) {
         color.w *= 0.5f;
     }
     ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gItemIconSongNoteTex),
-                 scaledNoteSize, ImVec2(0, 0), ImVec2(1, 1), color);
+                 scaledNoteSize, ImVec2(0, 0), ImVec2(1, 1), color, tintCol);
 }
 
 void ItemTrackerWindow::DrawOwlFace(bool drawFaded) {
@@ -202,7 +205,7 @@ void ItemTrackerWindow::DrawOwlFace(bool drawFaded) {
     const ImVec2 scaledOwlSize(owlToScale * 24.0f * iconScale, owlToScale * 12.0f * iconScale);
 
     ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gWorldMapOwlFaceTex),
-                 scaledOwlSize, ImVec2(0, 0), ImVec2(1, 1), drawFaded ? fadedTex : opaqueTex);
+                 scaledOwlSize, ImVec2(0, 0), ImVec2(1, 1), drawFaded ? fadedTex : opaqueTex, tintCol);
 }
 
 extern "C" {
@@ -351,6 +354,7 @@ bool ItemTrackerWindow::HasItemCount(int itemId) {
         case TRACKER_ITEM_KEY_SNOWHEAD:
         case TRACKER_ITEM_KEY_GREAT_BAY:
         case TRACKER_ITEM_KEY_STONE_TONER:
+        case TRACKER_ITEM_TRIFORCE_PIECES:
             return true;
         default:
             return false;
@@ -378,8 +382,9 @@ ItemTrackerWindow::CountInfo ItemTrackerWindow::GetItemCountInfo(int itemId) {
         case TRACKER_ITEM_STRAY_FAIRY_GREAT_BAY:
         case TRACKER_ITEM_STRAY_FAIRY_STONE_TOWER:
             info = {
-                .cur = (uint16_t)gSaveContext.save.saveInfo.inventory
-                           .strayFairies[itemId - TRACKER_ITEM_STRAY_FAIRY_WOODFALL + DUNGEON_INDEX_WOODFALL_TEMPLE],
+                .cur =
+                    (uint16_t)gSaveContext.save.saveInfo.inventory
+                        .strayFairies[itemId - TRACKER_ITEM_STRAY_FAIRY_WOODFALL + DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE],
                 .curCap = 15,
                 .maxCap = 15,
             };
@@ -410,11 +415,22 @@ ItemTrackerWindow::CountInfo ItemTrackerWindow::GetItemCountInfo(int itemId) {
         case TRACKER_ITEM_KEY_STONE_TONER:
             info = {
                 .cur = (uint16_t)MAX(
-                    DUNGEON_KEY_COUNT(itemId - TRACKER_ITEM_KEY_WOODFALL + DUNGEON_INDEX_WOODFALL_TEMPLE), 0),
-                .curCap = sSmallKeyCounts[itemId - TRACKER_ITEM_KEY_WOODFALL + DUNGEON_INDEX_WOODFALL_TEMPLE],
-                .maxCap = sSmallKeyCounts[itemId - TRACKER_ITEM_KEY_WOODFALL + DUNGEON_INDEX_WOODFALL_TEMPLE],
+                    DUNGEON_KEY_COUNT(itemId - TRACKER_ITEM_KEY_WOODFALL + DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE), 0),
+                .curCap = sSmallKeyCounts[itemId - TRACKER_ITEM_KEY_WOODFALL + DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE],
+                .maxCap = sSmallKeyCounts[itemId - TRACKER_ITEM_KEY_WOODFALL + DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE],
             };
             break;
+        case TRACKER_ITEM_TRIFORCE_PIECES: {
+            u32 triforcePieceCount = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
+            info = {
+                .cur = (uint16_t)triforcePieceCount,
+                .curCap =
+                    (uint16_t)RANDO_SAVE_OPTIONS[Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].randoOptionId],
+                .maxCap =
+                    (uint16_t)RANDO_SAVE_OPTIONS[Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].randoOptionId],
+            };
+            break;
+        }
         default:
             info = { 0 };
     }
@@ -584,6 +600,14 @@ int ItemTrackerWindow::DrawMisc(int columns, int prevDrawnColumns) {
     DrawOwlFace(gSaveContext.save.saveInfo.playerData.owlActivationFlags == 0);
     DrawItemCount(TRACKER_ITEM_OWL_ACTIVATIONS, pos);
     ImGui::EndGroup();
+    pos = ImVec2((0 * (mIconSize + mIconSpacing) + 8.0f),
+                 ((prevDrawnColumns + 1) * (mIconSize + mIconSpacing)) + 8.0f + topPadding);
+    ImGui::SetCursorPos(pos);
+    ImGui::BeginGroup();
+    DrawItem((char*)gTriforcePieceTex,
+             RANDO_SAVE_OPTIONS[Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].randoOptionId] == 0, mIconSize);
+    DrawItemCount(TRACKER_ITEM_TRIFORCE_PIECES, pos);
+    ImGui::EndGroup();
 
     // TODO: Heart counts once we have extra save stats
     // pos = ImVec2((2 * (mIconSize + mIconSpacing) + 8.0f),
@@ -596,7 +620,7 @@ int ItemTrackerWindow::DrawMisc(int columns, int prevDrawnColumns) {
     // ImGui::SetCursorPos(pos);
     // DrawItem(const_cast<char*>(gQuestIconPieceOfHeartTex), false, mIconSize);
 
-    return 1;
+    return 2;
 }
 
 static int RoundDown(int orig, int nearest) {
@@ -624,7 +648,7 @@ int ItemTrackerWindow::DrawStrayFairies(int columns, int prevDrawnColumns) {
             }
             ImGui::Image(
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((char*)sStrayFairyTextures[0]),
-                ImVec2(mIconSize, mIconSize), ImVec2(0, 0), ImVec2(1, 1), color);
+                ImVec2(mIconSize, mIconSize), ImVec2(0, 0), ImVec2(1, 1), color, tintCol);
         } else {
             ImGui::BeginGroup();
             DrawItem((char*)sStrayFairyTextures[i - 1], gSaveContext.save.saveInfo.inventory.strayFairies[i - 1] == 0,

@@ -1,14 +1,21 @@
 #pragma once
-
-#include "stdint.h"
-#include <libultraship/libultraship.h>
-#include <imgui.h>
 #include <unordered_map>
 #include <string>
 #include <vector>
 #include <set>
 #include <list>
+#include <memory>
+#include "stdint.h"
+#include "GuiWindow.h"
+#include "controller/controldevice/controller/mapping/ControllerAxisDirectionMapping.h"
+#include "controller/physicaldevice/PhysicalDeviceType.h"
 
+#include <imgui.h>
+#include <libultraship/libultra/controller.h>
+
+namespace Ship {
+class ControllerRumbleMapping;
+}
 typedef CONTROLLERBUTTONS_T N64ButtonMask;
 
 typedef struct {
@@ -91,6 +98,7 @@ class BenInputEditorWindow : public Ship::GuiWindow {
     bool mInputEditorPopupOpen;
     void DrawSetDefaultsButton(uint8_t portIndex);
     void DrawClearAllButton(uint8_t portIndex);
+    void OffsetMappingPopup();
 
     void DrawDeviceToggles(uint8_t portIndex);
 };

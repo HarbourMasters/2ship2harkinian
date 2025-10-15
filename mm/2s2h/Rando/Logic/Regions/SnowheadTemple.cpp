@@ -1,4 +1,3 @@
-#include <libultraship/libultraship.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
@@ -164,7 +163,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_LEVEL_3_LARGE_SNOWBALL_04, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
         },
         .exits = {
-            EXIT(ENTRANCE(GOHTS_LAIR, 0),           ONE_WAY_EXIT, CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_INDEX_SNOWHEAD_TEMPLE)),
+            EXIT(ENTRANCE(GOHTS_LAIR, 0),           ONE_WAY_EXIT, CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE)),
         },
         .connections = {
             CONNECTION(RR_SNOWHEAD_TEMPLE_CENTRAL_ROOM_BOTTOM, true),
@@ -176,7 +175,7 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_SNOWHEAD_TEMPLE_COMPASS_ROOM] = RandoRegion{ .sceneId = SCENE_HAKUGIN,
         .checks = {
             CHECK(RC_SNOWHEAD_TEMPLE_COMPASS_CHEST, true),
-            CHECK(RC_SNOWHEAD_TEMPLE_COMPASS_ROOM_LEDGE_CHEST, (HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_MAGIC_ARROW(FIRE))),
+            CHECK(RC_SNOWHEAD_TEMPLE_COMPASS_ROOM_LEDGE_CHEST, CAN_USE_MAGIC_ARROW(FIRE)),
             CHECK(RC_SNOWHEAD_TEMPLE_COMPASS_ROOM_POT_01, true),
             CHECK(RC_SNOWHEAD_TEMPLE_COMPASS_ROOM_POT_02, true),
             CHECK(RC_SNOWHEAD_TEMPLE_COMPASS_ROOM_POT_03, true),

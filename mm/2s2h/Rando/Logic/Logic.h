@@ -1,13 +1,13 @@
 #ifndef RANDO_LOGIC_H
 #define RANDO_LOGIC_H
 
-#include <libultraship/bridge.h>
 #include "Rando/Rando.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
 
 #include <unordered_map>
 #include <set>
+#include <cassert>
 
 extern "C" {
 #include "functions.h"
@@ -69,10 +69,9 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
 // Be careful here, as some checks require you to play the song as a specific form
 #define CAN_PLAY_SONG(song) (HAS_ITEM(ITEM_OCARINA_OF_TIME) && CHECK_QUEST_ITEM(QUEST_SONG_##song))
 #define CAN_RIDE_EPONA (CAN_PLAY_SONG(EPONA))
-#define GBT_REGULAR_WATER_FLOW (!RANDO_EVENTS[RE_GREAT_BAY_YELLOW_TOGGLE] && !RANDO_EVENTS[RE_GREAT_BAY_RED_TOGGLE])
-#define GBT_REVERSE_WATER_FLOW (RANDO_EVENTS[RE_GREAT_BAY_YELLOW_TOGGLE] && RANDO_EVENTS[RE_GREAT_BAY_RED_TOGGLE])
-#define GBT_EITHER_FLOW (!RANDO_EVENTS[RE_GREAT_BAY_YELLOW_TOGGLE] || RANDO_EVENTS[RE_GREAT_BAY_RED_TOGGLE])
-#define GBT_RED_SWITCH_FLOW (RANDO_EVENTS[RE_GREAT_BAY_RED_SWITCH_1] && RANDO_EVENTS[RE_GREAT_BAY_RED_SWITCH_2])
+#define GBT_CAN_REVERSE_WATER_FLOW                                                         \
+    (RANDO_EVENTS[RE_GREAT_BAY_RED_SWITCH_1] && RANDO_EVENTS[RE_GREAT_BAY_RED_SWITCH_2] && \
+     HAS_ITEM(ITEM_HOOKSHOT)) // Keeping for the sake of check tracker clarity
 #define GBT_GREEN_SWITCH_FLOW                                                                  \
     (RANDO_EVENTS[RE_GREAT_BAY_GREEN_SWITCH_1] && RANDO_EVENTS[RE_GREAT_BAY_GREEN_SWITCH_2] && \
      RANDO_EVENTS[RE_GREAT_BAY_GREEN_SWITCH_3])
@@ -90,11 +89,16 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
      (CAN_PLAY_SONG(STORMS) || (HAS_BOTTLE && (CAN_ACCESS(SPRING_WATER) || CAN_ACCESS(HOT_SPRING_WATER)))))
 #define CAN_USE_MAGIC_ARROW(arrowType) (HAS_ITEM(ITEM_BOW) && HAS_ITEM(ITEM_ARROW_##arrowType) && HAS_MAGIC)
 #define CAN_LIGHT_TORCH_NEAR_ANOTHER (HAS_ITEM(ITEM_DEKU_STICK) || CAN_USE_MAGIC_ARROW(FIRE))
-#define KEY_COUNT(dungeon) (gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_INDEX_##dungeon])
+#define KEY_COUNT(dungeon) (gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_SCENE_INDEX_##dungeon])
 #define CAN_AFFORD(rc)                                                                                                \
     ((RANDO_SAVE_CHECKS[rc].price < 100) || (RANDO_SAVE_CHECKS[rc].price <= 200 && CUR_UPG_VALUE(UPG_WALLET) >= 1) || \
      (CUR_UPG_VALUE(UPG_WALLET) >= 2))
-#define HAS_ALL_STRAY_FAIRIES(dungeonIndex) (gSaveContext.save.saveInfo.inventory.strayFairies[dungeonIndex] >= 15)
+#define HAS_ENOUGH_STRAY_FAIRIES(dungeonIndex) \
+    (gSaveContext.save.saveInfo.inventory.strayFairies[dungeonIndex] >= RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES])
+#define FOUND_ALL_FROGS                                                                  \
+    (CHECK_WEEKEVENTREG(WEEKEVENTREG_33_01) && CHECK_WEEKEVENTREG(WEEKEVENTREG_32_40) && \
+     CHECK_WEEKEVENTREG(WEEKEVENTREG_32_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_33_02))
+#define CAN_USE_ABILITY(ability) (Flags_GetRandoInf(RI_ABILITY_##ability - RI_ABILITY_SWIM + RANDO_INF_OBTAINED_SWIM))
 
 #define EVENT(randoEvent, condition)         \
     {                                        \
@@ -126,19 +130,19 @@ inline std::string LogicString(std::string condition) {
     return condition;
 }
 
-inline bool CanAccessDungeon(DungeonIndex dungeonIndex) {
+inline bool CanAccessDungeon(DungeonSceneIndex dungeonIndex) {
     bool hasSongAccess = false;
     bool hasFormAccess = false;
     switch (dungeonIndex) {
-        case DUNGEON_INDEX_WOODFALL_TEMPLE:
+        case DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE:
             hasSongAccess = CAN_PLAY_SONG(SONATA);
             hasFormAccess = CAN_BE_DEKU && HAS_ITEM(ITEM_OCARINA_OF_TIME);
             break;
-        case DUNGEON_INDEX_SNOWHEAD_TEMPLE:
+        case DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE:
             hasSongAccess = CAN_PLAY_SONG(LULLABY);
             hasFormAccess = CAN_BE_GORON && HAS_ITEM(ITEM_OCARINA_OF_TIME);
             break;
-        case DUNGEON_INDEX_GREAT_BAY_TEMPLE:
+        case DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE:
             hasSongAccess = CAN_PLAY_SONG(BOSSA_NOVA);
             hasFormAccess = CAN_BE_ZORA && HAS_ITEM(ITEM_OCARINA_OF_TIME);
             break;
@@ -181,7 +185,7 @@ inline uint32_t RemainsCount() {
 }
 
 inline bool MeetsMoonRequirements() {
-    return CAN_PLAY_SONG(OATH) && RemainsCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT];
+    return RemainsCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT];
 }
 
 inline bool CanKillEnemy(ActorId EnemyId) {

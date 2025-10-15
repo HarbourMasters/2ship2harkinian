@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/Rando/StaticData/StaticData.h"
 #include "2s2h/ShipInit.hpp"
@@ -9,7 +9,7 @@ extern "C" {
 #include "variables.h"
 #include "src/overlays/actors/ovl_En_Box/z_en_box.h"
 
-s32 func_80832558(PlayState* play, Player* player, PlayerFuncD58 arg2);
+s32 Player_SetupWaitForPutAway(PlayState* play, Player* player, AfterPutAwayFunc afterPutAwayFunc);
 void Player_SetAction_PreserveMoveFlags(PlayState* play, Player* player, PlayerActionFunc actionFunc, s32 arg3);
 void Player_StopCutscene(Player* player);
 void func_80848294(PlayState* play, Player* player);
@@ -28,6 +28,14 @@ static Gfx gBoxChestLidOrnateCopyDL[38];
 
 #define ENBOX_RC (actor->home.rot.x)
 #define ENBOX_SET_ITEM(thisx, newItem) ((thisx)->params = (((thisx)->params & ~(0x7F << 5)) | ((newItem & 0x7F) << 5)))
+
+std::vector<std::vector<RandoCheckId>> treasureGameMap = {
+    { RC_UNKNOWN, RC_UNKNOWN }, // FD
+    { RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_GORON, RC_UNKNOWN },
+    { RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_ZORA, RC_UNKNOWN },
+    { RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_DEKU, RC_UNKNOWN },
+    { RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_HUMAN, RC_UNKNOWN },
+};
 
 void Player_Action_65_override(Player* player, PlayState* play) {
     if (PlayerAnimation_Update(play, &player->skelAnime)) {
@@ -92,7 +100,7 @@ void EnBox_RandoPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s*
             break;
     }
 
-    gSPMatrix((*gfx)++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD((*gfx)++, play->state.gfxCtx);
     switch (randoItemType) {
         case RITYPE_BOSS_KEY:
         case RITYPE_HEALTH:
@@ -159,7 +167,7 @@ void Rando::ActorBehavior::InitEnBoxBehavior() {
         Actor* actor = (Actor*)enBox;
         Player* player = GET_PLAYER(gPlayState);
         if (ENBOX_RC != RC_UNKNOWN) {
-            func_80832558(gPlayState, player, func_80837C78_override);
+            Player_SetupWaitForPutAway(gPlayState, player, func_80837C78_override);
             *should = false;
         }
     });
@@ -170,11 +178,17 @@ void Rando::ActorBehavior::InitEnBoxBehavior() {
                                                                     gPlayState->sceneId);
         RandoCheckId randoCheckId = randoStaticCheck.randoCheckId;
 
+        if (gPlayState->sceneId == SCENE_TAKARAYA) {
+            uint8_t transformation = GET_PLAYER(gPlayState)->transformation;
+            uint8_t gameNumber = Flags_GetSwitch(gPlayState, transformation) ? 1 : 0;
+            randoCheckId = treasureGameMap[transformation][gameNumber];
+        }
+
         if (randoCheckId == RC_UNKNOWN || !RANDO_SAVE_CHECKS[randoCheckId].shuffled) {
             return;
         }
 
-        ENBOX_RC = randoStaticCheck.randoCheckId;
+        ENBOX_RC = randoCheckId;
         actor->params = ((actor->params & ~(0x7F << 5)) | ((GI_RECOVERY_HEART & 0x7F) << 5));
 
         if (CVarGetInteger("gRando.CSMC", 0)) {

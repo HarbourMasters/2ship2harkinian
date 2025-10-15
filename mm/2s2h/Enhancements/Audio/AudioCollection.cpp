@@ -1,10 +1,8 @@
 #include "AudioCollection.h"
 #include "sequence.h"
-#include "sfx.h"
-#include <vector>
 #include <utils/StringHelper.h>
-#include <libultraship/bridge.h>
-#include <libultraship/classes.h>
+#include "public/bridge/consolevariablebridge.h"
+#include "Window.h"
 #include <2s2h/BenPort.h>
 #include <locale>
 #include <filesystem>
@@ -63,7 +61,7 @@ AudioCollection::AudioCollection() {
                            "NA_BGM_CLOCK_TOWN_MAIN_SEQUENCE", SEQ_BGM_WORLD, false, false),
         SEQUENCE_MAP_ENTRY(NA_BGM_OPENING, "Opening", "NA_BGM_OPENING", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_INSIDE_A_HOUSE, "Inside House", "NA_BGM_INSIDE_A_HOUSE", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_GAME_OVER, "Game Over", "NA_BGM_GAME_OVER", SEQ_BGM_EVENT, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_GAME_OVER, "Game Over", "NA_BGM_GAME_OVER", SEQ_BGM_EVENT, false, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_CLEAR_BOSS, "Clear Boss", "NA_BGM_CLEAR_BOSS", SEQ_BGM_BATTLE, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_GET_ITEM, "Get Item", "NA_BGM_GET_ITEM", SEQ_FANFARE, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_CLOCK_TOWN_DAY_2_PTR, "Clock Town Day 2 (Alt)", "NA_BGM_CLOCK_TOWN_DAY_2_PTR",
@@ -134,7 +132,7 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_LEARNED_NEW_SONG, "Get Song", "NA_BGM_LEARNED_NEW_SONG", SEQ_FANFARE, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_BREMEN_MARCH, "Bremen March", "NA_BGM_BREMEN_MARCH", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_BALLAD_OF_THE_WIND_FISH, "Ballad Of The Wind Fish", "NA_BGM_BALLAD_OF_THE_WIND_FISH",
-                           SEQ_BGM_WORLD, true, true),
+                           SEQ_BGM_WORLD, false, false),
         SEQUENCE_MAP_ENTRY(NA_BGM_SONG_OF_SOARING, "Song Of Soaring", "NA_BGM_SONG_OF_SOARING", SEQ_BGM_SONGS, true,
                            true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MILK_BAR_DUPLICATE, "Milk Bar Night", "NA_BGM_MILK_BAR_DUPLICATE", SEQ_BGM_WORLD,
@@ -144,7 +142,8 @@ AudioCollection::AudioCollection() {
                            true), // Looping instrument
         SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_FINALE, "Mikau Finale", "NA_BGM_MIKAU_FINALE", SEQ_BGM_SONGS, true,
                            true), // Instrument finale
-        SEQUENCE_MAP_ENTRY(NA_BGM_FROG_SONG, "Frog Song", "NA_BGM_FROG_SONG", SEQ_BGM_WORLD, true, true), // Looping BGM
+        SEQUENCE_MAP_ENTRY(NA_BGM_FROG_SONG, "Frog Song", "NA_BGM_FROG_SONG", SEQ_BGM_WORLD, false,
+                           false), // Looping BGM
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_SONATA, "Sonata Of Awakening (Ocarina)", "NA_BGM_OCARINA_SONATA", SEQ_OCARINA,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_LULLABY, "Goron Lullaby", "NA_BGM_OCARINA_LULLABY", SEQ_OCARINA, true, true),
@@ -185,7 +184,9 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_CREMIA_CARRIAGE, "Cremia Carriage", "NA_BGM_CREMIA_CARRIAGE", SEQ_BGM_WORLD, true,
                            true),
         SEQUENCE_MAP_ENTRY(NA_BGM_KEATON_QUIZ, "Keaton Quiz", "NA_BGM_KEATON_QUIZ", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_END_CREDITS, "Credits (First Half)", "NA_BGM_END_CREDITS", SEQ_BGM_WORLD, true, true),
+        // The credits cutscene uses the position in the sequence to advance. It should not be changed.
+        SEQUENCE_MAP_ENTRY(NA_BGM_END_CREDITS, "Credits (First Half)", "NA_BGM_END_CREDITS", SEQ_BGM_WORLD, false,
+                           false),
         SEQUENCE_MAP_ENTRY(NA_BGM_OPENING_LOOP, "Opening Loop", "NA_BGM_OPENING_LOOP", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_TITLE_THEME, "Title Theme", "NA_BGM_TITLE_THEME", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_DUNGEON_APPEAR, "Dungeon Appear", "NA_BGM_DUNGEON_APPEAR", SEQ_BGM_EVENT, true, true),
@@ -198,7 +199,7 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_MOONS_DESTRUCTION, "Moon's Destruction", "NA_BGM_MOONS_DESTRUCTION", SEQ_BGM_EVENT,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_END_CREDITS_SECOND_HALF, "Credits (Second Half)", "NA_BGM_END_CREDITS_SECOND_HALF",
-                           SEQ_BGM_WORLD, true, true),
+                           SEQ_BGM_WORLD, false, false),
     };
 
     // Initialize counts for each type
@@ -366,11 +367,12 @@ size_t AudioCollection::CountSequencesByType(SeqType type) {
 }
 
 uint16_t AudioCollection::GetMaxOriginalSeqId() const {
-    uint16_t maxId = 0;
-    for (const auto& [seqId, seqInfo] : mSequenceMap) {
-        if (!(seqInfo.category & SEQ_BGM_CUSTOM) && seqId > maxId) {
-            maxId = seqId;
-        }
-    }
-    return maxId;
+    return 0x7F;
+    // uint16_t maxId = 0;
+    // for (const auto& [seqId, seqInfo] : mSequenceMap) {
+    //     if (!(seqInfo.category & SEQ_BGM_CUSTOM) && seqId > maxId) {
+    //         maxId = seqId;
+    //     }
+    // }
+    // return maxId;
 }

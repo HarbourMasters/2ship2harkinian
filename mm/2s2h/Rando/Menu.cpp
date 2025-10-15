@@ -1,9 +1,7 @@
 #include "Rando/Rando.h"
 #include "Rando/Spoiler/Spoiler.h"
-#include <libultraship/libultraship.h>
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "Rando/CheckTracker/CheckTracker.h"
-#include "BenPort.h"
 #include "build.h"
 #include "2s2h/BenGui/BenMenu.h"
 
@@ -27,9 +25,22 @@ std::unordered_map<int32_t, const char*> accessDungeonOptions = {
 std::unordered_map<int32_t, const char*> accessTrialsOptions = {
     { RO_ACCESS_TRIALS_20_MASKS, "2-6-12-20 Masks" },
     { RO_ACCESS_TRIALS_REMAINS, "Requires Associated Remains" },
-    { RO_ACCESS_TRIALS_FORMS, "Requires Assocaited Transformation" },
+    { RO_ACCESS_TRIALS_FORMS, "Requires Associated Transformation" },
     { RO_ACCESS_TRIALS_OPEN, "Open" },
 };
+
+std::vector<int32_t> incompatibleWithFrenchVanilla = {
+    RO_SHUFFLE_BOSS_SOULS,
+    RO_PLENTIFUL_ITEMS,
+};
+
+std::vector<int32_t> incompatibleWithVanilla = {
+    RO_SHUFFLE_BOSS_SOULS,
+    RO_PLENTIFUL_ITEMS,
+};
+
+std::vector<RandoCheckId> checkExclusionList;
+bool isExcludedInitialized = false;
 
 namespace BenGui {
 extern std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
@@ -44,8 +55,84 @@ extern "C" {
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
 }
 
+void ClearIncompatibleSetting() {
+    int32_t currentLogicSetting =
+        CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, Rando::StaticData::Options[RO_LOGIC].defaultValue);
+    switch (currentLogicSetting) {
+        // French Vanilla can't have any options that add items without a corresponding check
+        case RO_LOGIC_FRENCH_VANILLA:
+            CVarClear(Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
+            CVarClear(Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
+            // TODO: Handle Starting Items to ensure starting sword/shield
+            break;
+        // Similar to French Vanilla, Vanilla can't add items without corresponding checks
+        case RO_LOGIC_VANILLA:
+            CVarClear(Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
+            CVarClear(Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
+            break;
+        default:
+            break;
+    }
+}
+
+bool IncompatibleWithLogicSetting(int32_t option) {
+    int32_t currentLogicSetting =
+        CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, Rando::StaticData::Options[RO_LOGIC].defaultValue);
+    switch (currentLogicSetting) {
+        case RO_LOGIC_FRENCH_VANILLA:
+            if (std::find(incompatibleWithFrenchVanilla.begin(), incompatibleWithFrenchVanilla.end(), option) !=
+                incompatibleWithFrenchVanilla.end()) {
+                return true;
+            }
+            break;
+        case RO_LOGIC_VANILLA:
+            if (std::find(incompatibleWithVanilla.begin(), incompatibleWithVanilla.end(), option) !=
+                incompatibleWithVanilla.end()) {
+                return true;
+            }
+            break;
+        default:
+            break;
+    }
+    return false;
+}
+
+void SortExcludedChecks() {
+    std::sort(checkExclusionList.begin(), checkExclusionList.end());
+}
+
+void SaveExcludedChecks() {
+    std::string excludedString = "";
+    SortExcludedChecks();
+
+    for (auto& data : checkExclusionList) {
+        excludedString += std::to_string(data).c_str();
+        excludedString += ",";
+    }
+    CVarSetString("gRando.ExcludedChecks", excludedString.c_str());
+}
+
+void LoadExcludedChecks() {
+    std::vector<RandoCheckId> sortedExclusionList;
+    std::string checksList = CVarGetString("gRando.ExcludedChecks", "");
+
+    if (checksList != "") {
+        std::string word;
+        std::istringstream stream(checksList);
+        while (std::getline(stream, word, ',')) {
+            checkExclusionList.push_back((RandoCheckId)std::stoi(word));
+        }
+    }
+    SortExcludedChecks();
+}
+
 static void DrawGeneralTab() {
-    ImGui::BeginChild("randoSettings", ImVec2(ImGui::GetContentRegionAvail().x / 2, 0));
+    ImGui::BeginChild("randoSettings");
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 0.5f));
+    ImGui::TextWrapped(
+        "Explore the menus for various enhancements and time savers; most are not enabled by default in Rando.");
+    ImGui::PopStyleColor();
+
     ImGui::SeparatorText("Seed Generation");
     UIWidgets::CVarCheckbox("Enable Rando (Randomizes new files upon creation)", "gRando.Enabled");
 
@@ -79,7 +166,7 @@ static void DrawGeneralTab() {
     ImGui::SeparatorText("Enhancements");
     UIWidgets::CVarCheckbox("Container Style Matches Contents", "gRando.CSMC");
     UIWidgets::Tooltip("This will make the contents of a container match the container itself. This currently only "
-                       "applies to chests and pots");
+                       "applies to chests and pots.");
     UIWidgets::WindowButton("Check Tracker", "gWindows.CheckTracker", BenGui::mRandoCheckTrackerWindow,
                             { .size = ImVec2((ImGui::GetContentRegionAvail().x - 48.0f), 40.0f) });
     ImGui::SameLine();
@@ -88,62 +175,35 @@ static void DrawGeneralTab() {
     }
     ImGui::EndChild();
     ImGui::SameLine();
-    ImGui::BeginChild("randoDisclaimer");
-    ImGui::PushStyleColor(ImGuiCol_Text, ColorValues.at(Colors::Gray));
-    if (gGitCommitTag[0] == 0) {
-        ImGui::Text("%s | %s", (char*)gGitBranch, (char*)gGitCommitHash);
-    } else {
-        ImGui::Text("%s", (char*)gBuildVersion);
-    }
-    ImGui::PopStyleColor();
-    ImGui::PushStyleColor(ImGuiCol_Text, ColorValues.at(Colors::Orange));
-    ImGui::SeparatorText("Disclaimer");
-    ImGui::PopStyleColor();
-    ImGui::TextWrapped(
-        "This is an Alpha. Please make note of any odd or unexpected behavior while you are playing. While we are in "
-        "the earlier phases of this project, some things you may encounter are:\n- X Check is not shuffled\n- X "
-        "Cutscene is not skipped\n- Soft lock when interacting with X\n- Unbeatable seed (glitchless logic)\n\nWe are "
-        "aware of some of these, but likely not all. Please compare your findings to our list of known issues, which "
-        "is available in the pins of the Rando Alpha Discord thread, or on the Github Issue #211, and let us know if "
-        "you encounter any new issues.\n\nExplore the menus for various enhancements and time savers, they are not "
-        "enabled by default in Rando.\n\n");
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.5f, 0.5f, 1.0f));
-    ImGui::SeparatorText("Thank You");
-    ImGui::PopStyleColor();
-    ImGui::TextWrapped("Special thanks to BalloonDude, Eblo, Caladius, Sitton, Dana, our playtesters, everyone who "
-                       "contributed to the SoH randomizer, and the creators of the various other randomizer "
-                       "implementations that inspired this project. I hope you enjoy it.\n\n");
-    ImTextureID swordTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-        (const char*)gQuestIconHeartContainer2Tex);
-    ImGui::Image(swordTextureId, ImVec2(25.0f, 25.0f));
-    ImGui::SameLine();
-    ImGui::Text("ProxySaw");
-    ImGui::EndChild();
 }
 
 static void DrawLogicConditionsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 2 - (ImGui::GetStyle().ItemSpacing.y * 2);
     ImGui::BeginChild("randoLogicColumn1", ImVec2(columnWidth, halfHeight));
-    UIWidgets::CVarCombobox("Logic", Rando::StaticData::Options[RO_LOGIC].cvar, logicOptions);
+    if (UIWidgets::CVarCombobox("Logic", Rando::StaticData::Options[RO_LOGIC].cvar, &logicOptions)) {
+        ClearIncompatibleSetting();
+    }
     UIWidgets::Tooltip(
         "Glitchless - The items are shuffled in a way that guarantees the seed is beatable without "
-        "glitches\n\n"
+        "glitches.\n\n"
         "No Logic - The items are shuffled completely randomly, this can result in unbeatable seeds, and "
-        "will require heavy use of glitches\n\n"
+        "will require heavy use of glitches.\n\n"
         "Nearly No Logic - The items are shuffled completely randomly, with the following exceptions:\n"
-        "- Oath to Order and Remains cannot be placed on the Moon\n"
+        "- Oath to Order and Remains cannot be placed on the Moon.\n"
         "- Deku Mask, Zora Mask, Sonata, and Bossa Nova cannot be placed in their respective Temples or on "
-        "the Moon\n\n"
+        "the Moon.\n\n"
         "French Vanilla - This is an alternative variant to Glitchless, but the items are biased to be "
-        "closer to their vanilla locations. Tends to be an more beginner friendly experience.\n\n"
-        "Vanilla - The items are not shuffled.");
+        "closer to their vanilla locations. Tends to be an more beginner friendly experience.\n"
+        "Not compatible with settings that add items to the pool, like Boss Souls or Plentiful Items.\n\n"
+        "Vanilla - The items are not shuffled.\n"
+        "Not compatible with settings that add items to the pool, like Boss Souls or Plentiful Items.");
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoLogicColumn2", ImVec2(columnWidth, halfHeight));
 
     UIWidgets::CVarCombobox("Dungeon Access", Rando::StaticData::Options[RO_ACCESS_DUNGEONS].cvar,
-                            accessDungeonOptions);
+                            &accessDungeonOptions);
     UIWidgets::Tooltip("Dungeon access requirements:\n\n"
                        "Requires Transformation & Song - Requires both the correct form and the song (Vanilla).\n\n"
                        "Requires Transformation or Song - Requires either the correct form or the song.\n\n"
@@ -156,18 +216,18 @@ static void DrawLogicConditionsTab() {
     UIWidgets::CVarSliderInt("Moon Access Remains Required",
                              Rando::StaticData::Options[RO_ACCESS_MOON_REMAINS_COUNT].cvar,
                              IntSliderOptions().Min(0).Max(4).DefaultValue(4));
-    UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, accessTrialsOptions);
+    UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, &accessTrialsOptions);
     ImGui::EndChild();
     ImGui::BeginChild("randoLogicTricks", ImVec2(0, 0));
     ImGui::SeparatorText("Tricks & Glitches");
     ImGui::EndChild();
 }
 
-static void DrawLocationsTab() {
+static void DrawShufflesTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 2 - (ImGui::GetStyle().ItemSpacing.y * 2);
     ImGui::SeparatorText("Shuffle Options");
-    ImGui::BeginChild("randoLocationsColumn1", ImVec2(columnWidth, halfHeight));
+    ImGui::BeginChild("randoShufflesColumn1", ImVec2(columnWidth, halfHeight));
     CVarCheckbox("Shuffle Songs", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }).DefaultValue(true));
     CVarCheckbox("Shuffle Owl Statues", Rando::StaticData::Options[RO_SHUFFLE_OWL_STATUES].cvar);
@@ -179,13 +239,22 @@ static void DrawLocationsTab() {
     CVarSliderInt(
         "Shuffle Gold Skulltula Tokens", "gPlaceholderInt",
         IntSliderOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }).Min(1).Max(30).DefaultValue(30));
+    CVarSliderInt(
+        "Minimum Required Stray Fairies", Rando::StaticData::Options[RO_MINIMUM_STRAY_FAIRIES].cvar,
+        IntSliderOptions({ { .tooltip = "Minimum Stray Fairies needed to obtain the corresponding Great Fairy check.\n"
+                                        "Does not affect the Clock Town fairy." } })
+            .Min(1)
+            .Max(STRAY_FAIRY_SCATTERED_TOTAL)
+            .DefaultValue(STRAY_FAIRY_SCATTERED_TOTAL));
     ImGui::EndChild();
     ImGui::SameLine();
-    ImGui::BeginChild("randoLocationsColumn2", ImVec2(columnWidth, halfHeight));
+    ImGui::BeginChild("randoShufflesColumn2", ImVec2(columnWidth, halfHeight));
     CVarCheckbox("Shuffle Pot Drops", Rando::StaticData::Options[RO_SHUFFLE_POT_DROPS].cvar);
     CVarCheckbox("Shuffle Crate Drops", Rando::StaticData::Options[RO_SHUFFLE_CRATE_DROPS].cvar);
     CVarCheckbox("Shuffle Barrel Drops", Rando::StaticData::Options[RO_SHUFFLE_BARREL_DROPS].cvar);
     CVarCheckbox("Shuffle Snowball Drops", Rando::StaticData::Options[RO_SHUFFLE_SNOWBALL_DROPS].cvar);
+    CVarCheckbox("Shuffle Grass Drops", Rando::StaticData::Options[RO_SHUFFLE_GRASS_DROPS].cvar);
+    CVarCheckbox("Shuffle Frogs", Rando::StaticData::Options[RO_SHUFFLE_FROGS].cvar);
     CVarCheckbox("Shuffle Hive Drops", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Shuffle Freestanding Items", Rando::StaticData::Options[RO_SHUFFLE_FREESTANDING_ITEMS].cvar);
@@ -194,10 +263,31 @@ static void DrawLocationsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoLocationsColumn3", ImVec2(columnWidth, halfHeight));
-    ImGui::EndChild();
-    ImGui::BeginChild("randoLocationsExclusions", ImVec2(0, 0));
-    ImGui::SeparatorText("Exclusions");
-    ImGui::TextWrapped("These checks will be gauranteed junk items, and marked as skipped in the check tracker.");
+    CVarCheckbox("Triforce Hunt", Rando::StaticData::Options[RO_SHUFFLE_TRIFORCE_PIECES].cvar);
+    ImGui::BeginDisabled(!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRIFORCE_PIECES].cvar, RO_GENERIC_OFF));
+    CVarSliderInt(
+        "Required Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
+        IntSliderOptions({})
+            .Min(1)
+            .Max(CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX))
+            .DefaultValue(DEFAULT_TRIFORCE_PIECES_MAX));
+    if (CVarSliderInt(
+            "Shuffled Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar,
+            IntSliderOptions({})
+                .Min(1)
+                .Max(1000)
+                .DefaultValue(DEFAULT_TRIFORCE_PIECES_MAX)
+                .Tooltip("If the maximum amount of placeable pieces exceeds what will allow the seed to generate, the "
+                         "amount will be adjusted automatically."))) {
+        if (CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar, DEFAULT_TRIFORCE_PIECES_MAX) >
+            CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX)) {
+            CVarGetInteger(
+                Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
+                CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX));
+        }
+    }
+
+    ImGui::EndDisabled();
     ImGui::EndChild();
 }
 
@@ -205,8 +295,9 @@ static void DrawItemsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 3 - (ImGui::GetStyle().ItemSpacing.y * 2);
     ImGui::BeginChild("randoItemsColumn1", ImVec2(columnWidth, halfHeight));
-    CVarCheckbox("Bronze Scale", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Shuffle Swim", Rando::StaticData::Options[RO_SHUFFLE_SWIM].cvar,
+                 CheckboxOptions({ { .tooltip = "Shuffles the ability to Swim, entering the Swim state or submerging\n"
+                                                "into deep water will respawn Link." } }));
     CVarCheckbox("Deku Stick Bag", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Deku Nut Bag", "gPlaceholderBool",
@@ -220,8 +311,19 @@ static void DrawItemsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, halfHeight));
-    CVarCheckbox("Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
-    CVarCheckbox("Boss Souls", Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
+    CVarCheckbox(
+        "Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar,
+        CheckboxOptions({ { .tooltip = "Major items, masks, and keys will have an extra copy added to the item pool. \n"
+                                       "Lesser items, stray fairies, and skulltula tokens will have a chance for an "
+                                       "extra copy to be added to the item pool.",
+                            .disabled = IncompatibleWithLogicSetting(RO_PLENTIFUL_ITEMS),
+                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox(
+        "Boss Souls", Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar,
+        CheckboxOptions({ { .tooltip = "Adds the \"souls\" of the five bosses to the item pool. Boss Souls are items "
+                                       "that must be found in order for their corresponding boss to spawn.",
+                            .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_BOSS_SOULS),
+                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
     CVarCheckbox("Enemy Souls", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
@@ -239,9 +341,19 @@ static void DrawItemsTab() {
     ImGui::BeginChild("randoItemsStarting", ImVec2(0, 0));
     ImGui::BeginChild("randoStartingItemsColumn1", ImVec2(columnWidth, 0));
     ImGui::SeparatorText("Starting Options");
-    CVarCheckbox("Wallet Full", Rando::StaticData::Options[RO_STARTING_RUPEES].cvar);
-    CVarCheckbox("Consumables Full", Rando::StaticData::Options[RO_STARTING_CONSUMABLES].cvar);
-    CVarCheckbox("Maps and Compasses", Rando::StaticData::Options[RO_STARTING_MAPS_AND_COMPASSES].cvar);
+    CVarCheckbox("Wallet Full", Rando::StaticData::Options[RO_STARTING_RUPEES].cvar,
+                 CheckboxOptions({ {
+                     .tooltip = "Start with a full wallet",
+                 } }));
+    CVarCheckbox("Consumables Full", Rando::StaticData::Options[RO_STARTING_CONSUMABLES].cvar,
+                 CheckboxOptions({ {
+                     .tooltip = "Start with full Deku Sticks and Deku Nuts",
+                 } }));
+
+    CVarCheckbox("Maps and Compasses", Rando::StaticData::Options[RO_STARTING_MAPS_AND_COMPASSES].cvar,
+                 CheckboxOptions({ {
+                     .tooltip = "Enables maps and compasses everywhere",
+                 } }));
     CVarSliderInt("Health", Rando::StaticData::Options[RO_STARTING_HEALTH].cvar,
                   IntSliderOptions()
                       .Min(1)
@@ -344,6 +456,117 @@ static void DrawItemsTab() {
     ImGui::EndChild();
 }
 
+static void DrawLocationsTab() {
+    if (CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, RO_LOGIC_GLITCHLESS) >= RO_LOGIC_FRENCH_VANILLA) {
+        ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Red),
+                           "This setting is not compatible with French Vanilla or Vanilla Logic.");
+        return;
+    }
+
+    auto menuThemeColor = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", LightBlue));
+    bool clearExcluded = false;
+    if (!isExcludedInitialized) {
+        LoadExcludedChecks();
+        isExcludedInitialized = true;
+    }
+
+    f32 columnWidth = ImGui::GetContentRegionAvail().x / 2 - (ImGui::GetStyle().ItemSpacing.x * 2);
+    ImGui::BeginChild("randoIncludedChecks", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
+    ImGui::SeparatorText("Included Checks");
+
+    static ImGuiTextFilter includedFilter;
+    UIWidgets::PushStyleCombobox(menuThemeColor);
+
+    includedFilter.Draw("##filter", ImGui::GetContentRegionAvail().x - 5.0f);
+    UIWidgets::PopStyleCombobox();
+    if (!includedFilter.IsActive()) {
+        ImGui::SameLine(18.0f);
+        ImGui::Text("Included Search");
+    }
+
+    if (ImGui::BeginTable("Included Checks", 1)) {
+        ImGui::TableNextColumn();
+
+        for (auto& includedChecks : Rando::StaticData::Checks) {
+            if (includedChecks.first == RC_UNKNOWN) {
+                continue;
+            }
+
+            if (!includedFilter.PassFilter(
+                    convertEnumToReadableName(Rando::StaticData::Checks[includedChecks.first].name).c_str())) {
+                continue;
+            }
+
+            auto it = std::find(checkExclusionList.begin(), checkExclusionList.end(), includedChecks.first);
+            if (it != checkExclusionList.end()) {
+                continue;
+            }
+
+            ImGui::BeginGroup();
+            ImGui::Text("%s", convertEnumToReadableName(Rando::StaticData::Checks[includedChecks.first].name).c_str());
+            ImGui::SameLine();
+            ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x, 0));
+            ImGui::EndGroup();
+
+            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+                                   ImGui::IsItemHovered() ? IM_COL32(255, 255, 0, 128) : IM_COL32(255, 255, 255, 0));
+            if (ImGui::IsItemClicked()) {
+                checkExclusionList.push_back(includedChecks.first);
+                SaveExcludedChecks();
+            }
+            ImGui::TableNextColumn();
+        }
+        ImGui::EndTable();
+    }
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("randoExcludedChecks", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
+    ImGui::SeparatorText("Forced Junk Checks");
+
+    static ImGuiTextFilter excludedFilter;
+    UIWidgets::PushStyleCombobox(menuThemeColor);
+    excludedFilter.Draw("##filter", ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Clear All").x - 30.0f);
+    if (!excludedFilter.IsActive()) {
+        ImGui::SameLine(18.0f);
+        ImGui::Text("Excluded Search");
+    }
+    ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Clear All").x - 24.0f);
+    if (ImGui::Button("Clear All")) {
+        clearExcluded = true;
+    }
+    UIWidgets::PopStyleCombobox();
+
+    if (ImGui::BeginTable("Excluded Checks", 1)) {
+        ImGui::TableNextColumn();
+        int16_t index = 0;
+        for (auto& excludedChecks : checkExclusionList) {
+            if (!excludedFilter.PassFilter(
+                    convertEnumToReadableName(Rando::StaticData::Checks[excludedChecks].name).c_str())) {
+                continue;
+            }
+
+            ImGui::Text("%s", convertEnumToReadableName(Rando::StaticData::Checks[excludedChecks].name).c_str());
+
+            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+                                   ImGui::IsItemHovered() ? IM_COL32(255, 255, 0, 128) : IM_COL32(255, 255, 255, 0));
+            if (ImGui::IsItemClicked()) {
+                checkExclusionList.erase(checkExclusionList.begin() + index);
+                SaveExcludedChecks();
+            }
+            index++;
+            ImGui::TableNextColumn();
+        }
+        ImGui::EndTable();
+    }
+    ImGui::EndChild();
+
+    if (clearExcluded) {
+        checkExclusionList.clear();
+        SaveExcludedChecks();
+        clearExcluded = false;
+    }
+}
+
 static void DrawHintsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 2 - (ImGui::GetStyle().ItemSpacing.y * 2);
@@ -362,14 +585,14 @@ static void DrawHintsTab() {
         "Gossip Stone Purchaseable", Rando::StaticData::Options[RO_HINTS_PURCHASEABLE].cvar,
         CheckboxOptions({ { .tooltip = "Gossip stones will offer a hint for a scaling rupee cost. This cost ranges "
                                        "from 10-250 rupees depending on how many checks are remaining in your seed. "
-                                       "The hint will gauranteed be a check you have not obtained yet." } }));
+                                       "The hint will guaranteed be a check you have not obtained yet." } }));
     CVarCheckbox(
         "Boss Remains", Rando::StaticData::Options[RO_HINTS_BOSS_REMAINS].cvar,
         CheckboxOptions(
             { { .tooltip =
                     "Lists the location of the Boss remains on the guard recruitment posters around Clock Town" } }));
     CVarCheckbox("Oath to Order", Rando::StaticData::Options[RO_HINTS_OATH_TO_ORDER].cvar,
-                 CheckboxOptions({ { .tooltip = "Once you have the Moon Access Requirments, talking to Skull Kid on "
+                 CheckboxOptions({ { .tooltip = "Once you have the Moon Access Requirements, talking to Skull Kid on "
                                                 "the Clock Tower Rooftop will hint the location of Oath to Order" } }));
     CVarCheckbox(
         "General Actor Hints", "gPlaceholderBool",
@@ -390,21 +613,27 @@ static void DrawHintsTab() {
 }
 
 void Rando::RegisterMenu() {
+    mBenMenu->AddMenuEntry("Rando", "gSettings.Menu.RandoSidebarSection");
     mBenMenu->AddSidebarEntry("Rando", "General", 1);
-    WidgetPath path = { "Rando", "General", 1 };
+    WidgetPath path = { "Rando", "General", SECTION_COLUMN_1 };
     mBenMenu->AddWidget(path, "General", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawGeneralTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Logic/Conditions", 1);
     path.sidebarName = "Logic/Conditions";
     mBenMenu->AddWidget(path, "Logic/Conditions", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
         DrawLogicConditionsTab();
     });
+    mBenMenu->AddSidebarEntry("Rando", "Shuffle Options", 1);
+    path.sidebarName = "Shuffle Options";
+    mBenMenu->AddWidget(path, "Locations", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawShufflesTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Locations", 1);
-    path.sidebarName = "Locations";
-    mBenMenu->AddWidget(path, "Locations", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawLocationsTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Items", 1);
     path.sidebarName = "Items";
     mBenMenu->AddWidget(path, "Items", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawItemsTab(); });
+    path.sidebarName = "Locations";
+    mBenMenu->AddWidget(path, "Locations", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawLocationsTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Hints", 1);
     path.sidebarName = "Hints";
     mBenMenu->AddWidget(path, "Hints", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawHintsTab(); });
 }
+
+static RegisterMenuInitFunc initFunc(Rando::RegisterMenu);

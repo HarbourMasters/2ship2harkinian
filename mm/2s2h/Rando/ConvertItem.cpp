@@ -1,6 +1,6 @@
 #include "Rando/Rando.h"
-#include <libultraship/libultraship.h>
 #include "2s2h/ShipUtils.h"
+#include <cassert>
 
 // Copied from z_player.c, we could instead move this to a header file, idk
 typedef struct GetItemEntry {
@@ -234,6 +234,12 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_STONE_TOWER_STRAY_FAIRY:
         case RI_GS_TOKEN_SWAMP:
         case RI_GS_TOKEN_OCEAN:
+        case RI_FROG_BLUE:
+        case RI_FROG_CYAN:
+        case RI_FROG_PINK:
+        case RI_FROG_WHITE:
+        case RI_ABILITY_SWIM:
+        case RI_TRIFORCE_PIECE:
             if (hasObtainedCheck) {
                 return false;
             }
@@ -321,31 +327,31 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_DOUBLE_DEFENSE:
             return !gSaveContext.save.saveInfo.playerData.doubleDefense;
         case RI_GREAT_SPIN_ATTACK:
-            return !CHECK_WEEKEVENTREG(WEEKEVENTREG_OBTAINED_GREAT_SPIN_ATTACK);
+            return !CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_GREAT_SPIN_ATTACK);
         case RI_WOODFALL_BOSS_KEY:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_INDEX_WOODFALL_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE);
         case RI_WOODFALL_COMPASS:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, DUNGEON_INDEX_WOODFALL_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE);
         case RI_WOODFALL_MAP:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_MAP, DUNGEON_INDEX_WOODFALL_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_MAP, DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE);
         case RI_SNOWHEAD_BOSS_KEY:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_INDEX_SNOWHEAD_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE);
         case RI_SNOWHEAD_COMPASS:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, DUNGEON_INDEX_SNOWHEAD_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE);
         case RI_SNOWHEAD_MAP:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_MAP, DUNGEON_INDEX_SNOWHEAD_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_MAP, DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE);
         case RI_GREAT_BAY_BOSS_KEY:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_INDEX_GREAT_BAY_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE);
         case RI_GREAT_BAY_COMPASS:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, DUNGEON_INDEX_GREAT_BAY_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE);
         case RI_GREAT_BAY_MAP:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_MAP, DUNGEON_INDEX_GREAT_BAY_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_MAP, DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE);
         case RI_STONE_TOWER_BOSS_KEY:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_INDEX_STONE_TOWER_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE);
         case RI_STONE_TOWER_COMPASS:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, DUNGEON_INDEX_STONE_TOWER_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE);
         case RI_STONE_TOWER_MAP:
-            return !CHECK_DUNGEON_ITEM(DUNGEON_MAP, DUNGEON_INDEX_STONE_TOWER_TEMPLE);
+            return !CHECK_DUNGEON_ITEM(DUNGEON_MAP, DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE);
         case RI_OWL_CLOCK_TOWN_SOUTH:
             return !CAN_OWL_WARP(OWL_WARP_CLOCK_TOWN);
         case RI_OWL_GREAT_BAY_COAST:
@@ -543,9 +549,13 @@ RandoItemId Rando::ConvertItem(RandoItemId randoItemId, RandoCheckId randoCheckI
                 }
                 break;
             case RI_BOTTLE_MILK:
-            case RI_BOTTLE_CHATEAU_ROMANI:
                 if (Inventory_HasEmptyBottle()) {
                     return RI_MILK_REFILL;
+                }
+                break;
+            case RI_BOTTLE_CHATEAU_ROMANI:
+                if (Inventory_HasEmptyBottle()) {
+                    return RI_CHATEAU_ROMANI_REFILL;
                 }
                 break;
             case RI_BOTTLE_RED_POTION:

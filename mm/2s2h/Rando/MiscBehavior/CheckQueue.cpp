@@ -1,5 +1,4 @@
 #include "MiscBehavior.h"
-#include <libultraship/libultraship.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
@@ -49,6 +48,14 @@ void Rando::MiscBehavior::CheckQueue() {
 
                         if (randoItemId == RI_JUNK) {
                             randoItemId = Rando::CurrentJunkItem();
+                        }
+                        if (randoItemId == RI_TRIFORCE_PIECE) {
+                            if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces + 1 >=
+                                RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
+                                prefix = "You";
+                                message = "completed the Triforce";
+                            }
+                            randoItemId = RI_TRIFORCE_PIECE_PREVIOUS;
                         }
 
                         CustomMessage::Entry entry = {

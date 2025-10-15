@@ -1,6 +1,7 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 
 #include <vector>
 
@@ -158,5 +159,20 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
+    });
+
+    // Four Gossip Stone Grottos Heart Piece item grant behavior override
+    COND_VB_SHOULD(VB_GIVE_ITEM_FROM_OFFER, IS_RANDO, {
+        GetItemId* item = va_arg(args, GetItemId*);
+        Actor* refActor = va_arg(args, Actor*);
+        Player* player = GET_PLAYER(gPlayState);
+
+        if (refActor->id != ACTOR_EN_GS || *item != GI_HEART_PIECE) {
+            return;
+        }
+
+        *should = false;
+
+        refActor->parent = &player->actor;
     });
 }

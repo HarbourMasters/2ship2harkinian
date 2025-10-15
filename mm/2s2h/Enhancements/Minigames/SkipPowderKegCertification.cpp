@@ -1,12 +1,14 @@
-#include <libultraship/bridge.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/Rando/Rando.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Go/z_en_go.h"
 }
 
-#define CVAR_NAME "gEnhancements.Minigames.PowderKegCertification"
+#define CVAR_NAME "gEnhancements.Timesavers.PowderKegCertification"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterPowderKegCertification() {
@@ -26,9 +28,8 @@ void RegisterPowderKegCertification() {
     });
 
     // "Looks like you succeeded..."
-    COND_ID_HOOK(OnOpenText, 0xc86, CVAR, [](u16* textId, bool* loadFromMessageTable) {
+    COND_ID_HOOK(OnOpenText, 0x0C86, CVAR && !IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        // entry.autoFormat = false;
         entry.msg = "Take one on the house, don't tell your parents.";
 
         CustomMessage::LoadCustomMessageIntoFont(entry);
@@ -36,4 +37,4 @@ void RegisterPowderKegCertification() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPowderKegCertification, { CVAR_NAME });
+static RegisterShipInitFunc initFunc(RegisterPowderKegCertification, { CVAR_NAME, "IS_RANDO" });

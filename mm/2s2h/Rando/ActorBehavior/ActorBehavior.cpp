@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include <libultraship/libultraship.h>
+#include "public/bridge/consolevariablebridge.h"
 #include "2s2h/ActorExtension/ActorExtension.h"
 
 extern "C" {
@@ -7,12 +7,12 @@ extern "C" {
 }
 
 // This is kind of a catch-all for things that are simple enough to not need their own file.
-void MiscVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void* optionalArg) {
+void MiscVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_list optionalArg) {
     switch (id) {
         case VB_MADAME_AROMA_ASK_FOR_HELP:
             *should = !CHECK_WEEKEVENTREG(WEEKEVENTREG_BOMBERS_NOTEBOOK_EVENT_RECEIVED_KAFEIS_MASK);
             break;
-        case VB_GIVE_ITEM_FROM_MALON:
+        case VB_GIVE_ITEM_FROM_ROMANI:
             *should = CHECK_QUEST_ITEM(QUEST_SONG_EPONA);
             break;
         // TODO: This should be configurable
@@ -92,6 +92,7 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitEnGsBehavior();
     Rando::ActorBehavior::InitEnHgBehavior();
     Rando::ActorBehavior::InitEnInBehavior();
+    Rando::ActorBehavior::InitEnInvadepohBehavior();
     Rando::ActorBehavior::InitEnItem00Behavior();
     Rando::ActorBehavior::InitEnJgameTsnBehavior();
     Rando::ActorBehavior::InitEnJgBehavior();
@@ -103,20 +104,25 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitEnLiftNutsBehavior();
     Rando::ActorBehavior::InitEnMa4Behavior();
     Rando::ActorBehavior::InitEnMaYtoBehavior();
+    Rando::ActorBehavior::InitEnMinifrogBehavior();
     Rando::ActorBehavior::InitEnMnkBehavior();
+    Rando::ActorBehavior::InitEnNbBehavior();
     Rando::ActorBehavior::InitEnOsnBehavior();
+    Rando::ActorBehavior::InitEnOtBehavior();
     Rando::ActorBehavior::InitEnOwlBehavior();
     Rando::ActorBehavior::InitEnPmBehavior();
     Rando::ActorBehavior::InitEnRuppecrowBehavior();
     Rando::ActorBehavior::InitEnRzBehavior();
     Rando::ActorBehavior::InitEnScopenutsBehavior();
     Rando::ActorBehavior::InitEnSellnutsBehavior();
+    Rando::ActorBehavior::InitEnShnBehavior();
     Rando::ActorBehavior::InitEnSiBehavior();
     Rando::ActorBehavior::InitEnSob1Behavior();
     Rando::ActorBehavior::InitEnSshBehavior();
     Rando::ActorBehavior::InitEnStoneheishiBehavior();
     Rando::ActorBehavior::InitEnSyatekiManBehavior();
     Rando::ActorBehavior::InitEnTabBehavior();
+    Rando::ActorBehavior::InitEnTakarayaBehavior();
     Rando::ActorBehavior::InitEnTalkBehavior();
     Rando::ActorBehavior::InitEnTotoBehavior();
     Rando::ActorBehavior::InitEnTrtBehavior();
@@ -125,12 +131,15 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitEnZotBehavior();
     Rando::ActorBehavior::InitEnZowBehavior();
     Rando::ActorBehavior::InitItemBHeartBehavior();
+    Rando::ActorBehavior::InitItemGetBehavior();
     Rando::ActorBehavior::InitObjKibakoBehavior();
+    Rando::ActorBehavior::InitObjGrassBehavior();
     Rando::ActorBehavior::InitObjMoonStoneBehavior();
     Rando::ActorBehavior::InitObjSnowballBehavior();
     Rando::ActorBehavior::InitObjTaruBehavior();
     Rando::ActorBehavior::InitObjTsuboBehavior();
     Rando::ActorBehavior::InitObjWarpstoneBehavior();
+    Rando::ActorBehavior::InitPlayerBehavior();
     Rando::ActorBehavior::InitSoulsBehavior();
 
     COND_HOOK(ShouldVanillaBehavior, IS_RANDO, MiscVanillaBehaviorHandler);

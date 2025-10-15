@@ -1,8 +1,9 @@
 #include "MiscBehavior.h"
-#include <libultraship/libultraship.h>
 #include "Rando/Spoiler/Spoiler.h"
 #include "Rando/Logic/Logic.h"
 #include <boost_custom/container_hash/hash_32.hpp>
+#include "public/bridge/consolevariablebridge.h"
+#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "functions.h"
@@ -63,6 +64,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         gSaveContext.save.saveInfo.playerData.health = RANDO_SAVE_OPTIONS[RO_STARTING_HEALTH] * 0x10;
                 }
 
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] != RO_GENERIC_OFF) {
+                    RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] = CVarGetInteger(
+                        Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar, DEFAULT_TRIFORCE_PIECES_MAX);
+                }
+
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_CONSUMABLES]) {
                     GiveItem(RI_DEKU_STICK);
                     GiveItem(RI_DEKU_NUT);
@@ -103,6 +109,15 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 std::unordered_map<RandoCheckId, bool> checkPool;
                 std::vector<RandoItemId> itemPool;
+
+                // Create Excluded Checks List to eliminate excluded checks from the pool
+                std::vector<RandoCheckId> excludedChecks;
+                std::string excludedChecksList = CVarGetString("gRando.ExcludedChecks", "");
+                std::string word;
+                std::istringstream stream(excludedChecksList);
+                while (std::getline(stream, word, ',')) {
+                    excludedChecks.push_back((RandoCheckId)std::stoi(word));
+                }
 
                 // First loop through all regions and add checks/items to the pool
                 for (auto& [randoRegionId, randoRegion] : Rando::Logic::Regions) {
@@ -149,6 +164,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                             continue;
                         }
 
+                        if (randoStaticCheck.randoCheckType == RCTYPE_GRASS &&
+                            RANDO_SAVE_OPTIONS[RO_SHUFFLE_GRASS_DROPS] == RO_GENERIC_NO) {
+                            continue;
+                        }
+
                         if (randoStaticCheck.randoCheckType == RCTYPE_FREESTANDING &&
                             RANDO_SAVE_OPTIONS[RO_SHUFFLE_FREESTANDING_ITEMS] == RO_GENERIC_NO) {
                             continue;
@@ -156,6 +176,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                         if (randoStaticCheck.randoCheckType == RCTYPE_SNOWBALL &&
                             RANDO_SAVE_OPTIONS[RO_SHUFFLE_SNOWBALL_DROPS] == RO_GENERIC_NO) {
+                            continue;
+                        }
+
+                        if (randoStaticCheck.randoCheckType == RCTYPE_FROG &&
+                            RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS] == RO_GENERIC_NO) {
                             continue;
                         }
 
@@ -192,6 +217,22 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                             }
                         }
 
+                        // Skip checks that have been excluded in the Locations menu and add their vanilla item to the
+                        // pool except if Logic is set to Vanilla or French Vanilla.
+                        if (RANDO_SAVE_OPTIONS[RO_LOGIC] <= RO_LOGIC_NEARLY_NO_LOGIC) {
+                            auto it = std::find(excludedChecks.begin(), excludedChecks.end(), randoCheckId);
+                            if (it != excludedChecks.end()) {
+                                RandoItemId vanillaItem = Rando::StaticData::Checks[randoCheckId].randoItemId;
+                                itemPool.push_back(vanillaItem);
+
+                                RANDO_SAVE_CHECKS[randoCheckId].randoItemId = RI_JUNK;
+                                RANDO_SAVE_CHECKS[randoCheckId].skipped = true;
+
+                                checkPool.insert({ randoCheckId, true });
+                                continue;
+                            }
+                        }
+
                         checkPool.insert({ randoCheckId, true });
                         itemPool.push_back(randoStaticCheck.randoItemId);
                     }
@@ -205,8 +246,15 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 // Add other items that don't have a vanilla location like Sun's Song or Song of Double Time
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES) {
                     for (int i = RI_SOUL_GOHT; i <= RI_SOUL_TWINMOLD; i++) {
+                        if (i == RI_SOUL_MAJORA && RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
+                            continue;
+                        }
                         itemPool.push_back((RandoItemId)i);
                     }
+                }
+
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] == RO_GENERIC_YES) {
+                    itemPool.push_back(RI_ABILITY_SWIM);
                 }
 
                 // Remove starting items from the pool (but only one per entry in startingItems)
@@ -214,6 +262,20 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     auto it = std::find(itemPool.begin(), itemPool.end(), startingItem);
                     if (it != itemPool.end()) {
                         itemPool.erase(it);
+                    }
+                }
+
+                // Shuffle Triforce Pieces into the Pool
+                int piecesShuffled = 0;
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
+                    int piecesToShuffle = RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX];
+                    for (auto& item : itemPool) {
+                        if (piecesToShuffle == 0) {
+                            break;
+                        }
+                        itemPool.push_back(RI_TRIFORCE_PIECE);
+                        piecesToShuffle--;
+                        piecesShuffled++;
                     }
                 }
 
@@ -307,9 +369,37 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                             continue;
                         }
 
+                        // If Triforce Hunt is enabled, removed pieces as a last resort
+                        if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
+                            bool removedTriforcePiece = false;
+                            for (int i = 0; i < itemPool.size(); i++) {
+                                if (Rando::StaticData::Items[itemPool[i]].randoItemId == RI_TRIFORCE_PIECE) {
+                                    itemPool.erase(itemPool.begin() + i);
+                                    removedTriforcePiece = true;
+                                    piecesShuffled--;
+                                    break;
+                                }
+                            }
+
+                            if (removedTriforcePiece) {
+                                continue;
+                            }
+                        }
+
                         SPDLOG_ERROR("Could not match item pool size to check pool size {}/{}", itemPool.size(),
                                      checkPool.size());
                         throw std::runtime_error("Could not match item pool size to check pool size");
+                    }
+                }
+
+                // Update Required Triforce Pieces if piecesShuffled falls below max shuffled
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
+                    if (piecesShuffled != RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX]) {
+                        float currentRatio = ((float)RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] /
+                                              (float)RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX]);
+
+                        RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX] = piecesShuffled;
+                        RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] = (piecesShuffled * currentRatio) + 1;
                     }
                 }
 
@@ -345,9 +435,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                                              std::to_string(RANDO_SAVE_OPTIONS[RO_LOGIC]));
                 }
 
-                RANDO_SAVE_CHECKS[RC_STARTING_ITEM_DEKU_MASK].eligible = true;
-                RANDO_SAVE_CHECKS[RC_STARTING_ITEM_SONG_OF_HEALING].eligible = true;
-
                 if (CVarGetInteger("gRando.GenerateSpoiler", 0)) {
                     nlohmann::json spoiler = Rando::Spoiler::GenerateFromSaveContext();
                     spoiler["inputSeed"] = inputSeed;
@@ -370,6 +457,10 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 Audio_PlaySfx(NA_SE_SY_ATTENTION_SOUND);
             }
+
+            RANDO_SAVE_CHECKS[RC_STARTING_ITEM_DEKU_MASK].eligible = true;
+            RANDO_SAVE_CHECKS[RC_STARTING_ITEM_SONG_OF_HEALING].eligible = true;
+
         } catch (const std::exception& e) {
             SPDLOG_ERROR("Error with randomizer save creation: {}", e.what());
             Audio_PlaySfx(NA_SE_SY_QUIZ_INCORRECT);
