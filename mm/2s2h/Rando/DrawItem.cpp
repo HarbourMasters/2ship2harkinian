@@ -326,6 +326,21 @@ void DrawTriforcePiece(RandoItemId randoItemId) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
+    Gfx* abilityItemModel[1] = {
+        (Gfx*)gGiFlippersDL,
+    };
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)abilityItemModel[randoItemId - RI_ABILITY_SWIM]);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
 void DrawSparkles(RandoItemId randoItemId, Actor* actor) {
     if (actor == NULL) {
         return;
@@ -451,6 +466,9 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_FROG_WHITE:
             DrawMinifrog(randoItemId, actor);
             break;
+        case RI_ABILITY_SWIM:
+            DrawAbilityItem(randoItemId, actor);
+            break;
         case RI_TRIFORCE_PIECE_PREVIOUS:
         case RI_TRIFORCE_PIECE:
             DrawTriforcePiece(randoItemId);
@@ -465,6 +483,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
 
     switch (randoItemId) {
         case RI_NONE:
+        case RI_ABILITY_SWIM:
         case RI_PROGRESSIVE_MAGIC:
         case RI_SINGLE_MAGIC:
         case RI_DOUBLE_MAGIC:
