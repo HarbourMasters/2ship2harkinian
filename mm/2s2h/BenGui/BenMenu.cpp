@@ -512,8 +512,9 @@ void BenMenu::AddSettings() {
         .CVar(CVAR_ENABLE_MULTI_VIEWPORTS)
         .PreFunc(
             [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NO_MULTI_VIEWPORT).active; })
-        .Options(CheckboxOptions().Tooltip(
-            "Allows multiple windows to be opened at once. Requires a reload to take effect."));
+        .Options(CheckboxOptions()
+                     .Tooltip("Allows multiple windows to be opened at once. Requires a reload to take effect.")
+                     .DefaultValue(true));
     AddWidget(path, "Texture Filter (Needs reload)", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_TEXTURE_FILTER)
         .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboVec(&textureFilteringOptions));
@@ -929,6 +930,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.PlayerActions.ArrowCycle")
         .Options(CheckboxOptions().Tooltip(
             "While aiming the bow, use R to cycle between Normal, Fire, Ice and Light arrows."));
+    AddWidget(path, "Remote Bombchu Control", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.PlayerActions.RemoteBombchu")
+        .Options(CheckboxOptions().Tooltip(
+            "Allows you to control the direction of the Bombchu while it is moving. Press B to detonate. Press A to "
+            "stop controlling the Bombchu."));
     AddWidget(path, "Bombchu Drops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.ChuDrops")
         .Options(
@@ -1613,6 +1619,13 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.ItemTrackerSettings")
         .WindowName("Item Tracker Settings");
+
+    // Timesplit Settings
+    path = { "Enhancements", "Time Splits", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", "Time Splits", 1);
+    AddWidget(path, "Popout Timesplits Settings", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.Timesplits.Settings")
+        .WindowName("Time Splits Settings Window");
 
     // Audio Editor
     path = { "Enhancements", "Audio Editor", SECTION_COLUMN_1 };
