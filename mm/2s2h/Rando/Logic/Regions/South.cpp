@@ -463,7 +463,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODFALL_POT_03, true),
         },
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(WOODFALL_TEMPLE, 0),              ENTRANCE(WOODFALL, 1), CAN_BE_DEKU && CanAccessDungeon(DUNGEON_INDEX_WOODFALL_TEMPLE)),
+            EXIT(ENTRANCE(WOODFALL_TEMPLE, 0),              ENTRANCE(WOODFALL, 1), CAN_BE_DEKU && CanAccessDungeon(DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE)),
         },
         .connections = {
             CONNECTION(RR_WOODFALL, CAN_BE_DEKU),
