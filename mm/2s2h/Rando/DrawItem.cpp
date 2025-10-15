@@ -82,7 +82,7 @@ void DrawSong(RandoItemId randoItemId) {
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
 
     switch (randoItemId) {
         case RI_SONG_SUN:
@@ -135,7 +135,7 @@ void DrawDoubleDefense() {
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gDPSetGrayscaleColor(POLY_XLU_DISP++, 255, 255, 255, 255);
     gSPGrayscale(POLY_XLU_DISP++, true);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)&gGiHeartBorderDL);
@@ -155,7 +155,7 @@ void DrawMilkRefill() {
                (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, G_TX_RENDERTILE, -gPlayState->state.frames,
                                            gPlayState->state.frames, 32, 32, 1, -gPlayState->state.frames,
                                            gPlayState->state.frames, 32, 32));
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     // Container Color
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
     gDPSetEnvColor(POLY_OPA_DISP++, 200, 200, 200, 255);
@@ -167,7 +167,7 @@ void DrawMilkRefill() {
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     // Pattern Color
     // Milk
     gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 13, 33, 255, 255);
@@ -217,7 +217,7 @@ void DrawSmallKey(RandoItemId randoItemId) {
             break;
     }
 
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_OPA_DISP++, gGiSmallKeyCopyDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -250,12 +250,12 @@ void DrawBossKey(RandoItemId randoItemId) {
             break;
     }
 
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_OPA_DISP++, gGiBossKeyCopyDL);
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gGiBossKeyGemDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -274,7 +274,7 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
 
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gSkulltulaTokenDL);
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
@@ -291,7 +291,7 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
                (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, G_TX_RENDERTILE, gPlayState->state.frames * 0,
                                            -(gPlayState->state.frames * 5), 32, 32, 1, gPlayState->state.frames * 0,
                                            gPlayState->state.frames * 0, 32, 64));
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gSkulltulaTokenFlameCopyDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);

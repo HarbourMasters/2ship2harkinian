@@ -7,7 +7,7 @@ extern "C" {
 
 #include "overlays/actors/ovl_Boss_Hakugin/z_boss_hakugin.h"
 
-void func_80B0CF24(BossHakugin*, PlayState*);
+void BossHakugin_DrawIce(BossHakugin*, PlayState*);
 }
 
 bool shouldMajoraRegister() {
@@ -24,9 +24,9 @@ bool shouldMajoraRegister() {
 void ShouldActorUpdate(Actor* actor, bool* should, RandoInf randoInf) {
     if (!Flags_GetRandoInf(randoInf)) {
         *should = false;
-        actor->flags &= ~ACTOR_FLAG_TARGETABLE;
-    } else if (!actor->flags & ACTOR_FLAG_TARGETABLE) {
-        actor->flags |= ACTOR_FLAG_TARGETABLE;
+        actor->flags &= ~ACTOR_FLAG_ATTENTION_ENABLED;
+    } else if (!actor->flags & ACTOR_FLAG_ATTENTION_ENABLED) {
+        actor->flags |= ACTOR_FLAG_ATTENTION_ENABLED;
     }
 }
 
@@ -41,7 +41,7 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
 
     COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_HAKUGIN, shouldRegister, [](Actor* actor, bool* should) {
         if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT)) {
-            func_80B0CF24((BossHakugin*)actor, gPlayState);
+            BossHakugin_DrawIce((BossHakugin*)actor, gPlayState);
             *should = false;
         }
     });
