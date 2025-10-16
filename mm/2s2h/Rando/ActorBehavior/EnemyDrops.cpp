@@ -2,13 +2,12 @@
 #include "public/bridge/consolevariablebridge.h"
 #include "2s2h/CustomItem/CustomItem.h"
 
-#include "spdlog/spdlog.h"
-
 extern "C" {
 #include "variables.h"
 #include "functions.h"
 
 #include "overlays/actors/ovl_En_Slime/z_en_slime.h"
+#include "overlays/actors/ovl_En_Sw/z_en_sw.h"
 }
 
 std::unordered_map<int16_t, RandoCheckId> actorIdToRandoCheckIdMap = {
@@ -63,8 +62,8 @@ RandoCheckId GetRandoCheckByActorId(int16_t actorId) {
     return RC_UNKNOWN;
 }
 
-Actor* FindActor(Vec3f position) {
-    ActorListEntry actorList = gPlayState->actorCtx.actorLists[ACTORCAT_ENEMY];
+Actor* FindActor(Vec3f position, ActorType actorType) {
+    ActorListEntry actorList = gPlayState->actorCtx.actorLists[actorType];
 
     Actor* currentActor = actorList.first;
     for (size_t i = 0; i < actorList.length; i++) {
@@ -101,17 +100,24 @@ void Rando::ActorBehavior::InitEnemyDropBehavior() {
             return;
         }
 
-        Actor* foundActor = FindActor(position);
+        Actor* foundActor = FindActor(position, ACTORCAT_ENEMY);
         if (foundActor == nullptr || foundActor->category != ACTORCAT_ENEMY) {
             return;
         }
 
-        if (foundActor->id == ACTOR_EN_SW) {
+        int16_t actorId = foundActor->id;
+        // Ghibdo ID's are different for Patroling Music House and Beneath the Well
+        if (actorId == ACTOR_EN_RAIL_SKB || actorId == ACTOR_EN_HINT_SKB) {
+            actorId = ACTOR_EN_RD;
+        }
+
+        // Skullwalltulas need special handling because most of them drop tokens
+        if (actorId == ACTOR_EN_SW) {
             return;
         }
 
-        RandoCheckId randoCheckId = GetRandoCheckByActorId(foundActor->id);
-        if (RANDO_SAVE_CHECKS[randoCheckId].obtained) {
+        RandoCheckId randoCheckId = GetRandoCheckByActorId(actorId);
+        if (RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
             return;
         }
 
@@ -120,10 +126,9 @@ void Rando::ActorBehavior::InitEnemyDropBehavior() {
     });
 
     COND_ID_HOOK(OnActorKill, ACTOR_EN_SW, IS_RANDO, [](Actor* actor) {
-        SPDLOG_INFO("Actor ID: {} | Actor Params: {}", std::to_string(actor->id), std::to_string(actor->params));
-        if (actor->params == -4) {
+        if (!ENSW_GET_3(actor)) {
             RandoCheckId randoCheckId = GetRandoCheckByActorId(ACTOR_EN_SW);
-            if (RANDO_SAVE_CHECKS[randoCheckId].obtained) {
+            if (RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
                 return;
             }
 
@@ -137,7 +142,11 @@ void Rando::ActorBehavior::InitEnemyDropBehavior() {
         }
 
         EnSlime* slime = va_arg(args, EnSlime*);
-        RandoItemId randoItemId = RANDO_SAVE_CHECKS[GetRandoCheckByActorId(ACTOR_EN_SLIME)].randoItemId;
+        RandoCheckId randoCheckId = GetRandoCheckByActorId(ACTOR_EN_SLIME);
+        if (RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
+            return;
+        }
+        RandoItemId randoItemId = Rando::ConvertItem(RANDO_SAVE_CHECKS[randoCheckId].randoItemId);
 
         Matrix_RotateYS(slime->actor.shape.rot.y, MTXMODE_APPLY);
         Matrix_Scale(0.25f, 0.25f, 0.25f, MTXMODE_APPLY);
