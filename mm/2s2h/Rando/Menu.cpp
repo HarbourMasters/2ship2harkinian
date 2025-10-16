@@ -428,7 +428,7 @@ static void DrawStartingItemsTab() {
     ImGui::BeginChild("randoStartingItems2", ImVec2(0, 0));
     ImGui::SeparatorText("Available Items");
 
-    for (auto& category : Rando::StaticData::NewStartingItemsMap) {
+    for (auto& category : Rando::StaticData::StartingItemsMap) {
         tableColumns = 5;
         if (category.first == STARTING_ITEMS_MASK) {
             tableColumns++;
