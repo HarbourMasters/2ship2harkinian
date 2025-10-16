@@ -169,7 +169,7 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
      * be used, while the Twinmold actor itself handles the transformation. Boss Souls prevent Twinmold from updating
      * unless its soul has been obtained, which results in a softlock. In this case, disable the item.
      */
-    COND_VB_SHOULD(VB_ITEM_BE_RESTRICTED, shouldRegister, {
+    COND_VB_SHOULD(VB_ITEM_BE_RESTRICTED, shouldBossRegister, {
         ItemId itemId = *va_arg(args, ItemId*);
         if (itemId == ITEM_MASK_GIANT && gPlayState->sceneId == SCENE_INISIE_BS &&
             !Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_TWINMOLD)) {
