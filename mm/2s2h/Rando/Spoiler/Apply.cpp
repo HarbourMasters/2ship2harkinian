@@ -1,5 +1,7 @@
 #include "Spoiler.h"
 #include "Rando/Rando.h"
+#include "public/bridge/consolevariablebridge.h"
+#include "ShipUtils.h"
 
 namespace Rando {
 
@@ -24,23 +26,8 @@ void ApplyToSaveContext(nlohmann::json spoiler) {
         AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
     }
 
-    std::vector<RandoItemId> startingItems = {};
-
-    for (size_t i = 0; i < Rando::StaticData::StartingItemsMap.size(); i++) {
-        RandoItemId itemId = Rando::StaticData::StartingItemsMap[i];
-        RandoOptionId optionId;
-        if (i < 32) {
-            optionId = RO_STARTING_ITEMS_1;
-        } else if (i < 64) {
-            optionId = RO_STARTING_ITEMS_2;
-        } else {
-            optionId = RO_STARTING_ITEMS_3;
-        }
-        uint32_t startingItemsBits = RANDO_SAVE_OPTIONS[optionId];
-        if ((startingItemsBits & (1 << (i % 32))) != 0) {
-            startingItems.push_back(itemId);
-        }
-    }
+    std::vector<RandoItemId> startingItems =
+        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", "91,109,126,146"), ",");
 
     if (RANDO_SAVE_OPTIONS[RO_STARTING_MAPS_AND_COMPASSES]) {
         std::vector<RandoItemId> MapsAndCompasses = {

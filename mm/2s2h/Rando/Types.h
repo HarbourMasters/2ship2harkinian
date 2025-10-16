@@ -2897,6 +2897,7 @@ typedef enum {
     STARTING_ITEMS_MASK,
     STARTING_ITEMS_QUEST,
     STARTING_ITEMS_TRADE,
+    STARTING_ITEMS_MISC,
 } StartingItemCategory;
 
 #endif // RANDO_TYPES_H
