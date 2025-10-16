@@ -27,7 +27,7 @@ void ApplyToSaveContext(nlohmann::json spoiler) {
     }
 
     std::vector<RandoItemId> startingItems =
-        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", "91,109,126,146"), ",");
+        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
 
     if (RANDO_SAVE_OPTIONS[RO_STARTING_MAPS_AND_COMPASSES]) {
         std::vector<RandoItemId> MapsAndCompasses = {

@@ -386,7 +386,7 @@ static void DrawStartingItemsTab() {
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
 
     std::vector<RandoItemId> setStartingItemsList =
-        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", "91,109,126,146"), ",");
+        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
     uint32_t listIndex = 0;
     for (auto& startingItem : setStartingItemsList) {
         ImGui::PushID(listIndex);
@@ -467,7 +467,8 @@ static void DrawStartingItemsTab() {
                                            Ship_GetItemColorTint(item == RI_PROGRESSIVE_LULLABY
                                                                      ? ITEM_SONG_LULLABY
                                                                      : randoStaticItem.itemId))) {
-                        std::string currentStartingItems = CVarGetString("gRando.StartingItems", "91,109,126,146");
+                        std::string currentStartingItems =
+                            CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT);
                         if (currentStartingItems.length() != 0) {
                             currentStartingItems += ",";
                         }

@@ -76,8 +76,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
                 }
 
-                std::vector<RandoItemId> startingItems =
-                    convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", "91,109,126,146"), ",");
+                std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(
+                    CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
 
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_MAPS_AND_COMPASSES]) {
                     std::vector<RandoItemId> MapsAndCompasses = {
