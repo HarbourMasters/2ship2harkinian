@@ -10,8 +10,6 @@ extern "C" {
 #define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-#define MOON_CRASH_NEW_CYCLE_CS_ID 0
-
 /**
  *  Skips only the visible cutscenes (Clock Tower destruction and Link's terrible fate with the Fire Wall).
  *  Note: There is a cutscene command SPECIFICALLY for resetting game state related to the moon crash,
@@ -26,7 +24,6 @@ void RegisterSkipMoonCrash() {
             // IT MUST BE CALLED HERE IF THAT CUTSCENE IS SKIPPED OR ELSE THE GAME STATE WILL NOT RESET CORRECTLY!
             Sram_ResetSaveFromMoonCrash(&gPlayState->sramCtx);
 
-            gSaveContext.save.cutsceneIndex = MOON_CRASH_NEW_CYCLE_CS_ID;
             gSaveContext.save.entrance = ENTRANCE(CLOCK_TOWER_INTERIOR, 3);
         }
     });
