@@ -2,6 +2,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/DrawFuncs.h"
+#include "2s2h_assets.h"
 #include "ActorBehavior/Souls.h"
 
 extern "C" {
@@ -82,7 +83,7 @@ void DrawSong(RandoItemId randoItemId) {
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
 
     switch (randoItemId) {
         case RI_SONG_SUN:
@@ -135,7 +136,7 @@ void DrawDoubleDefense() {
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gDPSetGrayscaleColor(POLY_XLU_DISP++, 255, 255, 255, 255);
     gSPGrayscale(POLY_XLU_DISP++, true);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)&gGiHeartBorderDL);
@@ -155,7 +156,7 @@ void DrawMilkRefill() {
                (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, G_TX_RENDERTILE, -gPlayState->state.frames,
                                            gPlayState->state.frames, 32, 32, 1, -gPlayState->state.frames,
                                            gPlayState->state.frames, 32, 32));
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     // Container Color
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
     gDPSetEnvColor(POLY_OPA_DISP++, 200, 200, 200, 255);
@@ -167,7 +168,7 @@ void DrawMilkRefill() {
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     // Pattern Color
     // Milk
     gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 13, 33, 255, 255);
@@ -217,7 +218,7 @@ void DrawSmallKey(RandoItemId randoItemId) {
             break;
     }
 
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_OPA_DISP++, gGiSmallKeyCopyDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -250,12 +251,12 @@ void DrawBossKey(RandoItemId randoItemId) {
             break;
     }
 
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_OPA_DISP++, gGiBossKeyCopyDL);
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gGiBossKeyGemDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -274,7 +275,7 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
 
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
 
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gSkulltulaTokenDL);
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
@@ -291,8 +292,52 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
                (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, G_TX_RENDERTILE, gPlayState->state.frames * 0,
                                            -(gPlayState->state.frames * 5), 32, 32, 1, gPlayState->state.frames * 0,
                                            gPlayState->state.frames * 0, 32, 64));
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gSkulltulaTokenFlameCopyDL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void DrawTriforcePiece(RandoItemId randoItemId) {
+    Gfx* triforcePieceModels[3] = {
+        (Gfx*)gTriforcePiece0DL,
+        (Gfx*)gTriforcePiece1DL,
+        (Gfx*)gTriforcePiece2DL,
+    };
+
+    u8 currentTriforcePieces = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+
+    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+    if (currentTriforcePieces >= RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
+        gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gTriforcePieceCompletedDL);
+    } else {
+        if (randoItemId == RI_TRIFORCE_PIECE_PREVIOUS) {
+            gSPDisplayList(POLY_XLU_DISP++, (Gfx*)triforcePieceModels[(currentTriforcePieces - 1) % 3]);
+        } else {
+            gSPDisplayList(POLY_XLU_DISP++, (Gfx*)triforcePieceModels[currentTriforcePieces % 3]);
+        }
+    }
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
+    Gfx* abilityItemModel[1] = {
+        (Gfx*)gGiFlippersDL,
+    };
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)abilityItemModel[randoItemId - RI_ABILITY_SWIM]);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
@@ -461,6 +506,13 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_FROG_WHITE:
             DrawMinifrog(randoItemId, actor);
             break;
+        case RI_ABILITY_SWIM:
+            DrawAbilityItem(randoItemId, actor);
+            break;
+        case RI_TRIFORCE_PIECE_PREVIOUS:
+        case RI_TRIFORCE_PIECE:
+            DrawTriforcePiece(randoItemId);
+            break;
         case RI_NONE:
         case RI_UNKNOWN:
             break;
@@ -471,6 +523,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
 
     switch (randoItemId) {
         case RI_NONE:
+        case RI_ABILITY_SWIM:
         case RI_PROGRESSIVE_MAGIC:
         case RI_SINGLE_MAGIC:
         case RI_DOUBLE_MAGIC:
