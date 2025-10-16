@@ -96,6 +96,7 @@ void InitObjSnowballBehavior();
 void InitObjTaruBehavior();
 void InitObjTsuboBehavior();
 void InitObjWarpstoneBehavior();
+void InitPlayerBehavior();
 void InitSoulsBehavior();
 
 } // namespace ActorBehavior
