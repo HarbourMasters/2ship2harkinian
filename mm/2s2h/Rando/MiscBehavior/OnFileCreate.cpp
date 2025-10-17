@@ -59,6 +59,12 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         (uint32_t)CVarGetInteger(randoStaticOption.cvar, randoStaticOption.defaultValue);
                 }
 
+                std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(
+                    CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
+
+                std::string startingItemSave = CreateStartingItemsToCvar(startingItems);
+                strncpy(RANDO_STARTING_ITEMS, startingItemSave.c_str(), startingItemSave.size() + 1);
+
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_HEALTH] != 3) {
                     gSaveContext.save.saveInfo.playerData.healthCapacity =
                         gSaveContext.save.saveInfo.playerData.health = RANDO_SAVE_OPTIONS[RO_STARTING_HEALTH] * 0x10;
@@ -75,9 +81,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
                     AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
                 }
-
-                std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(
-                    CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
 
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_MAPS_AND_COMPASSES]) {
                     std::vector<RandoItemId> MapsAndCompasses = {

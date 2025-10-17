@@ -14,6 +14,9 @@ void ApplyToSaveContext(nlohmann::json spoiler) {
         RANDO_SAVE_OPTIONS[randoOptionId] = spoiler["options"][randoStaticOption.name].get<uint32_t>();
     }
 
+    std::string startingItemsSave = spoiler["startingItems"].get<std::string>();
+    strncpy(RANDO_STARTING_ITEMS, startingItemsSave.c_str(), startingItemsSave.size() + 1);
+
     if (RANDO_SAVE_OPTIONS[RO_STARTING_HEALTH] != 3) {
         gSaveContext.save.saveInfo.playerData.healthCapacity = gSaveContext.save.saveInfo.playerData.health =
             RANDO_SAVE_OPTIONS[RO_STARTING_HEALTH] * 0x10;
