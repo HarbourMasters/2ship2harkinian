@@ -29,8 +29,7 @@ void ApplyToSaveContext(nlohmann::json spoiler) {
         AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
     }
 
-    std::vector<RandoItemId> startingItems =
-        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
+    std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(RANDO_STARTING_ITEMS, ",");
 
     if (RANDO_SAVE_OPTIONS[RO_STARTING_MAPS_AND_COMPASSES]) {
         std::vector<RandoItemId> MapsAndCompasses = {
