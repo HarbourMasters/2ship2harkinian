@@ -43,7 +43,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
             // SpoilerFileIndex == 0 means we're generating a new one
             if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
                 bool hadInputSeed = true;
-                std::string inputSeed = CVarGetString("gRando.InputSeed", "");
+                std::string inputSeed = Ship_RemoveSpecialCharacters(CVarGetString("gRando.InputSeed", ""));
                 if (inputSeed.empty()) {
                     inputSeed = std::to_string(Ship_Random(0, 1000000));
                     hadInputSeed = false;
@@ -244,6 +244,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] == RO_GENERIC_YES) {
                     itemPool.push_back(RI_ABILITY_SWIM);
+                } else {
+                    Flags_SetRandoInf(RANDO_INF_OBTAINED_SWIM);
                 }
 
                 // Remove starting items from the pool (but only one per entry in startingItems)
