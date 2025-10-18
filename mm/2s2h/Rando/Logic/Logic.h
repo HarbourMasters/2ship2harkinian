@@ -98,9 +98,8 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
 #define FOUND_ALL_FROGS                                                                  \
     (CHECK_WEEKEVENTREG(WEEKEVENTREG_33_01) && CHECK_WEEKEVENTREG(WEEKEVENTREG_32_40) && \
      CHECK_WEEKEVENTREG(WEEKEVENTREG_32_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_33_02))
-#define CAN_USE_ABILITY(ability)                                                            \
-    (Flags_GetRandoInf(RI_ABILITY_##ability - RI_ABILITY_SWIM + RANDO_INF_OBTAINED_SWIM) || \
-     RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] == RO_GENERIC_OFF)
+#define CAN_USE_ABILITY(ability) \
+    (Flags_GetRandoInf(RI_ABILITY_##ability - RI_ABILITY_SWIM + RANDO_INF_OBTAINED_SWIM)
 
 #define EVENT(randoEvent, condition)         \
     {                                        \
