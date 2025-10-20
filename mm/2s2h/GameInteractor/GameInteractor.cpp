@@ -179,6 +179,14 @@ void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPlayerPostLimbDraw>(player, limbIndex);
 }
 
+void GameInteractor_ExecuteOnBossDefeated(s16 actorId) {
+    SPDLOG_DEBUG("GameInteractor_ExecuteOnBossDefeated: actorId: {}", actorId);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnBossDefeated>(actorId);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnBossDefeated>(actorId, actorId);
+    GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::OnBossDefeated>((uintptr_t)actorId, actorId);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnBossDefeated>(actorId);
+}
+
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag) {
     SPDLOG_DEBUG("OnSceneFlagSet: sceneId: {}, flagType: {}, flag: {}", sceneId, (u32)flagType, flag);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneFlagSet>(sceneId, flagType, flag);
@@ -256,6 +264,13 @@ void GameInteractor_ExecuteOnItemGive(u8 item) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnItemGive>(item);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnItemGive>(item, item);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnItemGive>(item);
+}
+
+void GameInteractor_ExecuteOnBottleContentsUpdate(u8 item) {
+    SPDLOG_DEBUG("OnBottleContentsUpdate: item: {}", item);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnBottleContentsUpdate>(item);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnBottleContentsUpdate>(item, item);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnBottleContentsUpdate>(item);
 }
 
 bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...) {
@@ -395,7 +410,7 @@ void ProcessEvents(Actor* actor) {
     }
 
     // If player is dead, stop
-    if (player->stateFlags1 & PLAYER_STATE1_80) {
+    if (player->stateFlags1 & PLAYER_STATE1_DEAD) {
         return;
     }
 
@@ -420,8 +435,8 @@ void ProcessEvents(Actor* actor) {
         // If the player is climbing or in the air, deliver the item without a cutscene but freeze the player
         if (!e->showGetItemCutscene ||
             (player->stateFlags1 &
-             (PLAYER_STATE1_1000 | PLAYER_STATE1_2000 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 | PLAYER_STATE1_80000 |
-              PLAYER_STATE1_100000 | PLAYER_STATE1_200000 | PLAYER_STATE1_8000000)) ||
+             (PLAYER_STATE1_CHARGING_SPIN_ATTACK | PLAYER_STATE1_2000 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 |
+              PLAYER_STATE1_80000 | PLAYER_STATE1_100000 | PLAYER_STATE1_200000 | PLAYER_STATE1_8000000)) ||
             (Player_GetExplosiveHeld(player) > PLAYER_EXPLOSIVE_NONE)) {
             enItem00 = CustomItem::Spawn(
                 player->actor.world.pos.x, player->actor.world.pos.y, player->actor.world.pos.z, 0,

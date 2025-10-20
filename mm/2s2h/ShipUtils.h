@@ -8,9 +8,19 @@
 #ifdef __cplusplus
 #include <string>
 #include <array>
+#include <map>
+#include <vector>
+#include <imgui.h>
+#include "Rando/Rando.h"
 void LoadGuiTextures();
 std::string convertEnumToReadableName(const std::string& input);
+std::vector<RandoItemId> convertStartingItemsToRandoItemId(const std::string& input, const std::string& delimiter);
+std::string CreateStartingItemsToCvar(std::vector<RandoItemId> startingItemList);
+std::string Ship_RemoveSpecialCharacters(const std::string& str);
 extern std::array<const char*, 11> digitList;
+extern std::string Ship_FormatTimeDisplay(uint32_t value);
+extern std::map<uint32_t, ImVec4> itemColorMap;
+extern ImVec4 Ship_GetItemColorTint(uint32_t itemId);
 
 extern "C" {
 #endif

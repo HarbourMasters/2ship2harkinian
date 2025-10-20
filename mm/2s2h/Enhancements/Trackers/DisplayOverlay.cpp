@@ -9,7 +9,7 @@ extern "C" {
 #include "variables.h"
 #include "overlays/actors/ovl_Boss_07/z_boss_07.h"
 uint64_t GetUnixTimestamp();
-void Boss07_Wrath_Death(Boss07*, PlayState*);
+void Boss07_Wrath_DeathCutscene(Boss07*, PlayState*);
 }
 
 #include "ShipUtils.h"
@@ -18,22 +18,12 @@ void Boss07_Wrath_Death(Boss07*, PlayState*);
 
 float windowScale = 1.0f;
 ImVec4 windowBG = ImVec4(0, 0, 0, 0.5f);
-
-std::string formatTimeDisplay(uint32_t value) {
-    uint32_t sec = value / 10;
-    uint32_t hh = sec / 3600;
-    uint32_t mm = (sec - hh * 3600) / 60;
-    uint32_t ss = sec - hh * 3600 - mm * 60;
-    uint32_t ds = value % 10;
-    return fmt::format("{}:{:0>2}:{:0>2}.{}", hh, mm, ss, ds);
-}
-
 static constexpr ImVec4 tintColor = {};
 
 void DrawInGameTimer(uint32_t timer, ImVec4 color = ImVec4(1, 1, 1, 1)) {
     float windowScale = MAX(CVarGetFloat("gDisplayOverlay.Scale", 1.0f), 1.0f);
 
-    std::string timerStr = formatTimeDisplay(timer);
+    std::string timerStr = Ship_FormatTimeDisplay(timer);
     uint16_t textureIndex = 0;
     for (const auto c : timerStr) {
         if (c == ':' || c == '.') {
@@ -101,7 +91,7 @@ void DisplayOverlayWindow::InitElement() {
 
     COND_ID_HOOK(OnActorUpdate, ACTOR_BOSS_07, true, [](Actor* actor) {
         Boss07* boss = (Boss07*)actor;
-        if (boss->actionFunc == Boss07_Wrath_Death && gSaveContext.save.shipSaveInfo.fileCompletedAt == 0) {
+        if (boss->actionFunc == Boss07_Wrath_DeathCutscene && gSaveContext.save.shipSaveInfo.fileCompletedAt == 0) {
             gSaveContext.save.shipSaveInfo.fileCompletedAt = GetUnixTimestamp();
         }
     })
