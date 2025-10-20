@@ -43,7 +43,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
             // SpoilerFileIndex == 0 means we're generating a new one
             if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
                 bool hadInputSeed = true;
-                std::string inputSeed = CVarGetString("gRando.InputSeed", "");
+                std::string inputSeed = Ship_RemoveSpecialCharacters(CVarGetString("gRando.InputSeed", ""));
                 if (inputSeed.empty()) {
                     inputSeed = std::to_string(Ship_Random(0, 1000000));
                     hadInputSeed = false;
@@ -58,6 +58,12 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     RANDO_SAVE_OPTIONS[randoOptionId] =
                         (uint32_t)CVarGetInteger(randoStaticOption.cvar, randoStaticOption.defaultValue);
                 }
+
+                std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(
+                    CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
+
+                std::string startingItemSave = CreateStartingItemsToCvar(startingItems);
+                strncpy(RANDO_STARTING_ITEMS, startingItemSave.c_str(), startingItemSave.size() + 1);
 
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_HEALTH] != 3) {
                     gSaveContext.save.saveInfo.playerData.healthCapacity =
@@ -74,23 +80,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     GiveItem(RI_DEKU_NUT);
                     AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
                     AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
-                }
-
-                std::vector<RandoItemId> startingItems = {};
-                for (size_t i = 0; i < Rando::StaticData::StartingItemsMap.size(); i++) {
-                    RandoItemId itemId = Rando::StaticData::StartingItemsMap[i];
-                    RandoOptionId optionId;
-                    if (i < 32) {
-                        optionId = RO_STARTING_ITEMS_1;
-                    } else if (i < 64) {
-                        optionId = RO_STARTING_ITEMS_2;
-                    } else {
-                        optionId = RO_STARTING_ITEMS_3;
-                    }
-                    uint32_t startingItemsBits = RANDO_SAVE_OPTIONS[optionId];
-                    if ((startingItemsBits & (1 << (i % 32))) != 0) {
-                        startingItems.push_back(itemId);
-                    }
                 }
 
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_MAPS_AND_COMPASSES]) {
@@ -260,6 +249,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] == RO_GENERIC_YES) {
                     itemPool.push_back(RI_ABILITY_SWIM);
+                } else {
+                    Flags_SetRandoInf(RANDO_INF_OBTAINED_SWIM);
                 }
 
                 // Remove starting items from the pool (but only one per entry in startingItems)
