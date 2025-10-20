@@ -271,8 +271,6 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_MAJORA:
         case RI_SOUL_ODOLWA:
         case RI_SOUL_TWINMOLD:
-            // Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (randoItemId - RI_SOUL_GOHT));
-            // break;
         case RI_SOUL_ARMOS:
         case RI_SOUL_BAT:
         case RI_SOUL_BEAMOS:
