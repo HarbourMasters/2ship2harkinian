@@ -2,6 +2,7 @@
 #define RANDO_STATIC_DATA_H
 
 #include <map>
+#include <array>
 #include "Rando/Types.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 
@@ -27,9 +28,11 @@ struct RandoStaticCheck {
 };
 
 extern std::map<RandoCheckId, RandoStaticCheck> Checks;
+extern std::array<std::string, RC_MAX> CheckNames;
 
 RandoStaticCheck GetCheckFromFlag(FlagType flagType, s32 flag, s16 sceneId = SCENE_MAX);
 RandoCheckId GetCheckIdFromName(const char* name);
+void PopulateCheckNames();
 
 struct RandoStaticItem {
     RandoItemId randoItemId;
@@ -43,7 +46,7 @@ struct RandoStaticItem {
 };
 
 extern std::map<RandoItemId, RandoStaticItem> Items;
-extern std::vector<RandoItemId> StartingItemsMap;
+extern std::unordered_map<StartingItemCategory, std::vector<RandoItemId>> StartingItemsMap;
 
 RandoItemId GetItemIdFromName(const char* name);
 u8 GetIconForZMessage(RandoItemId itemId);
