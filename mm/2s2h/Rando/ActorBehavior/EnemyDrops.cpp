@@ -106,9 +106,17 @@ void Rando::ActorBehavior::InitEnemyDropBehavior() {
         }
 
         int16_t actorId = foundActor->id;
-        // Ghibdo ID's are different for Patroling Music House and Beneath the Well
-        if (actorId == ACTOR_EN_RAIL_SKB || actorId == ACTOR_EN_HINT_SKB) {
-            actorId = ACTOR_EN_RD;
+        switch (actorId) {
+            case ACTOR_EN_TALK_GIBUD:
+            case ACTOR_EN_RAILGIBUD:
+                actorId = ACTOR_EN_RD; // Gibdos
+                break;
+            case ACTOR_EN_RAIL_SKB:
+            case ACTOR_EN_HINT_SKB:
+                actorId = ACTOR_EN_SKB; // Stalchildren
+                break;
+            default:
+                break;
         }
 
         // Skullwalltulas need special handling because most of them drop tokens
