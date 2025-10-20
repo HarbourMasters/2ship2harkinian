@@ -127,7 +127,7 @@ void DrawEnFirefly_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
     if (limbIndex == FIRE_KEESE_LIMB_HEAD) {
         Gfx* gfx = play->state.gfxCtx->polyXlu.p;
         Scene_SetRenderModeXlu(play, 1, 2);
-        gSPMatrix(gfx++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        MATRIX_FINALIZE_AND_LOAD(gfx++, play->state.gfxCtx);
         gSPDisplayList(gfx++, (Gfx*)&gKeeseRedEyesDL);
     }
     if (limbIndex == FIRE_KEESE_LIMB_LEFT_WING_END || limbIndex == FIRE_KEESE_LIMB_RIGHT_WING_END_ROOT) {
@@ -142,12 +142,12 @@ void DrawEnRealBombchu_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList,
     if (limbIndex == REAL_BOMBCHU_LIMB_TAIL_END) {
         OPEN_DISPS(play->state.gfxCtx);
         Matrix_ReplaceRotation(&play->billboardMtxF);
-        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, play->state.gfxCtx);
         gSPDisplayList(POLY_OPA_DISP++, (Gfx*)&gBombCapDL);
         Matrix_RotateZYX(0x4000, 0, 0, MTXMODE_APPLY);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 80, 255);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 10, 0, 40, 255);
-        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, play->state.gfxCtx);
         gSPDisplayList(POLY_OPA_DISP++, (Gfx*)&gBombBodyDL);
         CLOSE_DISPS(play->state.gfxCtx);
     }
@@ -222,7 +222,7 @@ extern void DrawBat() {
     }
 
     gSPDisplayList(&gfx[0], gSetupDLs[SETUPDL_25]);
-    gSPMatrix(&gfx[1], Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(&gfx[1], gPlayState->state.gfxCtx);
     gSPDisplayList(&gfx[2], (Gfx*)&gBadBatSetupDL);
     gSPDisplayList(&gfx[3], (Gfx*)&gBadBatBodyDL);
     gSPDisplayList(&gfx[4], sWingsDLs[wingAnim]);
@@ -278,19 +278,19 @@ extern void DrawBoe() {
     gSPDisplayList(POLY_OPA_DISP++, gSetupDLs[SETUPDL_25]);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0xFF, 0, 0, 0, 255);
     gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)D_801AEFA0);
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gBlackBoeEndDL);
 
     gSPDisplayList(POLY_XLU_DISP++, gSetupDLs[SETUPDL_25]);
     gDPSetEnvColor(POLY_XLU_DISP++, 255, 255, 255, 255);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gBlackBoeBodyMaterialDL);
     Matrix_ReplaceRotation(&gPlayState->billboardMtxF);
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gBlackBoeBodyModelDL);
     gDPSetPrimColor(POLY_XLU_DISP++, 0, 0xFF, 245, 97, 0, 255);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gBlackBoeEyesDL);
     Matrix_Scale(0.009f, 0.009f, 0.009f, MTXMODE_APPLY);
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gDPSetPrimColor(POLY_XLU_DISP++, 0, 0xFF, 245, 214, 0, 255);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gBlackBoeEyesDL);
 
@@ -934,7 +934,7 @@ extern void DrawSlime() {
         timer = 25;
     }
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     Scene_SetRenderModeXlu(gPlayState, 1, 2);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gChuchuBodyDL);
     gSPSegment(POLY_XLU_DISP++, 9, (uintptr_t)gChuchuEyeOpenTex);
