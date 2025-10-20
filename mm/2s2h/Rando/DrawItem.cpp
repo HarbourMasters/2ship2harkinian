@@ -306,7 +306,7 @@ void DrawTrapModel() { // Placeholder, need Trap Model
 
     // Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gIceArrowModelDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
