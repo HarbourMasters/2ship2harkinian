@@ -12,7 +12,6 @@ std::unordered_map<RandoRegionId, RandoRegion> Regions = {};
 // Thread-local storage for current region time during check evaluation
 thread_local uint64_t gCurrentRegionTime = 0;
 
-
 RandoRegionId GetRegionIdFromEntrance(s32 entrance) {
     static std::unordered_map<s32, RandoRegionId> entranceToRegionId;
     if (entranceToRegionId.empty()) {
@@ -36,36 +35,35 @@ RandoRegionId GetRegionIdFromEntrance(s32 entrance) {
     return RR_MAX;
 }
 
-
 // Helper: Convert runtime game time to TimeSlice enum for dynamic time checking
 TimeSlice TimeSliceFromGameTime(s32 day, u16 time) {
     // Handle edge cases: day 0 or invalid inputs
     if (day < 1 || day > 3) {
         return TIME_DAY1_AM_06_00; // Default fallback
     }
-    
+
     // Convert to time slice based on day/time ranges
     // This is approximate - exact mapping would need game time constants
     bool isNight = (time >= GAME_TIME_NIGHT_START || time < GAME_TIME_DAY_START);
     int halfDayOffset = (day - 1) * 2 + (isNight ? 1 : 0);
-    
+
     // Map to approximate time slice within the half-day
-    if (halfDayOffset >= 6) return TIME_NIGHT3_AM_05_00;
-    
+    if (halfDayOffset >= 6)
+        return TIME_NIGHT3_AM_05_00;
+
     const auto& range = HALF_DAY_TIME_RANGES[halfDayOffset];
     return static_cast<TimeSlice>(range.startSlice);
 }
 
 // Helper: Returns the initial time state for logic solving (start at Day 1, 6:00 AM)
 RegionTimeState InitialTimeState() {
-    return { .timeSlices = (TIME_BIT_ONE << TIME_DAY1_AM_06_00), 
-             .canStayOverTime = false };
+    return { .timeSlices = (TIME_BIT_ONE << TIME_DAY1_AM_06_00), .canStayOverTime = false };
 }
 
 // Shared initialization function for region time states
 std::unordered_map<RandoRegionId, RegionTimeState> InitializeRegionTimeStates(RandoRegionId startRegion) {
     std::unordered_map<RandoRegionId, RegionTimeState> states;
-    
+
     if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_FRENCH_VANILLA) {
         // Vanilla: all time available
         states[startRegion] = { .timeSlices = TIME_ALL_SLICES, .canStayOverTime = true };
@@ -79,19 +77,17 @@ std::unordered_map<RandoRegionId, RegionTimeState> InitializeRegionTimeStates(Ra
             states[startRegion] = InitialTimeState();
         }
     }
-    
+
     return states;
 }
 
 // Helper to ensure region time state exists
-void EnsureRegionTimeState(std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates, 
+void EnsureRegionTimeState(std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates,
                            RandoRegionId regionId) {
     if (regionTimeStates.find(regionId) == regionTimeStates.end()) {
         auto& region = Regions[regionId];
-        regionTimeStates[regionId] = {
-            .timeSlices = TimeLogic::GetOwnedTimeSlices(),
-            .canStayOverTime = region.canStayOverTime
-        };
+        regionTimeStates[regionId] = { .timeSlices = TimeLogic::GetOwnedTimeSlices(),
+                                       .canStayOverTime = region.canStayOverTime };
     }
 }
 
@@ -102,7 +98,7 @@ void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& 
                           std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates) {
     // Ensure current region has time state
     EnsureRegionTimeState(regionTimeStates, currentRegion);
-    
+
     auto& sourceRegion = Regions[currentRegion];
     auto& sourceTimeState = regionTimeStates[currentRegion];
 

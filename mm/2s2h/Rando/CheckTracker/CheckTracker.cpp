@@ -147,7 +147,8 @@ bool checkTrackerShouldShowRow(bool obtained, bool skipped) {
 void CheckTrackerDrawLogicalList() {
     std::set<RandoRegionId> reachableRegions = {};
     // Initialize time states using shared function
-    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates = Rando::Logic::InitializeRegionTimeStates(RR_MAX);
+    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates =
+        Rando::Logic::InitializeRegionTimeStates(RR_MAX);
 
     // Get connected entrances from starting & warp points
     Rando::Logic::FindReachableRegions(RR_MAX, reachableRegions, regionTimeStates);
@@ -170,7 +171,7 @@ void CheckTrackerDrawLogicalList() {
             sScrollToTargetScene = -1;
             sScrollToTargetEntrance = -1;
         }
-        
+
         auto& randoRegion = Rando::Logic::Regions[regionId];
 
         // Set current region time for check evaluation
@@ -299,36 +300,37 @@ void RefreshChecksInLogic() {
 
     lastFrame = gGameState->frames;
     checksInLogic.clear();
-    
+
     // Clear all events so they're re-evaluated fresh each refresh
     for (int i = 0; i < RE_MAX; i++) {
         RANDO_EVENTS[i] = 0;
     }
-    
+
     std::set<RandoRegionId> reachableRegions = {
         RR_MAX,
         Rando::Logic::GetRegionIdFromEntrance(gSaveContext.save.entrance),
     };
     // Initialize time states using shared function
-    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates = Rando::Logic::InitializeRegionTimeStates(RR_MAX);
+    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates =
+        Rando::Logic::InitializeRegionTimeStates(RR_MAX);
 
     // Iteratively explore until no new regions/events discovered
     bool changed = true;
     while (changed) {
         changed = false;
         auto prevSize = reachableRegions.size();
-        
+
         // Explore from all currently reachable regions
         std::set<RandoRegionId> regionsToExplore = reachableRegions;
         for (RandoRegionId regionId : regionsToExplore) {
             Rando::Logic::FindReachableRegions(regionId, reachableRegions, regionTimeStates);
         }
-        
+
         // Trigger events for newly discovered regions
         for (RandoRegionId regionId : reachableRegions) {
             auto& randoRegion = Rando::Logic::Regions[regionId];
             Rando::Logic::SetCurrentRegionTime(regionTimeStates, regionId);
-            
+
             for (auto& event : randoRegion.events) {
                 if (!RANDO_EVENTS[event.first] && event.second()) {
                     RANDO_EVENTS[event.first]++;
@@ -336,7 +338,7 @@ void RefreshChecksInLogic() {
                 }
             }
         }
-        
+
         if (reachableRegions.size() != prevSize) {
             changed = true;
         }
@@ -346,7 +348,7 @@ void RefreshChecksInLogic() {
     for (RandoRegionId regionId : reachableRegions) {
         auto& randoRegion = Rando::Logic::Regions[regionId];
         Rando::Logic::SetCurrentRegionTime(regionTimeStates, regionId);
-        
+
         for (auto& [randoCheckId, accessLogicFunc] : randoRegion.checks) {
             auto& randoStaticCheck = Rando::StaticData::Checks[randoCheckId];
             auto& randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];

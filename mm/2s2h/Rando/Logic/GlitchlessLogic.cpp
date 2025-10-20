@@ -88,7 +88,7 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
             for (auto& randoEvent : randoRegion.events) {
                 // When Clock Shuffle is active, always check events (don't skip based on eventsInLogic)
                 bool skipEventCheck = !SettingClocks() && eventsInLogic.contains(&randoEvent);
-                
+
                 if (!skipEventCheck && randoEvent.second()) {
                     // Only increment if not already triggered
                     if (!eventsInLogic.contains(&randoEvent)) {
@@ -103,8 +103,8 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
             for (auto& [randoCheckId, checkLogic] : randoRegion.checks) {
                 if (checksInLogic.find(randoCheckId) == checksInLogic.end() && checkLogic.first()) {
                     // VALIDATION: Verify check is reachable with owned time
-                    TimeLogic::ValidateRegionTimeOwnership(regionId, randoCheckId, 
-                        regionTimeStates[regionId].timeSlices, "Glitchless");
+                    TimeLogic::ValidateRegionTimeOwnership(regionId, randoCheckId,
+                                                           regionTimeStates[regionId].timeSlices, "Glitchless");
 
                     bool isShuffled = checkPool.find(randoCheckId) != checkPool.end();
                     checksInLogic.insert({ randoCheckId, isShuffled });
@@ -133,7 +133,7 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
                     RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoItemId;
                     RANDO_SAVE_CHECKS[randoCheckId].shuffled = isShuffled;
                     GiveItem(ConvertItem(randoItemId));
-                    
+
                     // Update time states for all regions when clock items are obtained
                     if (randoItemId >= RI_CLOCK_DAY_1 && randoItemId <= RI_CLOCK_PROGRESSIVE) {
                         uint64_t newTimeSlices = TimeLogic::GetOwnedTimeSlices();
@@ -154,7 +154,7 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
                         regionsInLogicChanged = true;
                         eventsInLogicChanged = true;
                     }
-                    
+
                     checksInLogicChanged = true;
                 }
             }

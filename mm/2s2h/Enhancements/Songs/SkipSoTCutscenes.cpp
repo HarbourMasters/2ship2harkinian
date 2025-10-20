@@ -36,7 +36,7 @@ void RegisterSkipSoTCutscenes() {
                 if (earliestOwnedHalfDay != -1) {
                     bool isDayHalf = (earliestOwnedHalfDay % 2 == 0);
                     int targetDay = (earliestOwnedHalfDay / 2) + 1;
-                    
+
                     if (isDayHalf) {
                         // Set to previous day at 5:59 AM to trigger day transition
                         // Vanilla will detect the transition and show DayTelop

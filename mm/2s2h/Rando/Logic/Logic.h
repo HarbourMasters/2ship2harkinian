@@ -82,12 +82,12 @@ struct HalfDayRange {
 // Map half-day indices to their time slice ranges
 // Index 0-5 correspond to HALF_DAY1_DAY through HALF_DAY3_NIGHT
 constexpr HalfDayRange HALF_DAY_TIME_RANGES[6] = {
-    {0, 6},    // HALF_DAY1_DAY   (TIME_DAY1_AM_06_00 to TIME_DAY1_PM_04_00)
-    {7, 15},   // HALF_DAY1_NIGHT (TIME_NIGHT1_PM_06_00 to TIME_NIGHT1_AM_05_00)
-    {16, 22},  // HALF_DAY2_DAY   (TIME_DAY2_AM_06_00 to TIME_DAY2_PM_04_00)
-    {23, 30},  // HALF_DAY2_NIGHT (TIME_NIGHT2_PM_06_00 to TIME_NIGHT2_AM_05_00)
-    {31, 36},  // HALF_DAY3_DAY   (TIME_DAY3_AM_06_00 to TIME_DAY3_PM_01_00)
-    {37, 44},  // HALF_DAY3_NIGHT (TIME_NIGHT3_PM_06_00 to TIME_NIGHT3_AM_05_00)
+    { 0, 6 },   // HALF_DAY1_DAY   (TIME_DAY1_AM_06_00 to TIME_DAY1_PM_04_00)
+    { 7, 15 },  // HALF_DAY1_NIGHT (TIME_NIGHT1_PM_06_00 to TIME_NIGHT1_AM_05_00)
+    { 16, 22 }, // HALF_DAY2_DAY   (TIME_DAY2_AM_06_00 to TIME_DAY2_PM_04_00)
+    { 23, 30 }, // HALF_DAY2_NIGHT (TIME_NIGHT2_PM_06_00 to TIME_NIGHT2_AM_05_00)
+    { 31, 36 }, // HALF_DAY3_DAY   (TIME_DAY3_AM_06_00 to TIME_DAY3_PM_01_00)
+    { 37, 44 }, // HALF_DAY3_NIGHT (TIME_NIGHT3_PM_06_00 to TIME_NIGHT3_AM_05_00)
 };
 
 // Game time constants for day/night transitions
@@ -113,11 +113,12 @@ RegionTimeState InitialTimeState();
 std::unordered_map<RandoRegionId, RegionTimeState> InitializeRegionTimeStates(RandoRegionId startRegion);
 
 // Helper to ensure region time state exists
-void EnsureRegionTimeState(std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates, RandoRegionId regionId);
+void EnsureRegionTimeState(std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates,
+                           RandoRegionId regionId);
 
 // Helper to set current region time
 inline void SetCurrentRegionTime(const std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates,
-                                  RandoRegionId regionId) {
+                                 RandoRegionId regionId) {
     gCurrentRegionTime = regionTimeStates.at(regionId).timeSlices;
 }
 
@@ -146,7 +147,7 @@ struct RandoRegion {
     std::unordered_map<RandoRegionId, std::pair<std::function<bool()>, std::string>> connections;
     std::vector<std::pair<RandoEvent, std::function<bool()>>> events;
     std::set<s32> oneWayEntrances;
-    
+
     // Time logic fields for Clock Shuffle and time-based region access
     uint64_t timeSlices = 0;     // Bitfield: accessible time slices (bits 0-44) - unused in current implementation
     bool canStayOverTime = true; // Can player wait for time to pass? Set false for dungeons, shops with closing hours
@@ -160,17 +161,16 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
 // TIME LOGIC NAMESPACE
 // ============================================================================
 namespace TimeLogic {
-    // Core expansion function - sequential time expansion with stay restrictions
-    uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region);
-    
-    // Owned time calculation - aggregates all owned half-day time slices
-    uint64_t GetOwnedTimeSlices();
-    
-    // Validation helper for clock ownership during logic generation
-    void ValidateRegionTimeOwnership(RandoRegionId regionId, RandoCheckId checkId, 
-                                     uint64_t regionTime, const char* context);
-}
+// Core expansion function - sequential time expansion with stay restrictions
+uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region);
 
+// Owned time calculation - aggregates all owned half-day time slices
+uint64_t GetOwnedTimeSlices();
+
+// Validation helper for clock ownership during logic generation
+void ValidateRegionTimeOwnership(RandoRegionId regionId, RandoCheckId checkId, uint64_t regionTime,
+                                 const char* context);
+} // namespace TimeLogic
 
 // TODO: This may not stay here
 #define IS_DEKU (GET_PLAYER_FORM == PLAYER_FORM_DEKU)
@@ -189,7 +189,9 @@ namespace TimeLogic {
 #define CHECK_MAX_HP(TARGET_HP) ((TARGET_HP * 16) <= gSaveContext.save.saveInfo.playerData.healthCapacity)
 #define HAS_MAGIC (gSaveContext.save.saveInfo.playerData.isMagicAcquired)
 #define CAN_HOOK_SCARECROW (HAS_ITEM(ITEM_OCARINA_OF_TIME) && HAS_ITEM(ITEM_HOOKSHOT))
-#define CAN_USE_EXPLOSIVE ((HAS_ITEM(ITEM_BOMB) || HAS_ITEM(ITEM_BOMBCHU) || HAS_ITEM(ITEM_MASK_BLAST) || (HAS_ITEM(ITEM_POWDER_KEG) && CAN_BE_GORON)))
+#define CAN_USE_EXPLOSIVE                                                           \
+    ((HAS_ITEM(ITEM_BOMB) || HAS_ITEM(ITEM_BOMBCHU) || HAS_ITEM(ITEM_MASK_BLAST) || \
+      (HAS_ITEM(ITEM_POWDER_KEG) && CAN_BE_GORON)))
 #define CAN_USE_HUMAN_SWORD (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) >= EQUIP_VALUE_SWORD_KOKIRI)
 #define CAN_USE_SWORD (CAN_USE_HUMAN_SWORD || HAS_ITEM(ITEM_SWORD_GREAT_FAIRY) || CAN_BE_DEITY)
 // Be careful here, as some checks require you to play the song as a specific form
@@ -252,7 +254,7 @@ namespace TimeLogic {
 // STAY macro for region time restrictions - defines when player can stay in a region over time
 // Usage in region definitions: .timeStayRestrictions = { STAY(TIME_NIGHT1_PM_08_00, !HAS_ROOM_KEY) }
 // If condition is false at the specified time, player is kicked out (expansion stops permanently)
-// Examples: 
+// Examples:
 //   STAY(TIME_NIGHT1_PM_08_00, !Flags_GetRandoInf(RANDO_INF_OBTAINED_ROOM_KEY)) // Kicked out without room key
 //   STAY(TIME_NIGHT3_PM_10_00, false) // Always kicked out at this time (shop closes)
 #define STAY(timeSlice, condition)          \
@@ -343,10 +345,10 @@ inline bool SettingClocks() {
     return RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] != 0;
 }
 
-
 // Centralized clock ownership check
 inline bool OwnsClockHalfDay(int halfDayIndex) {
-    if (halfDayIndex < 0 || halfDayIndex >= 6) return false;
+    if (halfDayIndex < 0 || halfDayIndex >= 6)
+        return false;
     RandoInf clockFlag = static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfDayIndex);
     return Flags_GetRandoInf(clockFlag);
 }
@@ -356,23 +358,23 @@ inline bool OwnsHalfDayForMode(int halfDayIndex) {
     if (!SettingClocks() || halfDayIndex < 0 || halfDayIndex >= 6) {
         return !SettingClocks(); // If not shuffling clocks, all time is available
     }
-    
+
     int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
     uint32_t totalClocks = ClockCount();
-    
+
     switch (clockMode) {
         case RO_CLOCK_SHUFFLE_RANDOM:
             // Random mode: check if this specific half-day is owned
             return OwnsClockHalfDay(halfDayIndex);
-            
+
         case RO_CLOCK_SHUFFLE_ASCENDING:
             // Ascending: own first N half-days in sequence (0,1,2,3,4,5)
             return totalClocks > halfDayIndex;
-            
+
         case RO_CLOCK_SHUFFLE_DESCENDING:
             // Descending: own last N half-days in reverse sequence (5,4,3,2,1,0)
             return totalClocks > (5 - halfDayIndex);
-            
+
         default:
             return false;
     }
@@ -405,8 +407,9 @@ inline bool RawBetween(TimeSlice start, TimeSlice end) {
 
 // Generate bitmask for a half-day period's time slices
 inline constexpr uint64_t GetHalfDayTimeMask(int halfDayIndex) {
-    if (halfDayIndex < 0 || halfDayIndex >= 6) return 0;
-    
+    if (halfDayIndex < 0 || halfDayIndex >= 6)
+        return 0;
+
     uint64_t mask = 0;
     const auto& range = HALF_DAY_TIME_RANGES[halfDayIndex];
     for (int slice = range.startSlice; slice <= range.endSlice; ++slice) {
@@ -430,8 +433,9 @@ inline constexpr uint64_t GetHalfDayTimeMask(int halfDayIndex) {
 // Global clock filter for owned time periods
 // Returns true if Clock Shuffle is disabled OR if player is currently in an owned time period
 inline bool ClockFilter() {
-    if (!SettingClocks()) return true;
-    
+    if (!SettingClocks())
+        return true;
+
     // Return true if currently in an owned time period
     // This checks if gCurrentRegionTime has any overlap with owned half-days
     for (int i = 0; i < 6; ++i) {
@@ -451,8 +455,9 @@ inline bool ClockFilter() {
 
 // Validation: Check if a time slice is in an owned half-day period
 inline bool IsTimeSliceOwned(TimeSlice slice) {
-    if (!SettingClocks()) return true;
-    
+    if (!SettingClocks())
+        return true;
+
     for (int i = 0; i < 6; ++i) {
         const auto& range = HALF_DAY_TIME_RANGES[i];
         if (slice >= range.startSlice && slice <= range.endSlice) {
@@ -464,8 +469,9 @@ inline bool IsTimeSliceOwned(TimeSlice slice) {
 
 // Validation: Check if any time in the timeslice mask is owned
 inline bool HasAnyOwnedTime(uint64_t timeSlices) {
-    if (!SettingClocks()) return true;
-    
+    if (!SettingClocks())
+        return true;
+
     for (int i = 0; i < 6; ++i) {
         if (OwnsClockHalfDay(i)) {
             uint64_t halfDayMask = GetHalfDayTimeMask(i);
@@ -498,17 +504,13 @@ inline bool HasAnyOwnedTime(uint64_t timeSlices) {
 // PUBLIC TIME API
 // ============================================================================
 
-#define AT(slice)    \
-    (RawAt(slice) && ClockFilter())
+#define AT(slice) (RawAt(slice) && ClockFilter())
 
-#define BEFORE(slice)    \
-    (RawBefore(slice) && ClockFilter())
+#define BEFORE(slice) (RawBefore(slice) && ClockFilter())
 
-#define AFTER(slice)    \
-    (RawAfter(slice) && ClockFilter())
+#define AFTER(slice) (RawAfter(slice) && ClockFilter())
 
-#define BETWEEN(s, e)    \
-    (RawBetween(s, e) && ClockFilter())
+#define BETWEEN(s, e) (RawBetween(s, e) && ClockFilter())
 
 #define MIDNIGHT()                                                                                             \
     (BETWEEN(TIME_NIGHT1_AM_12_00, TIME_DAY2_AM_06_00) || BETWEEN(TIME_NIGHT2_AM_12_00, TIME_DAY3_AM_06_00) || \
@@ -519,14 +521,14 @@ inline bool HasAnyOwnedTime(uint64_t timeSlices) {
 // ============================================================================
 
 // Grandma Story check: Can access the first grandma story time window
-// Available before 4:00 PM on Day 1, or between 6:00 AM and 4:00 PM on Day 2, 
+// Available before 4:00 PM on Day 1, or between 6:00 AM and 4:00 PM on Day 2,
 // or if player has clocks to progress time beyond those periods
 #define GRANDMA_STORY_1()                                                                                   \
-    ((BEFORE(TIME_DAY1_PM_04_00) && CLOCK_NIGHT1()) || BETWEEN(TIME_DAY2_AM_06_00, TIME_DAY2_PM_04_00) ||    \
-     (IS_DAY1() && (CLOCK_NIGHT1() || CLOCK_DAY2() || CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())) ||   \
+    ((BEFORE(TIME_DAY1_PM_04_00) && CLOCK_NIGHT1()) || BETWEEN(TIME_DAY2_AM_06_00, TIME_DAY2_PM_04_00) ||   \
+     (IS_DAY1() && (CLOCK_NIGHT1() || CLOCK_DAY2() || CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())) || \
      (IS_DAY2() && (CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())))
 
-// Grandma Story check: Can access the second grandma story time window  
+// Grandma Story check: Can access the second grandma story time window
 // Requires clocks to access later time periods (Day 2+ or Night 2+)
 #define GRANDMA_STORY_2()                                                                 \
     ((IS_DAY1() && (CLOCK_DAY2() || CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())) || \

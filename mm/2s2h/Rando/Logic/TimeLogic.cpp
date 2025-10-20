@@ -17,7 +17,7 @@ uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region) {
     // Fast path: unrestricted time expansion using bitwise fill (only when Clock Shuffle is off)
     if (region.timeStayRestrictions.empty() && !SettingClocks()) {
         uint64_t expanded = timeSlices;
-        
+
         // Non-Clock Shuffle: expand across ALL time slices using bitwise fill
         expanded |= (expanded << 1);
         expanded |= (expanded << 2);
@@ -26,7 +26,7 @@ uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region) {
         expanded |= (expanded << 16);
         expanded |= (expanded << 32);
         expanded &= TIME_ALL_SLICES;
-        
+
         return expanded;
     }
 
@@ -36,7 +36,7 @@ uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region) {
     if (SettingClocks()) {
         filteredTimeSlices &= GetOwnedTimeSlices();
     }
-    
+
     uint64_t expanded = filteredTimeSlices;
     bool canWait = false;
 
@@ -53,7 +53,7 @@ uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region) {
                 canWait = false; // Can't expand into unowned time period
                 continue;
             }
-            
+
             // Check if we can wait to this time
             auto it = region.timeStayRestrictions.find(static_cast<TimeSlice>(i));
             if (it != region.timeStayRestrictions.end()) {
@@ -73,7 +73,7 @@ uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region) {
         }
     }
 
-    // VALIDATION: In Clock Shuffle, expanded time must not exceed owned time  
+    // VALIDATION: In Clock Shuffle, expanded time must not exceed owned time
     if (SettingClocks()) {
         uint64_t ownedTimeSlices = GetOwnedTimeSlices();
         bool expandedBeyondOwned = (expanded & ~ownedTimeSlices) != 0;
@@ -100,19 +100,19 @@ uint64_t GetOwnedTimeSlices() {
 }
 
 // Validation helper for clock ownership during logic generation
-void ValidateRegionTimeOwnership(RandoRegionId regionId, RandoCheckId checkId, 
-                                 uint64_t regionTime, const char* context) {
-    if (!SettingClocks()) return;
-    
+void ValidateRegionTimeOwnership(RandoRegionId regionId, RandoCheckId checkId, uint64_t regionTime,
+                                 const char* context) {
+    if (!SettingClocks())
+        return;
+
     if (!HasAnyOwnedTime(regionTime)) {
         auto& region = Regions[regionId];
         SPDLOG_ERROR("CLOCK SHUFFLE VALIDATION FAILED ({})!", context);
         SPDLOG_ERROR("Check: {}", Rando::StaticData::Checks[checkId].name);
         SPDLOG_ERROR("Region: {} - {}", Ship_GetSceneName(region.sceneId), region.name);
         SPDLOG_ERROR("Region time mask: 0x{:X}", regionTime);
-        SPDLOG_ERROR("Owned clocks: D1={} N1={} D2={} N2={} D3={} N3={}",
-            OwnsClockHalfDay(0), OwnsClockHalfDay(1), OwnsClockHalfDay(2),
-            OwnsClockHalfDay(3), OwnsClockHalfDay(4), OwnsClockHalfDay(5));
+        SPDLOG_ERROR("Owned clocks: D1={} N1={} D2={} N2={} D3={} N3={}", OwnsClockHalfDay(0), OwnsClockHalfDay(1),
+                     OwnsClockHalfDay(2), OwnsClockHalfDay(3), OwnsClockHalfDay(4), OwnsClockHalfDay(5));
         assert(false && "Check placed in unowned time period during Clock Shuffle!");
     }
 }

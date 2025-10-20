@@ -87,11 +87,13 @@ u8 GetAllOwnedHalfDaysMask() {
 int FindEarliestOwnedHalfDay(bool searchFromEnd) {
     if (searchFromEnd) {
         for (int i = HALF_COUNT - 1; i >= 0; --i) {
-            if (OwnsClockHalfDay(i)) return i;
+            if (OwnsClockHalfDay(i))
+                return i;
         }
     } else {
         for (int i = 0; i < HALF_COUNT; ++i) {
-            if (OwnsClockHalfDay(i)) return i;
+            if (OwnsClockHalfDay(i))
+                return i;
         }
     }
     return INVALID;
@@ -190,9 +192,9 @@ bool IsInTerminalRange(s32 day, u16 time) {
     if (day != 3) {
         return false;
     }
-    
+
     u16 terminalTime = GetConfiguredTerminalTime();
-    
+
     // Terminal range spans from terminal time until 6:00 AM (may wrap around midnight)
     if (terminalTime >= DUSK_TIME) {
         // Terminal starts in evening (18:00-23:59), range wraps through midnight to dawn
@@ -205,9 +207,11 @@ bool IsInTerminalRange(s32 day, u16 time) {
 
 // Calculate half-day index from day/time (extracted for reuse)
 int GetHalfDayIndexFromTime(s32 day, u16 time) {
-    if (day < 1) return 0;
+    if (day < 1)
+        return 0;
     int halfDay = (day - 1) * 2;
-    if (IsNightTime(time)) halfDay++;
+    if (IsNightTime(time))
+        halfDay++;
     return halfDay;
 }
 
@@ -281,7 +285,6 @@ void SetTimeToHalfDayStart(int halfDayIndex) {
     }
 }
 
-
 // Check if a scene needs to be reloaded for time skips (whitelist approach)
 bool SceneNeedsReloadForTimeSkip(s16 sceneId) {
     // Use a whitelist approach - only reload scenes that actually need it
@@ -306,9 +309,8 @@ void ForceSceneReload() {
     gPlayState->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
 
     // Set up respawn data to return to the same location
-    Play_SetRespawnData(gPlayState, RESPAWN_MODE_RETURN, gSaveContext.save.entrance,
-                        gPlayState->roomCtx.curRoom.num, PLAYER_PARAMS(0xFF, PLAYER_START_MODE_B),
-                        &player->actor.world.pos, player->actor.world.rot.y);
+    Play_SetRespawnData(gPlayState, RESPAWN_MODE_RETURN, gSaveContext.save.entrance, gPlayState->roomCtx.curRoom.num,
+                        PLAYER_PARAMS(0xFF, PLAYER_START_MODE_B), &player->actor.world.pos, player->actor.world.rot.y);
 
     // Configure the transition
     gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK;
@@ -349,8 +351,7 @@ bool ShouldSkipTime(s32 day, u16 time, int* outNextHalfDay) {
 
     // Calculate and check current half-day ownership
     int currentHalfDay = GetHalfDayIndexFromTime(day, time);
-    if (currentHalfDay >= 0 && currentHalfDay < ClockItems::HALF_COUNT && 
-        OwnsClockHalfDay(currentHalfDay)) {
+    if (currentHalfDay >= 0 && currentHalfDay < ClockItems::HALF_COUNT && OwnsClockHalfDay(currentHalfDay)) {
         return false;
     }
 
@@ -425,7 +426,7 @@ void CheckAndSkipUnownedTime(Actor* timeActor) {
     // Calculate lookahead day/time
     s32 day = gSaveContext.save.day;
     u16 time = gSaveContext.save.time + CLOCK_TIME(0, 1);
-    
+
     // Check for day transition using actor's prevTime
     // Night check: time < GAME_TIME_DAY_START || time >= GAME_TIME_NIGHT_START
     bool prevWasNight = IsNightTime(enTest4->prevTime);
@@ -458,8 +459,10 @@ bool IsTimeOwnedForClockShuffle(s32 day, u16 time) {
         return true;
     }
 
-    if (day < 1 || day > 3) return true;
-    if (IsInTerminalRange(day, time)) return true;
+    if (day < 1 || day > 3)
+        return true;
+    if (IsInTerminalRange(day, time))
+        return true;
 
     int halfDayIndex = GetHalfDayIndexFromTime(day, time);
     return OwnsClockHalfDay(halfDayIndex);
@@ -500,11 +503,12 @@ std::string GetTimeDescriptionForMessage(s32 day, u16 time) {
 // Helper for initial file load time correction
 void CorrectInitialTime() {
     const int earliestOwnedHalfDay = ClockItems::FindEarliestOwnedHalfDay(false);
-    if (earliestOwnedHalfDay == ClockItems::INVALID) return;
-    
+    if (earliestOwnedHalfDay == ClockItems::INVALID)
+        return;
+
     bool isDayHalf = (earliestOwnedHalfDay % 2 == 0);
     int targetDay = (earliestOwnedHalfDay / 2) + 1;
-    
+
     if (isDayHalf) {
         SetGameTime(targetDay - 1, CLOCK_TIME(6, 0) - 1);
     } else {
@@ -615,9 +619,9 @@ void OnFileLoad() {
 
         // Add final hours based on configured terminal time if we're in terminal state
         // OR if we don't own Night 3 (which means we'll end up in terminal state)
-        bool shouldIncludeTerminalHours = (GetCurrentHalfDayIndex() == ClockItems::TERMINAL_STATE) ||
-                                         !OwnsClockHalfDay(ClockItems::HALF_DAY3_NIGHT);
-        
+        bool shouldIncludeTerminalHours =
+            (GetCurrentHalfDayIndex() == ClockItems::TERMINAL_STATE) || !OwnsClockHalfDay(ClockItems::HALF_DAY3_NIGHT);
+
         if (shouldIncludeTerminalHours) {
             // Calculate remaining hours from configured terminal time to 6:00 AM
             u16 terminalTime = GetConfiguredTerminalTime();
@@ -654,7 +658,7 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
     if (!RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] || RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_FRENCH_VANILLA) {
         return; // Skip if clocks not enabled or in vanilla logic
     }
-    
+
     int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
     int initialClockHalf;
 
