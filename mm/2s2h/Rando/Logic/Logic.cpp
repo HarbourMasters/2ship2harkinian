@@ -12,38 +12,6 @@ std::unordered_map<RandoRegionId, RandoRegion> Regions = {};
 // Thread-local storage for current region time during check evaluation
 thread_local uint64_t gCurrentRegionTime = 0;
 
-// Time expansion function - expands accessible time forward with stay restrictions
-// Implements OoTMM's sequential expansion: if a stay restriction fails, expansion stops permanently
-inline uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region) {
-    uint64_t expanded = timeSlices;
-    bool canWait = false;
-
-    for (int i = 0; i < TIME_SLICE_COUNT; ++i) {
-        uint64_t mask = (TIME_BIT_ONE << i);
-
-        if (timeSlices & mask) {
-            // We can be at this time
-            canWait = true;
-            expanded |= mask;
-        } else if (canWait) {
-            // Check if we can wait to this time
-            auto it = region.timeStayRestrictions.find(static_cast<TimeSlice>(i));
-            if (it != region.timeStayRestrictions.end()) {
-                // Explicit restriction exists
-                if (it->second()) {
-                    expanded |= mask; // Condition passed, add time
-                } else {
-                    canWait = false; // Kicked out, STOP expansion
-                }
-            } else {
-                // No restriction = default true, can stay
-                expanded |= mask;
-            }
-        }
-    }
-
-    return expanded;
-}
 
 RandoRegionId GetRegionIdFromEntrance(s32 entrance) {
     static std::unordered_map<s32, RandoRegionId> entranceToRegionId;
@@ -68,15 +36,80 @@ RandoRegionId GetRegionIdFromEntrance(s32 entrance) {
     return RR_MAX;
 }
 
+
+// Helper: Convert runtime game time to TimeSlice enum for dynamic time checking
+TimeSlice TimeSliceFromGameTime(s32 day, u16 time) {
+    // Handle edge cases: day 0 or invalid inputs
+    if (day < 1 || day > 3) {
+        return TIME_DAY1_AM_06_00; // Default fallback
+    }
+    
+    // Convert to time slice based on day/time ranges
+    // This is approximate - exact mapping would need game time constants
+    bool isNight = (time >= GAME_TIME_NIGHT_START || time < GAME_TIME_DAY_START);
+    int halfDayOffset = (day - 1) * 2 + (isNight ? 1 : 0);
+    
+    // Map to approximate time slice within the half-day
+    if (halfDayOffset >= 6) return TIME_NIGHT3_AM_05_00;
+    
+    const auto& range = HALF_DAY_TIME_RANGES[halfDayOffset];
+    return static_cast<TimeSlice>(range.startSlice);
+}
+
+// Helper: Returns the initial time state for logic solving (start at Day 1, 6:00 AM)
+RegionTimeState InitialTimeState() {
+    return { .timeSlices = (TIME_BIT_ONE << TIME_DAY1_AM_06_00), 
+             .canStayOverTime = false };
+}
+
+// Shared initialization function for region time states
+std::unordered_map<RandoRegionId, RegionTimeState> InitializeRegionTimeStates(RandoRegionId startRegion) {
+    std::unordered_map<RandoRegionId, RegionTimeState> states;
+    
+    if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_FRENCH_VANILLA) {
+        // Vanilla: all time available
+        states[startRegion] = { .timeSlices = TIME_ALL_SLICES, .canStayOverTime = true };
+    } else {
+        // Glitchless/etc: start with appropriate time based on Clock Shuffle
+        if (SettingClocks()) {
+            // Clock Shuffle: start with owned time slices only
+            states[startRegion] = { .timeSlices = TimeLogic::GetOwnedTimeSlices(), .canStayOverTime = false };
+        } else {
+            // No Clock Shuffle: start at Day 1 6am
+            states[startRegion] = InitialTimeState();
+        }
+    }
+    
+    return states;
+}
+
+// Helper to ensure region time state exists
+void EnsureRegionTimeState(std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates, 
+                           RandoRegionId regionId) {
+    if (regionTimeStates.find(regionId) == regionTimeStates.end()) {
+        auto& region = Regions[regionId];
+        regionTimeStates[regionId] = {
+            .timeSlices = TimeLogic::GetOwnedTimeSlices(),
+            .canStayOverTime = region.canStayOverTime
+        };
+    }
+}
+
+// Time expansion during region traversal with stay restrictions
+// Time expansion semantics: if canStayOverTime, sequentially test each future time slice
+// Stop permanently if any timeStayRestrictions check fails
 void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions,
                           std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates) {
+    // Ensure current region has time state
+    EnsureRegionTimeState(regionTimeStates, currentRegion);
+    
     auto& sourceRegion = Regions[currentRegion];
     auto& sourceTimeState = regionTimeStates[currentRegion];
 
     // Expand time if player can wait in this region
     uint64_t currentTime = sourceTimeState.timeSlices;
     if (sourceTimeState.canStayOverTime) {
-        currentTime = ExpandTimeForward(currentTime, sourceRegion);
+        currentTime = TimeLogic::ExpandTimeForward(currentTime, sourceRegion);
         sourceTimeState.timeSlices = currentTime;
     }
 

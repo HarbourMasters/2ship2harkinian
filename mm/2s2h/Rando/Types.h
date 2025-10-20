@@ -22,7 +22,6 @@ typedef enum {
     RCTYPE_SONG,
     RCTYPE_STRAY_FAIRY,
     RCTYPE_TINGLE_SHOP,
-    RCTYPE_CLOCK,
     RCTYPE_MAX,
 } RandoCheckType;
 

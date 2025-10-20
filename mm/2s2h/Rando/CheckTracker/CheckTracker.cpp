@@ -84,7 +84,6 @@ std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_SONG*/ gItemIconSongNoteTex,
     /*RCTYPE_STRAY_FAIRY*/ gStrayFairyGreatBayIconTex,
     /*RCTYPE_TINGLE_SHOP*/ gItemIconAdultsWalletTex,
-    /*RCTYPE_CLOCK*/ gItemIconSongNoteTex,
 };
 
 static constexpr ImVec4 tintColor = {};
@@ -148,8 +147,8 @@ bool checkTrackerShouldShowRow(bool obtained, bool skipped) {
 
 void CheckTrackerDrawLogicalList() {
     std::set<RandoRegionId> reachableRegions = {};
-    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates;
-    regionTimeStates[RR_MAX] = { .timeSlices = (1ULL << Rando::Logic::TIME_DAY1_AM_06_00), .canStayOverTime = false };
+    // Initialize time states using shared function
+    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates = Rando::Logic::InitializeRegionTimeStates(RR_MAX);
 
     // Get connected entrances from starting & warp points
     Rando::Logic::FindReachableRegions(RR_MAX, reachableRegions, regionTimeStates);
@@ -172,7 +171,12 @@ void CheckTrackerDrawLogicalList() {
             sScrollToTargetScene = -1;
             sScrollToTargetEntrance = -1;
         }
+        
         auto& randoRegion = Rando::Logic::Regions[regionId];
+
+        // Set current region time for check evaluation
+        Rando::Logic::SetCurrentRegionTime(regionTimeStates, regionId);
+
         std::vector<std::pair<RandoCheckId, std::string>> availableChecks;
         std::vector<std::pair<std::string, std::string>> availableEvents;
         uint32_t obtainedCheckSum = 0;
@@ -296,37 +300,59 @@ void RefreshChecksInLogic() {
 
     lastFrame = gGameState->frames;
     checksInLogic.clear();
-
+    
+    // Clear all events so they're re-evaluated fresh each refresh
+    for (int i = 0; i < RE_MAX; i++) {
+        RANDO_EVENTS[i] = 0;
+    }
+    
     std::set<RandoRegionId> reachableRegions = {
         RR_MAX,
         Rando::Logic::GetRegionIdFromEntrance(gSaveContext.save.entrance),
     };
-    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates;
-    regionTimeStates[RR_MAX] = { .timeSlices = (1ULL << Rando::Logic::TIME_DAY1_AM_06_00), .canStayOverTime = false };
+    // Initialize time states using shared function
+    std::unordered_map<RandoRegionId, Rando::Logic::RegionTimeState> regionTimeStates = Rando::Logic::InitializeRegionTimeStates(RR_MAX);
 
-    // Get connected entrances from starting & warp points
-    Rando::Logic::FindReachableRegions(RR_MAX, reachableRegions, regionTimeStates);
-    // Get connected regions from current entrance (TODO: Make this optional)
-    Rando::Logic::FindReachableRegions(Rando::Logic::GetRegionIdFromEntrance(gSaveContext.save.entrance),
-                                       reachableRegions, regionTimeStates);
+    // Iteratively explore until no new regions/events discovered
+    bool changed = true;
+    while (changed) {
+        changed = false;
+        auto prevSize = reachableRegions.size();
+        
+        // Explore from all currently reachable regions
+        std::set<RandoRegionId> regionsToExplore = reachableRegions;
+        for (RandoRegionId regionId : regionsToExplore) {
+            Rando::Logic::FindReachableRegions(regionId, reachableRegions, regionTimeStates);
+        }
+        
+        // Trigger events for newly discovered regions
+        for (RandoRegionId regionId : reachableRegions) {
+            auto& randoRegion = Rando::Logic::Regions[regionId];
+            Rando::Logic::SetCurrentRegionTime(regionTimeStates, regionId);
+            
+            for (auto& event : randoRegion.events) {
+                if (!RANDO_EVENTS[event.first] && event.second()) {
+                    RANDO_EVENTS[event.first]++;
+                    changed = true;
+                }
+            }
+        }
+        
+        if (reachableRegions.size() != prevSize) {
+            changed = true;
+        }
+    }
+
+    // Evaluate checks for all reachable regions
     for (RandoRegionId regionId : reachableRegions) {
         auto& randoRegion = Rando::Logic::Regions[regionId];
-
-        // Set current region time for check evaluation
-        Rando::Logic::gCurrentRegionTime = regionTimeStates[regionId].timeSlices;
-        std::vector<std::pair<RandoCheckId, std::string>> availableChecks;
-
+        Rando::Logic::SetCurrentRegionTime(regionTimeStates, regionId);
+        
         for (auto& [randoCheckId, accessLogicFunc] : randoRegion.checks) {
             auto& randoStaticCheck = Rando::StaticData::Checks[randoCheckId];
             auto& randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
             if (randoSaveCheck.shuffled && !randoSaveCheck.obtained && accessLogicFunc.first()) {
                 checksInLogic.insert({ randoCheckId, true });
-            }
-        }
-
-        for (auto& event : randoRegion.events) {
-            if (!RANDO_EVENTS[event.first] && event.second()) {
-                RANDO_EVENTS[event.first]++;
             }
         }
     }

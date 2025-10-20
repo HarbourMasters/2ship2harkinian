@@ -34,14 +34,16 @@ void RegisterSkipSoTCutscenes() {
             if (IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
                 const int earliestOwnedHalfDay = Rando::ClockItems::FindEarliestOwnedHalfDay(false);
                 if (earliestOwnedHalfDay != -1) {
-                    // Check if target is a day half (even indices: 0, 2, 4)
                     bool isDayHalf = (earliestOwnedHalfDay % 2 == 0);
+                    int targetDay = (earliestOwnedHalfDay / 2) + 1;
+                    
                     if (isDayHalf) {
-                        // Set up DayTelop for day halves to show "Dawn of Day X"
-                        int targetDay = (earliestOwnedHalfDay / 2) + 1;     // Convert half-day index to day number
-                        Rando::ClockShuffle::SetPendingDayTelop(targetDay); // Set flag for OnSceneInit to trigger
+                        // Set to previous day at 5:59 AM to trigger day transition
+                        // Vanilla will detect the transition and show DayTelop
+                        gSaveContext.save.day = targetDay - 1;
+                        gSaveContext.save.time = CLOCK_TIME(6, 0) - 1;
                     } else {
-                        // Use normal time setting for night halves
+                        // Night halves: set time directly
                         Rando::ClockShuffle::SetTimeToHalfDayStart(earliestOwnedHalfDay);
                     }
                 }

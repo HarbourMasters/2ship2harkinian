@@ -39,8 +39,10 @@ void ApplyFrenchVanillaLogicToSaveContext(std::unordered_map<RandoCheckId, bool>
     std::unordered_map<RandoCheckId, RandoPoolEntry> currentCheckPool;
     std::set<RandoRegionId> currentReachableRegions = { RR_MAX };
     std::set<std::pair<RandoEvent, std::function<bool()>>*> currentEventsTriggered;
-    std::unordered_map<RandoRegionId, RegionTimeState> regionTimeStates; // Dummy (no time logic)
-    regionTimeStates[RR_MAX] = { .timeSlices = TIME_ALL_SLICES, .canStayOverTime = true };
+    // Initialize time states with all time slices accessible to bypass Clock Shuffle
+    std::unordered_map<RandoRegionId, RegionTimeState> regionTimeStates = {
+        { RR_MAX, { .timeSlices = TIME_ALL_SLICES, .canStayOverTime = true } }
+    };
 
     // Used for backtracking
     std::vector<RandoPoolPlacement> placements;

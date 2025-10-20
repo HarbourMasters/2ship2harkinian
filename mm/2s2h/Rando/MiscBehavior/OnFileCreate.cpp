@@ -254,38 +254,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     }
                 }
 
-                if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
-                    int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
-                    int initialClockHalf;
-
-                    if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
-                        // Grant one random half-day
-                        initialClockHalf = Ship_Random(0, 6); // 0..5 map to D1..N3
-                    } else {
-                        // Progressive modes: grant first half-day in sequence
-                        initialClockHalf = (clockMode == RO_CLOCK_SHUFFLE_ASCENDING) ? 0 : 5;
-                    }
-
-                    // Own the selected half
-                    Flags_SetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + initialClockHalf));
-
-                    // ClockShuffle.cpp will handle time setting on file load
-
-                    if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
-                        // Add remaining 5 individual clock items to pool
-                        for (int i = 0; i < 6; ++i) {
-                            if (i == initialClockHalf)
-                                continue;
-                            RandoItemId clockItem = Rando::ClockItems::GetClockItemFromHalfDayIndex(i);
-                            if (clockItem != RI_UNKNOWN)
-                                itemPool.push_back(clockItem);
-                        }
-                    } else {
-                        // Add 5 progressive clock items to pool (6 total - 1 granted = 5 remaining)
-                        for (int i = 0; i < 5; ++i)
-                            itemPool.push_back(RI_CLOCK_PROGRESSIVE);
-                    }
-                }
+                // Initialize clock shuffle settings and item pool
+                ClockShuffle::InitializeFileClocks(itemPool);
 
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] == RO_GENERIC_YES) {
                     itemPool.push_back(RI_ABILITY_SWIM);
