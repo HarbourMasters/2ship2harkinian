@@ -109,6 +109,17 @@ std::string Ship_FormatTimeDisplay(uint32_t value) {
     return fmt::format("{}:{:0>2}:{:0>2}.{}", hh, mm, ss, ds);
 }
 
+std::string Ship_RemoveSpecialCharacters(const std::string& str) {
+    std::string result;
+    for (char ch : str) {
+        // Only keep alphanumeric characters (letters and digits)
+        if (std::isalnum(static_cast<unsigned char>(ch))) {
+            result += ch;
+        }
+    }
+    return result;
+}
+
 constexpr f32 fourByThree = 4.0f / 3.0f;
 
 // Gets the additional ratio of the screen compared to the original 4:3 ratio, clamping to 1 if smaller
@@ -229,6 +240,39 @@ void LoadGuiTextures() {
     for (const auto entry : digitList) {
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(entry, entry, ImVec4(1, 1, 1, 1));
     }
+}
+
+std::string CreateStartingItemsToCvar(std::vector<RandoItemId> startingItemList) {
+    std::string startingItemsStr = "";
+    for (auto& item : startingItemList) {
+        if (startingItemsStr != "") {
+            startingItemsStr += ",";
+        }
+        startingItemsStr += std::to_string(item).c_str();
+    }
+
+    return startingItemsStr;
+}
+
+std::vector<RandoItemId> convertStartingItemsToRandoItemId(const std::string& input, const std::string& delimiter) {
+    std::vector<RandoItemId> result;
+    size_t start = 0;
+    size_t end = input.find(delimiter);
+
+    while (end != std::string::npos) {
+        std::string item = input.substr(start, end - start);
+        if (!item.empty()) {
+            result.push_back(static_cast<RandoItemId>(std::stoul(item)));
+        }
+        start = end + delimiter.length();
+        end = input.find(delimiter, start);
+    }
+
+    if (!input.substr(start).empty()) {
+        result.push_back(static_cast<RandoItemId>(std::stoul(input.substr(start))));
+    }
+
+    return result;
 }
 
 std::string convertEnumToReadableName(const std::string& input) {
