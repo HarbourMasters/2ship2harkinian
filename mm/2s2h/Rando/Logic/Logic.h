@@ -430,25 +430,6 @@ inline constexpr uint64_t GetHalfDayTimeMask(int halfDayIndex) {
 #define CLOCK_DAY3() OwnsHalfDayForMode(4)
 #define CLOCK_NIGHT3() OwnsHalfDayForMode(5)
 
-// Global clock filter for owned time periods
-// Returns true if Clock Shuffle is disabled OR if player is currently in an owned time period
-inline bool ClockFilter() {
-    if (!SettingClocks())
-        return true;
-
-    // Return true if currently in an owned time period
-    // This checks if gCurrentRegionTime has any overlap with owned half-days
-    for (int i = 0; i < 6; ++i) {
-        if (OwnsClockHalfDay(i)) {
-            uint64_t halfDayMask = GetHalfDayTimeMask(i);
-            if (gCurrentRegionTime & halfDayMask) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 // ============================================================================
 // CLOCK SHUFFLE VALIDATION FUNCTIONS
 // ============================================================================
@@ -493,6 +474,15 @@ inline bool HasAnyOwnedTime(uint64_t timeSlices) {
 #define IS_NIGHT2() (RawBetween(TIME_NIGHT2_PM_06_00, TIME_DAY3_AM_06_00) && CLOCK_NIGHT2())
 #define IS_DAY3() (RawBetween(TIME_DAY3_AM_06_00, TIME_NIGHT3_PM_06_00) && CLOCK_DAY3())
 #define IS_NIGHT3() (RawAfter(TIME_NIGHT3_PM_06_00) && CLOCK_NIGHT3())
+
+// Global clock filter for owned time periods
+// Returns true if Clock Shuffle is disabled OR if player has access to any time period
+inline bool ClockFilter() {
+    if (!SettingClocks())
+        return true;
+
+    return IS_DAY1() || IS_NIGHT1() || IS_DAY2() || IS_NIGHT2() || IS_DAY3() || IS_NIGHT3();
+}
 
 #define IS_DAY() (IS_DAY1() || IS_DAY2() || IS_DAY3())
 #define IS_NIGHT() (IS_NIGHT1() || IS_NIGHT2() || IS_NIGHT3())
