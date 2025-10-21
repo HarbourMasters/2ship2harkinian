@@ -31,11 +31,13 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
 
 std::vector<int32_t> incompatibleWithFrenchVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
+    RO_SHUFFLE_ENEMY_SOULS,
     RO_PLENTIFUL_ITEMS,
 };
 
 std::vector<int32_t> incompatibleWithVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
+    RO_SHUFFLE_ENEMY_SOULS,
     RO_PLENTIFUL_ITEMS,
 };
 
@@ -323,8 +325,12 @@ static void DrawItemsTab() {
                                        "that must be found in order for their corresponding boss to spawn.",
                             .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_BOSS_SOULS),
                             .disabledTooltip = "Incompatible with current Logic Setting" } }));
-    CVarCheckbox("Enemy Souls", Rando::StaticData::Options[RO_SHUFFLE_ENEMY_SOULS].cvar,
-                 CheckboxOptions({ { .disabled = false, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox(
+        "Enemy Souls", Rando::StaticData::Options[RO_SHUFFLE_ENEMY_SOULS].cvar,
+        CheckboxOptions({ { .tooltip = "Adds the \"souls\" of regular enemies to the item pool. Enemy Souls are items "
+                                       "that must be found in order for their corresponding enemy to spawn.",
+                            .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_ENEMY_SOULS),
+                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn3", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));

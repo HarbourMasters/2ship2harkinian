@@ -31,7 +31,6 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Dinolfos */      #include "assets/objects/object_dinofos/object_dinofos.h"
 /* Dodongo */       #include "assets/objects/object_dodongo/object_dodongo.h"
 /* Eeno */          #include "assets/objects/object_snowman/object_snowman.h"
-/* Garo Master */   #include "assets/objects/object_jso/object_jso.h"
 /* Grasshopper */   #include "assets/objects/object_grasshopper/object_grasshopper.h"
 /* Guay */          #include "assets/objects/object_crow/object_crow.h"
 /* Hiploop */       #include "assets/objects/object_pp/object_pp.h"
@@ -470,35 +469,6 @@ extern void DrawEeno() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-}
-
-extern void DrawGaroMaster() {
-    static bool initialized = false;
-    static SkelAnime skelAnime;
-    static Vec3s jointTable[GARO_MASTER_LIMB_MAX];
-    static Vec3s morphTable[GARO_MASTER_LIMB_MAX];
-    static u32 lastUpdate = 0;
-
-    OPEN_DISPS(gPlayState->state.gfxCtx);
-    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
-    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
-    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
-    Matrix_Translate(0, -50.0f, 0, MTXMODE_APPLY);
-
-    if (!initialized) {
-        initialized = true;
-        SkelAnime_InitFlex(gPlayState, &skelAnime, (FlexSkeletonHeader*)&gGaroMasterSkel,
-                           (AnimationHeader*)&gGaroLookAroundAnim, jointTable, morphTable, GARO_MASTER_LIMB_MAX);
-    }
-    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
-        lastUpdate = gPlayState->state.frames;
-        SkelAnime_Update(&skelAnime);
-    }
-    Scene_SetRenderModeXlu(gPlayState, 0, 1);
-    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
-
-    CLOSE_DISPS(gPlayState->state.gfxCtx);
-    DrawEnLight({ 155, 155, 155 }, { 4.0f, 4.0f, 4.0f });
 }
 
 extern void DrawGrasshopper() {
