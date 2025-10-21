@@ -399,6 +399,13 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     GiveItem(ConvertItem(startingItem));
                 }
 
+                // Give INF for Enemy Soul if the option is OFF
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] == RO_GENERIC_NO) {
+                    for (int i = RANDO_INF_OBTAINED_SOUL_OF_ARMOS; i < RANDO_INF_OBTAINED_SOUL_OF_WOLFOS; i++) {
+                        Flags_SetRandoInf(i);
+                    }
+                }
+
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_RUPEES]) {
                     gSaveContext.save.saveInfo.playerData.rupees = CUR_CAPACITY(UPG_WALLET);
                 }
