@@ -299,15 +299,14 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
-void DrawTrapModel() { // Placeholder, need Trap Model
+void DrawTrapModel() {
     OPEN_DISPS(gPlayState->state.gfxCtx);
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
-
-    // Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
     MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
-    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gIceArrowModelDL);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gTrapDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
