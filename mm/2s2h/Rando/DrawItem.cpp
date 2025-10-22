@@ -463,6 +463,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SOUL_DINOLFOS:
         case RI_SOUL_DODONGO:
         case RI_SOUL_EENO:
+        case RI_SOUL_FLYING_POT:
         case RI_SOUL_GRASSHOPPER:
         case RI_SOUL_GUAY:
         case RI_SOUL_HIPLOOP:

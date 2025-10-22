@@ -31,6 +31,7 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Dinolfos */      #include "assets/objects/object_dinofos/object_dinofos.h"
 /* Dodongo */       #include "assets/objects/object_dodongo/object_dodongo.h"
 /* Eeno */          #include "assets/objects/object_snowman/object_snowman.h"
+/* Flying Pot */    #include "assets/objects/gameplay_dangeon_keep/gameplay_dangeon_keep.h"
 /* Grasshopper */   #include "assets/objects/object_grasshopper/object_grasshopper.h"
 /* Guay */          #include "assets/objects/object_crow/object_crow.h"
 /* Hiploop */       #include "assets/objects/object_pp/object_pp.h"
@@ -470,6 +471,17 @@ extern void DrawEeno() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
+}
+
+extern void DrawFlyingPot() {
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.3f, 0.3f, 0.3f, MTXMODE_APPLY);
+    Matrix_Translate(0, -100.0f, 0, MTXMODE_APPLY);
+
+    Gfx_DrawDListOpa(gPlayState, (Gfx*)gameplay_dangeon_keep_DL_017EA0);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 0.4f, 0.4f, 0.4f });
 }
 
 extern void DrawGrasshopper() {

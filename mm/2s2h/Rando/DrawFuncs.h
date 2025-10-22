@@ -21,6 +21,7 @@ void DrawDekuBaba();
 void DrawDinolfos();
 void DrawDodongo();
 void DrawEeno();
+void DrawFlyingPot();
 void DrawGrasshopper();
 void DrawGuay();
 void DrawHiploop();
