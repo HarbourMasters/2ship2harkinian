@@ -38,6 +38,7 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Keese */         #include "assets/objects/object_firefly/object_firefly.h"
 /* Leever */        #include "assets/objects/object_rb/object_rb.h"
 /* Mad Scrub */     #include "assets/objects/object_dekunuts/object_dekunuts.h"
+/* Nejiron */       #include "assets//objects/object_gmo/object_gmo.h"
 /* Octorok */       #include "assets/objects/object_okuta/object_okuta.h"
 /* Peehat */        #include "assets/objects/object_ph/object_ph.h"
 /* Redead */        #include "assets/objects/object_rd/object_rd.h"
@@ -679,6 +680,36 @@ extern void DrawMadScrub() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
+}
+
+extern void DrawNejiron() {
+    static bool initialized = false;
+    static SkelAnime skelAnime;
+    static Vec3s jointTable[NEJIRON_LIMB_MAX];
+    static Vec3s morphTable[NEJIRON_LIMB_MAX];
+    static u32 lastUpdate = 0;
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.015f, 0.015f, 0.015f, MTXMODE_APPLY);
+    Matrix_Translate(0, 0, 0, MTXMODE_APPLY);
+
+    if (!initialized) {
+        initialized = true;
+        SkelAnime_Init(gPlayState, &skelAnime, (SkeletonHeader*)&gNejironSkel, (AnimationHeader*)&gNejironIdleAnim,
+                       jointTable, morphTable, NEJIRON_LIMB_MAX);
+    }
+    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
+        lastUpdate = gPlayState->state.frames;
+        SkelAnime_Update(&skelAnime);
+    }
+
+    gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)gNejironEyeOpenTex);
+    SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 13.0f, 13.0f, 13.0f });
 }
 
 extern void DrawOctorok() {

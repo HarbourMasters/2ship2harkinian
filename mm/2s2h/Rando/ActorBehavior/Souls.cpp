@@ -31,6 +31,7 @@ std::unordered_map<RandoItemId, std::tuple<std::function<void()>, std::vector<Ac
     { RI_SOUL_KEESE,        { DrawKeese,        { ACTOR_EN_FIREFLY }, RANDO_INF_OBTAINED_SOUL_OF_KEESE } },
     { RI_SOUL_LEEVER,       { DrawLeever,       { ACTOR_EN_NEO_REEBA }, RANDO_INF_OBTAINED_SOUL_OF_LEEVERS } },
     { RI_SOUL_MAD_SCRUB,    { DrawMadScrub,     { ACTOR_EN_DEKUNUTS }, RANDO_INF_OBTAINED_SOUL_OF_MAD_SCRUBS } },
+    { RI_SOUL_NEJIRON,      { DrawNejiron,      { ACTOR_EN_BAGUO }, RANDO_INF_OBTAINED_SOUL_OF_NEJIRONS } },
     { RI_SOUL_OCTOROK,      { DrawOctorok,      { ACTOR_EN_OKUTA }, RANDO_INF_OBTAINED_SOUL_OF_OCTOROKS } },
     { RI_SOUL_PEAHAT,       { DrawPeahat,       { ACTOR_EN_PEEHAT }, RANDO_INF_OBTAINED_SOUL_OF_PEAHATS } },
     { RI_SOUL_REDEAD,       { DrawRedead,       { ACTOR_EN_RD, ACTOR_EN_RAILGIBUD }, RANDO_INF_OBTAINED_SOUL_OF_REDEADS } },
