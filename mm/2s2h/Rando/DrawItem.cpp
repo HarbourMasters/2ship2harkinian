@@ -335,8 +335,26 @@ void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)abilityItemModel[randoItemId - RI_ABILITY_SWIM]);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void DrawOcarinaButtonItem(RandoItemId randoItemId, Actor* actor) {
+    Gfx* ocarinaButtonModel[5] = {
+        (Gfx*)gOcarinaAButtonDL,
+        (Gfx*)gOcarinaCDownButtonDL,
+        (Gfx*)gOcarinaCLeftButtonDL,
+        (Gfx*)gOcarinaCRightButtonDL,
+        (Gfx*)gOcarinaCUpButtonDL,
+    };
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+
     MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
-    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)abilityItemModel[randoItemId - RI_ABILITY_SWIM]);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)ocarinaButtonModel[randoItemId - RI_OCARINA_A_BUTTON]);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
@@ -472,6 +490,13 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_TRIFORCE_PIECE_PREVIOUS:
         case RI_TRIFORCE_PIECE:
             DrawTriforcePiece(randoItemId);
+            break;
+        case RI_OCARINA_A_BUTTON:
+        case RI_OCARINA_C_DOWN_BUTTON:
+        case RI_OCARINA_C_LEFT_BUTTON:
+        case RI_OCARINA_C_RIGHT_BUTTON:
+        case RI_OCARINA_C_UP_BUTTON:
+            DrawOcarinaButtonItem(randoItemId, actor);
             break;
         case RI_NONE:
         case RI_UNKNOWN:

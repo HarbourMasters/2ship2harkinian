@@ -288,6 +288,13 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_ABILITY_SWIM:
             Flags_SetRandoInf(RANDO_INF_OBTAINED_SWIM);
             break;
+        case RI_OCARINA_A_BUTTON:
+        case RI_OCARINA_C_DOWN_BUTTON:
+        case RI_OCARINA_C_LEFT_BUTTON:
+        case RI_OCARINA_C_RIGHT_BUTTON:
+        case RI_OCARINA_C_UP_BUTTON:
+            Flags_SetRandoInf(RANDO_INF_OBTAINED_OCARINA_A_BUTTON + (randoItemId - RI_OCARINA_A_BUTTON));
+            break;
         case RI_JUNK:
         case RI_NONE:
             break;
