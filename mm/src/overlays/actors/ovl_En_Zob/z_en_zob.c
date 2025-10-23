@@ -5,6 +5,7 @@
  */
 
 #include "z_en_zob.h"
+#include "GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_ATTENTION_ENABLED | ACTOR_FLAG_FRIENDLY)
 
@@ -581,8 +582,10 @@ void func_80BA0728(EnZob* this, PlayState* play) {
 
     if (Actor_OcarinaInteractionAccepted(&this->actor, &play->state)) {
         if (GET_PLAYER_FORM == PLAYER_FORM_ZORA) {
-            Message_StartTextbox(play, 0x1208, NULL);
-            SET_WEEKEVENTREG(WEEKEVENTREG_30_08);
+            if (GameInteractor_Should(VB_JAPAS_START_JAM_SESSION, true, this)) {
+                Message_StartTextbox(play, 0x1208, NULL);
+                SET_WEEKEVENTREG(WEEKEVENTREG_30_08);
+            }
         } else {
             Message_StartTextbox(play, 0x1216, NULL);
         }

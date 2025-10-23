@@ -160,13 +160,13 @@ inline bool canPlaySong(u8 songId) {
         case OCARINA_SONG_INVERTED_TIME:
         case OCARINA_SONG_DOUBLE_TIME:
         case OCARINA_SONG_WIND_FISH_GORON:
-        case OCARINA_SONG_EVAN_PART1: // TODO
+        case OCARINA_SONG_EVAN_PART1:
             return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON) &&
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_A_BUTTON) &&
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON));
         case OCARINA_SONG_HEALING:
         case OCARINA_SONG_SARIAS:
-        case OCARINA_SONG_EVAN_PART2: // TODO
+        case OCARINA_SONG_EVAN_PART2:
             return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_LEFT_BUTTON) &&
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON) &&
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON));

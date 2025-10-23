@@ -127,6 +127,7 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitEnTotoBehavior();
     Rando::ActorBehavior::InitEnTrtBehavior();
     Rando::ActorBehavior::InitEnYbBehavior();
+    Rando::ActorBehavior::InitEnZobBehavior();
     Rando::ActorBehavior::InitEnZogBehavior();
     Rando::ActorBehavior::InitEnZotBehavior();
     Rando::ActorBehavior::InitEnZowBehavior();

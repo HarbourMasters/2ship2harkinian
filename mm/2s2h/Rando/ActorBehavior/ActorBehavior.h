@@ -83,6 +83,7 @@ void InitEnTalkBehavior();
 void InitEnTotoBehavior();
 void InitEnTrtBehavior();
 void InitEnYbBehavior();
+void InitEnZobBehavior();
 void InitEnZogBehavior();
 void InitEnZotBehavior();
 void InitEnZowBehavior();

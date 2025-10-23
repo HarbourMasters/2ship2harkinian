@@ -256,6 +256,7 @@ typedef enum {
     VB_USE_ITEM_CONSIDER_ITEM_ACTION,
     VB_OCARINA_TRIGGER_SONG,
     VB_TOTO_START_SOUND_CHECK,
+    VB_JAPAS_START_JAM_SESSION,
 } GIVanillaBehavior;
 
 typedef enum {
