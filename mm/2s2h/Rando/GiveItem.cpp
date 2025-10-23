@@ -288,6 +288,7 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_IRON_KNUCKLE:
         case RI_SOUL_KEESE:
         case RI_SOUL_LEEVER:
+        case RI_SOUL_LIKE_LIKE:
         case RI_SOUL_MAD_SCRUB:
         case RI_SOUL_NEJIRON:
         case RI_SOUL_OCTOROK:
