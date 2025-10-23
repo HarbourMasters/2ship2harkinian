@@ -350,8 +350,8 @@ void DrawOcarinaButtonItem(RandoItemId randoItemId, Actor* actor) {
     OPEN_DISPS(gPlayState->state.gfxCtx);
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
 
-    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
-    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)ocarinaButtonModel[randoItemId - RI_OCARINA_A_BUTTON]);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)ocarinaButtonModel[randoItemId - RI_OCARINA_A_BUTTON]);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }

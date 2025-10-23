@@ -647,7 +647,6 @@ s32 func_80BA4B24(EnToto* this, PlayState* play) {
 }
 
 s32 func_80BA4C0C(EnToto* this, PlayState* play) {
-    // HERE
     return D_80BA512C[this->text->unk0](this, play);
 }
 
