@@ -20,13 +20,10 @@ namespace Logic {
 
 void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions);
 RandoRegionId GetRegionIdFromEntrance(s32 entrance);
-void ApplyFrenchVanillaLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
-                                          std::vector<RandoItemId>& itemPool);
-void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
-                                       std::vector<RandoItemId>& itemPool);
-void ApplyNearlyNoLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
-                                     std::vector<RandoItemId>& itemPool);
-void ApplyNoLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool, std::vector<RandoItemId>& itemPool);
+void ApplyFrenchVanillaLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
+void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
+void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
+void ApplyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
 
 struct RandoRegionExit {
     s32 returnEntrance;
