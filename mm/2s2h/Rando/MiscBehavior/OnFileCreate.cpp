@@ -254,7 +254,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         itemPool.push_back((RandoItemId)i);
                     }
                 } else {
-                    for (int i = RANDO_INF_OBTAINED_OCARINA_A_BUTTON; i <= RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON; i++) {
+                    for (int i = RANDO_INF_OBTAINED_OCARINA_A_BUTTON; i <= RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON;
+                         i++) {
                         Flags_SetRandoInf(i);
                     }
                 }
