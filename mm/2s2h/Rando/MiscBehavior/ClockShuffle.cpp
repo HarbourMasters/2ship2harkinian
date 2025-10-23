@@ -114,6 +114,16 @@ int FindNextOwnedHalfDayAfter(int startHalfDay, u8 ownedMask) {
     return TERMINAL_STATE; // No owned half-days found after start point
 }
 
+// Check if a rando item is a clock item
+bool IsClockItem(RandoItemId itemId) {
+    return (itemId >= RI_CLOCK_DAY_1 && itemId <= RI_CLOCK_NIGHT_3) || itemId == RI_CLOCK_PROGRESSIVE;
+}
+
+// Check if a clock item is a day clock (vs night clock)
+bool IsDayClock(RandoItemId itemId) {
+    return itemId == RI_CLOCK_DAY_1 || itemId == RI_CLOCK_DAY_2 || itemId == RI_CLOCK_DAY_3;
+}
+
 } // namespace ClockItems
 
 namespace ClockShuffle {
@@ -238,7 +248,7 @@ int GetCurrentHalfDayIndex() {
     const bool isNight = IsCurrentlyNightTime(currentTime);
 
     // Figure out which half-day we're in:
-    // - Each day has two halves: day (index 0) and night (index 1)
+    // - Each day has two halves: day (even indices) and night (odd indices)
     // - Day 1's day is index 0, night is 1; Day 2's day is 2, night is 3, etc.
     // - So: (currentDay - 1) * 2 gives us the starting index for that day (0 for Day 1, 2 for Day 2, 4 for Day 3)
     // - If it's night, add 1; if it's day, add 0.
@@ -418,7 +428,7 @@ void CheckAndSkipUnownedTime(Actor* timeActor) {
     // Get EnTest4 actor for state access
     EnTest4* enTest4 = (EnTest4*)timeActor;
 
-    // Skip if eventInf bit 0x0f is set (critical events)
+    // Skip if eventInf bit 0x0f is set (dog race)
     if (gSaveContext.eventInf[0] & 0x0F) {
         return;
     }
@@ -525,14 +535,9 @@ void OnFileLoad() {
                      *should = true; // Always let vanilla continue with our modified time
                  });
 
-    // Initial time correction on file load, exclude owl saves
-    if (gPlayState == nullptr && !gSaveContext.save.isOwlSave) {
-        CorrectInitialTime();
-    }
-
-    // Proactive Day 0 handling (fixup spawn time approach)
+    // Correct initial time on scene init (handles both file load and Day 0 transitions)
     COND_HOOK(OnSceneInit, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], [](s16 sceneId, s8 spawnNum) {
-        if (gSaveContext.save.day == 0 && gSaveContext.save.time == DAY_0_0559_TIME) {
+        if (!gSaveContext.save.isOwlSave && (gSaveContext.save.day == 0 && gSaveContext.save.time == DAY_0_0559_TIME)) {
             CorrectInitialTime();
         }
     });
@@ -660,34 +665,70 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
     }
 
     int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
-    int initialClockHalf;
 
-    if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
-        // Grant one random half-day
-        initialClockHalf = Ship_Random(0, 6); // 0..5 map to D1..N3
-    } else {
-        // Progressive modes: grant first half-day in sequence
-        initialClockHalf = (clockMode == RO_CLOCK_SHUFFLE_ASCENDING) ? 0 : 5;
+    // Check if player has selected any starting clock items
+    std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(RANDO_STARTING_ITEMS, ",");
+    std::vector<int> startingClockHalves;
+
+    for (RandoItemId item : startingItems) {
+        if (ClockItems::IsClockItem(item)) {
+            int halfDayIndex = ClockItems::GetHalfDayIndexFromClockItem(item);
+            if (halfDayIndex != ClockItems::INVALID) {
+                startingClockHalves.push_back(halfDayIndex);
+            }
+        }
     }
 
-    // Own the selected half
-    Flags_SetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + initialClockHalf));
+    // If player selected starting clocks, use those instead of random/progressive logic
+    if (!startingClockHalves.empty()) {
+        // Grant all selected starting clocks
+        for (int halfDayIndex : startingClockHalves) {
+            Flags_SetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfDayIndex));
+        }
 
-    // ClockShuffle.cpp will handle time setting on file load
+        // Add remaining (non-starting) clock items to pool
+        // Only works in random mode - progressive mode items are added elsewhere
+        if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
+            for (int i = 0; i < 6; ++i) {
+                // Skip if this clock was a starting item
+                if (std::find(startingClockHalves.begin(), startingClockHalves.end(), i) != startingClockHalves.end()) {
+                    continue;
+                }
 
-    if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
-        // Add remaining 5 individual clock items to pool
-        for (int i = 0; i < 6; ++i) {
-            if (i == initialClockHalf)
-                continue;
-            RandoItemId clockItem = ClockItems::GetClockItemFromHalfDayIndex(i);
-            if (clockItem != RI_UNKNOWN)
-                itemPool.push_back(clockItem);
+                RandoItemId clockItem = ClockItems::GetClockItemFromHalfDayIndex(i);
+                if (clockItem != RI_UNKNOWN)
+                    itemPool.push_back(clockItem);
+            }
         }
     } else {
-        // Add 5 progressive clock items to pool (6 total - 1 granted = 5 remaining)
-        for (int i = 0; i < 5; ++i)
-            itemPool.push_back(RI_CLOCK_PROGRESSIVE);
+        // No starting clocks selected - use default logic
+        int initialClockHalf;
+
+        if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
+            // Grant one random half-day
+            initialClockHalf = Ship_Random(0, 6); // 0..5 map to D1..N3
+        } else {
+            // Progressive modes: grant first half-day in sequence
+            initialClockHalf = (clockMode == RO_CLOCK_SHUFFLE_ASCENDING) ? 0 : 5;
+        }
+
+        // Own the selected half
+        Flags_SetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + initialClockHalf));
+
+        if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
+            // Add remaining 5 individual clock items to pool
+            for (int i = 0; i < 6; ++i) {
+                if (i == initialClockHalf)
+                    continue;
+                RandoItemId clockItem = ClockItems::GetClockItemFromHalfDayIndex(i);
+                if (clockItem != RI_UNKNOWN)
+                    itemPool.push_back(clockItem);
+            }
+        } else {
+            // Add 5 progressive clock items to pool (6 total - 1 granted = 5 remaining)
+            for (int i = 0; i < 5; ++i)
+                itemPool.push_back(RI_CLOCK_PROGRESSIVE);
+        }
     }
 }
 

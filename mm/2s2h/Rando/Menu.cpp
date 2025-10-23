@@ -2,6 +2,7 @@
 #include "Rando/Spoiler/Spoiler.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "Rando/CheckTracker/CheckTracker.h"
+#include "Rando/MiscBehavior/ClockShuffle.h"
 #include "build.h"
 #include "2s2h/BenGui/BenMenu.h"
 
@@ -55,6 +56,36 @@ using namespace UIWidgets;
 
 extern "C" {
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
+}
+
+// Clock UI rendering constants
+static const ImVec4 CLOCK_DAY_TINT = ImVec4(1.0f, 0.85f, 0.3f, 1.0f);
+static const ImVec4 CLOCK_NIGHT_TINT = ImVec4(0.3f, 0.5f, 1.0f, 1.0f);
+static const float DISABLED_ITEM_ALPHA = 0.3f;
+static const char* CLOCK_PROGRESSIVE_TOOLTIP =
+    "\n\nClock items are not compatible with Progressive Clock modes.\nSwitch to Random mode to use starting clocks.";
+
+// Apply clock-specific rendering (tint colors and tooltips) based on progressive mode
+static void ApplyClockItemRendering(RandoItemId item, ImVec4& tintColor, std::string& tooltipText,
+                                    bool isProgressiveMode) {
+    using namespace Rando::ClockItems;
+
+    if (!IsClockItem(item)) {
+        return; // Not a clock item, no special handling needed
+    }
+
+    // Apply day/night color tint
+    if (IsDayClock(item)) {
+        tintColor = CLOCK_DAY_TINT;
+    } else {
+        tintColor = CLOCK_NIGHT_TINT;
+    }
+
+    // Grey out and add tooltip if progressive mode is active
+    if (isProgressiveMode) {
+        tintColor.w *= DISABLED_ITEM_ALPHA;
+        tooltipText += CLOCK_PROGRESSIVE_TOOLTIP;
+    }
 }
 
 void ClearIncompatibleSetting() {
@@ -448,10 +479,15 @@ static void DrawStartingItemsTab() {
         const char* texturePath = Rando::StaticData::GetIconTexturePath(startingItem);
         ImTextureID textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
 
-        if (ImGui::ImageButton(
-                std::to_string(listIndex).c_str(), textureId, imageSize, ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                Ship_GetItemColorTint(startingItem == RI_PROGRESSIVE_LULLABY ? ITEM_SONG_LULLABY
-                                                                             : randoStaticItem.itemId))) {
+        ImVec4 tintColor =
+            Ship_GetItemColorTint(startingItem == RI_PROGRESSIVE_LULLABY ? ITEM_SONG_LULLABY : randoStaticItem.itemId);
+        std::string tooltipText = randoStaticItem.name;
+        bool isProgressiveMode = CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar,
+                                                RO_CLOCK_SHUFFLE_RANDOM) != RO_CLOCK_SHUFFLE_RANDOM;
+        ApplyClockItemRendering(startingItem, tintColor, tooltipText, isProgressiveMode);
+
+        if (ImGui::ImageButton(std::to_string(listIndex).c_str(), textureId, imageSize, ImVec2(0, 0), ImVec2(1, 1),
+                               ImVec4(0, 0, 0, 0), tintColor)) {
             for (size_t i = 0; i < setStartingItemsList.size(); i++) {
                 if (setStartingItemsList[i] == startingItem) {
                     setStartingItemsList.erase(setStartingItemsList.begin() + i);
@@ -461,7 +497,7 @@ static void DrawStartingItemsTab() {
             CVarSetString("gRando.StartingItems", CreateStartingItemsToCvar(setStartingItemsList).c_str());
             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         }
-        UIWidgets::Tooltip(randoStaticItem.name);
+        UIWidgets::Tooltip(tooltipText.c_str());
         listIndex++;
 
         if ((listIndex + 1) % 15 != 0) {
@@ -481,6 +517,8 @@ static void DrawStartingItemsTab() {
         tableColumns = 5;
         if (category.first == STARTING_ITEMS_MASK) {
             tableColumns++;
+        } else if (category.first == STARTING_ITEMS_MISC) {
+            tableColumns = 6; // Need 6 columns for the 6 clock items on their own row
         }
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
         if (ImGui::BeginChild(std::to_string(category.first).c_str(), ImVec2(0, 0),
@@ -507,15 +545,22 @@ static void DrawStartingItemsTab() {
                     ImTextureID textureId =
                         Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
 
-                    if (item == RI_SONG_TIME) {
+                    // Force new row for Song of Time, first frog, and first clock item
+                    if (item == RI_SONG_TIME || item == RI_FROG_BLUE || item == RI_CLOCK_DAY_1) {
                         ImGui::TableNextRow();
                     }
                     ImGui::TableNextColumn();
+
+                    ImVec4 tintColor = Ship_GetItemColorTint(item == RI_PROGRESSIVE_LULLABY ? ITEM_SONG_LULLABY
+                                                                                            : randoStaticItem.itemId);
+                    std::string tooltipText = randoStaticItem.name;
+                    bool isProgressiveMode =
+                        CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar,
+                                       RO_CLOCK_SHUFFLE_RANDOM) != RO_CLOCK_SHUFFLE_RANDOM;
+                    ApplyClockItemRendering(item, tintColor, tooltipText, isProgressiveMode);
+
                     if (ImGui::ImageButton(std::to_string(item).c_str(), textureId, imageSize, ImVec2(0, 0),
-                                           ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                                           Ship_GetItemColorTint(item == RI_PROGRESSIVE_LULLABY
-                                                                     ? ITEM_SONG_LULLABY
-                                                                     : randoStaticItem.itemId))) {
+                                           ImVec2(1, 1), ImVec4(0, 0, 0, 0), tintColor)) {
                         std::string currentStartingItems =
                             CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT);
                         if (currentStartingItems.length() != 0) {
@@ -525,7 +570,7 @@ static void DrawStartingItemsTab() {
                         CVarSetString("gRando.StartingItems", currentStartingItems.c_str());
                         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
                     }
-                    UIWidgets::Tooltip(randoStaticItem.name);
+                    UIWidgets::Tooltip(tooltipText.c_str());
                 }
                 ImGui::EndTable();
             }

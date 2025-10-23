@@ -1,6 +1,5 @@
 #include "DrawFuncs.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
-#include "Rando/Types.h"
 #include "BenPort.h"
 
 extern "C" {
@@ -25,12 +24,11 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 // Other Actor Includes
 /* Minifrog */  #include "objects/object_fr/object_fr.h"
 /* Clock */     #include "overlays/actors/ovl_Obj_Tokeidai/z_obj_tokeidai.h"
-    // clang-format on
-
-    // Clock
-    void
-    ObjTokeidai_RotateOnMinuteChange(ObjTokeidai* thisx, s32 playSfx);
+    
+// Clock
+void ObjTokeidai_RotateOnMinuteChange(ObjTokeidai* thisx, s32 playSfx);
 void ObjTokeidai_RotateOnHourChange(ObjTokeidai* thisx, PlayState* play);
+// clang-format on
 }
 
 // Soul Effects

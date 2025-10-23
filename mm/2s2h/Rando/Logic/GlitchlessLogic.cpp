@@ -113,7 +113,7 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
                     RandoItemId randoItemId;
 
                     if (RANDO_SAVE_CHECKS[randoCheckId].skipped) {
-                        // Junk item already assigned in OnFileCreate.cpp - just use the existing value
+                        // Skipped check: Use junk item pre-assigned during check exclusion (OnFileCreate.cpp:218-219)
                         randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId;
                     } else if (isShuffled) {
                         randoItemId = itemPool.back();

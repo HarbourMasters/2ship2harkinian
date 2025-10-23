@@ -1,13 +1,7 @@
-#include "Rando/Rando.h"
-#include "Rando/MiscBehavior/ClockShuffle.h"
 #include "Spoiler.h"
+#include "Rando/Rando.h"
 #include "public/bridge/consolevariablebridge.h"
 #include "ShipUtils.h"
-
-extern "C" {
-#include "variables.h"
-#include "functions.h"
-}
 
 namespace Rando {
 
@@ -57,41 +51,6 @@ void ApplyToSaveContext(nlohmann::json spoiler) {
         gSaveContext.save.saveInfo.playerData.rupees = CUR_CAPACITY(UPG_WALLET);
     }
 
-    // Process clock checks from clockShuffle section if present
-    if (spoiler.contains("clockShuffle") && spoiler["clockShuffle"].contains("checks")) {
-        for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
-            if (randoStaticCheck.randoCheckId == RC_UNKNOWN) {
-                continue;
-            }
-
-            if (!spoiler["clockShuffle"]["checks"].contains(randoStaticCheck.name)) {
-                continue;
-            }
-
-            // Check if it's an object (shop with price) or a string
-            if (spoiler["clockShuffle"]["checks"][randoStaticCheck.name].is_object()) {
-                std::string itemName =
-                    spoiler["clockShuffle"]["checks"][randoStaticCheck.name]["randoItemId"].get<std::string>();
-                RandoItemId randoItemId = Rando::StaticData::GetItemIdFromName(itemName.c_str());
-
-                RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoItemId;
-                RANDO_SAVE_CHECKS[randoCheckId].shuffled = true;
-
-                // If it has a price, set it
-                if (spoiler["clockShuffle"]["checks"][randoStaticCheck.name].contains("price")) {
-                    RANDO_SAVE_CHECKS[randoCheckId].price =
-                        spoiler["clockShuffle"]["checks"][randoStaticCheck.name]["price"].get<uint16_t>();
-                }
-            } else {
-                std::string itemName = spoiler["clockShuffle"]["checks"][randoStaticCheck.name].get<std::string>();
-                RandoItemId randoItemId = Rando::StaticData::GetItemIdFromName(itemName.c_str());
-
-                RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoItemId;
-                RANDO_SAVE_CHECKS[randoCheckId].shuffled = true;
-            }
-        }
-    }
-
     for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
         if (randoStaticCheck.randoCheckId == RC_UNKNOWN) {
             continue;
@@ -122,29 +81,6 @@ void ApplyToSaveContext(nlohmann::json spoiler) {
 
             RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoItemId;
             RANDO_SAVE_CHECKS[randoCheckId].shuffled = true;
-        }
-    }
-
-    // Restore clock shuffle information
-    if (spoiler.contains("clockShuffle") && spoiler["clockShuffle"]["enabled"].get<bool>()) {
-        if (spoiler["clockShuffle"].contains("grantedHalf")) {
-            int grantedHalfIndex = -1;
-
-            // Handle both old format (int) and new format (string)
-            if (spoiler["clockShuffle"]["grantedHalf"].is_string()) {
-                // New format: clock item name as string
-                std::string clockItemName = spoiler["clockShuffle"]["grantedHalf"].get<std::string>();
-                RandoItemId clockItemId = Rando::StaticData::GetItemIdFromName(clockItemName.c_str());
-                grantedHalfIndex = Rando::ClockItems::GetHalfDayIndexFromClockItem(clockItemId);
-            } else if (spoiler["clockShuffle"]["grantedHalf"].is_number()) {
-                // Old format: half-day index as int (backward compatibility)
-                grantedHalfIndex = spoiler["clockShuffle"]["grantedHalf"].get<int>();
-            }
-
-            if (grantedHalfIndex >= 0 && grantedHalfIndex < 6) {
-                RandoInf clockFlag = static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + grantedHalfIndex);
-                Flags_SetRandoInf(clockFlag);
-            }
         }
     }
 }

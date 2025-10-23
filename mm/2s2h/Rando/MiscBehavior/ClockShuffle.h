@@ -17,6 +17,8 @@ RandoItemId GetClockItemFromHalfDayIndex(int halfDayIndex);
 int GetHalfDayIndexFromClockItem(RandoItemId clockItemId);
 int FindEarliestOwnedHalfDay(bool searchFromEnd = false);
 u8 GetAllOwnedHalfDaysMask();
+bool IsClockItem(RandoItemId itemId);
+bool IsDayClock(RandoItemId itemId);
 
 } // namespace ClockItems
 

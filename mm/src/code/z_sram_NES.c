@@ -702,10 +702,8 @@ void Sram_SaveEndOfCycle(PlayState* play) {
 
 void Sram_IncrementDay(void) {
     if (CURRENT_DAY <= 3) {
-        if (!GameInteractor_Should(VB_SUPPRESS_DAY_INCREMENT, false)) {
-            gSaveContext.save.day++;
-            gSaveContext.save.eventDayCount++;
-        }
+        gSaveContext.save.day++;
+        gSaveContext.save.eventDayCount++;
     }
 
     gSaveContext.save.saveInfo.bombersCaughtNum = 0;

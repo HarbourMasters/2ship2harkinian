@@ -913,7 +913,7 @@ void DrawItemsAndMasksTab() {
 
                     std::string buttonText =
                         isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
-                    static std::string tooltipText = "";
+                    std::string tooltipText = "";
                     if (!isOwned) {
                         tooltipText = "You don't own " + std::string(clockNames[i]);
                     }
@@ -935,7 +935,7 @@ void DrawItemsAndMasksTab() {
 
                     std::string buttonText =
                         isOwned ? ("Remove " + std::string(clockNames[i])) : ("No Item##" + std::to_string(i));
-                    static std::string tooltipText = "";
+                    std::string tooltipText = "";
                     if (!isOwned) {
                         tooltipText = "You don't own " + std::string(clockNames[i]);
                     }
