@@ -248,6 +248,17 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     Flags_SetRandoInf(RANDO_INF_OBTAINED_SWIM);
                 }
 
+                // Shuffle Ocarina Buttons or grant the Rando INF if not enabled
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS] == RO_GENERIC_YES) {
+                    for (int i = RI_OCARINA_A_BUTTON; i < RI_OCARINA_C_UP_BUTTON; i++) {
+                        itemPool.push_back((RandoItemId)i);
+                    }
+                } else {
+                    for (int i = RANDO_INF_OBTAINED_OCARINA_A_BUTTON; i < RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON; i++) {
+                        Flags_SetRandoInf(i);
+                    }
+                }
+
                 // Remove starting items from the pool (but only one per entry in startingItems)
                 for (RandoItemId startingItem : startingItems) {
                     auto it = std::find(itemPool.begin(), itemPool.end(), startingItem);
@@ -398,13 +409,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 for (RandoItemId startingItem : startingItems) {
                     GiveItem(ConvertItem(startingItem));
                 }
-
-                // if (RANDO_SAVE_OPTIONS[] == RO_GENERIC_OFF) {
-                //     for (int i = RANDO_INF_OBTAINED_OCARINA_A_BUTTON; i < RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON;
-                //     i++) {
-                //         Flags_SetRandoInf(i);
-                //     }
-                // }
 
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_RUPEES]) {
                     gSaveContext.save.saveInfo.playerData.rupees = CUR_CAPACITY(UPG_WALLET);
