@@ -28,6 +28,7 @@ void DrawHiploop();
 void DrawIronKnuckle();
 void DrawKeese();
 void DrawLeever();
+void DrawLikeLike();
 void DrawMadScrub();
 void DrawNejiron();
 void DrawOctorok();

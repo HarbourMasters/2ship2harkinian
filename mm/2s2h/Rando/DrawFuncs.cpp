@@ -38,6 +38,7 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Iron Knuckle */  #include "assets/objects/object_ik/object_ik.h"
 /* Keese */         #include "assets/objects/object_firefly/object_firefly.h"
 /* Leever */        #include "assets/objects/object_rb/object_rb.h"
+/* Like Like */     #include "assets/objects/object_rr/object_rr.h"
 /* Mad Scrub */     #include "assets/objects/object_dekunuts/object_dekunuts.h"
 /* Nejiron */       #include "assets//objects/object_gmo/object_gmo.h"
 /* Octorok */       #include "assets/objects/object_okuta/object_okuta.h"
@@ -664,6 +665,90 @@ extern void DrawLeever() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 3.0f, 3.0f, 3.0f });
+}
+
+extern void DrawLikeLike() {
+    static bool initialized = false;
+    static u32 lastUpdate = 0;
+    static s16 textureScroll = 0;
+    static struct {
+        f32 unk_08;
+        f32 unk_10;
+        f32 unk_00;
+        Vec3s unk_1A;
+    } segments[5];
+
+    if (!initialized) {
+        initialized = true;
+        for (int i = 0; i < 5; i++) {
+            segments[i].unk_08 = 0.8f;
+            segments[i].unk_10 = 0.0f;
+            segments[i].unk_00 = 0.0f;
+            segments[i].unk_1A.x = 0;
+            segments[i].unk_1A.y = 0;
+            segments[i].unk_1A.z = 0;
+        }
+    }
+
+    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
+        lastUpdate = gPlayState->state.frames;
+        textureScroll++;
+
+        f32 phase = gPlayState->state.frames * (2500.0f * (2.0f * M_PI / 65536.0f));
+
+        for (int j = 0; j < 5; j++) {
+            f32 segmentPhase = phase + (j * 0x4000) * (2.0f * M_PI / 65536.0f);
+            segments[j].unk_10 = cosf(segmentPhase) * 0.15f;
+            segments[j].unk_00 = 0.0f;
+        }
+
+        for (int j = 1; j < 5; j++) {
+            segments[j].unk_1A.x = (s16)(cosf(phase + (j * 0x3000) * (2.0f * M_PI / 65536.0f)) * 2048.0f);
+            segments[j].unk_1A.z = (s16)(sinf(phase + (j * 0x1000) * (2.0f * M_PI / 65536.0f)) * 2048.0f);
+        }
+    }
+
+    Mtx* mtx = (Mtx*)GRAPH_ALLOC(gPlayState->state.gfxCtx, 4 * sizeof(Mtx));
+    s32 i;
+    f32 temp_f20;
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3000.0f, 0, MTXMODE_APPLY);
+    Matrix_Push();
+
+    gSPSegment(POLY_OPA_DISP++, 0x0C, (uintptr_t)mtx);
+    gSPSegment(POLY_OPA_DISP++, 0x08,
+               (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, 0, 0, 0, 0x20, 0x10, 1, (textureScroll * 0) & 0x3F,
+                                           (textureScroll * -6) & 0x7F, 0x20, 0x10));
+
+    Matrix_Push();
+    Matrix_Scale((1.0f + segments[0].unk_10) * segments[0].unk_08, 1.0f,
+                 (1.0f + segments[0].unk_10) * segments[0].unk_08, MTXMODE_APPLY);
+
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+
+    Matrix_Pop();
+
+    for (i = 1; i < 5; i++) {
+        temp_f20 = segments[i].unk_08 * (segments[i].unk_10 + 1.0f);
+
+        Matrix_Translate(0.0f, segments[i].unk_00 + 1000.0f, 0.0f, MTXMODE_APPLY);
+        Matrix_RotateZYX(segments[i].unk_1A.x, segments[i].unk_1A.y, segments[i].unk_1A.z, MTXMODE_APPLY);
+        Matrix_Push();
+        Matrix_Scale(temp_f20, 1.0f, temp_f20, MTXMODE_APPLY);
+        Matrix_ToMtx(mtx);
+        Matrix_Pop();
+        mtx++;
+    }
+
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gLikeLikeDL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    Matrix_Pop();
+    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
 }
 
 extern void DrawMadScrub() {
