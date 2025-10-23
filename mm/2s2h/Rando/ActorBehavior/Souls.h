@@ -5,4 +5,4 @@
 
 extern std::unordered_map<RandoItemId, std::tuple<std::function<void()>, std::vector<ActorId>, RandoInf>> soulMap;
 
-#endif // SOULS_
+#endif // SOULS_H

@@ -39,7 +39,7 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Keese */         #include "assets/objects/object_firefly/object_firefly.h"
 /* Leever */        #include "assets/objects/object_rb/object_rb.h"
 /* Mad Scrub */     #include "assets/objects/object_dekunuts/object_dekunuts.h"
-/* Nejiron */       #include "assets//objects/object_gmo/object_gmo.h"
+/* Nejiron */       #include "assets/objects/object_gmo/object_gmo.h"
 /* Octorok */       #include "assets/objects/object_okuta/object_okuta.h"
 /* Peehat */        #include "assets/objects/object_ph/object_ph.h"
 /* Redead */        #include "assets/objects/object_rd/object_rd.h"
