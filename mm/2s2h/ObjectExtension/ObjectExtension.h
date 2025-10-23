@@ -108,8 +108,10 @@ class ObjectExtension {
 // Static template globals
 template <typename T> ObjectExtension::Id ObjectExtension::Register<T>::Id = ObjectExtension::InvalidId;
 
-#else // __cplusplus
+extern "C" {
+#endif // __cplusplus
 
 void ObjectExtension_Free(const void* object);
-
-#endif // __cplusplus
+#ifdef __cplusplus
+}
+#endif
