@@ -92,6 +92,30 @@ ImVec4 Ship_GetItemColorTint(uint32_t itemId) {
     }
 }
 
+std::unordered_map<u8, u8> questToOcarinaSongMap = {
+    { QUEST_SONG_SONATA, OCARINA_SONG_SONATA },
+    { QUEST_SONG_LULLABY, OCARINA_SONG_GORON_LULLABY },
+    { QUEST_SONG_BOSSA_NOVA, OCARINA_SONG_NEW_WAVE },
+    { QUEST_SONG_ELEGY, OCARINA_SONG_ELEGY },
+    { QUEST_SONG_OATH, OCARINA_SONG_OATH },
+    { QUEST_SONG_SARIA, OCARINA_SONG_SARIAS },
+    { QUEST_SONG_TIME, OCARINA_SONG_TIME },
+    { QUEST_SONG_HEALING, OCARINA_SONG_HEALING },
+    { QUEST_SONG_EPONA, OCARINA_SONG_EPONAS },
+    { QUEST_SONG_SOARING, OCARINA_SONG_SOARING },
+    { QUEST_SONG_STORMS, OCARINA_SONG_STORMS },
+    { QUEST_SONG_SUN, OCARINA_SONG_SUNS },
+    { QUEST_SONG_LULLABY_INTRO, OCARINA_SONG_GORON_LULLABY_INTRO },
+};
+
+extern "C" u8 Ship_GetOcarinaSongByQuestId(u8 questSong) {
+    if (questToOcarinaSongMap.contains(questSong)) {
+        return questToOcarinaSongMap.find(questSong)->second;
+    }
+
+    return OCARINA_SONG_MAX;
+}
+
 extern "C" const char* Ship_GetSceneName(s16 sceneId) {
     if (sceneNames.contains(sceneId)) {
         return sceneNames[sceneId];

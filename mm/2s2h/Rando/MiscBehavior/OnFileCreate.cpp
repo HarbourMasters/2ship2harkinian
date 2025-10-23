@@ -399,6 +399,13 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     GiveItem(ConvertItem(startingItem));
                 }
 
+                // if (RANDO_SAVE_OPTIONS[] == RO_GENERIC_OFF) {
+                //     for (int i = RANDO_INF_OBTAINED_OCARINA_A_BUTTON; i < RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON;
+                //     i++) {
+                //         Flags_SetRandoInf(i);
+                //     }
+                // }
+
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_RUPEES]) {
                     gSaveContext.save.saveInfo.playerData.rupees = CUR_CAPACITY(UPG_WALLET);
                 }

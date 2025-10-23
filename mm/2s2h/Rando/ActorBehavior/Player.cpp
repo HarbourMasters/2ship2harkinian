@@ -1,4 +1,5 @@
 #include "ActorBehavior.h"
+#include "2s2h/Rando/Logic/Logic.h"
 #include "public/bridge/consolevariablebridge.h"
 
 extern "C" {
@@ -28,6 +29,14 @@ void Rando::ActorBehavior::InitPlayerBehavior() {
     COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM], [](Actor* actor) {
         if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SWIM)) {
             RespawnOnWaterTouch(GET_PLAYER(gPlayState));
+        }
+    });
+    COND_VB_SHOULD(VB_OCARINA_TRIGGER_SONG, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS], {
+        u8 songPlayed = va_arg(args, u8);
+
+        if (!Rando::Logic::canPlaySong(songPlayed)) {
+            gPlayState->msgCtx.textColorAlpha = 0;
+            *should = false;
         }
     });
 }

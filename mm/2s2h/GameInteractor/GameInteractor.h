@@ -254,6 +254,8 @@ typedef enum {
     VB_SET_CAMERA_AT_EYE,
     VB_SET_CAMERA_FOV,
     VB_USE_ITEM_CONSIDER_ITEM_ACTION,
+    VB_OCARINA_TRIGGER_SONG,
+    VB_TOTO_START_SOUND_CHECK,
 } GIVanillaBehavior;
 
 typedef enum {

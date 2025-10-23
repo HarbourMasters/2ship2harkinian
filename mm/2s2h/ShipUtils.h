@@ -32,6 +32,7 @@ f32 Ship_GetExtendedAspectRatioMultiplier();
 void Ship_ExtendedCullingActorAdjustProjectedZ(Actor* actor);
 void Ship_ExtendedCullingActorAdjustProjectedX(Actor* actor);
 void Ship_ExtendedCullingActorRestoreProjectedPos(PlayState* play, Actor* actor);
+u8 Ship_GetOcarinaSongByQuestId(u8 questsong);
 const char* Ship_GetSceneName(s16 sceneId);
 bool Ship_IsCStringEmpty(const char* str);
 void Ship_CreateQuadVertexGroup(Vtx* vtxList, s32 xStart, s32 yStart, s32 width, s32 height, u8 flippedH);

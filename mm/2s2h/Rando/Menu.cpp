@@ -31,11 +31,13 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
 
 std::vector<int32_t> incompatibleWithFrenchVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
+    RO_SHUFFLE_OCARINA_BUTTONS,
     RO_PLENTIFUL_ITEMS,
 };
 
 std::vector<int32_t> incompatibleWithVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
+    RO_SHUFFLE_OCARINA_BUTTONS,
     RO_PLENTIFUL_ITEMS,
 };
 
@@ -297,6 +299,12 @@ static void DrawItemsTab() {
     CVarCheckbox("Shuffle Swim", Rando::StaticData::Options[RO_SHUFFLE_SWIM].cvar,
                  CheckboxOptions({ { .tooltip = "Shuffles the ability to Swim, entering the Swim state or submerging\n"
                                                 "into deep water will respawn Link." } }));
+    CVarCheckbox("Shuffle Ocarina Buttons", Rando::StaticData::Options[RO_SHUFFLE_OCARINA_BUTTONS].cvar,
+                 CheckboxOptions({ { .tooltip = "Shuffles the Buttons used to play Ocarina Notes,\n"
+                                                "you will be unable to play a song until you find all\n"
+                                                "notes for the given melody.",
+                                     .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_OCARINA_BUTTONS),
+                                     .disabledTooltip = "Incompatible with current Logic Setting" } }));
     CVarCheckbox("Deku Stick Bag", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Deku Nut Bag", "gPlaceholderBool",

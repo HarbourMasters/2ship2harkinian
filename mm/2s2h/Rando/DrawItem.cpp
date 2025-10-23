@@ -343,11 +343,8 @@ void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
 
 void DrawOcarinaButtonItem(RandoItemId randoItemId, Actor* actor) {
     Gfx* ocarinaButtonModel[5] = {
-        (Gfx*)gOcarinaAButtonDL,
-        (Gfx*)gOcarinaCDownButtonDL,
-        (Gfx*)gOcarinaCLeftButtonDL,
-        (Gfx*)gOcarinaCRightButtonDL,
-        (Gfx*)gOcarinaCUpButtonDL,
+        (Gfx*)gOcarinaAButtonDL,      (Gfx*)gOcarinaCDownButtonDL, (Gfx*)gOcarinaCLeftButtonDL,
+        (Gfx*)gOcarinaCRightButtonDL, (Gfx*)gOcarinaCUpButtonDL,
     };
 
     OPEN_DISPS(gPlayState->state.gfxCtx);
