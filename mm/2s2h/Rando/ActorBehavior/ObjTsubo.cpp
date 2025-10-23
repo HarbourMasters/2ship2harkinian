@@ -4,7 +4,7 @@
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
-#include "2s2h/ActorExtension/ActorListIndex.h"
+#include "2s2h/ObjectExtension/ActorListIndex.h"
 #include "assets/2s2h_assets.h"
 
 extern "C" {
@@ -329,7 +329,7 @@ void IdentifyPot(Actor* actor, bool* should) {
         return;
     }
 
-    Rando::ActorBehavior::SetActorRandoCheckId(actor, randoCheckId);
+    Rando::ActorBehavior::SetObjectRandoCheckId(actor, randoCheckId);
 }
 
 void ObjTsubo_RandoDraw(Actor* actor, PlayState* play) {
@@ -338,7 +338,7 @@ void ObjTsubo_RandoDraw(Actor* actor, PlayState* play) {
         return;
     }
 
-    RandoCheckId randoCheckId = Rando::ActorBehavior::GetActorRandoCheckId(actor);
+    RandoCheckId randoCheckId = Rando::ActorBehavior::GetObjectRandoCheckId(actor);
     RandoItemId randoItemId = Rando::ConvertItem(RANDO_SAVE_CHECKS[randoCheckId].randoItemId, randoCheckId);
     RandoItemType randoItemType = Rando::StaticData::Items[randoItemId].randoItemType;
 
@@ -378,7 +378,7 @@ void Rando::ActorBehavior::InitObjTsuboBehavior() {
 
     COND_VB_SHOULD(VB_POT_DRAW_BE_OVERRIDDEN, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
-        RandoCheckId randoCheckId = Rando::ActorBehavior::GetActorRandoCheckId(actor);
+        RandoCheckId randoCheckId = Rando::ActorBehavior::GetObjectRandoCheckId(actor);
         if (randoCheckId != RC_UNKNOWN) {
             *should = false;
             actor->draw = ObjTsubo_RandoDraw;
@@ -387,7 +387,7 @@ void Rando::ActorBehavior::InitObjTsuboBehavior() {
 
     COND_VB_SHOULD(VB_POT_DROP_COLLECTIBLE, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
-        RandoCheckId randoCheckId = Rando::ActorBehavior::GetActorRandoCheckId(actor);
+        RandoCheckId randoCheckId = Rando::ActorBehavior::GetObjectRandoCheckId(actor);
         if (randoCheckId == RC_UNKNOWN) {
             return;
         }
@@ -410,7 +410,7 @@ void Rando::ActorBehavior::InitObjTsuboBehavior() {
         *should = false;
 
         // Clear the stored Check ID for pots that are on a timed respawn
-        Rando::ActorBehavior::SetActorRandoCheckId(actor, RC_UNKNOWN);
+        Rando::ActorBehavior::SetObjectRandoCheckId(actor, RC_UNKNOWN);
         actor->draw = ObjTsubo_Draw;
     });
 }

@@ -8,6 +8,7 @@ extern "C" {
 
 #define IS_AT(xx, zz) (actor->home.pos.x == xx && actor->home.pos.z == zz)
 
+// TODO: ObjectExtension
 RandoCheckId IdentifyCow(Actor* actor) {
     RandoCheckId randoCheckId = RC_UNKNOWN;
     s16 respawnData = gSaveContext.respawn[RESPAWN_MODE_UNK_3].data;

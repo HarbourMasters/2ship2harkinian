@@ -1,7 +1,7 @@
 #include "ActorBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/CustomItem/CustomItem.h"
-#include "2s2h/ActorExtension/ActorListIndex.h"
+#include "2s2h/ObjectExtension/ActorListIndex.h"
 #include "assets/2s2h_assets.h"
 
 extern "C" {
@@ -216,7 +216,7 @@ void initCrateBehavior(Actor* actor) {
         return;
     }
 
-    Rando::ActorBehavior::SetActorRandoCheckId(actor, randoCheckId);
+    Rando::ActorBehavior::SetObjectRandoCheckId(actor, randoCheckId);
 }
 
 void Rando::ActorBehavior::InitObjKibakoBehavior() {

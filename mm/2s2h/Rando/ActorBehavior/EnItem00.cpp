@@ -1,5 +1,6 @@
 #include "ActorBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/ObjectExtension/ActorListIndex.h"
 #include "2s2h/CustomItem/CustomItem.h"
 
 extern "C" {
@@ -7,6 +8,9 @@ extern "C" {
 #include "variables.h"
 }
 
+// TODO: Use ObjectExtension
+// These seem to be spawned dynamically. gotta retrieve them the old fashioned way
+// ...and there's no actorListIndex for those. lol
 std::map<std::pair<float, float>, RandoCheckId> freestandingMap = {
     // Beneath the Graveyard //
     { { -99.000000f, -260.000000f }, RC_BENEATH_THE_GRAVEYARD_NIGHT_2_FREESTANDING_RUPEE_01 },

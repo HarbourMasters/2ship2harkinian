@@ -65,7 +65,7 @@ void ObjTaru_RandoDraw(Actor* actor, PlayState* play) {
         return;
     }
 
-    RandoCheckId randoCheckId = Rando::ActorBehavior::GetActorRandoCheckId(actor);
+    RandoCheckId randoCheckId = Rando::ActorBehavior::GetObjectRandoCheckId(actor);
     RandoItemId randoItemId = Rando::ConvertItem(RANDO_SAVE_CHECKS[randoCheckId].randoItemId, randoCheckId);
     RandoItemType randoItemType = Rando::StaticData::Items[randoItemId].randoItemType;
 
@@ -114,13 +114,13 @@ void Rando::ActorBehavior::InitObjTaruBehavior() {
             return;
         }
 
-        Rando::ActorBehavior::SetActorRandoCheckId(actor, randoCheckId);
+        Rando::ActorBehavior::SetObjectRandoCheckId(actor, randoCheckId);
         actor->draw = ObjTaru_RandoDraw;
     });
 
     COND_VB_SHOULD(VB_BARREL_OR_CRATE_DROP_COLLECTIBLE, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
-        RandoCheckId randoCheckId = GetActorRandoCheckId(actor);
+        RandoCheckId randoCheckId = GetObjectRandoCheckId(actor);
 
         if (actor->id != ACTOR_OBJ_TARU || randoCheckId == RC_UNKNOWN) {
             return;

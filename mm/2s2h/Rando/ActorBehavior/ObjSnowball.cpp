@@ -155,7 +155,7 @@ void IdentifySnowball(Actor* actor, bool* should) {
         return;
     }
 
-    Rando::ActorBehavior::SetActorRandoCheckId(actor, randoCheckId);
+    Rando::ActorBehavior::SetObjectRandoCheckId(actor, randoCheckId);
 }
 
 void SpawnSnowballDrop(Vec3f pos, RandoCheckId randoCheckId) {
@@ -180,7 +180,7 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
     COND_VB_SHOULD(VB_SNOWBALL_DROP_COLLECTIBLE, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
 
-        RandoCheckId randoCheckId = GetActorRandoCheckId(actor);
+        RandoCheckId randoCheckId = GetObjectRandoCheckId(actor);
 
         if (randoCheckId == RC_UNKNOWN) {
             return;
@@ -202,7 +202,7 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
             return;
         }
 
-        RandoCheckId randoCheckId = GetActorRandoCheckId(actor);
+        RandoCheckId randoCheckId = GetObjectRandoCheckId(actor);
 
         if (randoCheckId == RC_UNKNOWN) {
             return;
