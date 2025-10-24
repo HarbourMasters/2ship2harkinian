@@ -22,8 +22,6 @@ extern void UpdateGameTime(u16 gameTime);
 int roll = TRAP_FREEZE;
 const u16 timeSkipInterval = 4000;
 
-// Delays
-int trapDelay = -1;
 TrapTypes currentTrap = TRAP_MAX;
 
 std::map<TrapTypes, const char*> trapToCvarMap = {
