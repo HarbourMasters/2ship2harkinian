@@ -62,6 +62,7 @@ void Rando::MiscBehavior::CheckQueue() {
                         if (randoItemId == RI_TRAP) {
                             prefix = "";
                             message = GetTrapMessage();
+                            message = CustomMessage::RemoveColorCodes(message);
                         }
 
                         CustomMessage::Entry entry = {
