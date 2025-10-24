@@ -321,9 +321,9 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 // Handle Shuffling Traps
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRAPS] == RO_GENERIC_YES) {
                     for (int i = 0; i < RANDO_SAVE_OPTIONS[RO_TRAP_AMOUNT]; i++) {
-                        for (int i = 0; i < itemPool.size(); i++) {
-                            if (itemPool[i] == RI_JUNK) {
-                                itemPool[i] = RI_TRAP;
+                        for (int j = 0; j < itemPool.size(); j++) {
+                            if (itemPool[j] == RI_JUNK) {
+                                itemPool[j] = RI_TRAP;
                                 break;
                             }
                         }

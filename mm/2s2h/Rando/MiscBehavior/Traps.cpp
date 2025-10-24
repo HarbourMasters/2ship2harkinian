@@ -22,10 +22,6 @@ extern void UpdateGameTime(u16 gameTime);
 int roll = TRAP_FREEZE;
 const u16 timeSkipInterval = 4000;
 
-// Delays
-int trapDelay = -1;
-TrapTypes currentTrap = TRAP_MAX;
-
 std::map<TrapTypes, const char*> trapToCvarMap = {
     { TRAP_FREEZE, "gRando.Traps.Freeze" }, { TRAP_BLAST, "gRando.Traps.Blast" },
     { TRAP_SHOCK, "gRando.Traps.Shock" },   { TRAP_JINX, "gRando.Traps.Jinx" },
@@ -102,7 +98,7 @@ std::vector<std::string> jinxTrapMessages = {
 };
 
 std::vector<std::string> walletTrapMessages = {
-    "Spare some %rchange$w?",
+    "Spare some %rchange%w?",
     "%rBreaking News%w: the Moon hasn't crashed, but Termina's economy sure has."
 };
 
@@ -130,6 +126,7 @@ std::map<TrapTypes, std::vector<std::string>> trapMessageList = {
     { TRAP_BLAST, blastTrapMessages },
     { TRAP_SHOCK, shockTrapMessages },
     { TRAP_JINX, jinxTrapMessages },
+    { TRAP_WALLET, walletTrapMessages },
     { TRAP_ENEMY, enemyTrapMessages },
     { TRAP_TIME, timeTrapMessages },
 };
@@ -260,8 +257,6 @@ void Rando::MiscBehavior::OfferTrapItem() {
                             // Unless this is the Stock Pot Inn, and the room key is obtained
                             if (!(gPlayState->sceneId == SCENE_YADOYA &&
                                   Flags_GetRandoInf(RANDO_INF_OBTAINED_ROOM_KEY))) {
-                                currentTrap = (TrapTypes)roll;
-                                trapDelay = 3;
                                 // This comes from EnTimeTag_KickOut_WaitForTime
                                 Player_SetCsActionWithHaltedActors(gPlayState, &enTimeTag->actor, PLAYER_CSACTION_WAIT);
                                 Message_StartTextbox(gPlayState, 0x1883 + TIMETAG_KICKOUT_GET_TEXT(&enTimeTag->actor),

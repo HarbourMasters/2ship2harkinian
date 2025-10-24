@@ -319,7 +319,7 @@ void DrawRandomTrapModel(RandoItemId randoItemId, Actor* actor) {
         actorData += abs(actor->home.pos.x + actor->home.pos.y + actor->params);
     }
 
-    int drawRandoItemId = actorData % (int)RI_MAX - 3;
+    int drawRandoItemId = actorData % ((int)RI_MAX - 3);
 
     if (drawRandoItemId == RI_UNKNOWN || drawRandoItemId >= RI_TRAP) {
         drawRandoItemId++;
