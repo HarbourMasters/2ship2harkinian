@@ -59,7 +59,7 @@ std::vector<std::string> defaultTrapMessages = {
     "Oh no!",
     "Uh oh!",
     "KEKW",
-    "We've been trying to reach you about your Horses %gextended warranty%w.",
+    "We've been trying to reach you about your Horse's %gextended warranty%w.",
     "Admit it, you wish this was %gGreg%w.",
     "Error 404: Item Not Found",
     "Get dunked on!",
