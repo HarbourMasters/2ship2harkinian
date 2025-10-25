@@ -5,7 +5,6 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
 
-#include <unordered_map>
 #include <set>
 #include <cassert>
 
@@ -34,14 +33,14 @@ struct RandoRegionExit {
 struct RandoRegion {
     const char* name = "";
     SceneId sceneId;
-    std::unordered_map<RandoCheckId, std::pair<std::function<bool()>, std::string>> checks;
-    std::unordered_map<s32, RandoRegionExit> exits;
-    std::unordered_map<RandoRegionId, std::pair<std::function<bool()>, std::string>> connections;
+    std::map<RandoCheckId, std::pair<std::function<bool()>, std::string>> checks;
+    std::map<s32, RandoRegionExit> exits;
+    std::map<RandoRegionId, std::pair<std::function<bool()>, std::string>> connections;
     std::vector<std::pair<RandoEvent, std::function<bool()>>> events;
     std::set<s32> oneWayEntrances;
 };
 
-extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
+extern std::map<RandoRegionId, RandoRegion> Regions;
 
 // TODO: This may not stay here
 #define IS_DEKU (GET_PLAYER_FORM == PLAYER_FORM_DEKU)
