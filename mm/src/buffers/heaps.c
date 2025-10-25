@@ -30,7 +30,7 @@ void Heaps_Alloc(void) {
 void Heaps_Free(void) {
 #ifdef _MSC_VER
     _aligned_free(gAudioHeap);
-    _aigned_free(gSystemHeap);
+    _aligned_free(gSystemHeap);
 #elif defined(__unix__)
     munmap(gAudioHeap, AUDIO_HEAP_SIZE);
     munmap(gSystemHeap, SYSTEM_HEAP_SIZE);
