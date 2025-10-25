@@ -1,7 +1,6 @@
 #include "buffers.h"
 #include "z64.h"
 #include <assert.h>
-#include <stdio.h>
 #include <stdlib.h>
 #ifdef __unix__
 #include <sys/mman.h>
