@@ -235,6 +235,102 @@ void Separator(bool padTop, bool padBottom, float extraVerticalTopPadding, float
     }
 }
 
+// Internal state stored per layout instance
+struct CardLayoutState {
+    std::vector<float> columnWidths;
+    std::vector<float> columnHeights;
+    std::vector<float> columnXPositions;
+    int currentCardColumn;
+    float startY;
+    int columnsPerRow;
+    float spacing;
+    bool autoItemWidth;
+    ImGuiChildFlags childFlags;
+};
+
+static CardLayoutState* gCurrentCardLayout = nullptr;
+
+void BeginCardLayout(const CardLayoutOptions& options) {
+    CardLayoutState* state = new CardLayoutState();
+
+    float availWidth = ImGui::GetContentRegionAvail().x;
+    float columnWidth = (availWidth - (options.spacing * (options.columnsPerRow - 1))) / options.columnsPerRow;
+
+    // Initialize columns
+    state->columnWidths.resize(options.columnsPerRow, columnWidth);
+    state->columnHeights.resize(options.columnsPerRow, 0.0f);
+    state->columnXPositions.resize(options.columnsPerRow);
+
+    // Calculate X positions for each column
+    float currentX = ImGui::GetCursorPosX();
+    for (int i = 0; i < options.columnsPerRow; i++) {
+        state->columnXPositions[i] = currentX + (i * (columnWidth + options.spacing));
+    }
+
+    state->startY = ImGui::GetCursorPosY();
+    state->currentCardColumn = 0;
+    state->columnsPerRow = options.columnsPerRow;
+    state->spacing = options.spacing;
+    state->autoItemWidth = options.autoItemWidth;
+    state->childFlags = options.childFlags;
+
+    gCurrentCardLayout = state;
+}
+
+void BeginCard(const char* id) {
+    CardLayoutState* state = gCurrentCardLayout;
+    if (!state)
+        return;
+
+    // Find shortest column
+    int shortestCol = 0;
+    float shortestHeight = state->columnHeights[0];
+    for (int i = 1; i < state->columnsPerRow; i++) {
+        if (state->columnHeights[i] < shortestHeight) {
+            shortestHeight = state->columnHeights[i];
+            shortestCol = i;
+        }
+    }
+    state->currentCardColumn = shortestCol;
+
+    // Position cursor at this column's current height
+    ImGui::SetCursorPosX(state->columnXPositions[state->currentCardColumn]);
+    ImGui::SetCursorPosY(state->startY + state->columnHeights[state->currentCardColumn]);
+
+    ImGui::BeginChild(id, ImVec2(state->columnWidths[state->currentCardColumn], 0), state->childFlags);
+
+    // Auto-push item width to fill card
+    if (state->autoItemWidth) {
+        ImGui::PushItemWidth(-FLT_MIN);
+    }
+}
+
+void EndCard() {
+    CardLayoutState* state = gCurrentCardLayout;
+    if (!state)
+        return;
+
+    // Auto-pop item width
+    if (state->autoItemWidth) {
+        ImGui::PopItemWidth();
+    }
+
+    ImGui::EndChild();
+
+    // Get the height of the card we just rendered
+    ImVec2 itemSize = ImGui::GetItemRectSize();
+
+    // Update this column's height (add card height + spacing)
+    state->columnHeights[state->currentCardColumn] += itemSize.y + state->spacing;
+}
+
+void EndCardLayout() {
+    if (gCurrentCardLayout) {
+        delete gCurrentCardLayout;
+        gCurrentCardLayout = nullptr;
+    }
+}
+
 void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_text_after_hash) {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
