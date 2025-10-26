@@ -32,6 +32,7 @@
 #include "DeveloperTools/ActorViewer.h"
 #include "DeveloperTools/CollisionViewer.h"
 #include "DeveloperTools/EventLog.h"
+#include "DeveloperTools/DLViewer.h"
 
 namespace BenGui {
 // MARK: - Delegates
@@ -50,6 +51,7 @@ std::shared_ptr<CosmeticEditorWindow> mCosmeticEditorWindow;
 std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
+std::shared_ptr<DLViewerWindow> mDLViewerWindow;
 std::shared_ptr<AudioEditor> mAudioEditorWindow;
 std::shared_ptr<BenMenu> mBenMenu;
 std::shared_ptr<Notification::Window> mNotificationWindow;
@@ -131,6 +133,9 @@ void SetupGuiElements() {
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log", ImVec2(520, 600));
     gui->AddGuiWindow(mEventLogWindow);
 
+    mDLViewerWindow = std::make_shared<DLViewerWindow>("gWindows.DLViewer", "Display List Viewer", ImVec2(520, 600));
+    gui->AddGuiWindow(mDLViewerWindow);
+
     mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor", ImVec2(520, 600));
     gui->AddGuiWindow(mAudioEditorWindow);
 
@@ -185,6 +190,7 @@ void Destroy() {
     mHudEditorWindow = nullptr;
     mCosmeticEditorWindow = nullptr;
     mActorViewerWindow = nullptr;
+    mDLViewerWindow = nullptr;
     mAudioEditorWindow = nullptr;
     mItemTrackerWindow = nullptr;
     mItemTrackerSettingsWindow = nullptr;
