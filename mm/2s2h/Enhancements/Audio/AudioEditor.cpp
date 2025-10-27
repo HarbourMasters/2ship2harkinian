@@ -3,7 +3,7 @@
 #include <map>
 #include <set>
 #include <string>
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include <functions.h>
 #include <sequence.h>
 // #include "../randomizer/3drando/random.hpp"
