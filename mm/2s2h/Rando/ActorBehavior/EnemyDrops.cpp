@@ -12,7 +12,6 @@ extern "C" {
 
 std::unordered_map<int16_t, RandoCheckId> actorIdToRandoCheckIdMap = {
     { ACTOR_EN_AM, RC_ENEMY_DROP_ARMOS },
-    { ACTOR_EN_BAT, RC_ENEMY_DROP_BAD_BAT },
     { ACTOR_EN_VM, RC_ENEMY_DROP_BEAMOS },
     { ACTOR_BOSS_05, RC_ENEMY_DROP_BIO_DEKU_BABA },
     { ACTOR_EN_BB, RC_ENEMY_DROP_BLUE_BUBBLE },
