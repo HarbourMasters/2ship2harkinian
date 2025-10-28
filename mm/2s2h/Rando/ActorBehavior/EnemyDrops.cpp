@@ -68,10 +68,11 @@ Actor* FindActor(Vec3f position, ActorType actorType) {
 
     Actor* currentActor = actorList.first;
     for (size_t i = 0; i < actorList.length; i++) {
-        if (currentActor->world.pos.x != position.x && currentActor->world.pos.z != position.z) {
-            currentActor = currentActor->next;
-        } else {
+        if (currentActor->world.pos.x == position.x && currentActor->world.pos.y == position.y &&
+               currentActor->world.pos.z == position.z) {
             return currentActor;
+        } else {
+            currentActor = currentActor->next;
         }
     }
     return nullptr;
