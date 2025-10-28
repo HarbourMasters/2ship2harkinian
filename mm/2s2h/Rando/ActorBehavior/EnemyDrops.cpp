@@ -114,7 +114,7 @@ void Rando::ActorBehavior::InitEnemyDropBehavior() {
         }
 
         RandoCheckId randoCheckId = GetRandoCheckByActorId(actorId);
-        if (RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
+        if (randoCheckId == RC_UNKNOWN || RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
             return;
         }
 
