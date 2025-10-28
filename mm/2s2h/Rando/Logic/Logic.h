@@ -326,6 +326,8 @@ inline bool CanKillEnemy(ActorId EnemyId) {
                     HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
         case ACTOR_EN_PR2:
             return (CAN_BE_ZORA && HAS_MAGIC);
+        case ACTOR_BOSS_05: // Bio Deku Baba
+            return CAN_BE_ZORA;
         default: // Incorrect actor ID inputed.
             assert(false);
             return false;
