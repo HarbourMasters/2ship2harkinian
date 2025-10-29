@@ -3,7 +3,7 @@
 #include "message_data_static.h"
 #include "assets/interface/message_texture_static/message_texture_static.h"
 #include <stdio.h>
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 
 f32 sNESFontWidths[160] = {

@@ -2,7 +2,7 @@
 #include "Rando/Spoiler/Spoiler.h"
 #include "Rando/Logic/Logic.h"
 #include "2s2h/ShipUtils.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "ClockShuffle.h"
 #include <spdlog/spdlog.h>
 
@@ -181,6 +181,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                         if (randoStaticCheck.randoCheckType == RCTYPE_COW &&
                             RANDO_SAVE_OPTIONS[RO_SHUFFLE_COWS] == RO_GENERIC_NO) {
+                            continue;
+                        }
+
+                        if (randoStaticCheck.randoCheckType == RCTYPE_ENEMY_DROP &&
+                            RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_DROPS] == RO_GENERIC_NO) {
                             continue;
                         }
 

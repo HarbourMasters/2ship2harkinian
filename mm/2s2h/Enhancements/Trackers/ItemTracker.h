@@ -1,5 +1,5 @@
-#include "window/gui/Gui.h"
-#include "window/gui/GuiWindow.h"
+#include <ship/window/gui/Gui.h>
+#include <ship/window/gui/GuiWindow.h>
 #include <array>
 
 typedef enum class TrackerWindowType : uint8_t {
@@ -23,6 +23,7 @@ typedef enum {
     SECTION_GOLD_SKULLTULAS,
     SECTION_CLOCKS,
     SECTION_DUNGEON,
+    SECTION_FROGS,
     SECTION_MAX,
 } ItemTrackerSection;
 
@@ -32,6 +33,11 @@ typedef enum {
     DrawMaxCapacity,
     DrawCapacityMax,
 } ItemTrackerCapacityMode;
+
+typedef struct FrogInfo {
+    uint16_t flag;
+    const char* name;
+} FrogInfo;
 
 class ItemTrackerWindow : public Ship::GuiWindow {
     typedef struct AmmoInfo {
@@ -78,6 +84,7 @@ class ItemTrackerWindow : public Ship::GuiWindow {
     int DrawMisc(int columns, int startAt);
     int DrawSongs(int columns, int startAt);
     int DrawStrayFairies(int columns, int startAt);
+    int DrawFrogs(int columns, int prevDrawnColumns);
     int DrawGoldSkulltulas(int columsn, int startAt);
     int DrawClocks(int columns, int startAt);
     void DrawNote(size_t songIndex, bool drawFaded);
