@@ -2,7 +2,7 @@
 #include "Rando/Spoiler/Spoiler.h"
 #include "Rando/Logic/Logic.h"
 #include "2s2h/ShipUtils.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include <spdlog/spdlog.h>
 
 extern "C" {
@@ -183,6 +183,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                             continue;
                         }
 
+                        if (randoStaticCheck.randoCheckType == RCTYPE_ENEMY_DROP &&
+                            RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_DROPS] == RO_GENERIC_NO) {
+                            continue;
+                        }
+
                         if (randoStaticCheck.randoCheckType == RCTYPE_TINGLE_SHOP &&
                             RANDO_SAVE_OPTIONS[RO_SHUFFLE_TINGLE_SHOPS] == RO_GENERIC_NO) {
                             continue;
@@ -207,7 +212,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         }
 
                         // Skip checks that have been excluded in the Locations menu and add their vanilla item to the
-                        // pool except if Logic is set to Vanilla or French Vanilla.
+                        // pool except if Logic is set to Vanilla.
                         if (RANDO_SAVE_OPTIONS[RO_LOGIC] <= RO_LOGIC_NEARLY_NO_LOGIC) {
                             auto it = std::find(excludedChecks.begin(), excludedChecks.end(), randoCheckId);
                             if (it != excludedChecks.end()) {
@@ -419,8 +424,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     Rando::Logic::ApplyNearlyNoLogicToSaveContext(checkPool, itemPool);
                 } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_GLITCHLESS) {
                     Rando::Logic::ApplyGlitchlessLogicToSaveContext(checkPool, itemPool);
-                } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_FRENCH_VANILLA) {
-                    Rando::Logic::ApplyFrenchVanillaLogicToSaveContext(checkPool, itemPool);
                 } else {
                     throw std::runtime_error("Logic option not implemented: " +
                                              std::to_string(RANDO_SAVE_OPTIONS[RO_LOGIC]));
