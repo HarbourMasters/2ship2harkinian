@@ -284,14 +284,10 @@ void SetTimeToHalfDayStart(int halfDayIndex) {
     // Set time to the start of this half-day
     SetGameTime(config->dayNumber, config->startTime);
 
-    // Handle music state for the time change
-    gSaveContext.seqId = NA_BGM_DISABLED;
-
-    // Set appropriate sequence state based on transition type
-    if (!IsCurrentlyNightTime(config->startTime)) {
-        gSceneSeqState = SCENESEQ_MORNING; // Day transition
-    } else {
-        gSceneSeqState = SCENESEQ_DEFAULT; // Night transition
+    // Reset gSceneSeqState to prevent morning sequence from playing for night halves
+    // This is needed because DayTelop or previous transitions may have set it to SCENESEQ_MORNING
+    if (IsCurrentlyNightTime(config->startTime)) {
+        gSceneSeqState = SCENESEQ_DEFAULT;
     }
 }
 
@@ -403,10 +399,8 @@ void ApplyTimeSkip(int nextHalfDay, EnTest4* enTest4) {
         return;
     }
 
-    // Terminal state music handling
+    // Terminal state handling
     if (nextHalfDay == ClockItems::TERMINAL_STATE) {
-        gSaveContext.seqId = NA_BGM_DISABLED;
-        gSceneSeqState = SCENESEQ_DEFAULT;
         enTest4->prevTime = time - CLOCK_TIME(0, 1);
         return;
     }
@@ -527,6 +521,16 @@ void CorrectInitialTime() {
 }
 
 void OnFileLoad() {
+    // Correct Day 0 time on file load BEFORE scene initialization
+    // OnSaveLoad fires before Play_Init, ensuring time is correct before Environment_PlaySceneSequence processes audio
+    // This prevents bird chirps from playing when correcting to night half-days on initial spawn
+    COND_HOOK(OnSaveLoad, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], [](s16 fileNum) {
+        // Check if this is initial spawn (day=0) and needs correction
+        if (!gSaveContext.save.isOwlSave && (gSaveContext.save.day == 0 && gSaveContext.save.time == DAY_0_0559_TIME)) {
+            CorrectInitialTime();
+        }
+    });
+
     // Hook EnTest4 BEFORE vanilla update to proactively check for time skips
     // This is critical: we must modify time BEFORE vanilla processes it!
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_TEST4, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE],
@@ -534,13 +538,6 @@ void OnFileLoad() {
                      CheckAndSkipUnownedTime(actor);
                      *should = true; // Always let vanilla continue with our modified time
                  });
-
-    // Correct initial time on scene init (handles both file load and Day 0 transitions)
-    COND_HOOK(OnSceneInit, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], [](s16 sceneId, s8 spawnNum) {
-        if (!gSaveContext.save.isOwlSave && (gSaveContext.save.day == 0 && gSaveContext.save.time == DAY_0_0559_TIME)) {
-            CorrectInitialTime();
-        }
-    });
 
     // Hook Song of Time and Song of Double Time message IDs
     COND_HOOK(

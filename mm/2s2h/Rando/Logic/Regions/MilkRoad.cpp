@@ -33,7 +33,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(ROMANI_RANCH, 5),                 ENTRANCE(DOGGY_RACETRACK, 0), true),
         },
     };
-    Regions[RR_GORMAN_TRACK] = RandoRegion{ .sceneId = SCENE_KOEPONARACE,
+    Regions[RR_GORMAN_TRACK_FRONT] = RandoRegion{ .sceneId = SCENE_KOEPONARACE,
         .checks = {
             CHECK(RC_GORMAN_MILK_PURCHASE, CAN_AFFORD(RC_GORMAN_MILK_PURCHASE) && IS_DAY()),
             CHECK(RC_GORMAN_TRACK_GARO_MASK, CAN_PLAY_SONG(EPONA) && CAN_AFFORD(RC_GORMAN_TRACK_GARO_MASK) && IS_DAY()),
@@ -43,10 +43,10 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .connections = {
             // TODO: Also apparently can be reached using a trick with Goron mask and Bombs. Add trick later here
-            CONNECTION(RR_GORMAN_TRACK_INNER, CAN_PLAY_SONG(EPONA) || (RANDO_EVENTS[RE_COWS_FROM_ALIENS] && (IS_NIGHT2() || FINAL_DAY()))),
+            CONNECTION(RR_GORMAN_TRACK, CAN_PLAY_SONG(EPONA) || (RANDO_EVENTS[RE_COWS_FROM_ALIENS] && IS_NIGHT2())),
         },
     };
-    Regions[RR_GORMAN_TRACK_INNER] = RandoRegion{ .sceneId = SCENE_KOEPONARACE,
+    Regions[RR_GORMAN_TRACK] = RandoRegion{ .sceneId = SCENE_KOEPONARACE,
         .checks = {
             // The grass is reachable either by racing the Gorman brothers on Epona OR by entering through the second
             // night alternate route after saving the Romani Ranch cows. The crate cannot be interacted with via the
@@ -77,11 +77,17 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GORMAN_TRACK_GRASS_23, true),
             CHECK(RC_GORMAN_TRACK_GRASS_24, true),
         },
+        .connections = {
+            CONNECTION(RR_GORMAN_TRACK_FRONT, CAN_PLAY_SONG(EPONA) || (RANDO_EVENTS[RE_COWS_FROM_ALIENS] && IS_NIGHT2())),
+            CONNECTION(RR_GORMAN_TRACK_BACK, CAN_PLAY_SONG(EPONA) || (RANDO_EVENTS[RE_COWS_FROM_ALIENS] && IS_NIGHT2())),
+        },
+    };
+    Regions[RR_GORMAN_TRACK_BACK] = RandoRegion{ .sceneId = SCENE_KOEPONARACE,
         .exits = { //     TO                                         FROM
-            EXIT(ENTRANCE(MILK_ROAD, 2),                    ENTRANCE(GORMAN_TRACK, 3), RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
+            EXIT(ENTRANCE(MILK_ROAD, 2),                    ENTRANCE(GORMAN_TRACK, 3), true),
         },
         .connections = {
-            CONNECTION(RR_GORMAN_TRACK, CAN_PLAY_SONG(EPONA) || RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
+            CONNECTION(RR_GORMAN_TRACK, CAN_PLAY_SONG(EPONA) || (RANDO_EVENTS[RE_COWS_FROM_ALIENS] && IS_NIGHT2())),
         },
     };
     Regions[RR_MILK_ROAD] = RandoRegion{ .sceneId = SCENE_ROMANYMAE,
@@ -94,8 +100,10 @@ static RegisterShipInitFunc initFunc([]() {
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 5),                ENTRANCE(MILK_ROAD, 0), true),
             EXIT(ENTRANCE(ROMANI_RANCH, 0),                 ENTRANCE(MILK_ROAD, 1), AFTER(TIME_DAY3_AM_06_00) || (HAS_ITEM(ITEM_POWDER_KEG) && CAN_BE_GORON)),
-            EXIT(ENTRANCE(GORMAN_TRACK, 3),                 ENTRANCE(MILK_ROAD, 2), (RANDO_EVENTS[RE_COWS_FROM_ALIENS] && IS_NIGHT2()) || FINAL_DAY()),
             EXIT(ENTRANCE(GORMAN_TRACK, 0),                 ENTRANCE(MILK_ROAD, 3), true),
+        },
+        .connections = {
+            CONNECTION(RR_MILK_ROAD_BEHIND_FENCE, (CAN_BE_GORON && HAS_ITEM(ITEM_BOMB)) || (RANDO_EVENTS[RE_COWS_FROM_ALIENS] && IS_NIGHT2()) || FINAL_DAY()),
         },
         .events = {
             EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
@@ -103,6 +111,14 @@ static RegisterShipInitFunc initFunc([]() {
         .oneWayEntrances = {
             ENTRANCE(MILK_ROAD, 4), // From Song of Soaring
         }
+    };
+    Regions[RR_MILK_ROAD_BEHIND_FENCE] = RandoRegion{ .sceneId = SCENE_ROMANYMAE,
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(GORMAN_TRACK, 3),                 ENTRANCE(MILK_ROAD, 2), true),
+        },
+        .connections = {
+            CONNECTION(RR_MILK_ROAD, (CAN_BE_GORON && HAS_ITEM(ITEM_BOMB)) || (RANDO_EVENTS[RE_COWS_FROM_ALIENS] && IS_NIGHT2()) || FINAL_DAY()),
+        },
     };
     Regions[RR_RANCH_BARN] = RandoRegion{ .sceneId = SCENE_OMOYA,
         .checks = {
