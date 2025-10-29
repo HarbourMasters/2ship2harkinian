@@ -260,7 +260,8 @@ void ValidateRegionTimeOwnership(RandoRegionId regionId, RandoCheckId checkId, u
 
 inline bool CanReachRegions(std::vector<RandoRegionId> regionList) {
     std::set<RandoRegionId> reachableRegions;
-    FindReachableRegions(GetRegionIdFromEntrance(gSaveContext.save.entrance), reachableRegions);
+    std::unordered_map<RandoRegionId, RegionTimeState> regionTimeStates;
+    FindReachableRegions(GetRegionIdFromEntrance(gSaveContext.save.entrance), reachableRegions, regionTimeStates);
     for (auto& target : regionList) {
         if (reachableRegions.count(target) > 0) {
             return true;
