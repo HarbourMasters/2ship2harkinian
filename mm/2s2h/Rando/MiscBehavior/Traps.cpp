@@ -1,5 +1,5 @@
 #include "Traps.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "MiscBehavior.h"
 #include "2s2h/DeveloperTools/SaveEditor.h"
 
