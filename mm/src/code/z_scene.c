@@ -1,5 +1,5 @@
 #include "global.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "GameInteractor/GameInteractor.h"
 
 /**
