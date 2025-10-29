@@ -7,13 +7,13 @@ namespace Rando {
 
 namespace Logic {
 
-std::unordered_map<RandoRegionId, RandoRegion> Regions = {};
+std::map<RandoRegionId, RandoRegion> Regions = {};
 
 // Thread-local storage for current region time during check evaluation
 thread_local uint64_t gCurrentRegionTime = 0;
 
 RandoRegionId GetRegionIdFromEntrance(s32 entrance) {
-    static std::unordered_map<s32, RandoRegionId> entranceToRegionId;
+    static std::map<s32, RandoRegionId> entranceToRegionId;
     if (entranceToRegionId.empty()) {
         for (auto& [randoRegionId, randoRegion] : Regions) {
             for (auto& [_, regionExit] : randoRegion.exits) {

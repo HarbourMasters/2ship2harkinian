@@ -15,15 +15,14 @@ namespace Rando {
 
 namespace Logic {
 
-void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
-                                       std::vector<RandoItemId>& itemPool) {
+void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool) {
     uint64_t tick = GetUnixTimestamp();
 
     SaveContext copiedSaveContext;
     memcpy(&copiedSaveContext, &gSaveContext, sizeof(SaveContext));
 
     std::set<RandoRegionId> regionsInLogic = { RR_MAX };
-    std::unordered_map<RandoCheckId, bool> checksInLogic;
+    std::map<RandoCheckId, bool> checksInLogic;
     std::set<std::pair<RandoEvent, std::function<bool()>>*> eventsInLogic;
 
     // Initialize time states using shared function
@@ -47,7 +46,7 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
         SPDLOG_ERROR("Items/Checks: {}/{}", itemPool.size(), checkPool.size());
 
         // Log out the checks that are still in the pool
-        for (auto& [randoCheckId, _] : checkPool) {
+        for (auto& randoCheckId : checkPool) {
             SPDLOG_ERROR("Check still in pool: {}", Rando::StaticData::Checks[randoCheckId].name);
         }
         // Log out the items that are still in the pool
@@ -106,9 +105,12 @@ void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& c
                     TimeLogic::ValidateRegionTimeOwnership(regionId, randoCheckId,
                                                            regionTimeStates[regionId].timeSlices, "Glitchless");
 
-                    bool isShuffled = checkPool.find(randoCheckId) != checkPool.end();
+                    auto it = std::find(checkPool.begin(), checkPool.end(), randoCheckId);
+                    bool isShuffled = it != checkPool.end();
                     checksInLogic.insert({ randoCheckId, isShuffled });
-                    checkPool.erase(randoCheckId);
+                    if (isShuffled) {
+                        checkPool.erase(it);
+                    }
 
                     RandoItemId randoItemId;
 
