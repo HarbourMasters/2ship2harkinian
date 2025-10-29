@@ -254,6 +254,7 @@ typedef enum {
     VB_SET_CAMERA_AT_EYE,
     VB_SET_CAMERA_FOV,
     VB_USE_ITEM_CONSIDER_ITEM_ACTION,
+    VB_ENABLE_OBJECT_DEPENDENCY,
 } GIVanillaBehavior;
 
 typedef enum {

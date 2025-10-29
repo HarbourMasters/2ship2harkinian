@@ -204,12 +204,9 @@ void Rando::MiscBehavior::OfferTrapItem() {
             break;
         case TRAP_ENEMY:
             GameInteractor::Instance->events.emplace_back(GIEventTrap{ .action = []() {
-                int currentSetting = CVarGetInteger("gDeveloperTools.DisableObjectDependency", 0);
-                CVarSetInteger("gDeveloperTools.DisableObjectDependency", 1);
                 Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_RR, GET_PLAYER(gPlayState)->actor.world.pos.x,
                             GET_PLAYER(gPlayState)->actor.world.pos.y, GET_PLAYER(gPlayState)->actor.world.pos.z, 0, 0,
                             0, 1);
-                CVarSetInteger("gDeveloperTools.DisableObjectDependency", currentSetting);
             } });
             break;
         case TRAP_TIME:
