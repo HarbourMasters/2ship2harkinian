@@ -1,6 +1,7 @@
 #include "Traps.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "MiscBehavior.h"
+#include "Rando/ActorBehavior/ActorBehavior.h"
 #include "2s2h/DeveloperTools/SaveEditor.h"
 
 extern "C" {
@@ -268,4 +269,14 @@ void Rando::MiscBehavior::OfferTrapItem() {
         default:
             break;
     }
+}
+
+void Rando::ActorBehavior::InitTrapsBehavior() {
+    // Selectively disable object dependency for actors spawned by traps
+    COND_VB_SHOULD(VB_ENABLE_OBJECT_DEPENDENCY, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRAPS], {
+        ObjectId objectId = (ObjectId)va_arg(args, int);
+        if (objectId == OBJECT_RR) { // Like-Like
+            *should = false;
+        }
+    });
 }
