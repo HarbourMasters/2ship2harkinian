@@ -1,4 +1,5 @@
 #include "MiscBehavior.h"
+#include "libultraship/bridge/consolevariablebridge.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
@@ -9,6 +10,7 @@
 
 extern "C" {
 #include "variables.h"
+#include <functions.h>
 extern TexturePtr gItemIcons[131];
 extern s16 D_801CFF94[250];
 }
@@ -62,7 +64,11 @@ void Rando::MiscBehavior::CheckQueue() {
                         if (randoItemId == RI_TRAP) {
                             prefix = "";
                             message = GetTrapMessage();
-                            message = CustomMessage::RemoveColorCodes(message);
+                            // We need to remove the Color Codes if the player is skipping Item Get Cutscenes as the
+                            // Notification Emit doesnt support it.
+                            if (CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0) >= 2) {
+                                message = CustomMessage::RemoveColorCodes(message);
+                            }
                         }
 
                         CustomMessage::Entry entry = {
