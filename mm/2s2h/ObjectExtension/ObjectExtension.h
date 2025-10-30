@@ -7,7 +7,6 @@
 #include <limits>
 #include <stdint.h>
 #include <unordered_map>
-#include <vector>
 
 /*
  * This class can attach additional data to pointers. It can only attach a single instance of each type of data.
