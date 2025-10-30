@@ -3,19 +3,17 @@
 #include "z64.h"
 
 #ifdef __cplusplus
-#include "GuiWindow.h"
+#include <ship/window/gui/GuiWindow.h>
 #include <unordered_map>
 
 extern "C" {
 #endif
 
 /**
- * \brief Pulls a message from the specified message table and kicks off the process of displaying that message
- * in a text box on screen.
- * \param tableId the tableId string for the table we want to pull from. Empty string for vanilla messages
- * \param textId The textId corresponding to the message to display. Putting in a textId that doesn't exist will
- * probably result in a crash.
- * \param language The Language to display on the screen (prepared for future multi-language support).
+ * \brief Displays a vanilla message in a text box on screen.
+ * \param tableId Unused (reserved for future use)
+ * \param textId The textId corresponding to the message to display
+ * \param language Unused (reserved for future use)
  */
 void MessageDebug_StartTextBox(const char* tableId, uint16_t textId, uint8_t language);
 
@@ -42,21 +40,22 @@ class MessageViewerWindow : public Ship::GuiWindow {
   private:
     void DisplayExistingMessage() const;
     void DisplayCustomMessage() const;
+    void LoadMessageToEditor();
+    bool ParseTextIdFromBuffer(uint16_t& outTextId);
+    static bool ValidateTextIdExists(uint16_t textId);
 
     static constexpr uint16_t MAX_STRING_SIZE = 1024;
     static constexpr int HEXADECIMAL = 0;
     static constexpr int DECIMAL = 1;
 
-    char* mTableIdBuf;
-    std::string mTableId;
     char* mTextIdBuf;
     uint16_t mTextId;
     int mTextIdBase = HEXADECIMAL;
-    int32_t mLanguage = LANGUAGE_ENG;
     char* mCustomMessageBuf;
     std::string mCustomMessageString;
     bool mDisplayExistingMessageClicked = false;
     bool mDisplayCustomMessageClicked = false;
+    bool mLoadMessageClicked = false;
 };
 
 #endif // __cplusplus
