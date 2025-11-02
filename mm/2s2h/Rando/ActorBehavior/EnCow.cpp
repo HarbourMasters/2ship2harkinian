@@ -1,64 +1,45 @@
 #include "ActorBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/ObjectExtension/ActorListIndex.h"
 
 extern "C" {
 #include "variables.h"
 #include "overlays/actors/ovl_En_Cow/z_en_cow.h"
 }
 
-#define IS_AT(xx, zz) (actor->home.pos.x == xx && actor->home.pos.z == zz)
-
-// TODO: ObjectExtension
-RandoCheckId IdentifyCow(Actor* actor) {
-    RandoCheckId randoCheckId = RC_UNKNOWN;
-    s16 respawnData = gSaveContext.respawn[RESPAWN_MODE_UNK_3].data;
-    switch (gPlayState->sceneId) {
-        case SCENE_REDEAD:
-            randoCheckId = RC_BENEATH_THE_WELL_COW;
-            break;
-        case SCENE_F01:
-            if (IS_AT(1947.0f, 1152.0f)) {
-                randoCheckId = RC_ROMANI_RANCH_FIELD_COW_ENTRANCE;
-            } else if (IS_AT(1126.0f, -1527.0f)) {
-                randoCheckId = RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_BACK;
-            } else if (IS_AT(1086.0f, -1290.0f)) {
-                randoCheckId = RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_FRONT;
-            }
-            break;
-        case SCENE_OMOYA:
-            if (IS_AT(-311.0f, -97.0f)) {
-                randoCheckId = RC_ROMANI_RANCH_BARN_COW_MIDDLE;
-            } else if (IS_AT(-82.0f, -127.0f)) {
-                randoCheckId = RC_ROMANI_RANCH_BARN_COW_LEFT;
-            } else if (IS_AT(-83.0f, -32.0f)) {
-                randoCheckId = RC_ROMANI_RANCH_BARN_COW_RIGHT;
-            }
-            break;
-        case SCENE_KAKUSIANA:
-            if (respawnData == -1) {
-                if (IS_AT(2394.0f, 907.0f)) {
-                    randoCheckId = RC_GREAT_BAY_COAST_COW_BACK;
-                }
-                if (IS_AT(2466.0f, 952.0f)) {
-                    randoCheckId = RC_GREAT_BAY_COAST_COW_FRONT;
-                }
-            }
-            if (respawnData == 31) {
-                if (IS_AT(2394.0f, 907.0f)) {
-                    randoCheckId = RC_TERMINA_FIELD_COW_BACK;
-                }
-                if (IS_AT(2466.0f, 952.0f)) {
-                    randoCheckId = RC_TERMINA_FIELD_COW_FRONT;
-                }
-            }
-            break;
-        default:
-            break;
-    }
-    return randoCheckId;
-}
+std::map<std::tuple<s16, s16, s16>, RandoCheckId> cowMap = {
+    { { SCENE_REDEAD, 9, 0 }, RC_BENEATH_THE_WELL_COW },
+    { { SCENE_F01, 0, 7 }, RC_ROMANI_RANCH_FIELD_COW_ENTRANCE },
+    { { SCENE_F01, 0, 8 }, RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_BACK },
+    { { SCENE_F01, 0, 9 }, RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_FRONT },
+    { { SCENE_OMOYA, 0, 5 }, RC_ROMANI_RANCH_BARN_COW_MIDDLE },
+    { { SCENE_OMOYA, 0, 6 }, RC_ROMANI_RANCH_BARN_COW_LEFT },  // Note: May not be reachable
+    { { SCENE_OMOYA, 0, 7 }, RC_ROMANI_RANCH_BARN_COW_RIGHT }, // Note: May not be reachable
+    { { SCENE_KAKUSIANA, 10, 3 }, RC_GREAT_BAY_COAST_COW_BACK },
+    { { SCENE_KAKUSIANA, 10, 7 }, RC_GREAT_BAY_COAST_COW_FRONT },
+};
 
 void Rando::ActorBehavior::InitEnCowBehavior() {
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_COW, IS_RANDO, [](Actor* actor) {
+        RandoCheckId randoCheckId = RC_UNKNOWN;
+
+        s16 actorListIndex = GetActorListIndex(actor);
+        auto it = cowMap.find({ gPlayState->sceneId, gPlayState->roomCtx.curRoom.num, actorListIndex });
+        if (it != cowMap.end()) {
+            randoCheckId = it->second;
+            // Adjust for Termina Field cow grotto
+            if (gPlayState->sceneId == SCENE_KAKUSIANA && gSaveContext.respawn[RESPAWN_MODE_UNK_3].data == 31) {
+                randoCheckId = (RandoCheckId)(randoCheckId + (RC_TERMINA_FIELD_COW_BACK - RC_GREAT_BAY_COAST_COW_BACK));
+            }
+
+            if (!RANDO_SAVE_CHECKS[randoCheckId].shuffled || RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
+                return;
+            }
+
+            SetObjectRandoCheckId(actor, randoCheckId);
+        }
+    });
+
     COND_VB_SHOULD(VB_GIVE_ITEM_FROM_COW, IS_RANDO, {
         // Original Should is the Range check, if it fails just Return.
         Actor* actor = va_arg(args, Actor*);
@@ -67,7 +48,7 @@ void Rando::ActorBehavior::InitEnCowBehavior() {
             *should = false;
             return;
         }
-        RandoCheckId randoCheckId = IdentifyCow(actor);
+        RandoCheckId randoCheckId = GetObjectRandoCheckId(actor);
 
         if (randoCheckId == RC_UNKNOWN) {
             *should = true;
@@ -93,7 +74,7 @@ void Rando::ActorBehavior::InitEnCowBehavior() {
     });
 
     COND_ID_HOOK(ShouldActorInit, ACTOR_EN_COW, IS_RANDO, [](Actor* refActor, bool* should) {
-        RandoCheckId randoCheckId = IdentifyCow(refActor);
+        RandoCheckId randoCheckId = GetObjectRandoCheckId(refActor);
         switch (randoCheckId) {
             case RC_ROMANI_RANCH_BARN_COW_LEFT:
                 refActor->world.pos.x = -470.0f;
