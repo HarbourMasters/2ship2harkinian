@@ -12207,7 +12207,7 @@ void Player_UpdateCamAndSeqModes(PlayState* play, Player* this) {
             Camera_ChangeMode(camera, camMode);
         }
 
-        if (play->actorCtx.attention.bgmEnemy != NULL) {
+        if (play->actorCtx.attention.bgmEnemy != NULL && !CVarGetInteger("gAudioEditor.EnemyBGMDisable", 0)) {
             seqMode = SEQ_MODE_ENEMY;
             Audio_UpdateEnemyBgmVolume(sqrtf(play->actorCtx.attention.bgmEnemy->xyzDistToPlayerSq));
         }

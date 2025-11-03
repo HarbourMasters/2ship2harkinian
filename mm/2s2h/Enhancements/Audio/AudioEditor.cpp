@@ -10,12 +10,34 @@
 #include "../../BenPort.h"
 #include <ship/utils/StringHelper.h>
 #include "../../BenGui/UIWidgets.hpp"
+#include "../../BenGui/BenMenu.h"
+#include "../../BenGui/BenGui.hpp"
 #include "AudioCollection.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include <random>
 
 extern "C" Vec3f gZeroVec3f;
 extern "C" f32 gSfxDefaultFreqAndVolScale;
 extern "C" s8 gSfxDefaultReverb;
+
+using namespace UIWidgets;
+
+static WidgetInfo lowHpAlarm;
+static WidgetInfo muteCarpenterSfx;
+static WidgetInfo childGoronCry;
+static WidgetInfo tatlCall;
+static WidgetInfo enemyProx;
+static WidgetInfo leadingMusic;
+static WidgetInfo displaySeqName;
+static WidgetInfo ovlDuration;
+static WidgetInfo voicePitch;
+static WidgetInfo randoMusicOnSceneChange;
+static WidgetInfo randomAudioOnSeedGen;
+static WidgetInfo lowerOctaves;
+
+namespace BenGui {
+extern std::shared_ptr<BenMenu> mBenMenu;
+}
 
 // Authentic sequence counts
 // used to ensure we have enough to shuffle
@@ -99,11 +121,11 @@ void RandomizeGroup(SeqType type) {
                 seqData.canBeReplaced == false) {
                 continue;
             }
-            if (!values.empty()) {
+            //if (!values.empty()) {
                 const int randomValue = values.back();
                 CVarSetInteger(cvarKey.c_str(), randomValue);
                 values.pop_back();
-            }
+            //}
         }
     }
 }
@@ -418,15 +440,24 @@ void DrawTypeChip(SeqType type) {
 
 void AudioEditorRegisterOnSceneInitHook() {
     // BENTODO implement this
-    // GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](int16_t sceneNum) {
-    //    if (CVarGetInteger(CVAR_AUDIO("RandomizeAllOnNewScene"), 0)) {
-    //        AudioEditor_RandomizeAll();
-    //    }
-    //});
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnScene>([](int16_t sceneNum) {
+       if (CVarGetInteger("gAudioEditor.RandomizeAllOnNewScene", 0)) {
+          AudioEditor_RandomizeAll();
+        }
+    });
+}
+
+void AudioEditorRegisterOnGenerationCompletionHook() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGenerationCompletion>([]() {
+        if (CVarGetInteger("gAudioEditor.RandomizeAllOnRandoGen", 0)) {
+            AudioEditor_RandomizeAll();
+        }
+    });
 }
 
 void AudioEditor::InitElement() {
     AudioEditorRegisterOnSceneInitHook();
+    AudioEditorRegisterOnGenerationCompletionHook();
 }
 
 void AudioEditor::DrawElement() {
@@ -454,6 +485,31 @@ void AudioEditor::DrawElement() {
     UIWidgets::Tooltip("Unlocks all music and sound effects across tab groups");
 
     if (ImGui::BeginTabBar("SfxContextTabBar", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
+        static ImVec2 cellPadding(8.0f, 8.0f);
+        if (ImGui::BeginTabItem("Audio Options")) {
+            ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
+            ImGui::BeginTable("Audio Options", 1, ImGuiTableFlags_SizingStretchSame);
+            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
+            ImGui::TableNextRow();
+            ImGui::TableNextColumn();
+
+            if (ImGui::BeginChild("SfxOptions", ImVec2(0, -8))) {
+                BenGui::mBenMenu->MenuDrawItem(lowHpAlarm, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(muteCarpenterSfx, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(childGoronCry, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(tatlCall, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(enemyProx, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(randoMusicOnSceneChange, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(randomAudioOnSeedGen, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(displaySeqName, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(ovlDuration, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(voicePitch, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+             }
+            ImGui::EndChild();
+            ImGui::EndTable();
+            ImGui::PopStyleVar(1);
+            ImGui::EndTabItem();
+        }
         if (ImGui::BeginTabItem("Background Music")) {
             Draw_SfxTab("backgroundMusic", SEQ_BGM_WORLD);
             ImGui::EndTabItem();
@@ -491,75 +547,8 @@ void AudioEditor::DrawElement() {
             Draw_SfxTab("voice", SEQ_VOICE);
             ImGui::EndTabItem();
 #endif
-        static ImVec2 cellPadding(8.0f, 8.0f);
-#if 0
-        if (ImGui::BeginTabItem("Options")) {
-            ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
-            ImGui::BeginTable("Options", 1, ImGuiTableFlags_SizingStretchSame);
-            ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
-            ImGui::TableNextRow();
-            ImGui::TableNextColumn();
-            if (ImGui::BeginChild("SfxOptions", ImVec2(0, -8))) {
-                ImGui::PushItemWidth(-FLT_MIN);
-                UIWidgets::EnhancementCheckbox("Disable Enemy Proximity Music", CVAR_AUDIO("EnemyBGMDisable"));
-                UIWidgets::InsertHelpHoverText(
-                    "Disables the music change when getting close to enemies. Useful for hearing "
-                    "your custom music for each scene more often.");
-                UIWidgets::EnhancementCheckbox("Disable Leading Music in Lost Woods",
-                                               CVAR_AUDIO("LostWoodsConsistentVolume"));
-                UIWidgets::InsertHelpHoverText(
-                    "Disables the volume shifting in the Lost Woods. Useful for hearing "
-                    "your custom music in the Lost Woods if you don't need the navigation assitance "
-                    "the volume changing provides. If toggling this while in the Lost Woods, reload "
-                    "the area for the effect to kick in.");
-                UIWidgets::EnhancementCheckbox("Display Sequence Name on Overlay", CVAR_AUDIO("SeqNameOverlay"));
-                UIWidgets::InsertHelpHoverText(
-                    "Displays the name of the current sequence in the corner of the screen whenever a new sequence "
-                    "is loaded to the main sequence player (does not apply to fanfares or enemy BGM).");
-                ImGui::SameLine();
-                ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-                UIWidgets::EnhancementSliderInt("Overlay Duration: %d seconds", "##SeqNameOverlayDuration",
-                                                CVAR_AUDIO("SeqNameOverlayDuration"), 1, 10, "", 5);
-                ImGui::PopItemWidth();
-                ImGui::NewLine();
-                ImGui::PopItemWidth();
-                UIWidgets::EnhancementSliderFloat("Link's voice pitch multiplier: %.1f %%", "##linkVoiceFreqMultiplier",
-                                                  CVAR_AUDIO("LinkVoiceFreqMultiplier"), 0.4, 2.5, "", 1.0, true, true);
-                ImGui::SameLine();
-                const std::string resetButton = "Reset##linkVoiceFreqMultiplier";
-                if (ImGui::Button(resetButton.c_str())) {
-                    CVarSetFloat(CVAR_AUDIO("LinkVoiceFreqMultiplier"), 1.0f);
-                    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-                }
-
-                ImGui::NewLine();
-                UIWidgets::EnhancementCheckbox("Randomize All Music and Sound Effects on New Scene",
-                                               CVAR_AUDIO("RandomizeAllOnNewScene"));
-                UIWidgets::Tooltip(
-                    "Enables randomizing all unlocked music and sound effects when you enter a new scene.");
-
-                ImGui::NewLine();
-                ImGui::PushItemWidth(-FLT_MIN);
-                UIWidgets::PaddedSeparator();
-                UIWidgets::PaddedText("The following options are experimental and may cause music\nto sound odd or "
-                                      "have other undesireable effects.");
-                UIWidgets::EnhancementCheckbox("Lower Octaves of Unplayable High Notes",
-                                               CVAR_AUDIO("ExperimentalOctaveDrop"));
-                UIWidgets::Tooltip(
-                    "Some custom sequences may have notes that are too high for the game's audio "
-                    "engine to play. Enabling this checkbox will cause these notes to drop a "
-                    "couple of octaves so they can still harmonize with the other notes of the "
-                    "sequence.");
-                ImGui::PopItemWidth();
-            }
-            ImGui::EndChild();
-            ImGui::EndTable();
-            ImGui::PopStyleVar(1);
-            ImGui::EndTabItem();
-        }
-#endif
-
-        static bool excludeTabOpen = false;
+        
+            static bool excludeTabOpen = false;
         if (ImGui::BeginTabItem("Audio Shuffle Pool Management")) {
             ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
             if (!excludeTabOpen) {
@@ -761,3 +750,141 @@ void AudioEditor_UnlockAll() {
 
     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 }
+
+void RegisterAudioWidgets() {
+
+    lowHpAlarm = { .name = "Mute Low HP Alarm", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+    
+    lowHpAlarm
+        .CVar("gAudioEditor.LowHpAlarm")
+
+        .Options(CheckboxOptions()
+                     .Color(THEME_COLOR)
+                     .Tooltip("Mutes the beeping alarm when you are critically low on health."));
+
+    //BenGui::mBenMenu->AddSearchWidget({ lowHpAlarm, "Enhancements", "Audio Editor", "Audio Options" });
+    
+    muteCarpenterSfx = { .name = "Mute Carpenter Sounds", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+
+    muteCarpenterSfx
+        .CVar("gAudioEditor.MuteCarpenterSfx")
+
+        .Options(CheckboxOptions()
+                     .Color(THEME_COLOR)
+                     .Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
+                              "from the tower in South Clock Town."));
+
+    //BenGui::mBenMenu->AddSearchWidget({ muteCarpenterSfx, "Enhancements", "Audio Editor", "Audio Options" });
+    
+    childGoronCry = { .name = "Mute Crying Goron Child", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+
+    childGoronCry
+        .CVar("gAudioEditor.ChildGoronCry")
+
+        .Options(CheckboxOptions()
+                     .Color(THEME_COLOR).Tooltip("Mutes the crying Goron child inside Goron Shrine."));
+
+    //BenGui::mBenMenu->AddSearchWidget({ childGoronCry, "Enhancements", "Audio Editor", "Audio Options" });
+
+    tatlCall = { .name = "Disable Tatl Call Audio", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+
+    tatlCall
+        .CVar("gAudioEditor.DisableTatlCallAudio")
+
+        .Options(CheckboxOptions().Color(THEME_COLOR).Tooltip("Disables the bell audio when Tatl calls you."));
+
+    //BenGui::mBenMenu->AddSearchWidget({ tatlCall, "Enhancements", "Audio Editor", "Audio Options" });
+
+    enemyProx = { .name = "Disable Enemy Proximity Music", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+
+    enemyProx
+        .CVar("gAudioEditor.EnemyBGMDisable")
+
+        .Options(CheckboxOptions()
+
+                     .Color(THEME_COLOR)
+
+                     .Tooltip("Disables the music change when getting close to enemies. Useful for hearing "
+
+                              "your custom music for each scene more often."));
+
+    //BenGui::mBenMenu->AddSearchWidget({ enemyProx, "Enhancements", "Audio Editor", "Audio Options" });
+
+    randoMusicOnSceneChange = { .name = "Randomize All Music and Sound Effects on New Scene", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+
+    randoMusicOnSceneChange
+        .CVar("gAudioEditor.RandomizeAllOnNewScene")
+
+        .Options(CheckboxOptions()
+
+                     .Color(THEME_COLOR)
+
+                     .Tooltip("Enables randomizing all unlocked music and sound effects when you enter a new scene."));
+
+    //BenGui::mBenMenu->AddSearchWidget({ randoMusicOnSceneChange, "Enhancements", "Audio Editor", "Audio Options" });
+
+    randomAudioOnSeedGen = { .name = "Randomize All Music and Sound Effects on Randomizer Generation", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+
+    randomAudioOnSeedGen
+        .CVar("gAudioEditor.RandomizeAllOnRandoGen")
+
+        .Options(CheckboxOptions()
+
+                     .Color(THEME_COLOR)
+
+                     .Tooltip("Enables randomizing all unlocked music and sound effects when you generate a new "
+
+                              "randomizer. Respects locks already in place."));
+
+    //BenGui::mBenMenu->AddSearchWidget({ randomAudioOnSeedGen, "Enhancements", "Audio Editor", "Audio Options" });
+    
+    displaySeqName = { .name = "Display Sequence Name on Overlay", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+
+    displaySeqName
+        .CVar("gAudioEditor.SeqNameNotification")
+
+        .Options(CheckboxOptions()
+
+                     .Color(THEME_COLOR)
+
+                     .Tooltip("Displays the name of the current sequence in the corner of the screen whenever a new "
+
+                              "sequence "
+
+                              "is loaded to the main sequence player (does not apply to fanfares or enemy BGM)."));
+
+    //BenGui::mBenMenu->AddSearchWidget({ displaySeqName, "Enhancements", "Audio Editor", "Audio Options" });
+
+    ovlDuration = { .name = "Overlay Duration: %d seconds", .type = WidgetType::WIDGET_CVAR_SLIDER_INT };
+
+    ovlDuration
+        .CVar("gAudioEditor.SeqNameNotificationDuration")
+
+        .Options(IntSliderOptions().Color(THEME_COLOR).Min(1).Max(10).DefaultValue(5).Size(ImVec2(300.0f, 0.0f)));
+
+    //BenGui::mBenMenu->AddSearchWidget({ ovlDuration, "Enhancements", "Audio Editor", "Audio Options" });
+
+    voicePitch = { .name = "Link's Voice Pitch Multiplier", .type = WidgetType::WIDGET_CVAR_SLIDER_FLOAT };
+
+    voicePitch
+        .CVar("gAudioEditor.LinkVoiceFreqMultiplier")
+
+        .Options(FloatSliderOptions()
+
+                     .Color(THEME_COLOR)
+
+                     .IsPercentage()
+
+                     .Min(0.4f)
+
+                     .Max(2.5f)
+
+                     .DefaultValue(1.0f)
+
+                     .Size(ImVec2(300.0f, 0.0f)));
+
+    //BenGui::mBenMenu->AddSearchWidget({ voicePitch, "Enhancements", "Audio Editor", "Audio Options" });
+
+}
+
+static RegisterMenuInitFunc initAudioWidgets(RegisterAudioWidgets);

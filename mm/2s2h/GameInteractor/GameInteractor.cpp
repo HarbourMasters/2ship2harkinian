@@ -89,6 +89,13 @@ void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnSceneInit>(sceneId, spawnNum);
 }
 
+void GameInteractor_ExecuteOnScene(s16 sceneId) {
+    SPDLOG_DEBUG("OnSceneInit: sceneId: {}", sceneId);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnScene>(sceneId);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnScene>(sceneId, sceneId);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnScene>(sceneId);
+}
+
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum) {
     SPDLOG_DEBUG("OnRoomInit: sceneId: {}, roomNum: {}", sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRoomInit>(sceneId, roomNum);
@@ -271,6 +278,10 @@ void GameInteractor_ExecuteOnBottleContentsUpdate(u8 item) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnBottleContentsUpdate>(item);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnBottleContentsUpdate>(item, item);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnBottleContentsUpdate>(item);
+}
+
+void GameInteractor_ExecuteOnSeqPlayerInit(int32_t playerIdx, int32_t seqId) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSeqPlayerInit>(playerIdx, seqId);
 }
 
 bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...) {
