@@ -13,14 +13,14 @@ std::map<std::tuple<s16, s16, s16>, RandoCheckId> cowMap = {
     { { SCENE_F01, 0, 8 }, RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_BACK },
     { { SCENE_F01, 0, 9 }, RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_FRONT },
     { { SCENE_OMOYA, 0, 5 }, RC_ROMANI_RANCH_BARN_COW_MIDDLE },
-    { { SCENE_OMOYA, 0, 6 }, RC_ROMANI_RANCH_BARN_COW_LEFT },  // Note: May not be reachable
-    { { SCENE_OMOYA, 0, 7 }, RC_ROMANI_RANCH_BARN_COW_RIGHT }, // Note: May not be reachable
+    { { SCENE_OMOYA, 0, 6 }, RC_ROMANI_RANCH_BARN_COW_LEFT },
+    { { SCENE_OMOYA, 0, 7 }, RC_ROMANI_RANCH_BARN_COW_RIGHT },
     { { SCENE_KAKUSIANA, 10, 3 }, RC_GREAT_BAY_COAST_COW_BACK },
     { { SCENE_KAKUSIANA, 10, 7 }, RC_GREAT_BAY_COAST_COW_FRONT },
 };
 
 void Rando::ActorBehavior::InitEnCowBehavior() {
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_COW, IS_RANDO, [](Actor* actor) {
+    COND_ID_HOOK(ShouldActorInit, ACTOR_EN_COW, IS_RANDO, [](Actor* actor, bool* should) {
         RandoCheckId randoCheckId = RC_UNKNOWN;
 
         s16 actorListIndex = GetActorListIndex(actor);
@@ -37,6 +37,37 @@ void Rando::ActorBehavior::InitEnCowBehavior() {
             }
 
             SetObjectRandoCheckId(actor, randoCheckId);
+
+            switch (randoCheckId) {
+                case RC_ROMANI_RANCH_BARN_COW_LEFT:
+                    actor->world.pos.x = -470.0f;
+                    actor->world.pos.y = 1.0f;
+                    actor->world.pos.z = 53.0f;
+                    actor->shape.rot.y = 7116.0f;
+                    break;
+                case RC_ROMANI_RANCH_BARN_COW_RIGHT:
+                    actor->world.pos.x = -208.0f;
+                    actor->world.pos.y = 0.0f;
+                    actor->world.pos.z = 87.0f;
+                    actor->shape.rot.y = -32768.0f;
+                    break;
+                case RC_GREAT_BAY_COAST_COW_FRONT:
+                case RC_TERMINA_FIELD_COW_FRONT:
+                    actor->world.pos.x = 2503.0f;
+                    actor->world.pos.y = 0.0f;
+                    actor->world.pos.z = 907.0f;
+                    actor->shape.rot.y = -5085.0f;
+                    break;
+                case RC_GREAT_BAY_COAST_COW_BACK:
+                case RC_TERMINA_FIELD_COW_BACK:
+                    actor->world.pos.x = 2269.0f;
+                    actor->world.pos.y = 0.0f;
+                    actor->world.pos.z = 907.0f;
+                    actor->shape.rot.y = 2950.0f;
+                    break;
+                default:
+                    break;
+            }
         }
     });
 
@@ -71,39 +102,5 @@ void Rando::ActorBehavior::InitEnCowBehavior() {
             gPlayState->msgCtx.songPlayed = 0;
         }
         *should = gPlayState->msgCtx.songPlayed == OCARINA_SONG_EPONAS;
-    });
-
-    COND_ID_HOOK(ShouldActorInit, ACTOR_EN_COW, IS_RANDO, [](Actor* refActor, bool* should) {
-        RandoCheckId randoCheckId = GetObjectRandoCheckId(refActor);
-        switch (randoCheckId) {
-            case RC_ROMANI_RANCH_BARN_COW_LEFT:
-                refActor->world.pos.x = -470.0f;
-                refActor->world.pos.y = 1.0f;
-                refActor->world.pos.z = 53.0f;
-                refActor->shape.rot.y = 7116.0f;
-                break;
-            case RC_ROMANI_RANCH_BARN_COW_RIGHT:
-                refActor->world.pos.x = -208.0f;
-                refActor->world.pos.y = 0.0f;
-                refActor->world.pos.z = 87.0f;
-                refActor->shape.rot.y = -32768.0f;
-                break;
-            case RC_GREAT_BAY_COAST_COW_FRONT:
-            case RC_TERMINA_FIELD_COW_FRONT:
-                refActor->world.pos.x = 2503.0f;
-                refActor->world.pos.y = 0.0f;
-                refActor->world.pos.z = 907.0f;
-                refActor->shape.rot.y = -5085.0f;
-                break;
-            case RC_GREAT_BAY_COAST_COW_BACK:
-            case RC_TERMINA_FIELD_COW_BACK:
-                refActor->world.pos.x = 2269.0f;
-                refActor->world.pos.y = 0.0f;
-                refActor->world.pos.z = 907.0f;
-                refActor->shape.rot.y = 2950.0f;
-                break;
-            default:
-                break;
-        }
     });
 }
