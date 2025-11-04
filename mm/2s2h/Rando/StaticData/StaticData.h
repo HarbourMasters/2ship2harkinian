@@ -53,6 +53,7 @@ u8 GetIconForZMessage(RandoItemId itemId);
 const char* GetIconTexturePath(RandoItemId itemId);
 bool ShouldShowGetItemCutscene(RandoItemId itemId);
 std::string GetItemName(RandoItemId randoItemId, bool includeArticle = true);
+std::string GetTrapMessage();
 
 struct RandoStaticOption {
     RandoOptionId randoOptionId;
@@ -69,8 +70,8 @@ struct RandoStaticRegion {
     RandoRegionId randoRegionId;
     const char* name;
     SceneId sceneId;
-    std::unordered_map<RandoCheckId, std::function<bool()>> checks;
-    std::unordered_map<RandoRegionId, std::function<bool()>> regions;
+    std::map<RandoCheckId, std::function<bool()>> checks;
+    std::map<RandoRegionId, std::function<bool()>> regions;
 };
 
 extern std::map<RandoRegionId, RandoStaticRegion> Regions;
