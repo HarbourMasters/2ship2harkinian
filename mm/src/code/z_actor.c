@@ -71,7 +71,6 @@ struct Actor* gCameraDriftActor;
 // For Link's voice pitch SFX modifier
 static f32 freqMultiplier = 1;
 
-
 void Actor_KillAllOnHalfDayChange(PlayState* play, ActorContext* actorCtx);
 Actor* Actor_SpawnEntry(ActorContext* actorCtx, ActorEntry* actorEntry, PlayState* play);
 Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play);
@@ -2490,14 +2489,14 @@ void Player_PlaySfx(Player* player, u16 sfxId) {
     if (player->currentMask == PLAYER_MASK_GIANT) {
         Audio_PlaySfx_AtPosWithPresetLowFreqAndHighReverb(&player->actor.projectedPos, sfxId);
     } else {
-        
+
         freqMultiplier = CVarGetFloat("gAudioEditor.LinkVoiceFreqMultiplier", 1.0);
         if (freqMultiplier <= 0) {
             freqMultiplier = 1;
         }
 
-        AudioSfx_PlaySfx(sfxId, &player->actor.projectedPos, 4, &freqMultiplier,
-                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+        AudioSfx_PlaySfx(sfxId, &player->actor.projectedPos, 4, &freqMultiplier, &gSfxDefaultFreqAndVolScale,
+                         &gSfxDefaultReverb);
     }
 }
 

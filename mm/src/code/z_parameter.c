@@ -5099,7 +5099,7 @@ void Interface_SetTatlCall(PlayState* play, u16 tatlCallState) {
                 Audio_PlaySfx_AtPosWithReverb(&gSfxDefaultPos, NA_SE_VO_NA_HELLO_2, 0x20);
             }
         }
-        
+
         interfaceCtx->tatlCalling = true;
         sCUpInvisible = 0;
         sCUpTimer = 10;
