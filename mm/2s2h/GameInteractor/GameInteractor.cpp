@@ -89,11 +89,11 @@ void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnSceneInit>(sceneId, spawnNum);
 }
 
-void GameInteractor_ExecuteOnScene(s16 sceneId) {
-    SPDLOG_DEBUG("OnSceneInit: sceneId: {}", sceneId);
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnScene>(sceneId);
-    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnScene>(sceneId, sceneId);
-    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnScene>(sceneId);
+void GameInteractor_ExecuteOnSceneChange(s16 sceneId) {
+    SPDLOG_DEBUG("OnSceneChange: sceneId: {}", sceneId);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneChange>(sceneId);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnSceneChange>(sceneId, sceneId);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnSceneChange>(sceneId);
 }
 
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum) {

@@ -436,8 +436,8 @@ void DrawTypeChip(SeqType type) {
     ImGui::EndDisabled();
 }
 
-void AudioEditorRegisterOnSceneInitHook() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnScene>([](int16_t sceneNum) {
+void AudioEditorRegisterOnSceneChangeHook() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneChange>([](int16_t sceneNum) {
         if (CVarGetInteger("gAudioEditor.RandomizeAllOnNewScene", 0)) {
             AudioEditor_RandomizeAll();
         }
@@ -453,7 +453,7 @@ void AudioEditorRegisterOnGenerationCompletionHook() {
 }
 
 void AudioEditor::InitElement() {
-    AudioEditorRegisterOnSceneInitHook();
+    AudioEditorRegisterOnSceneChangeHook();
     AudioEditorRegisterOnGenerationCompletionHook();
 }
 

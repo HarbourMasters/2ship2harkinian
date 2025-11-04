@@ -17,7 +17,7 @@ DEFINE_HOOK(AfterInterfaceClockDraw, ())
 DEFINE_HOOK(BeforeInterfaceClockDraw, ())
 
 DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum))
-DEFINE_HOOK(OnScene, (s8 sceneId))
+DEFINE_HOOK(OnSceneChange, (s8 sceneId))
 DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum))
 DEFINE_HOOK(AfterRoomSceneCommands, (s8 sceneId, s8 roomNum))
 DEFINE_HOOK(OnPlayDrawWorldEnd, ())
