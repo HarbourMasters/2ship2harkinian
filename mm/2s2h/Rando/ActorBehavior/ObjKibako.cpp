@@ -117,6 +117,7 @@ std::map<std::tuple<s16, s16, s16>, RandoCheckId> crateMap = {
     { { SCENE_KINSTA1, 2, 8 }, RC_SWAMP_SPIDER_HOUSE_GOLD_ROOM_UPPER_LARGE_CRATE_02 },
 };
 
+// Identify the crate RC by scene ID, room, and actor list index
 RandoCheckId getCrateRandoCheck(Actor* actor) {
     RandoCheckId randoCheckId = RC_UNKNOWN;
 

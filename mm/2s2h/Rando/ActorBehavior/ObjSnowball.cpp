@@ -185,6 +185,7 @@ std::map<std::tuple<s16, s16, s16>, RandoCheckId> snowballActorIdMap = {
 };
 // clang-format on
 
+// Identify the snowball based on scene ID, room, and actor list index
 void IdentifySnowball(Actor* actor, bool* should) {
     s16 actorListIndex = GetActorListIndex(actor);
     RandoCheckId randoCheckId = RC_UNKNOWN;

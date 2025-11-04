@@ -20,6 +20,7 @@ std::map<std::tuple<s16, s16, s16>, RandoCheckId> cowMap = {
 };
 
 void Rando::ActorBehavior::InitEnCowBehavior() {
+    // Identify cow based on scene ID, room, and actor list index
     COND_ID_HOOK(ShouldActorInit, ACTOR_EN_COW, IS_RANDO, [](Actor* actor, bool* should) {
         RandoCheckId randoCheckId = RC_UNKNOWN;
 

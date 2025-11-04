@@ -51,37 +51,39 @@ EnItem00* spawnReplacementItem(Vec3f& pos, Rando::StaticData::RandoStaticCheck& 
 }
 
 void Rando::ActorBehavior::InitEnItem00Behavior() {
-    COND_VB_SHOULD(VB_OBJ_MURE_SET_CHILD_ROOM, IS_RANDO, {
+    // Identify freestanding based on the spawner's scene ID, room, and actor list index. The resulting RC is the base
+    // value, with each child incrementing to it to get its own RC. The RCs must be contiguous for this to work.
+    COND_VB_SHOULD(VB_OBJ_MURE3_DROP_COLLECTIBLE, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
-        if (actor->id == ACTOR_OBJ_MURE3) {
-            auto it = freestandingMap.find({ gPlayState->sceneId, actor->room, GetActorListIndex(actor) });
-            if (it != freestandingMap.end()) {
-                s32 i = va_arg(args, s32);
-                RandoCheckId randoCheckId = static_cast<RandoCheckId>(it->second + i);
-                auto randoStaticCheck = Rando::StaticData::Checks[randoCheckId];
-                auto randoSaveCheck = RANDO_SAVE_CHECKS[randoStaticCheck.randoCheckId];
-                if (randoSaveCheck.shuffled && !randoSaveCheck.cycleObtained) {
-                    ObjMure3* objMure3 = (ObjMure3*)actor;
-                    Vec3f spawnPos;
-                    spawnPos.y = objMure3->actor.world.pos.y;
-                    if (i < 6) { // Ring of Rupees
-                        s16 yRot = objMure3->actor.world.rot.y + 0x2AAA * i;
-                        spawnPos.x = (Math_SinS(yRot) * 40.0f) + objMure3->actor.world.pos.x;
-                        spawnPos.z = (Math_CosS(yRot) * 40.0f) + objMure3->actor.world.pos.z;
-                        objMure3->unk148[i] = spawnReplacementItem(spawnPos, randoStaticCheck);
-                        objMure3->unk148[i]->actor.room = actor->room;
-                    } else { // Center Rupee
-                        spawnPos.x = objMure3->actor.world.pos.x;
-                        spawnPos.z = objMure3->actor.world.pos.z;
-                        objMure3->unk160 = (Actor*)spawnReplacementItem(spawnPos, randoStaticCheck);
-                        objMure3->unk160->room = actor->room;
-                    }
-                    *should = false;
+        auto it = freestandingMap.find({ gPlayState->sceneId, actor->room, GetActorListIndex(actor) });
+        if (it != freestandingMap.end()) {
+            s32 i = va_arg(args, s32);
+            RandoCheckId randoCheckId = static_cast<RandoCheckId>(it->second + i);
+            auto randoStaticCheck = Rando::StaticData::Checks[randoCheckId];
+            auto randoSaveCheck = RANDO_SAVE_CHECKS[randoStaticCheck.randoCheckId];
+            if (randoSaveCheck.shuffled && !randoSaveCheck.cycleObtained) {
+                ObjMure3* objMure3 = (ObjMure3*)actor;
+                Vec3f spawnPos;
+                spawnPos.y = objMure3->actor.world.pos.y;
+                if (i < 6) { // Ring of Rupees
+                    s16 yRot = objMure3->actor.world.rot.y + 0x2AAA * i;
+                    spawnPos.x = (Math_SinS(yRot) * 40.0f) + objMure3->actor.world.pos.x;
+                    spawnPos.z = (Math_CosS(yRot) * 40.0f) + objMure3->actor.world.pos.z;
+                    objMure3->unk148[i] = spawnReplacementItem(spawnPos, randoStaticCheck);
+                    objMure3->unk148[i]->actor.room = actor->room;
+                } else { // Center Rupee
+                    spawnPos.x = objMure3->actor.world.pos.x;
+                    spawnPos.z = objMure3->actor.world.pos.z;
+                    objMure3->unk160 = (Actor*)spawnReplacementItem(spawnPos, randoStaticCheck);
+                    objMure3->unk160->room = actor->room;
                 }
+                *should = false;
             }
         }
     });
 
+    // For freestandings that are identifiable based on collectible flags, pre-empt their normal spawns and spawn a
+    // custom item in their places.
     COND_ID_HOOK(ShouldActorInit, ACTOR_EN_ITEM00, IS_RANDO, [](Actor* actor, bool* should) {
         EnItem00* item00 = (EnItem00*)actor;
 

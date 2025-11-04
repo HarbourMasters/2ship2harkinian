@@ -315,14 +315,19 @@ void ObjGrass_RandoDrawXlu(ObjGrass* objGrass, ObjGrassElement* grassElem, Rando
 }
 
 void Rando::ActorBehavior::InitObjGrassBehavior() {
+    /*
+     * Identify directly spawned actor grass by scene ID, room, and actor list index. If this is a common chest grotto,
+     * use respawn data to retrieve the base RC. The grass actors and RCs are both in contiguous order, so the base RC
+     * can be incremented to get each grass actor's target RC value.
+     */
     COND_ID_HOOK(OnActorInit, ACTOR_EN_KUSA, IS_RANDO, [](Actor* actor) {
         s16 actorListIndex = GetActorListIndex(actor);
-        if (actorListIndex < 0) { // This grass was placed by a spawner, not the scene
+        if (actorListIndex < 0) { // This grass was placed by a spawner, not scene data
             return;
         }
 
         RandoCheckId randoCheckId = RC_UNKNOWN;
-        if (gPlayState->sceneId == SCENE_KAKUSIANA && actor->room == 4) {
+        if (gPlayState->sceneId == SCENE_KAKUSIANA && actor->room == 4) { // Common chest grotto
             auto it = chestGrottoMap.find(gSaveContext.respawn[RESPAWN_MODE_UNK_3].data);
             if (it != chestGrottoMap.end()) {
                 randoCheckId = static_cast<RandoCheckId>(it->second + actorListIndex);
@@ -345,34 +350,41 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
         SetObjectRandoCheckId(actor, randoCheckId);
     });
 
-    COND_ID_HOOK(OnActorDestroy, ACTOR_EN_KUSA, IS_RANDO, [](Actor* actor) {
-        if (GetActorListIndex(actor) < 0) {
-            // This was not spawned directly in the scene, so we must manually free the extension RC.
-            ObjectExtension_Free(actor);
-        }
-    });
-
-    COND_VB_SHOULD(VB_OBJ_MURE_SET_CHILD_ROOM, IS_RANDO, {
+    /*
+     * Identify actor grass that was spawned by a spawner actor, by scene ID, room, and the spawner's actor list index.
+     * The RCs and child grass are contiguous, so they can increment the base value to get their target RC.
+     */
+    COND_VB_SHOULD(VB_OBJ_MURE2_SET_CHILD_ROOM, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
-        if (actor->id == ACTOR_OBJ_MURE2) {
-            ObjMure2* objMure2 = (ObjMure2*)actor;
-            s32 i = va_arg(args, s32);
-            Actor* child = objMure2->actors[i];
-            if (child != nullptr && child->id == ACTOR_EN_KUSA) {
-                auto it = objMure2GrassMap.find({ gPlayState->sceneId, actor->room, GetActorListIndex(actor) });
-                if (it != objMure2GrassMap.end()) {
-                    RandoCheckId randoCheckId = static_cast<RandoCheckId>(it->second + i);
-                    SetObjectRandoCheckId(child, randoCheckId);
-                }
+        ObjMure2* objMure2 = (ObjMure2*)actor;
+        s32 i = va_arg(args, s32);
+        Actor* child = objMure2->actors[i];
+        if (child != nullptr && child->id == ACTOR_EN_KUSA) {
+            auto it = objMure2GrassMap.find({ gPlayState->sceneId, actor->room, GetActorListIndex(actor) });
+            if (it != objMure2GrassMap.end()) {
+                RandoCheckId randoCheckId = static_cast<RandoCheckId>(it->second + i);
+                SetObjectRandoCheckId(child, randoCheckId);
             }
         }
     });
 
+    /*
+     * This handles non-actor grass, which can be complicated to follow. Scenes define Obj_Grass_Unit, which itself has
+     * multiple grass children elements. Once a grass unit is done initializing, its child elements get added to a
+     * singleton ObjGrass manager to handle all the grass elements in the scene and room. The grass unit itself gets
+     * killed.
+     *
+     * This hook checks that, upon killing a grass object, whether it is the last one for the scene. If it is, it then
+     * consults the ObjGrass manager singleton to iterate its children and grandchildren for each ObjGrassElement to
+     * assign its respective RC. RCs are derived from the scene ID and room, as there is only one ObjGrass manager per
+     * scene. Cow grottos use respawn data instead. The order that grass elements are processed is deterministic each
+     * load and contiguous, so we can just increment the base RC like always.
+     */
     COND_ID_HOOK(OnActorKill, ACTOR_OBJ_GRASS_UNIT, IS_RANDO, [](Actor* actor) {
         s16 maxActiveGrassGroups = 0;
         RandoCheckId baseCheckId;
 
-        if (gPlayState->sceneId == SCENE_KAKUSIANA && actor->room == 10) {
+        if (gPlayState->sceneId == SCENE_KAKUSIANA && actor->room == 10) { // Cow grottos
             auto it = cowGrottoMap.find(gSaveContext.respawn[RESPAWN_MODE_UNK_3].data);
             if (it == cowGrottoMap.end()) {
                 return;
@@ -406,7 +418,14 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
         }
     });
 
-    // There should only be one of this actor active at any time.
+    // If actor grass was not spawned directly in the scene, we must manually free the extension RC.
+    COND_ID_HOOK(OnActorDestroy, ACTOR_EN_KUSA, IS_RANDO, [](Actor* actor) {
+        if (GetActorListIndex(actor) < 0) {
+            ObjectExtension_Free(actor);
+        }
+    });
+
+    // There should only be one of this actor active at any time. Iterate its grandchildren and free the extension.
     COND_ID_HOOK(OnActorDestroy, ACTOR_OBJ_GRASS, IS_RANDO, [](Actor* actor) {
         ObjGrassGroup* grassGroup;
         ObjGrass* objGrass = (ObjGrass*)actor;
@@ -458,6 +477,7 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
         }
     });
 
+    // The grass has been destroyed, so spawn a collectible item based on the grass's RC value.
     COND_VB_SHOULD(VB_GRASS_DROP_COLLECTIBLE, IS_RANDO, {
         auto actorId = static_cast<ActorId>(va_arg(args, int32_t));
         Vec3f collectiblePos = gZeroVec3f;

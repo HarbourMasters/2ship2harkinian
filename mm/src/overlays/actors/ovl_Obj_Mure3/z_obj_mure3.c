@@ -85,7 +85,7 @@ void func_8098F220(ObjMure3* this, PlayState* play) {
     yRot = this->actor.world.rot.y;
 
     for (i = 0; i < 6; i++) {
-        if (GameInteractor_Should(VB_OBJ_MURE_SET_CHILD_ROOM, !((this->unk164 >> i) & 1), this, i)) {
+        if (GameInteractor_Should(VB_OBJ_MURE3_DROP_COLLECTIBLE, !((this->unk164 >> i) & 1), this, i)) {
             spawnPos.x = (Math_SinS(yRot) * 40.0f) + this->actor.world.pos.x;
             spawnPos.z = (Math_CosS(yRot) * 40.0f) + this->actor.world.pos.z;
             this->unk148[i] = (EnItem00*)Item_DropCollectible2(play, &spawnPos, 0x4000);
@@ -96,7 +96,7 @@ void func_8098F220(ObjMure3* this, PlayState* play) {
         yRot += 0x2AAA;
     }
 
-    if (GameInteractor_Should(VB_OBJ_MURE_SET_CHILD_ROOM, !((this->unk164 >> 6) & 1), this, 6)) {
+    if (GameInteractor_Should(VB_OBJ_MURE3_DROP_COLLECTIBLE, !((this->unk164 >> 6) & 1), this, 6)) {
         spawnPos.x = this->actor.world.pos.x;
         spawnPos.z = this->actor.world.pos.z;
         this->unk160 = Item_DropCollectible2(play, &spawnPos, 0x4002);

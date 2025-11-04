@@ -101,6 +101,7 @@ void ObjTaru_RandoDraw(Actor* actor, PlayState* play) {
 }
 
 void Rando::ActorBehavior::InitObjTaruBehavior() {
+    // Identify the barrel based on scene ID, room, and actor list index
     COND_ID_HOOK(OnActorInit, ACTOR_OBJ_TARU, IS_RANDO, [](Actor* actor) {
         RandoCheckId randoCheckId = RC_UNKNOWN;
 

@@ -310,6 +310,7 @@ std::map<std::tuple<s16, s16, s16>, RandoCheckId> potMap = {
     { { SCENE_INISIE_R, 4, 9 }, RC_STONE_TOWER_TEMPLE_INVERTED_WIZZROBE_POT_04 },
 };
 
+// Identify the pot based on either the collectible flag if it exists or the scene Id, room, and actor list index
 void IdentifyPot(Actor* actor, bool* should) {
     RandoCheckId randoCheckId = RC_UNKNOWN;
     s16 actorListIndex = GetActorListIndex(actor);
