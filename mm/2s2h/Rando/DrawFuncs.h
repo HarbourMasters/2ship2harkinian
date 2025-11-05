@@ -16,6 +16,7 @@ void DrawBat();
 void DrawBeamos();
 void DrawBoe();
 void DrawRealBombchu();
+void DrawBubble();
 void DrawDeathArmos();
 void DrawDekuBaba();
 void DrawDinolfos();

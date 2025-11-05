@@ -518,6 +518,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SOUL_BEAMOS:
         case RI_SOUL_BOE:
         case RI_SOUL_BOMBCHU:
+        case RI_SOUL_BUBBLE:
         case RI_SOUL_DEATH_ARMOS:
         case RI_SOUL_DEKU_BABA:
         case RI_SOUL_DINOLFOS:

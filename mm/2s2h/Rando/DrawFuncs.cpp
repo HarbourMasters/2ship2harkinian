@@ -26,6 +26,7 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Beamos */        #include "assets/objects/object_vm/object_vm.h"
 /* Boe */           #include "assets/objects/object_mkk/object_mkk.h"
 /* Rat */           #include "assets/objects/object_rat/object_rat.h"
+/* Bubble */        #include "assets/objects/object_bb/object_bb.h"
 /* Death Armos */   #include "assets/objects/object_famos/object_famos.h"
 /* Deku Baba */     #include "assets/objects/object_dekubaba/object_dekubaba.h"
 /* Dinolfos */      #include "assets/objects/object_dinofos/object_dinofos.h"
@@ -328,6 +329,33 @@ extern void DrawRealBombchu() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 6.0f, 6.0f, 6.0f });
+}
+
+extern void DrawBubble() {
+    static bool initialized = false;
+    static SkelAnime skelAnime;
+    static Vec3s jointTable[BUBBLE_LIMB_MAX];
+    static Vec3s morphTable[BUBBLE_LIMB_MAX];
+    static u32 lastUpdate = 0;
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+
+    if (!initialized) {
+        initialized = true;
+        SkelAnime_Init(gPlayState, &skelAnime, (SkeletonHeader*)&gBubbleSkel, (AnimationHeader*)&gBubbleFlyingAnim,
+                       jointTable, morphTable, BUBBLE_LIMB_MAX);
+    }
+    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
+        lastUpdate = gPlayState->state.frames;
+        SkelAnime_Update(&skelAnime);
+    }
+
+    SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
 }
 
 extern void DrawDeathArmos() {
