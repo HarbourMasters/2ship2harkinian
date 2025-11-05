@@ -2,6 +2,7 @@
 #include "ActorBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "Rando/DrawFuncs.h"
+#include "spdlog/spdlog.h"
 
 extern "C" {
 #include "variables.h"
@@ -90,11 +91,15 @@ void ShouldActorDraw(Actor* actor, bool* should, RandoInf randoInf) {
 
 void Rando::ActorBehavior::InitSoulsBehavior() {
     bool shouldBossRegister = IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES;
-    bool shouldEnemyRegister = IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] == RO_GENERIC_YES;
+    bool shouldEnemyInjure = IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] == RO_GENERIC_YES;
 
-    // ShouldActorDraw & ShouldActorUpdate for Enemy Souls
-    COND_HOOK(ShouldActorDraw, shouldEnemyRegister, [](Actor* actor, bool* should) {
-        if (actor->category != ACTORCAT_ENEMY || actor->category == ACTORCAT_BOSS) {
+    COND_VB_SHOULD(VB_APPLY_DAMAGE_TO_ACTOR, shouldEnemyInjure, {
+        Actor* actor = va_arg(args, Actor*);
+        u32 damageEffect = va_arg(args, u32);
+        u32 damage = va_arg(args, u32);
+        u32 dmgFlags = va_arg(args, u32);
+
+        if (actor->category != ACTORCAT_ENEMY) {
             return;
         }
 
@@ -105,23 +110,10 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
 
         auto findSoulFlag = soulMap.find(randoItemId);
         if (findSoulFlag != soulMap.end()) {
-            ShouldActorDraw(actor, should, std::get<2>(findSoulFlag->second));
-        }
-    });
-
-    COND_HOOK(ShouldActorUpdate, shouldEnemyRegister, [](Actor* actor, bool* should) {
-        if (actor->category != ACTORCAT_ENEMY || actor->category == ACTORCAT_BOSS) {
-            return;
-        }
-
-        RandoItemId randoItemId = GetRandoItemIdByActor(actor->id);
-        if (randoItemId == RI_UNKNOWN) {
-            return;
-        }
-
-        auto findSoulFlag = soulMap.find(randoItemId);
-        if (findSoulFlag != soulMap.end()) {
-            ShouldActorUpdate(actor, should, std::get<2>(findSoulFlag->second));
+            if (!Flags_GetRandoInf(std::get<2>(findSoulFlag->second))) {
+                actor->colChkInfo.damage = 0;
+                *should = false;
+            }
         }
     });
 
