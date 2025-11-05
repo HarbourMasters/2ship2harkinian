@@ -23,6 +23,7 @@ void DrawDinolfos();
 void DrawDodongo();
 void DrawEeno();
 void DrawFlyingPot();
+void DrawFreezard();
 void DrawGrasshopper();
 void DrawGuay();
 void DrawHiploop();

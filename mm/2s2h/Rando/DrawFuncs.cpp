@@ -33,6 +33,7 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Dodongo */       #include "assets/objects/object_dodongo/object_dodongo.h"
 /* Eeno */          #include "assets/objects/object_snowman/object_snowman.h"
 /* Flying Pot */    #include "assets/objects/gameplay_dangeon_keep/gameplay_dangeon_keep.h"
+/* Freezard */      #include "assets/objects/object_fz/object_fz.h"
 /* Grasshopper */   #include "assets/objects/object_grasshopper/object_grasshopper.h"
 /* Guay */          #include "assets/objects/object_crow/object_crow.h"
 /* Hiploop */       #include "assets/objects/object_pp/object_pp.h"
@@ -511,6 +512,26 @@ extern void DrawFlyingPot() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 0.4f, 0.4f, 0.4f });
+}
+
+extern void DrawFreezard() {
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.006f, 0.006f, 0.006f, MTXMODE_APPLY);
+    Matrix_Translate(0, -4100.0f, 0, MTXMODE_APPLY);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+
+    gSPSegment(POLY_XLU_DISP++, 0x08,
+               (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, 0, 0, gPlayState->state.frames % 128, 0x20, 0x20,
+                                           1, 0, (gPlayState->state.frames * 2) % 128, 0x20, 0x20));
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+    gDPSetCombineLERP(POLY_XLU_DISP++, TEXEL1, PRIMITIVE, PRIM_LOD_FRAC, TEXEL0, TEXEL1, TEXEL0, PRIMITIVE, TEXEL0,
+                      PRIMITIVE, ENVIRONMENT, COMBINED, ENVIRONMENT, COMBINED, 0, ENVIRONMENT, 0);
+    gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x80, 155, 255, 255, 255);
+    gDPSetEnvColor(POLY_XLU_DISP++, 200, 200, 200, 255);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)object_fz_DL_001130);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 20.0f, 20.0f, 20.0f });
 }
 
 extern void DrawGrasshopper() {
