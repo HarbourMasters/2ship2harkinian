@@ -2488,7 +2488,7 @@ void func_800B8E1C(PlayState* play, Actor* actor, f32 arg2, s16 arg3, f32 arg4) 
 void Player_PlaySfx(Player* player, u16 sfxId) {
     if (player->currentMask == PLAYER_MASK_GIANT) {
         Audio_PlaySfx_AtPosWithPresetLowFreqAndHighReverb(&player->actor.projectedPos, sfxId);
-    } else {
+    } else if (sfxId >= NA_SE_VO_LI_SWORD_N && sfxId <= NA_SE_VO_DEMO_394 || sfxId == NA_SE_PL_TRANSFORM_VOICE) {
 
         freqMultiplier = CVarGetFloat("gAudioEditor.LinkVoiceFreqMultiplier", 1.0);
         if (freqMultiplier <= 0) {
@@ -2497,6 +2497,10 @@ void Player_PlaySfx(Player* player, u16 sfxId) {
 
         AudioSfx_PlaySfx(sfxId, &player->actor.projectedPos, 4, &freqMultiplier, &gSfxDefaultFreqAndVolScale,
                          &gSfxDefaultReverb);
+    } else {
+
+        AudioSfx_PlaySfx(sfxId, &player->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale,
+                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     }
 }
 
