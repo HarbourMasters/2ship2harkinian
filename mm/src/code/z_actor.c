@@ -28,9 +28,9 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/BenPort.h"
 #include "2s2h/ShipUtils.h"
-#include "2s2h/ActorExtension/ActorExtension.h"
-#include "2s2h/ActorExtension/ActorListIndex.h"
-#include "public/bridge/consolevariablebridge.h"
+#include "2s2h/ObjectExtension/ObjectExtension.h"
+#include "2s2h/ObjectExtension/ActorListIndex.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 
 // bss
 // FaultClient sActorFaultClient; // 2 funcs
@@ -2661,7 +2661,7 @@ void Actor_SpawnSetupActors(PlayState* play, ActorContext* actorCtx) {
         shiftedHalfDaysBit = (actorCtx->halfDaysBit << 1) & (HALFDAYBIT_ALL & ~HALFDAYBIT_DAY0_NIGHT);
 
         for (i = 0; i < play->numSetupActors; i++) {
-            // 2S2H [ActorExtension] store the actor's index to be used for identification
+            // 2S2H [ObjectExtension] store the actor's index to be used for identification
             currentActorListIndex = i;
 
             actorEntryHalfDayBit = ((actorEntry->rot.x & 7) << 7) | (actorEntry->rot.z & 0x7F);
@@ -2676,7 +2676,7 @@ void Actor_SpawnSetupActors(PlayState* play, ActorContext* actorCtx) {
             }
             actorEntry++;
         }
-        // 2S2H [ActorExtension] Reset the currentActorListIndex
+        // 2S2H [ObjectExtension] Reset the currentActorListIndex
         currentActorListIndex = -1;
 
         // Prevents re-spawning the setup actors
@@ -3116,7 +3116,7 @@ void Actor_DrawLensActors(PlayState* play, s32 numLensActors, Actor** lensActors
             POLY_XLU_DISP = gfx;
             // BENTODO: Since actor masking is diabled for actors that would normally
             // be "hidden", we are opting to just not render them at all
-            if (play->roomCtx.curRoom.lensMode == LENS_MODE_HIDE_ACTORS) {
+            if (play->roomCtx.curRoom.lensMode == LENS_MODE_SHOW_ACTORS) {
                 Actor_Draw(play, *lensActor);
             }
             gfx = POLY_XLU_DISP;
@@ -3754,8 +3754,7 @@ Actor* Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s1
         return NULL;
     }
 
-    // #region 2S2H [ActorExtension]
-    ActorExtension_Alloc(actor, profile->id);
+    // #region 2S2H [ObjectExtension]
     SetActorListIndex(actor, currentActorListIndex);
     currentActorListIndex = -1;
     // #endregion
@@ -3920,8 +3919,8 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
 
     newHead = Actor_RemoveFromCategory(play, actorCtx, actor);
 
-    // #region 2S2H [ActorExtension]
-    ActorExtension_Free(actor);
+    // #region 2S2H [ObjectExtension]
+    ObjectExtension_Free(actor);
     // #endregion
 
     ZeldaArena_Free(actor);

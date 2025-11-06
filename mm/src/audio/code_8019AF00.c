@@ -3,7 +3,7 @@
 
 #include "GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 
 typedef struct {
     /* 0x0 */ s8 x;
@@ -2101,6 +2101,9 @@ void AudioOcarina_ReadControllerInput(void) {
     sOcarinaInputButtonPrev = ocarinaInputButtonPrev;
     sOcarinaInputStickRel.x = input->rel.stick_x;
     sOcarinaInputStickRel.y = input->rel.stick_y;
+
+    // 2S2H [Enhancement] Apply right stick ocarina input via GameInteractor
+    sOcarinaInputButtonCur |= GameInteractor_RightStickOcarina(input);
 }
 
 /**

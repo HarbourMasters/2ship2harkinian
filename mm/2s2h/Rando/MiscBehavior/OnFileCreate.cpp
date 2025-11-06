@@ -1,8 +1,8 @@
 #include "MiscBehavior.h"
 #include "Rando/Spoiler/Spoiler.h"
 #include "Rando/Logic/Logic.h"
-#include <boost_custom/container_hash/hash_32.hpp>
-#include "public/bridge/consolevariablebridge.h"
+#include "2s2h/ShipUtils.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include <spdlog/spdlog.h>
 
 extern "C" {
@@ -43,13 +43,13 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
             // SpoilerFileIndex == 0 means we're generating a new one
             if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
                 bool hadInputSeed = true;
-                std::string inputSeed = CVarGetString("gRando.InputSeed", "");
+                std::string inputSeed = Ship_RemoveSpecialCharacters(CVarGetString("gRando.InputSeed", ""));
                 if (inputSeed.empty()) {
                     inputSeed = std::to_string(Ship_Random(0, 1000000));
                     hadInputSeed = false;
                 }
 
-                uint32_t finalSeed = boost::hash_32<std::string>{}(inputSeed);
+                uint32_t finalSeed = Ship_Hash(inputSeed);
                 Ship_Random_Seed(finalSeed);
 
                 // Persist options to the save
@@ -58,6 +58,12 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     RANDO_SAVE_OPTIONS[randoOptionId] =
                         (uint32_t)CVarGetInteger(randoStaticOption.cvar, randoStaticOption.defaultValue);
                 }
+
+                std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(
+                    CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
+
+                std::string startingItemSave = CreateStartingItemsToCvar(startingItems);
+                strncpy(RANDO_STARTING_ITEMS, startingItemSave.c_str(), startingItemSave.size() + 1);
 
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_HEALTH] != 3) {
                     gSaveContext.save.saveInfo.playerData.healthCapacity =
@@ -76,23 +82,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
                 }
 
-                std::vector<RandoItemId> startingItems = {};
-                for (size_t i = 0; i < Rando::StaticData::StartingItemsMap.size(); i++) {
-                    RandoItemId itemId = Rando::StaticData::StartingItemsMap[i];
-                    RandoOptionId optionId;
-                    if (i < 32) {
-                        optionId = RO_STARTING_ITEMS_1;
-                    } else if (i < 64) {
-                        optionId = RO_STARTING_ITEMS_2;
-                    } else {
-                        optionId = RO_STARTING_ITEMS_3;
-                    }
-                    uint32_t startingItemsBits = RANDO_SAVE_OPTIONS[optionId];
-                    if ((startingItemsBits & (1 << (i % 32))) != 0) {
-                        startingItems.push_back(itemId);
-                    }
-                }
-
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_MAPS_AND_COMPASSES]) {
                     std::vector<RandoItemId> MapsAndCompasses = {
                         RI_GREAT_BAY_COMPASS,     RI_GREAT_BAY_MAP,          RI_SNOWHEAD_COMPASS,
@@ -107,7 +96,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     }
                 }
 
-                std::unordered_map<RandoCheckId, bool> checkPool;
+                std::vector<RandoCheckId> checkPool;
                 std::vector<RandoItemId> itemPool;
 
                 // Create Excluded Checks List to eliminate excluded checks from the pool
@@ -130,7 +119,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         }
 
                         // Skip checks that are already in the pool
-                        if (checkPool.find(randoCheckId) != checkPool.end()) {
+                        if (std::find(checkPool.begin(), checkPool.end(), randoCheckId) != checkPool.end()) {
                             continue;
                         }
 
@@ -194,6 +183,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                             continue;
                         }
 
+                        if (randoStaticCheck.randoCheckType == RCTYPE_ENEMY_DROP &&
+                            RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_DROPS] == RO_GENERIC_NO) {
+                            continue;
+                        }
+
                         if (randoStaticCheck.randoCheckType == RCTYPE_TINGLE_SHOP &&
                             RANDO_SAVE_OPTIONS[RO_SHUFFLE_TINGLE_SHOPS] == RO_GENERIC_NO) {
                             continue;
@@ -218,7 +212,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         }
 
                         // Skip checks that have been excluded in the Locations menu and add their vanilla item to the
-                        // pool except if Logic is set to Vanilla or French Vanilla.
+                        // pool except if Logic is set to Vanilla.
                         if (RANDO_SAVE_OPTIONS[RO_LOGIC] <= RO_LOGIC_NEARLY_NO_LOGIC) {
                             auto it = std::find(excludedChecks.begin(), excludedChecks.end(), randoCheckId);
                             if (it != excludedChecks.end()) {
@@ -228,12 +222,12 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                                 RANDO_SAVE_CHECKS[randoCheckId].randoItemId = RI_JUNK;
                                 RANDO_SAVE_CHECKS[randoCheckId].skipped = true;
 
-                                checkPool.insert({ randoCheckId, true });
+                                checkPool.emplace_back(randoCheckId);
                                 continue;
                             }
                         }
 
-                        checkPool.insert({ randoCheckId, true });
+                        checkPool.emplace_back(randoCheckId);
                         itemPool.push_back(randoStaticCheck.randoItemId);
                     }
                 }
@@ -255,6 +249,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] == RO_GENERIC_YES) {
                     itemPool.push_back(RI_ABILITY_SWIM);
+                } else {
+                    Flags_SetRandoInf(RANDO_INF_OBTAINED_SWIM);
                 }
 
                 // Remove starting items from the pool (but only one per entry in startingItems)
@@ -325,6 +321,18 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 }
                 if (itemPool.empty()) {
                     throw std::runtime_error("No items in logic");
+                }
+
+                // Handle Shuffling Traps
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRAPS] == RO_GENERIC_YES) {
+                    for (int i = 0; i < RANDO_SAVE_OPTIONS[RO_TRAP_AMOUNT]; i++) {
+                        for (int j = 0; j < itemPool.size(); j++) {
+                            if (itemPool[j] == RI_JUNK) {
+                                itemPool[j] = RI_TRAP;
+                                break;
+                            }
+                        }
+                    }
                 }
 
                 int heartPiecesRemoved = 0;
@@ -428,8 +436,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     Rando::Logic::ApplyNearlyNoLogicToSaveContext(checkPool, itemPool);
                 } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_GLITCHLESS) {
                     Rando::Logic::ApplyGlitchlessLogicToSaveContext(checkPool, itemPool);
-                } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_FRENCH_VANILLA) {
-                    Rando::Logic::ApplyFrenchVanillaLogicToSaveContext(checkPool, itemPool);
                 } else {
                     throw std::runtime_error("Logic option not implemented: " +
                                              std::to_string(RANDO_SAVE_OPTIONS[RO_LOGIC]));
