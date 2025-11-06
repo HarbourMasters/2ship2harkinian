@@ -1,7 +1,7 @@
 #include "GameInteractor.h"
 #include <variant>
-#include "spdlog/spdlog.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <spdlog/spdlog.h>
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 
@@ -396,6 +396,32 @@ uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo) {
     return result;
 }
 
+uint32_t GameInteractor_RightStickOcarina(Input* input) {
+    uint32_t result = 0;
+
+    if (!CVarGetInteger("gEnhancements.Playback.RightStickOcarina", 0)) {
+        return result;
+    }
+
+    s8 rstick_x = input->cur.right_stick_x;
+    s8 rstick_y = input->cur.right_stick_y;
+    const s8 sensitivity = 64;
+
+    if (rstick_x > sensitivity) {
+        result |= BTN_CRIGHT;
+    } else if (rstick_x < -sensitivity) {
+        result |= BTN_CLEFT;
+    }
+
+    if (rstick_y > sensitivity) {
+        result |= BTN_CUP;
+    } else if (rstick_y < -sensitivity) {
+        result |= BTN_CDOWN;
+    }
+
+    return result;
+}
+
 void ProcessEvents(Actor* actor) {
     Player* player = GET_PLAYER(gPlayState);
 
@@ -484,10 +510,15 @@ void ProcessEvents(Actor* actor) {
             f32 x2 = e->posX * c - e->posZ * s;
             f32 z2 = e->posX * s + e->posZ * c;
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, e->actorId, x + x2, y + e->posY, z + z2, 0,
-                        e->rot + player->actor.world.rot.y, 0, e->params);
+                        e->rotY + player->actor.world.rot.y, 0, e->params);
         } else {
-            Actor_Spawn(&gPlayState->actorCtx, gPlayState, e->actorId, e->posX, e->posY, e->posZ, 0, e->rot, 0,
-                        e->params);
+            Actor_Spawn(&gPlayState->actorCtx, gPlayState, e->actorId, e->posX, e->posY, e->posZ, e->rotX, e->rotY,
+                        e->rotZ, e->params);
+        }
+        GameInteractor::Instance->currentEvent = GIEventNone{};
+    } else if (auto e = std::get_if<GIEventTrap>(&nextEvent)) {
+        if (e->action) {
+            e->action();
         }
         GameInteractor::Instance->currentEvent = GIEventNone{};
     }

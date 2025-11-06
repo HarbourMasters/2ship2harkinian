@@ -7,10 +7,10 @@ namespace Rando {
 
 namespace Logic {
 
-std::unordered_map<RandoRegionId, RandoRegion> Regions = {};
+std::map<RandoRegionId, RandoRegion> Regions = {};
 
 RandoRegionId GetRegionIdFromEntrance(s32 entrance) {
-    static std::unordered_map<s32, RandoRegionId> entranceToRegionId;
+    static std::map<s32, RandoRegionId> entranceToRegionId;
     if (entranceToRegionId.empty()) {
         for (auto& [randoRegionId, randoRegion] : Regions) {
             for (auto& [_, regionExit] : randoRegion.exits) {
@@ -72,6 +72,10 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(ZORA_CAPE, 6),                             ONE_WAY_EXIT, CAN_PLAY_SONG(SOARING) && CAN_OWL_WARP(OWL_WARP_ZORA_CAPE)),
             EXIT(ENTRANCE(IKANA_CANYON, 4),                          ONE_WAY_EXIT, CAN_PLAY_SONG(SOARING) && CAN_OWL_WARP(OWL_WARP_IKANA_CANYON)),
             EXIT(ENTRANCE(STONE_TOWER, 3),                           ONE_WAY_EXIT, CAN_PLAY_SONG(SOARING) && CAN_OWL_WARP(OWL_WARP_STONE_TOWER)),
+            EXIT(ENTRANCE(CUTSCENE, 0),                              ONE_WAY_EXIT, true), // Enemy Drop Region
+        },
+        .connections = {
+            CONNECTION(RR_MISCELLANEOUS, true), // Enemy Drop Region
         },
     };
 }, {});

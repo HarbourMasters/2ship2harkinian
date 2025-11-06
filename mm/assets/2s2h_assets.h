@@ -386,6 +386,9 @@ static const ALIGN_ASSET(2) char gTriforcePiece2DL[] = dgTriforcePiece2DL;
 #define dgTriforcePieceCompletedDL "__OTR__objects/object_triforce_completed/gTriforcePieceCompletedDL"
 static const ALIGN_ASSET(2) char gTriforcePieceCompletedDL[] = dgTriforcePieceCompletedDL;
 
+#define dgTrapDL "__OTR__objects/object_trap/gTrapDL"
+static const ALIGN_ASSET(2) char gTrapDL[] = dgTrapDL;
+
 #define dgOcarinaAButtonDL "__OTR__objects/object_ocarina_a_button/gOcarinaAButtonDL"
 static const ALIGN_ASSET(2) char gOcarinaAButtonDL[] = dgOcarinaAButtonDL;
 

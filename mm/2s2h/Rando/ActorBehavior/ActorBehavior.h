@@ -11,7 +11,7 @@ void Init();
 void OnFileLoad();
 
 RandoCheckId GetActorRandoCheckId(Actor* actor);
-void SetActorRandoCheckId(Actor* actor, RandoCheckId rc);
+void SetActorRandoCheckId(const Actor* actor, RandoCheckId rc);
 
 void InitDmChar01Behavior();
 void InitDmChar05Behavior();
@@ -35,6 +35,7 @@ void InitEnDnhBehavior();
 void InitEnElfgrpBehavior();
 void InitEnElforgBehavior();
 void InitEnFish2Behavior();
+void InitEnemyDropBehavior();
 void InitEnFsnBehavior();
 void InitEnFuBehavior();
 void InitEnGamelupyBehavior();
@@ -98,6 +99,7 @@ void InitObjTsuboBehavior();
 void InitObjWarpstoneBehavior();
 void InitPlayerBehavior();
 void InitSoulsBehavior();
+void InitTrapsBehavior();
 
 } // namespace ActorBehavior
 

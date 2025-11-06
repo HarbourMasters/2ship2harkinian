@@ -1,6 +1,6 @@
 #include "ActorBehavior.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/Rando/Logic/Logic.h"
-#include "public/bridge/consolevariablebridge.h"
 
 extern "C" {
 #include "variables.h"
