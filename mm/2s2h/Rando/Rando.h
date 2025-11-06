@@ -14,6 +14,9 @@
 #define RANDO_STARTING_ITEMS_DEFAULT \
     "109,126,91,146" // This includes a Progressive Sword, Hero's Shield, Ocarina of Time, and Song of Time
 
+#define JUNK_CVAR_BASE(itemId) (Rando::junkCvarMap.at(itemId).second)
+#define JUNK_CVAR(itemId, suffix) (std::string(JUNK_CVAR_BASE(itemId)) + suffix).c_str()
+
 namespace Rando {
 
 void Init();
@@ -21,6 +24,11 @@ void DrawItem(RandoItemId randoItemId, Actor* actor = nullptr);
 void GiveItem(RandoItemId randoItemId);
 void RemoveItem(RandoItemId randoItemId);
 RandoItemId CurrentJunkItem();
+void UpdateJunkOptions();
+void UpdateJunkWeights();
+void UpdateJunkThresholds();
+uint32_t GetJunkThresholdMax(RandoItemId randoItemId);
+extern std::map<RandoItemId, std::pair<const char*, const char*>> junkCvarMap;
 bool IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId = RC_UNKNOWN);
 RandoItemId ConvertItem(RandoItemId randoItemId, RandoCheckId randoCheckId = RC_UNKNOWN);
 RandoCheckId FindItemPlacement(RandoItemId randoItemId);

@@ -28,6 +28,12 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
     { RO_ACCESS_TRIALS_OPEN, "Open" },
 };
 
+std::unordered_map<int32_t, const char*> junkTypeOptions = {
+    { RO_JUNK_TYPE_DEFAULT, "Default" },
+    { RO_JUNK_TYPE_WEIGHTED, "Weighted" },
+    { RO_JUNK_TYPE_SUPPLY, "Low Resource" },
+};
+
 std::vector<int32_t> incompatibleWithVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
     RO_SHUFFLE_SWIM,
@@ -280,6 +286,23 @@ static void DrawItemsTab() {
                                                 "into deep water will respawn Link.",
                                      .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_SWIM),
                                      .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox(
+        "Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar,
+        CheckboxOptions({ { .tooltip = "Major items, masks, and keys will have an extra copy added to the item pool. \n"
+                                       "Lesser items, stray fairies, and skulltula tokens will have a chance for an "
+                                       "extra copy to be added to the item pool.",
+                            .disabled = IncompatibleWithLogicSetting(RO_PLENTIFUL_ITEMS),
+                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox(
+        "Boss Souls", Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar,
+        CheckboxOptions({ { .tooltip = "Adds the \"souls\" of the five bosses to the item pool. Boss Souls are items "
+                                       "that must be found in order for their corresponding boss to spawn.",
+                            .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_BOSS_SOULS),
+                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox("Enemy Drops", Rando::StaticData::Options[RO_SHUFFLE_ENEMY_DROPS].cvar,
+                 CheckboxOptions({ { .tooltip = "Shuffles the first drop from a non Boss Enemy." } }));
+    CVarCheckbox("Enemy Souls", "gPlaceholderBool",
+                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Deku Stick Bag", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Deku Nut Bag", "gPlaceholderBool",
@@ -301,23 +324,53 @@ static void DrawItemsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
-    CVarCheckbox(
-        "Plentiful Items", Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar,
-        CheckboxOptions({ { .tooltip = "Major items, masks, and keys will have an extra copy added to the item pool. \n"
-                                       "Lesser items, stray fairies, and skulltula tokens will have a chance for an "
-                                       "extra copy to be added to the item pool.",
-                            .disabled = IncompatibleWithLogicSetting(RO_PLENTIFUL_ITEMS),
-                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
-    CVarCheckbox(
-        "Boss Souls", Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar,
-        CheckboxOptions({ { .tooltip = "Adds the \"souls\" of the five bosses to the item pool. Boss Souls are items "
-                                       "that must be found in order for their corresponding boss to spawn.",
-                            .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_BOSS_SOULS),
-                            .disabledTooltip = "Incompatible with current Logic Setting" } }));
-    CVarCheckbox("Enemy Drops", Rando::StaticData::Options[RO_SHUFFLE_ENEMY_DROPS].cvar,
-                 CheckboxOptions({ { .tooltip = "Shuffles the first drop from a non Boss Enemy." } }));
-    CVarCheckbox("Enemy Souls", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    UIWidgets::PushStyleCombobox();
+    UIWidgets::CVarCombobox("Junk Item Options", "gRando.Junk.ItemType", &junkTypeOptions);
+    UIWidgets::Tooltip("Default - Junk Item will cycle through all junk options.\n"
+                       "");
+    UIWidgets::PopStyleCombobox();
+    switch (CVarGetInteger("gRando.Junk.ItemType", (uint32_t)RO_JUNK_TYPE_DEFAULT)) {
+        case RO_JUNK_TYPE_DEFAULT:
+            ImGui::SeparatorText("Toggle Junk Items");
+            for (auto& [itemId, data] : Rando::junkCvarMap) {
+                if (CVarCheckbox(std::get<0>(data), JUNK_CVAR(itemId, "Enabled"), { .defaultValue = true })) {
+                    Rando::UpdateJunkOptions();
+                }
+            }
+            break;
+        case RO_JUNK_TYPE_WEIGHTED:
+            ImGui::SeparatorText("Junk Item Weights");
+            for (auto& [itemId, data] : Rando::junkCvarMap) {
+                if (CVarSliderInt(std::get<0>(data), JUNK_CVAR(itemId, "Weight"),
+                                  IntSliderOptions({ {} })
+                                      .LabelPosition(LabelPosition::Above)
+                                      .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
+                                      .Format("%i")
+                                      .Min(0)
+                                      .Max(100)
+                                      .DefaultValue(10))) {
+                    Rando::UpdateJunkWeights();
+                }
+            }
+            break;
+        case RO_JUNK_TYPE_SUPPLY:
+            ImGui::SeparatorText("Junk Item Threshold");
+            for (auto& [itemId, data] : Rando::junkCvarMap) {
+                uint32_t maxThreshold = Rando::GetJunkThresholdMax(itemId);
+                CVarSliderInt(std::get<0>(data), JUNK_CVAR(itemId, "Threshold"),
+                              IntSliderOptions({ {} })
+                                  .LabelPosition(LabelPosition::Above)
+                                  .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
+                                  .Format("%i")
+                                  .Min(0)
+                                  .Max(maxThreshold)
+                                  .DefaultValue(10));
+            }
+            break;
+        default:
+            break;
+    }
+
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn3", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
