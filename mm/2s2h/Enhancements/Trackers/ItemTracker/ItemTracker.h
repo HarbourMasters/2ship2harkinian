@@ -1,6 +1,6 @@
-#include "window/gui/Gui.h"
-#include "window/gui/GuiWindow.h"
 #include <array>
+#include <imgui.h>
+#include "ship/window/gui/GuiWindow.h"
 
 typedef struct {
     ImTextureID textureId;

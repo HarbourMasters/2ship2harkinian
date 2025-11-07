@@ -1,7 +1,5 @@
 #include "ItemTracker.h"
-#include "public/bridge/consolevariablebridge.h"
-#include "Context.h"
-#include "Window.h"
+
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "Rando/Rando.h"
 
@@ -26,14 +24,12 @@ float defaultImageSize = 32.0f;
 TrackerImageObject GetTextureIDBySlot(InventorySlot slot) {
     ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.items[slot]);
     TrackerImageObject imageObject;
-    imageObject.textureId =
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[slot]);
 
     switch (slot) {
         case SLOT_TRADE_DEED:
             currentItemId = ITEM_MOONS_TEAR;
             for (int i = ITEM_MOONS_TEAR; i <= ITEM_DEED_OCEAN; i++) {
-                if (INV_CONTENT(slot) == i) {
+                if (gSaveContext.save.saveInfo.inventory.items[slot] == i) {
                     currentItemId = (ItemId)i;
                     break;
                 }
@@ -42,7 +38,7 @@ TrackerImageObject GetTextureIDBySlot(InventorySlot slot) {
         case SLOT_TRADE_KEY_MAMA:
             currentItemId = ITEM_ROOM_KEY;
             for (int i = ITEM_ROOM_KEY; i <= ITEM_LETTER_MAMA; i++) {
-                if (INV_CONTENT(slot) == i) {
+                if (gSaveContext.save.saveInfo.inventory.items[slot] == i) {
                     currentItemId = (ItemId)i;
                     break;
                 }
@@ -51,7 +47,7 @@ TrackerImageObject GetTextureIDBySlot(InventorySlot slot) {
         case SLOT_TRADE_COUPLE:
             currentItemId = ITEM_LETTER_TO_KAFEI;
             for (int i = ITEM_LETTER_TO_KAFEI; i <= ITEM_PENDANT_OF_MEMORIES; i++) {
-                if (INV_CONTENT(slot) == i) {
+                if (gSaveContext.save.saveInfo.inventory.items[slot] == i) {
                     currentItemId = (ItemId)i;
                     break;
                 }
@@ -64,17 +60,33 @@ TrackerImageObject GetTextureIDBySlot(InventorySlot slot) {
     if (currentItemId != ITEM_NONE) {
         imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
             (const char*)gItemIcons[currentItemId]);
+    } else {
+        if (slot >= SLOT_BOTTLE_1 && slot <= SLOT_BOTTLE_6) {
+            imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                (const char*)gItemIcons[ITEM_BOTTLE]);
+        } else if (slot >= SLOT_MASK_POSTMAN && slot <= SLOT_MASK_FIERCE_DEITY) {
+            for (int i = 0; i < sizeof(gItemSlots); i++) {
+                if (gItemSlots[i] == slot) {
+                    imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                        (const char*)gItemIcons[i]);
+                    break;
+                }
+            }
+        } else {
+            imageObject.textureId =
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[slot]);
+        }
     }
 
-    imageObject.fade = INV_CONTENT(slot) != ITEM_NONE ? 1.0f : 0.5f;
+    imageObject.fade = gSaveContext.save.saveInfo.inventory.items[slot] != ITEM_NONE ? 1.0f : 0.5f;
 
     return imageObject;
 }
 
 void DrawItemSlot(InventorySlot slot) {
     TrackerImageObject imageObject = GetTextureIDBySlot(slot);
-    ImGui::Image(imageObject.textureId, ImVec2(defaultImageSize, defaultImageSize),
-                       ImVec2(0, 0), ImVec2(1, 1), ImVec4(1, 1, 1, imageObject.fade), ImVec4(0, 0, 0, 0));
+    ImGui::Image(imageObject.textureId, ImVec2(defaultImageSize, defaultImageSize), ImVec2(0, 0), ImVec2(1, 1),
+                 ImVec4(1, 1, 1, imageObject.fade), ImVec4(0, 0, 0, 0));
 }
 
 void DrawInventory() {
@@ -86,7 +98,7 @@ void DrawInventory() {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
 
-            for (int i = SLOT_OCARINA; i <= SLOT_TRADE_COUPLE; i++) {
+            for (int i = SLOT_OCARINA; i <= SLOT_BOTTLE_6; i++) {
                 InventorySlot slot = static_cast<InventorySlot>(i);
                 ImGui::TableNextColumn();
                 DrawItemSlot(slot);
@@ -122,9 +134,9 @@ void DrawMasks() {
 }
 
 void ItemTrackerWindow::Draw() {
-    //if (!IsVisible()) {
-    //    return;
-    //}
+    // if (!IsVisible()) {
+    //     return;
+    // }
 
     if (!gPlayState) {
         return;
@@ -138,7 +150,6 @@ void ItemTrackerWindow::Draw() {
     ImGui::PopStyleVar(1);
 }
 void ItemTrackerWindow::InitElement() {
-    
 }
 
 void ItemTrackerWindow::DrawElement() {
