@@ -1,4 +1,5 @@
 #include "ItemTracker.h"
+#include "ItemTrackerSettings.h"
 
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "Rando/Rando.h"
@@ -17,7 +18,9 @@ extern "C" {
 #include "2s2h_assets.h"
 }
 
-float defaultImageSize = 32.0f;
+namespace BenGui {
+extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
+}
 
 TrackerImageObject GetTextureIDBySlot(InventorySlot slot) {
     ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.items[slot]);
@@ -81,47 +84,29 @@ TrackerImageObject GetTextureIDBySlot(InventorySlot slot) {
     return imageObject;
 }
 
-void DrawItemSlot(InventorySlot slot) {
-    TrackerImageObject imageObject = GetTextureIDBySlot(slot);
-    ImGui::Image(imageObject.textureId, ImVec2(defaultImageSize, defaultImageSize), ImVec2(0, 0), ImVec2(1, 1),
+void DrawItemSlot(int16_t slot) {
+    TrackerImageObject imageObject = GetTextureIDBySlot((InventorySlot)slot);
+    ImGui::Image(imageObject.textureId, ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1),
                  ImVec4(1, 1, 1, imageObject.fade), ImVec4(0, 0, 0, 0));
 }
 
-void DrawInventory() {
-    if (ImGui::Begin("Inventory Item Tracker", nullptr,
-                     ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing |
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
-                         ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar)) {
-        if (ImGui::BeginTable("Inventory Tracker", 6)) {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
-
-            for (int i = SLOT_OCARINA; i <= SLOT_BOTTLE_6; i++) {
-                InventorySlot slot = static_cast<InventorySlot>(i);
-                ImGui::TableNextColumn();
-                DrawItemSlot(slot);
-            }
-
-            ImGui::PopStyleVar(2);
-            ImGui::EndTable();
-        }
-        ImGui::End();
+void DrawItemWindowList(std::string listName, std::vector<int16_t> itemWindow, int columns) {
+    if (itemWindow.size() < columns) {
+        columns = itemWindow.size();
     }
-}
 
-void DrawMasks() {
-    if (ImGui::Begin("Mask Item Tracker", nullptr,
+    if (ImGui::Begin(listName.c_str(), nullptr,
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing |
                          ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
                          ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar)) {
-        if (ImGui::BeginTable("Mask Tracker", 6)) {
+        if (ImGui::BeginTable(listName.c_str(), columns)) {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
 
-            for (int i = SLOT_MASK_POSTMAN; i <= SLOT_MASK_FIERCE_DEITY; i++) {
-                InventorySlot slot = static_cast<InventorySlot>(i);
+            for (auto& item : itemWindow) {
+                InventorySlot slot = static_cast<InventorySlot>(item);
                 ImGui::TableNextColumn();
-                DrawItemSlot(slot);
+                DrawItemSlot(item);
             }
 
             ImGui::PopStyleVar(2);
@@ -142,8 +127,20 @@ void ItemTrackerWindow::Draw() {
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0.5f));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
-    DrawInventory();
-    DrawMasks();
+
+    if (BenGui::mItemTrackerWindow->mainItemWindow.size() != 0) {
+        DrawItemWindowList("Main", BenGui::mItemTrackerWindow->mainItemWindow, 6);
+    }
+
+    uint32_t index = 0;
+    for (auto& window : BenGui::mItemTrackerWindow->subItemWindows) {
+        if (window.size() == 0) {
+            continue;
+            index++;
+        }
+        DrawItemWindowList(std::to_string(index).c_str(), window, 6);
+        index++;
+    }
     ImGui::PopStyleColor(2);
     ImGui::PopStyleVar(1);
 }
