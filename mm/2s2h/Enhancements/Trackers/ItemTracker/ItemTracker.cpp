@@ -17,8 +17,6 @@ extern "C" {
 #include "2s2h_assets.h"
 }
 
-#define CFG_TRACKER_ITEM(var) ("ItemTracker." var)
-
 float defaultImageSize = 32.0f;
 
 TrackerImageObject GetTextureIDBySlot(InventorySlot slot) {
