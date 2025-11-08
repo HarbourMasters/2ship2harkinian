@@ -60,7 +60,7 @@ std::map<std::tuple<s16, s16, s16>, RandoCheckId> barrelMap = {
 };
 
 void ObjTaru_RandoDraw(Actor* actor, PlayState* play) {
-    if (!CVarGetInteger("gRando.CSMC", 0)) {
+    if (!CVarGetInteger(CVAR_RANDOMIZER("CSMC"), 0)) {
         Gfx_DrawDListOpa(play, (Gfx*)gBarrelJunkDL);
         return;
     }

@@ -159,7 +159,7 @@ void SpawnGrassDrop(Vec3f pos, RandoCheckId randoCheckId) {
 }
 
 void EnKusaBush_RandoDraw(Actor* actor, PlayState* play) {
-    if (!CVarGetInteger("gRando.CSMC", 0)) {
+    if (!CVarGetInteger(CVAR_RANDOMIZER("CSMC"), 0)) {
         Gfx_DrawDListOpa(play, (Gfx*)gRandoBushDL);
         return;
     }
@@ -203,7 +203,7 @@ void EnKusaBush_RandoDraw(Actor* actor, PlayState* play) {
 }
 
 Gfx* GetObjGrassDList(RandoCheckId randoCheckId) {
-    if (!CVarGetInteger("gRando.CSMC", 0)) {
+    if (!CVarGetInteger(CVAR_RANDOMIZER("CSMC"), 0)) {
         return (Gfx*)gRandoBushDL;
     }
 
@@ -245,7 +245,7 @@ Gfx* GetObjGrassDList(RandoCheckId randoCheckId) {
 }
 
 Gfx* GetObjGrassXluDList(RandoCheckId randoCheckId) {
-    if (!CVarGetInteger("gRando.CSMC", 0)) {
+    if (!CVarGetInteger(CVAR_RANDOMIZER("CSMC"), 0)) {
         return (Gfx*)gRandoBushXluDL;
     }
 

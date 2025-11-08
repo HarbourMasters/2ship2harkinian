@@ -15,7 +15,7 @@ extern "C" {
 // Very primitive randomizer implementation, when a save is created, if rando is enabled
 // we set the save type to rando and shuffle all checks and persist the results to the save
 void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
-    if (CVarGetInteger("gRando.Enabled", 0)) {
+    if (CVarGetInteger(CVAR_RANDOMIZER("Enabled"), 0)) {
         gSaveContext.save.shipSaveInfo.saveType = SAVETYPE_RANDO;
         // Zero out the rando struct
         memset(&gSaveContext.save.shipSaveInfo.rando, 0, sizeof(gSaveContext.save.shipSaveInfo.rando));
@@ -42,9 +42,9 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
         try {
             // SpoilerFileIndex == 0 means we're generating a new one
-            if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
+            if (CVarGetInteger(CVAR_RANDOMIZER("SpoilerFileIndex"), 0) == 0) {
                 bool hadInputSeed = true;
-                std::string inputSeed = Ship_RemoveSpecialCharacters(CVarGetString("gRando.InputSeed", ""));
+                std::string inputSeed = Ship_RemoveSpecialCharacters(CVarGetString(CVAR_RANDOMIZER("InputSeed"), ""));
                 if (inputSeed.empty()) {
                     inputSeed = std::to_string(Ship_Random(0, 1000000));
                     hadInputSeed = false;
@@ -61,7 +61,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 }
 
                 std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(
-                    CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
+                    CVarGetString(CVAR_RANDOMIZER("StartingItems"), RANDO_STARTING_ITEMS_DEFAULT), ",");
 
                 std::string startingItemSave = CreateStartingItemsToCvar(startingItems);
                 strncpy(RANDO_STARTING_ITEMS, startingItemSave.c_str(), startingItemSave.size() + 1);
@@ -107,7 +107,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 // Create Excluded Checks List to eliminate excluded checks from the pool
                 std::vector<RandoCheckId> excludedChecks;
-                std::string excludedChecksList = CVarGetString("gRando.ExcludedChecks", "");
+                std::string excludedChecksList = CVarGetString(CVAR_RANDOMIZER("ExcludedChecks"), "");
                 std::string word;
                 std::istringstream stream(excludedChecksList);
                 while (std::getline(stream, word, ',')) {
@@ -447,7 +447,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                                              std::to_string(RANDO_SAVE_OPTIONS[RO_LOGIC]));
                 }
 
-                if (CVarGetInteger("gRando.GenerateSpoiler", 0)) {
+                if (CVarGetInteger(CVAR_RANDOMIZER("GenerateSpoiler"), 0)) {
                     nlohmann::json spoiler = Rando::Spoiler::GenerateFromSaveContext();
                     spoiler["inputSeed"] = inputSeed;
 
@@ -455,14 +455,14 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     Rando::Spoiler::SaveToFile(fileName, spoiler);
 
                     if (hadInputSeed) {
-                        CVarSetString("gRando.SpoilerFile", fileName.c_str());
+                        CVarSetString(CVAR_RANDOMIZER("SpoilerFile"), fileName.c_str());
                     }
                     Rando::Spoiler::RefreshOptions();
                 }
 
                 Audio_PlaySfx(NA_SE_SY_ATTENTION_SOUND);
             } else {
-                std::string fileName = CVarGetString("gRando.SpoilerFile", "");
+                std::string fileName = CVarGetString(CVAR_RANDOMIZER("SpoilerFile"), "");
                 nlohmann::json spoiler = Rando::Spoiler::LoadFromFile(fileName);
 
                 Rando::Spoiler::ApplyToSaveContext(spoiler);

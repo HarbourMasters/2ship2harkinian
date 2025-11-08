@@ -1,4 +1,5 @@
 #include "StaticData.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Sth/z_en_sth.h"
@@ -11,7 +12,7 @@ namespace StaticData {
 #define RO(id, defaultValue)                             \
     {                                                    \
         id, {                                            \
-            id, #id, "gRando.Options." #id, defaultValue \
+            id, #id, CVAR_RANDOMIZER("Options.") #id, defaultValue \
         }                                                \
     }
 

@@ -33,13 +33,13 @@ static std::unordered_map<s32, s32> betterSceneIndex = {
 #undef DEFINE_SCENE_UNSET
 
 #define CVAR_NAME_SHOW_CHECK_TRACKER CVAR_WINDOW("CheckTracker")
-#define CVAR_NAME_SHOW_LOGIC "gRando.CheckTracker.OnlyShowChecksInLogic"
-#define CVAR_NAME_HIDE_COLLECTED "gRando.CheckTracker.HideCollectedChecks"
-#define CVAR_NAME_HIDE_SKIPPED "gRando.CheckTracker.HideSkippedChecks"
-#define CVAR_NAME_SCROLL_TO_SCENE "gRando.CheckTracker.ScrollToCurrentScene"
-#define CVAR_NAME_TRACKER_OPACITY "gRando.CheckTracker.Opacity"
-#define CVAR_NAME_TRACKER_SCALE "gRando.CheckTracker.Scale"
-#define CVAR_NAME_SHOW_CURRENT_SCENE "gRando.CheckTracker.ShowCurrentScene"
+#define CVAR_NAME_SHOW_LOGIC CVAR_RANDOMIZER("CheckTracker.OnlyShowChecksInLogic")
+#define CVAR_NAME_HIDE_COLLECTED CVAR_RANDOMIZER("CheckTracker.HideCollectedChecks")
+#define CVAR_NAME_HIDE_SKIPPED CVAR_RANDOMIZER("CheckTracker.HideSkippedChecks")
+#define CVAR_NAME_SCROLL_TO_SCENE CVAR_RANDOMIZER("CheckTracker.ScrollToCurrentScene")
+#define CVAR_NAME_TRACKER_OPACITY CVAR_RANDOMIZER("CheckTracker.Opacity")
+#define CVAR_NAME_TRACKER_SCALE CVAR_RANDOMIZER("CheckTracker.Scale")
+#define CVAR_NAME_SHOW_CURRENT_SCENE CVAR_RANDOMIZER("CheckTracker.ShowCurrentScene")
 #define CVAR_SHOW_CHECK_TRACKER CVarGetInteger(CVAR_NAME_SHOW_CHECK_TRACKER, 0)
 #define CVAR_SHOW_LOGIC CVarGetInteger(CVAR_NAME_SHOW_LOGIC, 0)
 #define CVAR_HIDE_COLLECTED CVarGetInteger(CVAR_NAME_HIDE_COLLECTED, 0)

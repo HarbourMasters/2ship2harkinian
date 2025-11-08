@@ -2,6 +2,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <filesystem>
 #include "BenPort.h"
+#include "2s2h/cvar_prefixes.h"
 
 #include <libultraship/libultra/types.h>
 
@@ -29,7 +30,7 @@ void Rando::Spoiler::RefreshOptions() {
             Rando::Spoiler::spoilerOptions.push_back(fileName);
 
             // Check if the current file is the one set in the cvar
-            if (fileName == CVarGetString("gRando.SpoilerFile", "")) {
+            if (fileName == CVarGetString(CVAR_RANDOMIZER("SpoilerFile"), "")) {
                 spoilerFileIndex = Rando::Spoiler::spoilerOptions.size() - 1;
             }
         }
@@ -37,9 +38,9 @@ void Rando::Spoiler::RefreshOptions() {
 
     // If the current spoiler file is not in the randomizer folder, reset the cvar
     if (spoilerFileIndex == -1) {
-        CVarSetInteger("gRando.SpoilerFileIndex", 0);
-        CVarSetString("gRando.SpoilerFile", "");
+        CVarSetInteger(CVAR_RANDOMIZER("SpoilerFileIndex"), 0);
+        CVarSetString(CVAR_RANDOMIZER("SpoilerFile"), "");
     } else {
-        CVarSetInteger("gRando.SpoilerFileIndex", spoilerFileIndex);
+        CVarSetInteger(CVAR_RANDOMIZER("SpoilerFileIndex"), spoilerFileIndex);
     }
 }

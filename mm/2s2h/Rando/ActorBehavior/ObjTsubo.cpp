@@ -334,7 +334,7 @@ void IdentifyPot(Actor* actor, bool* should) {
 }
 
 void ObjTsubo_RandoDraw(Actor* actor, PlayState* play) {
-    if (!CVarGetInteger("gRando.CSMC", 0)) {
+    if (!CVarGetInteger(CVAR_RANDOMIZER("CSMC"), 0)) {
         Gfx_DrawDListOpa(play, (Gfx*)gPotStandardDL);
         return;
     }

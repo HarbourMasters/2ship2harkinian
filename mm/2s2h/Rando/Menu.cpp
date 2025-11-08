@@ -97,7 +97,7 @@ void SaveExcludedChecks() {
         excludedString += std::to_string(data);
         excludedString += ",";
     }
-    CVarSetString("gRando.ExcludedChecks", excludedString.c_str());
+    CVarSetString(CVAR_RANDOMIZER("ExcludedChecks"), excludedString.c_str());
 }
 
 void LoadExcludedChecks() {
@@ -121,25 +121,25 @@ static void DrawGeneralTab() {
     ImGui::PopStyleColor();
 
     ImGui::SeparatorText("Seed Generation");
-    UIWidgets::CVarCheckbox("Enable Rando (Randomizes new files upon creation)", "gRando.Enabled");
+    UIWidgets::CVarCheckbox("Enable Rando (Randomizes new files upon creation)", CVAR_RANDOMIZER("Enabled"));
 
-    if (UIWidgets::CVarCombobox("Seed", "gRando.SpoilerFileIndex", Rando::Spoiler::spoilerOptions)) {
-        if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
-            CVarSetString("gRando.SpoilerFile", "");
+    if (UIWidgets::CVarCombobox("Seed", CVAR_RANDOMIZER("SpoilerFileIndex"), Rando::Spoiler::spoilerOptions)) {
+        if (CVarGetInteger(CVAR_RANDOMIZER("SpoilerFileIndex"), 0) == 0) {
+            CVarSetString(CVAR_RANDOMIZER("SpoilerFile"), "");
         } else {
-            CVarSetString("gRando.SpoilerFile",
-                          Rando::Spoiler::spoilerOptions[CVarGetInteger("gRando.SpoilerFileIndex", 0)].c_str());
+            CVarSetString(CVAR_RANDOMIZER("SpoilerFile"),
+                          Rando::Spoiler::spoilerOptions[CVarGetInteger(CVAR_RANDOMIZER("SpoilerFileIndex"), 0)].c_str());
         }
     }
 
-    if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
+    if (CVarGetInteger(CVAR_RANDOMIZER("SpoilerFileIndex"), 0) == 0) {
         UIWidgets::PushStyleSlider();
         static char seed[256];
-        std::string stringSeed = CVarGetString("gRando.InputSeed", "");
+        std::string stringSeed = CVarGetString(CVAR_RANDOMIZER("InputSeed"), "");
         strcpy(seed, stringSeed.c_str());
         ImGui::InputText("##Seed", seed, sizeof(seed), ImGuiInputTextFlags_CallbackAlways,
                          [](ImGuiInputTextCallbackData* data) {
-                             CVarSetString("gRando.InputSeed", data->Buf);
+                             CVarSetString(CVAR_RANDOMIZER("InputSeed"), data->Buf);
                              return 0;
                          });
         if (stringSeed.length() < 1) {
@@ -148,10 +148,10 @@ static void DrawGeneralTab() {
         }
         UIWidgets::PopStyleSlider();
 
-        UIWidgets::CVarCheckbox("Generate Spoiler File", "gRando.GenerateSpoiler");
+        UIWidgets::CVarCheckbox("Generate Spoiler File", CVAR_RANDOMIZER("GenerateSpoiler"));
     }
     ImGui::SeparatorText("Enhancements");
-    UIWidgets::CVarCheckbox("Container Style Matches Contents", "gRando.CSMC");
+    UIWidgets::CVarCheckbox("Container Style Matches Contents", CVAR_RANDOMIZER("CSMC"));
     UIWidgets::Tooltip("This will make the contents of a container match the container itself. This currently only "
                        "applies to chests and pots.");
     UIWidgets::WindowButton("Check Tracker", CVAR_WINDOW("CheckTracker"), BenGui::mRandoCheckTrackerWindow,
@@ -345,38 +345,38 @@ static void DrawItemsTab() {
             .DefaultValue(5));
     ImGui::SeparatorText("Toggle Trap Types");
     CVarCheckbox(
-        "Freeze Traps", "gRando.Traps.Freeze",
+        "Freeze Traps", CVAR_RANDOMIZER("Traps.Freeze"),
         CheckboxOptions({ { .tooltip = "Freezes Link in place.",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
     CVarCheckbox(
-        "Blast Traps", "gRando.Traps.Blast",
+        "Blast Traps", CVAR_RANDOMIZER("Traps.Blast"),
         CheckboxOptions({ { .tooltip = "Link explodes with Powder Keg force.",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
     CVarCheckbox(
-        "Shock Traps", "gRando.Traps.Shock",
+        "Shock Traps", CVAR_RANDOMIZER("Traps.Shock"),
         CheckboxOptions({ { .tooltip = "Shocks Link for a few seconds.",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
     CVarCheckbox(
-        "Jinx Traps", "gRando.Traps.Jinx",
+        "Jinx Traps", CVAR_RANDOMIZER("Traps.Jinx"),
         CheckboxOptions({ { .tooltip = "Afflicts Link with Jinx.",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
     CVarCheckbox(
-        "Wallet Traps", "gRando.Traps.Wallet",
+        "Wallet Traps", CVAR_RANDOMIZER("Traps.Wallet"),
         CheckboxOptions({ { .tooltip = "Links rupees scatter around him.",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
     CVarCheckbox( // This only spawns a Like Like, more enemies may be added in the future but each would need fine
                   // tuning
-        "Like Like Traps", "gRando.Traps.Enemy",
+        "Like Like Traps", CVAR_RANDOMIZER("Traps.Enemy"),
         CheckboxOptions({ { .tooltip = "Spawns a Like Like on top of Link.",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
     CVarCheckbox(
-        "Time Traps", "gRando.Traps.Time",
+        "Time Traps", CVAR_RANDOMIZER("Traps.Time"),
         CheckboxOptions({ { .tooltip = "Advances Time 90 Minutes (Game Time).",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
@@ -430,7 +430,7 @@ static void DrawStartingItemsTab() {
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
 
     std::vector<RandoItemId> setStartingItemsList =
-        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
+        convertStartingItemsToRandoItemId(CVarGetString(CVAR_RANDOMIZER("StartingItems"), RANDO_STARTING_ITEMS_DEFAULT), ",");
     uint32_t listIndex = 0;
     for (auto& startingItem : setStartingItemsList) {
         ImGui::PushID(listIndex);
@@ -453,7 +453,7 @@ static void DrawStartingItemsTab() {
                     break;
                 }
             }
-            CVarSetString("gRando.StartingItems", CreateStartingItemsToCvar(setStartingItemsList).c_str());
+            CVarSetString(CVAR_RANDOMIZER("StartingItems"), CreateStartingItemsToCvar(setStartingItemsList).c_str());
             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         }
         UIWidgets::Tooltip(randoStaticItem.name);
@@ -512,7 +512,7 @@ static void DrawStartingItemsTab() {
                                                                      ? ITEM_SONG_LULLABY
                                                                      : randoStaticItem.itemId))) {
                         std::string currentStartingItems =
-                            CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT);
+                            CVarGetString(CVAR_RANDOMIZER("StartingItems"), RANDO_STARTING_ITEMS_DEFAULT);
                         if (currentStartingItems.length() != 0) {
                             currentStartingItems += ",";
                         }

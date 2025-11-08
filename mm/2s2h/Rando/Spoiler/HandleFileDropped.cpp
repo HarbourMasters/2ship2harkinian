@@ -6,6 +6,7 @@
 #include "BenPort.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <ship/window/Window.h>
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "sfx.h"
@@ -43,7 +44,7 @@ bool Rando::Spoiler::HandleFileDropped(char* filePath) {
         std::filesystem::copy_file(filePath, spoilerFilePath, std::filesystem::copy_options::overwrite_existing);
 
         // Set the spoiler file to the new file
-        CVarSetString("gRando.SpoilerFile", spoilerFile.c_str());
+        CVarSetString(CVAR_RANDOMIZER("SpoilerFile"), spoilerFile.c_str());
         // Update the spoiler file options
         Rando::Spoiler::RefreshOptions();
 

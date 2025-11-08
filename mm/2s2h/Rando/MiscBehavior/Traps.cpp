@@ -24,10 +24,10 @@ int roll = TRAP_FREEZE;
 const u16 timeSkipInterval = 4000;
 
 std::map<TrapTypes, const char*> trapToCvarMap = {
-    { TRAP_FREEZE, "gRando.Traps.Freeze" }, { TRAP_BLAST, "gRando.Traps.Blast" },
-    { TRAP_SHOCK, "gRando.Traps.Shock" },   { TRAP_JINX, "gRando.Traps.Jinx" },
-    { TRAP_WALLET, "gRando.Traps.Wallet" }, { TRAP_ENEMY, "gRando.Traps.Enemy" },
-    { TRAP_TIME, "gRando.Traps.Time" },
+    { TRAP_FREEZE, CVAR_RANDOMIZER("Traps.Freeze") }, { TRAP_BLAST, CVAR_RANDOMIZER("Traps.Blast") },
+    { TRAP_SHOCK, CVAR_RANDOMIZER("Traps.Shock") },   { TRAP_JINX, CVAR_RANDOMIZER("Traps.Jinx") },
+    { TRAP_WALLET, CVAR_RANDOMIZER("Traps.Wallet") }, { TRAP_ENEMY, CVAR_RANDOMIZER("Traps.Enemy") },
+    { TRAP_TIME, CVAR_RANDOMIZER("Traps.Time") },
 };
 
 std::vector<TrapTypes> getEnabledTrapTypes() {
