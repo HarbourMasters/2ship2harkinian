@@ -3,12 +3,13 @@
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Go/z_en_go.h"
 }
 
-#define CVAR_NAME "gEnhancements.Timesavers.PowderKegCertification"
+#define CVAR_NAME CVAR_ENHANCEMENT("Timesavers.PowderKegCertification")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterPowderKegCertification() {

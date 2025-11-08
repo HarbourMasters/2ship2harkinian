@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "functions.h"
@@ -9,7 +10,7 @@ extern "C" {
 #include "objects/gameplay_keep/gameplay_keep.h"
 }
 
-#define CVAR_NAME "gEnhancements.Graphics.BowReticle"
+#define CVAR_NAME CVAR_ENHANCEMENT("Graphics.BowReticle")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void DrawBowReticle(PlayState* play, Player* player, f32 bowDistance) {

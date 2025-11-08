@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "z64save.h"
@@ -8,7 +9,7 @@ extern "C" {
 #include "variables.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cycle.KeepExpressMail"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cycle.KeepExpressMail")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterKeepExpressMail() {

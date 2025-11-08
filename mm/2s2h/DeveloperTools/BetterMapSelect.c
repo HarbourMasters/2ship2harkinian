@@ -450,7 +450,7 @@ void BetterMapSelect_PrintMenu(MapSelectState* mapSelectState, GfxPrint* printer
         char* minutePrefix = curMinutes < 10 ? "0" : "";
 
         // Handle 24 or 12 hour time
-        if (CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.24HoursClock"), 0)) {
             if (curHours < 10) {
                 hourPrefix = "0";
             }

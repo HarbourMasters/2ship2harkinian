@@ -3,6 +3,7 @@
 #include "2s2h/ShipUtils.h"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h_assets.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 extern s16 D_801CFF94[250];
@@ -369,21 +370,21 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
 }
 
 bool ShouldShowGetItemCutscene(RandoItemId itemId) {
-    if (!CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0)) {
+    if (!CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipGetItemCutscenes"), 0)) {
         return true;
     }
 
     switch (Rando::StaticData::Items[itemId].randoItemType) {
         case RITYPE_JUNK:
-            return CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0) < 1;
+            return CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipGetItemCutscenes"), 0) < 1;
         case RITYPE_HEALTH:
         case RITYPE_LESSER:
         case RITYPE_STRAY_FAIRY:
         case RITYPE_SKULLTULA_TOKEN:
         case RITYPE_SMALL_KEY:
-            return CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0) < 2;
+            return CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipGetItemCutscenes"), 0) < 2;
         default:
-            return CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0) < 3;
+            return CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipGetItemCutscenes"), 0) < 3;
     }
 }
 

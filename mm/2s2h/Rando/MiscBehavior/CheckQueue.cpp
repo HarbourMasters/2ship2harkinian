@@ -7,6 +7,7 @@
 #include "2s2h/Rando/StaticData/StaticData.h"
 #include "2s2h/ShipUtils.h"
 #include "Traps.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -66,7 +67,7 @@ void Rando::MiscBehavior::CheckQueue() {
                             message = GetTrapMessage();
                             // We need to remove the Color Codes if the player is skipping Item Get Cutscenes as the
                             // Notification Emit doesnt support it.
-                            if (CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0) >= 2) {
+                            if (CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipGetItemCutscenes"), 0) >= 2) {
                                 message = CustomMessage::RemoveColorCodes(message);
                             }
                         }

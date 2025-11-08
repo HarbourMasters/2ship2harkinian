@@ -1,13 +1,14 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Suttari/z_en_suttari.h"
 void EnSuttari_TriggerTransition(PlayState* play, u16 entrance);
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipStoryCutscenes")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipBombBagTheftCutscene() {

@@ -3309,7 +3309,7 @@ s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projected
         return true;
     }
 
-    s32 distMultiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    s32 distMultiplier = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.IncreaseActorDrawDistance"), 1);
     distMultiplier = MAX(distMultiplier, 1);
 
     // Apply distance scale to forward cullzone check
@@ -3338,7 +3338,7 @@ s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projected
             cullingVolumeScaleVertical = actor->cullingVolumeDownward;
         }
 
-        if (CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.ActorCullingAccountsForWidescreen"), 0)) {
             aspectMultiplier = Ship_GetExtendedAspectRatioMultiplier();
         }
 
@@ -3400,8 +3400,8 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
             // #region 2S2H [Enhancement] Extended culling updates
             bool shipShouldDraw = false;
             bool shipShouldUpdate = false;
-            if (CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1) > 1 ||
-                CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.IncreaseActorDrawDistance"), 1) > 1 ||
+                CVarGetInteger(CVAR_ENHANCEMENT("Graphics.ActorCullingAccountsForWidescreen"), 0)) {
                 Ship_CalcShouldDrawAndUpdate(play, actor, &actor->projectedPos, actor->projectedW, &shipShouldDraw,
                                              &shipShouldUpdate);
 

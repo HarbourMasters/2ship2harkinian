@@ -4,16 +4,17 @@
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Syateki_Man/z_en_syateki_man.h"
 }
 
-#define CVAR_NAME "gEnhancements.Timesavers.GalleryTwofer"
+#define CVAR_NAME CVAR_ENHANCEMENT("Timesavers.GalleryTwofer")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
-#define SWAMP_CVAR_NAME "gEnhancements.Minigames.SwampArcheryScore"
+#define SWAMP_CVAR_NAME CVAR_ENHANCEMENT("Minigames.SwampArcheryScore")
 #define SWAMP_CVAR CVarGetInteger(SWAMP_CVAR_NAME, 2180)
-#define TOWN_CVAR_NAME "gEnhancements.Minigames.TownArcheryScore"
+#define TOWN_CVAR_NAME CVAR_ENHANCEMENT("Minigames.TownArcheryScore")
 #define TOWN_CVAR CVarGetInteger(TOWN_CVAR_NAME, 50)
 
 static s16 highestScore = 0;

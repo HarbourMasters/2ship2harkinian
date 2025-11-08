@@ -1,5 +1,7 @@
 #include "AuthenticGfxPatches.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/cvar_prefixes.h"
+
 extern "C" {
 #include "gfx.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
@@ -84,7 +86,7 @@ void PatchArrowTipTexture() {
                              G_TX_MIRROR | G_TX_WRAP, 5, 5, 1, 1),
     };
 
-    bool fixTexturesOOB = CVarGetInteger("gEnhancements.Fixes.FixTexturesOOB", 0);
+    bool fixTexturesOOB = CVarGetInteger(CVAR_ENHANCEMENT("Fixes.FixTexturesOOB"), 0);
 
     for (const auto& patchInfo : arrowTipDListPatchInfos) {
         const char* dlist = patchInfo.dlist;
@@ -136,7 +138,7 @@ void PatchFreezardBodyTexture() {
                              G_TX_NOMIRROR | G_TX_WRAP, 5, 5, G_TX_NOLOD, G_TX_NOLOD),
     };
 
-    bool fixTexturesOOB = CVarGetInteger("gEnhancements.Fixes.FixTexturesOOB", 0);
+    bool fixTexturesOOB = CVarGetInteger(CVAR_ENHANCEMENT("Fixes.FixTexturesOOB"), 0);
 
     for (const auto& patchInfo : freezardBodyDListPatchInfos) {
         const char* dlist = patchInfo.dlist;
@@ -188,7 +190,7 @@ void PatchIronKnuckleFireTexture() {
                                 G_TX_MIRROR | G_TX_WRAP, 5, 6, G_TX_NOLOD, G_TX_NOLOD),
     };
 
-    bool fixTexturesOOB = CVarGetInteger("gEnhancements.Fixes.FixTexturesOOB", 0);
+    bool fixTexturesOOB = CVarGetInteger(CVAR_ENHANCEMENT("Fixes.FixTexturesOOB"), 0);
 
     for (const auto& patchInfo : ironKnuckleDListPatchInfos) {
         const char* dlist = patchInfo.dlist;
@@ -262,7 +264,7 @@ void PatchMiniGameCrossAndCircleSymbols() {
 }
 
 void PatchKnifeChamberRoomGeometry() {
-    if (CVarGetInteger("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DisableSceneGeometryDistanceCheck"), 0)) {
         ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_YADOYA/Z2_YADOYA_room_00DL_012280", "disableDistanceCheck1", 5,
                                    gsSPNoOp());
         ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_YADOYA/Z2_YADOYA_room_00DL_012280", "disableDistanceCheck2", 6,
@@ -274,7 +276,7 @@ void PatchKnifeChamberRoomGeometry() {
 }
 
 void PatchClockTownBuildingGeometry() {
-    if (CVarGetInteger("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DisableSceneGeometryDistanceCheck"), 0)) {
         ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D490", "disableDistanceCheck1",
                                    5, gsSPNoOp());
         ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D490", "disableDistanceCheck2",
@@ -323,7 +325,7 @@ void PatchGeometrySeams() {
             32, 0),
         gsSPEndDisplayList(),
     };
-    if (CVarGetInteger("gEnhancements.Graphics.FixSceneGeometrySeams", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.FixSceneGeometrySeams"), 0)) {
         ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_CLOCKTOWER/Z2_CLOCKTOWER_room_00DL_0032D0", "clockTownRampSeam", 49,
                                    gsSPDisplayList(southClockTownRampDL));
     } else {

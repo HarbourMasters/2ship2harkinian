@@ -3,6 +3,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -14,7 +15,7 @@ extern "C" {
 #include "assets/interface/nes_font_static/nes_font_static.h"
 }
 
-#define CVAR_NAME "gEnhancements.Songs.BetterSongOfDoubleTime"
+#define CVAR_NAME CVAR_ENHANCEMENT("Songs.BetterSongOfDoubleTime")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // Normalize's time so that 6am is considered 0, and anything before rolls over u16

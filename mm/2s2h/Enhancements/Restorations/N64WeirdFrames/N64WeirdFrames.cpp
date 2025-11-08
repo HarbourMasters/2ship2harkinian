@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 #include <vector>
 #include <spdlog/spdlog.h>
@@ -17,7 +18,7 @@ int ResourceMgr_OTRSigCheck(char* imgData);
 AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
 }
 
-#define CVAR_NAME "gEnhancements.Restorations.N64WeirdFrames"
+#define CVAR_NAME CVAR_ENHANCEMENT("Restorations.N64WeirdFrames")
 // This CVAR is defaulted to on, because it is consistent with hardware, but able to be disabled if desired.
 #define CVAR CVarGetInteger(CVAR_NAME, 1)
 

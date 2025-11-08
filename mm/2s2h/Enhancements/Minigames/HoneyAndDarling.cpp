@@ -1,16 +1,17 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Fu/z_en_fu.h"
 }
 
-#define DAY1_CVAR_NAME "gEnhancements.Minigames.HoneyAndDarlingDay1"
+#define DAY1_CVAR_NAME CVAR_ENHANCEMENT("Minigames.HoneyAndDarlingDay1")
 #define DAY1_CVAR CVarGetInteger(DAY1_CVAR_NAME, 8)
-#define DAY2_CVAR_NAME "gEnhancements.Minigames.HoneyAndDarlingDay2"
+#define DAY2_CVAR_NAME CVAR_ENHANCEMENT("Minigames.HoneyAndDarlingDay2")
 #define DAY2_CVAR CVarGetInteger(DAY2_CVAR_NAME, 8)
-#define DAY3_CVAR_NAME "gEnhancements.Minigames.HoneyAndDarlingDay3"
+#define DAY3_CVAR_NAME CVAR_ENHANCEMENT("Minigames.HoneyAndDarlingDay3")
 #define DAY3_CVAR CVarGetInteger(DAY3_CVAR_NAME, 16)
 
 void RegisterHoneyAndDarling() {

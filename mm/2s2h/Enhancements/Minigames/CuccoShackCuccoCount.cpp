@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Hs/z_en_hs.h"
@@ -9,7 +10,7 @@ extern "C" {
 void func_8095345C(EnHs* enHs, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Minigames.CuccoShackCuccoCount"
+#define CVAR_NAME CVAR_ENHANCEMENT("Minigames.CuccoShackCuccoCount")
 #define CVAR CVarGetInteger(CVAR_NAME, 10)
 
 void RegisterCuccoShackCuccoCount() {

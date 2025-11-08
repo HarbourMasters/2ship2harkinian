@@ -8,6 +8,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <ship/Context.h>
 #include <ship/window/Window.h>
+#include "2s2h/cvar_prefixes.h"
 // Image Icons
 #include "assets/interface/parameter_static/parameter_static.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
@@ -284,7 +285,7 @@ extern "C" f32 Ship_GetExtendedAspectRatioMultiplier() {
 // to the projected Z value of the actor. This tricks distance checks without having to replace hardcoded values.
 // Requires that Ship_ExtendedCullingActorRestoreProjectedPos is called within the same function scope.
 extern "C" void Ship_ExtendedCullingActorAdjustProjectedZ(Actor* actor) {
-    s32 multiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    s32 multiplier = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.IncreaseActorDrawDistance"), 1);
     multiplier = MAX(multiplier, 1);
     if (multiplier > 1) {
         actor->projectedPos.z /= multiplier;
@@ -295,7 +296,7 @@ extern "C" void Ship_ExtendedCullingActorAdjustProjectedZ(Actor* actor) {
 // to the projected X value of the actor. This tricks distance checks without having to replace hardcoded values.
 // Requires that Ship_ExtendedCullingActorRestoreProjectedPos is called within the same function scope.
 extern "C" void Ship_ExtendedCullingActorAdjustProjectedX(Actor* actor) {
-    if (CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.ActorCullingAccountsForWidescreen"), 0)) {
         f32 ratioAdjusted = Ship_GetExtendedAspectRatioMultiplier();
         actor->projectedPos.x /= ratioAdjusted;
     }

@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -9,7 +10,7 @@ extern "C" {
 s32 Snap_RecordPictographedActors(PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Equipment.BetterPictoMessage"
+#define CVAR_NAME CVAR_ENHANCEMENT("Equipment.BetterPictoMessage")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterBetterPictoMessage() {

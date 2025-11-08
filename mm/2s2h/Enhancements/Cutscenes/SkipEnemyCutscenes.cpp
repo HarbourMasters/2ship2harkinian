@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -36,7 +37,7 @@ extern EnKnight* sThinKnightInstance;
 extern EnKnight* sWideKnightInstance;
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipEnemyCutscenes"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipEnemyCutscenes")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // Set by enemy actors to control the camera override hooks

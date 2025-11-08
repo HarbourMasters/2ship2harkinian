@@ -1,5 +1,6 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "src/overlays/gamestates/ovl_file_choose/z_file_select.h"
@@ -7,7 +8,7 @@ extern "C" {
 extern FileSelectState* gFileSelectState;
 }
 
-#define CVAR_NAME "gEnhancements.Saving.FileSlot3"
+#define CVAR_NAME CVAR_ENHANCEMENT("Saving.FileSlot3")
 #define CVAR CVarGetInteger(CVAR_NAME, true)
 
 void RegisterFileSlot3() {

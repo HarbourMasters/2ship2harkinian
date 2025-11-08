@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_Bg_Dblue_Movebg/z_bg_dblue_movebg.h"
@@ -8,7 +9,7 @@ extern "C" {
 #include "overlays/actors/ovl_Obj_Oshihiki/z_obj_oshihiki.h"
 }
 
-#define CVAR_NAME "gEnhancements.Player.FasterPushAndPull"
+#define CVAR_NAME CVAR_ENHANCEMENT("Player.FasterPushAndPull")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterFasterPushAndPull() {

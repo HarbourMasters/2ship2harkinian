@@ -3,12 +3,13 @@
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/Rando/Logic/Logic.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "functions.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipMiscInteractions")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipPushingMikau() {

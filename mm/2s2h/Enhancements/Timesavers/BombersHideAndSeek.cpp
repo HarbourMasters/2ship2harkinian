@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Bomjimb/z_en_bomjimb.h"
@@ -8,7 +9,7 @@ void func_80C02CA4(EnBomjimb* thisx, PlayState* play);
 void func_80C02A14(EnBomjimb* thisx, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Minigames.BombersHideAndSeek"
+#define CVAR_NAME CVAR_ENHANCEMENT("Minigames.BombersHideAndSeek")
 #define CVAR CVarGetInteger(CVAR_NAME, 5)
 
 void RegisterBombersHideAndSeek() {

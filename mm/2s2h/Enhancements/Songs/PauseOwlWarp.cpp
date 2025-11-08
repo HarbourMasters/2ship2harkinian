@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
@@ -14,7 +15,7 @@ extern s16 sInDungeonScene;
 extern s32 gHorseIsMounted;
 }
 
-#define CVAR_NAME "gEnhancements.Songs.PauseOwlWarp"
+#define CVAR_NAME CVAR_ENHANCEMENT("Songs.PauseOwlWarp")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 extern "C" bool PauseOwlWarp_IsOwlWarpEnabled() {

@@ -4,6 +4,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "z64actor.h"
@@ -308,47 +309,47 @@ int GameInteractor_InvertControl(GIInvertType type) {
 
     switch (type) {
         case GI_INVERT_CAMERA_RIGHT_STICK_X:
-            if (CVarGetInteger("gEnhancements.Camera.RightStick.InvertXAxis", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.RightStick.InvertXAxis"), 0)) {
                 result *= -1;
             }
             break;
         case GI_INVERT_CAMERA_RIGHT_STICK_Y:
-            if (CVarGetInteger("gEnhancements.Camera.RightStick.InvertYAxis", 1)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.RightStick.InvertYAxis"), 1)) {
                 result *= -1;
             }
             break;
         case GI_INVERT_FIRST_PERSON_AIM_X:
-            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.InvertX", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX"), 0)) {
                 result *= -1;
             }
             break;
         case GI_INVERT_FIRST_PERSON_AIM_Y:
-            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.InvertY", 1)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertY"), 1)) {
                 result *= -1;
             }
             break;
         case GI_INVERT_FIRST_PERSON_GYRO_X:
-            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroInvertX", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroInvertX"), 0)) {
                 result *= -1;
             }
             break;
         case GI_INVERT_FIRST_PERSON_GYRO_Y:
-            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroInvertY", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroInvertY"), 0)) {
                 result *= -1;
             }
             break;
         case GI_INVERT_FIRST_PERSON_RIGHT_STICK_X:
-            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickInvertX", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickInvertX"), 0)) {
                 result *= -1;
             }
             break;
         case GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y:
-            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickInvertY", 1)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickInvertY"), 1)) {
                 result *= -1;
             }
             break;
         case GI_INVERT_SHIELD_Y:
-            if (CVarGetInteger("gEnhancements.Equipment.InvertShieldY", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Equipment.InvertShieldY"), 0)) {
                 result *= -1;
             }
             break;
@@ -390,12 +391,12 @@ uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo) {
 
     switch (type) {
         case GI_DPAD_OCARINA:
-            if (CVarGetInteger("gEnhancements.Playback.DpadOcarina", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Playback.DpadOcarina"), 0)) {
                 result = buttonCombo;
             }
             break;
         case GI_DPAD_EQUIP:
-            if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
                 result = buttonCombo;
             }
             break;
@@ -407,7 +408,7 @@ uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo) {
 uint32_t GameInteractor_RightStickOcarina(Input* input) {
     uint32_t result = 0;
 
-    if (!CVarGetInteger("gEnhancements.Playback.RightStickOcarina", 0)) {
+    if (!CVarGetInteger(CVAR_ENHANCEMENT("Playback.RightStickOcarina"), 0)) {
         return result;
     }
 

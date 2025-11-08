@@ -1,13 +1,14 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "z64save.h"
 #include "overlays/actors/ovl_Bg_Breakwall/z_bg_breakwall.h"
 }
 
-#define CVAR_NAME "gEnhancements.Restorations.WoodfallMountainAppearance"
+#define CVAR_NAME CVAR_ENHANCEMENT("Restorations.WoodfallMountainAppearance")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 typedef enum {

@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Syateki_Man/z_en_syateki_man.h"
@@ -9,9 +10,9 @@ void EnSyatekiMan_Swamp_RunGame(EnSyatekiMan* enSyatekiMan, PlayState* play);
 void EnSyatekiMan_Town_RunGame(EnSyatekiMan* enSyatekiMan, PlayState* play);
 }
 
-#define SWAMP_CVAR_NAME "gEnhancements.Minigames.SwampArcheryScore"
+#define SWAMP_CVAR_NAME CVAR_ENHANCEMENT("Minigames.SwampArcheryScore")
 #define SWAMP_CVAR CVarGetInteger(SWAMP_CVAR_NAME, 2180)
-#define TOWN_CVAR_NAME "gEnhancements.Minigames.TownArcheryScore"
+#define TOWN_CVAR_NAME CVAR_ENHANCEMENT("Minigames.TownArcheryScore")
 #define TOWN_CVAR CVarGetInteger(TOWN_CVAR_NAME, 50)
 #define BOAT_CVAR_NAME "gEnhancements.Minigames.BoatArcheryScore"
 #define BOAT_CVAR CVarGetInteger(BOAT_CVAR_NAME, 20)

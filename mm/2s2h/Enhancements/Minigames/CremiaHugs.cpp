@@ -2,8 +2,9 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
-#define CVAR_NAME "gEnhancements.Minigames.CremiaHugs"
+#define CVAR_NAME CVAR_ENHANCEMENT("Minigames.CremiaHugs")
 #define CVAR CVarGetInteger(CVAR_NAME, CREMIA_REWARD_RANDOM)
 
 void RegisterCremiaHugs() {

@@ -2613,7 +2613,7 @@ void AudioOcarina_PlayControllerInput(u8 isOcarinaSfxSuppressedWhenCancelled) {
     // Prevents two different ocarina notes from being played on two consecutive frames
     if ((sOcarinaFlags != 0) && (sOcarinaDropInputTimer != 0)) {
         sOcarinaDropInputTimer--;
-        if (!CVarGetInteger("gEnhancements.Playback.NoDropOcarinaInput", 0)) {
+        if (!CVarGetInteger(CVAR_ENHANCEMENT("Playback.NoDropOcarinaInput"), 0)) {
             return;
         }
     }
@@ -2639,7 +2639,7 @@ void AudioOcarina_PlayControllerInput(u8 isOcarinaSfxSuppressedWhenCancelled) {
             sOcarinaInputButtonPress &= ocarinaBtnsHeld;
         }
 
-        uint8_t dpadCvarActive = CVarGetInteger("gEnhancements.Playback.DpadOcarina", 0);
+        uint8_t dpadCvarActive = CVarGetInteger(CVAR_ENHANCEMENT("Playback.DpadOcarina"), 0);
 
         // Interprets and transforms controller input into ocarina buttons and notes
         if (CHECK_BTN_ANY(sOcarinaInputButtonPress, BTN_A)) {

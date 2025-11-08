@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "CameraUtils.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "macros.h"
@@ -96,15 +97,15 @@ bool Camera_FreeLook(Camera* camera) {
     Camera_ResetActionFuncState(camera, camera->mode);
 
     f32 yawDiff = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f *
-                  (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
+                  (CVarGetFloat(CVAR_ENHANCEMENT("Camera.RightStick.CameraSensitivity.X"), 1.0f));
     f32 pitchDiff = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f *
-                    (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
+                    (CVarGetFloat(CVAR_ENHANCEMENT("Camera.RightStick.CameraSensitivity.Y"), 1.0f));
 
     yaw += yawDiff * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
     pitch += pitchDiff * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
 
-    s16 maxPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f));
-    s16 minPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f));
+    s16 maxPitch = DEG_TO_BINANG(CVarGetFloat(CVAR_ENHANCEMENT("Camera.FreeLook.MaxPitch"), 72.0f));
+    s16 minPitch = DEG_TO_BINANG(CVarGetFloat(CVAR_ENHANCEMENT("Camera.FreeLook.MinPitch"), -49.0f));
 
     if (pitch > maxPitch) {
         pitch = maxPitch;
@@ -113,8 +114,8 @@ bool Camera_FreeLook(Camera* camera) {
         pitch = minPitch;
     }
 
-    f32 distTarget = CVarGetInteger("gEnhancements.Camera.FreeLook.MaxCameraDistance", roData->unk_04);
-    f32 transitionSpeed = CVarGetInteger("gEnhancements.Camera.FreeLook.TransitionSpeed", 25);
+    f32 distTarget = CVarGetInteger(CVAR_ENHANCEMENT("Camera.FreeLook.MaxCameraDistance"), roData->unk_04);
+    f32 transitionSpeed = CVarGetInteger(CVAR_ENHANCEMENT("Camera.FreeLook.TransitionSpeed"), 25);
     // Smooth step camera away to max camera distance. Camera collision is calculated later
     camera->dist = Camera_ScaledStepToCeilF(distTarget, camera->dist,
                                             transitionSpeed / (ABS(distTarget - camera->dist) + transitionSpeed), 0.0f);
@@ -163,7 +164,7 @@ bool Camera_CanFreeLook(Camera* camera) {
 }
 
 void RegisterCameraFreeLook() {
-    COND_VB_SHOULD(VB_USE_CUSTOM_CAMERA, CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0), {
+    COND_VB_SHOULD(VB_USE_CUSTOM_CAMERA, CVarGetInteger(CVAR_ENHANCEMENT("Camera.FreeLook.Enable"), 0), {
         Camera* camera = va_arg(args, Camera*);
         switch (sCameraSettings[camera->setting].cameraModes[camera->mode].funcId) {
             case CAM_FUNC_NORMAL0:
@@ -185,8 +186,8 @@ void RegisterCameraFreeLook() {
         }
     });
 
-    COND_HOOK(OnCameraChangeModeFlags, CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0),
+    COND_HOOK(OnCameraChangeModeFlags, CVarGetInteger(CVAR_ENHANCEMENT("Camera.FreeLook.Enable"), 0),
               [](Camera* camera) { UpdateFreeLookState(camera); });
 }
 
-static RegisterShipInitFunc initFunc(RegisterCameraFreeLook, { "gEnhancements.Camera.FreeLook.Enable" });
+static RegisterShipInitFunc initFunc(RegisterCameraFreeLook, { CVAR_ENHANCEMENT("Camera.FreeLook.Enable") });

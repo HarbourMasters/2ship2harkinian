@@ -158,10 +158,10 @@ static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = 
 namespace BenGui {
 extern std::shared_ptr<BenMenu> mBenMenu;
 void FreeLookPitchMinMax() {
-    f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
-    f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
-    CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
-    CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
+    f32 maxY = CVarGetFloat(CVAR_ENHANCEMENT("Camera.FreeLook.MaxPitch"), 72.0f);
+    f32 minY = CVarGetFloat(CVAR_ENHANCEMENT("Camera.FreeLook.MinPitch"), -49.0f);
+    CVarSetFloat(CVAR_ENHANCEMENT("Camera.FreeLook.MaxPitch"), std::max(maxY, minY));
+    CVarSetFloat(CVAR_ENHANCEMENT("Camera.FreeLook.MinPitch"), std::min(maxY, minY));
 }
 
 using namespace UIWidgets;
@@ -329,7 +329,7 @@ void BenMenu::AddSettings() {
         .Options(CheckboxOptions().Tooltip(
             "Search input box gets autofocus when visible. Does not affect using other widgets."));
     AddWidget(path, "Alt Assets Tab hotkey", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Mods.AlternateAssetsHotkey")
+        .CVar(CVAR_ENHANCEMENT("Mods.AlternateAssetsHotkey"))
         .Options(
             CheckboxOptions().Tooltip("Allows pressing the Tab key to toggle alternate assets.").DefaultValue(true));
     AddWidget(path, "Open App Files Folder", WIDGET_BUTTON)
@@ -650,26 +650,26 @@ void BenMenu::AddEnhancements() {
     // Camera Snap Fix
     AddWidget(path, "Fixes", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Fix Targeting Camera Snap", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FixTargettingCameraSnap")
+        .CVar(CVAR_ENHANCEMENT("Camera.FixTargettingCameraSnap"))
         .Options(CheckboxOptions().Tooltip(
             "Fixes the camera snap that occurs when you are moving and press the targeting button."));
     AddWidget(path, "First Person", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Disable Auto-Centering", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.DisableFirstPersonAutoCenterView")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.DisableFirstPersonAutoCenterView"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_GYRO_ON).active)
                 info.activeDisables.push_back(DISABLE_FOR_GYRO_ON);
         })
         .Options(CheckboxOptions().Tooltip("Disables the auto-centering of the camera in first person mode."));
     AddWidget(path, "Invert X Axis", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.InvertX")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertX"))
         .Options(CheckboxOptions().Tooltip("Inverts the X Axis of the Camera in First Person Mode."));
     AddWidget(path, "Invert Y Axis", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.InvertY")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.InvertY"))
         .Options(
             CheckboxOptions().Tooltip("Inverts the Y Axis of the Camera in First Person Mode.").DefaultValue(true));
     AddWidget(path, "X Axis Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.FirstPerson.SensitivityX")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.SensitivityX"))
         .Options(FloatSliderOptions()
                      .Tooltip("Adjusts the Sensitivity of the X Axis in First Person Mode.")
                      .DefaultValue(1.0f)
@@ -677,7 +677,7 @@ void BenMenu::AddEnhancements() {
                      .Min(0.01f)
                      .Max(2.0f));
     AddWidget(path, "Y Axis Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.FirstPerson.SensitivityY")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.SensitivityY"))
         .Options(FloatSliderOptions()
                      .Tooltip("Adjusts the Sensitivity of the Y Axis in First Person Mode.")
                      .DefaultValue(1.0f)
@@ -685,18 +685,18 @@ void BenMenu::AddEnhancements() {
                      .Min(0.01f)
                      .Max(2.0f));
     AddWidget(path, "Gyro Aiming", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.GyroEnabled")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroEnabled"))
         .Options(CheckboxOptions().Tooltip("Enables Gyro Aiming in First Person Mode."));
     AddWidget(path, "Invert Gyro X Axis", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.GyroInvertX")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroInvertX"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_GYRO_OFF).active; })
         .Options(CheckboxOptions().Tooltip("Inverts the X Axis of the Gyro in First Person Mode."));
     AddWidget(path, "Invert Gyro Y Axis", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.GyroInvertY")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroInvertY"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_GYRO_OFF).active; })
         .Options(CheckboxOptions().Tooltip("Inverts the Y Axis of the Gyro in First Person Mode."));
     AddWidget(path, "Gyro X Axis Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.FirstPerson.GyroSensitivityX")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroSensitivityX"))
         .Options(FloatSliderOptions()
                      .Tooltip("Adjusts the Sensitivity of the X Axis of the Gyro in First Person Mode.")
                      .DefaultValue(1.0f)
@@ -705,7 +705,7 @@ void BenMenu::AddEnhancements() {
                      .Max(2.0f))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_GYRO_OFF).active; });
     AddWidget(path, "Gyro Y Axis Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.FirstPerson.GyroSensitivityY")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroSensitivityY"))
         .Options(FloatSliderOptions()
                      .Tooltip("Adjusts the Sensitivity of the Y Axis of the Gyro in First Person Mode.")
                      .DefaultValue(1.0f)
@@ -714,27 +714,27 @@ void BenMenu::AddEnhancements() {
                      .Max(2.0f))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_GYRO_OFF).active; });
     AddWidget(path, "Right Stick Aiming", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.RightStickEnabled")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickEnabled"))
         .Options(CheckboxOptions().Tooltip("Enables Right Stick Aiming in First Person Mode."));
     AddWidget(path, "Move while aiming", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.MoveInFirstPerson")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.MoveInFirstPerson"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active)
                 info.activeDisables.push_back(DISABLE_FOR_RIGHT_STICK_OFF);
         })
         .Options(CheckboxOptions().Tooltip("Allows movement with the left stick while in first person mode."));
     AddWidget(path, "Invert Right Stick X Axis", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.RightStickInvertX")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickInvertX"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; })
         .Options(CheckboxOptions().Tooltip("Inverts the X Axis of the Right Stick in First Person Mode."));
     AddWidget(path, "Invert Right Stick Y Axis", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FirstPerson.RightStickInvertY")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickInvertY"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; })
         .Options(CheckboxOptions()
                      .Tooltip("Inverts the Y Axis of the Right Stick in First Person Mode.")
                      .DefaultValue(true));
     AddWidget(path, "Right Stick X Axis Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.FirstPerson.RightStickSensitivityX")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickSensitivityX"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjusts the Sensitivity of the X Axis of the Right Stick in First Person Mode.")
@@ -743,7 +743,7 @@ void BenMenu::AddEnhancements() {
                      .Min(0.01f)
                      .Max(2.0f));
     AddWidget(path, "Right Stick Y Axis Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.FirstPerson.RightStickSensitivityY")
+        .CVar(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickSensitivityY"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjusts the Sensitivity of the Y Axis of the Right Stick in First Person Mode.")
@@ -755,7 +755,7 @@ void BenMenu::AddEnhancements() {
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Cameras", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Free Look", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FreeLook.Enable")
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.Enable"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_CAM_ON).active)
                 info.activeDisables.push_back(DISABLE_FOR_DEBUG_CAM_ON);
@@ -764,18 +764,18 @@ void BenMenu::AddEnhancements() {
             "Enables free look camera control.\nNote: You must remap C buttons off of the right "
             "stick in the controller config menu, and map the camera stick to the right stick."));
     AddWidget(path, "Camera Distance: %d", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Camera.FreeLook.MaxCameraDistance")
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MaxCameraDistance"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; })
         .Options(
             IntSliderOptions().Tooltip("Maximum Camera Distance for Free Look.").Min(100).Max(900).DefaultValue(185));
     AddWidget(path, "Camera Transition Speed: %d", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Camera.FreeLook.TransitionSpeed")
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.TransitionSpeed"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; })
         .Options(IntSliderOptions().Tooltip("Can someone help me?").Min(1).Max(900).DefaultValue(25));
     AddWidget(path, "Max Camera Height Angle: %.0f\xC2\xB0", WIDGET_CVAR_SLIDER_FLOAT)
         .Callback([](WidgetInfo& info) { FreeLookPitchMinMax(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; })
-        .CVar("gEnhancements.Camera.FreeLook.MaxPitch")
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MaxPitch"))
         .Options(FloatSliderOptions()
                      .Tooltip("Maximum Height of the Camera.")
                      .Format("%.0f\xC2\xB0")
@@ -783,7 +783,7 @@ void BenMenu::AddEnhancements() {
                      .Max(89.0f)
                      .DefaultValue(72.0f));
     AddWidget(path, "Min Camera Height Angle: %.0f\xC2\xB0", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.FreeLook.MinPitch")
+        .CVar(CVAR_ENHANCEMENT("Camera.FreeLook.MinPitch"))
         .Callback([](WidgetInfo& info) { FreeLookPitchMinMax(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; })
         .Options(FloatSliderOptions()
@@ -793,7 +793,7 @@ void BenMenu::AddEnhancements() {
                      .Max(89.0f)
                      .DefaultValue(-49.0f));
     AddWidget(path, "Debug Camera", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.DebugCam.Enable")
+        .CVar(CVAR_ENHANCEMENT("Camera.DebugCam.Enable"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_FREE_LOOK_ON).active) {
                 info.activeDisables.push_back(DISABLE_FOR_FREE_LOOK_ON);
@@ -801,7 +801,7 @@ void BenMenu::AddEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Enables debug camera control."));
     AddWidget(path, "Invert Camera X Axis", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.RightStick.InvertXAxis")
+        .CVar(CVAR_ENHANCEMENT("Camera.RightStick.InvertXAxis"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
                 info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
@@ -809,7 +809,7 @@ void BenMenu::AddEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Inverts the Camera X Axis"));
     AddWidget(path, "Invert Camera Y Axis", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.RightStick.InvertYAxis")
+        .CVar(CVAR_ENHANCEMENT("Camera.RightStick.InvertYAxis"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
                 info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
@@ -817,7 +817,7 @@ void BenMenu::AddEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Inverts the Camera Y Axis").DefaultValue(true));
     AddWidget(path, "Third-Person Camera\nHorizontal Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.RightStick.CameraSensitivity.X")
+        .CVar(CVAR_ENHANCEMENT("Camera.RightStick.CameraSensitivity.X"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
                 info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
@@ -831,7 +831,7 @@ void BenMenu::AddEnhancements() {
                      .Min(0.01f)
                      .Max(5.0f));
     AddWidget(path, "Third-Person Camera\nVertical Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.RightStick.CameraSensitivity.Y")
+        .CVar(CVAR_ENHANCEMENT("Camera.RightStick.CameraSensitivity.Y"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
                 info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
@@ -845,13 +845,13 @@ void BenMenu::AddEnhancements() {
                      .Min(0.01f)
                      .Max(5.0f));
     AddWidget(path, "Enable Roll (6\xC2\xB0 of Freedom)", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.DebugCam.6DOF")
+        .CVar(CVAR_ENHANCEMENT("Camera.DebugCam.6DOF"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_CAM_OFF).active; })
         .Options(CheckboxOptions().Tooltip(
             "This allows for all six degrees of movement with the camera, NOTE: Yaw will work "
             "differently in this system, instead rotating around the focal point, rather than a polar axis."));
     AddWidget(path, "Camera Speed: %.0f", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gEnhancements.Camera.DebugCam.CameraSpeed")
+        .CVar(CVAR_ENHANCEMENT("Camera.DebugCam.CameraSpeed"))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_CAM_OFF).active; })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjusts the speed of the Camera.")
@@ -921,71 +921,71 @@ void BenMenu::AddEnhancements() {
     AddSidebarEntry("Enhancements", "Gameplay", 3);
     AddWidget(path, "Player", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Fast Deku Flower Launch", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.FastFlowerLaunch")
+        .CVar(CVAR_ENHANCEMENT("Player.FastFlowerLaunch"))
         .Options(CheckboxOptions().Tooltip("Speeds up the time it takes to be able to get maximum height from"
                                            "launching out of a Deku Flower."));
     AddWidget(path, "Infinite Deku Hopping", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.InfiniteDekuHopping")
+        .CVar(CVAR_ENHANCEMENT("Player.InfiniteDekuHopping"))
         .Options(CheckboxOptions().Tooltip("Allows Deku Link to hop indefinitely in water without drowning. This also "
                                            "prevents the velocity loss while in the air."));
     AddWidget(path, "Instant Putaway", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.InstantPutaway")
+        .CVar(CVAR_ENHANCEMENT("Player.InstantPutaway"))
         .Options(CheckboxOptions().Tooltip("Allows Link to instantly puts away held item without waiting."));
     AddWidget(path, "Fierce Deity Putaway", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.FierceDeityPutaway")
+        .CVar(CVAR_ENHANCEMENT("Player.FierceDeityPutaway"))
         .Options(CheckboxOptions().Tooltip("Allows Fierce Deity Link to put away his sword."));
     AddWidget(path, "Climb speed", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Player.ClimbSpeed")
+        .CVar(CVAR_ENHANCEMENT("Player.ClimbSpeed"))
         .Options(IntSliderOptions()
                      .Tooltip("Increases the speed at which Link climbs vines and ladders.")
                      .Min(1)
                      .Max(5)
                      .DefaultValue(1));
     AddWidget(path, "Faster Push/Pull", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.FasterPushAndPull")
+        .CVar(CVAR_ENHANCEMENT("Player.FasterPushAndPull"))
         .Options(CheckboxOptions().Tooltip("Speeds up the time it takes to push/pull various objects."));
     AddWidget(path, "Prevent Diving Over Water", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.PreventDiveOverWater")
+        .CVar(CVAR_ENHANCEMENT("Player.PreventDiveOverWater"))
         .Options(CheckboxOptions().Tooltip("Prevents Link from automatically diving over bodies of water."));
     AddWidget(path, "Underwater Ocarina", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.UnderwaterOcarina")
+        .CVar(CVAR_ENHANCEMENT("Player.UnderwaterOcarina"))
         .Options(CheckboxOptions().Tooltip("Allows Zora to use the Ocarina of Time when grounded underwater."));
     AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.ManualJump")
+        .CVar(CVAR_ENHANCEMENT("Player.ManualJump"))
         .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Dpad.DpadEquips")
+        .CVar(CVAR_ENHANCEMENT("Dpad.DpadEquips"))
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));
     AddWidget(path, "Fast Magic Arrow Equip Animation", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Equipment.MagicArrowEquipSpeed")
+        .CVar(CVAR_ENHANCEMENT("Equipment.MagicArrowEquipSpeed"))
         .Options(CheckboxOptions().Tooltip("Removes the animation for equipping Magic Arrows."));
     AddWidget(path, "Instant Fin Boomerangs Recall", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.PlayerActions.InstantRecall")
+        .CVar(CVAR_ENHANCEMENT("PlayerActions.InstantRecall"))
         .Options(CheckboxOptions().Tooltip(
             "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown."));
     AddWidget(path, "Two-Handed Sword Spin Attack", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Equipment.TwoHandedSwordSpinAttack")
+        .CVar(CVAR_ENHANCEMENT("Equipment.TwoHandedSwordSpinAttack"))
         .Options(CheckboxOptions().Tooltip(
             "Enables magic spin attacks for the Fierce Deity Sword and Great Fairy's Sword."));
     AddWidget(path, "Better Picto Message", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Equipment.BetterPictoMessage")
+        .CVar(CVAR_ENHANCEMENT("Equipment.BetterPictoMessage"))
         .Options(
             CheckboxOptions().Tooltip("Inform the player what target if any is being captured in the pictograph."));
     AddWidget(path, "Arrow Type Cycling", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.PlayerActions.ArrowCycle")
+        .CVar(CVAR_ENHANCEMENT("PlayerActions.ArrowCycle"))
         .Options(CheckboxOptions().Tooltip(
             "While aiming the bow, use R to cycle between Normal, Fire, Ice and Light arrows."));
     AddWidget(path, "Remote Bombchu Control", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.PlayerActions.RemoteBombchu")
+        .CVar(CVAR_ENHANCEMENT("PlayerActions.RemoteBombchu"))
         .Options(CheckboxOptions().Tooltip(
             "Allows you to control the direction of the Bombchu while it is moving. Press B to detonate. Press A to "
             "stop controlling the Bombchu."));
     AddWidget(path, "Bombchu Drops", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Equipment.ChuDrops")
+        .CVar(CVAR_ENHANCEMENT("Equipment.ChuDrops"))
         .Options(
             CheckboxOptions().Tooltip("When a bomb drop is spawned, it has a 50% chance to be a Bombchu instead."));
     AddWidget(path, "Invert Shield Y Axis", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Equipment.InvertShieldY")
+        .CVar(CVAR_ENHANCEMENT("Equipment.InvertShieldY"))
         .Options(CheckboxOptions().Tooltip(
             "Invert the Y axis while holding the shield so that it moves up with the left stick."));
 
@@ -1014,7 +1014,7 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Minigames.CremiaHugs")
+        .CVar(CVAR_ENHANCEMENT("Minigames.CremiaHugs"))
         .Options(ComboboxOptions()
                      .Tooltip("Choose what reward you get for winning the Milk Run minigame after the first time. \n"
                               "-Vanilla: Reward is Random\n"
@@ -1035,15 +1035,15 @@ void BenMenu::AddEnhancements() {
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Saving", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Saving.FileSlot3")
+        .CVar(CVAR_ENHANCEMENT("Saving.FileSlot3"))
         .Options(CheckboxOptions().Tooltip("Adds a 3rd file slot that can be used for saves").DefaultValue(true));
     AddWidget(path, "Persistent Owl Saves", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Saving.PersistentOwlSaves")
+        .CVar(CVAR_ENHANCEMENT("Saving.PersistentOwlSaves"))
         .Options(CheckboxOptions().Tooltip("Continuing a save will not remove the owl save. Playing Song of "
                                            "Time, allowing the moon to crash or finishing the "
                                            "game will remove the owl save and become the new last save."));
     AddWidget(path, "Pause Menu Save", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Saving.PauseSave")
+        .CVar(CVAR_ENHANCEMENT("Saving.PauseSave"))
         .Options(CheckboxOptions().Tooltip(
             "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
             "option to create a persistent Owl Save from your current location.\n\nWhen loading back "
@@ -1053,14 +1053,14 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Saving.RememberSaveLocation")
         .Options(CheckboxOptions().Tooltip("When loading a save, places Link at the last entrance he went through."));
     AddWidget(path, "Autosave", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Saving.Autosave")
+        .CVar(CVAR_ENHANCEMENT("Saving.Autosave"))
         .Callback([](WidgetInfo& info) { RegisterAutosave(); })
         .Options(CheckboxOptions().Tooltip(
             "Automatically create a persistent Owl Save on the chosen interval.\n\nWhen loading "
             "back into the game, you will be placed either at the entrance of the dungeon you "
             "saved in, or in South Clock Town, unless Remember Save Location is enabled."));
     AddWidget(path, "Autosave Interval: %d minutes", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Saving.AutosaveInterval")
+        .CVar(CVAR_ENHANCEMENT("Saving.AutosaveInterval"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_AUTO_SAVE_OFF).active) {
                 info.activeDisables.push_back(DISABLE_FOR_AUTO_SAVE_OFF);
@@ -1069,37 +1069,37 @@ void BenMenu::AddEnhancements() {
         .Options(IntSliderOptions().Tooltip("Sets the interval between Autosaves.").Min(1).Max(60).DefaultValue(5));
     AddWidget(path, "Time Cycle", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Do not reset Bottle content", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cycle.DoNotResetBottleContent")
+        .CVar(CVAR_ENHANCEMENT("Cycle.DoNotResetBottleContent"))
         .Options(CheckboxOptions().Tooltip("Playing the Song of Time will not reset the bottles' content."));
     AddWidget(path, "Do not reset Consumables", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cycle.DoNotResetConsumables")
+        .CVar(CVAR_ENHANCEMENT("Cycle.DoNotResetConsumables"))
         .Options(CheckboxOptions().Tooltip("Playing the Song of Time will not reset the consumables."));
     AddWidget(path, "Do not reset Razor Sword", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cycle.DoNotResetRazorSword")
+        .CVar(CVAR_ENHANCEMENT("Cycle.DoNotResetRazorSword"))
         .Options(CheckboxOptions().Tooltip("Playing the Song of Time will not reset the Sword back to Kokiri Sword."));
     AddWidget(path, "Do not reset Rupees", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cycle.DoNotResetRupees")
+        .CVar(CVAR_ENHANCEMENT("Cycle.DoNotResetRupees"))
         .Options(CheckboxOptions().Tooltip("Playing the Song of Time will not reset the your rupees."));
     AddWidget(path, "Do not reset Time Speed", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cycle.DoNotResetTimeSpeed")
+        .CVar(CVAR_ENHANCEMENT("Cycle.DoNotResetTimeSpeed"))
         .Options(CheckboxOptions().Tooltip(
             "Playing the Song of Time will not reset the current time speed set by Inverted Song of Time."));
     AddWidget(path, "Keep Express Mail", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cycle.KeepExpressMail")
+        .CVar(CVAR_ENHANCEMENT("Cycle.KeepExpressMail"))
         .Options(CheckboxOptions().Tooltip(
             "Allows the player to keep the Express Mail in their inventory after delivering it "
             "the first time, so that both deliveries can be done within one cycle."));
     AddWidget(path, "Stop Oceanside Spider House squatter", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cycle.StopOceansideSpiderHouseSquatter")
+        .CVar(CVAR_ENHANCEMENT("Cycle.StopOceansideSpiderHouseSquatter"))
         .Options(
             CheckboxOptions().Tooltip("The Oceanside Spider House squatter will not move in until the player interacts "
                                       "with him. Forced on for randomizers."));
     AddWidget(path, "Oceanside wallet any day", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cycle.OceansideWalletAnyDay")
+        .CVar(CVAR_ENHANCEMENT("Cycle.OceansideWalletAnyDay"))
         .Options(CheckboxOptions().Tooltip("Allows the wallet reward to be collected on any day."));
     AddWidget(path, "Unstable", WIDGET_SEPARATOR_TEXT).Options(WidgetOptions().Color(Colors::Orange));
     AddWidget(path, "Disable Save Delay", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Saving.DisableSaveDelay")
+        .CVar(CVAR_ENHANCEMENT("Saving.DisableSaveDelay"))
         .Options(CheckboxOptions().Tooltip(
             "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
             "cause issues when attempting the 0th Day Glitch."));
@@ -1109,28 +1109,28 @@ void BenMenu::AddEnhancements() {
     AddSidebarEntry("Enhancements", "Graphics", 3);
     AddWidget(path, "Clock", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Clock Type", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Graphics.ClockType")
+        .CVar(CVAR_ENHANCEMENT("Graphics.ClockType"))
         .Options(ComboboxOptions()
                      .Tooltip("Swaps between Graphical and Text only Clock types.")
                      .ComboVec(&clockTypeOptions));
     AddWidget(path, "24 Hours Clock", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.24HoursClock")
+        .CVar(CVAR_ENHANCEMENT("Graphics.24HoursClock"))
         .Options(CheckboxOptions().Tooltip("Changes from a 12 Hour to a 24 Hour Clock."));
     AddWidget(path, "Mods", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Use Alternate Assets", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Mods.AlternateAssets")
+        .CVar(CVAR_ENHANCEMENT("Mods.AlternateAssets"))
         .Options(CheckboxOptions().Tooltip(
             "Toggle between standard assets and alternate assets. Usually mods will indicate if "
             "this setting has to be used or not."));
     AddWidget(path, "Motion Blur", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Motion Blur Mode", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Graphics.MotionBlur.Mode")
+        .CVar(CVAR_ENHANCEMENT("Graphics.MotionBlur.Mode"))
         .Options(ComboboxOptions()
                      .Tooltip("Selects the Mode for Motion Blur.")
                      .LabelPosition(LabelPosition::None)
                      .ComboVec(&motionBlurOptions));
     AddWidget(path, "Interpolate", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.MotionBlur.Interpolate")
+        .CVar(CVAR_ENHANCEMENT("Graphics.MotionBlur.Interpolate"))
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value == MOTION_BLUR_ALWAYS_OFF;
         })
@@ -1144,7 +1144,7 @@ void BenMenu::AddEnhancements() {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_DYNAMIC;
         });
     AddWidget(path, "Strength", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Graphics.MotionBlur.Strength")
+        .CVar(CVAR_ENHANCEMENT("Graphics.MotionBlur.Strength"))
         .Options(IntSliderOptions().Tooltip("Motion Blur strength.").Min(0).Max(255).DefaultValue(180))
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_ALWAYS_ON;
@@ -1162,36 +1162,36 @@ void BenMenu::AddEnhancements() {
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3D Item Drops", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.3DItemDrops")
+        .CVar(CVAR_ENHANCEMENT("Graphics.3DItemDrops"))
         .Options(CheckboxOptions().Tooltip("Makes item drops 3D"));
     AddWidget(path, "Authentic Logo", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.AuthenticLogo")
+        .CVar(CVAR_ENHANCEMENT("Graphics.AuthenticLogo"))
         .Options(CheckboxOptions().Tooltip("Hide the game version and build details and display the authentic "
                                            "model and texture on the boot logo start screen."));
     AddWidget(path, "Disable Black Bar Letterboxes", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.DisableBlackBars")
+        .CVar(CVAR_ENHANCEMENT("Graphics.DisableBlackBars"))
         .Options(CheckboxOptions().Tooltip(
             "Disables Black Bar Letterboxes during cutscenes and Z-targeting.\nNote: There may be "
             "minor visual glitches that were covered up by the black bars.\nPlease disable this "
             "setting before reporting a bug."));
     AddWidget(path, "Enemy Health Bars", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.EnemyHealthBars")
+        .CVar(CVAR_ENHANCEMENT("Graphics.EnemyHealthBars"))
         .Options(CheckboxOptions().Tooltip("Renders a health bar for enemies and bosses when Z-targeted."));
     AddWidget(path, "Fix Scene Geometry Seams", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.FixSceneGeometrySeams")
+        .CVar(CVAR_ENHANCEMENT("Graphics.FixSceneGeometrySeams"))
         .Callback([](WidgetInfo& info) { GfxPatcher_ApplyGeometryIssuePatches(); });
     AddWidget(path, "Disable Scene Geometry Distance Check", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck")
+        .CVar(CVAR_ENHANCEMENT("Graphics.DisableSceneGeometryDistanceCheck"))
         .Callback([](WidgetInfo& info) { GfxPatcher_ApplyGeometryIssuePatches(); })
         .Options(CheckboxOptions().Tooltip(
             "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
             "away it is from the player. This may have unintended side effects."));
     AddWidget(path, "Widescreen Actor Culling", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.ActorCullingAccountsForWidescreen")
+        .CVar(CVAR_ENHANCEMENT("Graphics.ActorCullingAccountsForWidescreen"))
         .Options(CheckboxOptions().Tooltip("Adjusts the culling planes to account for widescreen resolutions. "
                                            "This may have unintended side effects."));
     AddWidget(path, "Increase Actor Draw Distance: %dx", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Graphics.IncreaseActorDrawDistance")
+        .CVar(CVAR_ENHANCEMENT("Graphics.IncreaseActorDrawDistance"))
         .Options(IntSliderOptions()
                      .Tooltip("Increase the range in which Actors are drawn. This may have unintended side effects.")
                      .Min(1)
@@ -1207,75 +1207,75 @@ void BenMenu::AddEnhancements() {
     // Mask Enhancements
     AddWidget(path, "Masks", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Blast Mask has Powder Keg Force", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Masks.BlastMaskKeg")
+        .CVar(CVAR_ENHANCEMENT("Masks.BlastMaskKeg"))
         .Options(CheckboxOptions().Tooltip("Blast Mask can also destroy objects only the Powder Keg can."));
     AddWidget(path, "Fast Transformation", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Masks.FastTransformation")
+        .CVar(CVAR_ENHANCEMENT("Masks.FastTransformation"))
         .Options(CheckboxOptions().Tooltip("Removes the delay when using transformation masks."));
     AddWidget(path, "Fierce Deity's Mask Anywhere", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Masks.FierceDeitysAnywhere")
+        .CVar(CVAR_ENHANCEMENT("Masks.FierceDeitysAnywhere"))
         .Options(CheckboxOptions().Tooltip("Allow using Fierce Deity's mask outside of boss rooms."));
     AddWidget(path, "Persistent Bunny Hood", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Masks.PersistentBunnyHood.Enabled")
+        .CVar(CVAR_ENHANCEMENT("Masks.PersistentBunnyHood.Enabled"))
         .Options(CheckboxOptions().Tooltip(
             "Permanently toggle a speed boost from the bunny hood by pressing 'A' on it in the mask menu."));
     AddWidget(path, "No Blast Mask Cooldown", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Masks.NoBlastMaskCooldown")
+        .CVar(CVAR_ENHANCEMENT("Masks.NoBlastMaskCooldown"))
         .Options(CheckboxOptions().Tooltip("Eliminates the Cooldown between Blast Mask usage."));
     AddWidget(path, "Goron Rolling Ignores Magic", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Masks.GoronRollingIgnoresMagic")
+        .CVar(CVAR_ENHANCEMENT("Masks.GoronRollingIgnoresMagic"))
         .Options(CheckboxOptions().Tooltip(
             "Goron rolling will use spikes even when Link doesn't have magic, and doesn't consume any."));
     AddWidget(path, "Goron Rolling Fast Spikes", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Masks.GoronRollingFastSpikes")
+        .CVar(CVAR_ENHANCEMENT("Masks.GoronRollingFastSpikes"))
         .Options(CheckboxOptions().Tooltip("Speeds up the wind-up towards spiky rolling to be near instant."));
 
     // Song Enhancements
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Ocarina", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Better Song of Double Time", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Songs.BetterSongOfDoubleTime")
+        .CVar(CVAR_ENHANCEMENT("Songs.BetterSongOfDoubleTime"))
         .Options(CheckboxOptions().Tooltip(
             "When playing the Song of Double Time, you can now choose the exact time you want to go "
             "to, similar to the 3DS version.\n\n"
             "Holding Z allows decreasing the time adjustment factor, while holding R will increase the factor."));
     AddWidget(path, "Enable Sun's Song", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Songs.EnableSunsSong")
+        .CVar(CVAR_ENHANCEMENT("Songs.EnableSunsSong"))
         .Options(CheckboxOptions().Tooltip(
             "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
             "This song will make time move very fast until either Link moves to a different scene, "
             "or when the time switches to a new time period."));
     AddWidget(path, "D-pad Ocarina", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Playback.DpadOcarina")
+        .CVar(CVAR_ENHANCEMENT("Playback.DpadOcarina"))
         .Options(CheckboxOptions().Tooltip("Enables using the D-pad for Ocarina playback."));
     AddWidget(path, "Right Stick Ocarina", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Playback.RightStickOcarina")
+        .CVar(CVAR_ENHANCEMENT("Playback.RightStickOcarina"))
         .Options(CheckboxOptions().Tooltip("Enables using the Right Stick for Ocarina playback."));
     AddWidget(path, "Pause Owl Warp", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Songs.PauseOwlWarp")
+        .CVar(CVAR_ENHANCEMENT("Songs.PauseOwlWarp"))
         .Options(CheckboxOptions().Tooltip(
             "Allows warping to registered Owl Statues from the pause menu map screen. "
             "Requires that you can play Song of Soaring normally.\n\n"
             "Accounts for Index-Warp being active, by presenting all valid warps for the registered "
             "map points. Great Bay Coast warp is always given for index 0 warp as a convenience."));
     AddWidget(path, "Zora Eggs For Bossa Nova", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Songs.ZoraEggCount")
+        .CVar(CVAR_ENHANCEMENT("Songs.ZoraEggCount"))
         .Options(IntSliderOptions()
                      .Tooltip("The number of eggs required to unlock New Wave Bossa Nova.")
                      .Min(1)
                      .Max(7)
                      .DefaultValue(7));
     AddWidget(path, "Prevent Dropped Ocarina Inputs", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Playback.NoDropOcarinaInput")
+        .CVar(CVAR_ENHANCEMENT("Playback.NoDropOcarinaInput"))
         .Options(CheckboxOptions().Tooltip("Prevent dropping inputs when playing the Ocarina quickly."));
     AddWidget(path, "Skip Scarecrow Song", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Playback.SkipScarecrowSong")
+        .CVar(CVAR_ENHANCEMENT("Playback.SkipScarecrowSong"))
         .Options(CheckboxOptions().Tooltip("Pierre appears when the Ocarina is pulled out."));
     AddWidget(path, "Faster Song Playback", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Songs.FasterSongPlayback")
+        .CVar(CVAR_ENHANCEMENT("Songs.FasterSongPlayback"))
         .Options(CheckboxOptions().Tooltip("Speeds up the playback of songs."));
     AddWidget(path, "Skip Song of Time cutscenes", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Songs.SkipSoTCutscenes")
+        .CVar(CVAR_ENHANCEMENT("Songs.SkipSoTCutscenes"))
         .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs."));
     AddWidget(path, "Skip Soaring cutscene", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.SkipSoaringCutscene")
@@ -1287,25 +1287,25 @@ void BenMenu::AddEnhancements() {
     // Cutscene Skips
     AddWidget(path, "Cutscenes", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Hide Title Cards", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cutscenes.HideTitleCards")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.HideTitleCards"))
         .Options(CheckboxOptions().Tooltip("Hides Title Cards when entering areas."));
     AddWidget(path, "Skip One Point Cutscenes", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cutscenes.SkipOnePointCutscenes")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipOnePointCutscenes"))
         .Options(CheckboxOptions().Tooltip(
             "Skips freezing Link to focus on various events like chest spawning, door unlocking, switch pressed, etc"));
     AddWidget(path, "Skip Entrance Cutscenes", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cutscenes.SkipEntranceCutscenes")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipEntranceCutscenes"))
         .Options(CheckboxOptions().Tooltip("Skip cutscenes that occur when first entering a new area."));
     AddWidget(path, "Skip to File Select", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cutscenes.SkipToFileSelect")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipToFileSelect"))
         .Options(CheckboxOptions().Tooltip(
             "Skip the opening title sequence and go straight to the file select menu after boot."));
     AddWidget(path, "Skip Intro Sequence", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cutscenes.SkipIntroSequence")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipIntroSequence"))
         .Options(CheckboxOptions().Tooltip(
             "When starting a game you will be taken straight to South Clock Town as Deku Link."));
     AddWidget(path, "Skip First Cycle", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cutscenes.SkipFirstCycle")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipFirstCycle"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active) {
                 info.activeDisables.push_back(DISABLE_FOR_INTRO_SKIP_OFF);
@@ -1315,16 +1315,16 @@ void BenMenu::AddEnhancements() {
             "When starting a game you will be taken straight to South Clock Town as Human Link "
             "with Deku Mask, Ocarina, Song of Time, and Song of Healing."));
     AddWidget(path, "Skip Story Cutscenes", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cutscenes.SkipStoryCutscenes")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipStoryCutscenes"))
         .Options(CheckboxOptions().Tooltip("This skips many of the cutscenes associated with the main story."));
     AddWidget(path, "Skip Misc Interactions", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cutscenes.SkipMiscInteractions")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipMiscInteractions"))
         .Options(CheckboxOptions().Tooltip("This skips many minor cutscenes and interactions."));
     AddWidget(path, "Skip Enemy Cutscenes", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cutscenes.SkipEnemyCutscenes")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipEnemyCutscenes"))
         .Options(CheckboxOptions().Tooltip("Skips cutscenes specific to enemies and boss battles."));
     AddWidget(path, "Skip Item Get Cutscene", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Cutscenes.SkipGetItemCutscenes")
+        .CVar(CVAR_ENHANCEMENT("Cutscenes.SkipGetItemCutscenes"))
         .Options(ComboboxOptions()
                      .Tooltip("Note: This only works in Randomizer currently.")
                      .ComboVec(&skipGetItemCutscenesOptions));
@@ -1333,46 +1333,46 @@ void BenMenu::AddEnhancements() {
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Dialogue", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Fast Bank Selection", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Dialogue.FastBankSelection")
+        .CVar(CVAR_ENHANCEMENT("Dialogue.FastBankSelection"))
         .Options(CheckboxOptions().Tooltip(
             "Pressing the Z or R buttons while the Deposit/Withdrawal Rupees dialogue is open will set "
             "the Rupees to Links current Rupees or 0 respectively."));
     AddWidget(path, "Fast Text", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Dialogue.FastText")
+        .CVar(CVAR_ENHANCEMENT("Dialogue.FastText"))
         .Options(
             CheckboxOptions().Tooltip("Speeds up text rendering, and enables holding of B progress to next message."));
     AddWidget(path, "Auto Bombers' Code", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Dialogue.AutoBombersCode")
+        .CVar(CVAR_ENHANCEMENT("Dialogue.AutoBombersCode"))
         .Options(CheckboxOptions().Tooltip("Automatically fill in the Bombers' code once you've got the notebook."));
 
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Swamp Boat Timesaver", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Timesavers.SwampBoatSpeed")
+        .CVar(CVAR_ENHANCEMENT("Timesavers.SwampBoatSpeed"))
         .Options(CheckboxOptions().Tooltip("Hold Z to speed up the boat ride in through the Swamp."));
     AddWidget(path, "Shooting Gallery Both Rewards", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Timesavers.GalleryTwofer")
+        .CVar(CVAR_ENHANCEMENT("Timesavers.GalleryTwofer"))
         .Options(CheckboxOptions().Tooltip("When getting a perfect score at the Shooting Gallery, receive both rewards "
                                            "back to back instead of having to play twice."));
     AddWidget(path, "Fast Marine Lab Fish", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Timesavers.MarineLabHP")
+        .CVar(CVAR_ENHANCEMENT("Timesavers.MarineLabHP"))
         .Options(CheckboxOptions().Tooltip("Only requires a single fish to be fed for the Piece of Heart to spawn. "
                                            "Requires a Scene Reload to take effect."));
     AddWidget(path, "Fast Dampe Flame Digging", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Timesavers.DampeDiggingSkip")
+        .CVar(CVAR_ENHANCEMENT("Timesavers.DampeDiggingSkip"))
         .Options(CheckboxOptions().Tooltip("Only requires digging up one flame to spawn the big poe."));
     AddWidget(path, "Fast Chests", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Timesavers.FastChests")
+        .CVar(CVAR_ENHANCEMENT("Timesavers.FastChests"))
         .Options(CheckboxOptions().Tooltip("Uses the quick kick animation for all chests in vanilla gameplay."));
     AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
+        .CVar(CVAR_ENHANCEMENT("Timesavers.FasterSceneTransitions"))
         .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
     AddWidget(path, "Skip Powder Keg Certification", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Timesavers.PowderKegCertification")
+        .CVar(CVAR_ENHANCEMENT("Timesavers.PowderKegCertification"))
         .Options(CheckboxOptions().Tooltip(
             "Skips requiring to take the Powder Keg Test before being given the Certification."));
     AddWidget(path, "Skip Ballad of Windfish", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Timesavers.SkipBalladOfWindfish")
+        .CVar(CVAR_ENHANCEMENT("Timesavers.SkipBalladOfWindfish"))
         .Options(CheckboxOptions().Tooltip(
             "Play the complete Ballad after playing in one form if you have all three transformation masks."));
 
@@ -1381,7 +1381,7 @@ void BenMenu::AddEnhancements() {
     AddSidebarEntry("Enhancements", "Fixes", 3);
     AddWidget(path, "Fixes", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Fix Console Crashes", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Fixes.ConsoleCrashes")
+        .CVar(CVAR_ENHANCEMENT("Fixes.ConsoleCrashes"))
         .Options(CheckboxOptions()
                      .Tooltip("Fixes crashes that would typically happen on Console. "
                               "Disabling this option will simply soft reset 2Ship when encountering these "
@@ -1401,10 +1401,10 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "This fixes a bug where Epona can steal your sword when you mount her without a bow in your inventory."));
     AddWidget(path, "Fix Fierce Deity Z-Target movement", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Fixes.FierceDeityZTargetMovement")
+        .CVar(CVAR_ENHANCEMENT("Fixes.FierceDeityZTargetMovement"))
         .Options(CheckboxOptions().Tooltip("Fixes Fierce Deity movement being choppy when Z-targeting."));
     AddWidget(path, "Fix Text Control Characters", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Fixes.ControlCharacters")
+        .CVar(CVAR_ENHANCEMENT("Fixes.ControlCharacters"))
         .Options(CheckboxOptions().Tooltip("Fixes certain control characters not functioning properly "
                                            "depending on their position within the text."));
     AddWidget(path, "Fix Ikana Great Fairy Fountain Color", WIDGET_CVAR_CHECKBOX)
@@ -1413,13 +1413,13 @@ void BenMenu::AddEnhancements() {
             "Fixes a bug that results in the Ikana Great Fairy fountain looking green instead of "
             "yellow, this was fixed in the EU version."));
     AddWidget(path, "Fix Texture overflow OOB", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Fixes.FixTexturesOOB")
+        .CVar(CVAR_ENHANCEMENT("Fixes.FixTexturesOOB"))
         .Options(CheckboxOptions()
                      .Tooltip("Fixes textures that normally overflow to be patched with the correct size or format.")
                      .DefaultValue(true))
         .Callback([](WidgetInfo& info) { GfxPatcher_ApplyOverflowTexturePatches(); });
     AddWidget(path, "Fix Completed Heart Container Audio", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Fixes.CompletedHeartContainerAudio")
+        .CVar(CVAR_ENHANCEMENT("Fixes.CompletedHeartContainerAudio"))
         .Options(CheckboxOptions().Tooltip(
             "Fixes a bug that results in the wrong audio playing upon receiving a 4th piece of heart to "
             "fill a new heart container."));
@@ -1429,10 +1429,10 @@ void BenMenu::AddEnhancements() {
     AddSidebarEntry("Enhancements", "Restorations", 3);
     AddWidget(path, "Restorations", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Constant Distance Backflips and Sidehops", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Restorations.ConstantFlipsHops")
+        .CVar(CVAR_ENHANCEMENT("Restorations.ConstantFlipsHops"))
         .Options(CheckboxOptions().Tooltip("Backflips and Sidehops travel a constant distance as they did in OoT."));
     AddWidget(path, "Power Crouch Stab", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Restorations.PowerCrouchStab")
+        .CVar(CVAR_ENHANCEMENT("Restorations.PowerCrouchStab"))
         .Options(
             ComboboxOptions()
                 .Tooltip("Crouch stabs will use the power of Link's previous melee attack.\n"
@@ -1443,16 +1443,16 @@ void BenMenu::AddEnhancements() {
                 .DefaultIndex(0)
                 .ComboVec(&powerCrouchStabOptions));
     AddWidget(path, "Side Rolls", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Restorations.SideRoll")
+        .CVar(CVAR_ENHANCEMENT("Restorations.SideRoll"))
         .Options(CheckboxOptions().Tooltip("Restores side rolling from OoT."));
     AddWidget(path, "Faster Swim", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Restorations.OoTFasterSwim")
+        .CVar(CVAR_ENHANCEMENT("Restorations.OoTFasterSwim"))
         .Options(CheckboxOptions().Tooltip("Restores the ability to swim faster by spamming the B button, as in OoT."));
     AddWidget(path, "Tatl ISG", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Restorations.TatlISG")
+        .CVar(CVAR_ENHANCEMENT("Restorations.TatlISG"))
         .Options(CheckboxOptions().Tooltip("Restores Navi ISG from OoT, but now with Tatl."));
     AddWidget(path, "Woodfall Mountain Appearance", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Restorations.WoodfallMountainAppearance")
+        .CVar(CVAR_ENHANCEMENT("Restorations.WoodfallMountainAppearance"))
         .Options(CheckboxOptions().Tooltip("Restores the appearance of Woodfall mountain to not look poisoned "
                                            "when viewed from Termina Field after clearing Woodfall Temple\n\n"
                                            "Requires a scene reload to take effect."));
@@ -1468,7 +1468,7 @@ void BenMenu::AddEnhancements() {
                      .Max(6)
                      .DefaultValue(0));
     AddWidget(path, "Pause Buffer Input Window", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Restorations.PauseBufferWindow")
+        .CVar(CVAR_ENHANCEMENT("Restorations.PauseBufferWindow"))
         .Options(IntSliderOptions()
                      .Tooltip("Amount of time in frames you have to buffer an input while unpausing the game. Original "
                               "hardware is around 20.")
@@ -1481,25 +1481,25 @@ void BenMenu::AddEnhancements() {
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
     AddWidget(path, "Combat", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.HyperEnemies"))
         .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
     AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.DamageMultiplier"))
         .Options(ComboboxOptions()
                      .Tooltip("Adjusts the amount of damage Link takes from all sources.")
                      .ComboMap(&damageMultiplierOptions));
     AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.PermanentHeartLoss"))
         .Options(CheckboxOptions().Tooltip(
             "When you lose 4 quarters of a heart you will permanently lose that heart container.\n\nDisabling this "
             "after the fact will not restore any received heart containers."));
     AddWidget(path, "Delete File on Death", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.DeleteFileOnDeath")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.DeleteFileOnDeath"))
         .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE
                                            " WARNING " ICON_FA_EXCLAMATION_TRIANGLE
                                            "\nTHIS IS NOT REVERSIBLE\nUSE AT YOUR OWN RISK!"));
     AddWidget(path, "Jinxed Timer: %d seconds", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.DifficultyOptions.JinxedTimer")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.JinxedTimer"))
         .Options(
             IntSliderOptions()
                 .Tooltip("Set the duration of the Jinxed effect. Setting it to 0 will prevent the effect entirely.")
@@ -1510,42 +1510,42 @@ void BenMenu::AddEnhancements() {
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Bombers Hide-and-Seek Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BombersHideAndSeek")
+        .CVar(CVAR_ENHANCEMENT("Minigames.BombersHideAndSeek"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the number of Bomber Kids you have to find to complete the hide-and-seek game.")
                      .Min(1)
                      .Max(5)
                      .DefaultValue(5));
     AddWidget(path, "Swordsman School Winning Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.SwordsmanSchoolScore")
+        .CVar(CVAR_ENHANCEMENT("Minigames.SwordsmanSchoolScore"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the score required to win the Swordsman School.")
                      .Min(1)
                      .Max(30)
                      .DefaultValue(30));
     AddWidget(path, "Honey & Darling Day 1 (Bombchus)", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay1")
+        .CVar(CVAR_ENHANCEMENT("Minigames.HoneyAndDarlingDay1"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 1.")
                      .Min(1)
                      .Max(8)
                      .DefaultValue(8));
     AddWidget(path, "Honey & Darling Day 2 (Bombs)", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay2")
+        .CVar(CVAR_ENHANCEMENT("Minigames.HoneyAndDarlingDay2"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 2.")
                      .Min(1)
                      .Max(8)
                      .DefaultValue(8));
     AddWidget(path, "Honey & Darling Day 3 (Bow)", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay3")
+        .CVar(CVAR_ENHANCEMENT("Minigames.HoneyAndDarlingDay3"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the score required to win the Honey & Darling minigame on Day 3.")
                      .Min(1)
                      .Max(16)
                      .DefaultValue(16));
     AddWidget(path, "Town Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.TownArcheryScore")
+        .CVar(CVAR_ENHANCEMENT("Minigames.TownArcheryScore"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the score required to win the Town Archery minigame. Reaching this score will end "
                               "the minigame.")
@@ -1553,7 +1553,7 @@ void BenMenu::AddEnhancements() {
                      .Max(50)
                      .DefaultValue(50));
     AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.SwampArcheryScore")
+        .CVar(CVAR_ENHANCEMENT("Minigames.SwampArcheryScore"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the score required to win the Swamp Archery minigame, if this is changed it also "
                               "speeds up the final score counting.")
@@ -1561,28 +1561,28 @@ void BenMenu::AddEnhancements() {
                      .Max(2180)
                      .DefaultValue(2180));
     AddWidget(path, "Romani Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.RomaniTargetPractice")
+        .CVar(CVAR_ENHANCEMENT("Minigames.RomaniTargetPractice"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the score required to win Romani's Target Practice.")
                      .Min(1)
                      .Max(10)
                      .DefaultValue(10));
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
+        .CVar(CVAR_ENHANCEMENT("Minigames.AlwaysWinDoggyRace"))
         .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboVec(&alwaysWinDoggyraceOptions));
 
     AddWidget(path, "Cucco Shack Cucco Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.CuccoShackCuccoCount")
+        .CVar(CVAR_ENHANCEMENT("Minigames.CuccoShackCuccoCount"))
         .Options(IntSliderOptions()
                      .Tooltip("Choose how many cuccos you need to raise to make Grog happy.")
                      .Min(1)
                      .Max(10)
                      .DefaultValue(10));
     AddWidget(path, "Skip Gorman Horse Race", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.SkipHorseRace")
+        .CVar(CVAR_ENHANCEMENT("Minigames.SkipHorseRace"))
         .Options(CheckboxOptions().Tooltip("Instantly win the Gorman Horse Race"));
     AddWidget(path, "Beaver Race Rings Collected", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BeaverRaceRingsCollected")
+        .CVar(CVAR_ENHANCEMENT("Minigames.BeaverRaceRingsCollected"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the number of rings required for both Beavers. If the slider is set to 20, the "
                               "first Beaver will require 20 rings, and the second Beaver will require 25 rings, which "
@@ -1627,18 +1627,18 @@ void BenMenu::AddEnhancements() {
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.LowerBankRewardThresholds")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.LowerBankRewardThresholds"))
         .Options(
             CheckboxOptions().Tooltip("Reduces the amount of rupees required to receive the rewards from the bank.\n"
                                       "From: 200 -> 1000 -> 5000\n"
                                       "To:   100 ->  500 -> 1000"));
     AddWidget(path, "Disable Takkuri Steal", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.DisableTakkuriSteal")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.DisableTakkuriSteal"))
         .Options(CheckboxOptions().Tooltip(
             "Prevents the Takkuri from stealing key items like bottles and swords. It may still steal "
             "other items."));
     AddWidget(path, "Deku Guard Search Balls", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.DekuGuardSearchBalls")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.DekuGuardSearchBalls"))
         .Options(
             ComboboxOptions()
                 .Tooltip("Choose when to show the Deku Palace Guards' search balls:\n"
@@ -1648,7 +1648,7 @@ void BenMenu::AddEnhancements() {
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
                 .ComboVec(&dekuGuardSearchBallsOptions));
     AddWidget(path, "Gibdo Trade Sequence Options", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.GibdoTradeSequence")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.GibdoTradeSequence"))
         .Options(
             ComboboxOptions()
                 .Tooltip("Changes the way the Gibdo Trade Sequence works:\n"
@@ -1659,7 +1659,7 @@ void BenMenu::AddEnhancements() {
                 .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
                 .ComboVec(&gibdoTradeSequenceOptions));
     AddWidget(path, "Hidden Grottos Visibility", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.HiddenGrottosVisibility")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.HiddenGrottosVisibility"))
         .Options(
             ComboboxOptions()
                 .Tooltip(
@@ -1671,7 +1671,7 @@ void BenMenu::AddEnhancements() {
                 .DefaultIndex(HiddenGrottosVisibilityOptions::HIDDEN_GROTTOS_VISIBLITY_OFF)
                 .ComboVec(&maskOfTruthGrottoOptions));
     AddWidget(path, "Frog Choir Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.DifficultyOptions.FrogChoirCount")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.FrogChoirCount"))
         .Options(IntSliderOptions()
                      .Tooltip("Choose how many frogs you need to save for the choir performance.")
                      .Min(1)
@@ -1907,39 +1907,39 @@ void BenMenu::InitElement() {
     disabledMap = {
         { DISABLE_FOR_CAMERAS_OFF,
           { [](disabledInfo& info) -> bool {
-               return !CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) &&
-                      !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0);
+               return !CVarGetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.Enable"), 0) &&
+                      !CVarGetInteger(CVAR_ENHANCEMENT("Camera.FreeLook.Enable"), 0);
            },
             "Both Debug Camera and Free Look are Disabled" } },
         { DISABLE_FOR_DEBUG_CAM_ON,
-          { [](disabledInfo& info) -> bool { return CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
+          { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.Enable"), 0); },
             "Debug Camera is Enabled" } },
         { DISABLE_FOR_DEBUG_CAM_OFF,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.Enable"), 0); },
             "Debug Camera is Disabled" } },
         { DISABLE_FOR_FREE_LOOK_ON,
-          { [](disabledInfo& info) -> bool { return CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
+          { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_ENHANCEMENT("Camera.FreeLook.Enable"), 0); },
             "Free Look is Enabled" } },
         { DISABLE_FOR_FREE_LOOK_OFF,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_ENHANCEMENT("Camera.FreeLook.Enable"), 0); },
             "Free Look is Disabled" } },
         { DISABLE_FOR_GYRO_OFF,
           { [](disabledInfo& info) -> bool {
-               return !CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0);
+               return !CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroEnabled"), 0);
            },
             "Gyro Aiming is Disabled" } },
         { DISABLE_FOR_GYRO_ON,
           { [](disabledInfo& info) -> bool {
-               return CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0);
+               return CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroEnabled"), 0);
            },
             "Gyro Aiming is Enabled" } },
         { DISABLE_FOR_RIGHT_STICK_OFF,
           { [](disabledInfo& info) -> bool {
-               return !CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0);
+               return !CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickEnabled"), 0);
            },
             "Right Stick Aiming is Disabled" } },
         { DISABLE_FOR_AUTO_SAVE_OFF,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); },
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_ENHANCEMENT("Saving.Autosave"), 0); },
             "AutoSave is Disabled" } },
         { DISABLE_FOR_NULL_PLAY_STATE,
           { [](disabledInfo& info) -> bool { return gPlayState == NULL; }, "Not in game" } },
@@ -1978,7 +1978,7 @@ void BenMenu::InitElement() {
             "Match Refresh Rate is Enabled" } },
         { DISABLE_FOR_MOTION_BLUR_MODE,
           { [](disabledInfo& info) -> bool {
-               info.value = CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0);
+               info.value = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.MotionBlur.Mode"), 0);
                return !info.value;
            },
             "Motion Blur Mode mismatch" } },
@@ -1988,7 +1988,7 @@ void BenMenu::InitElement() {
           { [](disabledInfo& info) -> bool { return !(gPlayState != nullptr && gPlayState->frameAdvCtx.enabled); },
             "Frame Advance is Disabled" } },
         { DISABLE_FOR_INTRO_SKIP_OFF,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0); },
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipIntroSequence"), 0); },
             "Intro Skip Not Selected" } },
         { DISABLE_FOR_ADVANCED_RESOLUTION_ON,
           { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0); },

@@ -1,13 +1,14 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Dt/z_en_dt.h"
 void EnDt_UpdateMeetingCutscene(EnDt* enDt, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipMiscInteractions")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // These skips still allow the first textboxes to display, but they do ignore most of the scenes

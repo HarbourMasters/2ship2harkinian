@@ -1,13 +1,14 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 #include "overlays/actors/ovl_En_Ginko_Man/z_en_ginko_man.h"
 }
 
-#define CVAR_NAME "gEnhancements.Dialogue.FastBankSelection"
+#define CVAR_NAME CVAR_ENHANCEMENT("Dialogue.FastBankSelection")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 static const char zeroRupees[3] = { '0', '0', '0' };

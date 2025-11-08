@@ -3857,7 +3857,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             // #region 2S2H [Dpad] - Changed from EquipSlot to s32 to allow for higher ranges
             s32 btn = func_8082FD0C(this, maskItemAction);
 
-            if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
                 if (btn <= EQUIP_SLOT_NONE) {
                     DpadEquipSlot dpadBtn = func_Dpad_8082FD0C(this, maskItemAction);
 
@@ -3899,7 +3899,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         !(((Player_GetHeldBButtonSword(this) == PLAYER_B_SWORD_NONE) || (gSaveContext.jinxTimer == 0)) &&
           (Player_ItemIsInUse(this, (IREG(1) != 0) ? ITEM_FISHING_ROD : Inventory_GetBtnBItem(play)) ||
            // #region 2S2H [Dpad]
-           (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
+           (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0) &&
             (Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_RIGHT)) ||
              Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_LEFT)) ||
              Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_DOWN)) ||
@@ -3923,7 +3923,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         item = Player_GetItemOnButton(play, this, i);
 
         // #region 2S2H [Dpad]
-        if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
             if (i >= EQUIP_SLOT_A) {
                 DpadEquipSlot j = func_Dpad_8082FDC4();
                 ItemId dpadItem = Player_Dpad_GetItemOnButton(play, this, j);
@@ -3947,7 +3947,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
                 sPlayerHeldItemButtonIsHeldDown = true;
             }
             // #region 2S2H [Dpad]
-            else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+            else if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
                 for (i = 0; i < ARRAY_COUNT(sDpadItemButtons); i++) {
                     if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, sDpadItemButtons[i])) {
                         break;
@@ -4614,7 +4614,7 @@ void func_80831944(PlayState* play, Player* this) {
         func_808318C0(play);
     }
     // #region 2S2H [Dpad]
-    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+    else if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
         if (Player_Dpad_GetItemOnButton(play, this, func_Dpad_8082FDC4()) == ITEM_LENS_OF_TRUTH) {
             func_808318C0(play);
         }
@@ -5058,7 +5058,7 @@ void Player_UpdateZTargeting(Player* this, PlayState* play) {
             this->zTargetActiveTimer--;
         }
     } else if (this->stateFlags1 & PLAYER_STATE1_PARALLEL &&
-               !CVarGetInteger("gEnhancements.Camera.FixTargettingCameraSnap", 0)) {
+               !CVarGetInteger(CVAR_ENHANCEMENT("Camera.FixTargettingCameraSnap"), 0)) {
         // If the above code block which checks `zButtonHeld` is not taken, that means Z has been released.
         // In that case, setting `zTargetActiveTimer` to 0 will stop Parallel if it is currently active.
         this->zTargetActiveTimer = 0;
@@ -13518,38 +13518,38 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
     float gyroX = 0.0f;
     float gyroY = 0.0f;
 
-    if (!(CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
-          CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0))) {
+    if (!(CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.MoveInFirstPerson"), 0) &&
+          CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickEnabled"), 0))) {
         s32 leftStickX = sPlayerControlInput->rel.stick_x; // -60 to 60
         s32 leftStickY = sPlayerControlInput->rel.stick_y; // -60 to 60
 
         leftStickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_X);
         leftStickY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_Y);
 
-        stickX += leftStickX * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityX", 1.0f);
-        stickY += leftStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityY", 1.0f);
+        stickX += leftStickX * CVarGetFloat(CVAR_ENHANCEMENT("Camera.FirstPerson.SensitivityX"), 1.0f);
+        stickY += leftStickY * CVarGetFloat(CVAR_ENHANCEMENT("Camera.FirstPerson.SensitivityY"), 1.0f);
     }
 
-    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroEnabled"), 0)) {
         gyroX = sPlayerControlInput->cur.gyro_y * 720; // -40 to 40, avg -4 to 4
         gyroY = sPlayerControlInput->cur.gyro_x * 720; // -20 to 20, avg -2 to 2
 
         gyroX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X);
         gyroY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y);
 
-        gyroX *= CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f);
-        gyroY *= CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f);
+        gyroX *= CVarGetFloat(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroSensitivityX"), 1.0f);
+        gyroY *= CVarGetFloat(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroSensitivityY"), 1.0f);
     }
 
-    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickEnabled"), 0)) {
         s32 rightStickX = sPlayerControlInput->cur.right_stick_x; // -40 to 40, avg -4 to 4
         s32 rightStickY = sPlayerControlInput->cur.right_stick_y; // -20 to 20, avg -2 to 2
 
         rightStickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_X);
         rightStickY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y);
 
-        stickX += rightStickX * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
-        stickY += rightStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+        stickX += rightStickX * CVarGetFloat(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickSensitivityX"), 1.0f);
+        stickY += rightStickY * CVarGetFloat(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickSensitivityY"), 1.0f);
     }
 
     stickX = CLAMP(stickX, -60, 60);
@@ -13557,8 +13557,8 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
 
     if (!func_800B7128(this) && !func_8082EF20(this) && !arg2) { // First person without weapon
         var_s0 = stickY * 0xF0;
-        if (CVarGetInteger("gEnhancements.Camera.FirstPerson.DisableFirstPersonAutoCenterView", 0) ||
-            CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.DisableFirstPersonAutoCenterView"), 0) ||
+            CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.GyroEnabled"), 0)) {
             this->actor.focus.rot.x += var_s0 * 0.1f;
         } else {
             Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
@@ -13592,8 +13592,8 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
                                 (this->actionFunc == Player_Action_80) || // Riding swamp boat (non-archery)
                                 (this->actionFunc == Player_Action_81);   // Bow minigames
 
-    if (!playerMovementLocked && CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
-        CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
+    if (!playerMovementLocked && CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.MoveInFirstPerson"), 0) &&
+        CVarGetInteger(CVAR_ENHANCEMENT("Camera.FirstPerson.RightStickEnabled"), 0)) {
         f32 movementSpeed = 8.25f; // account for form
         if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             movementSpeed *= 1.5f;
@@ -17834,7 +17834,7 @@ void Player_Action_63(Player* this, PlayState* play) {
           (BEN_ANIM_EQUAL(this->skelAnime.animation, D_8085D17C[this->transformation]))) ||
          ((this->skelAnime.mode == ANIMMODE_LOOP) && (this->av2.actionVar2 == 0)))) {
         func_808525C4(play, this);
-        if (!CVarGetInteger("gEnhancements.Playback.NoDropOcarinaInput", 0) || this->av2.actionVar2 == 1) {
+        if (!CVarGetInteger(CVAR_ENHANCEMENT("Playback.NoDropOcarinaInput"), 0) || this->av2.actionVar2 == 1) {
             if (!(this->actor.flags & ACTOR_FLAG_OCARINA_INTERACTION) ||
                 (this->ocarinaInteractionActor->id == ACTOR_EN_ZOT)) {
                 Message_DisplayOcarinaStaff(play, OCARINA_ACTION_FREE_PLAY);
@@ -18270,7 +18270,7 @@ void Player_Action_68(Player* this, PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                else if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
                     if (Player_Dpad_GetItemOnButton(play, this, HELD_ITEM_TO_DPAD(this->heldItemButton)) ==
                         ITEM_BOTTLE) {
                         Actor* interactRangeActor = this->interactRangeActor;
@@ -18679,7 +18679,7 @@ void Player_Action_80(Player* this, PlayState* play) {
                     play->actorCtx.flags |= ACTORCTX_FLAG_PICTO_BOX_ON;
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                else if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
                     if ((play->sceneId == SCENE_20SICHITAI) &&
                         (Player_Dpad_GetItemOnButton(play, this, func_Dpad_8082FDC4()) == ITEM_PICTOGRAPH_BOX)) {
                         play->actorCtx.flags |= ACTORCTX_FLAG_PICTO_BOX_ON;

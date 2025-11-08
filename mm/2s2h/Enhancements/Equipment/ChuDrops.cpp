@@ -3,6 +3,7 @@
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -10,7 +11,7 @@ extern "C" {
 #include "objects/gameplay_keep/gameplay_keep.h"
 }
 
-#define CVAR_NAME "gEnhancements.Equipment.ChuDrops"
+#define CVAR_NAME CVAR_ENHANCEMENT("Equipment.ChuDrops")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 static void ChuDrop_Give(Actor* actor, PlayState* play) {
@@ -43,7 +44,7 @@ static void ChuDrop_Draw(Actor* actor, PlayState* play) {
     FrameInterpolation_RecordOpenChild(actor, (CUSTOM_ITEM_FLAGS & CustomItem::KEEP_ON_PLAYER) ? 1 : 0);
     FrameInterpolation_IgnoreActorMtx();
 
-    if (CVarGetInteger("gEnhancements.Graphics.3DItemDrops", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.3DItemDrops"), 0)) {
         CUSTOM_ITEM_FLAGS &= ~CustomItem::STOP_SPINNING;
 
         Matrix_Scale(16.0f, 16.0f, 16.0f, MTXMODE_APPLY);

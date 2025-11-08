@@ -2,12 +2,13 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/Rando.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Sth/z_en_sth.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cycle.OceansideWalletAnyDay"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cycle.OceansideWalletAnyDay")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterOceansideWalletAnyDay() {

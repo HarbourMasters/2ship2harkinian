@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -9,7 +10,7 @@ extern u8 sPlaybackState;
 #include "overlays/actors/ovl_En_Torch2/z_en_torch2.h"
 }
 
-#define CVAR_NAME "gEnhancements.Songs.FasterSongPlayback"
+#define CVAR_NAME CVAR_ENHANCEMENT("Songs.FasterSongPlayback")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 #define NOT_OCARINA_ACTION_BALAD_WIND_FISH                                       \

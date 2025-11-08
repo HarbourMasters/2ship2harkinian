@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -10,7 +11,7 @@ extern "C" {
 void DmChar08_Init(Actor* thisx, PlayState* play2);
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipStoryCutscenes")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipWakingAndRidingTurtle() {

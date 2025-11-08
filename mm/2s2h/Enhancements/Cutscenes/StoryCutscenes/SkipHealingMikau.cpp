@@ -3,12 +3,13 @@
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "functions.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipStoryCutscenes")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipHealingMikau() {
@@ -30,7 +31,7 @@ void RegisterSkipHealingMikau() {
                 gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK;
                 if (GameInteractor_Should(VB_GIVE_ITEM_FROM_DMCHAR05, true, ITEM_MASK_ZORA)) {
                     GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
-                        .showGetItemCutscene = !CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0),
+                        .showGetItemCutscene = !CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipGetItemCutscenes"), 0),
                         .param = GID_MASK_ZORA,
                         .giveItem =
                             [](Actor* actor, PlayState* play) {

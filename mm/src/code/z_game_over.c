@@ -81,7 +81,7 @@ void GameOver_Update(PlayState* play) {
             break;
 
         case GAMEOVER_DEATH_FADE_OUT:
-            if (CVarGetInteger("gEnhancements.Kaleido.GameOver", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Kaleido.GameOver"), 0)) {
                 sGameOverTimer--;
 
                 if (sGameOverTimer == 0) {

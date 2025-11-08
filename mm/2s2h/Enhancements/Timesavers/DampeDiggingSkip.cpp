@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Tk/z_en_tk.h"
@@ -13,7 +14,7 @@ void EnBigpo_RevealedFireIdle(EnBigpo* thisx, PlayState* play);
 void EnBigpo_SetupSpawnCutscene(EnBigpo* thisx);
 }
 
-#define CVAR_NAME "gEnhancements.Timesavers.DampeDiggingSkip"
+#define CVAR_NAME CVAR_ENHANCEMENT("Timesavers.DampeDiggingSkip")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterDampeDiggingSkip() {

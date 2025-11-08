@@ -4,13 +4,14 @@
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 #include "functions.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipStoryCutscenes")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // This is a song tutorial, so the skip is forced on in rando for now
@@ -22,7 +23,7 @@ void RegisterSkipLearningSongOfStorms() {
                 RANDO_SAVE_CHECKS[RC_BENEATH_THE_GRAVEYARD_SONG_OF_STORMS].eligible = true;
             } else {
                 GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
-                    .showGetItemCutscene = !CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0),
+                    .showGetItemCutscene = !CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipGetItemCutscenes"), 0),
                     .giveItem =
                         [](Actor* actor, PlayState* play) {
                             if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {

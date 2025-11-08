@@ -1,12 +1,13 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_Bg_Ingate/z_bg_ingate.h"
 }
 
-#define CVAR_NAME "gEnhancements.Timesavers.SwampBoatSpeed"
+#define CVAR_NAME CVAR_ENHANCEMENT("Timesavers.SwampBoatSpeed")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 #define SCORE_CVAR_NAME "gEnhancements.Minigames.BoatArcheryScore"
 #define SCORE_CVAR CVarGetInteger(SCORE_CVAR_NAME, 20)

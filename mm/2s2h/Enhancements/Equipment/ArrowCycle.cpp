@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "macros.h"
@@ -13,7 +14,7 @@ s32 Player_UpperAction_7(Player* thisx, PlayState* play);
 s32 Player_UpperAction_8(Player* thisx, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.PlayerActions.ArrowCycle"
+#define CVAR_NAME CVAR_ENHANCEMENT("PlayerActions.ArrowCycle")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // Magic arrow costs based on z_player.c

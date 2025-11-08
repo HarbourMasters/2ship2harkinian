@@ -7,6 +7,8 @@
 #include "2s2h/BenGui/Notification.h"
 #include "2s2h/Rando/Spoiler/Spoiler.h"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/cvar_prefixes.h"
+
 
 #include "interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
@@ -406,7 +408,7 @@ void DrawGeneralTab() {
     std::string hours = "";
     std::string ampm = "";
     // Handle 24 or 12 hour time
-    if (CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.24HoursClock"), 0)) {
         if (curHours < 10) {
             hours += "0";
         }
@@ -754,7 +756,7 @@ void DrawSlot(InventorySlot slot) {
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
     if (GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_LEFT) == slot || GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_DOWN) == slot ||
         GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_RIGHT) == slot ||
-        (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
+        (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0) &&
          (DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_RIGHT) == slot ||
           DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_LEFT) == slot ||
           DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_DOWN) == slot ||

@@ -29,7 +29,7 @@ FileSelectState* gFileSelectState = NULL;
 
 // 2S2H [Enhancement] To handle File 3 support and toggle, we undef the file num max and replace it for a CVar check
 #undef FILE_NUM_MAX
-#define FILE_NUM_MAX (CVarGetInteger("gEnhancements.Saving.FileSlot3", true) ? 3 : 2)
+#define FILE_NUM_MAX (CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) ? 3 : 2)
 
 static Gfx sScreenFillSetupDL[] = {
     gsDPPipeSync(),
@@ -334,7 +334,7 @@ void FileSelect_UpdateMainMenu(GameState* thisx) {
             Audio_PlaySfx(NA_SE_SY_FSEL_CURSOR);
             if (this->stickAdjY > 30) {
                 this->buttonIndex--;
-                if (!CVarGetInteger("gEnhancements.Saving.FileSlot3", true) &&
+                if (!CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) &&
                     this->buttonIndex == FS_BTN_MAIN_FILE_3) {
                     this->buttonIndex = FS_BTN_MAIN_FILE_2;
                 }
@@ -343,7 +343,7 @@ void FileSelect_UpdateMainMenu(GameState* thisx) {
                 }
             } else {
                 this->buttonIndex++;
-                if (!CVarGetInteger("gEnhancements.Saving.FileSlot3", true) &&
+                if (!CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) &&
                     this->buttonIndex == FS_BTN_MAIN_FILE_3) {
                     this->buttonIndex = FS_BTN_MAIN_COPY;
                 }

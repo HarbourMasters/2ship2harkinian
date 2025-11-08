@@ -1,12 +1,13 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Fish2/z_en_fish2.h"
 }
 
-#define CVAR_NAME "gEnhancements.Timesavers.MarineLabHP"
+#define CVAR_NAME CVAR_ENHANCEMENT("Timesavers.MarineLabHP")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 static f32 D_80B2B370[] = { 0.01f, 0.012f, 0.014f, 0.017f, 0.019f, 0.033f };

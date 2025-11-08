@@ -4939,7 +4939,7 @@ s32 Inventory_ConsumeFairy(PlayState* play) {
                 }
             }
             // #region 2S2H [Dpad]
-            if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
                 for (u8 dpadBtn = EQUIP_SLOT_D_RIGHT; dpadBtn <= EQUIP_SLOT_D_UP; dpadBtn++) {
                     if (DPAD_GET_CUR_FORM_BTN_ITEM(dpadBtn) == ITEM_FAIRY) {
                         DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, ITEM_BOTTLE);
@@ -5537,7 +5537,7 @@ void Magic_Update(PlayState* play) {
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) != ITEM_LENS_OF_TRUTH) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS_OF_TRUTH) &&
                      //  #region 2S2H [Dpad]
-                     (!CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) ||
+                     (!CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0) ||
                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) != ITEM_LENS_OF_TRUTH) &&
                           (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) != ITEM_LENS_OF_TRUTH) &&
                           (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) != ITEM_LENS_OF_TRUTH) &&
@@ -5898,7 +5898,7 @@ void Interface_DrawItemButtons(PlayState* play) {
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
     // #region 2S2H [Dpad]
-    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
         s16 dpadAlpha =
             MAX(MAX(MAX(interfaceCtx->shipInterface.dpad.dRightAlpha, interfaceCtx->shipInterface.dpad.dLeftAlpha),
                     interfaceCtx->shipInterface.dpad.dDownAlpha),
@@ -7238,7 +7238,7 @@ void Interface_DrawClock(PlayState* play) {
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[24], 8, 0);
 
             OVERLAY_DISP =
-                CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)
+                CVarGetInteger(CVAR_ENHANCEMENT("Graphics.24HoursClock"), 0)
                     ? Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyFourHoursTextures[hourIndex], G_IM_FMT_I,
                                         16, 11, 0)
                     : Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[hourIndex], G_IM_FMT_I, 16, 11, 0);
@@ -7281,7 +7281,7 @@ void Interface_DrawClock(PlayState* play) {
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[32], 8, 0);
 
             OVERLAY_DISP =
-                CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)
+                CVarGetInteger(CVAR_ENHANCEMENT("Graphics.24HoursClock"), 0)
                     ? Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyFourHoursTextures[hourIndex], G_IM_FMT_I,
                                         16, 11, 0)
                     : Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[hourIndex], G_IM_FMT_I, 16, 11, 0);
@@ -9289,7 +9289,7 @@ void Interface_Draw(PlayState* play) {
         Interface_DrawCButtonIcons(play);
 
         // #region 2S2H [Dpad]
-        if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
             Interface_DrawDButtonIcons(play);
         }
         // #endregion
@@ -10061,7 +10061,7 @@ void Interface_Init(PlayState* play) {
     }
 
     // #region 2S2H [Dpad]
-    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
         if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) < ITEM_F0) {
             Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_RIGHT);
         }

@@ -1,12 +1,13 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Ma4/z_en_ma4.h"
 }
 
-#define CVAR_NAME "gEnhancements.Minigames.RomaniTargetPractice"
+#define CVAR_NAME CVAR_ENHANCEMENT("Minigames.RomaniTargetPractice")
 #define CVAR CVarGetInteger(CVAR_NAME, 10)
 
 void RegisterRomaniTargetPractice() {

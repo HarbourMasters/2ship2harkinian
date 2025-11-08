@@ -2080,7 +2080,7 @@ void Sram_UpdateWriteToFlashDefault(SramContext* sramCtx) {
             }
         }
     } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >=
-               SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Saving.DisableSaveDelay", 0) ? 0 : 2)) {
+               SECONDS_TO_TIMER(CVarGetInteger(CVAR_ENHANCEMENT("Saving.DisableSaveDelay"), 0) ? 0 : 2)) {
         // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
         // Finished status is hardcoded to 2 seconds instead of when the task finishes
         sramCtx->status = 0;
@@ -2120,7 +2120,7 @@ void Sram_UpdateWriteToFlashOwlSave(SramContext* sramCtx) {
             }
         }
     } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >=
-               SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Saving.DisableSaveDelay", 0) ? 0 : 2)) {
+               SECONDS_TO_TIMER(CVarGetInteger(CVAR_ENHANCEMENT("Saving.DisableSaveDelay"), 0) ? 0 : 2)) {
         // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
         // Finished status is hardcoded to 2 seconds instead of when the task finishes
         sramCtx->status = 0;

@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "functions.h"
@@ -9,7 +10,7 @@ extern "C" {
 #include "z64horse.h"
 }
 
-#define CVAR_NAME "gEnhancements.Minigames.SkipHorseRace"
+#define CVAR_NAME CVAR_ENHANCEMENT("Minigames.SkipHorseRace")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipHorseRace() {

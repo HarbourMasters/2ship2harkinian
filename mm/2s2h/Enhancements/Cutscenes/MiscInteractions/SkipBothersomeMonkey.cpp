@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -10,7 +11,7 @@ void EnMnk_Monkey_WaitToRun(EnMnk* thisx, PlayState* play);
 void EnMnk_Monkey_SetupRunAfterTalk(EnMnk* thisx, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipMiscInteractions")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipBothersomeMonkey() {

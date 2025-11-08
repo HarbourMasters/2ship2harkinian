@@ -5,6 +5,7 @@
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/ShipInit.hpp"
 #include <spdlog/spdlog.h>
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "functions.h"
@@ -20,7 +21,7 @@ void PlayerCall_Draw(Actor* thisx, PlayState* play);
 void Player_StopHorizontalMovement(Player* player);
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipStoryCutscenes")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 #define OSN_STATE_END_CONVERSATION (1 << 5)

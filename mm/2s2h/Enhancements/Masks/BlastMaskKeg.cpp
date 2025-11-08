@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -9,7 +10,7 @@ extern "C" {
 EquipSlot func_8082FDC4(void);
 }
 
-#define CVAR_NAME "gEnhancements.Masks.BlastMaskKeg"
+#define CVAR_NAME CVAR_ENHANCEMENT("Masks.BlastMaskKeg")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterBlastMaskKeg() {

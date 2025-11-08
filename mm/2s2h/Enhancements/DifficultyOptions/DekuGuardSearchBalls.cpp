@@ -2,8 +2,9 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "Enhancements/Enhancements.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
-#define CVAR_NAME "gEnhancements.DifficultyOptions.DekuGuardSearchBalls"
+#define CVAR_NAME CVAR_ENHANCEMENT("DifficultyOptions.DekuGuardSearchBalls")
 #define CVAR CVarGetInteger(CVAR_NAME, DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
 
 void RegisterShowDekuGuardSearchBalls() {

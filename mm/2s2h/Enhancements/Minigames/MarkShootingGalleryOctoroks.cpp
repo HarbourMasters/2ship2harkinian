@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Syateki_Okuta/z_en_syateki_okuta.h"
@@ -9,7 +10,7 @@ extern "C" {
 extern void EnSyatekiOkuta_Die(EnSyatekiOkuta* enSyatekiOkuta, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Minigames.MarkShootingGalleryOctoroks"
+#define CVAR_NAME CVAR_ENHANCEMENT("Minigames.MarkShootingGalleryOctoroks")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // This is almost identical to how EnSyatekiOkuta_Draw draws the symbols, except this draws a white symbol before the

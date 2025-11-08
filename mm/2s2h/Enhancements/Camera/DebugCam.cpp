@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "CameraUtils.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "macros.h"
@@ -119,17 +120,17 @@ void Camera_DebugCam(Camera* camera) {
         sDebugCamRefreshParams = false;
     }
 
-    s32 controllerPort = CVarGetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT) - 1;
+    s32 controllerPort = CVarGetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.Port"), CAMERA_DEBUG_DEFAULT_PORT) - 1;
     if (controllerPort > 3 || controllerPort < 0) {
         controllerPort = CAMERA_DEBUG_DEFAULT_PORT - 1;
-        CVarSetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT);
+        CVarSetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.Port"), CAMERA_DEBUG_DEFAULT_PORT);
     }
 
     /*
         Camera Speed
      */
 
-    f32 camSpeed = CVarGetFloat("gEnhancements.Camera.DebugCam.CameraSpeed", 0.5f);
+    f32 camSpeed = CVarGetFloat(CVAR_ENHANCEMENT("Camera.DebugCam.CameraSpeed"), 0.5f);
     if (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_A | BTN_B | BTN_L)) {
         camSpeed *= 3.0f;
     }
@@ -152,15 +153,15 @@ void Camera_DebugCam(Camera* camera) {
         Set Camera Pitch and Yaw
      */
     f32 yawDiff = -sCamPlayState->state.input[controllerPort].cur.right_stick_x * 10.0f *
-                  (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
+                  (CVarGetFloat(CVAR_ENHANCEMENT("Camera.RightStick.CameraSensitivity.X"), 1.0f));
     f32 pitchDiff = sCamPlayState->state.input[controllerPort].cur.right_stick_y * 10.0f *
-                    (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
+                    (CVarGetFloat(CVAR_ENHANCEMENT("Camera.RightStick.CameraSensitivity.Y"), 1.0f));
 
     yawDiff *= GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
     pitchDiff *= -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
 
     // Setup new camera angle based on the calculations from right stick inputs
-    if (CVarGetInteger("gEnhancements.Camera.DebugCam.6DOF", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.6DOF"), 0)) {
         Camera_Rotate6DOF(camera, pitchDiff, yawDiff);
     } else {
         Camera_RotateGeographic(camera, pitchDiff, yawDiff);
@@ -169,7 +170,7 @@ void Camera_DebugCam(Camera* camera) {
     /*
         Camera Roll
      */
-    if (CVarGetInteger("gEnhancements.Camera.DebugCam.6DOF", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.6DOF"), 0)) {
         camera->roll += (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DLEFT) -
                          CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DRIGHT)) *
                         1200.0f * camSpeed * GameInteractor_InvertControl(GI_INVERT_DEBUG_DPAD_X);
@@ -217,17 +218,17 @@ void Camera_DebugCam(Camera* camera) {
 void RegisterDebugCam() {
     sDebugCamRefreshParams = true;
 
-    COND_VB_SHOULD(VB_USE_CUSTOM_CAMERA, CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0), {
+    COND_VB_SHOULD(VB_USE_CUSTOM_CAMERA, CVarGetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.Enable"), 0), {
         Camera* camera = va_arg(args, Camera*);
         Camera_DebugCam(camera);
         *should = false;
     });
 
-    COND_HOOK(OnPassPlayerInputs, CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0), [](Input* input) {
-        s32 controllerPort = CVarGetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT) - 1;
+    COND_HOOK(OnPassPlayerInputs, CVarGetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.Enable"), 0), [](Input* input) {
+        s32 controllerPort = CVarGetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.Port"), CAMERA_DEBUG_DEFAULT_PORT) - 1;
         if (controllerPort > 3 || controllerPort < 0) {
             controllerPort = CAMERA_DEBUG_DEFAULT_PORT - 1;
-            CVarSetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT);
+            CVarSetInteger(CVAR_ENHANCEMENT("Camera.DebugCam.Port"), CAMERA_DEBUG_DEFAULT_PORT);
         }
         if (controllerPort == 0) {
             // Disable Link Inputs
@@ -236,4 +237,4 @@ void RegisterDebugCam() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDebugCam, { "gEnhancements.Camera.DebugCam.Enable" });
+static RegisterShipInitFunc initFunc(RegisterDebugCam, { CVAR_ENHANCEMENT("Camera.DebugCam.Enable") });

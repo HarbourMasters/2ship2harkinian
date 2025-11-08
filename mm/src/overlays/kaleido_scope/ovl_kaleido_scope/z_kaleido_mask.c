@@ -220,7 +220,7 @@ void KaleidoScope_DrawMaskSelect(PlayState* play) {
         }
     }
     // #region 2S2H [Dpad]
-    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
         for (i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++, j += 4) {
             if (DPAD_GET_CUR_FORM_BTN_ITEM(i) != ITEM_NONE) {
                 if (DPAD_GET_CUR_FORM_BTN_SLOT(i) >= ITEM_NUM_SLOTS) {
@@ -591,7 +591,7 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                         }
                     }
                     // #region 2S2H [Dpad]
-                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                    else if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
                         if (CHECK_BTN_ALL(input->press.button, BTN_DRIGHT)) {
                             if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
                                  (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT))) ||
@@ -648,7 +648,7 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                         pauseCtx->equipTargetCBtn = PAUSE_EQUIP_C_RIGHT;
                     }
                     // #region 2S2H [Dpad]
-                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                    else if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
                         if (CHECK_BTN_ALL(input->press.button, BTN_DRIGHT)) {
                             pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_RIGHT;
                         } else if (CHECK_BTN_ALL(input->press.button, BTN_DLEFT)) {
@@ -1231,7 +1231,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_RIGHT);
             }
             // #region 2S2H [Dpad]
-            else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+            else if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
                 KaleidoScope_UpdateDpadMaskEquip(play);
             }
             // #endregion

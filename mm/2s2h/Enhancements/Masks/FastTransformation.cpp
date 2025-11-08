@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -12,7 +13,7 @@ void PlayerCall_Draw(Actor* thisx, PlayState* play);
 void TransitionFade_SetColor(void* thisx, u32 color);
 }
 
-#define CVAR_NAME "gEnhancements.Masks.FastTransformation"
+#define CVAR_NAME CVAR_ENHANCEMENT("Masks.FastTransformation")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterFastTransformation() {

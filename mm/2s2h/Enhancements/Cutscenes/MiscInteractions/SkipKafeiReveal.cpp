@@ -3,13 +3,14 @@
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "functions.h"
 #include "variables.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipMiscInteractions")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // Skips the interaction in which kafei reveals his secret to Link, and gives him the Pendant of Memories.

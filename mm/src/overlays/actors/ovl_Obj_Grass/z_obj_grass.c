@@ -78,11 +78,11 @@ s32 func_809A9110(PlayState* play, Vec3f* pos) {
     SkinMatrix_Vec3fMtxFMultXYZW(&play->viewProjectionMtxF, pos, &projectedPos, &w);
 
     // #region 2S2H [Enhancement] Extended Culling handling for grass unit drawing
-    s32 distMultiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    s32 distMultiplier = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.IncreaseActorDrawDistance"), 1);
     distMultiplier = MAX(distMultiplier, 1);
 
     f32 aspectMultiplier = 1.0f;
-    if (CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.ActorCullingAccountsForWidescreen"), 0)) {
         aspectMultiplier = Ship_GetExtendedAspectRatioMultiplier();
     }
 
@@ -418,7 +418,7 @@ void ObjGrass_InitDraw(ObjGrass* this, PlayState* play) {
 
     // 2S2H [Enhancement] Extended Culling handling
     // Recompute the eyeDist and distSq values below with the inverse distance multiplier to trick the checks
-    s32 multiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    s32 multiplier = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.IncreaseActorDrawDistance"), 1);
     multiplier = MAX(multiplier, 1);
 
     for (i = 0; i < this->activeGrassGroups; i++) {

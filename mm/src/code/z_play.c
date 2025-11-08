@@ -123,7 +123,7 @@ void Play_DrawMotionBlur(PlayState* this) {
         }
 
         hasCopiedForFrame = false;
-        u8 interpolate = CVarGetInteger("gEnhancements.Graphics.MotionBlur.Interpolate", 0);
+        u8 interpolate = CVarGetInteger(CVAR_ENHANCEMENT("Graphics.MotionBlur.Interpolate"), 0);
 
         // 2S2H [Port] Copy framebuffer, either once per game frame or all frames depending on interpolation setting
         FB_CopyToFramebuffer(&gfx, 0, gBlurFrameBuffer, !interpolate, &hasCopiedForFrame);
@@ -1394,7 +1394,7 @@ void Play_DrawMain(PlayState* this) {
                     //! FAKE:
                     u32 roomDrawFlags = ((1) ? 1 : 0) | (((void)0, 1) ? 2 : 0);
 
-                    if (CVarGetInteger("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck", 0)) {
+                    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DisableSceneGeometryDistanceCheck"), 0)) {
                         gSPSetExtraGeometryMode(POLY_OPA_DISP++, G_EX_ALWAYS_EXECUTE_BRANCH);
                         gSPSetExtraGeometryMode(POLY_XLU_DISP++, G_EX_ALWAYS_EXECUTE_BRANCH);
                     }
@@ -1405,7 +1405,7 @@ void Play_DrawMain(PlayState* this) {
                         Room_Draw(this, &this->roomCtx.prevRoom, roomDrawFlags & 3);
                     }
 
-                    if (CVarGetInteger("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck", 0)) {
+                    if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.DisableSceneGeometryDistanceCheck"), 0)) {
                         gSPClearExtraGeometryMode(POLY_OPA_DISP++, G_EX_ALWAYS_EXECUTE_BRANCH);
                         gSPClearExtraGeometryMode(POLY_XLU_DISP++, G_EX_ALWAYS_EXECUTE_BRANCH);
                     }

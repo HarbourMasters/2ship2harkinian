@@ -1,13 +1,14 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 #include "functions.h"
 }
 
-#define CVAR_NAME "gEnhancements.Dialogue.AutoBombersCode"
+#define CVAR_NAME CVAR_ENHANCEMENT("Dialogue.AutoBombersCode")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterAutoBombersCode() {

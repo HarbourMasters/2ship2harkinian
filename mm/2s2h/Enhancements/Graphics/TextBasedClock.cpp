@@ -3,13 +3,14 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 }
 
-#define CVAR_NAME "gEnhancements.Graphics.ClockType"
+#define CVAR_NAME CVAR_ENHANCEMENT("Graphics.ClockType")
 #define CVAR CVarGetInteger(CVAR_NAME, CLOCK_TYPE_ORIGINAL)
 
 void DrawTextBasedClock() {
@@ -63,7 +64,7 @@ void DrawTextBasedClock() {
             posX = std::max(posX / 8, 0);
             posY = std::max(posY / 8, 0);
 
-            if (CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Graphics.24HoursClock"), 0)) {
                 sprintf(formattedTime, "%02d:%02d", curHours, curMinutes);
                 GfxPrint_SetPos(&printer, posX + 1, posY);
             } else { // Format hours and minutes for 12-hour AM/PM clock

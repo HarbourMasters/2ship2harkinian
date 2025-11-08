@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Minifrog/z_en_minifrog.h"
@@ -11,7 +12,7 @@ void EnMinifrog_SetupNextFrogInit(EnMinifrog* enMinifrog, PlayState* play);
 void EnMinifrog_UpdateMissingFrog(Actor* thisx, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.DifficultyOptions.FrogChoirCount"
+#define CVAR_NAME CVAR_ENHANCEMENT("DifficultyOptions.FrogChoirCount")
 #define CVAR CVarGetInteger(CVAR_NAME, 5)
 
 u8 SavedFrogs() {

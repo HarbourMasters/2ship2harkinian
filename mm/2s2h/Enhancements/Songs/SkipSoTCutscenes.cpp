@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "functions.h"
@@ -13,7 +14,7 @@ void EnTest6_StopDoubleSoTCutscene(EnTest6* thisx, PlayState* play);
 void EnTest6_StopInvertedSoTCutscene(EnTest6* thisx, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Songs.SkipSoTCutscenes"
+#define CVAR_NAME CVAR_ENHANCEMENT("Songs.SkipSoTCutscenes")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipSoTCutscenes() {

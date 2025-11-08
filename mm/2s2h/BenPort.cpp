@@ -188,7 +188,7 @@ OTRGlobals::OTRGlobals() {
 
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context->InitResourceManager(archiveFiles, {}, 3);
-    prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
+    prevAltAssets = CVarGetInteger(CVAR_ENHANCEMENT("Mods.AlternateAssets"), 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
     auto controlDeck = std::make_shared<LUS::ControlDeck>(std::vector<CONTROLLERBUTTONS_T>({
@@ -890,9 +890,9 @@ extern "C" void Graph_StartFrame() {
 #endif
         case KbScancode::LUS_KB_TAB: {
             // Toggle HD Assets
-            if (CVarGetInteger("gEnhancements.Mods.AlternateAssetsHotkey", 1)) {
-                CVarSetInteger("gEnhancements.Mods.AlternateAssets",
-                               !CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0));
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Mods.AlternateAssetsHotkey"), 1)) {
+                CVarSetInteger(CVAR_ENHANCEMENT("Mods.AlternateAssets"),
+                               !CVarGetInteger(CVAR_ENHANCEMENT("Mods.AlternateAssets"), 0));
             }
             break;
         }
@@ -976,7 +976,7 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
         }
     }
 
-    bool curAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
+    bool curAltAssets = CVarGetInteger(CVAR_ENHANCEMENT("Mods.AlternateAssets"), 0);
     if (prevAltAssets != curAltAssets) {
         prevAltAssets = curAltAssets;
         Ship::Context::GetInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
@@ -1950,7 +1950,7 @@ extern "C" void Messagebox_ShowErrorBox(char* title, char* body) {
 // Helper to redirect the user to the boot screen in place of known console crash scenarios, and emits a notification
 extern "C" bool Ship_HandleConsoleCrashAsReset() {
     // If fix crashes is on, return false and let fallback handling process in source
-    if (CVarGetInteger("gEnhancements.Fixes.ConsoleCrashes", 1)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Fixes.ConsoleCrashes"), 1)) {
         return false;
     }
 

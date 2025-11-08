@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -8,7 +9,7 @@ extern "C" {
 #include "src/overlays/actors/ovl_En_Kakasi/z_en_kakasi.h"
 }
 
-#define CVAR_NAME "gEnhancements.Playback.SkipScarecrowSong"
+#define CVAR_NAME CVAR_ENHANCEMENT("Playback.SkipScarecrowSong")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipScarecrowSong() {

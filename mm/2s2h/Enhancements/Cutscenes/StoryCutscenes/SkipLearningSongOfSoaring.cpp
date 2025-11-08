@@ -4,6 +4,7 @@
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -11,7 +12,7 @@ extern "C" {
 #include "overlays/actors/ovl_En_Time_Tag/z_en_time_tag.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipStoryCutscenes")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 #define ENGRAVING_TEXT_ID 0xC02
 
@@ -36,7 +37,7 @@ void RegisterSkipLearningSongOfSoaring() {
         } else {
             if (!CHECK_QUEST_ITEM(QUEST_SONG_SOARING)) {
                 GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
-                    .showGetItemCutscene = !CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0),
+                    .showGetItemCutscene = !CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipGetItemCutscenes"), 0),
                     .giveItem =
                         [](Actor* actor, PlayState* play) {
                             if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {

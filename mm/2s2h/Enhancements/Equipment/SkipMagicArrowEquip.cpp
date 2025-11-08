@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "src/overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
@@ -8,7 +9,7 @@ extern s16 sEquipState;
 extern s16 sEquipAnimTimer;
 }
 
-#define CVAR_NAME "gEnhancements.Equipment.MagicArrowEquipSpeed"
+#define CVAR_NAME CVAR_ENHANCEMENT("Equipment.MagicArrowEquipSpeed")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipMagicArrowEquip() {

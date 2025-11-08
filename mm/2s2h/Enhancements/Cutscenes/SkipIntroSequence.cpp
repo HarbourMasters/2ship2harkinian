@@ -1,15 +1,16 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 void Flags_SetWeekEventReg(s32 flag);
 }
 
-#define INTRO_CVAR_NAME "gEnhancements.Cutscenes.SkipIntroSequence"
+#define INTRO_CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipIntroSequence")
 #define INTRO_CVAR CVarGetInteger(INTRO_CVAR_NAME, 0)
-#define FIRST_CYCLE_CVAR_NAME "gEnhancements.Cutscenes.SkipFirstCycle"
+#define FIRST_CYCLE_CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipFirstCycle")
 #define FIRST_CYCLE_CVAR CVarGetInteger(FIRST_CYCLE_CVAR_NAME, 0)
 
 void RegisterSkipIntroSequence() {

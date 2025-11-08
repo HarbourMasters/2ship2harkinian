@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Kendo_Js/z_en_kendo_js.h"
@@ -8,7 +9,7 @@ extern "C" {
 void func_80B274BC(EnKendoJs* thisx, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Minigames.SwordsmanSchoolScore"
+#define CVAR_NAME CVAR_ENHANCEMENT("Minigames.SwordsmanSchoolScore")
 #define CVAR CVarGetInteger(CVAR_NAME, 30)
 
 void RegisterSwordsmanSchool() {

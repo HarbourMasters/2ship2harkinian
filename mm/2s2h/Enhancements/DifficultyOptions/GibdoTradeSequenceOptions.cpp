@@ -3,8 +3,9 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/ShipInit.hpp"
 #include <stdarg.h>
+#include "2s2h/cvar_prefixes.h"
 
-#define CVAR_NAME "gEnhancements.DifficultyOptions.GibdoTradeSequence"
+#define CVAR_NAME CVAR_ENHANCEMENT("DifficultyOptions.GibdoTradeSequence")
 #define CVAR CVarGetInteger(CVAR_NAME, GIBDO_TRADE_SEQUENCE_VANILLA)
 
 extern "C" {

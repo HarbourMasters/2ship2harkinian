@@ -4,12 +4,13 @@
 #include <ship/window/Window.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 }
 
-#define CVAR_NAME "gEnhancements.DifficultyOptions.DeleteFileOnDeath"
+#define CVAR_NAME CVAR_ENHANCEMENT("DifficultyOptions.DeleteFileOnDeath")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void SaveManager_DeleteSaveFile(const std::filesystem::path& fileName);

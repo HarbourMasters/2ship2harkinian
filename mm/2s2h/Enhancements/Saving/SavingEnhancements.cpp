@@ -2,6 +2,7 @@
 #include "BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include <variables.h>
@@ -140,7 +141,7 @@ void DrawAutosaveIcon() {
 
 void HandleAutoSave() {
     // Check if the interval has passed in minutes.
-    autosaveInterval = CVarGetInteger("gEnhancements.Saving.AutosaveInterval", 5) * 60000;
+    autosaveInterval = CVarGetInteger(CVAR_ENHANCEMENT("Saving.AutosaveInterval"), 5) * 60000;
     currentTimestamp = GetUnixTimestamp();
     if ((currentTimestamp - lastSaveTimestamp) < autosaveInterval) {
         return;
@@ -229,7 +230,7 @@ void skipEntranceCutsceneOnLoad(s16 fileNum) {
 
 void RegisterSavingEnhancements() {
     REGISTER_VB_SHOULD(VB_DELETE_OWL_SAVE, {
-        if (CVarGetInteger("gEnhancements.Saving.PersistentOwlSaves", 0) ||
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PersistentOwlSaves"), 0) ||
             gSaveContext.save.shipSaveInfo.pauseSaveEntrance != -1) {
             *should = false;
         }
@@ -277,7 +278,7 @@ void RegisterAutosave() {
         autosaveGameStateDrawFinishHookId = 0;
     }
 
-    if (CVarGetInteger("gEnhancements.Saving.Autosave", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.Autosave"), 0)) {
         autosaveGameStateUpdateHookId =
             GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() {
                 if (gPlayState == nullptr) {

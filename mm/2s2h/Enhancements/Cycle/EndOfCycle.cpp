@@ -2,21 +2,22 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include <variables.h>
 #include <overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h>
 }
 
-#define CVAR_NAME_RUPEES "gEnhancements.Cycle.DoNotResetRupees"
+#define CVAR_NAME_RUPEES CVAR_ENHANCEMENT("Cycle.DoNotResetRupees")
 #define CVAR_RUPEES CVarGetInteger(CVAR_NAME_RUPEES, 0)
-#define CVAR_NAME_CONSUME "gEnhancements.Cycle.DoNotResetConsumables"
+#define CVAR_NAME_CONSUME CVAR_ENHANCEMENT("Cycle.DoNotResetConsumables")
 #define CVAR_CONSUME CVarGetInteger(CVAR_NAME_CONSUME, 0)
-#define CVAR_NAME_BOTTLE "gEnhancements.Cycle.DoNotResetBottleContent"
+#define CVAR_NAME_BOTTLE CVAR_ENHANCEMENT("Cycle.DoNotResetBottleContent")
 #define CVAR_BOTTLE CVarGetInteger(CVAR_NAME_BOTTLE, 0)
-#define CVAR_NAME_SWORD "gEnhancements.Cycle.DoNotResetRazorSword"
+#define CVAR_NAME_SWORD CVAR_ENHANCEMENT("Cycle.DoNotResetRazorSword")
 #define CVAR_SWORD CVarGetInteger(CVAR_NAME_SWORD, 0)
-#define CVAR_NAME_TIME "gEnhancements.Cycle.DoNotResetTimeSpeed"
+#define CVAR_NAME_TIME CVAR_ENHANCEMENT("Cycle.DoNotResetTimeSpeed")
 #define CVAR_TIME CVarGetInteger(CVAR_NAME_TIME, 0)
 
 SaveInfo saveInfoCopy;

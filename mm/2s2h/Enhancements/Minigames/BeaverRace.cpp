@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Az/z_en_az.h"
@@ -9,7 +10,7 @@ void func_80A979DC(EnAz* thisx, PlayState* play);
 void func_80A97F9C(EnAz* thisx, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Minigames.BeaverRaceRingsCollected"
+#define CVAR_NAME CVAR_ENHANCEMENT("Minigames.BeaverRaceRingsCollected")
 #define CVAR CVarGetInteger(CVAR_NAME, 20)
 
 static bool minigameScoreSet = false; // Flag to track if the score has been set

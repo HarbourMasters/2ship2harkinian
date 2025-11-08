@@ -2,6 +2,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -14,7 +15,7 @@ extern "C" {
 #include "overlays/actors/ovl_En_Neo_Reeba/z_en_neo_reeba.h"
 }
 
-#define CVAR_NAME "gEnhancements.Masks.FierceDeitysAnywhere"
+#define CVAR_NAME CVAR_ENHANCEMENT("Masks.FierceDeitysAnywhere")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 struct SwordBeamCollision {

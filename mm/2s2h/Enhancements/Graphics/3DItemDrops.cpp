@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -11,7 +12,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play);
 void EnTanron5_ItemDrop_Draw(Actor* thisx, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Graphics.3DItemDrops"
+#define CVAR_NAME CVAR_ENHANCEMENT("Graphics.3DItemDrops")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 bool ItemShouldSpinWhen3D(Actor* actor) {

@@ -952,7 +952,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
         }
     }
 
-    if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0) || CVarGetInteger("gEnhancements.Kaleido.GameOver", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PauseSave"), 0) || CVarGetInteger(CVAR_ENHANCEMENT("Kaleido.GameOver"), 0)) {
         Gfx_SetupDL42_Opa(gfxCtx);
         if ((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) || IS_PAUSE_STATE_GAMEOVER(pauseCtx)) {
             KaleidoScope_UpdatePrompt(play);
@@ -3568,7 +3568,7 @@ void KaleidoScope_Update(PlayState* play) {
                             pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_RETURN_TO_MENU;
                         } else {
                             Audio_PlaySfx(NA_SE_SY_PIECE_OF_HEART);
-                            if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
+                            if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PauseSave"), 0)) {
                                 gSaveContext.save.isOwlSave = true;
                                 // 2S2H [Enhancement] Eventually we might allow them to load from their last entrance,
                                 // but we need to first identify and fix edge cases where that doesn't work properly
@@ -3584,7 +3584,7 @@ void KaleidoScope_Update(PlayState* play) {
                                     255) { // 2S2H [Enhancement] Don't let them save if they are in debug save
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_5;
                             } else {
-                                if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
+                                if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PauseSave"), 0)) {
                                     Sram_SetFlashPagesOwlSave(
                                         sramCtx,
                                         gFlashOwlSaveStartPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER],

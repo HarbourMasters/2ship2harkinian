@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -8,8 +9,8 @@ extern "C" {
 extern u8 sStartSeqDisabled;
 }
 
-#define CVAR_NAME_FASTER_SCENE_TRANSITIONS "gEnhancements.Timesavers.FasterSceneTransitions"
-#define CVAR_NAME_PAUSE_SAVE "gEnhancements.Saving.PauseSave"
+#define CVAR_NAME_FASTER_SCENE_TRANSITIONS CVAR_ENHANCEMENT("Timesavers.FasterSceneTransitions")
+#define CVAR_NAME_PAUSE_SAVE CVAR_ENHANCEMENT("Saving.PauseSave")
 #define CVAR_NAME_DEBUG_MODE "gDeveloperTools.DebugEnabled"
 
 #define CVAR_FASTER_SCENE_TRANSITIONS CVarGetInteger(CVAR_NAME_FASTER_SCENE_TRANSITIONS, 0)

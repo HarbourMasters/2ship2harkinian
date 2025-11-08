@@ -2,8 +2,9 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "variables.h"
+#include "2s2h/cvar_prefixes.h"
 
-#define CVAR_NAME "gEnhancements.DifficultyOptions.JinxedTimer"
+#define CVAR_NAME CVAR_ENHANCEMENT("DifficultyOptions.JinxedTimer")
 #define CVAR CVarGetInteger(CVAR_NAME, 60)
 
 void RegisterJinxedTimer() {

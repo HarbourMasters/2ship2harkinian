@@ -1,12 +1,13 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_Obj_Syokudai/z_obj_syokudai.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipOnePointCutscenes"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipOnePointCutscenes")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipOnePointCutscenes() {

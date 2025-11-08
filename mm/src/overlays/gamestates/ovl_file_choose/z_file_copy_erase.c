@@ -105,7 +105,7 @@ void FileSelect_SelectCopySource(GameState* thisx) {
             if (this->stickAdjY >= 30) {
                 this->buttonIndex--;
                 // Instead of removing File 3 entirely, the index is manually adjusted to skip it
-                if (!CVarGetInteger("gEnhancements.Saving.FileSlot3", true) &&
+                if (!CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) &&
                     this->buttonIndex == FS_BTN_COPY_FILE_3) {
                     this->buttonIndex = FS_BTN_COPY_FILE_2;
                 }
@@ -115,7 +115,7 @@ void FileSelect_SelectCopySource(GameState* thisx) {
             } else {
                 this->buttonIndex++;
                 // Instead of removing File 3 entirely, the index is manually adjusted to skip it
-                if (!CVarGetInteger("gEnhancements.Saving.FileSlot3", true) &&
+                if (!CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) &&
                     this->buttonIndex == FS_BTN_COPY_FILE_3) {
                     this->buttonIndex = FS_BTN_COPY_QUIT;
                 }
@@ -241,7 +241,7 @@ void FileSelect_SelectCopyDest(GameState* thisx) {
             if (this->stickAdjY >= 30) {
                 this->buttonIndex--;
                 // Instead of removing File 3 entirely, the index is manually adjusted to skip it
-                if (!CVarGetInteger("gEnhancements.Saving.FileSlot3", true) &&
+                if (!CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) &&
                     this->buttonIndex == FS_BTN_COPY_FILE_3) {
                     this->buttonIndex = FS_BTN_COPY_FILE_2;
                 }
@@ -251,7 +251,7 @@ void FileSelect_SelectCopyDest(GameState* thisx) {
                         this->buttonIndex = FS_BTN_COPY_QUIT;
                     }
                     // Instead of removing File 3 entirely, the index is manually adjusted to skip it
-                    if (!CVarGetInteger("gEnhancements.Saving.FileSlot3", true) &&
+                    if (!CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) &&
                         this->buttonIndex == FS_BTN_COPY_FILE_3) {
                         this->buttonIndex = FS_BTN_COPY_FILE_2;
                     }
@@ -267,7 +267,7 @@ void FileSelect_SelectCopyDest(GameState* thisx) {
                     this->buttonIndex++;
                 }
                 // Instead of removing File 3 entirely, the index is manually adjusted to skip it
-                if (!CVarGetInteger("gEnhancements.Saving.FileSlot3", true) &&
+                if (!CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) &&
                     this->buttonIndex == FS_BTN_COPY_FILE_3) {
                     this->buttonIndex = FS_BTN_COPY_QUIT;
                 }
@@ -828,7 +828,7 @@ void FileSelect_EraseSelect(GameState* thisx) {
 
             if (this->stickAdjY >= 30) {
                 this->buttonIndex--;
-                if (!CVarGetInteger("gEnhancements.Saving.FileSlot3", true) &&
+                if (!CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) &&
                     this->buttonIndex == FS_BTN_ERASE_FILE_3) {
                     this->buttonIndex = FS_BTN_ERASE_FILE_2;
                 }
@@ -837,7 +837,7 @@ void FileSelect_EraseSelect(GameState* thisx) {
                 }
             } else {
                 this->buttonIndex++;
-                if (!CVarGetInteger("gEnhancements.Saving.FileSlot3", true) &&
+                if (!CVarGetInteger(CVAR_ENHANCEMENT("Saving.FileSlot3"), true) &&
                     this->buttonIndex == FS_BTN_ERASE_FILE_3) {
                     this->buttonIndex = FS_BTN_ERASE_QUIT;
                 }

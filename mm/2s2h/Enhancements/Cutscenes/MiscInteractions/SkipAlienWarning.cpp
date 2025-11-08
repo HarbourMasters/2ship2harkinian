@@ -7,7 +7,7 @@ extern "C" {
 #include "variables.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipMiscInteractions")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipAlienWarning() {

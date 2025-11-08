@@ -4,6 +4,7 @@
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/BenGui/BenGui.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "z64.h"
@@ -96,7 +97,7 @@ void RegisterWarpPoint() {
     registered = true;
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnConsoleLogoUpdate>([]() {
-        if (!CVarGetInteger("gEnhancements.Cutscenes.SkipToFileSelect", 0) &&
+        if (!CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipToFileSelect"), 0) &&
             CVarGetInteger(WARP_POINT_CVAR "BootToWarpPoint", 0) && CVarGetInteger(WARP_POINT_CVAR "Saved", 0)) {
             // Normally called on console logo screen
             gSaveContext.seqId = NA_BGM_DISABLED;

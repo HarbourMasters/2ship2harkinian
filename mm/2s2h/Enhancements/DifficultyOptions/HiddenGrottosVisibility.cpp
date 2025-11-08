@@ -2,12 +2,13 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_Door_Ana/z_door_ana.h"
 }
 
-#define CVAR_NAME "gEnhancements.DifficultyOptions.HiddenGrottosVisibility"
+#define CVAR_NAME CVAR_ENHANCEMENT("DifficultyOptions.HiddenGrottosVisibility")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void drawHiddenGrottoMarker(Actor* actor) {

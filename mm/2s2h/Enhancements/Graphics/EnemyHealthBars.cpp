@@ -5,6 +5,7 @@
 #include "2s2h/ShipUtils.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <cassert>
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "assets/interface/parameter_static/parameter_static.h"
@@ -16,7 +17,7 @@ extern "C" {
 #include "variables.h"
 }
 
-#define CVAR_NAME "gEnhancements.Graphics.EnemyHealthBars"
+#define CVAR_NAME CVAR_ENHANCEMENT("Graphics.EnemyHealthBars")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 typedef enum {

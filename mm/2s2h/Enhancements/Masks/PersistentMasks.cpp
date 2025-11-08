@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -13,8 +14,8 @@ void Player_DrawBunnyHood(PlayState* play);
 extern const char* D_801C0B20[28];
 }
 
-#define CVAR_NAME "gEnhancements.Masks.PersistentBunnyHood.Enabled"
-#define STATE_CVAR_NAME "gEnhancements.Masks.PersistentBunnyHood.State"
+#define CVAR_NAME CVAR_ENHANCEMENT("Masks.PersistentBunnyHood.Enabled")
+#define STATE_CVAR_NAME CVAR_ENHANCEMENT("Masks.PersistentBunnyHood.State")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 #define STATE_CVAR CVarGetInteger(STATE_CVAR_NAME, 0)
 

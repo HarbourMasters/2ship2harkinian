@@ -4,6 +4,7 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h_assets.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -22,7 +23,7 @@ Gfx* Gfx_DrawTexRectIA8_DropShadowOffset(Gfx* gfx, TexturePtr texture, s16 textu
                                          s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rects);
 }
 
-#define CVAR_NAME "gEnhancements.Graphics.ClockType"
+#define CVAR_NAME CVAR_ENHANCEMENT("Graphics.ClockType")
 #define CVAR CVarGetInteger(CVAR_NAME, CLOCK_TYPE_ORIGINAL)
 
 #define SECONDS_IN_THREE_DAYS (3 * 24 * 60 * 60)
@@ -271,7 +272,7 @@ void Draw3DSClock() {
                 HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                 OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, daynightmarker, 24, 24, counterX - 11, counterY - 2, 12,
                                                  12, 1 << 11, 1 << 11);
-                if (!CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
+                if (!CVarGetInteger(CVAR_ENHANCEMENT("Graphics.24HoursClock"), 0)) {
                     curHours %= 12;
                     if (curHours == 0) {
                         curHours = 12;
@@ -298,7 +299,7 @@ void Draw3DSClock() {
                 // Digital time
                 u16 timerSpacing = 6;
 
-                if (curTensHours > 0 || CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
+                if (curTensHours > 0 || CVarGetInteger(CVAR_ENHANCEMENT("Graphics.24HoursClock"), 0)) {
                     timerSpacing = 4;
 
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);

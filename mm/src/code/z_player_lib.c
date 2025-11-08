@@ -859,7 +859,7 @@ PlayerItemAction func_80123810(PlayState* play) {
         }
     }
     // #region 2S2H [Dpad]
-    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Dpad.DpadEquips"), 0)) {
         for (i = 0; i < ARRAY_COUNT(sDItemButtons); i++) {
             if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, sDItemButtons[i])) {
                 itemId = Player_Dpad_GetItemOnButton(play, player, i);

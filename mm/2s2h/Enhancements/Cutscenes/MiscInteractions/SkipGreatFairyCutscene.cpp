@@ -3,6 +3,7 @@
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -14,7 +15,7 @@ s32 EnElfgrp_SummonStrayFairies(PlayState* play);
 void func_80A3A210(EnElfgrp* elfgrp, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
+#define CVAR_NAME CVAR_ENHANCEMENT("Cutscenes.SkipMiscInteractions")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 #define ELFGRP_STATE_0 (1 << 0)

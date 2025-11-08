@@ -2,13 +2,14 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 #include "overlays/actors/ovl_En_Ginko_Man/z_en_ginko_man.h"
 }
 
-#define CVAR_NAME "gEnhancements.DifficultyOptions.LowerBankRewardThresholds"
+#define CVAR_NAME CVAR_ENHANCEMENT("DifficultyOptions.LowerBankRewardThresholds")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 const int FIRST_BANK_THRESHOLD = 100;
