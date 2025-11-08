@@ -3,6 +3,7 @@
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/gamestates/ovl_select/z_select.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/cvar_prefixes.h"
 
 void BetterMapSelect_LoadGame(MapSelectState* mapSelectState, u32 entrance, s32 spawn);
 void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState);
@@ -166,10 +167,10 @@ BetterMapSelectGrottoRespawnInfo sBetterMapSelectCowGrottoInfo[] = {
 // clang-format on
 
 void BetterMapSelect_LoadGame(MapSelectState* mapSelectState, u32 entrance, s32 spawn) {
-    CVarSetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", mapSelectState->currentScene);
-    CVarSetInteger("gDeveloperTools.BetterMapSelect.Opt", mapSelectState->opt);
-    CVarSetInteger("gDeveloperTools.BetterMapSelect.TopDisplayedScene", mapSelectState->topDisplayedScene);
-    CVarSetInteger("gDeveloperTools.BetterMapSelect.PageDownIndex", mapSelectState->pageDownIndex);
+    CVarSetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.CurrentScene"), mapSelectState->currentScene);
+    CVarSetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.Opt"), mapSelectState->opt);
+    CVarSetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.TopDisplayedScene"), mapSelectState->topDisplayedScene);
+    CVarSetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.PageDownIndex"), mapSelectState->pageDownIndex);
     CVarSave();
     MapSelect_LoadGame(mapSelectState, entrance, spawn);
 
@@ -224,10 +225,10 @@ void BetterMapSelect_LoadGame(MapSelectState* mapSelectState, u32 entrance, s32 
 }
 
 void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState) {
-    CVarSetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", mapSelectState->currentScene);
-    CVarSetInteger("gDeveloperTools.BetterMapSelect.Opt", mapSelectState->opt);
-    CVarSetInteger("gDeveloperTools.BetterMapSelect.TopDisplayedScene", mapSelectState->topDisplayedScene);
-    CVarSetInteger("gDeveloperTools.BetterMapSelect.PageDownIndex", mapSelectState->pageDownIndex);
+    CVarSetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.CurrentScene"), mapSelectState->currentScene);
+    CVarSetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.Opt"), mapSelectState->opt);
+    CVarSetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.TopDisplayedScene"), mapSelectState->topDisplayedScene);
+    CVarSetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.PageDownIndex"), mapSelectState->pageDownIndex);
     CVarSave();
     gSaveContext.gameMode = GAMEMODE_FILE_SELECT;
     STOP_GAMESTATE(&mapSelectState->state);
@@ -236,7 +237,7 @@ void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState) {
 
 void BetterMapSelect_Init(MapSelectState* mapSelectState) {
     static bool sIsInitialized = false;
-    sIsBetterMapSelectEnabled = CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0);
+    sIsBetterMapSelectEnabled = CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.Enabled"), 0);
 
     if (sIsBetterMapSelectEnabled) {
         if (!sIsInitialized) {
@@ -249,10 +250,10 @@ void BetterMapSelect_Init(MapSelectState* mapSelectState) {
 
         mapSelectState->scenes = sBetterScenes;
         mapSelectState->count = ARRAY_COUNT(sBetterScenes);
-        mapSelectState->currentScene = CVarGetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", 0);
-        mapSelectState->opt = CVarGetInteger("gDeveloperTools.BetterMapSelect.Opt", 0);
-        mapSelectState->topDisplayedScene = CVarGetInteger("gDeveloperTools.BetterMapSelect.TopDisplayedScene", 0);
-        mapSelectState->pageDownIndex = CVarGetInteger("gDeveloperTools.BetterMapSelect.PageDownIndex", 0);
+        mapSelectState->currentScene = CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.CurrentScene"), 0);
+        mapSelectState->opt = CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.Opt"), 0);
+        mapSelectState->topDisplayedScene = CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.TopDisplayedScene"), 0);
+        mapSelectState->pageDownIndex = CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.PageDownIndex"), 0);
 
         gSaveContext.save.cutsceneIndex = STAGE_CURRENT_TIME;
     } else {
@@ -270,7 +271,7 @@ void BetterMapSelect_Init(MapSelectState* mapSelectState) {
 }
 
 void BetterMapSelect_Update(MapSelectState* mapSelectState) {
-    if (sIsBetterMapSelectEnabled != CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0)) {
+    if (sIsBetterMapSelectEnabled != CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.Enabled"), 0)) {
         BetterMapSelect_Init(mapSelectState);
     }
 

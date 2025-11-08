@@ -1034,7 +1034,7 @@ void MapSelect_DrawMenu(MapSelectState* this) {
     GfxPrint_Init(&printer);
     GfxPrint_Open(&printer, POLY_OPA_DISP);
 
-    if (CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0)) {
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.Enabled"), 0)) {
         BetterMapSelect_PrintMenu(this, &printer);
     } else {
         MapSelect_PrintMenu(this, &printer);
@@ -1134,7 +1134,7 @@ void MapSelect_Init(GameState* thisx) {
 
     // 2S2H [Enhancement] Init better menu and abort early to retain player form
     BetterMapSelect_Init(this);
-    if (CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0)) {
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.Enabled"), 0)) {
         return;
     }
 

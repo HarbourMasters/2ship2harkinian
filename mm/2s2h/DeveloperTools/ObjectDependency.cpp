@@ -6,7 +6,7 @@ extern "C" {
 #include "variables.h"
 }
 
-#define CVAR_NAME "gDeveloperTools.DisableObjectDependency"
+#define CVAR_NAME CVAR_DEVELOPER_TOOLS("DisableObjectDependency")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterObjectDependency() {

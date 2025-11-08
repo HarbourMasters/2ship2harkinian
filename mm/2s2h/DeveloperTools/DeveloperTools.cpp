@@ -19,10 +19,10 @@ void Inventory_SetWorldMapCloudVisibility(s16 tingleIndex);
 extern u16 sPersistentCycleWeekEventRegs[ARRAY_COUNT(gSaveContext.save.saveInfo.weekEventReg)];
 }
 
-#define CVAR_DEBUG_MODE_NAME "gDeveloperTools.DebugEnabled"
+#define CVAR_DEBUG_MODE_NAME CVAR_DEVELOPER_TOOLS("DebugEnabled")
 #define CVAR_DEBUG_MODE CVarGetInteger(CVAR_DEBUG_MODE_NAME, 0)
 
-#define CVAR_SAVE_FILE_MODE_NAME "gDeveloperTools.DebugSaveFileMode"
+#define CVAR_SAVE_FILE_MODE_NAME CVAR_DEVELOPER_TOOLS("DebugSaveFileMode")
 #define CVAR_SAVE_FILE_MODE CVarGetInteger(CVAR_SAVE_FILE_MODE_NAME, DEBUG_SAVE_INFO_NONE)
 
 void SetSaveFileInfo() {
@@ -113,7 +113,7 @@ void RegisterDebugSaveCreate() {
               [](s16 fileNum) { SetSaveFileInfo(); });
 }
 
-#define CVAR_PREVENT_ACTOR_UPDATE_NAME "gDeveloperTools.PreventActorUpdate"
+#define CVAR_PREVENT_ACTOR_UPDATE_NAME CVAR_DEVELOPER_TOOLS("PreventActorUpdate")
 #define CVAR_PREVENT_ACTOR_UPDATE CVarGetInteger(CVAR_PREVENT_ACTOR_UPDATE_NAME, 0)
 
 void RegisterPreventActorUpdateHooks() {
@@ -121,7 +121,7 @@ void RegisterPreventActorUpdateHooks() {
               [](Actor* actor, bool* result) { *result = false; });
 }
 
-#define CVAR_PREVENT_ACTOR_DRAW_NAME "gDeveloperTools.PreventActorDraw"
+#define CVAR_PREVENT_ACTOR_DRAW_NAME CVAR_DEVELOPER_TOOLS("PreventActorDraw")
 #define CVAR_PREVENT_ACTOR_DRAW CVarGetInteger(CVAR_PREVENT_ACTOR_DRAW_NAME, 0)
 
 void RegisterPreventActorDrawHooks() {
@@ -129,7 +129,7 @@ void RegisterPreventActorDrawHooks() {
               [](Actor* actor, bool* result) { *result = false; });
 }
 
-#define CVAR_PREVENT_ACTOR_INIT_NAME "gDeveloperTools.PreventActorInit"
+#define CVAR_PREVENT_ACTOR_INIT_NAME CVAR_DEVELOPER_TOOLS("PreventActorInit")
 #define CVAR_PREVENT_ACTOR_INIT CVarGetInteger(CVAR_PREVENT_ACTOR_INIT_NAME, 0)
 
 void RegisterPreventActorInitHooks() {
@@ -152,7 +152,7 @@ void RegisterDebugMode() {
         CVarSetInteger(CVAR_PREVENT_ACTOR_UPDATE_NAME, 0);
         CVarSetInteger(CVAR_PREVENT_ACTOR_DRAW_NAME, 0);
         CVarSetInteger(CVAR_PREVENT_ACTOR_INIT_NAME, 0);
-        CVarSetInteger("gDeveloperTools.DisableObjectDependency", 0);
+        CVarSetInteger(CVAR_DEVELOPER_TOOLS("DisableObjectDependency"), 0);
 
         if (gPlayState != NULL) {
             gPlayState->frameAdvCtx.enabled = false;

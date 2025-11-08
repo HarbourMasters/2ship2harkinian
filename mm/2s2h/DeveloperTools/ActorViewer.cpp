@@ -49,7 +49,7 @@ std::unordered_map<s16, const char*> actorDebugNames = {
 #undef DEFINE_ACTOR_UNSET
 
 #define DEBUG_ACTOR_NAMETAG_TAG "debug_actor_viewer"
-#define CVAR_ACTOR_NAME_TAGS(val) "gDeveloperTools.ActorNameTags." val
+#define CVAR_ACTOR_NAME_TAGS(val) CVAR_DEVELOPER_TOOLS("ActorNameTags.") val
 
 std::string GetActorDescription(u16 actorNum) {
     return actorDescriptions.contains(actorNum) ? actorDescriptions[actorNum] : "???";
@@ -402,7 +402,7 @@ void ActorViewerWindow::DrawElement() {
             ImGui::InputScalar("rZ", ImGuiDataType_S16, &newActor.rot.z);
             ImGui::EndGroup();
 
-            UIWidgets::CVarCheckbox("Disable Object Dependency", "gDeveloperTools.DisableObjectDependency");
+            UIWidgets::CVarCheckbox("Disable Object Dependency", CVAR_DEVELOPER_TOOLS("DisableObjectDependency"));
             if (ImGui::IsItemHovered()) {
                 ImGui::BeginTooltip();
                 ImGui::TextColored(

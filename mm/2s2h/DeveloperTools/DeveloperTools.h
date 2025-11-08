@@ -1,7 +1,7 @@
 #ifndef DEVELOPER_TOOLS_H
 #define DEVELOPER_TOOLS_H
 
-#define WARP_POINT_CVAR "gDeveloperTools.WarpPoint."
+#define WARP_POINT_CVAR CVAR_DEVELOPER_TOOLS("WarpPoint.")
 
 enum DebugSaveInfo {
     DEBUG_SAVE_INFO_NONE,

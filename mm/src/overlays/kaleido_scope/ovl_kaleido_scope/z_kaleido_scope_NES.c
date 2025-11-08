@@ -531,7 +531,7 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
     // 2S2H [Debug] Restoring input check for debug inventory editor based on OOT debug
-    if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0) && (pauseCtx->debugEditor == DEBUG_EDITOR_NONE) &&
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("DebugEnabled"), 0) && (pauseCtx->debugEditor == DEBUG_EDITOR_NONE) &&
         CHECK_BTN_ALL(input->press.button, BTN_L)) {
         pauseCtx->debugEditor = DEBUG_EDITOR_INVENTORY_INIT;
         return;

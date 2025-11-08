@@ -1728,19 +1728,19 @@ void BenMenu::AddDevTools() {
         .CVar(CVAR_SETTING("Menu.Popout"))
         .Options(CheckboxOptions().Tooltip("Changes the menu display from overlay to windowed."));
     AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
-        .CVar("gDeveloperTools.DebugEnabled")
+        .CVar(CVAR_DEVELOPER_TOOLS("DebugEnabled"))
         .Options(CheckboxOptions().Tooltip("Enables Debug Mode, allowing the following:\n\n"
                                            "- Open debug warp menu with L + R + Z\n"
                                            "- Enable debug no-clip mode with L + D-Right\n"
                                            "- Open built-in debug inventory editor when paused with L\n"
                                            "- Saves created will inherit inventory from \"Debug Save File Mode\""));
     AddWidget(path, "Better Map Select", WIDGET_CVAR_CHECKBOX)
-        .CVar("gDeveloperTools.BetterMapSelect.Enabled")
+        .CVar(CVAR_DEVELOPER_TOOLS("BetterMapSelect.Enabled"))
         .Options(CheckboxOptions().Tooltip(
             "Overrides the original map select with a translated, more user-friendly version."))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Debug Save File Mode", WIDGET_CVAR_COMBOBOX)
-        .CVar("gDeveloperTools.DebugSaveFileMode")
+        .CVar(CVAR_DEVELOPER_TOOLS("DebugSaveFileMode"))
         .Options(ComboboxOptions()
                      .Tooltip("Change the behavior of creating saves while debug mode is enabled:\n\n"
                               "- Empty Save: The default 3 heart save file in first cycle.\n"
@@ -1749,23 +1749,23 @@ void BenMenu::AddDevTools() {
                      .ComboVec(&debugSaveOptions))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Update", WIDGET_CVAR_CHECKBOX)
-        .CVar("gDeveloperTools.PreventActorUpdate")
+        .CVar(CVAR_DEVELOPER_TOOLS("PreventActorUpdate"))
         .Options(CheckboxOptions().Tooltip("Prevents Actors from updating."))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Draw", WIDGET_CVAR_CHECKBOX)
-        .CVar("gDeveloperTools.PreventActorDraw")
+        .CVar(CVAR_DEVELOPER_TOOLS("PreventActorDraw"))
         .Options(CheckboxOptions().Tooltip("Prevents Actors from drawing."))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Init", WIDGET_CVAR_CHECKBOX)
-        .CVar("gDeveloperTools.PreventActorInit")
+        .CVar(CVAR_DEVELOPER_TOOLS("PreventActorInit"))
         .Options(CheckboxOptions().Tooltip("Prevents Actors from initializing."))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Disable Object Dependency", WIDGET_CVAR_CHECKBOX)
-        .CVar("gDeveloperTools.DisableObjectDependency")
+        .CVar(CVAR_DEVELOPER_TOOLS("DisableObjectDependency"))
         .Options(CheckboxOptions().Tooltip("Disables dependencies when loading objects."))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Log Level", WIDGET_CVAR_COMBOBOX)
-        .CVar("gDeveloperTools.LogLevel")
+        .CVar(CVAR_DEVELOPER_TOOLS("LogLevel"))
         .Options(ComboboxOptions()
                      .Tooltip("The log level determines which messages are printed to the "
                               "console. This does not affect the log file output.")
@@ -1773,7 +1773,7 @@ void BenMenu::AddDevTools() {
                      .DefaultIndex(defaultLogLevel))
         .Callback([](WidgetInfo& info) {
             Ship::Context::GetInstance()->GetLogger()->set_level(
-                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", defaultLogLevel));
+                (spdlog::level::level_enum)CVarGetInteger(CVAR_DEVELOPER_TOOLS("LogLevel"), defaultLogLevel));
         })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Frame Advance", WIDGET_CHECKBOX)
@@ -1792,7 +1792,7 @@ void BenMenu::AddDevTools() {
         });
     AddWidget(path, "Advance 1", WIDGET_BUTTON)
         .Options(ButtonOptions().Tooltip("Advance 1 frame.").Size(Sizes::Inline))
-        .Callback([](WidgetInfo& info) { CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1); })
+        .Callback([](WidgetInfo& info) { CVarSetInteger(CVAR_DEVELOPER_TOOLS("FrameAdvanceTick"), 1); })
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_FRAME_ADVANCE_OFF).active ||
                             mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
@@ -1805,7 +1805,7 @@ void BenMenu::AddDevTools() {
         })
         .PostFunc([](WidgetInfo& info) {
             if (ImGui::IsItemActive()) {
-                CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("FrameAdvanceTick"), 1);
             }
         })
         .SameLine(true);
@@ -1944,7 +1944,7 @@ void BenMenu::InitElement() {
         { DISABLE_FOR_NULL_PLAY_STATE,
           { [](disabledInfo& info) -> bool { return gPlayState == NULL; }, "Not in game" } },
         { DISABLE_FOR_DEBUG_MODE_OFF,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger("gDeveloperTools.DebugEnabled", 0); },
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_DEVELOPER_TOOLS("DebugEnabled"), 0); },
             "Debug Mode is Disabled" } },
         { DISABLE_FOR_NO_VSYNC,
           { [](disabledInfo& info) -> bool {

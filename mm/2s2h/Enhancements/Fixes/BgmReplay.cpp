@@ -11,7 +11,7 @@ extern u8 sStartSeqDisabled;
 
 #define CVAR_NAME_FASTER_SCENE_TRANSITIONS CVAR_ENHANCEMENT("Timesavers.FasterSceneTransitions")
 #define CVAR_NAME_PAUSE_SAVE CVAR_ENHANCEMENT("Saving.PauseSave")
-#define CVAR_NAME_DEBUG_MODE "gDeveloperTools.DebugEnabled"
+#define CVAR_NAME_DEBUG_MODE CVAR_DEVELOPER_TOOLS("DebugEnabled")
 
 #define CVAR_FASTER_SCENE_TRANSITIONS CVarGetInteger(CVAR_NAME_FASTER_SCENE_TRANSITIONS, 0)
 #define CVAR_PAUSE_SAVE CVarGetInteger(CVAR_NAME_PAUSE_SAVE, 0)

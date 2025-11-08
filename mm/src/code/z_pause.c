@@ -24,6 +24,7 @@
 #include "controller.h"
 #include "padutils.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/cvar_prefixes.h"
 
 void FrameAdvance_Init(FrameAdvanceContext* frameAdvCtx) {
     frameAdvCtx->timer = 0;
@@ -34,17 +35,17 @@ void FrameAdvance_Init(FrameAdvanceContext* frameAdvCtx) {
  * Returns true when frame advance is not active (game will run normally)
  */
 s32 FrameAdvance_Update(FrameAdvanceContext* frameAdvCtx, Input* input) {
-    if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("DebugEnabled"), 0)) {
         if (CHECK_BTN_ALL(input->cur.button, BTN_R) && CHECK_BTN_ALL(input->press.button, BTN_DDOWN)) {
             frameAdvCtx->enabled = !frameAdvCtx->enabled;
         }
     }
 
-    if (!frameAdvCtx->enabled || CVarGetInteger("gDeveloperTools.FrameAdvanceTick", 0) ||
+    if (!frameAdvCtx->enabled || CVarGetInteger(CVAR_DEVELOPER_TOOLS("FrameAdvanceTick"), 0) ||
         (CHECK_BTN_ALL(input->cur.button, BTN_Z) &&
          (CHECK_BTN_ALL(input->press.button, BTN_R) ||
           (CHECK_BTN_ALL(input->cur.button, BTN_R) && (++frameAdvCtx->timer >= 9))))) {
-        CVarClear("gDeveloperTools.FrameAdvanceTick");
+        CVarClear(CVAR_DEVELOPER_TOOLS("FrameAdvanceTick"));
         frameAdvCtx->timer = 0;
         return true;
     }
