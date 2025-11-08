@@ -547,7 +547,7 @@ void BenMenu::AddSettings() {
     path.sidebarName = "Controls";
     AddSidebarEntry("Settings", "Controls", 1);
     AddWidget(path, "Popout Bindings Window", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.BenInputEditor")
+        .CVar(CVAR_WINDOW("BenInputEditor"))
         .WindowName("2S2H Input Editor")
         .Options(ButtonOptions().Tooltip("Enables the separate Bindings Window.").Size(Sizes::Inline));
 
@@ -597,7 +597,7 @@ void BenMenu::AddSettings() {
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "In-Game Timer", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Display", WIDGET_CVAR_COMBOBOX)
-        .CVar("gWindows.DisplayOverlay")
+        .CVar(CVAR_WINDOW("DisplayOverlay"))
         .WindowName("Display Overlay")
         .Options(
             ComboboxOptions()
@@ -1682,7 +1682,7 @@ void BenMenu::AddEnhancements() {
     path = { "Enhancements", "HUD Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "HUD Editor", 1);
     AddWidget(path, "Popout HUD Editor", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.HudEditor")
+        .CVar(CVAR_WINDOW("HudEditor"))
         .WindowName("HUD Editor")
         .Options(ButtonOptions()
                      .Tooltip("Enables the HUD Editor window, allowing you to modify your HUD.")
@@ -1692,7 +1692,7 @@ void BenMenu::AddEnhancements() {
     path = { "Enhancements", "Cosmetic Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Cosmetic Editor", 1);
     AddWidget(path, "Popout Cosmetic Editor", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.CosmeticEditor")
+        .CVar(CVAR_WINDOW("CosmeticEditor"))
         .WindowName("Cosmetic Editor")
         .Options(ButtonOptions()
                      .Tooltip("Enables the Cosmetic Editor window, allowing you to modify various colors in the game.")
@@ -1702,21 +1702,21 @@ void BenMenu::AddEnhancements() {
     path = { "Enhancements", "Item Tracker", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Item Tracker", 1);
     AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.ItemTrackerSettings")
+        .CVar(CVAR_WINDOW("ItemTrackerSettings"))
         .WindowName("Item Tracker Settings");
 
     // Timesplit Settings
     path = { "Enhancements", "Time Splits", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Time Splits", 1);
     AddWidget(path, "Popout Timesplits Settings", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.Timesplits.Settings")
+        .CVar(CVAR_WINDOW("Timesplits.Settings"))
         .WindowName("Time Splits Settings Window");
 
     // Audio Editor
     path = { "Enhancements", "Audio Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Audio Editor", 1);
     AddWidget(path, "Popout Audio Editor", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.AudioEditor")
+        .CVar(CVAR_WINDOW("AudioEditor"))
         .WindowName("Audio Editor");
 }
 
@@ -1816,14 +1816,14 @@ void BenMenu::AddDevTools() {
     path = { "Dev Tools", "Collision Viewer", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Collision Viewer", 1);
     AddWidget(path, "Popout Collision Viewer", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.CollisionViewer")
+        .CVar(CVAR_WINDOW("CollisionViewer"))
         .Options(ButtonOptions().Tooltip("Makes collision visible on screen.").Size(Sizes::Inline))
         .WindowName("Collision Viewer");
 
     path = { "Dev Tools", "Stats", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Stats", 1);
     AddWidget(path, "Popout Stats", WIDGET_WINDOW_BUTTON)
-        .CVar("gOpenWindows.Stats")
+        .CVar(CVAR_WINDOW("Stats"))
         .Options(ButtonOptions().Tooltip(
             "Shows the Stats window, with your FPS and frametimes, and the OS you're playing on."))
         .WindowName("Stats");
@@ -1831,7 +1831,7 @@ void BenMenu::AddDevTools() {
     path = { "Dev Tools", "Console", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Console", 1);
     AddWidget(path, "Popout Console", WIDGET_WINDOW_BUTTON)
-        .CVar("gOpenWindows.Console")
+        .CVar(CVAR_WINDOW("Console"))
         .Options(ButtonOptions().Tooltip(
             "Enables the Console window, allowing you to input commands. Type help for some examples."))
         .WindowName("Console");
@@ -1839,7 +1839,7 @@ void BenMenu::AddDevTools() {
     path = { "Dev Tools", "Gfx Debugger", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Gfx Debugger", 1);
     AddWidget(path, "Popout Gfx Debugger", WIDGET_WINDOW_BUTTON)
-        .CVar("gOpenWindows.GfxDebugger")
+        .CVar(CVAR_WINDOW("GfxDebugger"))
         .Options(ButtonOptions().Tooltip(
             "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples."))
         .WindowName("GfxDebuggerWindow");
@@ -1847,28 +1847,28 @@ void BenMenu::AddDevTools() {
     path = { "Dev Tools", "Hook Debugger", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Hook Debugger", 1);
     AddWidget(path, "Popout Hook Debugger", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.HookDebugger")
+        .CVar(CVAR_WINDOW("HookDebugger"))
         .Options(ButtonOptions().Tooltip("Enables the Hook Debugger window, for viewing info about registered hooks."))
         .WindowName("Hook Debugger");
 
     path = { "Dev Tools", "Save Editor", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Save Editor", 1);
     AddWidget(path, "Popout Save Editor", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.SaveEditor")
+        .CVar(CVAR_WINDOW("SaveEditor"))
         .Options(ButtonOptions().Tooltip("Enables the Save Editor window, allowing you to edit your save file."))
         .WindowName("Save Editor");
 
     path = { "Dev Tools", "Actor Viewer", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Actor Viewer", 1);
     AddWidget(path, "Popout Actor Viewer", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.ActorViewer")
+        .CVar(CVAR_WINDOW("ActorViewer"))
         .Options(ButtonOptions().Tooltip("Enables the Actor Viewer window, allowing you to view actors in the world."))
         .WindowName("Actor Viewer");
 
     path = { "Dev Tools", "Event Log", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Event Log", 1);
     AddWidget(path, "Popout Event Log", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.EventLog")
+        .CVar(CVAR_WINDOW("EventLog"))
         .Options(ButtonOptions().Tooltip("Enables the Event Log window."))
         .WindowName("Event Log");
 

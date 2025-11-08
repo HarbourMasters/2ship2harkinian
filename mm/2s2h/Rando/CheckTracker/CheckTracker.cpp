@@ -32,7 +32,7 @@ static std::unordered_map<s32, s32> betterSceneIndex = {
 #undef DEFINE_SCENE
 #undef DEFINE_SCENE_UNSET
 
-#define CVAR_NAME_SHOW_CHECK_TRACKER "gWindows.CheckTracker"
+#define CVAR_NAME_SHOW_CHECK_TRACKER CVAR_WINDOW("CheckTracker")
 #define CVAR_NAME_SHOW_LOGIC "gRando.CheckTracker.OnlyShowChecksInLogic"
 #define CVAR_NAME_HIDE_COLLECTED "gRando.CheckTracker.HideCollectedChecks"
 #define CVAR_NAME_HIDE_SKIPPED "gRando.CheckTracker.HideSkippedChecks"

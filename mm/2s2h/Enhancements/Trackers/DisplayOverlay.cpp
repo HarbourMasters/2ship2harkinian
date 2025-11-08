@@ -46,7 +46,7 @@ void DisplayOverlayWindow::Draw() {
     if (!gPlayState) {
         return;
     }
-    int displayOverlay = CVarGetInteger("gWindows.DisplayOverlay", 0);
+    int displayOverlay = CVarGetInteger(CVAR_WINDOW("DisplayOverlay"), 0);
     if (displayOverlay == TIMER_DISPLAY_NONE) {
         return;
     }
