@@ -2,7 +2,6 @@
 #include "ActorBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "Rando/DrawFuncs.h"
-#include "spdlog/spdlog.h"
 
 extern "C" {
 #include "variables.h"
@@ -95,9 +94,9 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
 
     COND_VB_SHOULD(VB_APPLY_DAMAGE_TO_ACTOR, shouldEnemyInjure, {
         Actor* actor = va_arg(args, Actor*);
-        u32 damageEffect = va_arg(args, u32);
-        u32 damage = va_arg(args, u32);
         u32 dmgFlags = va_arg(args, u32);
+        u32 damageEffect = actor->colChkInfo.damageEffect;
+        u32 damage = actor->colChkInfo.damage;
 
         if (actor->category != ACTORCAT_ENEMY) {
             return;
