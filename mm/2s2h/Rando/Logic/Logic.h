@@ -141,63 +141,63 @@ inline std::string LogicString(std::string condition) {
 inline bool canPlaySong(u8 songId) {
     switch (songId) {
         case OCARINA_SONG_SONATA:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_LEFT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_A_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_A) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT));
         case OCARINA_SONG_GORON_LULLABY:
         case OCARINA_SONG_GORON_LULLABY_INTRO:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_A_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_LEFT_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_A) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT));
         case OCARINA_SONG_NEW_WAVE:
         case OCARINA_SONG_ELEGY:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_LEFT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN));
         case OCARINA_SONG_OATH:
         case OCARINA_SONG_WIND_FISH_ZORA:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_A_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_A) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP));
         case OCARINA_SONG_TIME:
         case OCARINA_SONG_INVERTED_TIME:
         case OCARINA_SONG_DOUBLE_TIME:
         case OCARINA_SONG_WIND_FISH_GORON:
         case OCARINA_SONG_EVAN_PART1:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_A_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_A) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN));
         case OCARINA_SONG_HEALING:
         case OCARINA_SONG_SARIAS:
         case OCARINA_SONG_EVAN_PART2:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_LEFT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN));
         case OCARINA_SONG_EPONAS:
         case OCARINA_SONG_WIND_FISH_HUMAN:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_LEFT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT));
         case OCARINA_SONG_SOARING:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_LEFT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP));
         case OCARINA_SONG_STORMS:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_A_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_A) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP));
         case OCARINA_SONG_SUNS:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_UP_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP));
         case OCARINA_SONG_WIND_FISH_DEKU:
-            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_RIGHT_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_A_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_DOWN_BUTTON) &&
-                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_C_LEFT_BUTTON));
+            return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_A) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT));
         // case OCARINA_SONG_SCARECROW_SPAWN:
         //    break;
         default:
