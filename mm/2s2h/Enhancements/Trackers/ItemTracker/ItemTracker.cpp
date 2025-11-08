@@ -22,7 +22,7 @@ namespace BenGui {
 extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 }
 
-TrackerImageObject GetTextureIDBySlot(InventorySlot slot) {
+TrackerImageObject GetTextureIDBySlot(int16_t slot) {
     ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.items[slot]);
     TrackerImageObject imageObject;
 

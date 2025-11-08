@@ -19,7 +19,6 @@ class ItemTrackerWindow : public Ship::GuiWindow {
 
     std::vector<int16_t> mainItemWindow;
     std::vector<TrackerItemListObject> namedItemWindows;
-    //std::vector<std::vector<int16_t>> subItemWindows;
 
   protected:
     void InitElement() override;
