@@ -3,7 +3,7 @@
 #include "2s2h/ShipInit.hpp"
 #include "variables.h"
 
-#define CVAR_NAME "gFixes.FixEponaStealingSword"
+#define CVAR_NAME CVAR_ENHANCEMENT("Fixes.FixEponaStealingSword")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterFixEponaStealingSword() {

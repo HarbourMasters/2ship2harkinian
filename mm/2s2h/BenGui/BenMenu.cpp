@@ -1393,11 +1393,11 @@ void BenMenu::AddEnhancements() {
                               "- Remote Hookshot Hookslide crashes when over voids in Great Bay Temple")
                      .DefaultValue(true));
     AddWidget(path, "Fix Ammo Count Color", WIDGET_CVAR_CHECKBOX)
-        .CVar("gFixes.FixAmmoCountEnvColor")
+        .CVar(CVAR_ENHANCEMENT("Fixes.FixAmmoCountEnvColor"))
         .Options(CheckboxOptions().Tooltip("Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
                                            "the wrong color prior to obtaining magic or other conditions."));
     AddWidget(path, "Fix Epona stealing Sword", WIDGET_CVAR_CHECKBOX)
-        .CVar("gFixes.FixEponaStealingSword")
+        .CVar(CVAR_ENHANCEMENT("Fixes.FixEponaStealingSword"))
         .Options(CheckboxOptions().Tooltip(
             "This fixes a bug where Epona can steal your sword when you mount her without a bow in your inventory."));
     AddWidget(path, "Fix Fierce Deity Z-Target movement", WIDGET_CVAR_CHECKBOX)
@@ -1408,7 +1408,7 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Fixes certain control characters not functioning properly "
                                            "depending on their position within the text."));
     AddWidget(path, "Fix Ikana Great Fairy Fountain Color", WIDGET_CVAR_CHECKBOX)
-        .CVar("gFixes.FixIkanaGreatFairyFountainColor")
+        .CVar(CVAR_ENHANCEMENT("Fixes.FixIkanaGreatFairyFountainColor"))
         .Options(CheckboxOptions().Tooltip(
             "Fixes a bug that results in the Ikana Great Fairy fountain looking green instead of "
             "yellow, this was fixed in the EU version."));

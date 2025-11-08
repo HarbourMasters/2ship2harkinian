@@ -6287,7 +6287,7 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         //! but prior to that, when certain conditions are met, the color will have last been set by the wallet icon
         //! causing the ammo count to be drawn incorrectly. This is most obvious when you get deku nuts early on, and
         //! the ammo count is drawn with a shade of green.
-        if (CVarGetInteger("gFixes.FixAmmoCountEnvColor", 0)) {
+        if (CVarGetInteger(CVAR_ENHANCEMENT("Fixes.FixAmmoCountEnvColor"), 0)) {
             gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
         }
 

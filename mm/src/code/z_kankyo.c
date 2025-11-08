@@ -760,7 +760,7 @@ void Environment_Init(PlayState* play2, EnvironmentContext* envCtx, s32 arg2) {
         switch ((u32)gWeatherMode) {
             case WEATHER_MODE_2:
                 if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE) &&
-                    (!CVarGetInteger("gFixes.FixIkanaGreatFairyFountainColor", 0) ||
+                    (!CVarGetInteger(CVAR_ENHANCEMENT("Fixes.FixIkanaGreatFairyFountainColor"), 0) ||
                      (play->sceneId != SCENE_YOUSEI_IZUMI))) {
                     play->skyboxId = SKYBOX_3;
                     envCtx->lightConfig = 5;
