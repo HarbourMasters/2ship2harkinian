@@ -6,7 +6,7 @@ extern "C" {
 #include "variables.h"
 }
 
-#define CVAR_NAME "gModes.TimeMovesWhenYouMove"
+#define CVAR_NAME CVAR_ENHANCEMENT("Modes.TimeMovesWhenYouMove")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // Arbitrary speed to determine the offset is unset

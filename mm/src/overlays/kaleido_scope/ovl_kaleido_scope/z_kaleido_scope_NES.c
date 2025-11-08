@@ -2938,7 +2938,7 @@ void KaleidoScope_UpdateCursorSize(PlayState* play) {
                         pauseCtx->cursorWidth = 15.0f;
                     }
                     // Flip the position of the cursor with an additional offset to align with flipped map points
-                    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+                    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0)) {
                         pauseCtx->cursorX = (pauseCtx->cursorX * -1.0) + 5.0f;
                     }
                 } else {

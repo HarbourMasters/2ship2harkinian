@@ -205,7 +205,7 @@ void UpdateNameTags() {
         return aDistToCamera > bDistToCamera;
     });
 
-    sMirrorWorldActive = CVarGetInteger("gModes.MirroredWorld.State", 0);
+    sMirrorWorldActive = CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0);
 }
 
 extern "C" void NameTag_RegisterForActorWithOptions(Actor* actor, const char* text, NameTagOptions options) {

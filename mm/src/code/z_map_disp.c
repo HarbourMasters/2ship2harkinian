@@ -153,7 +153,7 @@ s32 Ship_MapModifyPosMirrorMode(s32 pos, s32 offset) {
 }
 
 void Ship_MapDispUpdateMirrorMode() {
-    sMirrorWorldActive = CVarGetInteger("gModes.MirroredWorld.State", 0);
+    sMirrorWorldActive = CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0);
 
     for (s32 i = 0; i < sSceneNumRooms; i++) {
         sMapDataRooms[i].flags = sOriginalMapDataRoomFlags[i];

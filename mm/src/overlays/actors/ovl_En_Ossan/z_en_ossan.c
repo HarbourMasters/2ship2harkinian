@@ -298,7 +298,7 @@ void EnOssan_UpdateCursorPos(PlayState* play, EnOssan* this) {
     this->cursorPos.x = screenPosX;
     this->cursorPos.y = screenPosY;
 
-    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0)) {
         this->cursorPos.x = SCREEN_WIDTH - this->cursorPos.x;
     }
 }
@@ -1688,7 +1688,7 @@ void EnOssan_DrawStickDirectionPrompts(PlayState* play, EnOssan* this) {
     s32 drawStickRightPrompt = this->stickLeftPrompt.isEnabled;
     s32 drawStickLeftPrompt = this->stickRightPrompt.isEnabled;
 
-    if (CVarGetInteger("gModes.MirroredWorld.State", 0) && (drawStickLeftPrompt != drawStickRightPrompt)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0) && (drawStickLeftPrompt != drawStickRightPrompt)) {
         drawStickLeftPrompt = !drawStickLeftPrompt;
         drawStickRightPrompt = !drawStickRightPrompt;
     }

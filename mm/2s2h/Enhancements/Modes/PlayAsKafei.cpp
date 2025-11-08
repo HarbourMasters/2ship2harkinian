@@ -18,7 +18,7 @@ extern TexturePtr sPlayerMouthTextures[PLAYER_FORM_MAX][PLAYER_MOUTH_MAX];
 static SkeletonHeader gLinkHumanSkelBackup;
 static SkeletonHeader gKafeiSkelBackup;
 
-#define CVAR_NAME "gModes.PlayAsKafei"
+#define CVAR_NAME CVAR_ENHANCEMENT("Modes.PlayAsKafei")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void UpdatePlayAsKafei() {

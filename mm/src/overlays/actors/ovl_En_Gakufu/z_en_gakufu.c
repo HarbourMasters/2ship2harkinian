@@ -267,7 +267,7 @@ void EnGakufu_Draw(Actor* thisx, PlayState* play) {
     gSPSegment(POLY_XLU_DISP++, 0x02, play->interfaceCtx.parameterSegment);
 
     // Invert the whole music staff, so the notes appear correctly in mirrored world
-    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0)) {
         Matrix_Scale(-1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
     }
 

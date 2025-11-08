@@ -576,7 +576,7 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
 
     // Use matrix scaling to flip the entire overworld map for mirror world
-    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0)) {
         // Invert culling to counter act the matrix flip
         gSPSetExtraGeometryMode(POLY_OPA_DISP++, G_EX_INVERT_CULLING);
         Matrix_Push();
@@ -889,7 +889,7 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
 
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
 
-            if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0)) {
                 POLY_OPA_DISP = Gfx_DrawTexRectRGBA16(POLY_OPA_DISP, gQuestIconLinkHumanFaceTex, 16, 16,
                                                       (SCREEN_WIDTH - sWorldMapCursorsRectLeft[n] - 16 - 1),
                                                       sWorldMapCursorsRectTop[n], 16, 16, 1 << 10, 1 << 10);
@@ -903,7 +903,7 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
 
     gDPPipeSync(POLY_OPA_DISP++);
 
-    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0)) {
         gSPClearExtraGeometryMode(POLY_OPA_DISP++, G_EX_INVERT_CULLING);
     }
 
@@ -1036,7 +1036,7 @@ void KaleidoScope_UpdateWorldMapCursor(PlayState* play) {
     PauseContext* pauseCtx = &play->pauseCtx;
     s16 oldCursorPoint;
 
-    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0)) {
         Ship_UpdateWorldMapCursorMirrorWorld(play);
         return;
     }

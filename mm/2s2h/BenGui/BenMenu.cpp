@@ -992,23 +992,23 @@ void BenMenu::AddEnhancements() {
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Play as Kafei", WIDGET_CVAR_CHECKBOX)
-        .CVar("gModes.PlayAsKafei")
+        .CVar(CVAR_ENHANCEMENT("Modes.PlayAsKafei"))
         .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect."));
     AddWidget(path, "Hyrule Warriors Styled Link", WIDGET_CVAR_CHECKBOX)
-        .CVar("gModes.HyruleWarriorsStyledLink")
+        .CVar(CVAR_ENHANCEMENT("Modes.HyruleWarriorsStyledLink"))
         .Options(CheckboxOptions().Tooltip(
             "When acquired, places the Keaton and Fierce Deity masks on Link similarly to how he "
             "wears them in Hyrule Warriors."));
     AddWidget(path, "Time Moves when you Move", WIDGET_CVAR_CHECKBOX)
-        .CVar("gModes.TimeMovesWhenYouMove")
+        .CVar(CVAR_ENHANCEMENT("Modes.TimeMovesWhenYouMove"))
         .Options(CheckboxOptions().Tooltip("Time only moves when Link is not standing still."));
     AddWidget(path, "Mirrored World", WIDGET_CVAR_CHECKBOX)
-        .CVar("gModes.MirroredWorld.Mode")
+        .CVar(CVAR_ENHANCEMENT("Modes.MirroredWorld.Mode"))
         .Callback([](WidgetInfo& info) {
-            if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
-                CVarSetInteger("gModes.MirroredWorld.State", 1);
+            if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.Mode"), 0)) {
+                CVarSetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 1);
             } else {
-                CVarClear("gModes.MirroredWorld.State");
+                CVarClear(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"));
             }
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));

@@ -9,7 +9,7 @@ extern "C" {
 extern const char* D_801C0B20[28];
 }
 
-#define CVAR_NAME "gModes.HyruleWarriorsStyledLink"
+#define CVAR_NAME CVAR_ENHANCEMENT("Modes.HyruleWarriorsStyledLink")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterHyruleWarriorsStyledLink() {

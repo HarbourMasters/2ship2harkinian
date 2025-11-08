@@ -356,7 +356,7 @@ int GameInteractor_InvertControl(GIInvertType type) {
     }
 
     // Invert all X axis inputs if the Mirrored World mode is enabled
-    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0)) {
         switch (type) {
             case GI_INVERT_CAMERA_RIGHT_STICK_X:
             case GI_INVERT_MOVEMENT_X:

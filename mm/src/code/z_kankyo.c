@@ -3422,7 +3422,7 @@ void Environment_DrawSkyboxStarsImpl(PlayState* play, Gfx** gfxP) {
 
             if ((scale >= 1.0f) && (imgX > -adjustedXBounds) && (imgX < adjustedXBounds) && (imgY > -1.0f) &&
                 (imgY < 1.0f)) {
-                if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+                if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0)) {
                     imgX *= -1.0f;
                 }
                 // #endregion

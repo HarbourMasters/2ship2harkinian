@@ -81,7 +81,7 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
         (pauseCtx->pageIndex == PAUSE_MAP)) {
         InterfaceContext* interfaceCtx = &gPlayState->interfaceCtx;
         s16 oldCursorPoint = pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
-        bool mirrorWorldActive = CVarGetInteger("gModes.MirroredWorld.State", 0);
+        bool mirrorWorldActive = CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0);
         bool goingLeft = pauseCtx->stickAdjX < -30;
         bool goingRight = pauseCtx->stickAdjX > 30;
 
