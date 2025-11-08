@@ -631,6 +631,7 @@ void Separator(bool padTop = true, bool padBottom = true, float extraVerticalTop
 struct CardLayoutOptions {
     int columnsPerRow = 2;
     float spacing = 8.0f;
+    float minColumnWidth = 0.0f;
     bool autoItemWidth = true;
     ImGuiChildFlags childFlags = ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY;
 };
@@ -655,7 +656,6 @@ bool Combobox(const char* label, T* value, const std::unordered_map<T, const cha
     ImGui::BeginGroup();
     ImGui::BeginDisabled(options.disabled);
     PushStyleCombobox(options.color);
-    
     const char* longest;
     size_t length = 0;
     const auto& iterableComboMap = *comboMap;
@@ -667,7 +667,6 @@ bool Combobox(const char* label, T* value, const std::unordered_map<T, const cha
         }
     }
     float comboWidth = CalcComboWidth(longest, options.flags);
-    
     ImGui::AlignTextToFramePadding();
     if (options.labelPosition != LabelPosition::None) {
         if (options.alignment == ComponentAlignment::Right) {
@@ -686,7 +685,6 @@ bool Combobox(const char* label, T* value, const std::unordered_map<T, const cha
             }
         }
     }
-    
     ImGui::SetNextItemWidth(comboWidth);
     if (ImGui::BeginCombo(invisibleLabel, comboMap->at(*value), options.flags)) {
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
@@ -701,7 +699,6 @@ bool Combobox(const char* label, T* value, const std::unordered_map<T, const cha
         ImGui::PopStyleVar();
         ImGui::EndCombo();
     }
-    
     if (options.labelPosition != LabelPosition::None) {
         if (options.alignment == ComponentAlignment::Left) {
             if (options.labelPosition == LabelPosition::Near) {

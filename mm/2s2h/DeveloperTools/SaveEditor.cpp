@@ -367,7 +367,7 @@ void DrawGeneralTab() {
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
     ImGui::BeginChild("generalTab", ImVec2(0, 0), true);
 
-    UIWidgets::BeginCardLayout({ .columnsPerRow = 2 });
+    UIWidgets::BeginCardLayout({ .columnsPerRow = 2, .minColumnWidth = 420.0f });
 
     // Card 1: Player Identity
     UIWidgets::BeginCard("identityCard");
@@ -1117,7 +1117,7 @@ void DrawQuestSlot(QuestItem slot) {
     ImGui::PopID();
 }
 
-void DrawSong(QuestItem slot) {
+ImVec2 DrawSong(QuestItem slot) {
     SongInfo(slot);
     if (ImGui::ImageButton(std::to_string(slot).c_str(),
                            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
@@ -1126,14 +1126,13 @@ void DrawSong(QuestItem slot) {
                            ImVec4(0, 0, 0, 0), colorTint)) {
         NextQuestInSlot(slot);
     }
+    ImVec2 itemSize = ImGui::GetItemRectSize();
     if (ImGui::IsItemHovered()) {
         ImGui::BeginTooltip();
         ImGui::Text("%s", songTooltip);
         ImGui::EndTooltip();
     }
-    if (slot != QUEST_SONG_SUN && slot != QUEST_SONG_SARIA) {
-        ImGui::SameLine();
-    }
+    return itemSize;
 }
 
 void DrawQuestStatusTab() {
@@ -1186,12 +1185,22 @@ void DrawQuestStatusTab() {
         DrawQuestSlot(slot);
     }
     ImGui::SeparatorText("Songs");
-    for (int32_t i = QUEST_SONG_TIME; i <= QUEST_SONG_SUN; i++) {
-        DrawSong((QuestItem)i);
-    }
-    for (int32_t i = QUEST_SONG_SONATA; i <= QUEST_SONG_SARIA; i++) {
-        DrawSong((QuestItem)i);
-    }
+    auto drawSongRange = [](int32_t start, int32_t end) {
+        for (int32_t i = start; i <= end; i++) {
+            float lineStartX = ImGui::GetCursorPosX();
+            ImVec2 itemSize = DrawSong(static_cast<QuestItem>(i));
+            bool isLastItem = (i == end);
+            if (!isLastItem) {
+                float nextItemMaxX = lineStartX + itemSize.x + ImGui::GetStyle().ItemSpacing.x + itemSize.x;
+                float regionMaxX = ImGui::GetWindowContentRegionMax().x;
+                if (nextItemMaxX <= regionMaxX) {
+                    ImGui::SameLine();
+                }
+            }
+        }
+    };
+    drawSongRange(QUEST_SONG_TIME, QUEST_SONG_SUN);
+    drawSongRange(QUEST_SONG_SONATA, QUEST_SONG_SARIA);
     ImGui::SeparatorText("Equipment");
     if (GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY) {
         ImTextureID swordTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
@@ -1356,10 +1365,12 @@ void DrawDungeonItemTab() {
             s32 minKey = -1;
             s32 maxKey = smallKeyCounts[dungeonId];
             int currentKeys = gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId];
+            ImGui::PushItemWidth(ImGui::GetFontSize() * 12.0f);
             if (ImGui::SliderScalar("##sKeyCount", ImGuiDataType_S32, &currentKeys, &minKey, &maxKey,
                                     "Small Keys: %d")) {
                 gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId] = currentKeys;
             }
+            ImGui::PopItemWidth();
             ImGui::EndPopup();
         }
         ImGui::EndChild();
@@ -1402,14 +1413,40 @@ void GetPlayerForm(uint32_t form) {
 }
 
 void ClearAllEquippedItems() {
-    CUR_FORM_EQUIP(0) = ITEM_NONE;
-    CUR_FORM_EQUIP(1) = ITEM_NONE;
-    CUR_FORM_EQUIP(2) = ITEM_NONE;
-    CUR_FORM_EQUIP(3) = ITEM_NONE;
-    DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_RIGHT) = ITEM_NONE;
-    DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_LEFT) = ITEM_NONE;
-    DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_DOWN) = ITEM_NONE;
-    DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_UP) = ITEM_NONE;
+    auto& buttonItems = gSaveContext.save.saveInfo.equips.buttonItems;
+    auto& cButtonSlots = gSaveContext.save.saveInfo.equips.cButtonSlots;
+
+    for (size_t form = 0; form < ARRAY_COUNT(buttonItems); form++) {
+        for (size_t slot = 0; slot < ARRAY_COUNT(buttonItems[form]); slot++) {
+            if (slot == EQUIP_SLOT_B) {
+                if (form != 0) {
+                    // Goron/Deku/Zora/FD expect their innate B actions; leave untouched.
+                    continue;
+                }
+
+                int swordValue = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
+                if (swordValue == EQUIP_VALUE_SWORD_NONE) {
+                    swordValue = EQUIP_VALUE_SWORD_KOKIRI;
+                }
+
+                buttonItems[form][slot] = ITEM_SWORD_KOKIRI + swordValue - EQUIP_VALUE_SWORD_KOKIRI;
+                continue;
+            }
+
+            buttonItems[form][slot] = ITEM_NONE;
+            cButtonSlots[form][slot] = SLOT_NONE;
+        }
+    }
+
+    auto& dpadItems = gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems;
+    auto& dpadSlots = gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots;
+
+    for (size_t form = 0; form < ARRAY_COUNT(dpadItems); form++) {
+        for (size_t slot = 0; slot < ARRAY_COUNT(dpadItems[form]); slot++) {
+            dpadItems[form][slot] = ITEM_NONE;
+            dpadSlots[form][slot] = SLOT_NONE;
+        }
+    }
 }
 
 void DrawPlayerTab() {
@@ -1421,7 +1458,7 @@ void DrawPlayerTab() {
     if (gPlayState) {
         Player* player = GET_PLAYER(gPlayState);
 
-        UIWidgets::BeginCardLayout({ .columnsPerRow = 2 });
+        UIWidgets::BeginCardLayout({ .columnsPerRow = 2, .minColumnWidth = 420.0f });
 
         UIWidgets::BeginCard("playerSpeed");
         ImGui::Text("Link's Speed");

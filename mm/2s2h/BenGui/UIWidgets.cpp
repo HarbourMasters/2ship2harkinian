@@ -254,22 +254,31 @@ void BeginCardLayout(const CardLayoutOptions& options) {
     CardLayoutState* state = new CardLayoutState();
 
     float availWidth = ImGui::GetContentRegionAvail().x;
-    float columnWidth = (availWidth - (options.spacing * (options.columnsPerRow - 1))) / options.columnsPerRow;
+    int columnsPerRow = ImClamp(options.columnsPerRow, 1, options.columnsPerRow);
+    if (options.minColumnWidth > 0.0f) {
+        float denom = options.minColumnWidth + options.spacing;
+        if (denom > 0.0f) {
+            int widthLimitedColumns = static_cast<int>(ImFloor((availWidth + options.spacing) / denom));
+            columnsPerRow = ImClamp(widthLimitedColumns, 1, options.columnsPerRow);
+        }
+    }
+    columnsPerRow = ImMax(columnsPerRow, 1);
+    float columnWidth = (availWidth - (options.spacing * (columnsPerRow - 1))) / static_cast<float>(columnsPerRow);
 
     // Initialize columns
-    state->columnWidths.resize(options.columnsPerRow, columnWidth);
-    state->columnHeights.resize(options.columnsPerRow, 0.0f);
-    state->columnXPositions.resize(options.columnsPerRow);
+    state->columnWidths.resize(columnsPerRow, columnWidth);
+    state->columnHeights.resize(columnsPerRow, 0.0f);
+    state->columnXPositions.resize(columnsPerRow);
 
     // Calculate X positions for each column
     float currentX = ImGui::GetCursorPosX();
-    for (int i = 0; i < options.columnsPerRow; i++) {
+    for (int i = 0; i < columnsPerRow; i++) {
         state->columnXPositions[i] = currentX + (i * (columnWidth + options.spacing));
     }
 
     state->startY = ImGui::GetCursorPosY();
     state->currentCardColumn = 0;
-    state->columnsPerRow = options.columnsPerRow;
+    state->columnsPerRow = columnsPerRow;
     state->spacing = options.spacing;
     state->autoItemWidth = options.autoItemWidth;
     state->childFlags = options.childFlags;
@@ -325,10 +334,23 @@ void EndCard() {
 }
 
 void EndCardLayout() {
-    if (gCurrentCardLayout) {
-        delete gCurrentCardLayout;
-        gCurrentCardLayout = nullptr;
+    if (!gCurrentCardLayout) {
+        return;
     }
+
+    CardLayoutState* state = gCurrentCardLayout;
+    float maxHeight = 0.0f;
+    for (float height : state->columnHeights) {
+        maxHeight = ImMax(maxHeight, height);
+    }
+    if (maxHeight > 0.0f) {
+        maxHeight -= state->spacing;
+        ImGui::SetCursorPosY(state->startY + maxHeight);
+        ImGui::Dummy(ImVec2(0.0f, 0.0f));
+    }
+
+    delete state;
+    gCurrentCardLayout = nullptr;
 }
 
 void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_text_after_hash) {
