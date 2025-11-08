@@ -1,13 +1,14 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 }
 
-#define CVAR_NAME "gCheats.EasyFrameAdvance"
+#define CVAR_NAME CVAR_CHEAT("EasyFrameAdvance")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 static int frameAdvanceTimer = 0;

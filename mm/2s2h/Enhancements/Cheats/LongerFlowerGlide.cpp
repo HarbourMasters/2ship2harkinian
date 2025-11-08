@@ -1,12 +1,13 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 extern f32 D_8085D958[2];
 }
 
-#define CVAR_NAME "gCheats.LongerFlowerGlide"
+#define CVAR_NAME CVAR_CHEAT("LongerFlowerGlide")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterLongerFlowerGlide() {

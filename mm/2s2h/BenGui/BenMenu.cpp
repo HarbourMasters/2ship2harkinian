@@ -1,6 +1,7 @@
 #include "BenMenu.h"
 #include "UIWidgets.hpp"
 #include "BenPort.h"
+#include "2s2h/cvar_prefixes.h"
 #include "BenInputEditorWindow.h"
 #include "DeveloperTools/SaveEditor.h"
 #include "DeveloperTools/CollisionViewer.h"
@@ -863,49 +864,49 @@ void BenMenu::AddEnhancements() {
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Cheats", 3);
     AddWidget(path, "Infinite Health", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.InfiniteHealth")
+        .CVar(CVAR_CHEAT("InfiniteHealth"))
         .Options(CheckboxOptions().Tooltip("Always have full Hearts."));
     AddWidget(path, "Infinite Magic", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.InfiniteMagic")
+        .CVar(CVAR_CHEAT("InfiniteMagic"))
         .Options(CheckboxOptions().Tooltip("Always have full Magic."));
     AddWidget(path, "Infinite Rupees", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.InfiniteRupees")
+        .CVar(CVAR_CHEAT("InfiniteRupees"))
         .Options(CheckboxOptions().Tooltip("Always have a full Wallet."));
     AddWidget(path, "Infinite Consumables", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.InfiniteConsumables")
+        .CVar(CVAR_CHEAT("InfiniteConsumables"))
         .Options(
             CheckboxOptions().Tooltip("Always have max Consumables, you must have collected the consumables first."));
     AddWidget(path, "Easy Frame Advance", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.EasyFrameAdvance")
+        .CVar(CVAR_CHEAT("EasyFrameAdvance"))
         .Options(CheckboxOptions().Tooltip(
             "Continue holding START button when unpausing to only advance a single frame and then re-pause."));
     AddWidget(path, "Longer Deku Flower Glide", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.LongerFlowerGlide")
+        .CVar(CVAR_CHEAT("LongerFlowerGlide"))
         .Options(CheckboxOptions().Tooltip(
             "Allows Deku Link to glide longer, no longer dropping after a certain distance."));
     AddWidget(path, "No Clip", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.NoClip")
+        .CVar(CVAR_CHEAT("NoClip"))
         .Options(CheckboxOptions().Tooltip("Allows Link to phase through collision."));
     AddWidget(path, "Unbreakable Razor Sword", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.UnbreakableRazorSword")
+        .CVar(CVAR_CHEAT("UnbreakableRazorSword"))
         .Options(CheckboxOptions().Tooltip("Allows to Razor Sword to be used indefinitely without dulling its blade."));
     AddWidget(path, "Unrestricted Items", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.UnrestrictedItems")
+        .CVar(CVAR_CHEAT("UnrestrictedItems"))
         .Options(CheckboxOptions().Tooltip("Allows all Forms to use all Items."));
     AddWidget(path, "Hookshot Anywhere", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.HookshotAnywhere")
+        .CVar(CVAR_CHEAT("HookshotAnywhere"))
         .Options(CheckboxOptions().Tooltip("Allows most surfaces to be hookshot-able."));
     AddWidget(path, "Moon Jump on L", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.MoonJumpOnL")
+        .CVar(CVAR_CHEAT("MoonJumpOnL"))
         .Options(CheckboxOptions().Tooltip("Holding L makes you float into the air."));
     AddWidget(path, "Elegy of Emptiness Anywhere", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.ElegyAnywhere")
+        .CVar(CVAR_CHEAT("ElegyAnywhere"))
         .Options(CheckboxOptions().Tooltip("Allows Elegy of Emptiness outside of Ikana."));
     AddWidget(path, "Climb Anywhere", WIDGET_CVAR_CHECKBOX)
-        .CVar("gCheats.ClimbAnywhere")
+        .CVar(CVAR_CHEAT("ClimbAnywhere"))
         .Options(CheckboxOptions().Tooltip("Allows climbing on most walls regardless of vines."));
     AddWidget(path, "Stop Time in Dungeons", WIDGET_CVAR_COMBOBOX)
-        .CVar("gCheats.TempleTimeStop")
+        .CVar(CVAR_CHEAT("TempleTimeStop"))
         .Options(
             ComboboxOptions()
                 .Tooltip("Stops time from advancing in selected areas. Requires a room change to update.\n\n"

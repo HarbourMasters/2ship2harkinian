@@ -2,17 +2,18 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 }
 
-#define CVAR_NAME "gCheats.TempleTimeStop"
+#define CVAR_NAME CVAR_CHEAT("TempleTimeStop")
 #define CVAR CVarGetInteger(CVAR_NAME, TIME_STOP_OFF)
 
 void RegisterTimeStopInTemples() {
     COND_HOOK(AfterRoomSceneCommands, CVAR != TIME_STOP_OFF, [](s16 sceneId, s8 roomNum) {
-        uint8_t selectedOption = CVarGetInteger("gCheats.TempleTimeStop", TIME_STOP_OFF);
+        uint8_t selectedOption = CVarGetInteger(CVAR_CHEAT("TempleTimeStop"), TIME_STOP_OFF);
 
         switch (selectedOption) {
             case TIME_STOP_TEMPLES_DUNGEONS:

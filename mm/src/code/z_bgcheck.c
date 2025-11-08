@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include "2s2h/BenPort.h"
+#include "2s2h/cvar_prefixes.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
@@ -1914,7 +1915,7 @@ s32 BgCheck_CheckWallImpl(CollisionContext* colCtx, u16 xpFlags, Vec3f* posResul
     dy = posNext->y - posPrev->y;
     dz = posNext->z - posPrev->z;
 
-    if (CVarGetInteger("gCheats.NoClip", 0) && actor != NULL && actor->id == ACTOR_PLAYER) {
+    if (CVarGetInteger(CVAR_CHEAT("NoClip"), 0) && actor != NULL && actor->id == ACTOR_PLAYER) {
         return false;
     }
 

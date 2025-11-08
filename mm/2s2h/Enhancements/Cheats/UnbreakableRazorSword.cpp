@@ -2,8 +2,9 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/Rando.h"
+#include "2s2h/cvar_prefixes.h"
 
-#define CVAR_NAME "gCheats.UnbreakableRazorSword"
+#define CVAR_NAME CVAR_CHEAT("UnbreakableRazorSword")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterUnbreakableRazorSword() {

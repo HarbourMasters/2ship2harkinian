@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
@@ -8,15 +9,15 @@ extern "C" {
 
 static RegisterShipInitFunc healthInitFunc(
     []() {
-        COND_HOOK(OnGameStateUpdate, CVarGetInteger("gCheats.InfiniteHealth", 0), []() {
+        COND_HOOK(OnGameStateUpdate, CVarGetInteger(CVAR_CHEAT("InfiniteHealth"), 0), []() {
             gSaveContext.save.saveInfo.playerData.health = gSaveContext.save.saveInfo.playerData.healthCapacity;
         });
     },
-    { "gCheats.InfiniteHealth" });
+    { CVAR_CHEAT("InfiniteHealth" )});
 
 static RegisterShipInitFunc magicInitFunc(
     []() {
-        COND_HOOK(OnGameStateUpdate, CVarGetInteger("gCheats.InfiniteMagic", 0), []() {
+        COND_HOOK(OnGameStateUpdate, CVarGetInteger(CVAR_CHEAT("InfiniteMagic"), 0), []() {
             uint8_t magicLevel = gSaveContext.save.saveInfo.playerData.magicLevel;
             if (magicLevel == 1) {
                 gSaveContext.save.saveInfo.playerData.magic = MAGIC_NORMAL_METER;
@@ -25,18 +26,18 @@ static RegisterShipInitFunc magicInitFunc(
             }
         });
     },
-    { "gCheats.InfiniteMagic" });
+    { CVAR_CHEAT("InfiniteMagic") });
 
 static RegisterShipInitFunc rupeesInitFunc(
     []() {
-        COND_HOOK(OnGameStateUpdate, CVarGetInteger("gCheats.InfiniteRupees", 0),
+        COND_HOOK(OnGameStateUpdate, CVarGetInteger(CVAR_CHEAT("InfiniteRupees"), 0),
                   []() { gSaveContext.save.saveInfo.playerData.rupees = CUR_CAPACITY(UPG_WALLET); });
     },
-    { "gCheats.InfiniteRupees" });
+    { CVAR_CHEAT("InfiniteRupees") });
 
 static RegisterShipInitFunc consumeablesInitFunc(
     []() {
-        COND_HOOK(OnGameStateUpdate, CVarGetInteger("gCheats.InfiniteConsumables", 0), []() {
+        COND_HOOK(OnGameStateUpdate, CVarGetInteger(CVAR_CHEAT("InfiniteConsumables"), 0), []() {
             if (INV_CONTENT(ITEM_BOW) == ITEM_BOW) {
                 AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
             }
@@ -66,4 +67,4 @@ static RegisterShipInitFunc consumeablesInitFunc(
             }
         });
     },
-    { "gCheats.InfiniteConsumables" });
+    { CVAR_CHEAT("InfiniteConsumables") });
