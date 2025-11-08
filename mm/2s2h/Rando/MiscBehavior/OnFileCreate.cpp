@@ -237,13 +237,43 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 itemPool.push_back(RI_PROGRESSIVE_SWORD);
                 itemPool.push_back(RI_SHIELD_HERO);
 
-                // Add other items that don't have a vanilla location like Sun's Song or Song of Double Time
-                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES) {
-                    for (int i = RI_SOUL_GOHT; i <= RI_SOUL_TWINMOLD; i++) {
-                        if (i == RI_SOUL_MAJORA && RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
-                            continue;
+                // Add other items that don't have a vanilla location like Souls or Triforce Pieces
+                std::vector<RandoItemId> bossSouls = { RI_SOUL_GOHT, RI_SOUL_GYORG, RI_SOUL_ODOLWA, RI_SOUL_TWINMOLD,
+                                                       RI_SOUL_MAJORA };
+                bool shuffleMajoraSoul = (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES &&
+                                          RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_NO);
+                for (auto& boss : bossSouls) {
+                    if (boss == RI_SOUL_MAJORA) {
+                        if (shuffleMajoraSoul) {
+                            itemPool.push_back(boss);
+                        } else {
+                            if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_NO) {
+                                Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_MAJORA);
+                            }
                         }
-                        itemPool.push_back((RandoItemId)i);
+                        continue;
+                    }
+                    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES) {
+                        itemPool.push_back(boss);
+                    } else {
+                        Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ARMOS + ((RandoItemId)boss - RI_SOUL_ARMOS));
+                    }
+                }
+
+                for (int i = RI_SOUL_ARMOS; i <= RI_SOUL_WOLFOS; i++) {
+                    bool shouldSkipSoul = false;
+                    for (auto& boss : bossSouls) {
+                        if (boss == (RandoItemId)i) {
+                            shouldSkipSoul = true;
+                            break;
+                        }
+                    }
+                    if (!shouldSkipSoul) {
+                        if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] == RO_GENERIC_YES) {
+                            itemPool.push_back((RandoItemId)i);
+                        } else {
+                            Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ARMOS + ((RandoItemId)i - RI_SOUL_ARMOS));
+                        }
                     }
                 }
 
