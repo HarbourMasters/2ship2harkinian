@@ -183,7 +183,7 @@ void Rando::UpdateJunkWeights() {
 
     for (const auto& [itemId, data] : junkCvarMap) {
         if (CVarGetInteger(JUNK_CVAR(itemId, "Weight"), 10) > 0) {
-            junkItemWeights.emplace_back(itemId, CVarGetInteger(JUNK_CVAR(itemId, "Enabled"), 10));
+            junkItemWeights.emplace_back(itemId, CVarGetInteger(JUNK_CVAR(itemId, "Weight"), 10));
         }
     }
 
