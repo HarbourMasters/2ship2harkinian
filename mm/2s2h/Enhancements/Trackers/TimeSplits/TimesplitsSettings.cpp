@@ -467,9 +467,10 @@ void DrawActionButtons() {
                                });
 
         ImGui::TableNextColumn();
-        if (UIWidgets::Button("Create List", {
-                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
-                                             })) {
+        if (UIWidgets::Button("Create List",
+                              {
+                                  .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
+                              })) {
             SplitSaveFileAction(SPLIT_SAVE, listInputName);
             SplitSaveFileAction(SPLIT_RETRIEVE, "");
         }
@@ -490,28 +491,31 @@ void DrawActionButtons() {
         UIWidgets::PopStyleCombobox();
 
         ImGui::TableNextColumn();
-        if (UIWidgets::Button("Save Splits", {
-                                                 .size = { (ImGui::GetContentRegionAvail().x * 0.5f), 0 },
-                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
-                                             })) {
+        if (UIWidgets::Button("Save Splits",
+                              {
+                                  .size = { (ImGui::GetContentRegionAvail().x * 0.5f), 0 },
+                                  .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
+                              })) {
             if (savedLists[0] != "Create a List First") {
                 SplitSaveFileAction(SPLIT_SAVE, savedLists[selectedIndex]);
             }
         }
         ImGui::SameLine();
-        if (UIWidgets::Button("Load Splits", {
-                                                 .size = { (ImGui::GetContentRegionAvail().x), 0 },
-                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
-                                             })) {
+        if (UIWidgets::Button("Load Splits",
+                              {
+                                  .size = { (ImGui::GetContentRegionAvail().x), 0 },
+                                  .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
+                              })) {
             if (savedLists[0] != "Create a List First") {
                 SplitSaveFileAction(SPLIT_LOAD, savedLists[selectedIndex]);
             }
         }
 
         ImGui::TableNextColumn();
-        if (UIWidgets::Button("New Attempt", {
-                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
-                                             })) {
+        if (UIWidgets::Button("New Attempt",
+                              {
+                                  .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
+                              })) {
             if (splitList.size() == 0) {
                 return;
             }
@@ -634,9 +638,10 @@ void TimesplitsSettingsWindow::DrawElement() {
 
                 ImGui::TableNextColumn();
                 ImGui::BeginDisabled();
-                UIWidgets::Button("Preview", {
-                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
-                                             });
+                UIWidgets::Button("Preview",
+                                  {
+                                      .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
+                                  });
                 ImGui::EndDisabled();
                 ImGui::BeginChild("Preview List");
                 for (size_t i = 0; i < splitList.size(); i++) {

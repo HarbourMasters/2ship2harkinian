@@ -952,7 +952,8 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
         }
     }
 
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PauseSave"), 0) || CVarGetInteger(CVAR_ENHANCEMENT("Kaleido.GameOver"), 0)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Saving.PauseSave"), 0) ||
+        CVarGetInteger(CVAR_ENHANCEMENT("Kaleido.GameOver"), 0)) {
         Gfx_SetupDL42_Opa(gfxCtx);
         if ((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) || IS_PAUSE_STATE_GAMEOVER(pauseCtx)) {
             KaleidoScope_UpdatePrompt(play);

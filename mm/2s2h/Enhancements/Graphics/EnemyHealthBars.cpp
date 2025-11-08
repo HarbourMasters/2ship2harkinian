@@ -88,7 +88,8 @@ void Interface_DrawEnemyHealthBar(Attention* attention, PlayState* play) {
         Actor_GetProjectedPos(play, &actor->focus.pos, &projTargetCenter, &projTargetCappedInvW);
 
         projTargetCenter.x = (SCREEN_WIDTH / 2) * (projTargetCenter.x * projTargetCappedInvW);
-        projTargetCenter.x = projTargetCenter.x * (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0) ? -1 : 1);
+        projTargetCenter.x =
+            projTargetCenter.x * (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0) ? -1 : 1);
         projTargetCenter.x =
             CLAMP(projTargetCenter.x, (-SCREEN_WIDTH / 2) + halfBarWidth, (SCREEN_WIDTH / 2) - halfBarWidth);
 

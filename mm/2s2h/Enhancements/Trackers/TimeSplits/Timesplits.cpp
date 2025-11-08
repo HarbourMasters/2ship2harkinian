@@ -186,7 +186,8 @@ void DrawSplitsList(bool isMain) {
                 // Item Image Column
                 ImGui::TableNextColumn();
 
-                if (CVarGetInteger(CVAR_SETTING("TimeSplits.Highlight"), 0) && splitList[i].splitStatus == SPLIT_ACTIVE) {
+                if (CVarGetInteger(CVAR_SETTING("TimeSplits.Highlight"), 0) &&
+                    splitList[i].splitStatus == SPLIT_ACTIVE) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(47, 79, 90, 255));
                 }
 

@@ -16,7 +16,7 @@ std::unordered_map<std::string, std::string> tagMap = {
     { "gEnhancements", "Enhancements" },
     { "gHudEditor", "HUD" },
     { "gTrackers", "HUD" },
-    { "gRando", "Rando" }, 
+    { "gRando", "Rando" },
 };
 
 nlohmann::json defaultsPresetJ = R"(

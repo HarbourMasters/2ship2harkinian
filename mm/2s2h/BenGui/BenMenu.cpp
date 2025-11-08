@@ -1988,7 +1988,9 @@ void BenMenu::InitElement() {
           { [](disabledInfo& info) -> bool { return !(gPlayState != nullptr && gPlayState->frameAdvCtx.enabled); },
             "Frame Advance is Disabled" } },
         { DISABLE_FOR_INTRO_SKIP_OFF,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipIntroSequence"), 0); },
+          { [](disabledInfo& info) -> bool {
+               return !CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipIntroSequence"), 0);
+           },
             "Intro Skip Not Selected" } },
         { DISABLE_FOR_ADVANCED_RESOLUTION_ON,
           { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.Enabled"), 0); },

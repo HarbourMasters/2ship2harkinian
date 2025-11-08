@@ -13,7 +13,7 @@ static RegisterShipInitFunc healthInitFunc(
             gSaveContext.save.saveInfo.playerData.health = gSaveContext.save.saveInfo.playerData.healthCapacity;
         });
     },
-    { CVAR_CHEAT("InfiniteHealth" )});
+    { CVAR_CHEAT("InfiniteHealth") });
 
 static RegisterShipInitFunc magicInitFunc(
     []() {

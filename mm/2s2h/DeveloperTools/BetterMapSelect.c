@@ -252,7 +252,8 @@ void BetterMapSelect_Init(MapSelectState* mapSelectState) {
         mapSelectState->count = ARRAY_COUNT(sBetterScenes);
         mapSelectState->currentScene = CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.CurrentScene"), 0);
         mapSelectState->opt = CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.Opt"), 0);
-        mapSelectState->topDisplayedScene = CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.TopDisplayedScene"), 0);
+        mapSelectState->topDisplayedScene =
+            CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.TopDisplayedScene"), 0);
         mapSelectState->pageDownIndex = CVarGetInteger(CVAR_DEVELOPER_TOOLS("BetterMapSelect.PageDownIndex"), 0);
 
         gSaveContext.save.cutsceneIndex = STAGE_CURRENT_TIME;

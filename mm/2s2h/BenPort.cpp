@@ -200,7 +200,8 @@ OTRGlobals::OTRGlobals() {
     context->InitCrashHandler();
     context->InitConsole();
 
-    auto benInputEditorWindow = std::make_shared<BenInputEditorWindow>(CVAR_WINDOW("BenInputEditor"), "2S2H Input Editor");
+    auto benInputEditorWindow =
+        std::make_shared<BenInputEditorWindow>(CVAR_WINDOW("BenInputEditor"), "2S2H Input Editor");
     auto benFast3dWindow =
         std::make_shared<Fast::Fast3dWindow>(std::vector<std::shared_ptr<Ship::GuiWindow>>({ benInputEditorWindow }));
     context->InitWindow(benFast3dWindow);

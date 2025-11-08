@@ -1613,7 +1613,8 @@ void EnFsn_DrawStickDirectionPrompts(EnFsn* this, PlayState* play) {
     s32 drawStickRightPrompt = this->stickLeftPrompt.isEnabled;
     s32 drawStickLeftPrompt = this->stickRightPrompt.isEnabled;
 
-    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0) && (drawStickLeftPrompt != drawStickRightPrompt)) {
+    if (CVarGetInteger(CVAR_ENHANCEMENT("Modes.MirroredWorld.State"), 0) &&
+        (drawStickLeftPrompt != drawStickRightPrompt)) {
         drawStickLeftPrompt = !drawStickLeftPrompt;
         drawStickRightPrompt = !drawStickRightPrompt;
     }

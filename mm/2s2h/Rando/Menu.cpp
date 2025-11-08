@@ -127,8 +127,9 @@ static void DrawGeneralTab() {
         if (CVarGetInteger(CVAR_RANDOMIZER("SpoilerFileIndex"), 0) == 0) {
             CVarSetString(CVAR_RANDOMIZER("SpoilerFile"), "");
         } else {
-            CVarSetString(CVAR_RANDOMIZER("SpoilerFile"),
-                          Rando::Spoiler::spoilerOptions[CVarGetInteger(CVAR_RANDOMIZER("SpoilerFileIndex"), 0)].c_str());
+            CVarSetString(
+                CVAR_RANDOMIZER("SpoilerFile"),
+                Rando::Spoiler::spoilerOptions[CVarGetInteger(CVAR_RANDOMIZER("SpoilerFileIndex"), 0)].c_str());
         }
     }
 
@@ -429,8 +430,8 @@ static void DrawStartingItemsTab() {
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
 
-    std::vector<RandoItemId> setStartingItemsList =
-        convertStartingItemsToRandoItemId(CVarGetString(CVAR_RANDOMIZER("StartingItems"), RANDO_STARTING_ITEMS_DEFAULT), ",");
+    std::vector<RandoItemId> setStartingItemsList = convertStartingItemsToRandoItemId(
+        CVarGetString(CVAR_RANDOMIZER("StartingItems"), RANDO_STARTING_ITEMS_DEFAULT), ",");
     uint32_t listIndex = 0;
     for (auto& startingItem : setStartingItemsList) {
         ImGui::PushID(listIndex);

@@ -9,11 +9,11 @@ namespace Rando {
 
 namespace StaticData {
 
-#define RO(id, defaultValue)                             \
-    {                                                    \
-        id, {                                            \
+#define RO(id, defaultValue)                                       \
+    {                                                              \
+        id, {                                                      \
             id, #id, CVAR_RANDOMIZER("Options.") #id, defaultValue \
-        }                                                \
+        }                                                          \
     }
 
 // clang-format off

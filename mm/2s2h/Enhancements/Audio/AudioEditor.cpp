@@ -55,7 +55,6 @@ size_t AuthenticCountBySequenceType(SeqType type) {
     return AudioCollection::Instance->CountSequencesByType(type);
 }
 
-
 // Grabs the current BGM sequence ID and replays it
 // which will lookup the proper override, or reset back to vanilla
 void ReplayCurrentBGM() {

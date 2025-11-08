@@ -9,7 +9,6 @@
 #include "2s2h/ShipUtils.h"
 #include "2s2h/cvar_prefixes.h"
 
-
 #include "interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
 
