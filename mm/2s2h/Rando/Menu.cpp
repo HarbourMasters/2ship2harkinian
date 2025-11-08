@@ -338,7 +338,7 @@ static void DrawItemsTab() {
                              .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                              .disabledTooltip = "Shuffle Traps is disabled." } })
             .LabelPosition(LabelPosition::None)
-            .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
+            .Color(UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)))
             .Format("Traps: %i")
             .Min(1)
             .Max(10)
@@ -768,7 +768,7 @@ static void DrawHintsTab() {
 }
 
 void Rando::RegisterMenu() {
-    mBenMenu->AddMenuEntry("Rando", "gSettings.Menu.RandoSidebarSection");
+    mBenMenu->AddMenuEntry("Rando", CVAR_SETTING("Menu.RandoSidebarSection"));
     mBenMenu->AddSidebarEntry("Rando", "General", 1);
     WidgetPath path = { "Rando", "General", SECTION_COLUMN_1 };
     mBenMenu->AddWidget(path, "General", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawGeneralTab(); });

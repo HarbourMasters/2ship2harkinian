@@ -123,17 +123,17 @@ Menu::Menu(const std::string& cVar, const std::string& name, uint8_t searchSideb
 }
 
 void Menu::InitElement() {
-    popped = CVarGetInteger("gSettings.Menu.Popout", 0);
-    poppedSize.x = CVarGetInteger("gSettings.Menu.PoppedWidth", 1280);
-    poppedSize.y = CVarGetInteger("gSettings.Menu.PoppedHeight", 800);
-    poppedPos.x = CVarGetInteger("gSettings.Menu.PoppedPos.x", 0);
-    poppedPos.y = CVarGetInteger("gSettings.Menu.PoppedPos.y", 0);
+    popped = CVarGetInteger(CVAR_SETTING("Menu.Popout"), 0);
+    poppedSize.x = CVarGetInteger(CVAR_SETTING("Menu.PoppedWidth"), 1280);
+    poppedSize.y = CVarGetInteger(CVAR_SETTING("Menu.PoppedHeight"), 800);
+    poppedPos.x = CVarGetInteger(CVAR_SETTING("Menu.PoppedPos.x"), 0);
+    poppedPos.y = CVarGetInteger(CVAR_SETTING("Menu.PoppedPos.y"), 0);
 
     UpdateWindowBackendObjects();
 }
 
 void Menu::UpdateElement() {
-    menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.Menu.Theme", defaultThemeIndex));
+    menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger(CVAR_SETTING("Menu.Theme"), defaultThemeIndex));
 }
 
 bool ModernMenuSidebarEntry(std::string label) {
@@ -185,7 +185,7 @@ bool ModernMenuHeaderEntry(std::string label) {
 }
 
 uint32_t Menu::DrawSearchResults(std::string& menuSearchText) {
-    auto menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.Menu.Theme", defaultThemeIndex));
+    auto menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger(CVAR_SETTING("Menu.Theme"), defaultThemeIndex));
     ImGui::BeginChild("Search Results");
     int searchCount = 0;
     for (auto& menuLabel : menuOrder) {
@@ -482,7 +482,7 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors me
                     menuSearch.Clear();
                 }
                 ImGui::SameLine();
-                if (CVarGetInteger("gSettings.Menu.SearchAutofocus", 0) &&
+                if (CVarGetInteger(CVAR_SETTING("Menu.SearchAutofocus"), 0) &&
                     ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && !ImGui::IsAnyItemActive() &&
                     !ImGui::IsMouseClicked(0)) {
                     ImGui::SetKeyboardFocusHere(0);
@@ -528,12 +528,12 @@ void Menu::DrawElement() {
     for (auto& [reason, info] : disabledMap) {
         info.active = info.evaluation(info);
     }
-    auto menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.Menu.Theme", defaultThemeIndex));
+    auto menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger(CVAR_SETTING("Menu.Theme"), defaultThemeIndex));
 
     windowHeight = ImGui::GetMainViewport()->WorkSize.y;
     windowWidth = ImGui::GetMainViewport()->WorkSize.x;
     auto windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
-    bool popout = CVarGetInteger("gSettings.Menu.Popout", 0) && allowPopout;
+    bool popout = CVarGetInteger(CVAR_SETTING("Menu.Popout"), 0) && allowPopout;
     if (popout) {
         windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDocking;
     }
@@ -545,8 +545,8 @@ void Menu::DrawElement() {
                                      ImGuiCond_Always);
             ImGui::SetNextWindowPos(poppedPos, ImGuiCond_Always);
         } else if (popped) {
-            CVarSetFloat("gSettings.Menu.PoppedWidth", poppedSize.x);
-            CVarSetFloat("gSettings.Menu.PoppedHeight", poppedSize.y);
+            CVarSetFloat(CVAR_SETTING("Menu.PoppedWidth"), poppedSize.x);
+            CVarSetFloat(CVAR_SETTING("Menu.PoppedHeight"), poppedSize.y);
             CVarSave();
         }
     }
@@ -569,11 +569,11 @@ void Menu::DrawElement() {
         if (!popout) {
             ImGui::PopStyleVar();
         }
-        CVarSetInteger("gSettings.Menu.Popout", popped);
-        CVarSetFloat("gSettings.Menu.PoppedWidth", poppedSize.x);
-        CVarSetFloat("gSettings.Menu.PoppedHeight", poppedSize.y);
-        CVarSetFloat("gSettings.Menu.PoppedPos.x", poppedSize.x);
-        CVarSetFloat("gSettings.Menu.PoppedPos.y", poppedSize.y);
+        CVarSetInteger(CVAR_SETTING("Menu.Popout"), popped);
+        CVarSetFloat(CVAR_SETTING("Menu.PoppedWidth"), poppedSize.x);
+        CVarSetFloat(CVAR_SETTING("Menu.PoppedHeight"), poppedSize.y);
+        CVarSetFloat(CVAR_SETTING("Menu.PoppedPos.x"), poppedSize.x);
+        CVarSetFloat(CVAR_SETTING("Menu.PoppedPos.y"), poppedSize.y);
         CVarSave();
         ImGui::End();
         return;
@@ -586,7 +586,7 @@ void Menu::DrawElement() {
     windowWidth = window->WorkRect.GetWidth();
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
-    const char* headerCvar = "gSettings.Menu.ActiveHeader";
+    const char* headerCvar = CVAR_SETTING("Menu.ActiveHeader");
     std::string headerIndex = CVarGetString(headerCvar, "Settings");
     if (GetVectorIndexOf(menuOrder, headerIndex) == menuOrder.size()) {
         headerIndex = menuOrder.at(0);
@@ -595,7 +595,7 @@ void Menu::DrawElement() {
     float centerX = pos.x + windowWidth / 2 - (style.ItemSpacing.x * (menuEntries.size() + 1));
     std::vector<ImVec2> headerSizes;
     float headerWidth = style.ItemSpacing.x;
-    bool headerSearch = !CVarGetInteger("gSettings.Menu.SidebarSearch", 0);
+    bool headerSearch = !CVarGetInteger(CVAR_SETTING("Menu.SidebarSearch"), 0);
     if (headerSearch) {
         headerWidth += 200.0f + style.ItemSpacing.x + style.FramePadding.x;
     }
@@ -637,7 +637,7 @@ void Menu::DrawElement() {
     if (scrollbar) {
         headerSelSize.y += style.ScrollbarSize;
     }
-    bool autoFocus = CVarGetInteger("gSettings.Menu.SearchAutofocus", 0);
+    bool autoFocus = CVarGetInteger(CVAR_SETTING("Menu.SearchAutofocus"), 0);
     ImGui::BeginChild("Header Selection", headerSelSize,
                       ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_HorizontalScrollbar);

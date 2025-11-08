@@ -123,11 +123,11 @@ void AudioMgr_Init(AudioMgr* audioMgr, void* stack, OSPri pri, OSId id, SchedCon
     Audio_InitSound();
     osSendMesg(&audioMgr->lockQueue, OS_MESG_PTR(NULL), OS_MESG_BLOCK);
 
-    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN, CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
-    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
-    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX, CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
-    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
-    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE, CVarGetFloat("gSettings.Audio.AmbienceVolume", 1.0f));
+    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN, CVarGetFloat(CVAR_SETTING("Audio.MainMusicVolume"), 1.0f));
+    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat(CVAR_SETTING("Audio.SubMusicVolume"), 1.0f));
+    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX, CVarGetFloat(CVAR_SETTING("Audio.SoundEffectsVolume"), 1.0f));
+    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat(CVAR_SETTING("Audio.FanfareVolume"), 1.0f));
+    AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE, CVarGetFloat(CVAR_SETTING("Audio.AmbienceVolume"), 1.0f));
 
     // osCreateThread(&audioMgr->thread, id, AudioMgr_ThreadEntry, audioMgr, stack, pri);
     // osStartThread(&audioMgr->thread);

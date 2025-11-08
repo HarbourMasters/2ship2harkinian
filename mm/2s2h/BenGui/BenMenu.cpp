@@ -288,12 +288,12 @@ std::vector<std::string> contributors = {
 
 void BenMenu::AddSettings() {
     // Add Settings menu
-    AddMenuEntry("Settings", "gSettings.Menu.SettingsSidebarSection");
+    AddMenuEntry("Settings", CVAR_SETTING("Menu.SettingsSidebarSection"));
     // General Settings
     AddSidebarEntry("Settings", "General", 2);
     WidgetPath path = { "Settings", "General", SECTION_COLUMN_1 };
     AddWidget(path, "Menu Theme", WIDGET_CVAR_COMBOBOX)
-        .CVar("gSettings.Menu.Theme")
+        .CVar(CVAR_SETTING("Menu.Theme"))
         .Options(ComboboxOptions()
                      .Tooltip("Changes the Theme of the Menu Widgets.")
                      .ComboMap(&menuThemeOptions)
@@ -306,17 +306,17 @@ void BenMenu::AddSettings() {
             "This will disable game inputs while the menu is visible.\n\nD-pad to move between "
             "items, A to select, B to move up in scope."));
     AddWidget(path, "Cursor Always Visible", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.CursorVisibility")
+        .CVar(CVAR_SETTING("CursorVisibility"))
         .Callback([](WidgetInfo& info) {
             Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(
-                CVarGetInteger("gSettings.CursorVisibility", 0));
+                CVarGetInteger(CVAR_SETTING("CursorVisibility"), 0));
         })
         .Options(CheckboxOptions().Tooltip("Makes the cursor always visible, even in full screen."));
 #endif
     AddWidget(path, "Search In Sidebar", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.Menu.SidebarSearch")
+        .CVar(CVAR_SETTING("Menu.SidebarSearch"))
         .Callback([](WidgetInfo& info) {
-            if (CVarGetInteger("gSettings.Menu.SidebarSearch", 0)) {
+            if (CVarGetInteger(CVAR_SETTING("Menu.SidebarSearch"), 0)) {
                 mBenMenu->InsertSidebarSearch();
             } else {
                 mBenMenu->RemoveSidebarSearch();
@@ -325,7 +325,7 @@ void BenMenu::AddSettings() {
         .Options(CheckboxOptions().Tooltip(
             "Displays the Search menu as a sidebar entry in Settings instead of in the header."));
     AddWidget(path, "Search Input Autofocus", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.Menu.SearchAutofocus")
+        .CVar(CVAR_SETTING("Menu.SearchAutofocus"))
         .Options(CheckboxOptions().Tooltip(
             "Search input box gets autofocus when visible. Does not affect using other widgets."));
     AddWidget(path, "Alt Assets Tab hotkey", WIDGET_CVAR_CHECKBOX)
@@ -389,16 +389,16 @@ void BenMenu::AddSettings() {
     path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Audio", 3);
     AddWidget(path, "Master Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gSettings.Audio.MasterVolume")
+        .CVar(CVAR_SETTING("Audio.MasterVolume"))
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the overall sound volume.")
                      .ShowAdjustmentButtons(false)
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Main Music Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gSettings.Audio.MainMusicVolume")
+        .CVar(CVAR_SETTING("Audio.MainMusicVolume"))
         .Callback([](WidgetInfo& info) {
-            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN, CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
+            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN, CVarGetFloat(CVAR_SETTING("Audio.MainMusicVolume"), 1.0f));
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the background music volume.")
@@ -406,9 +406,9 @@ void BenMenu::AddSettings() {
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Sub Music Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gSettings.Audio.SubMusicVolume")
+        .CVar(CVAR_SETTING("Audio.SubMusicVolume"))
         .Callback([](WidgetInfo& info) {
-            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
+            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat(CVAR_SETTING("Audio.SubMusicVolume"), 1.0f));
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the sub music volume.")
@@ -416,9 +416,9 @@ void BenMenu::AddSettings() {
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Sound Effects Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gSettings.Audio.SoundEffectsVolume")
+        .CVar(CVAR_SETTING("Audio.SoundEffectsVolume"))
         .Callback([](WidgetInfo& info) {
-            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX, CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
+            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX, CVarGetFloat(CVAR_SETTING("Audio.SoundEffectsVolume"), 1.0f));
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the sound effects volume.")
@@ -426,9 +426,9 @@ void BenMenu::AddSettings() {
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Fanfare Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gSettings.Audio.FanfareVolume")
+        .CVar(CVAR_SETTING("Audio.FanfareVolume"))
         .Callback([](WidgetInfo& info) {
-            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
+            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat(CVAR_SETTING("Audio.FanfareVolume"), 1.0f));
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the fanfare volume.")
@@ -436,9 +436,9 @@ void BenMenu::AddSettings() {
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Ambience Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gSettings.Audio.AmbienceVolume")
+        .CVar(CVAR_SETTING("Audio.AmbienceVolume"))
         .Callback([](WidgetInfo& info) {
-            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE, CVarGetFloat("gSettings.Audio.AmbienceVolume", 1.0f));
+            AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE, CVarGetFloat(CVAR_SETTING("Audio.AmbienceVolume"), 1.0f));
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the ambient sound volume.")
@@ -644,7 +644,7 @@ void BenMenu::AddSettings() {
 int32_t motionBlurStrength;
 
 void BenMenu::AddEnhancements() {
-    AddMenuEntry("Enhancements", "gSettings.Menu.EnhancementsSidebarSection");
+    AddMenuEntry("Enhancements", CVAR_SETTING("Menu.EnhancementsSidebarSection"));
     WidgetPath path = { "Enhancements", "Camera", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Camera", 3);
     // Camera Snap Fix
@@ -1721,11 +1721,11 @@ void BenMenu::AddEnhancements() {
 }
 
 void BenMenu::AddDevTools() {
-    AddMenuEntry("Dev Tools", "gSettings.Menu.DevToolsSidebarSection");
+    AddMenuEntry("Dev Tools", CVAR_SETTING("Menu.DevToolsSidebarSection"));
     AddSidebarEntry("Dev Tools", "General", 3);
     WidgetPath path = { "Dev Tools", "General", SECTION_COLUMN_1 };
     AddWidget(path, "Popout Menu", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.Menu.Popout")
+        .CVar(CVAR_SETTING("Menu.Popout"))
         .Options(CheckboxOptions().Tooltip("Changes the menu display from overlay to windowed."));
     AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.DebugEnabled")
@@ -1896,7 +1896,7 @@ void BenMenu::InitElement() {
     AddEnhancements();
     AddDevTools();
 
-    if (CVarGetInteger("gSettings.Menu.SidebarSearch", 0)) {
+    if (CVarGetInteger(CVAR_SETTING("Menu.SidebarSearch"), 0)) {
         InsertSidebarSearch();
     }
 

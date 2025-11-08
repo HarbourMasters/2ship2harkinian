@@ -385,25 +385,25 @@ void DrawOptions() {
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
 
         ImGui::TableNextColumn();
-        UIWidgets::CVarCheckbox("Enable Time Splits", "gSettings.TimeSplits.Enable",
+        UIWidgets::CVarCheckbox("Enable Time Splits", CVAR_SETTING("TimeSplits.Enable"),
                                 {
-                                    .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                    .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                 });
         UIWidgets::Tooltip("Enables the Time Split system, splits will not occur with this unchecked.");
 
         ImGui::TableNextColumn();
-        if (UIWidgets::CVarCheckbox("Show Headers", "gSettings.TimeSplits.ShowHeaders",
+        if (UIWidgets::CVarCheckbox("Show Headers", CVAR_SETTING("TimeSplits.ShowHeaders"),
                                     {
-                                        .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                        .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                     })) {
             UpdateSplitSettings(SPLIT_HEADERS);
         };
         UIWidgets::Tooltip("Shows the column names in the Split List.");
 
         ImGui::TableNextColumn();
-        if (UIWidgets::CVarCheckbox("Hide Background", "gSettings.TimeSplits.Opacity",
+        if (UIWidgets::CVarCheckbox("Hide Background", CVAR_SETTING("TimeSplits.Opacity"),
                                     {
-                                        .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                        .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                     })) {
             UpdateSplitSettings(SPLIT_OPACITY);
         };
@@ -411,16 +411,16 @@ void DrawOptions() {
                            "Note: The background will display if the window extrudes from the main game window.");
 
         ImGui::TableNextColumn();
-        UIWidgets::CVarCheckbox("Highlight Active Split", "gSettings.TimeSplits.Highlight",
+        UIWidgets::CVarCheckbox("Highlight Active Split", CVAR_SETTING("TimeSplits.Highlight"),
                                 {
-                                    .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                    .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                 });
         UIWidgets::Tooltip("Highlights the row with the current Active Split.");
 
         ImGui::TableNextColumn();
-        UIWidgets::CVarCheckbox("Follow Active Split", "gSettings.TimeSplits.Follow",
+        UIWidgets::CVarCheckbox("Follow Active Split", CVAR_SETTING("TimeSplits.Follow"),
                                 {
-                                    .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                    .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                 });
         UIWidgets::Tooltip("Forces the Split List window to keep the Active Split visible.\n"
                            "Note: This prevents user scrolling, disable to restore control.");
@@ -428,15 +428,15 @@ void DrawOptions() {
         ImGui::EndTable();
     }
 
-    UIWidgets::CVarCheckbox("Compare Splits", "gSettings.TimeSplits.Compare",
+    UIWidgets::CVarCheckbox("Compare Splits", CVAR_SETTING("TimeSplits.Compare"),
                             {
-                                .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                             });
     UIWidgets::Tooltip("Enables Split Comparisons between lists, this will integrate within the Split List.");
 
-    if (CVarGetInteger("gSettings.TimeSplits.Compare", 0)) {
+    if (CVarGetInteger(CVAR_SETTING("TimeSplits.Compare"), 0)) {
         ImGui::SameLine();
-        UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+        UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)));
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImGui::BeginCombo("##compareSplits", savedLists[comparedIndex].c_str())) {
             for (int i = 0; i < savedLists.size(); i++) {
@@ -462,20 +462,20 @@ void DrawActionButtons() {
         UIWidgets::InputString("New List", &listInputName,
                                {
                                    .labelPosition = UIWidgets::LabelPosition::None,
-                                   .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                   .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                    .placeholder = "Enter new list name",
                                });
 
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Create List", {
-                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                              })) {
             SplitSaveFileAction(SPLIT_SAVE, listInputName);
             SplitSaveFileAction(SPLIT_RETRIEVE, "");
         }
 
         ImGui::TableNextColumn();
-        UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+        UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)));
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
         if (ImGui::BeginCombo("##savedSplits", savedLists[selectedIndex].c_str())) {
             for (int i = 0; i < savedLists.size(); i++) {
@@ -492,7 +492,7 @@ void DrawActionButtons() {
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Save Splits", {
                                                  .size = { (ImGui::GetContentRegionAvail().x * 0.5f), 0 },
-                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                              })) {
             if (savedLists[0] != "Create a List First") {
                 SplitSaveFileAction(SPLIT_SAVE, savedLists[selectedIndex]);
@@ -501,7 +501,7 @@ void DrawActionButtons() {
         ImGui::SameLine();
         if (UIWidgets::Button("Load Splits", {
                                                  .size = { (ImGui::GetContentRegionAvail().x), 0 },
-                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                              })) {
             if (savedLists[0] != "Create a List First") {
                 SplitSaveFileAction(SPLIT_LOAD, savedLists[selectedIndex]);
@@ -510,7 +510,7 @@ void DrawActionButtons() {
 
         ImGui::TableNextColumn();
         if (UIWidgets::Button("New Attempt", {
-                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                              })) {
             if (splitList.size() == 0) {
                 return;
@@ -525,7 +525,7 @@ void DrawActionButtons() {
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Update Splits",
                               {
-                                  .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                  .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                               })) {
             UpdateSplitBests();
         }
@@ -535,7 +535,7 @@ void DrawActionButtons() {
 }
 
 void DrawEntranceList() {
-    UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+    UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)));
     ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
     if (ImGui::BeginCombo("##SceneFilter", sceneAreaNameMap[sceneFilterIndex])) {
         for (int i = 0; i < sceneAreaNameMap.size(); i++) {
@@ -614,7 +614,7 @@ void TimesplitsSettingsWindow::DrawElement() {
     bool shouldRemoveEntry = false;
     uint32_t entryId = 0, entryIndex = 0;
 
-    UIWidgets::PushStyleTabs(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+    UIWidgets::PushStyleTabs(UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)));
     if (ImGui::BeginTabBar("Timesplit Settings Tabs")) {
         if (ImGui::BeginTabItem("List Options")) {
             DrawOptions();
@@ -635,7 +635,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                 ImGui::TableNextColumn();
                 ImGui::BeginDisabled();
                 UIWidgets::Button("Preview", {
-                                                 .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                              });
                 ImGui::EndDisabled();
                 ImGui::BeginChild("Preview List");
@@ -668,7 +668,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                 ImGui::TableNextColumn();
                 if (UIWidgets::Button("Inventory",
                                       {
-                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                          .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                       })) {
                     range = GetIndexRange((uint32_t)ITEM_OCARINA_OF_TIME, (uint32_t)ITEM_BOTTLE);
                     listName = "Inventory";
@@ -676,7 +676,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                 }
                 if (UIWidgets::Button("Masks",
                                       {
-                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                          .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                       })) {
                     range = GetIndexRange((uint32_t)ITEM_MASK_POSTMAN, (uint32_t)ITEM_MASK_FIERCE_DEITY);
                     listName = "Masks";
@@ -684,7 +684,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                 }
                 if (UIWidgets::Button("Songs",
                                       {
-                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                          .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                       })) {
                     range = GetIndexRange((uint32_t)ITEM_SONG_TIME, (uint32_t)ITEM_SONG_OATH);
                     listName = "Songs";
@@ -692,7 +692,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                 }
                 if (UIWidgets::Button("Quest",
                                       {
-                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                          .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                       })) {
                     range = GetIndexRange((uint32_t)ITEM_REMAINS_ODOLWA, (uint32_t)ITEM_BOMBERS_NOTEBOOK);
                     listName = "Quest";
@@ -700,7 +700,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                 }
                 if (UIWidgets::Button("Bosses",
                                       {
-                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                          .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                       })) {
                     range = GetIndexRange((uint32_t)SPLIT_KILLED_ODOLWA, (uint32_t)SPLIT_KILLED_MAJORA);
                     listName = "Bosses";
@@ -708,7 +708,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                 }
                 if (UIWidgets::Button("Entrances",
                                       {
-                                          .color = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)),
+                                          .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                       })) {
                     listName = "Entrances";
                 }

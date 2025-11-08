@@ -110,7 +110,7 @@ void AudioPlayback_InitSampleState(Note* note, NoteSampleState* sampleState, Not
     velocity = 0.0f > velocity ? 0.0f : velocity;
     velocity = 1.0f < velocity ? 1.0f : velocity;
 
-    float master_vol = CVarGetFloat("gSettings.Audio.MasterVolume", 1.0f);
+    float master_vol = CVarGetFloat(CVAR_SETTING("Audio.MasterVolume"), 1.0f);
     sampleState->targetVolLeft = (s32)((velocity * volLeft) * (0x1000 - 0.001f)) * master_vol;
     sampleState->targetVolRight = (s32)((velocity * volRight) * (0x1000 - 0.001f)) * master_vol;
 
