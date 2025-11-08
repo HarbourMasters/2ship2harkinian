@@ -7,13 +7,19 @@ typedef struct {
     float fade;
 } TrackerImageObject;
 
+typedef struct {
+    std::string windowName;
+    std::vector<int16_t> itemList;
+} TrackerItemListObject;
+
 class ItemTrackerWindow : public Ship::GuiWindow {
   public:
     using GuiWindow::GuiWindow;
     void Draw() override;
 
     std::vector<int16_t> mainItemWindow;
-    std::vector<std::vector<int16_t>> subItemWindows;
+    std::vector<TrackerItemListObject> namedItemWindows;
+    //std::vector<std::vector<int16_t>> subItemWindows;
 
   protected:
     void InitElement() override;

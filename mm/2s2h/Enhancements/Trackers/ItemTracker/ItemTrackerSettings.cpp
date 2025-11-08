@@ -19,10 +19,11 @@ static const char* displayTypes[3] = { "Hidden", "Main Window", "Separate" };
 static const char* displayModes[2] = { "Always", "Combo Button Hold" };
 
 InventorySlot popupSlot = SLOT_OCARINA;
+static std::string trackerInputName;
 bool shouldTrackerPopUpOpen = false;
 
 std::map<std::string, std::pair<InventorySlot, InventorySlot>> defaultItemLists = {
-    { "Inventory", { SLOT_OCARINA, SLOT_BOTTLE_1 } },
+    { "Inventory", { SLOT_OCARINA, SLOT_BOTTLE_6 } },
     { "Masks", { SLOT_MASK_POSTMAN, SLOT_MASK_FIERCE_DEITY } },
 };
 
@@ -37,10 +38,15 @@ TexturePtr GetSlotImage(InventorySlot slot) {
         return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
             (const char*)gItemIcons[ITEM_LETTER_TO_KAFEI]);
     } else {
-        for (int i = 0; i < sizeof(gItemSlots); i++) {
-            if (gItemSlots[i] == slot) {
-                return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                    (const char*)gItemIcons[slot == SLOT_BOTTLE_1 ? ITEM_BOTTLE : i]);
+        if (slot >= SLOT_BOTTLE_1 && slot <= SLOT_BOTTLE_6) {
+            return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                (const char*)gItemIcons[ITEM_BOTTLE]);
+        } else {
+            for (int i = 0; i < sizeof(gItemSlots); i++) {
+                if (gItemSlots[i] == slot) {
+                    return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                        (const char*)gItemIcons[i]);
+                }
             }
         }
     }
@@ -57,11 +63,11 @@ void ItemTrackerPopUpContext(InventorySlot slot) {
             BenGui::mItemTrackerWindow->mainItemWindow.push_back(slot);
             shouldClose = true;
         }
-        for (auto& window : BenGui::mItemTrackerWindow->subItemWindows) {
+        for (auto& object : BenGui::mItemTrackerWindow->namedItemWindows) {
             std::string windowStr = "Add to ";
-            windowStr += std::to_string(windowIndex).c_str();
+            windowStr += object.windowName;
             if (UIWidgets::Button(windowStr.c_str(), { .size = ImVec2(0, 0), .color = WIDGET_COLOR })) {
-                BenGui::mItemTrackerWindow->subItemWindows[windowIndex].push_back(slot);
+                BenGui::mItemTrackerWindow->namedItemWindows[windowIndex].itemList.push_back(slot);
                 shouldClose = true;
             }
             windowIndex++;
@@ -126,7 +132,6 @@ void DrawItemList(std::string listName, int columns) {
         if (ImGui::BeginTable(listName.c_str(), columns)) {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
-
             for (int i = defaultItemLists.at(listName).first; i <= defaultItemLists.at(listName).second; i++) {
                 InventorySlot slot = static_cast<InventorySlot>(i);
                 ImGui::TableNextColumn();
@@ -142,10 +147,137 @@ void DrawItemList(std::string listName, int columns) {
     ImGui::EndChild();
 }
 
-void ItemTrackerSettingsWindow::DrawElement() {
+void DrawPreviewPane() {
     uint32_t listIndex = 0;
+    if (ImGui::BeginChild("List Previews")) {
+        ImGui::SeparatorText("Main Item Window");
+        ImGui::SameLine(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize("Clear Main").x * 1.5f));
+        if (UIWidgets::Button("Clear Main", {
+                                                .size = ImVec2(0, 0),
+                                                .color = UIWidgets::Colors::Red,
+                                            })) {
+            BenGui::mItemTrackerWindow->mainItemWindow.clear();
+        }
+        if (BenGui::mItemTrackerWindow->mainItemWindow.size() != 0) {
+            if (ImGui::BeginTable("Main Preview", 6)) {
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+                ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
+                for (int i = 0; i < BenGui::mItemTrackerWindow->mainItemWindow.size(); i++) {
+                    ImGui::TableNextColumn();
+                    DrawItemTrackerSlot(BenGui::mItemTrackerWindow->mainItemWindow,
+                                        (InventorySlot)BenGui::mItemTrackerWindow->mainItemWindow[i], false);
+                    ItemTrackerDragAndDrop(BenGui::mItemTrackerWindow->mainItemWindow, i);
+                }
+                ImGui::PopStyleVar(2);
+                ImGui::EndTable();
+            }
+        }
+        ImGui::SeparatorText("Sub Item Windows");
+        for (auto& object : BenGui::mItemTrackerWindow->namedItemWindows) {
+            ImGui::PushID(listIndex);
+            ImGui::SeparatorText(object.windowName.c_str());
+            ImGui::SameLine(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize("Clear Main").x * 1.5f));
+            if (UIWidgets::Button("Clear", { .size = ImVec2(0, 0), .color = UIWidgets::Colors::Red })) {
+                BenGui::mItemTrackerWindow->namedItemWindows[listIndex].itemList.clear();
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("x", { .size = ImVec2(0, 0), .color = UIWidgets::Colors::Red })) {
+                BenGui::mItemTrackerWindow->namedItemWindows.erase(
+                    BenGui::mItemTrackerWindow->namedItemWindows.begin() + listIndex);
+            }
+            ImGui::PopID();
+            if (object.itemList.size() == 0) {
+                listIndex++;
+                continue;
+            }
+            if (ImGui::BeginTable(std::to_string(listIndex).c_str(), 6)) {
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+                ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
+                for (int i = 0; i < object.itemList.size(); i++) {
+                    ImGui::TableNextColumn();
+                    DrawItemTrackerSlot(object.itemList, (InventorySlot)object.itemList[i], false);
+                    ItemTrackerDragAndDrop(BenGui::mItemTrackerWindow->namedItemWindows[listIndex].itemList, i);
+                }
+                ImGui::PopStyleVar(2);
+                ImGui::EndTable();
+            }
+            listIndex++;
+        }
+        ImGui::EndChild();
+    }
+}
+
+void DrawTrackerOptions() {
+    ImGui::SeparatorText("Presets");
+    if (ImGui::BeginTable("PresetsList", 2)) {
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Default Preset", { .color = WIDGET_COLOR })) {
+            BenGui::mItemTrackerWindow->mainItemWindow.clear();
+            for (int i = SLOT_OCARINA; i <= SLOT_MASK_FIERCE_DEITY; i++) {
+                BenGui::mItemTrackerWindow->mainItemWindow.push_back((InventorySlot)i);
+            }
+        }
+        UIWidgets::Tooltip("Places all items in the Main Window");
+
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Split Panel Preset",
+                              { .color = WIDGET_COLOR })) {
+            BenGui::mItemTrackerWindow->mainItemWindow.clear();
+            BenGui::mItemTrackerWindow->namedItemWindows.clear();
+            for (auto& list : defaultItemLists) {
+                std::vector<int16_t> defaultItems;
+                for (int i = list.second.first; i <= list.second.second; i++) {
+                    defaultItems.push_back(i);
+                }
+                TrackerItemListObject trackerObject = { .windowName = list.first, .itemList = defaultItems };
+                BenGui::mItemTrackerWindow->namedItemWindows.push_back(trackerObject);
+            }
+        }
+        UIWidgets::Tooltip("Places each group of items in its own Window.");
+        ImGui::EndTable();
+    }
+    ImGui::SeparatorText("Custom Windows");
+    if (ImGui::BeginTable("OptionsList", 2)) {
+        ImGui::TableNextColumn();
+        UIWidgets::InputString("Window Name", &trackerInputName,
+                               {
+                                   .labelPosition = UIWidgets::LabelPosition::None,
+                                   .color = WIDGET_COLOR,
+                                   .placeholder = "Enter new window name",
+                               });
+
+        ImGui::TableNextColumn();
+        if (UIWidgets::Button("Create New Window",
+                              { .size = ImVec2(ImGui::GetContentRegionMax().x / 2, 0), .color = WIDGET_COLOR })) {
+            std::vector<int16_t> itemTrackerList;
+            std::string windowText = trackerInputName.c_str();
+            TrackerItemListObject trackerObject = {
+                .windowName = trackerInputName.c_str(),
+                .itemList = itemTrackerList,
+            };
+            
+            BenGui::mItemTrackerWindow->namedItemWindows.push_back(trackerObject);
+            trackerInputName.clear();
+        }
+        ImGui::EndTable();
+    }
+}
+
+void DrawTrackerCustomizationOptions() {
+    if (ImGui::BeginChild("Item Lists")) {
+        DrawItemList("Inventory", 6);
+        DrawItemList("Masks", 6);
+        ImGui::EndChild();
+    }
+}
+
+void ItemTrackerSettingsWindow::DrawElement() {
     ImGui::SetNextWindowSize(ImVec2(733, 472), ImGuiCond_FirstUseEver);
     if (ImGui::BeginChild("Item Tracker Settings")) {
+        ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
+
         if (CVarGetInteger("gWindows.ItemTracker", 0)) {
             UIWidgets::WindowButton("Hide Item Tracker", "gWindows.ItemTracker", BenGui::mItemTrackerWindow,
                                     { .size = UIWidgets::Sizes::Inline, .color = WIDGET_COLOR });
@@ -154,110 +286,27 @@ void ItemTrackerSettingsWindow::DrawElement() {
                                     { .size = UIWidgets::Sizes::Inline, .color = WIDGET_COLOR });
         }
         UIWidgets::Separator();
-        if (UIWidgets::Button("Default Preset",
-                              { .size = ImVec2(ImGui::GetContentRegionMax().x / 2, 0), .color = WIDGET_COLOR })) {
-            BenGui::mItemTrackerWindow->mainItemWindow.clear();
-            for (int i = SLOT_OCARINA; i <= SLOT_MASK_FIERCE_DEITY; i++) {
-                BenGui::mItemTrackerWindow->mainItemWindow.push_back((InventorySlot)i);
-            }
-        }
-        ImGui::SameLine();
-        if (UIWidgets::Button("Create New Window",
-                              { .size = ImVec2(ImGui::GetContentRegionMax().x / 2, 0), .color = WIDGET_COLOR })) {
-            std::vector<int16_t> itemTrackerList;
-            BenGui::mItemTrackerWindow->subItemWindows.push_back(itemTrackerList);
-        }
-        if (ImGui::BeginTable("Customization", 2)) {
+        UIWidgets::PushStyleTabs(WIDGET_COLOR);
+        if (ImGui::BeginTable("TrackerTabs", 2)) {
             ImGui::TableNextColumn();
-            if (ImGui::BeginChild("Item Lists")) {
-
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-
-                DrawItemList("Inventory", 6);
-                DrawItemList("Masks", 6);
-
-                ImGui::PopStyleColor(3);
-
-                ImGui::EndChild();
+            if (ImGui::BeginTabBar("TrackerTabs")) {
+                if (ImGui::BeginTabItem("Customization")) {
+                    DrawTrackerCustomizationOptions();
+                    ImGui::EndTabItem();
+                }
+                if (ImGui::BeginTabItem("Options")) {
+                    DrawTrackerOptions();
+                    ImGui::EndTabItem();
+                }
+                ImGui::EndTabBar();
             }
-
             ImGui::TableNextColumn();
-            if (ImGui::BeginChild("List Previews")) {
-                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
-                ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-
-                ImGui::SeparatorText("Main Item Window");
-                ImGui::SameLine(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize("Clear Main").x * 1.5f));
-                if (UIWidgets::Button("Clear Main", {
-                                                        .size = ImVec2(0, 0),
-                                                        .color = UIWidgets::Colors::Red,
-                                                    })) {
-                    BenGui::mItemTrackerWindow->mainItemWindow.clear();
-                }
-                if (BenGui::mItemTrackerWindow->mainItemWindow.size() != 0) {
-                    if (ImGui::BeginTable("Main Preview", 6)) {
-                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-                        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
-                        for (int i = 0; i < BenGui::mItemTrackerWindow->mainItemWindow.size(); i++) {
-                            ImGui::TableNextColumn();
-                            DrawItemTrackerSlot(BenGui::mItemTrackerWindow->mainItemWindow,
-                                                (InventorySlot)BenGui::mItemTrackerWindow->mainItemWindow[i], false);
-                            ItemTrackerDragAndDrop(BenGui::mItemTrackerWindow->mainItemWindow, i);
-                        }
-                        ImGui::PopStyleVar(2);
-                        ImGui::EndTable();
-                    }
-                }
-                ImGui::SeparatorText("Sub Item Windows");
-                for (auto& list : BenGui::mItemTrackerWindow->subItemWindows) {
-                    ImGui::SeparatorText(std::to_string(listIndex).c_str());
-                    std::string clearStr = "Clear ";
-                    clearStr += std::to_string(listIndex).c_str();
-                    ImGui::SameLine(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize("Clear Main").x * 1.5f));
-                    if (UIWidgets::Button(clearStr.c_str(), {
-                                                                .size = ImVec2(0, 0),
-                                                                .color = UIWidgets::Colors::Red,
-                                                            })) {
-                        BenGui::mItemTrackerWindow->subItemWindows[listIndex].clear();
-                    }
-                    ImGui::SameLine();
-                    ImGui::PushID(listIndex);
-                    if (UIWidgets::Button("x", {
-                                                   .size = ImVec2(0, 0),
-                                                   .color = UIWidgets::Colors::Red,
-                                               })) {
-                        BenGui::mItemTrackerWindow->subItemWindows.erase(
-                            BenGui::mItemTrackerWindow->subItemWindows.begin() + listIndex);
-                    }
-                    ImGui::PopID();
-                    if (list.size() == 0) {
-                        listIndex++;
-                        continue;
-                    }
-                    if (ImGui::BeginTable(std::to_string(listIndex).c_str(), 6)) {
-                        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-                        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
-                        for (int i = 0; i < list.size(); i++) {
-                            ImGui::TableNextColumn();
-                            DrawItemTrackerSlot(list, (InventorySlot)list[i], false);
-                            ItemTrackerDragAndDrop(BenGui::mItemTrackerWindow->subItemWindows[listIndex], i);
-                        }
-                        ImGui::PopStyleVar(2);
-                        ImGui::EndTable();
-                    }
-                    listIndex++;
-                }
-
-                ImGui::PopStyleColor(3);
-
-                ImGui::EndChild();
-            }
-
+            DrawPreviewPane();
             ImGui::EndTable();
         }
+        UIWidgets::PopStyleTabs();
+
+        ImGui::PopStyleColor(3);
         ImGui::EndChild();
     }
 }

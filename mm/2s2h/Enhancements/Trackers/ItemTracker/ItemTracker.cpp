@@ -133,12 +133,12 @@ void ItemTrackerWindow::Draw() {
     }
 
     uint32_t index = 0;
-    for (auto& window : BenGui::mItemTrackerWindow->subItemWindows) {
-        if (window.size() == 0) {
+    for (auto& object : BenGui::mItemTrackerWindow->namedItemWindows) {
+        if (object.itemList.size() == 0) {
             continue;
             index++;
         }
-        DrawItemWindowList(std::to_string(index).c_str(), window, 6);
+        DrawItemWindowList(std::to_string(index).c_str(), object.itemList, 6);
         index++;
     }
     ImGui::PopStyleColor(2);
