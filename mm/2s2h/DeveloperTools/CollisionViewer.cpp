@@ -39,69 +39,76 @@ static std::vector<Vtx> sphereVtx;
 
 // Draws the ImGui window for the collision viewer
 void CollisionViewerWindow::DrawElement() {
-    UIWidgets::CVarCheckbox("Enabled", "gCollisionViewer.Enabled");
+    UIWidgets::CVarCheckbox("Enabled", CVAR_DEVELOPER_TOOLS("CollisionViewer.Enabled"));
 
     ImGui::SameLine();
 
-    ImGui::BeginDisabled(CVarGetInteger("gCollisionViewer.Enabled", 0) == 0);
+    ImGui::BeginDisabled(CVarGetInteger(CVAR_DEVELOPER_TOOLS("CollisionViewer.Enabled"), 0) == 0);
 
-    UIWidgets::CVarCheckbox("Apply Shading", "gCollisionViewer.ApplyShading");
+    UIWidgets::CVarCheckbox("Apply Shading", CVAR_DEVELOPER_TOOLS("CollisionViewer.ApplyShading"));
 
     ImGui::SameLine();
 
     if (UIWidgets::Button("Reset Colors")) {
-        CVarClear("gCollisionViewer.SceneCollisionColor");
-        CVarClear("gCollisionViewer.VoidCollisionColor");
-        CVarClear("gCollisionViewer.EntranceCollisionColor");
-        CVarClear("gCollisionViewer.SlopeCollisionColor");
-        CVarClear("gCollisionViewer.HookshotCollisionColor");
-        CVarClear("gCollisionViewer.WaterboxCollisionColor");
-        CVarClear("gCollisionViewer.OCollisionColor");
-        CVarClear("gCollisionViewer.ACollisionColor");
-        CVarClear("gCollisionViewer.ATCollisionColor");
-        CVarClear("gCollisionViewer.SpecialSurfaceColor");
-        CVarClear("gCollisionViewer.InteractableColor");
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.SceneCollisionColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.VoidCollisionColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.EntranceCollisionColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.SlopeCollisionColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.HookshotCollisionColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.WaterboxCollisionColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.OCollisionColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.ACollisionColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.ATCollisionColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.SpecialSurfaceColor"));
+        CVarClear(CVAR_DEVELOPER_TOOLS("CollisionViewer.InteractableColor"));
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
 
     ImGui::SeparatorText("Collision Types");
 
-    UIWidgets::CVarCombobox("Scene", "gCollisionViewer.SceneCollisionMode", ColRenderSettingNames,
+    UIWidgets::CVarCombobox("Scene", CVAR_DEVELOPER_TOOLS("CollisionViewer.SceneCollisionMode"), ColRenderSettingNames,
                             { .color = UIWidgets::Colors::Gray });
-    UIWidgets::CVarCombobox("BG Actors", "gCollisionViewer.BGActorsCollisionMode", ColRenderSettingNames,
-                            { .color = UIWidgets::Colors::Gray });
-    UIWidgets::CVarCombobox("Col Check", "gCollisionViewer.ColCheckCollisionMode", ColRenderSettingNames,
-                            { .color = UIWidgets::Colors::Gray });
-    UIWidgets::CVarCombobox("Waterbox", "gCollisionViewer.WaterboxCollisionMode", ColRenderSettingNames,
-                            { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("BG Actors", CVAR_DEVELOPER_TOOLS("CollisionViewer.BGActorsCollisionMode"),
+                            ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("Col Check", CVAR_DEVELOPER_TOOLS("CollisionViewer.ColCheckCollisionMode"),
+                            ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("Waterbox", CVAR_DEVELOPER_TOOLS("CollisionViewer.WaterboxCollisionMode"),
+                            ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
 
     ImGui::SeparatorText("Colors");
 
     if (ImGui::BeginTable("table table", 3, ImGuiTableFlags_NoBordersInBody)) {
         ImGui::TableNextColumn();
-        UIWidgets::CVarColorPicker("Normal", "gCollisionViewer.SceneCollisionColor", { 255, 255, 255, 255 });
+        UIWidgets::CVarColorPicker("Normal", CVAR_DEVELOPER_TOOLS("CollisionViewer.SceneCollisionColor"),
+                                   { 255, 255, 255, 255 });
         ImGui::TableNextColumn();
-        UIWidgets::CVarColorPicker("Void", "gCollisionViewer.VoidCollisionColor", { 255, 0, 0, 255 });
+        UIWidgets::CVarColorPicker("Void", CVAR_DEVELOPER_TOOLS("CollisionViewer.VoidCollisionColor"),
+                                   { 255, 0, 0, 255 });
         ImGui::TableNextColumn();
-        UIWidgets::CVarColorPicker("Entrance", "gCollisionViewer.EntranceCollisionColor", { 0, 255, 0, 255 });
+        UIWidgets::CVarColorPicker("Entrance", CVAR_DEVELOPER_TOOLS("CollisionViewer.EntranceCollisionColor"),
+                                   { 0, 255, 0, 255 });
         ImGui::TableNextColumn();
-        UIWidgets::CVarColorPicker("Slope", "gCollisionViewer.SlopeCollisionColor", { 255, 255, 128, 255 });
+        UIWidgets::CVarColorPicker("Slope", CVAR_DEVELOPER_TOOLS("CollisionViewer.SlopeCollisionColor"),
+                                   { 255, 255, 128, 255 });
         ImGui::TableNextColumn();
-        UIWidgets::CVarColorPicker("Hookshotable", "gCollisionViewer.HookshotCollisionColor", { 128, 128, 255, 255 });
+        UIWidgets::CVarColorPicker("Hookshotable", CVAR_DEVELOPER_TOOLS("CollisionViewer.HookshotCollisionColor"),
+                                   { 128, 128, 255, 255 });
         ImGui::TableNextColumn();
-        UIWidgets::CVarColorPicker("Waterbox", "gCollisionViewer.WaterboxCollisionColor", { 0, 0, 255, 255 });
+        UIWidgets::CVarColorPicker("Waterbox", CVAR_DEVELOPER_TOOLS("CollisionViewer.WaterboxCollisionColor"),
+                                   { 0, 0, 255, 255 });
         ImGui::TableNextColumn();
-        UIWidgets::CVarColorPicker("OC", "gCollisionViewer.OCollisionColor", { 255, 255, 255, 255 });
+        UIWidgets::CVarColorPicker("OC", CVAR_DEVELOPER_TOOLS("CollisionViewer.OCollisionColor"),
+                                   { 255, 255, 255, 255 });
         ImGui::TableNextColumn();
-        UIWidgets::CVarColorPicker("AC", "gCollisionViewer.ACollisionColor", { 0, 0, 255, 255 });
+        UIWidgets::CVarColorPicker("AC", CVAR_DEVELOPER_TOOLS("CollisionViewer.ACollisionColor"), { 0, 0, 255, 255 });
         ImGui::TableNextColumn();
-        UIWidgets::CVarColorPicker("AT", "gCollisionViewer.ATCollisionColor", { 255, 0, 0, 255 });
+        UIWidgets::CVarColorPicker("AT", CVAR_DEVELOPER_TOOLS("CollisionViewer.ATCollisionColor"), { 255, 0, 0, 255 });
         ImGui::EndTable();
     }
-    UIWidgets::CVarColorPicker("Special Surface (Grass/Sand/Etc)", "gCollisionViewer.SpecialSurfaceColor",
-                               { 192, 255, 192, 255 });
-    UIWidgets::CVarColorPicker("Interactable (Vines/Crawlspace/Etc)", "gCollisionViewer.InteractableColor",
-                               { 192, 0, 192, 255 });
+    UIWidgets::CVarColorPicker("Special Surface (Grass/Sand/Etc)",
+                               CVAR_DEVELOPER_TOOLS("CollisionViewer.SpecialSurfaceColor"), { 192, 255, 192, 255 });
+    UIWidgets::CVarColorPicker("Interactable (Vines/Crawlspace/Etc)",
+                               CVAR_DEVELOPER_TOOLS("CollisionViewer.InteractableColor"), { 192, 0, 192, 255 });
 
     ImGui::EndDisabled();
 }
@@ -312,7 +319,7 @@ void InitGfx(std::vector<Gfx>& gfx, ColRenderSetting setting) {
     }
 
     // Default decal mode to on, users can override it manually but there's not really a use case for the other modes
-    if (CVarGetInteger("gCollisionViewer.DecalMode", 1)) {
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("CollisionViewer.DecalMode"), 1)) {
         rm |= ZMODE_DEC;
     } else if (setting == ColRenderSetting::Transparent) {
         rm |= ZMODE_XLU;
@@ -324,7 +331,7 @@ void InitGfx(std::vector<Gfx>& gfx, ColRenderSetting setting) {
     gfx.push_back(gsDPSetCycleType(G_CYC_1CYCLE));
     gfx.push_back(gsDPSetRenderMode(rm | blc1, rm | blc2));
 
-    if (CVarGetInteger("gCollisionViewer.ApplyShading", 0) != 0) {
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("CollisionViewer.ApplyShading"), 0) != 0) {
         gfx.push_back(gsDPSetCombineMode(G_CC_MODULATERGB_PRIM_ENVA, G_CC_MODULATERGB_PRIM_ENVA));
         gfx.push_back(gsSPLoadGeometryMode(G_CULL_BACK | G_ZBUFFER | G_LIGHTING));
     } else {
@@ -337,14 +344,20 @@ void InitGfx(std::vector<Gfx>& gfx, ColRenderSetting setting) {
 
 // Draws a dynapoly structure (scenes or Bg Actors)
 void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
-    Color_RGBA8 sceneCollisionColor = CVarGetColor("gCollisionViewer.SceneCollisionColor", { 255, 255, 255, 255 });
-    Color_RGBA8 voidCollisionColor = CVarGetColor("gCollisionViewer.VoidCollisionColor", { 255, 0, 0, 255 });
-    Color_RGBA8 entranceCollisionColor = CVarGetColor("gCollisionViewer.EntranceCollisionColor", { 0, 255, 0, 255 });
-    Color_RGBA8 slopeCollisionColor = CVarGetColor("gCollisionViewer.SlopeCollisionColor", { 255, 255, 128, 255 });
+    Color_RGBA8 sceneCollisionColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.SceneCollisionColor"), { 255, 255, 255, 255 });
+    Color_RGBA8 voidCollisionColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.VoidCollisionColor"), { 255, 0, 0, 255 });
+    Color_RGBA8 entranceCollisionColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.EntranceCollisionColor"), { 0, 255, 0, 255 });
+    Color_RGBA8 slopeCollisionColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.SlopeCollisionColor"), { 255, 255, 128, 255 });
     Color_RGBA8 hookshotCollisionColor =
-        CVarGetColor("gCollisionViewer.HookshotCollisionColor", { 128, 128, 255, 255 });
-    Color_RGBA8 specialSurfaceColor = CVarGetColor("gCollisionViewer.SpecialSurfaceColor", { 192, 255, 192, 255 });
-    Color_RGBA8 interactableColor = CVarGetColor("gCollisionViewer.InteractableColor", { 192, 0, 192, 255 });
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.HookshotCollisionColor"), { 128, 128, 255, 255 });
+    Color_RGBA8 specialSurfaceColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.SpecialSurfaceColor"), { 192, 255, 192, 255 });
+    Color_RGBA8 interactableColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.InteractableColor"), { 192, 0, 192, 255 });
     uint32_t colorR = sceneCollisionColor.r;
     uint32_t colorG = sceneCollisionColor.g;
     uint32_t colorB = sceneCollisionColor.b;
@@ -440,8 +453,8 @@ void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
 
 // Draws the scene
 void DrawSceneCollision() {
-    ColRenderSetting showSceneColSetting =
-        (ColRenderSetting)CVarGetInteger("gCollisionViewer.SceneCollisionMode", (uint32_t)ColRenderSetting::Disabled);
+    ColRenderSetting showSceneColSetting = (ColRenderSetting)CVarGetInteger(
+        CVAR_DEVELOPER_TOOLS("CollisionViewer.SceneCollisionMode"), (uint32_t)ColRenderSetting::Disabled);
 
     if (showSceneColSetting == ColRenderSetting::Disabled) {
         return;
@@ -456,8 +469,8 @@ void DrawSceneCollision() {
 
 // Draws all Bg Actors
 void DrawBgActorCollision() {
-    ColRenderSetting showBgActorSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.BGActorsCollisionMode",
-                                                                           (uint32_t)ColRenderSetting::Disabled);
+    ColRenderSetting showBgActorSetting = (ColRenderSetting)CVarGetInteger(
+        CVAR_DEVELOPER_TOOLS("CollisionViewer.BGActorsCollisionMode"), (uint32_t)ColRenderSetting::Disabled);
     if (showBgActorSetting == ColRenderSetting::Disabled) {
         return;
     }
@@ -582,11 +595,14 @@ void DrawColCheckList(std::vector<Gfx>& dl, Collider** objects, int32_t count) {
 
 // Draws all Col Check objects
 void DrawColCheckCollision() {
-    Color_RGBA8 oCollisionColor = CVarGetColor("gCollisionViewer.OCollisionColor", { 255, 255, 255, 255 });
-    Color_RGBA8 aCollisionColor = CVarGetColor("gCollisionViewer.ACollisionColor", { 0, 0, 255, 255 });
-    Color_RGBA8 aTCollisionColor = CVarGetColor("gCollisionViewer.ATCollisionColor", { 255, 0, 0, 255 });
-    ColRenderSetting showColCheckSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.ColCheckCollisionMode",
-                                                                            (uint32_t)ColRenderSetting::Disabled);
+    Color_RGBA8 oCollisionColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.OCollisionColor"), { 255, 255, 255, 255 });
+    Color_RGBA8 aCollisionColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.ACollisionColor"), { 0, 0, 255, 255 });
+    Color_RGBA8 aTCollisionColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.ATCollisionColor"), { 255, 0, 0, 255 });
+    ColRenderSetting showColCheckSetting = (ColRenderSetting)CVarGetInteger(
+        CVAR_DEVELOPER_TOOLS("CollisionViewer.ColCheckCollisionMode"), (uint32_t)ColRenderSetting::Disabled);
     if (showColCheckSetting == ColRenderSetting::Disabled) {
         return;
     }
@@ -633,9 +649,10 @@ void DrawWaterbox(std::vector<Gfx>& dl, WaterBox* water, float water_max_depth =
 
 // Draws all waterboxes
 void DrawWaterboxList() {
-    Color_RGBA8 waterboxCollisionColor = CVarGetColor("gCollisionViewer.WaterboxCollisionColor", { 0, 0, 255, 255 });
-    ColRenderSetting showWaterboxSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.WaterboxCollisionMode",
-                                                                            (uint32_t)ColRenderSetting::Disabled);
+    Color_RGBA8 waterboxCollisionColor =
+        CVarGetColor(CVAR_DEVELOPER_TOOLS("CollisionViewer.WaterboxCollisionColor"), { 0, 0, 255, 255 });
+    ColRenderSetting showWaterboxSetting = (ColRenderSetting)CVarGetInteger(
+        CVAR_DEVELOPER_TOOLS("CollisionViewer.WaterboxCollisionMode"), (uint32_t)ColRenderSetting::Disabled);
     if (showWaterboxSetting == ColRenderSetting::Disabled) {
         return;
     }
@@ -664,7 +681,7 @@ template <typename T> size_t ResetVector(T& vec) {
 }
 
 extern "C" void DrawCollisionViewer() {
-    if (gPlayState == nullptr || !CVarGetInteger("gCollisionViewer.Enabled", 0)) {
+    if (gPlayState == nullptr || !CVarGetInteger(CVAR_DEVELOPER_TOOLS("CollisionViewer.Enabled"), 0)) {
         return;
     }
 
