@@ -174,7 +174,7 @@ void ResolutionCustomWidget(WidgetInfo& info) {
     // Integer scaling settings group (Pixel Perfect Mode)
     static const ImGuiTreeNodeFlags IntegerScalingResolvedImGuiFlag =
         CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.PixelPerfectMode"), 0) ? ImGuiTreeNodeFlags_DefaultOpen
-                                                                               : ImGuiTreeNodeFlags_None;
+                                                                                        : ImGuiTreeNodeFlags_None;
     UIWidgets::PushStyleHeader(THEME_COLOR);
     if (ImGui::CollapsingHeader("Integer Scaling Settings", IntegerScalingResolvedImGuiFlag)) {
         const bool disabled_pixelPerfectMode =
@@ -197,7 +197,8 @@ void ResolutionCustomWidget(WidgetInfo& info) {
             CVAR_SETTING("Graphics.AdvancedResolution.IntegerScale.Factor"),
             UIWidgets::IntSliderOptions(
                 { { .disabled = disabled_pixelPerfectMode ||
-                                CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.IntegerScale.FitAutomatically"), 0) } })
+                                CVarGetInteger(
+                                    CVAR_SETTING("Graphics.AdvancedResolution.IntegerScale.FitAutomatically"), 0) } })
                 .Min(1)
                 .Max(max_integerScaleFactor)
                 .DefaultValue(1)
@@ -206,7 +207,8 @@ void ResolutionCustomWidget(WidgetInfo& info) {
         // Display warning if size is being clamped or if framebuffer is larger than viewport.
         if (!disabled_pixelPerfectMode &&
             (CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.IntegerScale.NeverExceedBounds"), 1) &&
-             CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.IntegerScale.Factor"), 1) > integerScale_maximumBounds)) {
+             CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.IntegerScale.Factor"), 1) >
+                 integerScale_maximumBounds)) {
             ImGui::SameLine();
             ImGui::TextColored(messageColor[MESSAGE_WARNING], ICON_FA_EXCLAMATION_TRIANGLE " Window exceeded.");
         }
@@ -539,18 +541,22 @@ void UpdateResolutionVars() {
     // Lower-clamping maximum bounds value to 1 is no-longer necessary as that's accounted for in LUS.
     // Letting it go below 1 in this Editor will even allow for checking if screen bounds are being exceeded.
     if (default_maxIntegerScaleFactor < integerScale_maximumBounds) {
-        max_integerScaleFactor = integerScale_maximumBounds +
-                                 CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.IntegerScale.ExceedBoundsBy"), 0);
+        max_integerScaleFactor =
+            integerScale_maximumBounds +
+            CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.IntegerScale.ExceedBoundsBy"), 0);
     }
 
     // Combo List defaults
     item_aspectRatio = CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.UIComboItem.AspectRatio"), 3);
-    item_pixelCount = CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.UIComboItem.PixelCount"), default_pixelCount);
+    item_pixelCount =
+        CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.UIComboItem.PixelCount"), default_pixelCount);
     // Stored Values for non-UIWidgets elements
-    aspectRatioX = CVarGetFloat(CVAR_SETTING("Graphics.AdvancedResolution.AspectRatioX"), aspectRatioPresetsX[item_aspectRatio]);
-    aspectRatioY = CVarGetFloat(CVAR_SETTING("Graphics.AdvancedResolution.AspectRatioY"), aspectRatioPresetsY[item_aspectRatio]);
-    verticalPixelCount =
-        CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.VerticalPixelCount"), pixelCountPresets[item_pixelCount]);
+    aspectRatioX =
+        CVarGetFloat(CVAR_SETTING("Graphics.AdvancedResolution.AspectRatioX"), aspectRatioPresetsX[item_aspectRatio]);
+    aspectRatioY =
+        CVarGetFloat(CVAR_SETTING("Graphics.AdvancedResolution.AspectRatioY"), aspectRatioPresetsY[item_aspectRatio]);
+    verticalPixelCount = CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.VerticalPixelCount"),
+                                        pixelCountPresets[item_pixelCount]);
     // Additional settings
     horizontalPixelCount = (verticalPixelCount / aspectRatioY) * aspectRatioX;
     // Disabling flags
