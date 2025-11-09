@@ -386,14 +386,14 @@ void DrawOptions() {
         ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
 
         ImGui::TableNextColumn();
-        UIWidgets::CVarCheckbox("Enable Time Splits", CVAR_SETTING("TimeSplits.Enable"),
+        UIWidgets::CVarCheckbox("Enable Time Splits", CVAR_TRACKER_TIMESPLITS("Enable"),
                                 {
                                     .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                 });
         UIWidgets::Tooltip("Enables the Time Split system, splits will not occur with this unchecked.");
 
         ImGui::TableNextColumn();
-        if (UIWidgets::CVarCheckbox("Show Headers", CVAR_SETTING("TimeSplits.ShowHeaders"),
+        if (UIWidgets::CVarCheckbox("Show Headers", CVAR_TRACKER_TIMESPLITS("ShowHeaders"),
                                     {
                                         .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                     })) {
@@ -402,7 +402,7 @@ void DrawOptions() {
         UIWidgets::Tooltip("Shows the column names in the Split List.");
 
         ImGui::TableNextColumn();
-        if (UIWidgets::CVarCheckbox("Hide Background", CVAR_SETTING("TimeSplits.Opacity"),
+        if (UIWidgets::CVarCheckbox("Hide Background", CVAR_TRACKER_TIMESPLITS("Opacity"),
                                     {
                                         .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                     })) {
@@ -412,14 +412,14 @@ void DrawOptions() {
                            "Note: The background will display if the window extrudes from the main game window.");
 
         ImGui::TableNextColumn();
-        UIWidgets::CVarCheckbox("Highlight Active Split", CVAR_SETTING("TimeSplits.Highlight"),
+        UIWidgets::CVarCheckbox("Highlight Active Split", CVAR_TRACKER_TIMESPLITS("Highlight"),
                                 {
                                     .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                 });
         UIWidgets::Tooltip("Highlights the row with the current Active Split.");
 
         ImGui::TableNextColumn();
-        UIWidgets::CVarCheckbox("Follow Active Split", CVAR_SETTING("TimeSplits.Follow"),
+        UIWidgets::CVarCheckbox("Follow Active Split", CVAR_TRACKER_TIMESPLITS("Follow"),
                                 {
                                     .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                                 });
@@ -429,13 +429,13 @@ void DrawOptions() {
         ImGui::EndTable();
     }
 
-    UIWidgets::CVarCheckbox("Compare Splits", CVAR_SETTING("TimeSplits.Compare"),
+    UIWidgets::CVarCheckbox("Compare Splits", CVAR_TRACKER_TIMESPLITS("Compare"),
                             {
                                 .color = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)),
                             });
     UIWidgets::Tooltip("Enables Split Comparisons between lists, this will integrate within the Split List.");
 
-    if (CVarGetInteger(CVAR_SETTING("TimeSplits.Compare"), 0)) {
+    if (CVarGetInteger(CVAR_TRACKER_TIMESPLITS("Compare"), 0)) {
         ImGui::SameLine();
         UIWidgets::PushStyleCombobox(UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)));
         ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);

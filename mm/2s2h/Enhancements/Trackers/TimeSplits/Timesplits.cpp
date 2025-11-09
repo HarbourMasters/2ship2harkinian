@@ -187,7 +187,7 @@ void DrawSplitsList(bool isMain) {
                 // Item Image Column
                 ImGui::TableNextColumn();
 
-                if (CVarGetInteger(CVAR_SETTING("TimeSplits.Highlight"), 0) &&
+                if (CVarGetInteger(CVAR_TRACKER_TIMESPLITS("Highlight"), 0) &&
                     splitList[i].splitStatus == SPLIT_ACTIVE) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, IM_COL32(47, 79, 90, 255));
                 }
@@ -224,7 +224,7 @@ void DrawSplitsList(bool isMain) {
                     GetTimeDiffTextDisplay(splitList[i]).colorDisplay,
                     !gPlayState ? BLANK_SPLIT
                                 : Ship_FormatTimeDisplay(GetTimeDiffTextDisplay(splitList[i]).timeDisplay).c_str());
-                if (CVarGetInteger(CVAR_SETTING("TimeSplits.Compare"), 0) && comparisonList.size() != 0) {
+                if (CVarGetInteger(CVAR_TRACKER_TIMESPLITS("Compare"), 0) && comparisonList.size() != 0) {
                     !gPlayState ? ImGui::TextColored(COLOR_WHITE, BLANK_SPLIT)
                     : i < comparisonList.size()
                         ? ImGui::TextColored(
@@ -238,7 +238,7 @@ void DrawSplitsList(bool isMain) {
                 // Previous Best Column
                 ImGui::TableNextColumn();
                 TableCellCenteredText(COLOR_WHITE, Ship_FormatTimeDisplay(splitList[i].splitPreviousBest).c_str());
-                if (CVarGetInteger(CVAR_SETTING("TimeSplits.Compare"), 0) && comparisonList.size() != 0) {
+                if (CVarGetInteger(CVAR_TRACKER_TIMESPLITS("Compare"), 0) && comparisonList.size() != 0) {
                     ImGui::TextColored(COLOR_GREY,
                                        i < comparisonList.size()
                                            ? Ship_FormatTimeDisplay(comparisonList[i].splitPreviousBest).c_str()
@@ -247,7 +247,7 @@ void DrawSplitsList(bool isMain) {
 
                 ImGui::PopID();
 
-                if (CVarGetInteger(CVAR_SETTING("TimeSplits.Follow"), 0) && splitList[i].splitStatus == SPLIT_ACTIVE) {
+                if (CVarGetInteger(CVAR_TRACKER_TIMESPLITS("Follow"), 0) && splitList[i].splitStatus == SPLIT_ACTIVE) {
                     ImGui::SetScrollHereY();
                 }
             }
@@ -268,15 +268,15 @@ void DrawSplitsList(bool isMain) {
 void UpdateSplitSettings(uint32_t settingName) {
     switch (settingName) {
         case SPLIT_HEADERS:
-            tableColumnFlags = CVarGetInteger(CVAR_SETTING("TimeSplits.ShowHeaders"), 0)
+            tableColumnFlags = CVarGetInteger(CVAR_TRACKER_TIMESPLITS("ShowHeaders"), 0)
                                    ? ImGuiTableColumnFlags_NoHeaderLabel
                                    : ImGuiTableColumnFlags_None;
             break;
         case SPLIT_OPACITY:
-            splitOpacity.w = CVarGetInteger(CVAR_SETTING("TimeSplits.Opacity"), 0) ? 0 : 0.5f;
+            splitOpacity.w = CVarGetInteger(CVAR_TRACKER_TIMESPLITS("Opacity"), 0) ? 0 : 0.5f;
             break;
         case SPLIT_COMPARE:
-            if (CVarGetInteger(CVAR_SETTING("TimeSplits.Compare"), 0)) {
+            if (CVarGetInteger(CVAR_TRACKER_TIMESPLITS("Compare"), 0)) {
                 SplitSaveFileAction(SPLIT_RETRIEVE, "");
                 if (savedLists.size() != 0) {
                     SplitLoadComparisonList();
@@ -289,7 +289,7 @@ void UpdateSplitSettings(uint32_t settingName) {
 }
 
 void TimesplitsWindow::Draw() {
-    if (!CVarGetInteger(CVAR_SETTING("TimeSplits.Enable"), 0)) {
+    if (!CVarGetInteger(CVAR_TRACKER_TIMESPLITS("Enable"), 0)) {
         return;
     }
     ImGui::PushStyleColor(ImGuiCol_WindowBg, splitOpacity);

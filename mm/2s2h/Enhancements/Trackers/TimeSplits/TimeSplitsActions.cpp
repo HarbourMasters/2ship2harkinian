@@ -19,7 +19,7 @@ extern "C" {
 uint64_t GetUnixTimestamp();
 }
 
-#define CVAR_NAME CVAR_SETTING("TimeSplits.Enable")
+#define CVAR_NAME CVAR_TRACKER_TIMESPLITS("Enable")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 nlohmann::json TimesplitObject_to_json(const TimesplitObject& split) {

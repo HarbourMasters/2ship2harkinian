@@ -14,6 +14,7 @@
 #define CVAR_TRACKER_ITEM(var) CVAR_TRACKER("ItemTracker." var)
 #define CVAR_TRACKER_CHECK(var) CVAR_TRACKER("CheckTracker." var)
 #define CVAR_TRACKER_ENTRANCE(var) CVAR_TRACKER("EntranceTracker." var)
+#define CVAR_TRACKER_TIMESPLITS(var) CVAR_TRACKER("TimeSplitsTracker." var)
 #define CVAR_DEVELOPER_TOOLS(var) CVAR_PREFIX_DEVELOPER_TOOLS "." var
 #define CVAR_GENERAL(var) CVAR_PREFIX_GENERAL "." var
 #define CVAR_REMOTE(var) CVAR_PREFIX_REMOTE "." var
