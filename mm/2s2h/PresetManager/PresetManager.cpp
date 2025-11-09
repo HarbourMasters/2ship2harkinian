@@ -14,11 +14,9 @@ std::unordered_map<std::string, std::string> tagMap = {
     { "gCollisionViewer", "Developer Tools" },
     { "gCheats", "Enhancements" },
     { "gEnhancements", "Enhancements" },
-    { "gFixes", "Enhancements" },
-    { "gModes", "Enhancements" },
     { "gHudEditor", "HUD" },
-    { "ItemTracker", "HUD" },
-    { "gRando", "Rando" },
+    { "gTrackers", "HUD" },
+    { "gRando", "Rando" }, 
 };
 
 nlohmann::json defaultsPresetJ = R"(
@@ -30,14 +28,12 @@ nlohmann::json defaultsPresetJ = R"(
         "gDisplayOverlay",
         "gEnhancements",
         "gEventLog",
-        "gFixes",
         "gHudEditor",
-        "gModes",
+        "gTrackers",
         "gNetwork",
         "gNotifications",
         "gRando",
-        "gWindows",
-        "ItemTracker"
+        "gOpenWindows"
     ],
     "CVars": {},
     "type": "2S2H_PRESET",
@@ -97,7 +93,10 @@ nlohmann::json curatedPresetJ = R"(
             "Fixes": {
                 "CompletedHeartContainerAudio": 1,
                 "ControlCharacters": 1,
-                "FierceDeityZTargetMovement": 1
+                "FierceDeityZTargetMovement": 1,
+                "FixAmmoCountEnvColor": 1,
+                "FixEponaStealingSword": 1,
+                "FixIkanaGreatFairyFountainColor": 1
             },
             "Graphics": {
                 "3DItemDrops": 1,
@@ -181,12 +180,10 @@ nlohmann::json curatedPresetJ = R"(
                 "GalleryTwofer": 1,
                 "MarineLabHP": 1,
                 "SwampBoatSpeed": 1
-            }
-        },
-        "gFixes": {
-            "FixAmmoCountEnvColor": 1,
-            "FixEponaStealingSword": 1,
-            "FixIkanaGreatFairyFountainColor": 1
+            },
+            "Modes": {
+                "PlayAsKafei": 1
+            }   
         },
         "gHudEditor": {
             "A": {
@@ -246,9 +243,6 @@ nlohmann::json curatedPresetJ = R"(
             "Timers": {
                 "Mode": 3
             }
-        },
-        "gModes": {
-            "PlayAsKafei": 1
         }
     },
     "type": "2S2H_PRESET",
