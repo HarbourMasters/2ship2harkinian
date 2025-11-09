@@ -11,6 +11,7 @@ typedef struct {
     std::string windowName;
     int32_t columnLength;
     float windowScale;
+    float windowOpacity;
     std::vector<int16_t> itemList;
 } TrackerItemListObject;
 

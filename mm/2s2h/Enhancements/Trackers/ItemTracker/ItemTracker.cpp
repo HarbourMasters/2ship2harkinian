@@ -22,6 +22,8 @@ namespace BenGui {
 extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 }
 
+ImVec4 trackerWindowOpacity = ImVec4(0, 0, 0, 0.5f);
+
 TrackerImageObject GetTextureIDBySlot(int16_t slot) {
     ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.items[slot]);
     TrackerImageObject imageObject;
@@ -92,6 +94,7 @@ void DrawItemSlot(int16_t slot, float scale) {
 }
 
 void DrawItemWindowList(TrackerItemListObject windowObject) {
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, windowObject.windowOpacity));
     int columns = windowObject.columnLength;
     if (windowObject.itemList.size() < windowObject.columnLength) {
         columns = windowObject.itemList.size();
@@ -116,6 +119,7 @@ void DrawItemWindowList(TrackerItemListObject windowObject) {
         }
         ImGui::End();
     }
+    ImGui::PopStyleColor(1);
 }
 
 void ItemTrackerWindow::Draw() {
@@ -126,7 +130,6 @@ void ItemTrackerWindow::Draw() {
     if (!gPlayState) {
         return;
     }
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0.5f));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
 
@@ -143,7 +146,7 @@ void ItemTrackerWindow::Draw() {
         DrawItemWindowList(object);
         index++;
     }
-    ImGui::PopStyleColor(2);
+    ImGui::PopStyleColor(1);
     ImGui::PopStyleVar(1);
 }
 void ItemTrackerWindow::InitElement() {

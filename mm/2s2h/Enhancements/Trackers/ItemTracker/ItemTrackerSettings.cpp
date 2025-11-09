@@ -14,6 +14,7 @@ void ItemTrackerSettingsWindow::InitElement() {
         .windowName = "Main",
         .columnLength = 6,
         .windowScale = 1.0f,
+        .windowOpacity = 0.5f,
     };
 }
 
@@ -279,6 +280,7 @@ void DrawTrackerWindowOptions(int32_t windowIndex, TrackerItemListObject &window
     ImGui::PushID(windowIndex);
     int32_t columns = windowObject.columnLength;
     float scale = windowObject.windowScale;
+    float opacity = windowObject.windowOpacity;
     std::string trackerInputRename;
     if (windowIndex >= 0) {
         if (UIWidgets::InputString("##windowname", &trackerInputRename,
@@ -313,6 +315,18 @@ void DrawTrackerWindowOptions(int32_t windowIndex, TrackerItemListObject &window
                                    .Color(WIDGET_COLOR)
                                    .Size(ImVec2(ImGui::GetContentRegionAvail().x, 0)))) {
         windowObject.windowScale = scale;
+    }
+    if (UIWidgets::SliderFloat("Opacity", &opacity,
+                               UIWidgets::FloatSliderOptions()
+                                   .Min(0)
+                                   .Max(1.0f)
+                                   .DefaultValue(0.5f)
+                                   .LabelPosition(UIWidgets::LabelPosition::None)
+                                   .Format("Opacity: %.1f")
+                                   .Step(0.1f)
+                                   .Color(WIDGET_COLOR)
+                                   .Size(ImVec2(ImGui::GetContentRegionAvail().x, 0)))) {
+        windowObject.windowOpacity = opacity;
     }
     ImGui::PopID();
     UIWidgets::Separator();
@@ -366,6 +380,7 @@ void DrawTrackerOptions() {
                 .windowName = trackerInputName.c_str(),
                 .columnLength = 6,
                 .windowScale = 1.0f,
+                .windowOpacity = 0.5f,
                 .itemList = itemTrackerList,
             };
 
