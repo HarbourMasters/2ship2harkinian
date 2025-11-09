@@ -555,13 +555,13 @@ void BenMenu::AddSettings() {
     AddSidebarEntry("Settings", "Overlay", 2);
     AddWidget(path, "Notifications", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Position", WIDGET_CVAR_COMBOBOX)
-        .CVar("gNotifications.Position")
+        .CVar(CVAR_SETTING("Notifications.Position"))
         .Options(ComboboxOptions()
                      .Tooltip("Which corner of the screen notifications appear in.")
                      .ComboVec(&notificationPosition)
                      .DefaultIndex(3));
     AddWidget(path, "Duration: %.1f seconds", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gNotifications.Duration")
+        .CVar(CVAR_SETTING("Notifications.Duration"))
         .Options(FloatSliderOptions()
                      .Tooltip("How long notifications are displayed for.")
                      .Format("%.1f")
@@ -570,13 +570,13 @@ void BenMenu::AddSettings() {
                      .Max(30.0f)
                      .DefaultValue(10.0f));
     AddWidget(path, "Background Opacity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gNotifications.BgOpacity")
+        .CVar(CVAR_SETTING("Notifications.BgOpacity"))
         .Options(FloatSliderOptions()
                      .Tooltip("How opaque the background of notifications is.")
                      .DefaultValue(0.5f)
                      .IsPercentage());
     AddWidget(path, "Size %.1f", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gNotifications.Size")
+        .CVar(CVAR_SETTING("Notifications.Size"))
         .Options(FloatSliderOptions()
                      .Tooltip("How large notifications are.")
                      .Format("%.1f")
