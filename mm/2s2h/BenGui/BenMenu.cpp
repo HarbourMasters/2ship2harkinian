@@ -1991,21 +1991,21 @@ void BenMenu::InitElement() {
           { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipIntroSequence"), 0); },
             "Intro Skip Not Selected" } },
         { DISABLE_FOR_ADVANCED_RESOLUTION_ON,
-          { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0); },
+          { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.Enabled"), 0); },
             "Advanced Resolution Enabled" } },
         { DISABLE_FOR_VERTICAL_RES_TOGGLE_ON,
           { [](disabledInfo& info) -> bool {
-               return CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0);
+               return CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.VerticalResolutionToggle"), 0);
            },
             "Vertical Resolution Toggle Enabled" } },
         { DISABLE_FOR_LOW_RES_MODE_ON,
           { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_LOW_RES_MODE, 0); }, "N64 Mode is enabled" } },
         { DISABLE_FOR_ADVANCED_RESOLUTION_OFF,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0); },
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.Enabled"), 0); },
             "Advanced Resolution is Disabled" } },
         { DISABLE_FOR_VERTICAL_RESOLUTION_OFF,
           { [](disabledInfo& info) -> bool {
-               return !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0);
+               return !CVarGetInteger(CVAR_SETTING("Graphics.AdvancedResolution.VerticalResolutionToggle"), 0);
            },
             "Vertical Resolution Toggle is Off" } },
         { DISABLE_FOR_LINKS_VOICE_PITCH_MULTIPLIER_OFF,
