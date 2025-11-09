@@ -78,7 +78,7 @@ std::string CurrentTime() {
 }
 
 void TrimEventLog() {
-    while (eventLogEntries.size() > CVarGetInteger("gEventLog.MaxEntries", 1000)) {
+    while (eventLogEntries.size() > CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.MaxEntries"), 1000)) {
         eventLogEntries.pop_back();
     }
 }
@@ -105,7 +105,7 @@ void RegisterEventLogHooks() {
     onOpenTextHookId = 0;
     onItemGiveHookId = 0;
 
-    if (!CVarGetInteger("gEventLog.Enabled", 0)) {
+    if (!CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Enabled"), 0)) {
         return;
     }
 
@@ -257,7 +257,7 @@ void RegisterEventLogHooks() {
 }
 
 void EventLogWindow::DrawElement() {
-    if (UIWidgets::CVarCheckbox("Enable", "gEventLog.Enabled")) {
+    if (UIWidgets::CVarCheckbox("Enable", CVAR_DEVELOPER_TOOLS("EventLog.Enabled"))) {
         RegisterEventLogHooks();
     }
 
@@ -268,20 +268,26 @@ void EventLogWindow::DrawElement() {
     }
 
     if (ImGui::BeginPopup("eventLogFiltersPopup")) {
-        bool allChecked =
-            CVarGetInteger("gEventLog.Filter.FlagSet", 1) && CVarGetInteger("gEventLog.Filter.FlagUnset", 1) &&
-            CVarGetInteger("gEventLog.Filter.SceneFlagSet", 1) &&
-            CVarGetInteger("gEventLog.Filter.SceneFlagUnset", 1) && CVarGetInteger("gEventLog.Filter.ActorInit", 1) &&
-            CVarGetInteger("gEventLog.Filter.ActorKill", 1) && CVarGetInteger("gEventLog.Filter.SceneInit", 1) &&
-            CVarGetInteger("gEventLog.Filter.RoomInit", 1) && CVarGetInteger("gEventLog.Filter.OpenText", 1) &&
-            CVarGetInteger("gEventLog.Filter.ItemGive", 1);
-        bool someChecked =
-            CVarGetInteger("gEventLog.Filter.FlagSet", 1) || CVarGetInteger("gEventLog.Filter.FlagUnset", 1) ||
-            CVarGetInteger("gEventLog.Filter.SceneFlagSet", 1) ||
-            CVarGetInteger("gEventLog.Filter.SceneFlagUnset", 1) || CVarGetInteger("gEventLog.Filter.ActorInit", 1) ||
-            CVarGetInteger("gEventLog.Filter.ActorKill", 1) || CVarGetInteger("gEventLog.Filter.SceneInit", 1) ||
-            CVarGetInteger("gEventLog.Filter.RoomInit", 1) || CVarGetInteger("gEventLog.Filter.OpenText", 1) ||
-            CVarGetInteger("gEventLog.Filter.ItemGive", 1);
+        bool allChecked = CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagSet"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagUnset"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagSet"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagUnset"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorInit"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorKill"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneInit"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.RoomInit"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.OpenText"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ItemGive"), 1);
+        bool someChecked = CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagSet"), 1) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagUnset"), 1) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagSet"), 1) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagUnset"), 1) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorInit"), 1) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorKill"), 1) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneInit"), 1) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.RoomInit"), 1) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.OpenText"), 1) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ItemGive"), 1);
 
         ImGuiContext* g = ImGui::GetCurrentContext();
         ImGuiItemFlags backup_item_flags = g->CurrentItemFlags;
@@ -289,42 +295,44 @@ void EventLogWindow::DrawElement() {
             g->CurrentItemFlags |= ImGuiItemFlags_MixedValue;
         if (UIWidgets::Checkbox("All", &allChecked)) {
             if (allChecked) {
-                CVarSetInteger("gEventLog.Filter.FlagSet", 1);
-                CVarSetInteger("gEventLog.Filter.FlagUnset", 1);
-                CVarSetInteger("gEventLog.Filter.SceneFlagSet", 1);
-                CVarSetInteger("gEventLog.Filter.SceneFlagUnset", 1);
-                CVarSetInteger("gEventLog.Filter.ActorInit", 1);
-                CVarSetInteger("gEventLog.Filter.ActorKill", 1);
-                CVarSetInteger("gEventLog.Filter.SceneInit", 1);
-                CVarSetInteger("gEventLog.Filter.RoomInit", 1);
-                CVarSetInteger("gEventLog.Filter.OpenText", 1);
-                CVarSetInteger("gEventLog.Filter.ItemGive", 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagSet"), 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagUnset"), 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagSet"), 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagUnset"), 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorInit"), 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorKill"), 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneInit"), 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.RoomInit"), 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.OpenText"), 1);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ItemGive"), 1);
             } else {
-                CVarSetInteger("gEventLog.Filter.FlagSet", 0);
-                CVarSetInteger("gEventLog.Filter.FlagUnset", 0);
-                CVarSetInteger("gEventLog.Filter.SceneFlagSet", 0);
-                CVarSetInteger("gEventLog.Filter.SceneFlagUnset", 0);
-                CVarSetInteger("gEventLog.Filter.ActorInit", 0);
-                CVarSetInteger("gEventLog.Filter.ActorKill", 0);
-                CVarSetInteger("gEventLog.Filter.SceneInit", 0);
-                CVarSetInteger("gEventLog.Filter.RoomInit", 0);
-                CVarSetInteger("gEventLog.Filter.OpenText", 0);
-                CVarSetInteger("gEventLog.Filter.ItemGive", 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagSet"), 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagUnset"), 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagSet"), 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagUnset"), 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorInit"), 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorKill"), 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneInit"), 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.RoomInit"), 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.OpenText"), 0);
+                CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.Filter.ItemGive"), 0);
             }
             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         }
         g->CurrentItemFlags = backup_item_flags;
 
-        UIWidgets::CVarCheckbox("FlagSet", "gEventLog.Filter.FlagSet", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("FlagUnset", "gEventLog.Filter.FlagUnset", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("SceneFlagSet", "gEventLog.Filter.SceneFlagSet", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("SceneFlagUnset", "gEventLog.Filter.SceneFlagUnset", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("ActorInit", "gEventLog.Filter.ActorInit", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("ActorKill", "gEventLog.Filter.ActorKill", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("SceneInit", "gEventLog.Filter.SceneInit", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("RoomInit", "gEventLog.Filter.RoomInit", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("OpenText", "gEventLog.Filter.OpenText", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("ItemGive", "gEventLog.Filter.ItemGive", { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("FlagSet", CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagSet"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("FlagUnset", CVAR_DEVELOPER_TOOLS("EventLog.Filter.FlagUnset"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("SceneFlagSet", CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagSet"),
+                                { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("SceneFlagUnset", CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneFlagUnset"),
+                                { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("ActorInit", CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorInit"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("ActorKill", CVAR_DEVELOPER_TOOLS("EventLog.Filter.ActorKill"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("SceneInit", CVAR_DEVELOPER_TOOLS("EventLog.Filter.SceneInit"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("RoomInit", CVAR_DEVELOPER_TOOLS("EventLog.Filter.RoomInit"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("OpenText", CVAR_DEVELOPER_TOOLS("EventLog.Filter.OpenText"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("ItemGive", CVAR_DEVELOPER_TOOLS("EventLog.Filter.ItemGive"), { .defaultValue = 1 });
         ImGui::EndPopup();
     }
 
@@ -337,9 +345,9 @@ void EventLogWindow::DrawElement() {
 
     UIWidgets::PushStyleCombobox();
     ImGui::PushItemWidth(50);
-    s32 maxEntries = CVarGetInteger("gEventLog.MaxEntries", 1000);
+    s32 maxEntries = CVarGetInteger(CVAR_DEVELOPER_TOOLS("EventLog.MaxEntries"), 1000);
     if (ImGui::InputScalar("##maxEntriesInput", ImGuiDataType_S32, &maxEntries)) {
-        CVarSetInteger("gEventLog.MaxEntries", MAX(0, maxEntries));
+        CVarSetInteger(CVAR_DEVELOPER_TOOLS("EventLog.MaxEntries"), MAX(0, maxEntries));
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         TrimEventLog();
     }
@@ -361,8 +369,10 @@ void EventLogWindow::DrawElement() {
         ImGui::TableHeadersRow();
 
         for (int i = 0; i < eventLogEntries.size(); i++) {
-            if (!CVarGetInteger(
-                    (std::string("gEventLog.Filter.") + eventLogEntryTypeNames[eventLogEntries[i].type]).c_str(), 1)) {
+            if (!CVarGetInteger((std::string(CVAR_DEVELOPER_TOOLS("EventLog.Filter.")) +
+                                 eventLogEntryTypeNames[eventLogEntries[i].type])
+                                    .c_str(),
+                                1)) {
                 continue;
             }
 
