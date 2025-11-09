@@ -515,7 +515,7 @@ void BenMenu::AddSettings() {
             "A higher target FPS than your monitor's refresh rate will waste resources, and might give a worse "
             "result."));
     AddWidget(path, "Match Refresh Rate", WIDGET_CVAR_CHECKBOX)
-        .CVar("gMatchRefreshRate")
+        .CVar(CVAR_SETTING("Graphics.MatchRefreshRate"))
         .Options(CheckboxOptions().Tooltip("Matches interpolation value to the refresh rate of your display."));
     AddWidget(path, "Renderer API (Needs reload)", WIDGET_VIDEO_BACKEND);
     AddWidget(path, "Enable Vsync", WIDGET_CVAR_CHECKBOX)
@@ -1974,7 +1974,7 @@ void BenMenu::InitElement() {
            },
             "Not Available on DirectX" } },
         { DISABLE_FOR_MATCH_REFRESH_RATE_ON,
-          { [](disabledInfo& info) -> bool { return CVarGetInteger("gMatchRefreshRate", 0); },
+          { [](disabledInfo& info) -> bool { return CVarGetInteger(CVAR_SETTING("Graphics.MatchRefreshRate"), 0); },
             "Match Refresh Rate is Enabled" } },
         { DISABLE_FOR_MOTION_BLUR_MODE,
           { [](disabledInfo& info) -> bool {
