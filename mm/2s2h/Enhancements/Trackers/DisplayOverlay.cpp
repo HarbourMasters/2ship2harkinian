@@ -20,7 +20,7 @@ ImVec4 windowBG = ImVec4(0, 0, 0, 0.5f);
 static constexpr ImVec4 tintColor = {};
 
 void DrawInGameTimer(uint32_t timer, ImVec4 color = ImVec4(1, 1, 1, 1)) {
-    float windowScale = MAX(CVarGetFloat("gDisplayOverlay.Scale", 1.0f), 1.0f);
+    float windowScale = MAX(CVarGetFloat(CVAR_SETTING("DisplayOverlay.Scale"), 1.0f), 1.0f);
 
     std::string timerStr = Ship_FormatTimeDisplay(timer);
     uint16_t textureIndex = 0;
@@ -52,8 +52,9 @@ void DisplayOverlayWindow::Draw() {
         return;
     }
 
-    float windowScale = MAX(CVarGetFloat("gDisplayOverlay.Scale", 1.0f), 1.0f);
-    ImVec4 windowBG = !CVarGetInteger("gDisplayOverlay.Background", 0) ? ImVec4(0, 0, 0, 0.5f) : ImVec4(0, 0, 0, 0);
+    float windowScale = MAX(CVarGetFloat(CVAR_SETTING("DisplayOverlay.Scale"), 1.0f), 1.0f);
+    ImVec4 windowBG =
+        !CVarGetInteger(CVAR_SETTING("DisplayOverlay.Background"), 0) ? ImVec4(0, 0, 0, 0.5f) : ImVec4(0, 0, 0, 0);
 
     ImGui::PushStyleColor(ImGuiCol_WindowBg, windowBG);
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));

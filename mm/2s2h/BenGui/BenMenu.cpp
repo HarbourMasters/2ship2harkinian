@@ -608,10 +608,10 @@ void BenMenu::AddSettings() {
                     "- In-Game Time: Display the time spent playing the save file")
                 .ComboVec(&timerDisplayOptions));
     AddWidget(path, "Hide Window Background", WIDGET_CVAR_CHECKBOX)
-        .CVar("gDisplayOverlay.Background")
+        .CVar(CVAR_SETTING("DisplayOverlay.Background"))
         .Options(CheckboxOptions().Tooltip("Hides the background of the Display Overlay window."));
     AddWidget(path, "Scale: %.1fx", WIDGET_CVAR_SLIDER_FLOAT)
-        .CVar("gDisplayOverlay.Scale")
+        .CVar(CVAR_SETTING("DisplayOverlay.Scale"))
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the Scale for the Display Overlay window.")
                      .Min(1.0f)
