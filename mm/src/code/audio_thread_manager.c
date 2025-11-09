@@ -2,6 +2,7 @@
 #include "audiomgr.h"
 #include <string.h>
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/cvar_prefixes.h"
 
 void AudioMgr_NotifyTaskDone(AudioMgr* audioMgr) {
     AudioTask* task = audioMgr->rspTask;

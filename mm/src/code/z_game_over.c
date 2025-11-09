@@ -6,6 +6,7 @@
 #include "variables.h"
 #include "macros.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include "2s2h/cvar_prefixes.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 void GameOver_Init(PlayState* play) {

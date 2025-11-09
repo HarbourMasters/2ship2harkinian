@@ -1,6 +1,7 @@
 #include "global.h"
 #include <libultraship/bridge/resourcebridge.h>
 #include "2s2h/mixer.h"
+#include "2s2h/cvar_prefixes.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 // DMEM Addresses for the RSP

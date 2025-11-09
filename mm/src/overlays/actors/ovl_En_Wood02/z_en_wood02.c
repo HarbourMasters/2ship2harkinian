@@ -6,6 +6,7 @@
 
 #include "z_en_wood02.h"
 #include "objects/object_wood02/object_wood02.h"
+#include "2s2h/cvar_prefixes.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 #define FLAGS 0x00000000

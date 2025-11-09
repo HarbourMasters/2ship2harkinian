@@ -29,6 +29,7 @@ OSTime sGraphPrevUpdateEndTime;
 #include "overlays/gamestates/ovl_title/z_title.h"
 #include "z_title_setup.h"
 #include "BenPort.h"
+#include "2s2h/cvar_prefixes.h"
 
 void Graph_StartFrame();
 void Graph_ProcessGfxCommands(Gfx* commands);

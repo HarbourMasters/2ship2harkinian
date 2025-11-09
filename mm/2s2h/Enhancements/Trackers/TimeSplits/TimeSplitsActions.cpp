@@ -2,6 +2,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/cvar_prefixes.h"
 #include <ship/Context.h>
 #include <ship/window/Window.h>
 #include "2s2h/BenGui/UIWidgets.hpp"

@@ -24,6 +24,7 @@
 #include "2s2h_assets.h"
 
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/cvar_prefixes.h"
 
 #include "2s2h/Enhancements/Songs/Songs.h"
 #include <libultraship/bridge/consolevariablebridge.h>

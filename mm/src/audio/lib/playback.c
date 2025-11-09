@@ -1,6 +1,7 @@
 #include "global.h"
 #include "audio/effects.h"
 #include "BenPort.h"
+#include "2s2h/cvar_prefixes.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 void AudioPlayback_NoteSetResamplingRate(NoteSampleState* sampleState, f32 resamplingRateInput);

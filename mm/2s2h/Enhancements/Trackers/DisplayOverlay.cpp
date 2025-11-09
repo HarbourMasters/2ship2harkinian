@@ -13,6 +13,7 @@ uint64_t GetUnixTimestamp();
 #include "ShipUtils.h"
 #include "interface/parameter_static/parameter_static.h"
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/cvar_prefixes.h"
 
 float windowScale = 1.0f;
 ImVec4 windowBG = ImVec4(0, 0, 0, 0.5f);

@@ -6,6 +6,7 @@
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/ObjectExtension/ActorListIndex.h"
 #include "2s2h/ObjectExtension/ObjectExtension.h"
+#include "2s2h/cvar_prefixes.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "assets/2s2h_assets.h"
 #include "assets/overlays/ovl_Obj_Grass/ovl_Obj_Grass.h"

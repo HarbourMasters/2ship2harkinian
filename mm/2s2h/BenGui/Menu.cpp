@@ -10,6 +10,7 @@
 #include "variables.h"
 #include <tuple>
 #include <ship/config/Config.h>
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "z64.h"

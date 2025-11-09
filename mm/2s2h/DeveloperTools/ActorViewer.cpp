@@ -3,6 +3,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/NameTag/NameTag.h"
 #include "2s2h/ObjectExtension/ActorListIndex.h"
+#include "2s2h/cvar_prefixes.h"
 #include <spdlog/fmt/fmt.h>
 #include <string>
 #include <vector>

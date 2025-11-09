@@ -14,6 +14,7 @@
 #include "misc/title_static/title_static.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/cvar_prefixes.h"
 #include "2s2h_assets.h"
 #include <string.h>
 #include "BenPort.h"

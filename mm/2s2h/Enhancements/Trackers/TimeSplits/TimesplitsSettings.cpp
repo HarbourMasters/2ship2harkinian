@@ -5,6 +5,7 @@
 #include <ship/Context.h>
 #include <ship/window/Window.h>
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"

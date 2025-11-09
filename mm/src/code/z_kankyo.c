@@ -1,6 +1,7 @@
 #include "ultra64.h"
 #include "z64light.h"
 #include "z64math.h"
+#include "2s2h/cvar_prefixes.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 typedef enum {

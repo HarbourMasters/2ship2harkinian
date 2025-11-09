@@ -46,6 +46,7 @@
 #include "objects/object_link_child/object_link_child.h"
 
 #include "2s2h/BenPort.h"
+#include "2s2h/cvar_prefixes.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include <libultraship/bridge/consolevariablebridge.h>

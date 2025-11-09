@@ -21,6 +21,7 @@
 #include <string.h>
 #include "2s2h/BenGui/HudEditor.h"
 #include "2s2h/BenGui/CosmeticEditor.h"
+#include "2s2h/cvar_prefixes.h"
 #include "2s2h_assets.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include <libultraship/bridge/gfxbridge.h>

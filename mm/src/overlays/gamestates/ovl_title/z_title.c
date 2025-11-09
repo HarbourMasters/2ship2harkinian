@@ -15,6 +15,7 @@
 #include "BenPort.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/cvar_prefixes.h"
 #include <stdlib.h>
 #include <libultraship/bridge/consolevariablebridge.h>
 

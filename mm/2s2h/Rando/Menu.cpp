@@ -4,6 +4,7 @@
 #include "Rando/CheckTracker/CheckTracker.h"
 #include "build.h"
 #include "2s2h/BenGui/BenMenu.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Sth/z_en_sth.h"

@@ -12,6 +12,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/DeveloperTools/BetterMapSelect.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/cvar_prefixes.h"
 
 void MapSelect_LoadConsoleLogo(MapSelectState* this, u32 entrance, s32 spawn) {
     s32 unused1 = entrance ? 0 : 0;

@@ -6,6 +6,7 @@
 
 #include "z_en_gakufu.h"
 #include "interface/parameter_static/parameter_static.h"
+#include "2s2h/cvar_prefixes.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 #define FLAGS (ACTOR_FLAG_UPDATE_CULLING_DISABLED | ACTOR_FLAG_UPDATE_DURING_OCARINA)

@@ -1,5 +1,6 @@
 #include "CollisionViewer.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 #include <vector>
 #include <string>

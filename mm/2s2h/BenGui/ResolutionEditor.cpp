@@ -5,6 +5,7 @@
 #include <fast/interpreter.h>
 #include "2s2h/BenPort.h"
 #include "2s2h/BenGui/BenMenu.h"
+#include "2s2h/cvar_prefixes.h"
 #include "2s2h/BenGui/BenGui.hpp"
 
 /*  Console Variables are grouped under gAdvancedResolution. (e.g. CVAR_SETTING("Graphics.AdvancedResolution.Enabled"))

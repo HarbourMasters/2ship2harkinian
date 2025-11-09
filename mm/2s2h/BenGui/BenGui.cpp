@@ -9,6 +9,7 @@
 #include "CosmeticEditor.h"
 #include "Notification.h"
 #include "2s2h/Rando/CheckTracker/CheckTracker.h"
+#include "2s2h/cvar_prefixes.h"
 
 #ifdef __APPLE__
 #include <fast/backends/gfx_metal.h>

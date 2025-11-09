@@ -2,6 +2,7 @@
 #include "CheckTracker.h"
 #include "2s2h/Rando/Logic/Logic.h"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/cvar_prefixes.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/Rando/StaticData/StaticData.h"
 #include <cstring>

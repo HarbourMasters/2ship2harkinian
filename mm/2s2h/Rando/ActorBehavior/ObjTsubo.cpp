@@ -5,6 +5,7 @@
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/ObjectExtension/ActorListIndex.h"
+#include "2s2h/cvar_prefixes.h"
 #include "assets/2s2h_assets.h"
 
 extern "C" {

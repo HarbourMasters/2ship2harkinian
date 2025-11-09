@@ -8,6 +8,7 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include <z64.h>

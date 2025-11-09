@@ -28,6 +28,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/BenPort.h"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/cvar_prefixes.h"
 #include "2s2h/ObjectExtension/ObjectExtension.h"
 #include "2s2h/ObjectExtension/ActorListIndex.h"
 #include <libultraship/bridge/consolevariablebridge.h>
