@@ -496,7 +496,7 @@ void BenMenu::AddSettings() {
 #endif
 
     AddWidget(path, "Current FPS: %d", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gInterpolationFPS")
+        .CVar(CVAR_SETTING("Graphics.InterpolationFPS"))
         .Callback([](WidgetInfo& info) {
             int32_t defaultValue = std::static_pointer_cast<IntSliderOptions>(info.options)->defaultValue;
             if (CVarGetInteger(info.cVar, defaultValue) == defaultValue) {

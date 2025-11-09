@@ -323,9 +323,9 @@ uint32_t OTRGlobals::GetInterpolationFPS() {
     } else if (CVarGetInteger(CVAR_VSYNC_ENABLED, 1) ||
                !Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
         return std::min<uint32_t>(Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate(),
-                                  CVarGetInteger("gInterpolationFPS", 20));
+                                  CVarGetInteger(CVAR_SETTING("Graphics.InterpolationFPS"), 20));
     }
-    return CVarGetInteger("gInterpolationFPS", 20);
+    return CVarGetInteger(CVAR_SETTING("Graphics.InterpolationFPS"), 20);
 }
 
 extern "C" uint32_t Ship_GetInterpolationFPS() {

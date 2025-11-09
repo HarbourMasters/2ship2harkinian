@@ -561,7 +561,7 @@ void UpdateResolutionVars() {
 bool IsDroppingFrames() {
     // a rather imprecise way of checking for frame drops.
     // but it's mostly there to inform the player of large drops.
-    const short targetFPS = CVarGetInteger("gInterpolationFPS", 20);
+    const short targetFPS = CVarGetInteger(CVAR_SETTING("Graphics.InterpolationFPS"), 20);
     const float threshold = targetFPS / 20.0f + 4.1f;
     return ImGui::GetIO().Framerate < targetFPS - threshold;
 }
