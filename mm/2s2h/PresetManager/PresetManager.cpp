@@ -9,9 +9,7 @@
 #include <ship/window/FileDropMgr.h>
 
 std::unordered_map<std::string, std::string> tagMap = {
-    { "gEventLog", "Developer Tools" },
     { "gDeveloperTools", "Developer Tools" },
-    { "gCollisionViewer", "Developer Tools" },
     { "gCheats", "Enhancements" },
     { "gEnhancements", "Enhancements" },
     { "gHudEditor", "HUD" },
@@ -23,15 +21,12 @@ nlohmann::json defaultsPresetJ = R"(
 {
     "ClearCVars": [
         "gCheats",
-        "gCollisionViewer",
         "gDeveloperTools",
         "gDisplayOverlay",
         "gEnhancements",
-        "gEventLog",
         "gHudEditor",
         "gTrackers",
         "gNetwork",
-        "gNotifications",
         "gRando",
         "gOpenWindows"
     ],
