@@ -9,6 +9,8 @@ typedef struct {
 
 typedef struct {
     std::string windowName;
+    int32_t columnLength;
+    float windowScale;
     std::vector<int16_t> itemList;
 } TrackerItemListObject;
 
@@ -17,7 +19,7 @@ class ItemTrackerWindow : public Ship::GuiWindow {
     using GuiWindow::GuiWindow;
     void Draw() override;
 
-    std::vector<int16_t> mainItemWindow;
+    TrackerItemListObject mainItemWindow;
     std::vector<TrackerItemListObject> namedItemWindows;
 
   protected:

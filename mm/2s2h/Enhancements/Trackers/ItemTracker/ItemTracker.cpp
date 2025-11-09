@@ -84,29 +84,31 @@ TrackerImageObject GetTextureIDBySlot(int16_t slot) {
     return imageObject;
 }
 
-void DrawItemSlot(int16_t slot) {
+void DrawItemSlot(int16_t slot, float scale) {
+    ImVec2 imageDimensions = ImVec2(32.0f, 32.0f);
     TrackerImageObject imageObject = GetTextureIDBySlot((InventorySlot)slot);
-    ImGui::Image(imageObject.textureId, ImVec2(32.0f, 32.0f), ImVec2(0, 0), ImVec2(1, 1),
+    ImGui::Image(imageObject.textureId, ImVec2(imageDimensions.x * scale, imageDimensions.y * scale), ImVec2(0, 0), ImVec2(1, 1),
                  ImVec4(1, 1, 1, imageObject.fade), ImVec4(0, 0, 0, 0));
 }
 
-void DrawItemWindowList(std::string listName, std::vector<int16_t> itemWindow, int columns) {
-    if (itemWindow.size() < columns) {
-        columns = itemWindow.size();
+void DrawItemWindowList(TrackerItemListObject windowObject) {
+    int columns = windowObject.columnLength;
+    if (windowObject.itemList.size() < windowObject.columnLength) {
+        columns = windowObject.itemList.size();
     }
 
-    if (ImGui::Begin(listName.c_str(), nullptr,
+    if (ImGui::Begin(windowObject.windowName.c_str(), nullptr,
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing |
                          ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
                          ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar)) {
-        if (ImGui::BeginTable(listName.c_str(), columns)) {
+        if (ImGui::BeginTable(windowObject.windowName.c_str(), columns)) {
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
 
-            for (auto& item : itemWindow) {
+            for (auto& item : windowObject.itemList) {
                 InventorySlot slot = static_cast<InventorySlot>(item);
                 ImGui::TableNextColumn();
-                DrawItemSlot(item);
+                DrawItemSlot(item, windowObject.windowScale);
             }
 
             ImGui::PopStyleVar(2);
@@ -128,8 +130,8 @@ void ItemTrackerWindow::Draw() {
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
 
-    if (BenGui::mItemTrackerWindow->mainItemWindow.size() != 0) {
-        DrawItemWindowList("Main", BenGui::mItemTrackerWindow->mainItemWindow, 6);
+    if (BenGui::mItemTrackerWindow->mainItemWindow.itemList.size() != 0) {
+        DrawItemWindowList(BenGui::mItemTrackerWindow->mainItemWindow);
     }
 
     uint32_t index = 0;
@@ -138,7 +140,7 @@ void ItemTrackerWindow::Draw() {
             continue;
             index++;
         }
-        DrawItemWindowList(std::to_string(index).c_str(), object.itemList, 6);
+        DrawItemWindowList(object);
         index++;
     }
     ImGui::PopStyleColor(2);
