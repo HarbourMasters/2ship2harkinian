@@ -4,7 +4,8 @@
 
 typedef struct {
     ImTextureID textureId;
-    float fade;
+    ImVec4 textureColor;
+    ImVec2 textureDimensions;
 } TrackerImageObject;
 
 typedef struct {
@@ -14,6 +15,8 @@ typedef struct {
     float windowOpacity;
     std::vector<int16_t> itemList;
 } TrackerItemListObject;
+
+TrackerImageObject GetTextureObject(int16_t itemId);
 
 class ItemTrackerWindow : public Ship::GuiWindow {
   public:

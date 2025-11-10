@@ -1,6 +1,7 @@
 #include "ItemTrackerSettings.h"
 #include "ItemTracker.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include "ShipUtils.h"
 
 namespace BenGui {
 extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
@@ -29,37 +30,25 @@ static std::string trackerInputName;
 bool shouldTrackerPopUpOpen = false;
 
 std::map<std::string, std::pair<int16_t, int16_t>> defaultItemLists = {
-    { "Inventory", { SLOT_OCARINA, SLOT_BOTTLE_6 } },
-    { "Masks", { SLOT_MASK_POSTMAN, SLOT_MASK_FIERCE_DEITY } },
-    { "Songs", { ITEM_SONG_SONATA, ITEM_SONG_SUN } },
+    { "Inventory", { ITEM_OCARINA_OF_TIME, ITEM_LETTER_TO_KAFEI } },
+    { "Masks", { ITEM_MASK_POSTMAN, ITEM_MASK_FIERCE_DEITY } },
+    { "Songs", { ITEM_SONG_TIME, ITEM_SONG_OATH } },
+    { "Quest", { ITEM_REMAINS_ODOLWA, ITEM_BOMBERS_NOTEBOOK } },
 };
 
-TexturePtr GetSlotImage(int16_t slot) {
-    if (slot == SLOT_TRADE_DEED) {
-        return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-            (const char*)gItemIcons[ITEM_MOONS_TEAR]);
-    } else if (slot == SLOT_TRADE_KEY_MAMA) {
-        return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-            (const char*)gItemIcons[ITEM_ROOM_KEY]);
-    } else if (slot == SLOT_TRADE_DEED) {
-        return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-            (const char*)gItemIcons[ITEM_LETTER_TO_KAFEI]);
-    } else {
-        if (slot >= SLOT_BOTTLE_1 && slot <= SLOT_BOTTLE_6) {
-            return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                (const char*)gItemIcons[ITEM_BOTTLE]);
-        } else {
-            for (int i = 0; i < sizeof(gItemSlots); i++) {
-                if (gItemSlots[i] == slot) {
-                    return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                        (const char*)gItemIcons[i]);
-                }
-            }
+std::pair<uint32_t, uint32_t> GetItemMapRange(uint32_t start, uint32_t end) {
+    std::pair<uint32_t, uint32_t> indexRange;
+
+    for (size_t i = 0; i < itemIdToItemNameMap.size(); i++) {
+        if (itemIdToItemNameMap[i].first == start) {
+            indexRange.first = static_cast<int>(i);
+        }
+        if (itemIdToItemNameMap[i].first == end) {
+            indexRange.second = static_cast<int>(i);
         }
     }
 
-    return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-        (const char*)gItemIcons[ITEM_OCARINA_OF_TIME]);
+    return indexRange;
 }
 
 TexturePtr GetItemImage(int16_t itemId) {
@@ -68,38 +57,37 @@ TexturePtr GetItemImage(int16_t itemId) {
 
 void ItemTrackerPopUpContext(int16_t slot) {
     bool shouldClose = false;
-    bool availableSlot = false;
+    uint32_t availableSlots = 0;
     uint32_t windowIndex = 0;
     if (shouldTrackerPopUpOpen && ImGui::BeginPopup("ItemWindowSubMenu")) {
         auto findInMain = std::find(BenGui::mItemTrackerWindow->mainItemWindow.itemList.begin(),
                                     BenGui::mItemTrackerWindow->mainItemWindow.itemList.end(), slot);
-        if (findInMain != BenGui::mItemTrackerWindow->mainItemWindow.itemList.end()) {
-            availableSlot = false;
-        } else {
+        if (findInMain == BenGui::mItemTrackerWindow->mainItemWindow.itemList.end()) {
             if (UIWidgets::Button("Add to Main", { .size = ImVec2(0, 0), .color = WIDGET_COLOR })) {
                 BenGui::mItemTrackerWindow->mainItemWindow.itemList.push_back(slot);
                 shouldClose = true;
             }
-            availableSlot = true;
+            availableSlots++;
         }
         for (auto& object : BenGui::mItemTrackerWindow->namedItemWindows) {
             ImGui::PushID(windowIndex);
             auto findInObject = std::find(object.itemList.begin(), object.itemList.end(), slot);
-            if (findInObject != object.itemList.end()) {
-                availableSlot = false;
-            } else {
+            if (findInObject == object.itemList.end()) {
                 std::string windowStr = "Add to ";
                 windowStr += object.windowName;
                 if (UIWidgets::Button(windowStr.c_str(), { .size = ImVec2(0, 0), .color = WIDGET_COLOR })) {
                     BenGui::mItemTrackerWindow->namedItemWindows[windowIndex].itemList.push_back(slot);
                     shouldClose = true;
                 }
-                availableSlot = true;
+                availableSlots++;
             }
             ImGui::PopID();
             windowIndex++;
         }
-        if (shouldClose || !availableSlot) {
+        if (availableSlots == 0) {
+            ImGui::Text("No Slot Available");
+        }
+        if (shouldClose) {
             ImGui::CloseCurrentPopup();
             shouldTrackerPopUpOpen = false;
         }
@@ -111,7 +99,7 @@ void ItemTrackerPopUpContext(int16_t slot) {
 void ItemTrackerDragAndDrop(std::vector<int16_t>& itemWindow, size_t i) {
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
         ImGui::SetDragDropPayload("TRACKER_DRAG", &i, sizeof(size_t));
-        ImGui::ImageButton(std::to_string(itemWindow[i]).c_str(), GetSlotImage((int16_t)itemWindow[i]),
+        ImGui::ImageButton(std::to_string(itemWindow[i]).c_str(), GetItemImage((int16_t)itemWindow[i]),
                            ImVec2(46.0f, 46.0f));
         ImGui::EndDragDropSource();
     }
@@ -134,8 +122,11 @@ void ItemTrackerDragAndDrop(std::vector<int16_t>& itemWindow, size_t i) {
     }
 }
 
-void DrawItemIdTrackerSlot(std::vector<int16_t>& itemList, int16_t itemId, bool shouldAdd) {
-    if (ImGui::ImageButton(std::to_string(itemId).c_str(), GetItemImage(itemId), ImVec2(46.0f, 46.0f), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(itemId))) {
+void DrawItemTrackerSlot(std::vector<int16_t>& itemList, int16_t itemId, bool shouldAdd) {
+    TrackerImageObject imageObject = GetTextureObject(itemId);
+    imageObject.textureColor.w = 1.0f;
+    if (ImGui::ImageButton(std::to_string(itemId).c_str(), imageObject.textureId, imageObject.textureDimensions,
+                           ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), imageObject.textureColor)) {
         if (shouldAdd) {
             shouldTrackerPopUpOpen = true;
             popupSlot = itemId;
@@ -150,65 +141,24 @@ void DrawItemIdTrackerSlot(std::vector<int16_t>& itemList, int16_t itemId, bool 
             itemList.erase(itemList.begin() + index);
         }
     }
+    UIWidgets::Tooltip(Ship_GetItemNameById(itemId).c_str());
 }
 
-void DrawItemTrackerSlot(std::vector<int16_t>& itemList, int16_t slot, bool shouldAdd) {
-    if (ImGui::ImageButton(std::to_string(slot).c_str(), GetSlotImage(slot), ImVec2(46.0f, 46.0f))) {
-        if (shouldAdd) {
-            shouldTrackerPopUpOpen = true;
-            popupSlot = slot;
-            ImGui::OpenPopup("ItemWindowSubMenu");
-        } else {
-            uint32_t index = 0;
-            for (int i = 0; i < itemList.size(); i++) {
-                if (itemList[i] == slot) {
-                    index = i;
-                }
-            }
-            itemList.erase(itemList.begin() + index);
-        }
-    }
-}
-
-void DrawItemIdList(std::string listName, int columns) {
+void DrawItemList(std::string listName, int columns) {
     if (ImGui::BeginChild(listName.c_str(), ImVec2(0, 0),
                           ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX |
                               ImGuiChildFlags_AutoResizeY)) {
         if (ImGui::BeginTable(listName.c_str(), columns)) {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+            ImVec2 framePadding = ImVec2(listName == "Songs" ? 8.0f : 0, 0);
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, framePadding);
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
-            for (int i = defaultItemLists.at(listName).first; i <= defaultItemLists.at(listName).second; i++) {
-                if (i == ITEM_SONG_SARIA || i == ITEM_SONG_SUN) {
-                    continue;
-                }
-                int16_t slot = static_cast<int16_t>(i);
+            std::pair<uint32_t, uint32_t> range =
+                GetItemMapRange(defaultItemLists.at(listName).first, defaultItemLists.at(listName).second);
+            for (int i = range.first; i <= range.second; i++) {
                 ImGui::TableNextColumn();
                 std::vector<int16_t> emptyList;
-                DrawItemIdTrackerSlot(emptyList, slot, true);
+                DrawItemTrackerSlot(emptyList, itemIdToItemNameMap[i].first, true);
             }
-
-            ImGui::PopStyleVar(2);
-            ItemTrackerPopUpContext(popupSlot);
-            ImGui::EndTable();
-        }
-    }
-    ImGui::EndChild();
-}
-
-void DrawSlotItemList(std::string listName, int columns) {
-    if (ImGui::BeginChild(listName.c_str(), ImVec2(0, 0),
-                          ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX |
-                              ImGuiChildFlags_AutoResizeY)) {
-        if (ImGui::BeginTable(listName.c_str(), columns)) {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
-            for (int i = defaultItemLists.at(listName).first; i <= defaultItemLists.at(listName).second; i++) {
-                int16_t slot = static_cast<int16_t>(i);
-                ImGui::TableNextColumn();
-                std::vector<int16_t> emptyList;
-                DrawItemTrackerSlot(emptyList, slot, true);
-            }
-
             ImGui::PopStyleVar(2);
             ItemTrackerPopUpContext(popupSlot);
             ImGui::EndTable();
@@ -276,7 +226,7 @@ void DrawPreviewPane() {
     }
 }
 
-void DrawTrackerWindowOptions(int32_t windowIndex, TrackerItemListObject &windowObject) {
+void DrawTrackerWindowOptions(int32_t windowIndex, TrackerItemListObject& windowObject) {
     ImGui::PushID(windowIndex);
     int32_t columns = windowObject.columnLength;
     float scale = windowObject.windowScale;
@@ -306,7 +256,7 @@ void DrawTrackerWindowOptions(int32_t windowIndex, TrackerItemListObject &window
     ImGui::SameLine();
     if (UIWidgets::SliderFloat("Scale", &scale,
                                UIWidgets::FloatSliderOptions()
-                                   .Min(1.0f)
+                                   .Min(0.5f)
                                    .Max(5.0f)
                                    .DefaultValue(1.0f)
                                    .LabelPosition(UIWidgets::LabelPosition::None)
@@ -339,8 +289,10 @@ void DrawTrackerOptions() {
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Default Preset", { .color = WIDGET_COLOR })) {
             BenGui::mItemTrackerWindow->mainItemWindow.itemList.clear();
-            for (int i = SLOT_OCARINA; i <= SLOT_MASK_FIERCE_DEITY; i++) {
-                BenGui::mItemTrackerWindow->mainItemWindow.itemList.push_back((int16_t)i);
+            BenGui::mItemTrackerWindow->namedItemWindows.clear();
+            std::pair<uint32_t, uint32_t> range = GetItemMapRange(ITEM_OCARINA_OF_TIME, ITEM_BOMBERS_NOTEBOOK);
+            for (int i = range.first; i <= range.second; i++) {
+                BenGui::mItemTrackerWindow->mainItemWindow.itemList.push_back(itemIdToItemNameMap[i].first);
             }
         }
         UIWidgets::Tooltip("Places all items in the Main Window");
@@ -351,10 +303,23 @@ void DrawTrackerOptions() {
             BenGui::mItemTrackerWindow->namedItemWindows.clear();
             for (auto& list : defaultItemLists) {
                 std::vector<int16_t> defaultItems;
-                for (int i = list.second.first; i <= list.second.second; i++) {
-                    defaultItems.push_back(i);
+                std::pair<uint32_t, uint32_t> range = GetItemMapRange(list.second.first, list.second.second);
+                for (int i = range.first; i <= range.second; i++) {
+                    defaultItems.push_back(itemIdToItemNameMap[i].first);
                 }
-                TrackerItemListObject trackerObject = { .windowName = list.first, .itemList = defaultItems };
+                TrackerItemListObject trackerObject = {
+                    .windowName = list.first,
+                    .columnLength = 6,
+                    .windowScale = 1.0f,
+                    .windowOpacity = 0.5f,
+                    .itemList = defaultItems,
+                };
+                if (trackerObject.windowName == "Songs") {
+                    trackerObject.columnLength = 5;
+                }
+                if (trackerObject.windowName == "Quest") {
+                    trackerObject.columnLength = 4;
+                }
                 BenGui::mItemTrackerWindow->namedItemWindows.push_back(trackerObject);
             }
         }
@@ -401,9 +366,10 @@ void DrawTrackerOptions() {
 
 void DrawTrackerCustomizationOptions() {
     if (ImGui::BeginChild("Item Lists")) {
-        DrawSlotItemList("Inventory", 6);
-        DrawSlotItemList("Masks", 6);
-        DrawItemIdList("Songs", 5);
+        DrawItemList("Inventory", 6);
+        DrawItemList("Masks", 6);
+        DrawItemList("Songs", 5);
+        DrawItemList("Quest", 4);
         ImGui::EndChild();
     }
 }
@@ -440,7 +406,7 @@ void ItemTrackerSettingsWindow::DrawElement() {
                 }
                 ImGui::EndChild();
             }
-            
+
             ImGui::TableNextColumn();
             if (ImGui::BeginChild("WindowChild")) {
                 if (ImGui::BeginTabBar("WindowTab")) {

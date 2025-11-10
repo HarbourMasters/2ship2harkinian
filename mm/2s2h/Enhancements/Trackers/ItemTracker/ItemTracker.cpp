@@ -24,73 +24,82 @@ extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 
 ImVec4 trackerWindowOpacity = ImVec4(0, 0, 0, 0.5f);
 
-TrackerImageObject GetTextureIDBySlot(int16_t slot) {
-    ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.items[slot]);
-    TrackerImageObject imageObject;
+extern TrackerImageObject GetTextureObject(int16_t itemId) {
+    int16_t currentItemId = itemId;
 
-    switch (slot) {
-        case SLOT_TRADE_DEED:
-            currentItemId = ITEM_MOONS_TEAR;
-            for (int i = ITEM_MOONS_TEAR; i <= ITEM_DEED_OCEAN; i++) {
-                if (gSaveContext.save.saveInfo.inventory.items[slot] == i) {
-                    currentItemId = (ItemId)i;
+    switch (itemId) {
+        case ITEM_MOONS_TEAR:
+            for (int16_t i = ITEM_MOONS_TEAR; i <= ITEM_DEED_OCEAN; i++) {
+                if (gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_DEED] == i) {
+                    currentItemId = i;
                     break;
                 }
             }
             break;
-        case SLOT_TRADE_KEY_MAMA:
-            currentItemId = ITEM_ROOM_KEY;
-            for (int i = ITEM_ROOM_KEY; i <= ITEM_LETTER_MAMA; i++) {
-                if (gSaveContext.save.saveInfo.inventory.items[slot] == i) {
-                    currentItemId = (ItemId)i;
+        case ITEM_ROOM_KEY:
+            for (int16_t i = ITEM_ROOM_KEY; i <= ITEM_LETTER_MAMA; i++) {
+                if (gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_KEY_MAMA] == i) {
+                    currentItemId = i;
                     break;
                 }
             }
             break;
-        case SLOT_TRADE_COUPLE:
-            currentItemId = ITEM_LETTER_TO_KAFEI;
-            for (int i = ITEM_LETTER_TO_KAFEI; i <= ITEM_PENDANT_OF_MEMORIES; i++) {
-                if (gSaveContext.save.saveInfo.inventory.items[slot] == i) {
-                    currentItemId = (ItemId)i;
+        case ITEM_LETTER_TO_KAFEI:
+            for (int16_t i = ITEM_LETTER_TO_KAFEI; i <= ITEM_PENDANT_OF_MEMORIES; i++) {
+                if (gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_COUPLE] == i) {
+                    currentItemId = i;
                     break;
                 }
+            }
+            break;
+        case ITEM_SWORD_KOKIRI:
+            currentItemId = ITEM_SWORD_KOKIRI + (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI);
+            if (currentItemId < ITEM_SWORD_KOKIRI) {
+                currentItemId = ITEM_SWORD_KOKIRI;
+            }
+            break;
+        case ITEM_SHIELD_HERO:
+            currentItemId = ITEM_SHIELD_HERO + (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) - EQUIP_VALUE_SHIELD_HERO);
+            if (currentItemId < ITEM_SHIELD_HERO) {
+                currentItemId = ITEM_SHIELD_HERO;
+            }
+            break;
+        case ITEM_WALLET_ADULT:
+            currentItemId = ITEM_WALLET_ADULT + (CUR_UPG_VALUE(UPG_WALLET) - ITEM_WALLET_ADULT);
+            if (currentItemId < ITEM_WALLET_ADULT) {
+                currentItemId = ITEM_WALLET_ADULT;
             }
             break;
         default:
             break;
     }
 
-    if (currentItemId != ITEM_NONE) {
-        imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-            (const char*)gItemIcons[currentItemId]);
+    TrackerImageObject imageObject = {
+        .textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+            (const char*)gItemIcons[currentItemId]),
+        .textureColor = Ship_GetItemColorTint(currentItemId),
+        .textureDimensions =
+            ImVec2(currentItemId >= ITEM_SONG_SONATA && currentItemId <= ITEM_SONG_SUN ? 46.0f / 1.5f : 46.0f, 46.0f),
+    };
+    if (itemId >= ITEM_REMAINS_ODOLWA && itemId <= ITEM_BOMBERS_NOTEBOOK) {
+        imageObject.textureColor.w = CHECK_QUEST_ITEM(Ship_ConvertItemIdToQuest(itemId)) ? 1 : 0.4f;
+    } else if (itemId >= ITEM_SWORD_KOKIRI && itemId <= ITEM_SWORD_GILDED) {
+        imageObject.textureColor.w = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) >= EQUIP_VALUE_SWORD_KOKIRI ? 1 : 0.4f;
+    } else if (itemId == ITEM_SHIELD_HERO || itemId == ITEM_SHIELD_MIRROR) {
+        imageObject.textureColor.w = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) >= EQUIP_VALUE_SHIELD_HERO ? 1 : 0.4f;
+    } else if (itemId == ITEM_WALLET_ADULT || itemId == ITEM_WALLET_GIANT) {
+        imageObject.textureColor.w = CUR_UPG_VALUE(UPG_WALLET) >= 1 ? 1 : 0.4f;
     } else {
-        if (slot >= SLOT_BOTTLE_1 && slot <= SLOT_BOTTLE_6) {
-            imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                (const char*)gItemIcons[ITEM_BOTTLE]);
-        } else if (slot >= SLOT_MASK_POSTMAN && slot <= SLOT_MASK_FIERCE_DEITY) {
-            for (int i = 0; i < sizeof(gItemSlots); i++) {
-                if (gItemSlots[i] == slot) {
-                    imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-                        (const char*)gItemIcons[i]);
-                    break;
-                }
-            }
-        } else {
-            imageObject.textureId =
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[slot]);
-        }
+        imageObject.textureColor.w = INV_CONTENT(itemId) != ITEM_NONE ? 1 : 0.4f;
     }
-
-    imageObject.fade = gSaveContext.save.saveInfo.inventory.items[slot] != ITEM_NONE ? 1.0f : 0.5f;
-
     return imageObject;
 }
 
-void DrawItemSlot(int16_t slot, float scale) {
-    ImVec2 imageDimensions = ImVec2(32.0f, 32.0f);
-    TrackerImageObject imageObject = GetTextureIDBySlot((InventorySlot)slot);
-    ImGui::Image(imageObject.textureId, ImVec2(imageDimensions.x * scale, imageDimensions.y * scale), ImVec2(0, 0), ImVec2(1, 1),
-                 ImVec4(1, 1, 1, imageObject.fade), ImVec4(0, 0, 0, 0));
+void DrawItemSlot(int16_t itemId, float scale) {
+    TrackerImageObject imageObject = GetTextureObject(itemId);
+    ImGui::Image(imageObject.textureId,
+                 ImVec2(imageObject.textureDimensions.x * scale, imageObject.textureDimensions.y * scale), ImVec2(0, 0),
+                 ImVec2(1, 1), imageObject.textureColor, ImVec4(0, 0, 0, 0));
 }
 
 void DrawItemWindowList(TrackerItemListObject windowObject) {
@@ -99,22 +108,22 @@ void DrawItemWindowList(TrackerItemListObject windowObject) {
     if (windowObject.itemList.size() < windowObject.columnLength) {
         columns = windowObject.itemList.size();
     }
-
     if (ImGui::Begin(windowObject.windowName.c_str(), nullptr,
                      ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing |
                          ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
                          ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar)) {
         if (ImGui::BeginTable(windowObject.windowName.c_str(), columns)) {
-            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
 
             for (auto& item : windowObject.itemList) {
-                InventorySlot slot = static_cast<InventorySlot>(item);
                 ImGui::TableNextColumn();
+                ImVec2 framePadding = ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_SUN ? 8.0f : 0, 0);
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, framePadding);
                 DrawItemSlot(item, windowObject.windowScale);
+                ImGui::PopStyleVar(1);
             }
 
-            ImGui::PopStyleVar(2);
+            ImGui::PopStyleVar(1);
             ImGui::EndTable();
         }
         ImGui::End();
