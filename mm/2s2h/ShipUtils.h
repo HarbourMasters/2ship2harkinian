@@ -18,6 +18,7 @@ std::vector<RandoItemId> convertStartingItemsToRandoItemId(const std::string& in
 std::string CreateStartingItemsToCvar(std::vector<RandoItemId> startingItemList);
 std::string Ship_RemoveSpecialCharacters(const std::string& str);
 extern std::array<const char*, 11> digitList;
+extern const char* fairyIconTextures[];
 extern std::string Ship_FormatTimeDisplay(uint32_t value);
 extern std::vector<std::pair<int16_t, std::string>> itemIdToItemNameMap;
 extern std::string Ship_GetItemNameById(int16_t itemId);

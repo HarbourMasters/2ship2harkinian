@@ -35,6 +35,39 @@ extern TrackerImageObject GetTextureObject(int16_t itemId) {
     if (itemId == ITEM_SKULL_TOKEN_SWAMP || itemId == ITEM_SKULL_TOKEN_OCEAN) {
         currentItemId = ITEM_SKULL_TOKEN;
     }
+    if (itemId >= ITEM_WOODFALL_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
+        currentItemId = ITEM_STRAY_FAIRIES;
+    }
+    if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
+        switch (itemId) {
+            case ITEM_WOODFALL_DUNGEON_MAP:
+            case ITEM_SNOWHEAD_DUNGEON_MAP:
+            case ITEM_GREAT_BAY_DUNGEON_MAP:
+            case ITEM_STONE_TOWER_DUNGEON_MAP:
+                currentItemId = ITEM_DUNGEON_MAP;
+                break;
+            case ITEM_WOODFALL_DUNGEON_COMPASS:
+            case ITEM_SNOWHEAD_DUNGEON_COMPASS:
+            case ITEM_GREAT_BAY_DUNGEON_COMPASS:
+            case ITEM_STONE_TOWER_DUNGEON_COMPASS:
+                currentItemId = ITEM_COMPASS;
+                break;
+            case ITEM_WOODFALL_KEY_SMALL:
+            case ITEM_SNOWHEAD_KEY_SMALL:
+            case ITEM_GREAT_BAY_KEY_SMALL:
+            case ITEM_STONE_TOWER_KEY_SMALL:
+                currentItemId = ITEM_KEY_SMALL;
+                break;
+            case ITEM_WOODFALL_KEY_BOSS:
+            case ITEM_SNOWHEAD_KEY_BOSS:
+            case ITEM_GREAT_BAY_KEY_BOSS:
+            case ITEM_STONE_TOWER_KEY_BOSS:
+                currentItemId = ITEM_KEY_BOSS;
+                break;
+            default:
+                break;
+        }
+    }
 
     if (currentItemId == ITEM_NONE) {
         switch (itemId) {
@@ -103,6 +136,7 @@ extern TrackerImageObject GetTextureObject(int16_t itemId) {
         .textureDimensions =
             ImVec2(currentItemId >= ITEM_SONG_SONATA && currentItemId <= ITEM_SONG_SUN ? 46.0f / 1.5f : 46.0f, 46.0f),
     };
+
     if (itemId >= ITEM_REMAINS_ODOLWA && itemId <= ITEM_BOMBERS_NOTEBOOK) {
         imageObject.textureColor.w = CHECK_QUEST_ITEM(Ship_ConvertItemIdToQuest(itemId)) ? 1 : 0.4f;
     } else if (itemId >= ITEM_SWORD_KOKIRI && itemId <= ITEM_SWORD_GILDED) {
@@ -132,9 +166,48 @@ extern TrackerImageObject GetTextureObject(int16_t itemId) {
             tokenCount = Inventory_GetSkullTokenCount(SCENE_KINDAN2);
         }
         imageObject.textureColor.w = tokenCount > 0 ? 1 : 0.4f;
+    } else if (itemId >= ITEM_WOODFALL_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
+        imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+            (const char*)fairyIconTextures[itemId - ITEM_WOODFALL_STRAY_FAIRY]);
+        imageObject.textureColor.w =
+            gSaveContext.save.saveInfo.inventory.strayFairies[itemId - ITEM_WOODFALL_STRAY_FAIRY] > 0 ? 1 : 0.4f;
+    } else if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
+        switch (itemId) {
+            case ITEM_WOODFALL_DUNGEON_MAP:
+            case ITEM_SNOWHEAD_DUNGEON_MAP:
+            case ITEM_GREAT_BAY_DUNGEON_MAP:
+            case ITEM_STONE_TOWER_DUNGEON_MAP:
+                imageObject.textureColor.w =
+                    CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4) ? 1.0f : 0.4f;
+                break;
+            case ITEM_WOODFALL_DUNGEON_COMPASS:
+            case ITEM_SNOWHEAD_DUNGEON_COMPASS:
+            case ITEM_GREAT_BAY_DUNGEON_COMPASS:
+            case ITEM_STONE_TOWER_DUNGEON_COMPASS:
+                imageObject.textureColor.w =
+                    CHECK_DUNGEON_ITEM(DUNGEON_MAP, (itemId - ITEM_WOODFALL_DUNGEON_COMPASS) / 4) ? 1.0f : 0.4f;
+                break;
+            case ITEM_WOODFALL_KEY_SMALL:
+            case ITEM_SNOWHEAD_KEY_SMALL:
+            case ITEM_GREAT_BAY_KEY_SMALL:
+            case ITEM_STONE_TOWER_KEY_SMALL:
+                imageObject.textureColor.w =
+                    DUNGEON_KEY_COUNT((itemId - ITEM_WOODFALL_KEY_SMALL) / 4) > 0 ? 1.0f : 0.4f;
+                break;
+            case ITEM_WOODFALL_KEY_BOSS:
+            case ITEM_SNOWHEAD_KEY_BOSS:
+            case ITEM_GREAT_BAY_KEY_BOSS:
+            case ITEM_STONE_TOWER_KEY_BOSS:
+                imageObject.textureColor.w =
+                    CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, (itemId - ITEM_WOODFALL_KEY_BOSS) / 4) ? 1.0f : 0.4f;
+                break;
+            default:
+                break;
+        }
     } else {
         imageObject.textureColor.w = INV_CONTENT(itemId) != ITEM_NONE ? 1 : 0.4f;
     }
+
     return imageObject;
 }
 

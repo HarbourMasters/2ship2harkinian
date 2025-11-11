@@ -73,6 +73,9 @@ std::array<const char*, 11> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, 
                                           gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
                                           gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
 
+const char* fairyIconTextures[] = { gDungeonStrayFairyWoodfallIconTex, gDungeonStrayFairySnowheadIconTex,
+                                    gDungeonStrayFairyGreatBayIconTex, gDungeonStrayFairyStoneTowerIconTex };
+
 std::vector<std::pair<int16_t, std::string>> itemIdToItemNameMap = {
     // Inventory
     { ITEM_OCARINA_OF_TIME, "Ocarina of Time" },

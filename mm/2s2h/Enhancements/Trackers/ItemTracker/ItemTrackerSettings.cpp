@@ -18,8 +18,14 @@ static const char* displayModes[2] = { "Always", "Combo Button Hold" };
 
 bool shouldWindowSplit = false;
 int16_t popupSlot = SLOT_OCARINA;
+int16_t indexToRemove = ITEM_OCARINA_OF_TIME;
 static std::string trackerInputName;
 bool shouldTrackerPopUpOpen = false;
+bool shouldRemove = false;
+
+std::vector<std::string> listOrder = {
+    "Inventory", "Bottles", "Masks", "Songs", "Quest", "Tokens", "Stray Fairies", "Dungeon",
+};
 
 std::map<std::string, std::tuple<int16_t, int16_t, int16_t>> defaultItemLists = {
     { "Inventory", { ITEM_OCARINA_OF_TIME, ITEM_LETTER_TO_KAFEI, 6 } },
@@ -28,6 +34,8 @@ std::map<std::string, std::tuple<int16_t, int16_t, int16_t>> defaultItemLists = 
     { "Songs", { ITEM_SONG_TIME, ITEM_SONG_OATH, 5 } },
     { "Quest", { ITEM_REMAINS_ODOLWA, ITEM_BOMBERS_NOTEBOOK, 4 } },
     { "Tokens", { ITEM_SKULL_TOKEN_SWAMP, ITEM_SKULL_TOKEN_OCEAN, 2 } },
+    { "Stray Fairies", { ITEM_WOODFALL_STRAY_FAIRY, ITEM_STONE_TOWER_STRAY_FAIRY, 4 } },
+    { "Dungeon", { ITEM_WOODFALL_DUNGEON_MAP, ITEM_STONE_TOWER_KEY_BOSS, 4 } },
 };
 
 std::pair<uint32_t, uint32_t> GetItemMapRange(uint32_t start, uint32_t end) {
@@ -46,15 +54,53 @@ std::pair<uint32_t, uint32_t> GetItemMapRange(uint32_t start, uint32_t end) {
 }
 
 std::string GetItemTrackerItemName(int16_t itemId) {
+    std::vector<std::string> dungeonPrefix = {
+        "Woodfall",
+        "Snowhead",
+        "Great Bay",
+        "Stone Tower",
+    };
+
     std::string itemName = "";
     if (itemId >= ITEM_BOTTLE_1 && itemId <= ITEM_BOTTLE_6) {
-        itemName = "Empty Bottle";
+        itemName = "Bottle";
     } else if (itemId == ITEM_SKULL_TOKEN_SWAMP) {
         itemName = "Swamp Token";
     } else if (itemId == ITEM_SKULL_TOKEN_OCEAN) {
         itemName = "Ocean Token";
-    } else if (itemId == ITEM_MAGIC_JAR_SMALL) {
-        itemName = "Single Magic";
+    } else if (itemId >= ITEM_WOODFALL_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
+        itemName = "Stray Fairy";
+    } else if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
+        switch (itemId) {
+            case ITEM_WOODFALL_DUNGEON_MAP:
+            case ITEM_SNOWHEAD_DUNGEON_MAP:
+            case ITEM_GREAT_BAY_DUNGEON_MAP:
+            case ITEM_STONE_TOWER_DUNGEON_MAP:
+                itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4] + " Dungeon Map";
+                break;
+            case ITEM_WOODFALL_DUNGEON_COMPASS:
+            case ITEM_SNOWHEAD_DUNGEON_COMPASS:
+            case ITEM_GREAT_BAY_DUNGEON_COMPASS:
+            case ITEM_STONE_TOWER_DUNGEON_COMPASS:
+                itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_DUNGEON_COMPASS) / 4] + " Compass";
+                break;
+            case ITEM_WOODFALL_KEY_SMALL:
+            case ITEM_SNOWHEAD_KEY_SMALL:
+            case ITEM_GREAT_BAY_KEY_SMALL:
+            case ITEM_STONE_TOWER_KEY_SMALL:
+                itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_KEY_SMALL) / 4] + " Small Key";
+                break;
+            case ITEM_WOODFALL_KEY_BOSS:
+            case ITEM_SNOWHEAD_KEY_BOSS:
+            case ITEM_GREAT_BAY_KEY_BOSS:
+            case ITEM_STONE_TOWER_KEY_BOSS:
+                itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_KEY_BOSS) / 4] + " Boss Key";
+                break;
+            default:
+                break;
+        }
+    } else if (itemId == ITEM_MAGIC_JAR_SMALL || itemId == ITEM_MAGIC_JAR_BIG) {
+        itemName = gSaveContext.save.saveInfo.playerData.magicLevel > 1 ? "Double Magic" : "Single Magic";
     } else if (itemId == ITEM_HEART_CONTAINER) {
         itemName = "Double Defense";
     } else {
@@ -132,6 +178,7 @@ void ItemTrackerDragAndDrop(std::vector<int16_t>& itemWindow, size_t i, TrackerI
 }
 
 void DrawItemTrackerSlot(std::vector<int16_t>& itemList, int16_t itemId, bool shouldAdd) {
+    shouldRemove = false;
     TrackerImageObject imageObject = GetTextureObject(itemId);
     imageObject.textureColor.w = 1.0f;
     if (ImGui::ImageButton(std::to_string(itemId).c_str(), imageObject.textureId, imageObject.textureDimensions,
@@ -141,13 +188,13 @@ void DrawItemTrackerSlot(std::vector<int16_t>& itemList, int16_t itemId, bool sh
             popupSlot = itemId;
             ImGui::OpenPopup("ItemWindowSubMenu");
         } else {
-            uint32_t index = 0;
             for (int i = 0; i < itemList.size(); i++) {
                 if (itemList[i] == itemId) {
-                    index = i;
+                    indexToRemove = i;
+                    shouldRemove = true;
+                    break;
                 }
             }
-            itemList.erase(itemList.begin() + index);
         }
     }
     UIWidgets::Tooltip(GetItemTrackerItemName(itemId).c_str());
@@ -163,7 +210,7 @@ void DrawItemList(std::string listName, int columns) {
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
             std::vector<int16_t> emptyList;
 
-            if (listName == "Bottles" || listName == "Tokens") {
+            if (listName == "Bottles" || listName == "Tokens" || listName == "Stray Fairies" || listName == "Dungeon") {
                 for (int j = std::get<0>(defaultItemLists.at(listName));
                      j <= std::get<1>(defaultItemLists.at(listName)); j++) {
                     ImGui::TableNextColumn();
@@ -222,6 +269,11 @@ void DrawPreviewPane() {
                     DrawItemTrackerSlot(object.itemList, (int16_t)object.itemList[i], false);
                     ItemTrackerDragAndDrop(BenGui::mItemTrackerWindow->namedItemWindows[listIndex].itemList, i,
                                            GetTextureObject(object.itemList[i]));
+                }
+                if (shouldRemove) {
+                    object.itemList.erase(object.itemList.begin() + indexToRemove);
+                    shouldRemove = false;
+                    indexToRemove = ITEM_OCARINA_OF_TIME;
                 }
                 ImGui::PopStyleVar(2);
                 ImGui::EndTable();
@@ -290,14 +342,9 @@ void DrawTrackerWindowOptions(int32_t windowIndex, TrackerItemListObject& window
 
 void ApplyDefaultItemPreset() {
     BenGui::mItemTrackerWindow->namedItemWindows.clear();
-    std::vector<std::string> listOrder = {
-        "Inventory", "Bottles", "Masks", "Songs", "Quest", "Tokens",
-    };
 
     for (int key = 0; key < defaultItemLists.size(); key++) {
         std::tuple<int16_t, int16_t, int16_t> list = defaultItemLists.at(listOrder[key]);
-
-        std::pair<uint32_t, uint32_t> range = GetItemMapRange(std::get<0>(list), std::get<1>(list));
         TrackerItemListObject itemObject = {
             .windowName = listOrder[key],
             .columnLength = std::get<2>(list),
@@ -309,7 +356,23 @@ void ApplyDefaultItemPreset() {
                 int16_t bottle = ITEM_BOTTLE_1 + (j - ITEM_BOTTLE_1);
                 itemObject.itemList.push_back(bottle);
             }
+        } else if (listOrder[key] == "Tokens") {
+            for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+                int16_t skullToken = ITEM_SKULL_TOKEN_SWAMP + (j - ITEM_SKULL_TOKEN_SWAMP);
+                itemObject.itemList.push_back(skullToken);
+            }
+        } else if (listOrder[key] == "Stray Fairies") {
+            for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+                int16_t strayFairy = ITEM_WOODFALL_STRAY_FAIRY + (j - ITEM_WOODFALL_STRAY_FAIRY);
+                itemObject.itemList.push_back(strayFairy);
+            }
+        } else if (listOrder[key] == "Dungeon") {
+            for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+                int16_t dungeonItem = ITEM_WOODFALL_DUNGEON_MAP + (j - ITEM_WOODFALL_DUNGEON_MAP);
+                itemObject.itemList.push_back(dungeonItem);
+            }
         } else {
+            std::pair<uint32_t, uint32_t> range = GetItemMapRange(std::get<0>(list), std::get<1>(list));
             for (int i = range.first; i <= range.second; i++) {
                 if (itemIdToItemNameMap[i].first == ITEM_WALLET_ADULT) {
                     itemObject.itemList.push_back(ITEM_MAGIC_JAR_SMALL);
@@ -380,12 +443,11 @@ void DrawTrackerOptions() {
 
 void DrawTrackerCustomizationOptions() {
     if (ImGui::BeginChild("Item Lists")) {
-        DrawItemList("Inventory", 6);
-        DrawItemList("Bottles", 6);
-        DrawItemList("Masks", 6);
-        DrawItemList("Songs", 5);
-        DrawItemList("Quest", 4);
-        DrawItemList("Tokens", 2);
+        for (int key = 0; key < defaultItemLists.size(); key++) {
+            std::tuple<int16_t, int16_t, int16_t> list = defaultItemLists.at(listOrder[key]);
+            ImGui::SeparatorText(listOrder[key].c_str());
+            DrawItemList(listOrder[key], std::get<2>(list));
+        }
         ImGui::EndChild();
     }
 }
