@@ -402,6 +402,8 @@ void DrawTrackerOptions() {
             shouldWindowSplit = true;
         }
         UIWidgets::Tooltip("Places each group of items in its own Window.");
+        UIWidgets::CVarCombobox("Window Type", "gSettings.ItemTracker.WindowType", windowTypes, {.color = WIDGET_COLOR });
+                                
         ImGui::EndTable();
     }
     ImGui::SeparatorText("Custom Windows");

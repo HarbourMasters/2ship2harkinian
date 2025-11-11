@@ -222,10 +222,19 @@ void ItemTrackerWindow::Draw() {
     if (!gPlayState) {
         return;
     }
+
+    if (BenGui::mItemTrackerWindow->namedItemWindows.empty() ||
+        BenGui::mItemTrackerWindow->namedItemWindows[0].itemList.empty()) {
+        return;
+    }
+
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav |
                                    ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize |
-                                   ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar |
                                    ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar;
+
+    if (!CVarGetInteger("gSettings.ItemTracker.WindowType", 0)) {
+        windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking;
+    }
 
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
@@ -235,7 +244,7 @@ void ItemTrackerWindow::Draw() {
         ImVec4 mainBg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
         mainBg.w = BenGui::mItemTrackerWindow->namedItemWindows[0].windowOpacity;
         ImGui::PushStyleColor(ImGuiCol_WindowBg, mainBg);
-        singleWindowOpen = ImGui::Begin("Main Tracker Window", nullptr, windowFlags);
+        singleWindowOpen = ImGui::Begin("Item Tracker", nullptr, windowFlags);
     }
 
     uint32_t index = 0;
@@ -262,15 +271,15 @@ void ItemTrackerWindow::Draw() {
         }
 
         if (shouldWindowSplit) {
-            ImGui::End();
             ImGui::PopStyleColor(1);
+            ImGui::End();
         }
 
         index++;
     }
     if (!shouldWindowSplit) {
-        ImGui::End();
         ImGui::PopStyleColor(1);
+        ImGui::End();
     }
 
     ImGui::PopStyleColor(1);
