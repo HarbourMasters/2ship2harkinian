@@ -39,32 +39,21 @@ extern TrackerImageObject GetTextureObject(int16_t itemId) {
         currentItemId = ITEM_STRAY_FAIRIES;
     }
     if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
-        switch (itemId) {
-            case ITEM_WOODFALL_DUNGEON_MAP:
-            case ITEM_SNOWHEAD_DUNGEON_MAP:
-            case ITEM_GREAT_BAY_DUNGEON_MAP:
-            case ITEM_STONE_TOWER_DUNGEON_MAP:
+        const int dungeonIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4;
+        const int itemTypeIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) % 4;
+
+        switch (itemTypeIndex) {
+            case 0:
                 currentItemId = ITEM_DUNGEON_MAP;
                 break;
-            case ITEM_WOODFALL_DUNGEON_COMPASS:
-            case ITEM_SNOWHEAD_DUNGEON_COMPASS:
-            case ITEM_GREAT_BAY_DUNGEON_COMPASS:
-            case ITEM_STONE_TOWER_DUNGEON_COMPASS:
+            case 1:
                 currentItemId = ITEM_COMPASS;
                 break;
-            case ITEM_WOODFALL_KEY_SMALL:
-            case ITEM_SNOWHEAD_KEY_SMALL:
-            case ITEM_GREAT_BAY_KEY_SMALL:
-            case ITEM_STONE_TOWER_KEY_SMALL:
+            case 2:
                 currentItemId = ITEM_KEY_SMALL;
                 break;
-            case ITEM_WOODFALL_KEY_BOSS:
-            case ITEM_SNOWHEAD_KEY_BOSS:
-            case ITEM_GREAT_BAY_KEY_BOSS:
-            case ITEM_STONE_TOWER_KEY_BOSS:
+            case 3:
                 currentItemId = ITEM_KEY_BOSS;
-                break;
-            default:
                 break;
         }
     }
@@ -172,36 +161,20 @@ extern TrackerImageObject GetTextureObject(int16_t itemId) {
         imageObject.textureColor.w =
             gSaveContext.save.saveInfo.inventory.strayFairies[itemId - ITEM_WOODFALL_STRAY_FAIRY] > 0 ? 1 : 0.4f;
     } else if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
-        switch (itemId) {
-            case ITEM_WOODFALL_DUNGEON_MAP:
-            case ITEM_SNOWHEAD_DUNGEON_MAP:
-            case ITEM_GREAT_BAY_DUNGEON_MAP:
-            case ITEM_STONE_TOWER_DUNGEON_MAP:
-                imageObject.textureColor.w =
-                    CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4) ? 1.0f : 0.4f;
+        const int dungeonIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4;
+        const int itemTypeIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) % 4;
+        switch (itemTypeIndex) {
+            case 0:
+                imageObject.textureColor.w = CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, dungeonIndex) ? 1.0f : 0.4f;
                 break;
-            case ITEM_WOODFALL_DUNGEON_COMPASS:
-            case ITEM_SNOWHEAD_DUNGEON_COMPASS:
-            case ITEM_GREAT_BAY_DUNGEON_COMPASS:
-            case ITEM_STONE_TOWER_DUNGEON_COMPASS:
-                imageObject.textureColor.w =
-                    CHECK_DUNGEON_ITEM(DUNGEON_MAP, (itemId - ITEM_WOODFALL_DUNGEON_COMPASS) / 4) ? 1.0f : 0.4f;
+            case 1:
+                imageObject.textureColor.w = CHECK_DUNGEON_ITEM(DUNGEON_MAP, dungeonIndex) ? 1.0f : 0.4f;
                 break;
-            case ITEM_WOODFALL_KEY_SMALL:
-            case ITEM_SNOWHEAD_KEY_SMALL:
-            case ITEM_GREAT_BAY_KEY_SMALL:
-            case ITEM_STONE_TOWER_KEY_SMALL:
-                imageObject.textureColor.w =
-                    DUNGEON_KEY_COUNT((itemId - ITEM_WOODFALL_KEY_SMALL) / 4) > 0 ? 1.0f : 0.4f;
+            case 2:
+                imageObject.textureColor.w = DUNGEON_KEY_COUNT(dungeonIndex) > 0 ? 1.0f : 0.4f;
                 break;
-            case ITEM_WOODFALL_KEY_BOSS:
-            case ITEM_SNOWHEAD_KEY_BOSS:
-            case ITEM_GREAT_BAY_KEY_BOSS:
-            case ITEM_STONE_TOWER_KEY_BOSS:
-                imageObject.textureColor.w =
-                    CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, (itemId - ITEM_WOODFALL_KEY_BOSS) / 4) ? 1.0f : 0.4f;
-                break;
-            default:
+            case 3:
+                imageObject.textureColor.w = CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, dungeonIndex) ? 1.0f : 0.4f;
                 break;
         }
     } else {
