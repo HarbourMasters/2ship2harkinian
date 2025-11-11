@@ -13,8 +13,6 @@ void ItemTrackerSettingsWindow::UpdateElement() {
 #define WIDGET_COLOR UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5))
 
 static const char* windowTypes[2] = { "Floating", "Window" };
-static const char* displayTypes[3] = { "Hidden", "Main Window", "Separate" };
-static const char* displayModes[2] = { "Always", "Combo Button Hold" };
 
 bool shouldWindowSplit = false;
 int16_t popupSlot = SLOT_OCARINA;
@@ -340,48 +338,90 @@ void DrawTrackerWindowOptions(int32_t windowIndex, TrackerItemListObject& window
     UIWidgets::Separator();
 }
 
+void ApplyDefaultItemGroup(std::string listName) {
+    std::tuple<int16_t, int16_t, int16_t> list = defaultItemLists.at(listName);
+    TrackerItemListObject itemObject = {
+        .windowName = listName,
+        .columnLength = std::get<2>(list),
+        .windowScale = 1.0f,
+        .windowOpacity = 0.5f,
+    };
+    if (listName == "Bottles") {
+        for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+            int16_t bottle = ITEM_BOTTLE_1 + (j - ITEM_BOTTLE_1);
+            itemObject.itemList.push_back(bottle);
+        }
+    } else if (listName == "Tokens") {
+        for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+            int16_t skullToken = ITEM_SKULL_TOKEN_SWAMP + (j - ITEM_SKULL_TOKEN_SWAMP);
+            itemObject.itemList.push_back(skullToken);
+        }
+    } else if (listName == "Stray Fairies") {
+        for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+            int16_t strayFairy = ITEM_WOODFALL_STRAY_FAIRY + (j - ITEM_WOODFALL_STRAY_FAIRY);
+            itemObject.itemList.push_back(strayFairy);
+        }
+    } else if (listName == "Dungeon") {
+        for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+            int16_t dungeonItem = ITEM_WOODFALL_DUNGEON_MAP + (j - ITEM_WOODFALL_DUNGEON_MAP);
+            itemObject.itemList.push_back(dungeonItem);
+        }
+    } else {
+        std::pair<uint32_t, uint32_t> range = GetItemMapRange(std::get<0>(list), std::get<1>(list));
+        for (int i = range.first; i <= range.second; i++) {
+            if (itemIdToItemNameMap[i].first == ITEM_WALLET_ADULT) {
+                itemObject.itemList.push_back(ITEM_MAGIC_JAR_SMALL);
+                itemObject.itemList.push_back(ITEM_HEART_CONTAINER);
+            }
+            itemObject.itemList.push_back(itemIdToItemNameMap[i].first);
+        }
+    }
+    BenGui::mItemTrackerWindow->namedItemWindows.push_back(itemObject);
+}
+
 void ApplyDefaultItemPreset() {
     BenGui::mItemTrackerWindow->namedItemWindows.clear();
 
     for (int key = 0; key < defaultItemLists.size(); key++) {
-        std::tuple<int16_t, int16_t, int16_t> list = defaultItemLists.at(listOrder[key]);
-        TrackerItemListObject itemObject = {
-            .windowName = listOrder[key],
-            .columnLength = std::get<2>(list),
-            .windowScale = 1.0f,
-            .windowOpacity = 0.5f,
-        };
-        if (listOrder[key] == "Bottles") {
-            for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
-                int16_t bottle = ITEM_BOTTLE_1 + (j - ITEM_BOTTLE_1);
-                itemObject.itemList.push_back(bottle);
-            }
-        } else if (listOrder[key] == "Tokens") {
-            for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
-                int16_t skullToken = ITEM_SKULL_TOKEN_SWAMP + (j - ITEM_SKULL_TOKEN_SWAMP);
-                itemObject.itemList.push_back(skullToken);
-            }
-        } else if (listOrder[key] == "Stray Fairies") {
-            for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
-                int16_t strayFairy = ITEM_WOODFALL_STRAY_FAIRY + (j - ITEM_WOODFALL_STRAY_FAIRY);
-                itemObject.itemList.push_back(strayFairy);
-            }
-        } else if (listOrder[key] == "Dungeon") {
-            for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
-                int16_t dungeonItem = ITEM_WOODFALL_DUNGEON_MAP + (j - ITEM_WOODFALL_DUNGEON_MAP);
-                itemObject.itemList.push_back(dungeonItem);
-            }
-        } else {
-            std::pair<uint32_t, uint32_t> range = GetItemMapRange(std::get<0>(list), std::get<1>(list));
-            for (int i = range.first; i <= range.second; i++) {
-                if (itemIdToItemNameMap[i].first == ITEM_WALLET_ADULT) {
-                    itemObject.itemList.push_back(ITEM_MAGIC_JAR_SMALL);
-                    itemObject.itemList.push_back(ITEM_HEART_CONTAINER);
-                }
-                itemObject.itemList.push_back(itemIdToItemNameMap[i].first);
-            }
-        }
-        BenGui::mItemTrackerWindow->namedItemWindows.push_back(itemObject);
+        ApplyDefaultItemGroup(listOrder[key]);
+        // std::tuple<int16_t, int16_t, int16_t> list = defaultItemLists.at(listOrder[key]);
+        // TrackerItemListObject itemObject = {
+        //     .windowName = listOrder[key],
+        //     .columnLength = std::get<2>(list),
+        //     .windowScale = 1.0f,
+        //     .windowOpacity = 0.5f,
+        // };
+        // if (listOrder[key] == "Bottles") {
+        //     for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+        //         int16_t bottle = ITEM_BOTTLE_1 + (j - ITEM_BOTTLE_1);
+        //         itemObject.itemList.push_back(bottle);
+        //     }
+        // } else if (listOrder[key] == "Tokens") {
+        //     for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+        //         int16_t skullToken = ITEM_SKULL_TOKEN_SWAMP + (j - ITEM_SKULL_TOKEN_SWAMP);
+        //         itemObject.itemList.push_back(skullToken);
+        //     }
+        // } else if (listOrder[key] == "Stray Fairies") {
+        //     for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+        //         int16_t strayFairy = ITEM_WOODFALL_STRAY_FAIRY + (j - ITEM_WOODFALL_STRAY_FAIRY);
+        //         itemObject.itemList.push_back(strayFairy);
+        //     }
+        // } else if (listOrder[key] == "Dungeon") {
+        //     for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
+        //         int16_t dungeonItem = ITEM_WOODFALL_DUNGEON_MAP + (j - ITEM_WOODFALL_DUNGEON_MAP);
+        //         itemObject.itemList.push_back(dungeonItem);
+        //     }
+        // } else {
+        //     std::pair<uint32_t, uint32_t> range = GetItemMapRange(std::get<0>(list), std::get<1>(list));
+        //     for (int i = range.first; i <= range.second; i++) {
+        //         if (itemIdToItemNameMap[i].first == ITEM_WALLET_ADULT) {
+        //             itemObject.itemList.push_back(ITEM_MAGIC_JAR_SMALL);
+        //             itemObject.itemList.push_back(ITEM_HEART_CONTAINER);
+        //         }
+        //         itemObject.itemList.push_back(itemIdToItemNameMap[i].first);
+        //     }
+        // }
+        // BenGui::mItemTrackerWindow->namedItemWindows.push_back(itemObject);
     }
 }
 
@@ -402,8 +442,12 @@ void DrawTrackerOptions() {
             shouldWindowSplit = true;
         }
         UIWidgets::Tooltip("Places each group of items in its own Window.");
-        UIWidgets::CVarCombobox("Window Type", "gSettings.ItemTracker.WindowType", windowTypes, {.color = WIDGET_COLOR });
-                                
+        ImGui::TableNextColumn();
+        UIWidgets::CVarCombobox("Window Type", "gSettings.ItemTracker.WindowType", windowTypes,
+                                { .alignment = UIWidgets::ComponentAlignment::Right,
+                                  .labelPosition = UIWidgets::LabelPosition::Near,
+                                  .color = WIDGET_COLOR });
+
         ImGui::EndTable();
     }
     ImGui::SeparatorText("Custom Windows");
@@ -446,9 +490,15 @@ void DrawTrackerOptions() {
 void DrawTrackerCustomizationOptions() {
     if (ImGui::BeginChild("Item Lists")) {
         for (int key = 0; key < defaultItemLists.size(); key++) {
+            ImGui::PushID(key);
             std::tuple<int16_t, int16_t, int16_t> list = defaultItemLists.at(listOrder[key]);
             ImGui::SeparatorText(listOrder[key].c_str());
+            ImGui::SameLine(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize("Set All").x * 1.5f));
+            if (UIWidgets::Button("Set All", { .size = ImVec2(0, 0), .color = UIWidgets::Colors::Green })) {
+                ApplyDefaultItemGroup(listOrder[key]);
+            }
             DrawItemList(listOrder[key], std::get<2>(list));
+            ImGui::PopID();
         }
         ImGui::EndChild();
     }
