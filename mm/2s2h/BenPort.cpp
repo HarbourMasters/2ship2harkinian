@@ -61,6 +61,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/BenGui/Notification.h"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/Config/ConfigUpdaters.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/cvar_prefixes.h"
 #include "2s2h/PresetManager/PresetManager.h"
@@ -746,6 +747,9 @@ extern "C" void InitOTR() {
 #endif
 
     std::shared_ptr<Ship::Config> conf = OTRGlobals::Instance->context->GetConfig();
+    conf->RegisterVersionUpdater(std::make_shared<SOH::ConfigVersion1Updater>());
+    conf->RunVersionUpdates();
+
     Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(BinarySaveConverter_HandleFileDropped);
     Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(SaveManager_HandleFileDropped);
 }
