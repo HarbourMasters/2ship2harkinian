@@ -84,6 +84,26 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
             case RI_SOUL_TWINMOLD:
                 alpha = Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (itemId - RI_SOUL_GOHT)) ? 1 : 0.4f;
                 break;
+            case RI_TINGLE_MAP_CLOCK_TOWN:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_CLOCK_TOWN);
+                break;
+            case RI_TINGLE_MAP_WOODFALL:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_WOODFALL);
+                break;
+            case RI_TINGLE_MAP_SNOWHEAD:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_SNOWHEAD);
+                break;
+            case RI_TINGLE_MAP_ROMANI_RANCH:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_ROMANI_RANCH);
+                break;
+            case RI_TINGLE_MAP_GREAT_BAY:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_GREAT_BAY);
+                break;
+            case RI_TINGLE_MAP_STONE_TOWER:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_STONE_TOWER);
+                break;
+            case RI_TRIFORCE_PIECE:
+                alpha = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces > 0 ? 1 : 0.4f;
             default:
                 break;
         }
@@ -91,7 +111,8 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
 
         randoImageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
             (const char*)Rando::StaticData::GetIconTexturePath((RandoItemId)itemId));
-        randoImageObject.textureDimensions = ImVec2(46.0f, itemId >= RI_OWL_CLOCK_TOWN_SOUTH && itemId <= RI_OWL_ZORA_CAPE ? 32.0f : 46.0f);
+        randoImageObject.textureDimensions =
+            ImVec2(46.0f, itemId >= RI_OWL_CLOCK_TOWN_SOUTH && itemId <= RI_OWL_ZORA_CAPE ? 32.0f : 46.0f);
 
         return randoImageObject;
     } else {
@@ -260,8 +281,7 @@ void DrawItemSlot(int16_t itemId, float scale, bool isRandoItem) {
     UIWidgets::Tooltip(GetItemTrackerItemName(itemId, isRandoItem).c_str());
 }
 
-void DrawItemWindowList(TrackerItemListObject windowObject) {
-    bool isRandoItem = windowObject.windowName == BenGui::mItemTrackerWindow->namedItemWindows[1].windowName;
+void DrawItemWindowList(TrackerItemListObject windowObject, bool isRandoItem) {
     int columns = windowObject.columnLength;
     if (windowObject.itemList.size() < windowObject.columnLength) {
         columns = windowObject.itemList.size();
@@ -292,8 +312,9 @@ void ItemTrackerWindow::Draw() {
         return;
     }
 
-    if (BenGui::mItemTrackerWindow->namedItemWindows.empty() ||
-        (BenGui::mItemTrackerWindow->namedItemWindows[0].itemList.empty() && BenGui::mItemTrackerWindow->namedItemWindows[1].itemList.empty())) {
+    if (BenGui::mItemTrackerWindow->namedItemWindows.empty() || BenGui::mItemTrackerWindow->randoItemWindows.empty() ||
+        (BenGui::mItemTrackerWindow->namedItemWindows[0].itemList.empty() &&
+         BenGui::mItemTrackerWindow->randoItemWindows[0].itemList.empty())) {
         return;
     }
 
@@ -308,47 +329,57 @@ void ItemTrackerWindow::Draw() {
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
 
-    bool singleWindowOpen = false;
-    if (!shouldWindowSplit) {
-        ImVec4 mainBg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
-        mainBg.w = BenGui::mItemTrackerWindow->namedItemWindows[0].windowOpacity;
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, mainBg);
-        singleWindowOpen = ImGui::Begin("Item Tracker", nullptr, windowFlags);
-    }
+    std::vector<std::vector<TrackerItemListObject>*> windows = {
+        &BenGui::mItemTrackerWindow->namedItemWindows,
+        &BenGui::mItemTrackerWindow->randoItemWindows,
+    };
 
-    uint32_t index = 0;
-    for (auto& object : BenGui::mItemTrackerWindow->namedItemWindows) {
-        if (object.itemList.empty()) {
+    uint32_t windowIndex = TRACKER_MAIN;
+    for (auto* window : windows) {
+        bool singleWindowOpen = false;
+        if (!shouldWindowSplit) {
+            ImVec4 mainBg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+            mainBg.w = BenGui::mItemTrackerWindow->namedItemWindows[0].windowOpacity;
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, mainBg);
+            singleWindowOpen =
+                ImGui::Begin(windowIndex == TRACKER_MAIN ? "Main Tracker" : "Rando Tracker", nullptr, windowFlags);
+        }
+
+        uint32_t index = 0;
+        for (auto& object : *window) {
+            if (object.itemList.empty()) {
+                index++;
+                continue;
+            }
+
+            bool isWindowOpen = false;
+
+            if (shouldWindowSplit) {
+                ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+                bg.w = object.windowOpacity;
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, bg);
+                std::string windowName = std::string(object.windowName) + "##" + std::to_string(index);
+                isWindowOpen = ImGui::Begin(windowName.c_str(), nullptr, windowFlags);
+            } else {
+                isWindowOpen = singleWindowOpen;
+            }
+
+            if (isWindowOpen) {
+                DrawItemWindowList(object, windowIndex == TRACKER_MAIN ? false : true);
+            }
+
+            if (shouldWindowSplit) {
+                ImGui::PopStyleColor(1);
+                ImGui::End();
+            }
+
             index++;
-            continue;
         }
-
-        bool isWindowOpen = false;
-
-        if (shouldWindowSplit) {
-            ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
-            bg.w = object.windowOpacity;
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, bg);
-            std::string windowName = std::string(object.windowName) + "##" + std::to_string(index);
-            isWindowOpen = ImGui::Begin(windowName.c_str(), nullptr, windowFlags);
-        } else {
-            isWindowOpen = singleWindowOpen;
-        }
-
-        if (isWindowOpen) {
-            DrawItemWindowList(object);
-        }
-
-        if (shouldWindowSplit) {
+        if (!shouldWindowSplit) {
             ImGui::PopStyleColor(1);
             ImGui::End();
         }
-
-        index++;
-    }
-    if (!shouldWindowSplit) {
-        ImGui::PopStyleColor(1);
-        ImGui::End();
+        windowIndex++;
     }
 
     ImGui::PopStyleColor(1);

@@ -3,6 +3,11 @@
 #include "ship/window/gui/GuiWindow.h"
 
 typedef enum {
+    TRACKER_MAIN,
+    TRACKER_RANDO,
+} TrackerWindowTypes;
+
+typedef enum {
     ITEM_BOTTLE_1 = 0x100,
     ITEM_BOTTLE_2,
     ITEM_BOTTLE_3,

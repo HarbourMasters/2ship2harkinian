@@ -2,12 +2,14 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/ShipUtils.h"
 #include "2s2h/Rando/Rando.h"
+#include "2s2h_assets.h"
 
 extern "C" {
 extern s16 D_801CFF94[250];
 #include "assets/interface/parameter_static/parameter_static.h"
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "interface/icon_item_field_static/icon_item_field_static.h"
+#include "assets/archives/icon_item_static/icon_item_static_yar.h"
 }
 
 namespace Rando {
@@ -345,6 +347,15 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_OWL_WOODFALL:
         case RI_OWL_ZORA_CAPE:
             return (const char*)gWorldMapOwlFaceTex;
+        case RI_TINGLE_MAP_CLOCK_TOWN:
+        case RI_TINGLE_MAP_GREAT_BAY:
+        case RI_TINGLE_MAP_ROMANI_RANCH:
+        case RI_TINGLE_MAP_SNOWHEAD:
+        case RI_TINGLE_MAP_STONE_TOWER:
+        case RI_TINGLE_MAP_WOODFALL:
+            return (const char*)gItemIconTingleMapTex;
+        case RI_TRIFORCE_PIECE:
+            return (const char*)gTriforcePieceTex;
         default:
             break;
     }
