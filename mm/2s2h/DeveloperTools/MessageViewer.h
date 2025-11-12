@@ -48,10 +48,13 @@ class MessageViewerWindow : public Ship::GuiWindow {
     static constexpr int HEXADECIMAL = 0;
     static constexpr int DECIMAL = 1;
 
+    float previousMessageBoxWidth;
+
     char* mTextIdBuf;
     uint16_t mTextId;
     int mTextIdBase = HEXADECIMAL;
     char* mCustomMessageBuf;
+    char* mcustomMessageRaw;
     std::string mCustomMessageString;
     bool mDisplayExistingMessageClicked = false;
     bool mDisplayCustomMessageClicked = false;

@@ -14,6 +14,46 @@ extern "C" {
 
 using namespace UIWidgets;
 
+int AutoLineBreak(ImGuiInputTextCallbackData* data) {
+    if (!data || !data->Buf) {
+        return 0;
+    }
+
+    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    if (!window) {
+        return 0;
+    }
+
+    float maxWidth = ImGui::GetContentRegionAvail().x;
+    float lineWidth = 0.0f;
+    size_t i = 0;
+
+    while (data->Buf[i] != '\0' && i < data->BufSize - 1) {
+        if (data->Buf[i] == '\n') {
+            lineWidth = 0.0f;
+            i++;
+            continue;
+        }
+        char chStr[2] = { data->Buf[i], '\0' };
+        float charWidth = ImGui::CalcTextSize(chStr).x;
+        lineWidth += charWidth;
+        if (lineWidth > maxWidth) {
+            if (data->BufTextLen + 1 < data->BufSize) {
+                memmove(data->Buf + i + 1, data->Buf + i, data->BufTextLen - i + 1);
+                data->Buf[i] = '\n';
+                data->BufTextLen++;
+                lineWidth = 0.0f;
+                i++;
+            } else {
+                break;
+            }
+        }
+        i++;
+    }
+
+    return 0;
+}
+
 static std::string ParseEscapeSequences(const std::string& input) {
     std::string output;
     for (size_t i = 0; i < input.length(); ++i) {
@@ -56,11 +96,13 @@ static bool ValidateTextIdExists(uint16_t textId) {
 void MessageViewerWindow::InitElement() {
     mTextIdBuf = static_cast<char*>(calloc(MAX_STRING_SIZE, sizeof(char)));
     mCustomMessageBuf = static_cast<char*>(calloc(MAX_STRING_SIZE, sizeof(char)));
+    mcustomMessageRaw = static_cast<char*>(calloc(MAX_STRING_SIZE, sizeof(char)));
 }
 
 MessageViewerWindow::~MessageViewerWindow() {
     free(mTextIdBuf);
     free(mCustomMessageBuf);
+    free(mcustomMessageRaw);
 }
 
 void MessageViewerWindow::DrawElement() {
@@ -115,8 +157,24 @@ void MessageViewerWindow::DrawElement() {
     // Custom Message Builder Section
     ImGui::SeparatorText("Custom Message Builder");
 
+    float currentMessageBoxWidth = ImGui::GetContentRegionAvail().x;
+
     PushStyleInput(THEME_COLOR);
-    ImGui::InputTextMultiline("##CustomMessage", mCustomMessageBuf, MAX_STRING_SIZE, ImVec2(-1, 100));
+    if (ImGui::InputTextMultiline("##CustomMessage", mCustomMessageBuf, MAX_STRING_SIZE,
+                                  ImVec2(ImGui::GetContentRegionAvail().x, 100), ImGuiInputTextFlags_CallbackEdit,
+                                  AutoLineBreak)) {
+        if (previousMessageBoxWidth != currentMessageBoxWidth) {
+            previousMessageBoxWidth = currentMessageBoxWidth;
+            mcustomMessageRaw[0] = '\0';
+            for (size_t i = 0; i < sizeof(mCustomMessageBuf); i++) {
+                if (mCustomMessageBuf[i] == '\n') {
+                    continue;
+                }
+                mcustomMessageRaw[i] = mCustomMessageBuf[i];
+            }
+            mCustomMessageBuf = mcustomMessageRaw;
+        }
+    }
     PopStyleInput();
 
     Tooltip(
