@@ -50,8 +50,8 @@ typedef struct {
     std::vector<int16_t> itemList;
 } TrackerItemListObject;
 
-TrackerImageObject GetTextureObject(int16_t itemId);
-extern std::string GetItemTrackerItemName(int16_t itemId);
+TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem = false);
+extern std::string GetItemTrackerItemName(int16_t itemId, bool isRandoItem = false);
 extern bool shouldWindowSplit;
 
 class ItemTrackerWindow : public Ship::GuiWindow {
@@ -60,6 +60,7 @@ class ItemTrackerWindow : public Ship::GuiWindow {
     void Draw() override;
 
     std::vector<TrackerItemListObject> namedItemWindows;
+    std::vector<TrackerItemListObject> randoItemWindows;
 
   protected:
     void InitElement() override;

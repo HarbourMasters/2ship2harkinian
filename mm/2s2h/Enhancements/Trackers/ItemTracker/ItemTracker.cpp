@@ -9,6 +9,7 @@
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
+#include "interface/icon_item_field_static/icon_item_field_static.h"
 
 extern "C" {
 #include "z64save.h"
@@ -24,37 +25,104 @@ extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 
 ImVec4 trackerWindowOpacity = ImVec4(0, 0, 0, 0.5f);
 
-extern TrackerImageObject GetTextureObject(int16_t itemId) {
+extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
     int16_t currentItemId = ITEM_NONE;
     int16_t bottleId = 0;
 
-    if (itemId >= ITEM_BOTTLE_1 && itemId <= ITEM_BOTTLE_6) {
-        bottleId = SLOT_BOTTLE_1 + (itemId - ITEM_BOTTLE_1);
-        currentItemId = ITEM_BOTTLE;
-    }
-    if (itemId == ITEM_SKULL_TOKEN_SWAMP || itemId == ITEM_SKULL_TOKEN_OCEAN) {
-        currentItemId = ITEM_SKULL_TOKEN;
-    }
-    if (itemId >= ITEM_WOODFALL_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
-        currentItemId = ITEM_STRAY_FAIRIES;
-    }
-    if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
-        const int dungeonIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4;
-        const int itemTypeIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) % 4;
+    if (isRandoItem) {
+        TrackerImageObject randoImageObject;
+        float alpha = 0.4f;
+        randoImageObject.textureColor = ImVec4(1, 1, 1, 1);
 
-        switch (itemTypeIndex) {
-            case 0:
-                currentItemId = ITEM_DUNGEON_MAP;
+        switch (itemId) {
+            case RI_FROG_BLUE:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_33_01) ? 1 : 0.4f;
                 break;
-            case 1:
-                currentItemId = ITEM_COMPASS;
+            case RI_FROG_CYAN:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_32_40) ? 1 : 0.4f;
                 break;
-            case 2:
-                currentItemId = ITEM_KEY_SMALL;
+            case RI_FROG_PINK:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_32_80) ? 1 : 0.4f;
                 break;
-            case 3:
-                currentItemId = ITEM_KEY_BOSS;
+            case RI_FROG_WHITE:
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_33_02) ? 1 : 0.4f;
                 break;
+            case RI_OWL_CLOCK_TOWN_SOUTH:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_CLOCK_TOWN) ? 1 : 0.4f;
+                break;
+            case RI_OWL_GREAT_BAY_COAST:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_GREAT_BAY_COAST) ? 1 : 0.4f;
+                break;
+            case RI_OWL_IKANA_CANYON:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_IKANA_CANYON) ? 1 : 0.4f;
+                break;
+            case RI_OWL_MILK_ROAD:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_MILK_ROAD) ? 1 : 0.4f;
+                break;
+            case RI_OWL_MOUNTAIN_VILLAGE:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_MOUNTAIN_VILLAGE) ? 1 : 0.4f;
+                break;
+            case RI_OWL_SNOWHEAD:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_SNOWHEAD) ? 1 : 0.4f;
+                break;
+            case RI_OWL_SOUTHERN_SWAMP:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_SOUTHERN_SWAMP) ? 1 : 0.4f;
+                break;
+            case RI_OWL_STONE_TOWER:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_STONE_TOWER) ? 1 : 0.4f;
+                break;
+            case RI_OWL_WOODFALL:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_WOODFALL) ? 1 : 0.4f;
+                break;
+            case RI_OWL_ZORA_CAPE:
+                alpha = GET_OWL_STATUE_ACTIVATED(OWL_WARP_ZORA_CAPE) ? 1 : 0.4f;
+                break;
+            case RI_SOUL_GOHT:
+            case RI_SOUL_GYORG:
+            case RI_SOUL_MAJORA:
+            case RI_SOUL_ODOLWA:
+            case RI_SOUL_TWINMOLD:
+                alpha = Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (itemId - RI_SOUL_GOHT)) ? 1 : 0.4f;
+                break;
+            default:
+                break;
+        }
+        randoImageObject.textureColor.w = alpha;
+
+        randoImageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+            (const char*)Rando::StaticData::GetIconTexturePath((RandoItemId)itemId));
+        randoImageObject.textureDimensions = ImVec2(46.0f, itemId >= RI_OWL_CLOCK_TOWN_SOUTH && itemId <= RI_OWL_ZORA_CAPE ? 32.0f : 46.0f);
+
+        return randoImageObject;
+    } else {
+        if (itemId >= ITEM_BOTTLE_1 && itemId <= ITEM_BOTTLE_6) {
+            bottleId = SLOT_BOTTLE_1 + (itemId - ITEM_BOTTLE_1);
+            currentItemId = ITEM_BOTTLE;
+        }
+        if (itemId == ITEM_SKULL_TOKEN_SWAMP || itemId == ITEM_SKULL_TOKEN_OCEAN) {
+            currentItemId = ITEM_SKULL_TOKEN;
+        }
+        if (itemId >= ITEM_WOODFALL_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
+            currentItemId = ITEM_STRAY_FAIRIES;
+        }
+        if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
+            const int dungeonIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4;
+            const int itemTypeIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) % 4;
+
+            switch (itemTypeIndex) {
+                case 0:
+                    currentItemId = ITEM_DUNGEON_MAP;
+                    break;
+                case 1:
+                    currentItemId = ITEM_COMPASS;
+                    break;
+                case 2:
+                    currentItemId = ITEM_KEY_SMALL;
+                    break;
+                case 3:
+                    currentItemId = ITEM_KEY_BOSS;
+                    break;
+            }
         }
     }
 
@@ -184,15 +252,16 @@ extern TrackerImageObject GetTextureObject(int16_t itemId) {
     return imageObject;
 }
 
-void DrawItemSlot(int16_t itemId, float scale) {
-    TrackerImageObject imageObject = GetTextureObject(itemId);
+void DrawItemSlot(int16_t itemId, float scale, bool isRandoItem) {
+    TrackerImageObject imageObject = GetTextureObject(itemId, isRandoItem);
     ImGui::Image(imageObject.textureId,
                  ImVec2(imageObject.textureDimensions.x * scale, imageObject.textureDimensions.y * scale), ImVec2(0, 0),
                  ImVec2(1, 1), imageObject.textureColor, ImVec4(0, 0, 0, 0));
-    UIWidgets::Tooltip(GetItemTrackerItemName(itemId).c_str());
+    UIWidgets::Tooltip(GetItemTrackerItemName(itemId, isRandoItem).c_str());
 }
 
 void DrawItemWindowList(TrackerItemListObject windowObject) {
+    bool isRandoItem = windowObject.windowName == BenGui::mItemTrackerWindow->namedItemWindows[1].windowName;
     int columns = windowObject.columnLength;
     if (windowObject.itemList.size() < windowObject.columnLength) {
         columns = windowObject.itemList.size();
@@ -205,7 +274,7 @@ void DrawItemWindowList(TrackerItemListObject windowObject) {
             ImGui::TableNextColumn();
             ImVec2 framePadding = ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_SUN ? 8.0f : 0, 0);
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, framePadding);
-            DrawItemSlot(item, windowObject.windowScale);
+            DrawItemSlot(item, windowObject.windowScale, isRandoItem);
             ImGui::PopStyleVar(1);
         }
 
@@ -224,7 +293,7 @@ void ItemTrackerWindow::Draw() {
     }
 
     if (BenGui::mItemTrackerWindow->namedItemWindows.empty() ||
-        BenGui::mItemTrackerWindow->namedItemWindows[0].itemList.empty()) {
+        (BenGui::mItemTrackerWindow->namedItemWindows[0].itemList.empty() && BenGui::mItemTrackerWindow->namedItemWindows[1].itemList.empty())) {
         return;
     }
 
