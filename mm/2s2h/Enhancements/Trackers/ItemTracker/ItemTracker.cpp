@@ -104,6 +104,7 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
                 break;
             case RI_TRIFORCE_PIECE:
                 alpha = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces > 0 ? 1 : 0.4f;
+                break;
             default:
                 break;
         }
