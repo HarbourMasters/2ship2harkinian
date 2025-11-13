@@ -257,6 +257,7 @@ typedef enum {
     VB_ENEMY_DROP_COLLECTIBLE,
     VB_DRAW_SLIME_RANDO_ITEM,
     VB_ENABLE_OBJECT_DEPENDENCY,
+    VB_GORON_RACE_RUBBERBANDING,
 } GIVanillaBehavior;
 
 typedef enum {
