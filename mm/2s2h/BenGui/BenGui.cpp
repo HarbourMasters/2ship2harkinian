@@ -60,6 +60,8 @@ std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
 std::shared_ptr<TimesplitsWindow> mTimesplitsWindow;
 std::shared_ptr<TimesplitsSettingsWindow> mTimesplitsSettingsWindow;
+std::shared_ptr<InputViewer> mInputViewer;
+std::shared_ptr<InputViewerSettingsWindow> mInputViewerSettings;
 
 UIWidgets::Colors GetMenuThemeColor() {
     return mBenMenu->GetMenuThemeColor();
@@ -162,6 +164,12 @@ void SetupGuiElements() {
     mRandoCheckTrackerSettingsWindow = std::make_shared<Rando::CheckTracker::SettingsWindow>(
         "gWindows.CheckTrackerSettings", "Check Tracker Settings");
     gui->AddGuiWindow(mRandoCheckTrackerSettingsWindow);
+
+    mInputViewer = std::make_shared<InputViewer>("gWindows.InputViewer", "Input Viewer");
+    gui->AddGuiWindow(mInputViewer);
+    mInputViewerSettings = std::make_shared<InputViewerSettingsWindow>("gWindows.InputViewerSettings",
+                                                                       "Input Viewer Settings", ImVec2(500, 525));
+    gui->AddGuiWindow(mInputViewerSettings);
 }
 
 void Destroy() {
@@ -188,5 +196,7 @@ void Destroy() {
     mAudioEditorWindow = nullptr;
     mItemTrackerWindow = nullptr;
     mItemTrackerSettingsWindow = nullptr;
+    mInputViewer = nullptr;
+    mInputViewerSettings = nullptr;
 }
 } // namespace BenGui
