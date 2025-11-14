@@ -11,7 +11,7 @@ void Init();
 void OnFileLoad();
 
 RandoCheckId GetActorRandoCheckId(Actor* actor);
-void SetActorRandoCheckId(Actor* actor, RandoCheckId rc);
+void SetActorRandoCheckId(const Actor* actor, RandoCheckId rc);
 
 void InitDmChar01Behavior();
 void InitDmChar05Behavior();
@@ -98,6 +98,7 @@ void InitObjTsuboBehavior();
 void InitObjWarpstoneBehavior();
 void InitPlayerBehavior();
 void InitSoulsBehavior();
+void InitTrapsBehavior();
 
 } // namespace ActorBehavior
 
