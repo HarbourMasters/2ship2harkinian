@@ -677,10 +677,17 @@ void Menu::DrawElement() {
     options.size = UIWidgets::Sizes::Inline;
     options.tooltip = "Quit 2S2H";
     if (UIWidgets::Button(ICON_FA_POWER_OFF, options)) {
-        if (!popped) {
-            ToggleVisibility();
-        }
-        Ship::Context::GetInstance()->GetWindow()->Close();
+        BenGui::mModalWindow->RegisterPopup(
+            "Quit 2S2H", "Are you sure you want to quit 2S2H?", "Quit", "Cancel",
+            []() {
+                std::shared_ptr<Menu> menu =
+                    static_pointer_cast<Menu>(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenu());
+                if (!menu->IsMenuPopped()) {
+                    menu->ToggleVisibility();
+                }
+                Ship::Context::GetInstance()->GetWindow()->Close();
+            },
+            nullptr);
     }
     ImGui::PopStyleVar();
     ImGui::SameLine();

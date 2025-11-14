@@ -201,5 +201,4 @@ void RegisterPopup(std::string title, std::string message, std::string button1, 
     mModalWindow->RegisterPopup(title, message, button1, button2, button1callback, button2callback);
 }
 
-
 } // namespace BenGui
