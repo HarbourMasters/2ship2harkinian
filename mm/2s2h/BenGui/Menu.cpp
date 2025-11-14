@@ -602,21 +602,6 @@ void Menu::DrawElement() {
         headerHeight += style.ScrollbarSize;
         scrollbar = true;
     }
-    UIWidgets::ButtonOptions options = {};
-    options.size = UIWidgets::Sizes::Inline;
-    options.tooltip = "Close Menu (Esc)";
-    if (UIWidgets::Button(ICON_FA_TIMES_CIRCLE, options)) {
-        ToggleVisibility();
-
-        // Update gamepad navigation after close based on if other menus are still visible
-        auto mImGuiIo = &ImGui::GetIO();
-        if (CVarGetInteger(CVAR_IMGUI_CONTROLLER_NAV, 0) &&
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible()) {
-            mImGuiIo->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-        } else {
-            mImGuiIo->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
-        }
-    }
     ImGui::SameLine();
     ImGui::SetNextWindowSizeConstraints({ 0, headerHeight }, { headerWidth, headerHeight });
     ImVec2 headerSelSize = { menuSize.x - buttonSize.x * 3 - style.ItemSpacing.x * 3, headerHeight };
@@ -679,7 +664,19 @@ void Menu::DrawElement() {
         ImGui::PopStyleColor();
     }
     ImGui::EndChild();
-    ImGui::SameLine(menuSize.x - (buttonSize.x * 2) - style.ItemSpacing.x);
+    ImGui::SameLine(menuSize.x - (buttonSize.x * 3) - style.ItemSpacing.x * 3);
+    UIWidgets::ButtonOptions options = {};
+    options.color = UIWidgets::Colors::Red;
+    options.size = UIWidgets::Sizes::Inline;
+    options.tooltip = "Quit 2S2H";
+    if (UIWidgets::Button(ICON_FA_POWER_OFF, options)) {
+        if (!popped) {
+            ToggleVisibility();
+        }
+        Ship::Context::GetInstance()->GetWindow()->Close();
+    }
+    ImGui::PopStyleVar();
+    ImGui::SameLine();
     UIWidgets::ButtonOptions options2 = {};
     options2.color = UIWidgets::Colors::Red;
     options2.size = UIWidgets::Sizes::Inline;
@@ -699,16 +696,20 @@ void Menu::DrawElement() {
     }
     ImGui::SameLine();
     UIWidgets::ButtonOptions options3 = {};
-    options3.color = UIWidgets::Colors::Red;
     options3.size = UIWidgets::Sizes::Inline;
-    options3.tooltip = "Quit 2S2H";
-    if (UIWidgets::Button(ICON_FA_POWER_OFF, options3)) {
-        if (!popped) {
-            ToggleVisibility();
+    options3.tooltip = "Close Menu (Esc)";
+    if (UIWidgets::Button(ICON_FA_TIMES_CIRCLE, options3)) {
+        ToggleVisibility();
+
+        // Update gamepad navigation after close based on if other menus are still visible
+        auto mImGuiIo = &ImGui::GetIO();
+        if (CVarGetInteger(CVAR_IMGUI_CONTROLLER_NAV, 0) &&
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible()) {
+            mImGuiIo->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        } else {
+            mImGuiIo->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
         }
-        Ship::Context::GetInstance()->GetWindow()->Close();
     }
-    ImGui::PopStyleVar();
 
     pos.y += headerHeight + style.ItemSpacing.y;
     pos.x = centerX - menuSize.x / 2 + (style.ItemSpacing.x * (menuEntries.size() + 1));
