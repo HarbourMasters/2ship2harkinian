@@ -398,6 +398,8 @@ typedef struct ShipSaveInfo {
     SaveType saveType;
     uint64_t fileCreatedAt;
     uint64_t fileCompletedAt; // For now this is always Majora final blow, has the potential to be something else later on
+    uint64_t lastTimeLog; // Persisted value not relevant, but needs stored to calculate filePlaytime
+    uint64_t filePlaytime;
     char commitHash[8];
     RandoSaveInfo rando;
 } ShipSaveInfo;

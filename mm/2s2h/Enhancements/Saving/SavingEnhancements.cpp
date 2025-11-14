@@ -5,6 +5,8 @@
 extern "C" {
 #include <variables.h>
 #include <functions.h>
+#include "overlays/actors/ovl_Boss_07/z_boss_07.h"
+void Boss07_Wrath_Death(Boss07*, PlayState*);
 }
 
 static uint32_t autosaveInterval = 0;
@@ -86,6 +88,14 @@ extern "C" bool SavingEnhancements_CanSave() {
     return true;
 }
 
+extern "C" void SavingEnhancements_AdvancePlaytime() {
+    if (gSaveContext.save.shipSaveInfo.fileCompletedAt == 0) {
+        uint64_t timestamp = GetUnixTimestamp();
+        gSaveContext.save.shipSaveInfo.filePlaytime += timestamp - gSaveContext.save.shipSaveInfo.lastTimeLog;
+        gSaveContext.save.shipSaveInfo.lastTimeLog = timestamp;
+    }
+}
+
 void DeleteOwlSave() {
     // Remove Owl Save on time cycle reset, needed when persisting owl saves and/or when
     // creating owl saves without the player being send back to the file select screen.
@@ -137,6 +147,7 @@ void HandleAutoSave() {
         // Create owl save
         gSaveContext.save.isOwlSave = true;
         gSaveContext.save.shipSaveInfo.pauseSaveEntrance = SavingEnhancements_GetSaveEntrance();
+        SavingEnhancements_AdvancePlaytime();
         Play_SaveCycleSceneFlags(gPlayState);
         gSaveContext.save.saveInfo.playerData.savedSceneId = gPlayState->sceneId;
         func_8014546C(&gPlayState->sramCtx);
@@ -157,7 +168,30 @@ void RegisterSavingEnhancements() {
         }
     });
 
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() { DeleteOwlSave(); });
+    COND_HOOK(OnSaveLoad, true, [](s16 fileNum) {
+        if (gSaveContext.save.shipSaveInfo.fileCreatedAt == 0) {
+            gSaveContext.save.shipSaveInfo.fileCreatedAt = GetUnixTimestamp();
+        }
+        gSaveContext.save.shipSaveInfo.lastTimeLog = GetUnixTimestamp();
+    });
+
+    // Owl statue prompt
+    COND_ID_HOOK(OnOpenText, 0xC01, true,
+                 [](u16* textId, bool* loadFromMessageTable) { SavingEnhancements_AdvancePlaytime(); });
+
+    // Defeated Majora's Wrath, mark fileCompletedAt accordingly
+    COND_ID_HOOK(OnActorUpdate, ACTOR_BOSS_07, true, [](Actor* actor) {
+        Boss07* boss = (Boss07*)actor;
+        if (boss->actionFunc == Boss07_Wrath_Death && gSaveContext.save.shipSaveInfo.fileCompletedAt == 0) {
+            SavingEnhancements_AdvancePlaytime();
+            gSaveContext.save.shipSaveInfo.fileCompletedAt = GetUnixTimestamp();
+        }
+    })
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() {
+        SavingEnhancements_AdvancePlaytime();
+        DeleteOwlSave();
+    });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeMoonCrashSaveReset>([]() { DeleteOwlSave(); });
 }
