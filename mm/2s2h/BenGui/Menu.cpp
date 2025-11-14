@@ -3,6 +3,7 @@
 #include "BenPort.h"
 #include "BenInputEditorWindow.h"
 #include <ship/window/gui/GuiElement.h>
+#include "BenModals.h"
 #include "Notification.h"
 #include <variant>
 #include <spdlog/fmt/fmt.h>
@@ -20,7 +21,9 @@ std::vector<ImVec2> windowTypeSizes = { {} };
 extern std::unordered_map<s16, const char*> warpPointSceneList;
 extern void Warp();
 
-namespace BenGui {}
+namespace BenGui {
+extern std::shared_ptr<BenModalWindow> mModalWindow;
+}
 
 namespace Ship {
 std::string disabledTempTooltip;
@@ -103,6 +106,10 @@ void Menu::UpdateWindowBackendObjects() {
     for (auto& backend : *availableWindowBackends) {
         availableWindowBackendsMap[backend] = windowBackendsMap.at(backend);
     }
+}
+
+bool Menu::IsMenuPopped() {
+    return popped;
 }
 
 UIWidgets::Colors Menu::GetMenuThemeColor() {
