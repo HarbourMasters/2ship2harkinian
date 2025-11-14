@@ -4601,66 +4601,64 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                 }
 
                 if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_SCARECROW_SPAWN) {
-                    if (GameInteractor_Should(VB_OCARINA_TRIGGER_SONG, true, msgCtx->songPlayed)) {
-                        if (msgCtx->ocarinaStaff->state == OCARINA_SONG_EVAN_PART1) {
-                            AudioOcarina_ResetAndReadInput();
-                            AudioOcarina_StartDefault(0x80100000);
-                        } else if (msgCtx->ocarinaStaff->state == OCARINA_SONG_EVAN_PART2) {
-                            Audio_PlaySfx(NA_SE_SY_CORRECT_CHIME);
-                            AudioOcarina_SetOcarinaDisableTimer(0, 20);
-                            Message_CloseTextbox(play);
-                            play->msgCtx.ocarinaMode = OCARINA_MODE_PLAYED_FULL_EVAN_SONG;
-                        } else if (GameInteractor_Should(VB_SONG_AVAILABLE_TO_PLAY, vanillaOwnedSongCheck,
-                                                         &msgCtx->ocarinaStaff->state)) {
-                            sLastPlayedSong = msgCtx->ocarinaStaff->state;
-                            msgCtx->lastPlayedSong = msgCtx->ocarinaStaff->state;
-                            msgCtx->songPlayed = msgCtx->ocarinaStaff->state;
-                            msgCtx->msgMode = MSGMODE_E;
-                            msgCtx->stateTimer = 20;
+                    if (msgCtx->ocarinaStaff->state == OCARINA_SONG_EVAN_PART1) {
+                        AudioOcarina_ResetAndReadInput();
+                        AudioOcarina_StartDefault(0x80100000);
+                    } else if (msgCtx->ocarinaStaff->state == OCARINA_SONG_EVAN_PART2) {
+                        Audio_PlaySfx(NA_SE_SY_CORRECT_CHIME);
+                        AudioOcarina_SetOcarinaDisableTimer(0, 20);
+                        Message_CloseTextbox(play);
+                        play->msgCtx.ocarinaMode = OCARINA_MODE_PLAYED_FULL_EVAN_SONG;
+                    } else if (GameInteractor_Should(VB_SONG_AVAILABLE_TO_PLAY, vanillaOwnedSongCheck,
+                                                     &msgCtx->ocarinaStaff->state)) {
+                        sLastPlayedSong = msgCtx->ocarinaStaff->state;
+                        msgCtx->lastPlayedSong = msgCtx->ocarinaStaff->state;
+                        msgCtx->songPlayed = msgCtx->ocarinaStaff->state;
+                        msgCtx->msgMode = MSGMODE_E;
+                        msgCtx->stateTimer = 20;
 
-                            if (msgCtx->ocarinaAction == OCARINA_ACTION_CHECK_NOTIME) {
-                                if ((msgCtx->ocarinaStaff->state <= OCARINA_SONG_SARIAS) ||
-                                    (msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN)) {
-                                    AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
-                                    Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
-                                    msgCtx->msgMode = MSGMODE_OCARINA_STARTING;
-                                } else {
-                                    Message_ContinueTextbox(play, 0x1B5B);
-                                    msgCtx->msgMode = MSGMODE_SONG_PLAYED;
-                                    msgCtx->textBoxType = TEXTBOX_TYPE_3;
-                                    msgCtx->stateTimer = 10;
-                                    Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
-                                    Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
-                                }
-                            } else if (msgCtx->ocarinaAction == OCARINA_ACTION_CHECK_SCARECROW_SPAWN) {
-                                if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_STORMS) {
-                                    AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
-                                    Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
-                                    msgCtx->stateTimer = 10;
-                                    msgCtx->msgMode = MSGMODE_OCARINA_FAIL;
-                                } else {
-                                    Message_ContinueTextbox(play, 0x1B5B);
-                                    msgCtx->msgMode = MSGMODE_SONG_PLAYED;
-                                    msgCtx->textBoxType = TEXTBOX_TYPE_3;
-                                    msgCtx->stateTimer = 10;
-                                    Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
-                                    Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
-                                }
-                            } else if (msgCtx->ocarinaAction == OCARINA_ACTION_FREE_PLAY) {
+                        if (msgCtx->ocarinaAction == OCARINA_ACTION_CHECK_NOTIME) {
+                            if ((msgCtx->ocarinaStaff->state <= OCARINA_SONG_SARIAS) ||
+                                (msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN)) {
+                                AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
+                                Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
+                                msgCtx->msgMode = MSGMODE_OCARINA_STARTING;
+                            } else {
                                 Message_ContinueTextbox(play, 0x1B5B);
                                 msgCtx->msgMode = MSGMODE_SONG_PLAYED;
                                 msgCtx->textBoxType = TEXTBOX_TYPE_3;
                                 msgCtx->stateTimer = 10;
                                 Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
-                            } else {
-                                Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
+                                Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
                             }
-                            Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
+                        } else if (msgCtx->ocarinaAction == OCARINA_ACTION_CHECK_SCARECROW_SPAWN) {
+                            if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_STORMS) {
+                                AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
+                                Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
+                                msgCtx->stateTimer = 10;
+                                msgCtx->msgMode = MSGMODE_OCARINA_FAIL;
+                            } else {
+                                Message_ContinueTextbox(play, 0x1B5B);
+                                msgCtx->msgMode = MSGMODE_SONG_PLAYED;
+                                msgCtx->textBoxType = TEXTBOX_TYPE_3;
+                                msgCtx->stateTimer = 10;
+                                Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
+                                Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
+                            }
+                        } else if (msgCtx->ocarinaAction == OCARINA_ACTION_FREE_PLAY) {
+                            Message_ContinueTextbox(play, 0x1B5B);
+                            msgCtx->msgMode = MSGMODE_SONG_PLAYED;
+                            msgCtx->textBoxType = TEXTBOX_TYPE_3;
+                            msgCtx->stateTimer = 10;
+                            Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
                         } else {
-                            AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
-                            Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
-                            msgCtx->msgMode = MSGMODE_OCARINA_STARTING;
+                            Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
                         }
+                        Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
+                    } else {
+                        AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
+                        Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
+                        msgCtx->msgMode = MSGMODE_OCARINA_STARTING;
                     }
                 } else if (msgCtx->ocarinaStaff->state == OCARINA_SONG_TERMINA_WALL) {
                     Message_CloseTextbox(play);

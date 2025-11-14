@@ -60,7 +60,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 }
 
                 std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(
-                    CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
+                    CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT.c_str()), ",");
 
                 std::string startingItemSave = CreateStartingItemsToCvar(startingItems);
                 strncpy(RANDO_STARTING_ITEMS, startingItemSave.c_str(), startingItemSave.size() + 1);

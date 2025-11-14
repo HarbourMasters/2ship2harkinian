@@ -427,8 +427,8 @@ static void DrawStartingItemsTab() {
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
 
-    std::vector<RandoItemId> setStartingItemsList =
-        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
+    std::vector<RandoItemId> setStartingItemsList = convertStartingItemsToRandoItemId(
+        CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT.c_str()), ",");
     uint32_t listIndex = 0;
     for (auto& startingItem : setStartingItemsList) {
         ImGui::PushID(listIndex);
@@ -510,7 +510,7 @@ static void DrawStartingItemsTab() {
                                                                      ? ITEM_SONG_LULLABY
                                                                      : randoStaticItem.itemId))) {
                         std::string currentStartingItems =
-                            CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT);
+                            CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT.c_str());
                         if (currentStartingItems.length() != 0) {
                             currentStartingItems += ",";
                         }

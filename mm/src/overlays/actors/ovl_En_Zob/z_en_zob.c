@@ -582,10 +582,8 @@ void func_80BA0728(EnZob* this, PlayState* play) {
 
     if (Actor_OcarinaInteractionAccepted(&this->actor, &play->state)) {
         if (GET_PLAYER_FORM == PLAYER_FORM_ZORA) {
-            if (GameInteractor_Should(VB_JAPAS_START_JAM_SESSION, true, this)) {
-                Message_StartTextbox(play, 0x1208, NULL);
-                SET_WEEKEVENTREG(WEEKEVENTREG_30_08);
-            }
+            Message_StartTextbox(play, 0x1208, NULL);
+            SET_WEEKEVENTREG(WEEKEVENTREG_30_08);
         } else {
             Message_StartTextbox(play, 0x1216, NULL);
         }
