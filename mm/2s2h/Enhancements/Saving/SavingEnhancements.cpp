@@ -14,31 +14,41 @@ static uint64_t lastSaveTimestamp = GetUnixTimestamp();
 
 static HOOK_ID autosaveGameStateUpdateHookId = 0;
 static HOOK_ID autosaveGameStateDrawFinishHookId = 0;
+static HOOK_ID skipEntranceCutsceneHookId = 0;
+static HOOK_ID killSkipEntranceCutsceneHookId = 0;
 
 // Used for saving through Autosaves and Pause Menu saves.
 extern "C" int SavingEnhancements_GetSaveEntrance() {
-    switch (gPlayState->sceneId) {
-        // Woodfall Temple + Odolwa
-        case SCENE_MITURIN:
-        case SCENE_MITURIN_BS:
-            return ENTRANCE(WOODFALL_TEMPLE, 0);
-        // Snowhead Temple + Goht
-        case SCENE_HAKUGIN:
-        case SCENE_HAKUGIN_BS:
-            return ENTRANCE(SNOWHEAD_TEMPLE, 0);
-        // Great Bay Temple + Gyorg
-        case SCENE_SEA:
-        case SCENE_SEA_BS:
-            return ENTRANCE(GREAT_BAY_TEMPLE, 0);
-        // Stone Tower Temple
-        case SCENE_INISIE_N:
-            return ENTRANCE(STONE_TOWER_TEMPLE, 0);
-        // Stone Tower Temple (inverted) + Twinmold
-        case SCENE_INISIE_R:
-        case SCENE_INISIE_BS:
-            return ENTRANCE(STONE_TOWER_TEMPLE_INVERTED, 0);
-        default:
-            return ENTRANCE(SOUTH_CLOCK_TOWN, 0);
+    if (CVarGetInteger("gEnhancements.Saving.RememberSaveLocation", 0)) {
+        // Maintain respawn information, used for grottos
+        for (int i = 0; i < RESPAWN_MODE_MAX; i++) {
+            gSaveContext.save.shipSaveInfo.respawn[i] = gSaveContext.respawn[i];
+        }
+        return gSaveContext.save.entrance;
+    } else {
+        switch (gPlayState->sceneId) {
+            // Woodfall Temple + Odolwa
+            case SCENE_MITURIN:
+            case SCENE_MITURIN_BS:
+                return ENTRANCE(WOODFALL_TEMPLE, 0);
+            // Snowhead Temple + Goht
+            case SCENE_HAKUGIN:
+            case SCENE_HAKUGIN_BS:
+                return ENTRANCE(SNOWHEAD_TEMPLE, 0);
+            // Great Bay Temple + Gyorg
+            case SCENE_SEA:
+            case SCENE_SEA_BS:
+                return ENTRANCE(GREAT_BAY_TEMPLE, 0);
+            // Stone Tower Temple
+            case SCENE_INISIE_N:
+                return ENTRANCE(STONE_TOWER_TEMPLE, 0);
+            // Stone Tower Temple (inverted) + Twinmold
+            case SCENE_INISIE_R:
+            case SCENE_INISIE_BS:
+                return ENTRANCE(STONE_TOWER_TEMPLE, 0);
+            default:
+                return ENTRANCE(SOUTH_CLOCK_TOWN, 0);
+        }
     }
 }
 
@@ -158,6 +168,53 @@ void HandleAutoSave() {
     }
 }
 
+/*
+ * This respawn data is used for multiple things. Beyond the obvious usage for handling player respawns, this structure
+ * also maintains state information when entering shared grottos. This code executes from OnSaveLoad, which runs after
+ * save data is populated. This must run after that, otherwise the RESPAWN_MODE_DOWN entrance would get set to
+ * ENTR_LOAD_OPENING, which in turn would lead to a crash if the save is within a grotto and the player dies before
+ * leaving.
+ */
+void loadRespawnData(s16 fileNum) {
+    for (int i = 0; i < RESPAWN_MODE_MAX; i++) {
+        gSaveContext.respawn[i] = gSaveContext.save.shipSaveInfo.respawn[i];
+    }
+}
+
+/*
+ * Upon loading a save, skip any cutscenes that would play if the save is from a cutscene entrance (e.g. owl warps, Link
+ * bowing at Mikau's grave, etc.). An OnPassPlayerInputs hook is then used to unregister the entrance cutscene skip
+ * hook so that subsequent cutscenes are not also skipped.
+ */
+void skipEntranceCutsceneOnLoad(s16 fileNum) {
+    if (!killSkipEntranceCutsceneHookId) {
+        // Create hook to kill cutscene hook once player assumes control
+        killSkipEntranceCutsceneHookId =
+            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPassPlayerInputs>([](Input* input) {
+                // We have reached gameplay. The cutscene skip hook must not be used anymore, so kill it.
+                if (skipEntranceCutsceneHookId) {
+                    GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(
+                        skipEntranceCutsceneHookId);
+                    skipEntranceCutsceneHookId = 0;
+                }
+                // And now kill the kill hook itself since it does not need to run more than once.
+                GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPassPlayerInputs>(
+                    killSkipEntranceCutsceneHookId);
+                killSkipEntranceCutsceneHookId = 0;
+            });
+    }
+
+    // If there is a cutscene upon load (i.e. entrance cutscene), just skip it
+    if (!skipEntranceCutsceneHookId) {
+        skipEntranceCutsceneHookId = REGISTER_VB_SHOULD(VB_START_CUTSCENE, {
+            // Only skip normal cutscenes
+            if (gSaveContext.gameMode == GAMEMODE_NORMAL && gPlayState->sceneId != SCENE_SPOT00) {
+                *should = false;
+            }
+        });
+    }
+}
+
 void RegisterSavingEnhancements() {
     REGISTER_VB_SHOULD(VB_DELETE_OWL_SAVE, {
         if (CVarGetInteger("gEnhancements.Saving.PersistentOwlSaves", 0) ||
@@ -191,6 +248,10 @@ void RegisterSavingEnhancements() {
     });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeMoonCrashSaveReset>([]() { DeleteOwlSave(); });
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveLoad>(loadRespawnData);
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveLoad>(skipEntranceCutsceneOnLoad);
 }
 
 void RegisterAutosave() {
