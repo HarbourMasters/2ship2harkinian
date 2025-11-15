@@ -751,89 +751,70 @@ void AudioEditor_UnlockAll() {
 void RegisterAudioWidgets() {
 
     lowHpAlarm = { .name = "Mute Low HP Alarm", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-
     lowHpAlarm.CVar("gAudioEditor.LowHpAlarm")
         .Options(CheckboxOptions()
                      .Color(THEME_COLOR)
                      .Tooltip("Mutes the beeping alarm when you are critically low on health."));
-
     BenGui::mBenMenu->AddSearchWidget({ lowHpAlarm, "Enhancements", "Audio Editor", "Audio Options" });
 
     muteCarpenterSfx = { .name = "Mute Carpenter Sounds", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-
     muteCarpenterSfx.CVar("gAudioEditor.MuteCarpenterSfx")
         .Options(CheckboxOptions()
                      .Color(THEME_COLOR)
                      .Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
                               "from the tower in South Clock Town."));
-
     BenGui::mBenMenu->AddSearchWidget({ muteCarpenterSfx, "Enhancements", "Audio Editor", "Audio Options" });
 
     childGoronCry = { .name = "Mute Crying Goron Child", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-
     childGoronCry.CVar("gAudioEditor.ChildGoronCry")
         .Options(CheckboxOptions().Color(THEME_COLOR).Tooltip("Mutes the crying Goron child inside Goron Shrine."));
-
     BenGui::mBenMenu->AddSearchWidget({ childGoronCry, "Enhancements", "Audio Editor", "Audio Options" });
 
     tatlCall = { .name = "Disable Tatl Call Audio", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-
     tatlCall.CVar("gAudioEditor.DisableTatlCallAudio")
         .Options(CheckboxOptions().Color(THEME_COLOR).Tooltip("Disables the bell audio when Tatl calls you."));
-
     BenGui::mBenMenu->AddSearchWidget({ tatlCall, "Enhancements", "Audio Editor", "Audio Options" });
 
     enemyProx = { .name = "Disable Enemy Proximity Music", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-
     enemyProx.CVar("gAudioEditor.EnemyBGMDisable")
         .Options(CheckboxOptions()
                      .Color(THEME_COLOR)
                      .Tooltip("Disables the music change when getting close to enemies. Useful for hearing "
                               "your custom music for each scene more often."));
-
     BenGui::mBenMenu->AddSearchWidget({ enemyProx, "Enhancements", "Audio Editor", "Audio Options" });
 
     randoMusicOnSceneChange = { .name = "Randomize All Music and Sound Effects on New Scene",
                                 .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-
     randoMusicOnSceneChange.CVar("gAudioEditor.RandomizeAllOnNewScene")
         .Options(CheckboxOptions()
                      .Color(THEME_COLOR)
                      .Tooltip("Enables randomizing all unlocked music and sound effects when you enter a new scene."));
-
     BenGui::mBenMenu->AddSearchWidget({ randoMusicOnSceneChange, "Enhancements", "Audio Editor", "Audio Options" });
 
     randomAudioOnSeedGen = { .name = "Randomize All Music and Sound Effects on Randomizer Generation",
                              .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-
     randomAudioOnSeedGen.CVar("gAudioEditor.RandomizeAllOnRandoGen")
         .Options(CheckboxOptions()
                      .Color(THEME_COLOR)
                      .Tooltip("Enables randomizing all unlocked music and sound effects when you generate a new "
                               "randomizer. Respects locks already in place."));
-
     BenGui::mBenMenu->AddSearchWidget({ randomAudioOnSeedGen, "Enhancements", "Audio Editor", "Audio Options" });
 
     displaySeqName = { .name = "Display Sequence Name on Overlay", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
-
     displaySeqName.CVar("gAudioEditor.SeqNameNotification")
         .Options(CheckboxOptions()
                      .Color(THEME_COLOR)
                      .Tooltip("Displays the name of the current sequence in the corner of the screen whenever a new "
                               "sequence "
                               "is loaded to the main sequence player (does not apply to fanfares or enemy BGM)."));
-
     BenGui::mBenMenu->AddSearchWidget({ displaySeqName, "Enhancements", "Audio Editor", "Audio Options" });
 
     ovlDuration = { .name = "Overlay Duration: %d seconds", .type = WidgetType::WIDGET_CVAR_SLIDER_INT };
-
     ovlDuration.CVar("gAudioEditor.SeqNameNotificationDuration")
         .Options(IntSliderOptions().Color(THEME_COLOR).Min(1).Max(10).DefaultValue(5).Size(ImVec2(300.0f, 0.0f)));
-
     BenGui::mBenMenu->AddSearchWidget({ ovlDuration, "Enhancements", "Audio Editor", "Audio Options" });
 
     voicePitch = { .name = "Link's Voice Pitch Multiplier", .type = WidgetType::WIDGET_CVAR_SLIDER_FLOAT };
-
     voicePitch.CVar("gAudioEditor.LinkVoiceFreqMultiplier")
         .Options(FloatSliderOptions()
                      .Color(THEME_COLOR)
@@ -842,7 +823,6 @@ void RegisterAudioWidgets() {
                      .Max(2.5f)
                      .DefaultValue(1.0f)
                      .Size(ImVec2(300.0f, 0.0f)));
-
     BenGui::mBenMenu->AddSearchWidget({ voicePitch, "Enhancements", "Audio Editor", "Audio Options" });
 }
 
