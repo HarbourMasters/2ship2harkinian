@@ -10,8 +10,8 @@
 #include "../../BenPort.h"
 #include <ship/utils/StringHelper.h>
 #include "../../BenGui/UIWidgets.hpp"
-#include "../../BenGui/BenMenu.h"
-#include "../../BenGui/BenGui.hpp"
+#include "2s2h/BenGui/BenMenu.h"
+#include "2s2h/BenGui/BenGui.hpp"
 #include "AudioCollection.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include <random>
