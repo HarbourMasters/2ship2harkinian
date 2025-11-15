@@ -445,7 +445,7 @@ void AudioEditorRegisterOnSceneChangeHook() {
 }
 
 void AudioEditorRegisterOnGenerationCompletionHook() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGenerationCompletion>([]() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnRandoSeedGeneration>([]() {
         if (CVarGetInteger("gAudioEditor.RandomizeAllOnRandoGen", 0)) {
             AudioEditor_RandomizeAll();
         }

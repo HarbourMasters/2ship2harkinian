@@ -58,4 +58,4 @@ DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, va_lis
 DEFINE_HOOK(OnSeqPlayerInit, (int32_t playerIdx, int32_t seqId));
 
 // Rando
-DEFINE_HOOK(OnGenerationCompletion, ());
+DEFINE_HOOK(OnRandoSeedGeneration, ());
