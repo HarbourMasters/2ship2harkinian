@@ -759,7 +759,7 @@ void RegisterAudioWidgets() {
         .Options(CheckboxOptions()
                      .Color(THEME_COLOR)
                      .Tooltip("Mutes the beeping alarm when you are critically low on health."));
-    AddAudioSearchWidget(lowHpAlarm);  
+    AddAudioSearchWidget(lowHpAlarm);
 
     muteCarpenterSfx = { .name = "Mute Carpenter Sounds", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
     muteCarpenterSfx.CVar(CVAR_AUDIO("MuteCarpenterSfx"))
