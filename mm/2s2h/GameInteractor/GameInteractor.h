@@ -729,7 +729,6 @@ void GameInteractor_ExecuteAfterInterfaceClockDraw();
 void GameInteractor_ExecuteBeforeInterfaceClockDraw();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
-void GameInteractor_ExecuteOnSceneChange(s16 sceneId);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
 void GameInteractor_ExecuteAfterRoomSceneCommands(s16 sceneId, s8 roomNum);
 void GameInteractor_ExecuteOnPlayDrawWorldEnd();

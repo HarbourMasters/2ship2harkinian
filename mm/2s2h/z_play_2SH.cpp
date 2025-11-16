@@ -51,8 +51,6 @@ extern "C" void OTRPlay_SpawnScene(PlayState* play, s32 sceneId, s32 spawn) {
     gSegments[2] = (uintptr_t)play->sceneSegment;
     OTRPlay_InitScene(play, spawn);
     Room_SetupFirstRoom(play, &play->roomCtx);
-
-    GameInteractor_ExecuteOnSceneChange(play->sceneId);
 }
 
 extern "C" s32 OTRfunc_800973FC(PlayState* play, RoomContext* roomCtx) {
