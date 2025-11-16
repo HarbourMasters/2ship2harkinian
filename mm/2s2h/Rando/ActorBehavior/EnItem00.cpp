@@ -25,6 +25,10 @@ std::map<std::pair<float, float>, RandoCheckId> freestandingMap = {
     { { 370.359039f, 1368.999390f }, RC_DEKU_PALACE_FREESTANDING_RUPEE_16 },
     { { 405.0, 1389.0 }, RC_DEKU_PALACE_FREESTANDING_RUPEE_17 },
     { { 405.0, 1349.0 }, RC_DEKU_PALACE_FREESTANDING_RUPEE_18 },
+
+    // Termina Field //
+    { { 3508.0f, 1879.0f }, RC_TERMINA_FIELD_MAN_IN_THE_TREE_RUPEE_01 },
+    { { 3488.0f, 1909.0f }, RC_TERMINA_FIELD_MAN_IN_THE_TREE_RUPEE_02 },
 };
 
 void Rando::ActorBehavior::InitEnItem00Behavior() {
@@ -67,7 +71,9 @@ void Rando::ActorBehavior::InitEnItem00Behavior() {
             itemParams |= CustomItem::ABLE_TO_ZORA_RANG;
         }
         // The heart piece in the bio baba grotto beehive needs to be tossed to fall to the ground
-        if (randoStaticCheck.randoCheckId == RC_TERMINA_FIELD_BIO_BABA_GROTTO) {
+        if (randoStaticCheck.randoCheckId == RC_TERMINA_FIELD_BIO_BABA_GROTTO ||
+            randoStaticCheck.randoCheckId == RC_TERMINA_FIELD_MAN_IN_THE_TREE_RUPEE_01 ||
+            randoStaticCheck.randoCheckId == RC_TERMINA_FIELD_MAN_IN_THE_TREE_RUPEE_02) {
             itemParams |= CustomItem::TOSS_ON_SPAWN;
         }
 
