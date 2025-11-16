@@ -30,6 +30,7 @@ static WidgetInfo enemyProx;
 static WidgetInfo displaySeqName;
 static WidgetInfo ovlDuration;
 static WidgetInfo voicePitch;
+static WidgetInfo voicePitchEnable;
 static WidgetInfo randoMusicOnSceneChange;
 static WidgetInfo randomAudioOnSeedGen;
 
@@ -500,6 +501,7 @@ void AudioEditor::DrawElement() {
                 BenGui::mBenMenu->MenuDrawItem(randomAudioOnSeedGen, ImGui::GetContentRegionAvail().x, THEME_COLOR);
                 BenGui::mBenMenu->MenuDrawItem(displaySeqName, ImGui::GetContentRegionAvail().x, THEME_COLOR);
                 BenGui::mBenMenu->MenuDrawItem(ovlDuration, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(voicePitchEnable, ImGui::GetContentRegionAvail().x, THEME_COLOR);
                 BenGui::mBenMenu->MenuDrawItem(voicePitch, ImGui::GetContentRegionAvail().x, THEME_COLOR);
             }
             ImGui::EndChild();
@@ -818,15 +820,26 @@ void RegisterAudioWidgets() {
         .Options(IntSliderOptions().Color(THEME_COLOR).Min(1).Max(10).DefaultValue(5).Size(ImVec2(300.0f, 0.0f)));
     AddAudioSearchWidget(ovlDuration);
 
+    voicePitchEnable = { .name = "Enable Link's Voice Pitch Multiplier", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+    voicePitchEnable.CVar(CVAR_AUDIO("LinkVoiceFreqMultiplier.Enable"))
+        .Options(CheckboxOptions().Color(THEME_COLOR).Tooltip("Enables Link's Voice Pitch Multiplier."));
+    AddAudioSearchWidget(voicePitchEnable);
+
     voicePitch = { .name = "Link's Voice Pitch Multiplier", .type = WidgetType::WIDGET_CVAR_SLIDER_FLOAT };
-    voicePitch.CVar(CVAR_AUDIO("LinkVoiceFreqMultiplier"))
+    voicePitch.CVar(CVAR_AUDIO("LinkVoiceFreqMultiplier.Scale"))
+        .PreFunc([](WidgetInfo& info) {
+            if (BenGui::mBenMenu->GetDisabledMap().at(DISABLE_FOR_LINKS_VOICE_PITCH_MULTIPLIER_OFF).active) {
+                info.activeDisables.push_back(DISABLE_FOR_LINKS_VOICE_PITCH_MULTIPLIER_OFF);
+            }
+        })
         .Options(FloatSliderOptions()
                      .Color(THEME_COLOR)
                      .IsPercentage()
                      .Min(0.4f)
                      .Max(2.5f)
                      .DefaultValue(1.0f)
-                     .Size(ImVec2(300.0f, 0.0f)));
+                     .Size(ImVec2(300.0f, 0.0f))
+                     .Tooltip("Adjust Link's Voice Pitch Multiplier.Limits are 40% to 250%"));
     AddAudioSearchWidget(voicePitch);
 }
 

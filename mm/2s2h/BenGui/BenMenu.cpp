@@ -1904,6 +1904,11 @@ void BenMenu::InitElement() {
                return !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0);
            },
             "Vertical Resolution Toggle is Off" } },
+        { DISABLE_FOR_LINKS_VOICE_PITCH_MULTIPLIER_OFF,
+          { [](disabledInfo& info) -> bool {
+               return !CVarGetInteger("gAudioEditor.LinkVoiceFreqMultiplier.Enable", 0);
+           },
+            "Enable Link's Voice Pitch Multiplier is Disabled" } },
     };
 }
 
