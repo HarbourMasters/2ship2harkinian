@@ -469,30 +469,20 @@ void ApplyDefaultItemPreset() {
 void DrawTrackerOptions() {
     int32_t windowIndex = 0;
     ImGui::SeparatorText("Presets");
-    if (ImGui::BeginTable("PresetsList", 2)) {
-        ImGui::TableNextColumn();
-        if (UIWidgets::Button("Default Preset", { .color = WIDGET_COLOR })) {
-            ApplyDefaultItemPreset();
-            shouldWindowSplit = false;
-        }
-        UIWidgets::Tooltip("Places all items in a single Window");
+    if (UIWidgets::Button("Default Preset", { .color = WIDGET_COLOR })) {
+        ApplyDefaultItemPreset();
+    }
+    UIWidgets::Tooltip("Places all Vanilla items in the tracker.");
 
-        ImGui::TableNextColumn();
-        if (UIWidgets::Button("Split Panel Preset", { .color = WIDGET_COLOR })) {
-            ApplyDefaultItemPreset();
-            shouldWindowSplit = true;
-        }
-        UIWidgets::Tooltip("Places each group of items in its own Window.");
+    ImGui::SeparatorText("Custom Windows");
+    if (ImGui::BeginTable("OptionsList", 2)) {
         ImGui::TableNextColumn();
         UIWidgets::CVarCombobox("Window Type", "gSettings.ItemTracker.WindowType", windowTypes,
                                 { .alignment = UIWidgets::ComponentAlignment::Right,
                                   .labelPosition = UIWidgets::LabelPosition::Near,
                                   .color = WIDGET_COLOR });
-
-        ImGui::EndTable();
-    }
-    ImGui::SeparatorText("Custom Windows");
-    if (ImGui::BeginTable("OptionsList", 2)) {
+        ImGui::TableNextColumn();
+        UIWidgets::CVarCheckbox("Split Window Groups", "gSettings.ItemTracker.WindowGroup");
         ImGui::TableNextColumn();
         UIWidgets::InputString("Window Name", &trackerInputName,
                                {
@@ -522,6 +512,10 @@ void DrawTrackerOptions() {
     ImGui::SeparatorText("Window Options");
     if (BenGui::mItemTrackerWindow->namedItemWindows.size() != 0) {
         for (auto& window : BenGui::mItemTrackerWindow->namedItemWindows) {
+            DrawTrackerWindowOptions(windowIndex, window);
+            windowIndex++;
+        }
+        for (auto& window : BenGui::mItemTrackerWindow->randoItemWindows) {
             DrawTrackerWindowOptions(windowIndex, window);
             windowIndex++;
         }

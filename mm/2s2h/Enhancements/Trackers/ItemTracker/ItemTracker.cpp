@@ -5,11 +5,6 @@
 #include "Rando/Rando.h"
 
 #include "2s2h/ShipUtils.h"
-#include "interface/parameter_static/parameter_static.h"
-#include "assets/archives/icon_item_static/icon_item_static_yar.h"
-#include "assets/objects/gameplay_keep/gameplay_keep.h"
-#include "archives/icon_item_24_static/icon_item_24_static_yar.h"
-#include "interface/icon_item_field_static/icon_item_field_static.h"
 
 extern "C" {
 #include "z64save.h"
@@ -85,22 +80,22 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
                 alpha = Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (itemId - RI_SOUL_GOHT)) ? 1 : 0.4f;
                 break;
             case RI_TINGLE_MAP_CLOCK_TOWN:
-                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_CLOCK_TOWN);
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_CLOCK_TOWN) ? 1 : 0.4f;
                 break;
             case RI_TINGLE_MAP_WOODFALL:
-                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_WOODFALL);
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_WOODFALL) ? 1 : 0.4f;
                 break;
             case RI_TINGLE_MAP_SNOWHEAD:
-                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_SNOWHEAD);
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_SNOWHEAD) ? 1 : 0.4f;
                 break;
             case RI_TINGLE_MAP_ROMANI_RANCH:
-                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_ROMANI_RANCH);
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_ROMANI_RANCH) ? 1 : 0.4f;
                 break;
             case RI_TINGLE_MAP_GREAT_BAY:
-                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_GREAT_BAY);
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_GREAT_BAY) ? 1 : 0.4f;
                 break;
             case RI_TINGLE_MAP_STONE_TOWER:
-                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_STONE_TOWER);
+                alpha = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_STONE_TOWER) ? 1 : 0.4f;
                 break;
             case RI_TRIFORCE_PIECE:
                 alpha = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces > 0 ? 1 : 0.4f;
@@ -190,7 +185,7 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
                 }
                 break;
             case ITEM_WALLET_ADULT:
-                currentItemId = ITEM_WALLET_ADULT + (CUR_UPG_VALUE(UPG_WALLET) - ITEM_WALLET_ADULT);
+                currentItemId = ITEM_WALLET_ADULT + CUR_UPG_VALUE(UPG_WALLET) - 1;
                 if (currentItemId < ITEM_WALLET_ADULT) {
                     currentItemId = ITEM_WALLET_ADULT;
                 }
@@ -313,12 +308,6 @@ void ItemTrackerWindow::Draw() {
         return;
     }
 
-    if (BenGui::mItemTrackerWindow->namedItemWindows.empty() || BenGui::mItemTrackerWindow->randoItemWindows.empty() ||
-        (BenGui::mItemTrackerWindow->namedItemWindows[0].itemList.empty() &&
-         BenGui::mItemTrackerWindow->randoItemWindows[0].itemList.empty())) {
-        return;
-    }
-
     ImGuiWindowFlags windowFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoNav |
                                    ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize |
                                    ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar;
@@ -326,6 +315,7 @@ void ItemTrackerWindow::Draw() {
     if (!CVarGetInteger("gSettings.ItemTracker.WindowType", 0)) {
         windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking;
     }
+    shouldWindowSplit = CVarGetInteger("gSettings.ItemTracker.WindowGroup", 0);
 
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
