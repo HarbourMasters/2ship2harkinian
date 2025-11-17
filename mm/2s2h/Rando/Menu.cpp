@@ -745,15 +745,17 @@ static void DrawJunkTab() {
                 Rando::UpdateJunkOptions();
             }
             ImGui::TableNextColumn();
-            if (CVarSliderInt("Threshold", JUNK_CVAR(itemId, "Threshold"),
-                              IntSliderOptions({ {} })
-                                  .LabelPosition(LabelPosition::None)
-                                  .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
-                                  .Format("%i")
-                                  .Min(0)
-                                  .Max(maxThreshold)
-                                  .DefaultValue(defaultThreshold))) {
-                Rando::UpdateJunkOptions();
+            if (itemId < RI_RUPEE_BLUE && itemId != RI_NONE) {
+                if (CVarSliderInt("Threshold", JUNK_CVAR(itemId, "Threshold"),
+                                  IntSliderOptions({ {} })
+                                      .LabelPosition(LabelPosition::None)
+                                      .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
+                                      .Format("%i")
+                                      .Min(0)
+                                      .Max(maxThreshold)
+                                      .DefaultValue(defaultThreshold))) {
+                    Rando::UpdateJunkOptions();
+                }
             }
             ImGui::PopID();
             junkOptionIndex++;
