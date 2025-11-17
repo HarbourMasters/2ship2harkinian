@@ -47,7 +47,7 @@ void InitJunkOptions() {
     junkInit = true;
 }
 
-inline const std::tuple<RandoItemId, const char*, const char*>& Rando::GetJunkTuple(RandoItemId id) {
+const std::tuple<RandoItemId, const char*, const char*>& Rando::GetJunkTuple(RandoItemId id) {
     for (const auto& t : Rando::junkCvarMap) {
         if (std::get<0>(t) == id) {
             return t;
@@ -57,9 +57,11 @@ inline const std::tuple<RandoItemId, const char*, const char*>& Rando::GetJunkTu
 
 RandoItemId Rando::CurrentJunkItem(Actor* actor) {
     static RandoItemId lastJunkItem = RI_UNKNOWN;
+    static RandoItemId selectedRupee = RI_RUPEE_GREEN;
     RandoItemId currentJunkItem = RI_UNKNOWN;
     static u32 lastChosenAt = 0;
     static int32_t lastRupee = -1;
+
     uint32_t totalWeight = 0;
     uint32_t weightedValue = 0;
     uint32_t currentWeight = 0;
@@ -98,6 +100,9 @@ RandoItemId Rando::CurrentJunkItem(Actor* actor) {
                 if (weight == 0) {
                     continue;
                 }
+                if (!Rando::IsItemObtainable(itemId)) {
+                    continue;
+                }
 
                 totalWeight += weight;
             }
@@ -117,64 +122,68 @@ RandoItemId Rando::CurrentJunkItem(Actor* actor) {
             break;
         case RO_JUNK_TYPE_SUPPLY:
             for (auto& [itemId, weight, threshold] : junkSelectionList) {
-                if (!CVarGetInteger(JUNK_CVAR(itemId, "Enabled"), 1)) {
-                    continue;
-                }
-
+                lastJunkItem = RI_UNKNOWN;
                 switch (itemId) {
                     case RI_RECOVERY_HEART:
-                        if (gSaveContext.save.saveInfo.playerData.health <=
-                            CVarGetInteger(JUNK_CVAR(RI_RECOVERY_HEART, "Threshold"), 10) * 16) {
+                        if (gSaveContext.save.saveInfo.playerData.health <= threshold * 16) {
                             lastJunkItem = RI_RECOVERY_HEART;
                             break;
                         }
+                        break;
                     case RI_MAGIC_JAR_SMALL:
-                        if (gSaveContext.save.saveInfo.playerData.isMagicAcquired == true &&
-                            gSaveContext.save.saveInfo.playerData.magic <=
-                                CVarGetInteger(JUNK_CVAR(RI_MAGIC_JAR_SMALL, "Threshold"), 10)) {
-                            lastJunkItem = RI_MAGIC_JAR_SMALL;
-                            break;
+                        if (Rando::IsItemObtainable(itemId)) {
+                            if (gSaveContext.save.saveInfo.playerData.magic <= threshold) {
+                                lastJunkItem = RI_MAGIC_JAR_SMALL;
+                                break;
+                            }
                         }
+                        break;
                     case RI_DEKU_STICKS_5:
-                        if (AMMO(ITEM_DEKU_STICK) <= CVarGetInteger(JUNK_CVAR(RI_DEKU_STICKS_5, "Threshold"), 10)) {
+                        if (AMMO(ITEM_DEKU_STICK) <= threshold) {
                             lastJunkItem = RI_DEKU_STICKS_5;
                             break;
                         }
+                        break;
                     case RI_DEKU_NUTS_5:
-                        if (AMMO(ITEM_DEKU_NUT) <= CVarGetInteger(JUNK_CVAR(RI_DEKU_NUTS_5, "Threshold"), 10)) {
+                        if (AMMO(ITEM_DEKU_NUT) <= threshold) {
                             lastJunkItem = RI_DEKU_NUTS_5;
                             break;
                         }
+                        break;
                     case RI_BOMBS_5:
-                        if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB) {
-                            if (AMMO(ITEM_BOMB) <= CVarGetInteger(JUNK_CVAR(RI_BOMBS_5, "Threshold"), 10)) {
+                        if (Rando::IsItemObtainable(itemId)) {
+                            if (AMMO(ITEM_BOMB) <= threshold) {
                                 lastJunkItem = RI_BOMBS_5;
                                 break;
                             }
                         }
+                        break;
                     case RI_ARROWS_10:
-                        if (INV_CONTENT(ITEM_BOW) == ITEM_BOW) {
-                            if (AMMO(ITEM_BOW) <= CVarGetInteger(JUNK_CVAR(RI_ARROWS_10, "Threshold"), 10)) {
+                        if (Rando::IsItemObtainable(itemId)) {
+                            if (AMMO(ITEM_BOW) <= threshold) {
                                 lastJunkItem = RI_ARROWS_10;
                                 break;
                             }
                         }
+                        break;
                     case RI_BOMBCHU_5:
-                        if (INV_CONTENT(ITEM_BOMBCHU) == ITEM_BOMBCHU) {
-                            if (AMMO(ITEM_BOMBCHU) <= CVarGetInteger(JUNK_CVAR(RI_BOMBCHU_5, "Threshold"), 10)) {
+                        if (Rando::IsItemObtainable(itemId)) {
+                            if (AMMO(ITEM_BOMBCHU) <= threshold) {
                                 lastJunkItem = RI_BOMBCHU_5;
                                 break;
                             }
                         }
+                        break;
                     default:
-                        if (lastRupee != gSaveContext.save.saveInfo.playerData.rupees) {
-                            lastJunkItem = rupeeList[rand() % rupeeList.size()];
-                            lastRupee = gSaveContext.save.saveInfo.playerData.rupees;
-                        }
                         break;
                 }
-                if (lastJunkItem <= RI_RECOVERY_HEART) {
-                    lastRupee = -1;
+                if (lastJunkItem == RI_UNKNOWN) {
+                    if (lastRupee != gSaveContext.save.saveInfo.playerData.rupees) {
+                        selectedRupee = rupeeList[rand() % rupeeList.size()];
+                        lastRupee = gSaveContext.save.saveInfo.playerData.rupees;
+                    }
+                    lastJunkItem = selectedRupee;
+                    break;
                 }
                 break;
             }

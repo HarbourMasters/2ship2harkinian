@@ -32,7 +32,7 @@ RandoItemId CurrentJunkItem(Actor* actor = nullptr);
 void UpdateJunkOptions();
 uint32_t GetJunkThresholdMax(RandoItemId randoItemId);
 extern std::vector<std::tuple<RandoItemId, const char*, const char*>> junkCvarMap;
-extern inline const std::tuple<RandoItemId, const char*, const char*>& GetJunkTuple(RandoItemId id);
+extern const std::tuple<RandoItemId, const char*, const char*>& GetJunkTuple(RandoItemId id);
 
 void RegisterMenu();
 

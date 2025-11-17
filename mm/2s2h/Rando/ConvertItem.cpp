@@ -50,7 +50,8 @@ extern GetItemEntry sGetItemTable[GI_MAX - 1];
 // obtain it. If not, we convert it to a junk item.
 //
 // Junk Items:
-// - The list of junk items is defined in JunkItem.cpp. There are 3 options for Junk selection, this is outlined in the tooltip
+// - The list of junk items is defined in JunkItem.cpp. There are 3 options for Junk selection, this is outlined in the
+// tooltip
 
 bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId) {
     bool hasObtainedCheck = false;

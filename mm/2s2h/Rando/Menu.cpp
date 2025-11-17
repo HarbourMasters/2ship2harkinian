@@ -685,14 +685,24 @@ static void DrawHintsTab() {
     ImGui::EndChild();
 }
 
-void DrawJunkTab() {
+static void DrawJunkTab() {
     ImGui::BeginChild("randoItemsColumn2", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
-    UIWidgets::PushStyleCombobox();
-    UIWidgets::CVarCombobox("Junk Item Options", "gRando.Junk.ItemType", &junkTypeOptions);
-    UIWidgets::Tooltip("Default - Junk Item will cycle through selected junk options.\n"
-                       "Weighted - Junk will be weighted, higher weight equals better chance.\n"
-                       "Low Resource - Junk is determined by resource thresholds.");
-    UIWidgets::PopStyleCombobox();
+    ImGui::SeparatorText("Junk Item Options");
+    if (ImGui::BeginTable("JunkCombo", 2)) {
+        ImGui::TableSetupColumn("Combobox", ImGuiTableColumnFlags_WidthFixed, (ImGui::GetContentRegionAvail().x / 3));
+        ImGui::TableSetupColumn("Tooltips");
+        ImGui::TableNextColumn();
+        UIWidgets::PushStyleCombobox();
+        UIWidgets::CVarCombobox("##junkOptions", "gRando.Junk.ItemType", &junkTypeOptions,
+                                UIWidgets::ComboboxOptions({}).LabelPosition(LabelPosition::None));
+        UIWidgets::PopStyleCombobox();
+
+        ImGui::TableNextColumn();
+        ImGui::TextWrapped("Default - Junk Item will cycle through selected junk options.");
+        ImGui::TextWrapped("Weighted - Junk will be weighted, higher weight equals better chance.");
+        ImGui::TextWrapped("Low Resource - Junk is determined by resource thresholds.");
+        ImGui::EndTable();
+    }
 
     ImGui::SeparatorText("Customize Junk Items");
     ImGui::SameLine(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize("Enabled All & Disable All").x * 1.5f));
