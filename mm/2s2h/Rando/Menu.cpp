@@ -734,6 +734,7 @@ static void DrawJunkTab() {
                 Rando::UpdateJunkOptions();
             }
             ImGui::TableNextColumn();
+            ImGui::BeginDisabled(CVarGetInteger("gRando.Junk.ItemType", 0) != RO_JUNK_TYPE_WEIGHTED);
             if (CVarSliderInt("Weight", JUNK_CVAR(itemId, "Weight"),
                               IntSliderOptions({ {} })
                                   .LabelPosition(LabelPosition::None)
@@ -744,7 +745,9 @@ static void DrawJunkTab() {
                                   .DefaultValue(10))) {
                 Rando::UpdateJunkOptions();
             }
+            ImGui::EndDisabled();
             ImGui::TableNextColumn();
+            ImGui::BeginDisabled(CVarGetInteger("gRando.Junk.ItemType", 0) != RO_JUNK_TYPE_SUPPLY);
             if (itemId < RI_RUPEE_BLUE && itemId != RI_NONE) {
                 if (CVarSliderInt("Threshold", JUNK_CVAR(itemId, "Threshold"),
                                   IntSliderOptions({ {} })
@@ -757,6 +760,7 @@ static void DrawJunkTab() {
                     Rando::UpdateJunkOptions();
                 }
             }
+            ImGui::EndDisabled();
             ImGui::PopID();
             junkOptionIndex++;
         }
