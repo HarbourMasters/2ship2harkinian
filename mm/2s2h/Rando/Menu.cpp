@@ -726,7 +726,8 @@ static void DrawJunkTab() {
         ImGui::TableHeadersRow();
         uint32_t junkOptionIndex = 0;
         for (auto& [itemId, itemName, cvar] : Rando::junkCvarMap) {
-            uint32_t maxThreshold = Rando::GetJunkThresholdMax(itemId);
+            uint16_t defaultThreshold = Rando::GetJunkThresholds(itemId, "Default");
+            uint32_t maxThreshold = Rando::GetJunkThresholds(itemId, "Max");
             ImGui::PushID(junkOptionIndex);
             ImGui::TableNextColumn();
             if (CVarCheckbox(itemName, JUNK_CVAR(itemId, "Enabled"), { .defaultValue = true })) {
@@ -751,7 +752,7 @@ static void DrawJunkTab() {
                                   .Format("%i")
                                   .Min(0)
                                   .Max(maxThreshold)
-                                  .DefaultValue(10))) {
+                                  .DefaultValue(defaultThreshold))) {
                 Rando::UpdateJunkOptions();
             }
             ImGui::PopID();

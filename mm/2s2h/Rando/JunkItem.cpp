@@ -27,14 +27,14 @@ static std::vector<RandoItemId> rupeeList = {
     RI_RUPEE_PURPLE,
 };
 
-static std::map<RandoItemId, uint16_t> maxJunkThresholdMap = {
-    { RI_RECOVERY_HEART,    320 },
-    { RI_MAGIC_JAR_SMALL,   96 },
-    { RI_DEKU_STICKS_5,     10 },
-    { RI_DEKU_NUTS_5,       20 },
-    { RI_BOMBS_5,           40 },
-    { RI_ARROWS_10,         50 },
-    { RI_BOMBCHU_5,         40 },
+static std::map<RandoItemId, std::pair<uint16_t, uint16_t>> junkThresholdMap = {
+    { RI_RECOVERY_HEART,    { 48, 320 } },
+    { RI_MAGIC_JAR_SMALL,   { 12, 96 } },
+    { RI_DEKU_STICKS_5,     { 3, 10 } },
+    { RI_DEKU_NUTS_5,       { 5, 20 } },
+    { RI_BOMBS_5,           { 5, 40 } },
+    { RI_ARROWS_10,         { 5, 50 } },
+    { RI_BOMBCHU_5,         { 5, 40 } },
 };
 // clang-format on
 
@@ -211,8 +211,9 @@ void Rando::UpdateJunkOptions() {
         }
         std::tuple<RandoItemId, uint16_t, uint16_t> junkItem;
 
-        junkItem = std::make_tuple(itemId, CVarGetInteger(JUNK_CVAR(itemId, "Weight"), 10),
-                                   CVarGetInteger(JUNK_CVAR(itemId, "Threshold"), 10));
+        junkItem = std::make_tuple(
+            itemId, CVarGetInteger(JUNK_CVAR(itemId, "Weight"), 10),
+            CVarGetInteger(JUNK_CVAR(itemId, "Threshold"), Rando::GetJunkThresholds(itemId, "Default")));
 
         junkSelectionList.push_back(junkItem);
     }
@@ -222,14 +223,19 @@ void Rando::UpdateJunkOptions() {
     }
 }
 
-uint32_t Rando::GetJunkThresholdMax(RandoItemId randoItemId) {
-    auto findMax = maxJunkThresholdMap.find(randoItemId);
-    if (findMax != maxJunkThresholdMap.end()) {
-        uint16_t max = findMax->second;
-        if (randoItemId == RI_RECOVERY_HEART) {
-            max = max / 16;
+uint32_t Rando::GetJunkThresholds(RandoItemId randoItemId, std::string entry) {
+    uint16_t value;
+    auto findMax = junkThresholdMap.find(randoItemId);
+    if (findMax != junkThresholdMap.end()) {
+        if (entry == "Default") {
+            value = findMax->second.first;
+        } else {
+            value = findMax->second.second;
         }
-        return max;
+        if (randoItemId == RI_RECOVERY_HEART) {
+            value = value / 16;
+        }
+        return value;
     }
     return 500;
 }

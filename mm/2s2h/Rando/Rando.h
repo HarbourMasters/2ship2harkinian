@@ -30,7 +30,7 @@ RandoCheckId FindItemPlacement(RandoItemId randoItemId);
 // Junk Items
 RandoItemId CurrentJunkItem(Actor* actor = nullptr);
 void UpdateJunkOptions();
-uint32_t GetJunkThresholdMax(RandoItemId randoItemId);
+uint32_t GetJunkThresholds(RandoItemId randoItemId, std::string entry);
 extern std::vector<std::tuple<RandoItemId, const char*, const char*>> junkCvarMap;
 extern const std::tuple<RandoItemId, const char*, const char*>& GetJunkTuple(RandoItemId id);
 
