@@ -1,8 +1,7 @@
 #pragma once
 
-#include <libultraship/libultraship.h>
-#include <ship/window/gui/GuiMenuBar.h>
-#include <ship/window/gui/GuiElement.h>
+#include <functional>
+#include <ship/window/gui/GuiWindow.h>
 
 class BenModalWindow final : public Ship::GuiWindow {
   public:
