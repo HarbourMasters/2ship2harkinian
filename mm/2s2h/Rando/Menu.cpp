@@ -279,7 +279,7 @@ static void DrawShufflesTab() {
 }
 
 static void DrawItemsTab() {
-    f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
+    f32 columnWidth = ImGui::GetContentRegionAvail().x / 2 - (ImGui::GetStyle().ItemSpacing.x * 2);
     ImGui::BeginChild("randoItemsColumn1", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
     CVarCheckbox("Shuffle Swim", Rando::StaticData::Options[RO_SHUFFLE_SWIM].cvar,
                  CheckboxOptions({ { .tooltip = "Shuffles the ability to Swim, entering the Swim state or submerging\n"
@@ -324,56 +324,6 @@ static void DrawItemsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
-    UIWidgets::PushStyleCombobox();
-    UIWidgets::CVarCombobox("Junk Item Options", "gRando.Junk.ItemType", &junkTypeOptions);
-    UIWidgets::Tooltip("Default - Junk Item will cycle through all junk options.\n"
-                       "");
-    UIWidgets::PopStyleCombobox();
-    switch (CVarGetInteger("gRando.Junk.ItemType", (uint32_t)RO_JUNK_TYPE_DEFAULT)) {
-        case RO_JUNK_TYPE_DEFAULT:
-            ImGui::SeparatorText("Toggle Junk Items");
-            for (auto& [itemId, data] : Rando::junkCvarMap) {
-                if (CVarCheckbox(std::get<0>(data), JUNK_CVAR(itemId, "Enabled"), { .defaultValue = true })) {
-                    Rando::UpdateJunkOptions();
-                }
-            }
-            break;
-        case RO_JUNK_TYPE_WEIGHTED:
-            ImGui::SeparatorText("Junk Item Weights");
-            for (auto& [itemId, data] : Rando::junkCvarMap) {
-                if (CVarSliderInt(std::get<0>(data), JUNK_CVAR(itemId, "Weight"),
-                                  IntSliderOptions({ {} })
-                                      .LabelPosition(LabelPosition::Above)
-                                      .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
-                                      .Format("%i")
-                                      .Min(0)
-                                      .Max(100)
-                                      .DefaultValue(10))) {
-                    Rando::UpdateJunkWeights();
-                }
-            }
-            break;
-        case RO_JUNK_TYPE_SUPPLY:
-            ImGui::SeparatorText("Junk Item Threshold");
-            for (auto& [itemId, data] : Rando::junkCvarMap) {
-                uint32_t maxThreshold = Rando::GetJunkThresholdMax(itemId);
-                CVarSliderInt(std::get<0>(data), JUNK_CVAR(itemId, "Threshold"),
-                              IntSliderOptions({ {} })
-                                  .LabelPosition(LabelPosition::Above)
-                                  .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
-                                  .Format("%i")
-                                  .Min(0)
-                                  .Max(maxThreshold)
-                                  .DefaultValue(10));
-            }
-            break;
-        default:
-            break;
-    }
-
-    ImGui::EndChild();
-    ImGui::SameLine();
-    ImGui::BeginChild("randoItemsColumn3", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
     CVarCheckbox("Shuffle Traps", Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar,
                  CheckboxOptions({ { .tooltip = "Ice Trap time!" } }));
     CVarSliderInt(
@@ -735,6 +685,72 @@ static void DrawHintsTab() {
     ImGui::EndChild();
 }
 
+void DrawJunkTab() {
+    ImGui::BeginChild("randoItemsColumn2", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
+    UIWidgets::PushStyleCombobox();
+    UIWidgets::CVarCombobox("Junk Item Options", "gRando.Junk.ItemType", &junkTypeOptions);
+    UIWidgets::Tooltip("Default - Junk Item will cycle through selected junk options.\n"
+                       "Weighted - Junk will be weighted, higher weight equals better chance.\n"
+                       "Low Resource - Junk is determined by resource thresholds.");
+    UIWidgets::PopStyleCombobox();
+
+    ImGui::SeparatorText("Customize Junk Items");
+    ImGui::SameLine(ImGui::GetContentRegionMax().x - (ImGui::CalcTextSize("Enabled All & Disable All").x * 1.5f));
+    if (UIWidgets::Button("Enabled All", { .size = ImVec2(0, 0), .color = UIWidgets::Colors::Green })) {
+        for (auto& [itemId, itemName, cvar] : Rando::junkCvarMap) {
+            CVarSetInteger(JUNK_CVAR(itemId, "Enabled"), 1);
+        }
+    }
+    ImGui::SameLine();
+    if (UIWidgets::Button("Disable All", { .size = ImVec2(0, 0), .color = UIWidgets::Colors::Red })) {
+        for (auto& [itemId, itemName, cvar] : Rando::junkCvarMap) {
+            CVarSetInteger(JUNK_CVAR(itemId, "Enabled"), 0);
+        }
+    }
+    if (ImGui::BeginTable("Junk Option List", 3)) {
+        ImGui::TableSetupColumn("Enabled");
+        ImGui::TableSetupColumn("Weight");
+        ImGui::TableSetupColumn("Threshold");
+        ImGui::TableHeadersRow();
+        uint32_t junkOptionIndex = 0;
+        for (auto& [itemId, itemName, cvar] : Rando::junkCvarMap) {
+            uint32_t maxThreshold = Rando::GetJunkThresholdMax(itemId);
+            ImGui::PushID(junkOptionIndex);
+            ImGui::TableNextColumn();
+            if (CVarCheckbox(itemName, JUNK_CVAR(itemId, "Enabled"), { .defaultValue = true })) {
+                Rando::UpdateJunkOptions();
+            }
+            ImGui::TableNextColumn();
+            if (CVarSliderInt("Weight", JUNK_CVAR(itemId, "Weight"),
+                              IntSliderOptions({ {} })
+                                  .LabelPosition(LabelPosition::None)
+                                  .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
+                                  .Format("%i")
+                                  .Min(0)
+                                  .Max(100)
+                                  .DefaultValue(10))) {
+                Rando::UpdateJunkOptions();
+            }
+            ImGui::TableNextColumn();
+            if (CVarSliderInt("Threshold", JUNK_CVAR(itemId, "Threshold"),
+                              IntSliderOptions({ {} })
+                                  .LabelPosition(LabelPosition::None)
+                                  .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
+                                  .Format("%i")
+                                  .Min(0)
+                                  .Max(maxThreshold)
+                                  .DefaultValue(10))) {
+                Rando::UpdateJunkOptions();
+            }
+            ImGui::PopID();
+            junkOptionIndex++;
+        }
+        ImGui::EndTable();
+    }
+
+    ImGui::EndChild();
+}
+
 void Rando::RegisterMenu() {
     mBenMenu->AddMenuEntry("Rando", "gSettings.Menu.RandoSidebarSection");
     mBenMenu->AddSidebarEntry("Rando", "General", 1);
@@ -764,6 +780,9 @@ void Rando::RegisterMenu() {
     mBenMenu->AddSidebarEntry("Rando", "Hints", 1);
     path.sidebarName = "Hints";
     mBenMenu->AddWidget(path, "Hints", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawHintsTab(); });
+    mBenMenu->AddSidebarEntry("Rando", "Junk Options", 1);
+    path.sidebarName = "Junk Options";
+    mBenMenu->AddWidget(path, "Junk Options", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawJunkTab(); });
 }
 
 static RegisterMenuInitFunc initFunc(Rando::RegisterMenu);
