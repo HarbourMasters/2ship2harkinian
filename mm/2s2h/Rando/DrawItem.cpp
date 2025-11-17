@@ -440,7 +440,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
 
     switch (randoItemId) {
         case RI_JUNK:
-            Rando::DrawItem(Rando::CurrentJunkItem(), actor);
+            Rando::DrawItem(Rando::CurrentJunkItem(actor), actor);
             break;
         case RI_GREAT_BAY_SMALL_KEY:
         case RI_SNOWHEAD_SMALL_KEY:

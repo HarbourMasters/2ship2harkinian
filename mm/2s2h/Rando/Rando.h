@@ -28,7 +28,7 @@ RandoItemId ConvertItem(RandoItemId randoItemId, RandoCheckId randoCheckId = RC_
 RandoCheckId FindItemPlacement(RandoItemId randoItemId);
 
 // Junk Items
-RandoItemId CurrentJunkItem();
+RandoItemId CurrentJunkItem(Actor* actor = nullptr);
 void UpdateJunkOptions();
 uint32_t GetJunkThresholdMax(RandoItemId randoItemId);
 extern std::vector<std::tuple<RandoItemId, const char*, const char*>> junkCvarMap;

@@ -50,9 +50,7 @@ extern GetItemEntry sGetItemTable[GI_MAX - 1];
 // obtain it. If not, we convert it to a junk item.
 //
 // Junk Items:
-// - The list of junk items is defined below. We attempt to roll a random junk item one time, based on the RC provided,
-// and if we fail, we return a blue rupee. This will still result in the "lots of blue rupees" problem, but it's better
-// than _always_ converting to a blue rupee.
+// - The list of junk items is defined in JunkItem.cpp. There are 3 options for Junk selection, this is outlined in the tooltip
 
 bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId) {
     bool hasObtainedCheck = false;

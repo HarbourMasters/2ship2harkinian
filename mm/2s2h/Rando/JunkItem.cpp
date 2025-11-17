@@ -39,6 +39,13 @@ static std::map<RandoItemId, uint16_t> maxJunkThresholdMap = {
 // clang-format on
 
 std::vector<std::tuple<RandoItemId, uint16_t, uint16_t>> junkSelectionList;
+Actor* currentActor;
+
+static bool junkInit = false;
+void InitJunkOptions() {
+    COND_HOOK(OnSceneInit, IS_RANDO, [](s8 sceneId, s8 spawnNum) { currentActor = nullptr; });
+    junkInit = true;
+}
 
 inline const std::tuple<RandoItemId, const char*, const char*>& Rando::GetJunkTuple(RandoItemId id) {
     for (const auto& t : Rando::junkCvarMap) {
@@ -48,7 +55,7 @@ inline const std::tuple<RandoItemId, const char*, const char*>& Rando::GetJunkTu
     }
 }
 
-RandoItemId Rando::CurrentJunkItem() {
+RandoItemId Rando::CurrentJunkItem(Actor* actor) {
     static RandoItemId lastJunkItem = RI_UNKNOWN;
     RandoItemId currentJunkItem = RI_UNKNOWN;
     static u32 lastChosenAt = 0;
@@ -58,11 +65,11 @@ RandoItemId Rando::CurrentJunkItem() {
     uint32_t currentWeight = 0;
     uint16_t failOver = 0;
 
-    switch (CVarGetInteger("gRando.Junk.ItemType", (uint32_t)RO_JUNK_TYPE_DEFAULT)) {
-        if (junkSelectionList.size() == 0) {
-            Rando::UpdateJunkOptions();
-        }
+    if (junkSelectionList.size() == 0) {
+        Rando::UpdateJunkOptions();
+    }
 
+    switch (CVarGetInteger("gRando.Junk.ItemType", (uint32_t)RO_JUNK_TYPE_DEFAULT)) {
         case RO_JUNK_TYPE_DEFAULT:
             if (gPlayState != NULL && ABS(gPlayState->gameplayFrames - lastChosenAt) > 20) {
                 lastChosenAt = gPlayState->gameplayFrames;
@@ -82,10 +89,16 @@ RandoItemId Rando::CurrentJunkItem() {
             }
             break;
         case RO_JUNK_TYPE_WEIGHTED:
+            if (currentActor == actor) {
+                break;
+            }
+
+            currentActor = actor;
             for (auto& [itemId, weight, threshold] : junkSelectionList) {
                 if (weight == 0) {
                     continue;
                 }
+
                 totalWeight += weight;
             }
             if (totalWeight == 0) {
@@ -104,7 +117,7 @@ RandoItemId Rando::CurrentJunkItem() {
             break;
         case RO_JUNK_TYPE_SUPPLY:
             for (auto& [itemId, weight, threshold] : junkSelectionList) {
-                if (threshold == 0) {
+                if (!CVarGetInteger(JUNK_CVAR(itemId, "Enabled"), 1)) {
                     continue;
                 }
 
@@ -163,6 +176,7 @@ RandoItemId Rando::CurrentJunkItem() {
                 if (lastJunkItem <= RI_RECOVERY_HEART) {
                     lastRupee = -1;
                 }
+                break;
             }
             break;
         default:
@@ -177,10 +191,13 @@ RandoItemId Rando::CurrentJunkItem() {
 }
 
 void Rando::UpdateJunkOptions() {
+    if (!junkInit) {
+        InitJunkOptions();
+    }
     junkSelectionList.clear();
 
     for (const auto& [itemId, itemName, cvar] : junkCvarMap) {
-        if (!CVarGetInteger(JUNK_CVAR(itemId, "Enabled"), 0)) {
+        if (!CVarGetInteger(JUNK_CVAR(itemId, "Enabled"), 1)) {
             continue;
         }
         std::tuple<RandoItemId, uint16_t, uint16_t> junkItem;

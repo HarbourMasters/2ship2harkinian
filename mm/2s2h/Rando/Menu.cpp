@@ -700,12 +700,14 @@ void DrawJunkTab() {
         for (auto& [itemId, itemName, cvar] : Rando::junkCvarMap) {
             CVarSetInteger(JUNK_CVAR(itemId, "Enabled"), 1);
         }
+        Rando::UpdateJunkOptions();
     }
     ImGui::SameLine();
     if (UIWidgets::Button("Disable All", { .size = ImVec2(0, 0), .color = UIWidgets::Colors::Red })) {
         for (auto& [itemId, itemName, cvar] : Rando::junkCvarMap) {
             CVarSetInteger(JUNK_CVAR(itemId, "Enabled"), 0);
         }
+        Rando::UpdateJunkOptions();
     }
     if (ImGui::BeginTable("Junk Option List", 3)) {
         ImGui::TableSetupColumn("Enabled");
