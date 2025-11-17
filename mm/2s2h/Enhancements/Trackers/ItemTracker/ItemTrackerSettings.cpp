@@ -125,23 +125,23 @@ std::string GetItemTrackerItemName(int16_t itemId, bool isRandoItem) {
 }
 
 void CreateRandoTrackerWindow() {
-    TrackerItemListObject initRandoObject = {
-        .windowName = "Rando",
-        .columnLength = 6,
-        .windowScale = 1.0f,
-        .windowOpacity = 0.5f,
-    };
-    BenGui::mItemTrackerWindow->randoItemWindows.push_back(initRandoObject);
+    // TrackerItemListObject initRandoObject = {
+    //     .windowName = "Rando",
+    //     .columnLength = 6,
+    //     .windowScale = 1.0f,
+    //     .windowOpacity = 0.5f,
+    // };
+    // BenGui::mItemTrackerWindow->randoItemWindows.push_back(initRandoObject);
 }
 
 void CreateMainTrackerWindow() {
-    TrackerItemListObject initMainObject = {
-        .windowName = "Main",
-        .columnLength = 6,
-        .windowScale = 1.0f,
-        .windowOpacity = 0.5f,
-    };
-    BenGui::mItemTrackerWindow->namedItemWindows.push_back(initMainObject);
+    // TrackerItemListObject initMainObject = {
+    //     .windowName = "Main",
+    //     .columnLength = 6,
+    //     .windowScale = 1.0f,
+    //     .windowOpacity = 0.5f,
+    // };
+    // BenGui::mItemTrackerWindow->namedItemWindows.push_back(initMainObject);
 }
 
 void ItemTrackerPopUpContext(int16_t itemId, bool isRandoItem) {
@@ -483,6 +483,7 @@ void DrawTrackerOptions() {
                                   .color = WIDGET_COLOR });
         ImGui::TableNextColumn();
         UIWidgets::CVarCheckbox("Split Window Groups", "gSettings.ItemTracker.WindowGroup");
+        UIWidgets::CVarCheckbox("Show Item Counts", "gSettings.ItemTracker.ItemCounts");
         ImGui::TableNextColumn();
         UIWidgets::InputString("Window Name", &trackerInputName,
                                {

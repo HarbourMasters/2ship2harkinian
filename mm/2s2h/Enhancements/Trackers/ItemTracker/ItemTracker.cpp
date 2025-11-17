@@ -269,12 +269,94 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
     return imageObject;
 }
 
+std::string GetItemCounts(int16_t itemId, bool isRandoItem) {
+    std::string countStr = "";
+    if (isRandoItem) {
+        if (itemId == RI_TRIFORCE_PIECE) {
+            int16_t maxPieces = gSaveContext.save.shipSaveInfo.rando.randoSaveOptions[RO_TRIFORCE_PIECES_REQUIRED];
+            countStr = std::to_string(gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces).c_str();
+            countStr += "/";
+            if (maxPieces == 1000) {
+                countStr += "1k";
+            } else {
+                countStr = std::to_string(maxPieces).c_str();
+            }
+        }
+    } else {
+        int dungeonIndex = 0;
+        switch (itemId) {
+            case ITEM_BOW:
+            case ITEM_BOMB:
+            case ITEM_BOMBCHU:
+            case ITEM_DEKU_STICK:
+            case ITEM_DEKU_NUT:
+            case ITEM_MAGIC_BEANS:
+            case ITEM_POWDER_KEG:
+                countStr = std::to_string(AMMO(itemId)).c_str();
+                break;
+            case ITEM_WALLET_ADULT:
+                countStr = std::to_string(gSaveContext.save.saveInfo.playerData.rupees).c_str();
+                break;
+            case ITEM_PICTOGRAPH_BOX:
+                countStr = CHECK_QUEST_ITEM(QUEST_PICTOGRAPH) ? "1" : "0";
+                break;
+            case ITEM_SKULL_TOKEN_SWAMP:
+            case ITEM_SKULL_TOKEN_OCEAN:
+                countStr = std::to_string(Inventory_GetSkullTokenCount(
+                                              itemId == ITEM_SKULL_TOKEN_SWAMP ? SCENE_KINSTA1 : SCENE_KINDAN2))
+                               .c_str();
+                break;
+            case ITEM_WOODFALL_STRAY_FAIRY:
+            case ITEM_SNOWHEAD_STRAY_FAIRY:
+            case ITEM_GREAT_BAY_STRAY_FAIRY:
+            case ITEM_STONE_TOWER_STRAY_FAIRY:
+                countStr = std::to_string(
+                               gSaveContext.save.saveInfo.inventory.strayFairies[itemId - ITEM_WOODFALL_STRAY_FAIRY])
+                               .c_str();
+                break;
+            case ITEM_WOODFALL_KEY_SMALL:
+            case ITEM_SNOWHEAD_KEY_SMALL:
+            case ITEM_GREAT_BAY_KEY_SMALL:
+            case ITEM_STONE_TOWER_KEY_SMALL:
+                dungeonIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4;
+                if (DUNGEON_KEY_COUNT(dungeonIndex) < 0) {
+                    countStr = "0";
+                } else {
+                    countStr = std::to_string(DUNGEON_KEY_COUNT(dungeonIndex)).c_str();
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return countStr;
+}
+
+void DrawItemCounts(int16_t itemId, bool isRandoItem, ImVec2 textureSize, float scale, ImVec2 currentPos) {
+    std::string itemCount = GetItemCounts(itemId, isRandoItem);
+
+    if (itemCount.empty()) {
+        return;
+    }
+    ImVec2 textSize = ImGui::CalcTextSize(itemCount.c_str());
+
+    ImVec2 textPos =
+        ImVec2(currentPos.x + textureSize.x - textSize.x - 2.0f, currentPos.y + textureSize.y - textSize.y - 2.0f);
+    ImGui::SetCursorPos(textPos);
+    ImGui::SetWindowFontScale(scale);
+    ImGui::Text(itemCount.c_str());
+}
+
 void DrawItemSlot(int16_t itemId, float scale, bool isRandoItem) {
+    ImVec2 currentPos = ImGui::GetCursorPos();
     TrackerImageObject imageObject = GetTextureObject(itemId, isRandoItem);
     ImGui::Image(imageObject.textureId,
                  ImVec2(imageObject.textureDimensions.x * scale, imageObject.textureDimensions.y * scale), ImVec2(0, 0),
                  ImVec2(1, 1), imageObject.textureColor, ImVec4(0, 0, 0, 0));
     UIWidgets::Tooltip(GetItemTrackerItemName(itemId, isRandoItem).c_str());
+    if (CVarGetInteger("gSettings.ItemTracker.ItemCounts", 0)) {
+        DrawItemCounts(itemId, isRandoItem, imageObject.textureDimensions * scale, scale, currentPos);
+    }
 }
 
 void DrawItemWindowList(TrackerItemListObject windowObject, bool isRandoItem) {
@@ -327,10 +409,13 @@ void ItemTrackerWindow::Draw() {
 
     uint32_t windowIndex = TRACKER_MAIN;
     for (auto* window : windows) {
+        if ((*window).empty()) {
+            continue;
+        }
         bool singleWindowOpen = false;
         if (!shouldWindowSplit) {
             ImVec4 mainBg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
-            mainBg.w = BenGui::mItemTrackerWindow->namedItemWindows[0].windowOpacity;
+            mainBg.w = (*window)[0].windowOpacity;
             ImGui::PushStyleColor(ImGuiCol_WindowBg, mainBg);
             singleWindowOpen =
                 ImGui::Begin(windowIndex == TRACKER_MAIN ? "Main Tracker" : "Rando Tracker", nullptr, windowFlags);
