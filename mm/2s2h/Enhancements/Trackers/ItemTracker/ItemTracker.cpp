@@ -421,7 +421,7 @@ void ItemTrackerWindow::Draw() {
 
     uint32_t windowIndex = TRACKER_MAIN;
     for (auto* window : windows) {
-        if ((*window).empty()) {
+        if (window->empty()) {
             continue;
         }
         bool singleWindowOpen = false;
