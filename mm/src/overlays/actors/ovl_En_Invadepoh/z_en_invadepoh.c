@@ -5488,4 +5488,5 @@ void EnInvadepoh_Cremia_Draw(Actor* thisx, PlayState* play) {
 
 void EnInvadepoh_Reset() {
     sInvasionState = INVASION_STATE_NONE;
+    sRewardFinished = false;
 }
