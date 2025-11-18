@@ -20,6 +20,13 @@ extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 
 ImVec4 trackerWindowOpacity = ImVec4(0, 0, 0, 0.5f);
 
+std::vector<ImVec4> dungeonKeyColors = {
+    { 0.9f, 0.33f, 0.56f, 0.4f },
+    { 0.1f, 0.54f, 0.16f, 0.4f },
+    { 0.61f, 0.04f, 0.86f, 0.4f },
+    { 0.58f, 0.65f, 0.15f, 0.4f},
+};
+
 extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
     int16_t currentItemId = ITEM_NONE;
     int16_t bottleId = 0;
@@ -265,9 +272,11 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
                 itemObtained = CHECK_DUNGEON_ITEM(DUNGEON_MAP, dungeonIndex);
                 break;
             case 2:
+                imageObject.textureColor = dungeonKeyColors[dungeonIndex];
                 itemObtained = DUNGEON_KEY_COUNT(dungeonIndex) > 0;
                 break;
             case 3:
+                imageObject.textureColor = dungeonKeyColors[dungeonIndex];
                 itemObtained = CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, dungeonIndex);
                 break;
         }
