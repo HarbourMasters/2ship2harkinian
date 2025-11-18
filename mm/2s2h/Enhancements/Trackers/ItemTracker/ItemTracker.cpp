@@ -119,7 +119,7 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
         if (itemId == ITEM_SKULL_TOKEN_SWAMP || itemId == ITEM_SKULL_TOKEN_OCEAN) {
             currentItemId = ITEM_SKULL_TOKEN;
         }
-        if (itemId >= ITEM_WOODFALL_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
+        if (itemId >= ITEM_CLOCK_TOWN_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
             currentItemId = ITEM_STRAY_FAIRIES;
         }
         if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
@@ -240,11 +240,17 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
             tokenCount = Inventory_GetSkullTokenCount(SCENE_KINDAN2);
         }
         imageObject.textureColor.w = tokenCount > 0 ? 1 : 0.4f;
-    } else if (itemId >= ITEM_WOODFALL_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
-        imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
-            (const char*)fairyIconTextures[itemId - ITEM_WOODFALL_STRAY_FAIRY]);
-        imageObject.textureColor.w =
-            gSaveContext.save.saveInfo.inventory.strayFairies[itemId - ITEM_WOODFALL_STRAY_FAIRY] > 0 ? 1 : 0.4f;
+    } else if (itemId >= ITEM_CLOCK_TOWN_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
+        if (itemId == ITEM_CLOCK_TOWN_STRAY_FAIRY) {
+            imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                (const char*)fairyIconTextures[0]);
+            imageObject.textureColor = ImVec4(1.0f, 0.9f, 0.5f, CHECK_WEEKEVENTREG(WEEKEVENTREG_08_80) ? 1 : 0.4f);
+        } else {
+            imageObject.textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                (const char*)fairyIconTextures[itemId - ITEM_WOODFALL_STRAY_FAIRY]);
+            imageObject.textureColor.w =
+                gSaveContext.save.saveInfo.inventory.strayFairies[itemId - ITEM_WOODFALL_STRAY_FAIRY] > 0 ? 1 : 0.4f;
+        }
     } else if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
         const int dungeonIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4;
         const int itemTypeIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) % 4;

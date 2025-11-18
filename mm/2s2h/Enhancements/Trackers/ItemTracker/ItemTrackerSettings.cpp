@@ -36,7 +36,7 @@ std::map<std::string, std::tuple<int16_t, int16_t, int16_t>> defaultItemLists = 
     { "Songs", { ITEM_SONG_TIME, ITEM_SONG_OATH, 5 } },
     { "Quest", { ITEM_REMAINS_ODOLWA, ITEM_BOMBERS_NOTEBOOK, 4 } },
     { "Tokens", { ITEM_SKULL_TOKEN_SWAMP, ITEM_SKULL_TOKEN_OCEAN, 2 } },
-    { "Stray Fairies", { ITEM_WOODFALL_STRAY_FAIRY, ITEM_STONE_TOWER_STRAY_FAIRY, 4 } },
+    { "Stray Fairies", { ITEM_CLOCK_TOWN_STRAY_FAIRY, ITEM_STONE_TOWER_STRAY_FAIRY, 5 } },
     { "Dungeon", { ITEM_WOODFALL_DUNGEON_MAP, ITEM_STONE_TOWER_KEY_BOSS, 4 } },
 };
 
@@ -81,8 +81,10 @@ std::string GetItemTrackerItemName(int16_t itemId, bool isRandoItem) {
             itemName = "Swamp Token";
         } else if (itemId == ITEM_SKULL_TOKEN_OCEAN) {
             itemName = "Ocean Token";
+        } else if (itemId == ITEM_CLOCK_TOWN_STRAY_FAIRY) {
+            itemName = "Clock Town Stray Fairy";
         } else if (itemId >= ITEM_WOODFALL_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
-            itemName = "Stray Fairy";
+            itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_STRAY_FAIRY) / 4] + " Stray Fairy";
         } else if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
             switch (itemId) {
                 case ITEM_WOODFALL_DUNGEON_MAP:
@@ -124,24 +126,16 @@ std::string GetItemTrackerItemName(int16_t itemId, bool isRandoItem) {
     return itemName;
 }
 
-void CreateRandoTrackerWindow() {
-    // TrackerItemListObject initRandoObject = {
-    //     .windowName = "Rando",
-    //     .columnLength = 6,
-    //     .windowScale = 1.0f,
-    //     .windowOpacity = 0.5f,
-    // };
-    // BenGui::mItemTrackerWindow->randoItemWindows.push_back(initRandoObject);
-}
-
-void CreateMainTrackerWindow() {
-    // TrackerItemListObject initMainObject = {
-    //     .windowName = "Main",
-    //     .columnLength = 6,
-    //     .windowScale = 1.0f,
-    //     .windowOpacity = 0.5f,
-    // };
-    // BenGui::mItemTrackerWindow->namedItemWindows.push_back(initMainObject);
+TrackerItemListObject CreateTrackerObject() {
+    std::vector<int16_t> itemTrackerList;
+    TrackerItemListObject trackerObject = {
+        .windowName = trackerInputName.c_str(),
+        .columnLength = 6,
+        .windowScale = 1.0f,
+        .windowOpacity = 0.5f,
+        .itemList = itemTrackerList,
+    };
+    return trackerObject;
 }
 
 void ItemTrackerPopUpContext(int16_t itemId, bool isRandoItem) {
@@ -298,12 +292,10 @@ void DrawPreviewPane() {
                 if (UIWidgets::Button("Clear", { .size = ImVec2(0, 0), .color = UIWidgets::Colors::Red })) {
                     object.itemList.clear();
                 }
-                if (listIndex > 0) {
-                    ImGui::SameLine();
-                    if (UIWidgets::Button("x", { .size = ImVec2(0, 0), .color = UIWidgets::Colors::Red })) {
-                        auto& currentWindow = *windowList[windowListIndex];
-                        currentWindow.erase(currentWindow.begin() + listIndex);
-                    }
+                ImGui::SameLine();
+                if (UIWidgets::Button("x", { .size = ImVec2(0, 0), .color = UIWidgets::Colors::Red })) {
+                    auto& currentWindow = *windowList[windowListIndex];
+                    currentWindow.erase(currentWindow.begin() + listIndex);
                 }
                 ImGui::PopID();
                 if (object.itemList.size() == 0) {
@@ -456,7 +448,6 @@ void ApplyDefaultItemGroup(std::string listName) {
 
 void ApplyDefaultItemPreset() {
     BenGui::mItemTrackerWindow->namedItemWindows.clear();
-    CreateMainTrackerWindow();
 
     for (int key = 0; key < defaultItemLists.size(); key++) {
         if (listOrder[key] == "Rando") {
@@ -484,42 +475,35 @@ void DrawTrackerOptions() {
         ImGui::TableNextColumn();
         UIWidgets::CVarCheckbox("Split Window Groups", "gSettings.ItemTracker.WindowGroup");
         UIWidgets::CVarCheckbox("Show Item Counts", "gSettings.ItemTracker.ItemCounts");
+        ImGui::EndTable();
+    }
+    UIWidgets::InputString("Window Name", &trackerInputName,
+                           {
+                               .labelPosition = UIWidgets::LabelPosition::None,
+                               .color = WIDGET_COLOR,
+                               .placeholder = "Enter new window name",
+                           });
+    if (ImGui::BeginTable("WindowCreation", 2)) {
         ImGui::TableNextColumn();
-        UIWidgets::InputString("Window Name", &trackerInputName,
-                               {
-                                   .labelPosition = UIWidgets::LabelPosition::None,
-                                   .color = WIDGET_COLOR,
-                                   .placeholder = "Enter new window name",
-                               });
-
+        if (UIWidgets::Button("Create Vanilla Window", { .color = WIDGET_COLOR })) {
+            BenGui::mItemTrackerWindow->namedItemWindows.push_back(CreateTrackerObject());
+            trackerInputName.clear();
+        }
         ImGui::TableNextColumn();
-        if (UIWidgets::Button("Create New Window",
-                              { .size = ImVec2(ImGui::GetContentRegionMax().x / 2, 0), .color = WIDGET_COLOR })) {
-            std::vector<int16_t> itemTrackerList;
-            std::string windowText = trackerInputName.c_str();
-            TrackerItemListObject trackerObject = {
-                .windowName = trackerInputName.c_str(),
-                .columnLength = 6,
-                .windowScale = 1.0f,
-                .windowOpacity = 0.5f,
-                .itemList = itemTrackerList,
-            };
-
-            BenGui::mItemTrackerWindow->namedItemWindows.push_back(trackerObject);
+        if (UIWidgets::Button("Create Rando Window", { .color = WIDGET_COLOR })) {
+            BenGui::mItemTrackerWindow->randoItemWindows.push_back(CreateTrackerObject());
             trackerInputName.clear();
         }
         ImGui::EndTable();
     }
     ImGui::SeparatorText("Window Options");
-    if (BenGui::mItemTrackerWindow->namedItemWindows.size() != 0) {
-        for (auto& window : BenGui::mItemTrackerWindow->namedItemWindows) {
-            DrawTrackerWindowOptions(windowIndex, window);
-            windowIndex++;
-        }
-        for (auto& window : BenGui::mItemTrackerWindow->randoItemWindows) {
-            DrawTrackerWindowOptions(windowIndex, window);
-            windowIndex++;
-        }
+    for (auto& window : BenGui::mItemTrackerWindow->namedItemWindows) {
+        DrawTrackerWindowOptions(windowIndex, window);
+        windowIndex++;
+    }
+    for (auto& window : BenGui::mItemTrackerWindow->randoItemWindows) {
+        DrawTrackerWindowOptions(windowIndex, window);
+        windowIndex++;
     }
 }
 
@@ -573,11 +557,17 @@ void ItemTrackerSettingsWindow::DrawElement() {
             if (ImGui::BeginChild("TrackerChild")) {
                 if (ImGui::BeginTabBar("TrackerTabs")) {
                     if (ImGui::BeginTabItem("Customization")) {
-                        DrawTrackerCustomizationOptions();
+                        if (ImGui::BeginChild("CustomizationChild")) {
+                            DrawTrackerCustomizationOptions();
+                            ImGui::EndChild();
+                        }
                         ImGui::EndTabItem();
                     }
                     if (ImGui::BeginTabItem("Options")) {
-                        DrawTrackerOptions();
+                        if (ImGui::BeginChild("OptionsChild")) {
+                            DrawTrackerOptions();
+                            ImGui::EndChild();
+                        }
                         ImGui::EndTabItem();
                     }
                     ImGui::EndTabBar();
@@ -606,6 +596,4 @@ void ItemTrackerSettingsWindow::DrawElement() {
 }
 
 void ItemTrackerSettingsWindow::InitElement() {
-    CreateMainTrackerWindow();
-    CreateRandoTrackerWindow();
 }
