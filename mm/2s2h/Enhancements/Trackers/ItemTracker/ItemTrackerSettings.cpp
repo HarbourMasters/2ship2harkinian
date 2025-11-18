@@ -84,7 +84,7 @@ std::string GetItemTrackerItemName(int16_t itemId, bool isRandoItem) {
         } else if (itemId == ITEM_CLOCK_TOWN_STRAY_FAIRY) {
             itemName = "Clock Town Stray Fairy";
         } else if (itemId >= ITEM_WOODFALL_STRAY_FAIRY && itemId <= ITEM_STONE_TOWER_STRAY_FAIRY) {
-            itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_STRAY_FAIRY) / 4] + " Stray Fairy";
+            itemName = dungeonPrefix[itemId - ITEM_WOODFALL_STRAY_FAIRY] + " Stray Fairy";
         } else if (itemId >= ITEM_WOODFALL_DUNGEON_MAP && itemId <= ITEM_STONE_TOWER_KEY_BOSS) {
             switch (itemId) {
                 case ITEM_WOODFALL_DUNGEON_MAP:
