@@ -2,6 +2,9 @@
 #include <imgui.h>
 #include "ship/window/gui/GuiWindow.h"
 
+#define ITEM_TEXTURE_SIZE 46.0f
+#define ITEM_SONG_PADDING 8.0f
+
 typedef enum {
     TRACKER_MAIN,
     TRACKER_RANDO,

@@ -48,6 +48,13 @@ std::map<std::string, std::tuple<int16_t, int16_t, int16_t>> randoItemLists = {
     { "Misc", { RI_TRIFORCE_PIECE, RI_TRIFORCE_PIECE, 1 } },
 };
 
+std::vector<std::string> dungeonPrefix = {
+    "Woodfall",
+    "Snowhead",
+    "Great Bay",
+    "Stone Tower",
+};
+
 std::pair<uint32_t, uint32_t> GetItemMapRange(uint32_t start, uint32_t end) {
     std::pair<uint32_t, uint32_t> indexRange;
 
@@ -64,13 +71,6 @@ std::pair<uint32_t, uint32_t> GetItemMapRange(uint32_t start, uint32_t end) {
 }
 
 std::string GetItemTrackerItemName(int16_t itemId, bool isRandoItem) {
-    std::vector<std::string> dungeonPrefix = {
-        "Woodfall",
-        "Snowhead",
-        "Great Bay",
-        "Stone Tower",
-    };
-
     std::string itemName = "";
     if (isRandoItem) {
         itemName = Rando::StaticData::Items[(RandoItemId)itemId].name;
@@ -227,7 +227,7 @@ void DrawItemList(std::string listName, int columns) {
                           ImGuiChildFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX |
                               ImGuiChildFlags_AutoResizeY)) {
         if (ImGui::BeginTable(listName.c_str(), columns)) {
-            ImVec2 framePadding = ImVec2(listName == "Songs" ? 8.0f : 0, 0);
+            ImVec2 framePadding = ImVec2(listName == "Songs" ? ITEM_SONG_PADDING : 0, 0);
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, framePadding);
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
             std::vector<int16_t> emptyList;
@@ -413,25 +413,11 @@ void ApplyDefaultItemGroup(std::string listName) {
         .windowOpacity = 0.5f,
     };
 
-    if (listName == "Bottles") {
-        for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
-            int16_t bottle = ITEM_BOTTLE_1 + (j - ITEM_BOTTLE_1);
-            itemObject.itemList.push_back(bottle);
-        }
-    } else if (listName == "Tokens") {
-        for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
-            int16_t skullToken = ITEM_SKULL_TOKEN_SWAMP + (j - ITEM_SKULL_TOKEN_SWAMP);
-            itemObject.itemList.push_back(skullToken);
-        }
-    } else if (listName == "Stray Fairies") {
-        for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
-            int16_t strayFairy = ITEM_WOODFALL_STRAY_FAIRY + (j - ITEM_WOODFALL_STRAY_FAIRY);
-            itemObject.itemList.push_back(strayFairy);
-        }
-    } else if (listName == "Dungeon") {
-        for (int j = std::get<0>(list); j <= std::get<1>(list); j++) {
-            int16_t dungeonItem = ITEM_WOODFALL_DUNGEON_MAP + (j - ITEM_WOODFALL_DUNGEON_MAP);
-            itemObject.itemList.push_back(dungeonItem);
+    if (listName == "Bottles" || listName == "Tokens" || listName == "Stray Fairies" || listName == "Dungeon") {
+        int16_t baseValue = std::get<0>(list);
+        int16_t maxValue = std::get<1>(list);
+        for (int j = baseValue; j <= maxValue; j++) {
+            itemObject.itemList.push_back(j);
         }
     } else {
         std::pair<uint32_t, uint32_t> range = GetItemMapRange(std::get<0>(list), std::get<1>(list));
