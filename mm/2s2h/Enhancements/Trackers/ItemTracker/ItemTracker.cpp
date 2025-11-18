@@ -24,7 +24,7 @@ std::vector<ImVec4> dungeonKeyColors = {
     { 0.9f, 0.33f, 0.56f, 0.4f },
     { 0.1f, 0.54f, 0.16f, 0.4f },
     { 0.61f, 0.04f, 0.86f, 0.4f },
-    { 0.58f, 0.65f, 0.15f, 0.4f},
+    { 0.58f, 0.65f, 0.15f, 0.4f },
 };
 
 extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
