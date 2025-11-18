@@ -143,9 +143,9 @@ std::vector<std::pair<int16_t, std::string>> itemIdToItemNameMap = {
     { ITEM_REMAINS_GOHT, "Goht's Remains" },
     { ITEM_REMAINS_GYORG, "Gyorg's Remains" },
     { ITEM_REMAINS_TWINMOLD, "Twinmold's Remains" },
-    { ITEM_SWORD_KOKIRI, "Kokiri Sword" },
-    { ITEM_SHIELD_HERO, "Hero's Shield" },
-    { ITEM_WALLET_ADULT, "Adult Wallet" },
+    { ITEM_SWORD_KOKIRI, "Sword" },
+    { ITEM_SHIELD_HERO, "Shield" },
+    { ITEM_WALLET_ADULT, "Wallet" },
     { ITEM_BOMBERS_NOTEBOOK, "Bombers' Notebook" },
 };
 
