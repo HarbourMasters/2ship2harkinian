@@ -72,6 +72,7 @@ std::pair<uint32_t, uint32_t> GetItemMapRange(uint32_t start, uint32_t end) {
 
 std::string GetItemTrackerItemName(int16_t itemId, bool isRandoItem) {
     std::string itemName = "";
+    uint16_t fallBackCheck = 0;
     if (isRandoItem) {
         itemName = Rando::StaticData::Items[(RandoItemId)itemId].name;
     } else {
@@ -118,9 +119,22 @@ std::string GetItemTrackerItemName(int16_t itemId, bool isRandoItem) {
             itemName = gSaveContext.save.saveInfo.playerData.magicLevel > 1 ? "Double Magic" : "Single Magic";
         } else if (itemId == ITEM_HEART_CONTAINER) {
             itemName = "Double Defense";
-        } else {
-            itemName = Ship_GetItemNameById(itemId);
+        } else if (itemId >= ITEM_MOONS_TEAR && itemId <= ITEM_PENDANT_OF_MEMORIES) {
+            itemName = Ship_GetItemNameById(gSaveContext.save.saveInfo.inventory.items[gItemSlots[itemId]]);
+        } else if (itemId == ITEM_SWORD_KOKIRI) {
+            fallBackCheck = ITEM_SWORD_KOKIRI + (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI);
+            itemName = Ship_GetItemNameById(fallBackCheck <= ITEM_SWORD_KOKIRI ? ITEM_SWORD_KOKIRI : fallBackCheck);
+        } else if (itemId == ITEM_SHIELD_HERO) {
+            fallBackCheck = ITEM_SHIELD_HERO + (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) - EQUIP_VALUE_SHIELD_HERO);
+            itemName = Ship_GetItemNameById(fallBackCheck <= ITEM_SHIELD_HERO ? ITEM_SHIELD_HERO : fallBackCheck);
+        } else if (itemId == ITEM_WALLET_ADULT) {
+            fallBackCheck = ITEM_WALLET_ADULT + CUR_UPG_VALUE(UPG_WALLET) - 1;
+            itemName = Ship_GetItemNameById(fallBackCheck <= ITEM_WALLET_ADULT ? ITEM_WALLET_ADULT : fallBackCheck);
         }
+    }
+
+    if (itemName == "") {
+        itemName = Ship_GetItemNameById(itemId);
     }
 
     return itemName;

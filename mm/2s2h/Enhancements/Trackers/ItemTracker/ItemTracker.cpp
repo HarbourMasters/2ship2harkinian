@@ -228,7 +228,7 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
     } else if (itemId == ITEM_SHIELD_HERO || itemId == ITEM_SHIELD_MIRROR) {
         itemObtained = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) >= EQUIP_VALUE_SHIELD_HERO;
     } else if (itemId == ITEM_WALLET_ADULT || itemId == ITEM_WALLET_GIANT) {
-        itemObtained = CUR_UPG_VALUE(UPG_WALLET) >= 1 ? 1 : 0.4f;
+        itemObtained = CUR_UPG_VALUE(UPG_WALLET) >= 1;
     } else if (itemId == ITEM_MAGIC_JAR_SMALL || itemId == ITEM_MAGIC_JAR_BIG) {
         itemObtained = gSaveContext.save.saveInfo.playerData.magicLevel != 0;
     } else if (itemId == ITEM_HEART_CONTAINER) {

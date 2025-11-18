@@ -143,10 +143,24 @@ std::vector<std::pair<int16_t, std::string>> itemIdToItemNameMap = {
     { ITEM_REMAINS_GOHT, "Goht's Remains" },
     { ITEM_REMAINS_GYORG, "Gyorg's Remains" },
     { ITEM_REMAINS_TWINMOLD, "Twinmold's Remains" },
-    { ITEM_SWORD_KOKIRI, "Sword" },
-    { ITEM_SHIELD_HERO, "Shield" },
-    { ITEM_WALLET_ADULT, "Wallet" },
+    { ITEM_SWORD_KOKIRI, "Kokiri Sword" },
+    { ITEM_SHIELD_HERO, "Hero's Shield" },
+    { ITEM_WALLET_ADULT, "Adult Wallet" },
     { ITEM_BOMBERS_NOTEBOOK, "Bombers' Notebook" },
+
+    // Upgrade Items
+    { ITEM_SWORD_RAZOR, "Razor Sword" },
+    { ITEM_SWORD_GILDED, "Gilded Sword" },
+    { ITEM_SHIELD_MIRROR, "Mirror Shield" },
+    { ITEM_WALLET_GIANT, "Giant Wallet" },
+
+    // Trade Items
+    { ITEM_DEED_LAND, "Land Title Deed" },
+    { ITEM_DEED_SWAMP, "Swamp Title Deed" },
+    { ITEM_DEED_MOUNTAIN, "Mountain Title Deed" },
+    { ITEM_DEED_OCEAN, "Ocean Title Deed" },
+    { ITEM_LETTER_MAMA, "Letter to Mama" },
+    { ITEM_PENDANT_OF_MEMORIES, "Pendant of Memories" },
 };
 
 std::string Ship_GetItemNameById(int16_t itemId) {
