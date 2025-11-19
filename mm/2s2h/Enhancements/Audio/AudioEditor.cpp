@@ -437,25 +437,17 @@ void DrawTypeChip(SeqType type) {
     ImGui::EndDisabled();
 }
 
-void AudioEditorRegisterOnRoomInitHook() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnRoomInit>([](s8 spawnNum, s8 roomNum) {
-        if (CVarGetInteger(CVAR_AUDIO("RandomizeAllOnNewScene"), 0)) {
-            AudioEditor_RandomizeAll();
-        }
-    });
+void AudioEditorRegisterRandomizeAllOnNewScene() {
+    COND_VB_SHOULD(VB_PLAY_TRANSITION_CS, CVarGetInteger(CVAR_AUDIO("RandomizeAllOnNewScene"), 0),
+                   { AudioEditor_RandomizeAll(); });
 }
 
-void AudioEditorRegisterOnGenerationCompletionHook() {
+void AudioEditor::InitElement() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnRandoSeedGeneration>([]() {
         if (CVarGetInteger(CVAR_AUDIO("RandomizeAllOnRandoGen"), 0)) {
             AudioEditor_RandomizeAll();
         }
     });
-}
-
-void AudioEditor::InitElement() {
-    AudioEditorRegisterOnRoomInitHook();
-    AudioEditorRegisterOnGenerationCompletionHook();
 }
 
 void AudioEditor::DrawElement() {
@@ -844,3 +836,6 @@ void RegisterAudioWidgets() {
 }
 
 static RegisterMenuInitFunc initAudioWidgets(RegisterAudioWidgets);
+
+static RegisterShipInitFunc initFuncRandomizeAllOnNewScene(AudioEditorRegisterRandomizeAllOnNewScene,
+                                                           { CVAR_AUDIO("RandomizeAllOnNewScene") });
