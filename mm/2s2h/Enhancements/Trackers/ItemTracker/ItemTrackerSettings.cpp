@@ -2,6 +2,7 @@
 #include "ItemTracker.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "ShipUtils.h"
+#include "ship/config/Config.h"
 
 namespace BenGui {
 extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
@@ -457,6 +458,90 @@ void ApplyDefaultItemPreset() {
     }
 }
 
+void SaveItemTrackerLayout() {
+    std::vector<std::vector<TrackerItemListObject>*> trackerWindows = {
+        &BenGui::mItemTrackerWindow->namedItemWindows,
+        &BenGui::mItemTrackerWindow->randoItemWindows,
+    };
+
+    auto allConfig = Ship::Context::GetInstance()->GetConfig()->GetNestedJson();
+    if (allConfig.find("Window.ItemTrackerLayout") == allConfig.end()) {
+        allConfig["Window.ItemTrackerLayout"] = nlohmann::json::object();
+    }
+
+    auto& itemTrackerConfig = allConfig["Window.ItemTrackerLayout"];
+    itemTrackerConfig = nlohmann::json::object();
+
+    uint16_t windowType = 0;
+
+    for (auto* window : trackerWindows) {
+        if (window->empty()) {
+            windowType++;
+            continue;
+        }
+
+        std::string windowName = windowType == TRACKER_MAIN ? "Main" : "Rando";
+        nlohmann::json trackerSaveObject = nlohmann::json::object();
+
+        for (auto& object : *window) {
+            trackerSaveObject[object.windowName] = nlohmann::json::object();
+            trackerSaveObject[object.windowName]["Name"] = object.windowName;
+            trackerSaveObject[object.windowName]["Columns"] = object.columnLength;
+            trackerSaveObject[object.windowName]["Scale"] = object.windowScale;
+            trackerSaveObject[object.windowName]["Opacity"] = object.windowOpacity;
+            trackerSaveObject[object.windowName]["ItemList"] = nlohmann::json::array();
+
+            for (auto& item : object.itemList) {
+                trackerSaveObject[object.windowName]["ItemList"].push_back(item);
+            }
+        }
+        itemTrackerConfig[windowName] = trackerSaveObject;
+        windowType++;
+    }
+
+    Ship::Context::GetInstance()->GetConfig()->SetBlock("Window.ItemTrackerLayout", itemTrackerConfig);
+    Ship::Context::GetInstance()->GetConfig()->Save();
+}
+
+void LoadItemTrackerLayout() {
+    auto allConfig = Ship::Context::GetInstance()->GetConfig()->GetNestedJson();
+    if (allConfig.find("Window") == allConfig.end()) {
+        return;
+    }
+
+    auto& windowConfig = allConfig["Window"];
+    if (windowConfig.find("ItemTrackerLayout") == windowConfig.end()) {
+        return;
+    }
+
+    auto& itemTrackerConfig = windowConfig["ItemTrackerLayout"];
+
+    for (auto& [windowKey, windowData] : itemTrackerConfig.items()) {
+        std::vector<TrackerItemListObject>* window = windowKey == "Main"
+                                                         ? &BenGui::mItemTrackerWindow->namedItemWindows
+                                                         : &BenGui::mItemTrackerWindow->randoItemWindows;
+        for (auto& [dataKey, dataInfo] : windowData.items()) {
+            TrackerItemListObject windowObj = { .windowName = dataInfo["Name"].get<std::string>(),
+                                                .columnLength = dataInfo["Columns"],
+                                                .windowScale = dataInfo["Scale"],
+                                                .windowOpacity = dataInfo["Opacity"],
+                                                .itemList = dataInfo["ItemList"] };
+            window->push_back(windowObj);
+        }
+    }
+}
+
+void DrawTrackerSaveLoadOptions() {
+    if (UIWidgets::Button("Save Layout", { .color = WIDGET_COLOR })) {
+        SaveItemTrackerLayout();
+    }
+    if (UIWidgets::Button("Load Layout", { .color = WIDGET_COLOR })) {
+        BenGui::mItemTrackerWindow->namedItemWindows.clear();
+        BenGui::mItemTrackerWindow->randoItemWindows.clear();
+        LoadItemTrackerLayout();
+    }
+}
+
 void DrawTrackerOptions() {
     int32_t windowIndex = 0;
     ImGui::SeparatorText("Presets");
@@ -566,6 +651,13 @@ void ItemTrackerSettingsWindow::DrawElement() {
                     if (ImGui::BeginTabItem("Options")) {
                         if (ImGui::BeginChild("OptionsChild")) {
                             DrawTrackerOptions();
+                            ImGui::EndChild();
+                        }
+                        ImGui::EndTabItem();
+                    }
+                    if (ImGui::BeginTabItem("Save/Load")) {
+                        if (ImGui::BeginChild("SaveChild")) {
+                            DrawTrackerSaveLoadOptions();
                             ImGui::EndChild();
                         }
                         ImGui::EndTabItem();

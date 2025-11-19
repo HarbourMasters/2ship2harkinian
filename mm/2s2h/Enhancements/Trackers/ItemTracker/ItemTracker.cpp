@@ -420,16 +420,16 @@ void ItemTrackerWindow::Draw() {
     }
     shouldWindowSplit = CVarGetInteger("gSettings.ItemTracker.WindowGroup", 0);
 
-    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
-
-    std::vector<std::vector<TrackerItemListObject>*> windows = {
+    std::vector<std::vector<TrackerItemListObject>*> itemTrackerWindows = {
         &BenGui::mItemTrackerWindow->namedItemWindows,
         &BenGui::mItemTrackerWindow->randoItemWindows,
     };
 
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
+
     uint32_t windowIndex = TRACKER_MAIN;
-    for (auto* window : windows) {
+    for (auto* window : itemTrackerWindows) {
         if (window->empty()) {
             continue;
         }
