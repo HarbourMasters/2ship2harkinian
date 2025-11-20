@@ -5489,4 +5489,9 @@ void EnInvadepoh_Cremia_Draw(Actor* thisx, PlayState* play) {
 void EnInvadepoh_Reset() {
     sInvasionState = INVASION_STATE_NONE;
     sRewardFinished = false;
+    sAliensExtremeThreat = false;
+    for(int i = 0; i < ALIEN_COUNT; i ++) {
+        sAliens[i] = NULL;
+        sAlienStateFlags[i] = 0;
+    }
 }
