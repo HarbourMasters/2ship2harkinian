@@ -93,13 +93,14 @@ std::string GetItemTrackerItemName(int16_t itemId, bool isRandoItem) {
                 case ITEM_SNOWHEAD_DUNGEON_MAP:
                 case ITEM_GREAT_BAY_DUNGEON_MAP:
                 case ITEM_STONE_TOWER_DUNGEON_MAP:
-                    itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4] + " Dungeon Map";
+                    // Note the Map and Compass are swapped in vanilla code, this is correcting that.
+                    itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4] + " Compass";
                     break;
                 case ITEM_WOODFALL_DUNGEON_COMPASS:
                 case ITEM_SNOWHEAD_DUNGEON_COMPASS:
                 case ITEM_GREAT_BAY_DUNGEON_COMPASS:
                 case ITEM_STONE_TOWER_DUNGEON_COMPASS:
-                    itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_DUNGEON_COMPASS) / 4] + " Compass";
+                    itemName = dungeonPrefix[(itemId - ITEM_WOODFALL_DUNGEON_COMPASS) / 4] + " Map";
                     break;
                 case ITEM_WOODFALL_KEY_SMALL:
                 case ITEM_SNOWHEAD_KEY_SMALL:
