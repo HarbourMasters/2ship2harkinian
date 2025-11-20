@@ -104,8 +104,7 @@ static RegisterShipInitFunc initFunc([]() {
 																										 RR_ZORA_CAPE_GROTTO })),
 			CHECK(RC_ENEMY_DROP_NEJIRON,		CanKillEnemy(ACTOR_EN_BAGUO)		&& CanReachRegions({ RR_ROAD_TO_IKANA_ABOVE_LEDGE,
 																										 RR_STONE_TOWER_TEMPLE_MIRROR_PILLAR_ROOM })),
-			// TODO: RR_SOUTHERN_SWAMP_NORTH will need changed to north flowers region once swim logic rework is merged
-			CHECK(RC_ENEMY_DROP_OCTOROK,		CanKillEnemy(ACTOR_EN_OKUTA)		&& CanReachRegions({ RR_SOUTHERN_SWAMP_NORTH,
+			CHECK(RC_ENEMY_DROP_OCTOROK,		CanKillEnemy(ACTOR_EN_OKUTA)		&& CanReachRegions({ RR_SOUTHERN_SWAMP_NEAR_FLOWERS,
 																										 RR_GREAT_BAY_TEMPLE_RED_PIPE_BEFORE_WART,
 																										 RR_IKANA_CANYON_LOWER })),
 			CHECK(RC_ENEMY_DROP_PEAHAT,			CanKillEnemy(ACTOR_EN_PEEHAT)		&& CanReachRegions({ RR_TERMINA_FIELD_PEAHAT_GROTTO })),
