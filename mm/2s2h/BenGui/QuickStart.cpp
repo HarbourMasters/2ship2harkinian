@@ -35,7 +35,7 @@ Please keep the flow simple and easy for the user. If you plan to add more to th
 #define COLOR_WHITE UIWidgets::Colors::White
 #define COLOR_GREY UIWidgets::Colors::Gray
 #define COLOR_GREEN UIWidgets::Colors::Green
-#define COLOR_RED UIWidgets::Colors::Red
+#define COLOR_ORANGE UIWidgets::Colors::Orange
 
 #define TEXT_COLOR(color) UIWidgets::ColorValues.at(color)
 
@@ -153,7 +153,7 @@ void QuickStartQuestInit(const char* fileNameEntry) {
     s32 nameIndex;
     for (nameIndex = 0; nameIndex < ARRAY_COUNT(gSaveContext.save.saveInfo.playerData.playerName); nameIndex++) {
         if (nameIndex < playerName.size()) {
-            fileSelect->fileNames[fileSelect->buttonIndex][nameIndex] = ConvertNameSet(fileNameEntry)[nameIndex];
+            fileSelect->fileNames[fileSelect->buttonIndex][nameIndex] = playerName[nameIndex];
         } else {
             fileSelect->fileNames[fileSelect->buttonIndex][nameIndex] = 0x3E;
         }
@@ -275,7 +275,7 @@ void DrawQuickStartQuestOptions() {
             }
             break;
         default:
-            ImGui::TextColored(TEXT_COLOR(COLOR_RED), "No Quest Selected...");
+            ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "No Quest Selected...");
             break;
     }
 }
@@ -286,12 +286,12 @@ void DrawQuickStartQuestAccept() {
     if (quickStartOptions.questID == QUICK_START_NONE ||
         (quickStartOptions.questID == SAVETYPE_RANDO && (quickStartOptions.rando.shuffleSet == QUICK_START_NONE ||
                                                          quickStartOptions.rando.logicOption == QUICK_START_NONE))) {
-        ImGui::TextColored(TEXT_COLOR(COLOR_RED), "Click Options on the left and select some options.");
+        ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "Click Options on the left and select some options.");
         return;
     }
     SelectMenuButtonIndex fileCheck = (SelectMenuButtonIndex)SaveManager_GetOpenFileSlot();
     if (fileCheck - 1 < 0) {
-        ImGui::TextColored(TEXT_COLOR(COLOR_RED), "No File slot available, please delete a File first.");
+        ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "No File slot available, please delete a File first.");
         return;
     }
     if (ImGui::BeginTable("NameEntry", 2)) {
@@ -306,7 +306,7 @@ void DrawQuickStartQuestAccept() {
                                    .Color(BenGui::mBenMenu->GetMenuThemeColor())
                                    .PlaceholderText("Enter Your Name"));
         if (UIWidgets::Button("Let's Go!", { .size = ImVec2(ImGui::GetContentRegionAvail().x, 0),
-                                             .color = trackerInputRename.empty() ? COLOR_RED : COLOR_GREEN })) {
+                                             .color = trackerInputRename.empty() ? COLOR_ORANGE : COLOR_GREEN })) {
             if (!trackerInputRename.empty()) {
                 if (quickStartOptions.questID == SAVETYPE_RANDO) {
                     SetRandoQuickStartOptions();
@@ -370,7 +370,7 @@ void DrawQuickStartSelectioncheck() {
                quickStartOptions.rando.shuffleSet != QUICK_START_NONE) {
         isReady = true;
     }
-    ImGui::TextColored(TEXT_COLOR(isReady ? COLOR_GREEN : COLOR_RED),
+    ImGui::TextColored(TEXT_COLOR(isReady ? COLOR_GREEN : COLOR_ORANGE),
                        isReady ? "Ready to Go! Click Start on the left to review your options and jump in."
                                : "Finish selecting options.");
 }
@@ -386,7 +386,7 @@ void DrawQuickStartMenu() {
         UIWidgets::Separator();
         DrawQuickStartSelectioncheck();
     } else {
-        ImGui::TextColored(TEXT_COLOR(COLOR_RED), "Waiting for File Select Screen...");
+        ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "Waiting for File Select Screen...");
     }
 }
 
