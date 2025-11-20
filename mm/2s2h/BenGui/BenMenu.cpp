@@ -1781,13 +1781,12 @@ void BenMenu::AddDevTools() {
         .Options(ButtonOptions().Tooltip("Enables the Event Log window."))
         .WindowName("Event Log");
 
-    path = { "Dev Tools", "Display List Viewer", SECTION_COLUMN_1 };
-    AddSidebarEntry("Dev Tools", "Display List Viewer", 1);
-    AddWidget(path, "Popout Display List Viewer", WIDGET_WINDOW_BUTTON)
+    path = { "Dev Tools", "DL Viewer", SECTION_COLUMN_1 };
+    AddSidebarEntry("Dev Tools", "DL Viewer", 1);
+    AddWidget(path, "Popout DL Viewer", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.DLViewer")
-        .Options(
-            ButtonOptions().Tooltip("Enables the Display List Viewer window for inspecting and editing display lists."))
-        .WindowName("Display List Viewer");
+        .Options(ButtonOptions().Tooltip("Enables the DL Viewer window for inspecting and editing display lists."))
+        .WindowName("DL Viewer");
 }
 
 BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name)

@@ -133,7 +133,7 @@ void SetupGuiElements() {
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log", ImVec2(520, 600));
     gui->AddGuiWindow(mEventLogWindow);
 
-    mDLViewerWindow = std::make_shared<DLViewerWindow>("gWindows.DLViewer", "Display List Viewer", ImVec2(520, 600));
+    mDLViewerWindow = std::make_shared<DLViewerWindow>("gWindows.DLViewer", "DL Viewer", ImVec2(520, 600));
     gui->AddGuiWindow(mDLViewerWindow);
 
     mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor", ImVec2(520, 600));
