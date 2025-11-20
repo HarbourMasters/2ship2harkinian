@@ -606,17 +606,13 @@ void BenMenu::AddSettings() {
     AddWidget(path, "Input Viewer", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Toggle Input Viewer", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.InputViewer")
-        //.RaceDisable(false)
         .WindowName("Input Viewer")
-        //.HideInSearch(true)
         .Options(ButtonOptions().Tooltip("Toggles the Input Viewer."));
 
     AddWidget(path, "Input Viewer Settings", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Popout Input Viewer Settings", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.InputViewerSettings")
-        //.RaceDisable(false)
         .WindowName("Input Viewer Settings")
-        //.HideInSearch(true)
         .Options(ButtonOptions().Tooltip("Enables the separate Input Viewer Settings Window."));
 }
 int32_t motionBlurStrength;

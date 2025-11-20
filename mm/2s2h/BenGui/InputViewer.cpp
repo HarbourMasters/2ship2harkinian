@@ -1,16 +1,13 @@
 #include "InputViewer.h"
 
 #include <libultraship/bridge/consolevariablebridge.h>
-#include "libultraship/libultra/controller.h"
+#include <libultraship/libultra/controller.h>
 #include <ship/Context.h>
 #include <libultraship/controller/controldeck/ControlDeck.h>
 #include "2s2h/BenPort.h"
-//#include "soh/cvar_prefixes.h"
 #include <imgui.h>
-#include <spdlog/spdlog.h>
 #include <cmath>
 
-#include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/BenGui/BenGui.hpp"
 
@@ -37,10 +34,6 @@ static std::unordered_map<int32_t, const char*> buttonOutlineOptionsVerbose = {
 static std::unordered_map<int32_t, const char*> stickModeOptions = { { STICK_MODE_ALWAYS_SHOWN, "Always" },
                                                                      { STICK_MODE_HIDDEN_IN_DEADZONE, "While In Use" },
                                                                      { STICK_MODE_ALWAYS_HIDDEN, "Never" } };
-
-InputViewer::~InputViewer() {
-    SPDLOG_TRACE("destruct input viewer");
-}
 
 void InputViewer::RenderButton(std::string btnTexture, std::string btnOutlineTexture, int state, ImVec2 size,
                                int outlineMode) {
@@ -159,7 +152,8 @@ void InputViewer::DrawElement() {
 #else
         const float scale = CVarGetFloat(CVAR_INPUT_VIEWER("Scale"), 1.0f);
 #endif
-        const int showAnalogAngles = CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Enabled"), 0);
+        const int showLeftAnalogAngles = CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Enabled"), 0);
+        const int showRightAnalogAngles = CVarGetInteger(CVAR_INPUT_VIEWER("RightAnalogAngles.Enabled"), 0);
         const int buttonOutlineMode =
             CVarGetInteger(CVAR_INPUT_VIEWER("ButtonOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED);
         const bool useGlobalOutlineMode = CVarGetInteger(CVAR_INPUT_VIEWER("UseGlobalButtonOutlineMode"), 1);
@@ -167,14 +161,26 @@ void InputViewer::DrawElement() {
         ImVec2 bgSize = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureSize("Input-Viewer-Background");
         ImVec2 scaledBGSize = ImVec2(bgSize.x * scale, bgSize.y * scale);
 
-        ImGui::SetNextWindowSize(
-            ImVec2(scaledBGSize.x + 20, scaledBGSize.y +
-                                            (showAnalogAngles ? ImGui::CalcTextSize("X").y : 0) * scale *
-                                                CVarGetFloat(CVAR_INPUT_VIEWER("AnalogAngles.Scale"), 1.0f) +
-                                            20));
-        ImGui::SetNextWindowContentSize(
-            ImVec2(scaledBGSize.x, scaledBGSize.y + (showAnalogAngles ? 15 : 0) * scale *
-                                                        CVarGetFloat(CVAR_INPUT_VIEWER("AnalogAngles.Scale"), 1.0f)));
+        float maxScale = std::max(CVarGetFloat(CVAR_INPUT_VIEWER("LeftAnalogAngles.Scale"), 1.0f),
+                                  CVarGetFloat(CVAR_INPUT_VIEWER("RightAnalogAngles.Scale"), 1.0f));
+
+        if (showLeftAnalogAngles || showRightAnalogAngles) {
+
+            ImGui::SetNextWindowSize(
+                ImVec2(scaledBGSize.x + 20, scaledBGSize.y +
+                                                (showLeftAnalogAngles || showRightAnalogAngles
+                                                     ? ImGui::CalcTextSize("X").y * scale * maxScale
+                                                     : 0) +
+                                                20));
+
+            ImGui::SetNextWindowContentSize(ImVec2(
+                scaledBGSize.x,
+                scaledBGSize.y + (showLeftAnalogAngles || showRightAnalogAngles ? 15.0f * scale * maxScale : 0.0f)));
+        } else {
+            ImGui::SetNextWindowContentSize(
+                ImVec2(mainPos.x + size.x - scaledBGSize.x - 30, mainPos.y + size.y - scaledBGSize.y - 30));
+        }
+
         ImGui::SetNextWindowPos(
             ImVec2(mainPos.x + size.x - scaledBGSize.x - 30, mainPos.y + size.y - scaledBGSize.y - 30),
             ImGuiCond_FirstUseEver);
@@ -184,6 +190,8 @@ void InputViewer::DrawElement() {
 
         OSContPad* pads =
             std::dynamic_pointer_cast<LUS::ControlDeck>(Ship::Context::GetInstance()->GetControlDeck())->GetPads();
+
+        OSContPad pad = pads[0];
 
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar |
                                        ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBackground |
@@ -209,7 +217,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("BBtn"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("B-Btn", "B-Btn Outline", pads[0].button & BTN_B, scaledBGSize,
+                RenderButton("B-Btn", "B-Btn Outline", pad.button & BTN_B, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("BBtnOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -217,7 +225,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("ABtn"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("A-Btn", "A-Btn Outline", pads[0].button & BTN_A, scaledBGSize,
+                RenderButton("A-Btn", "A-Btn Outline", pad.button & BTN_A, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("ABtnOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -227,7 +235,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("CUp"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("C-Up", "C-Up Outline", pads[0].button & BTN_CUP, scaledBGSize,
+                RenderButton("C-Up", "C-Up Outline", pad.button & BTN_CUP, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("CUpOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -235,7 +243,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("CLeft"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("C-Left", "C-Left Outline", pads[0].button & BTN_CLEFT, scaledBGSize,
+                RenderButton("C-Left", "C-Left Outline", pad.button & BTN_CLEFT, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("CLeftOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -243,7 +251,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("CRight"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("C-Right", "C-Right Outline", pads[0].button & BTN_CRIGHT, scaledBGSize,
+                RenderButton("C-Right", "C-Right Outline", pad.button & BTN_CRIGHT, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("CRightOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -251,7 +259,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("CDown"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("C-Down", "C-Down Outline", pads[0].button & BTN_CDOWN, scaledBGSize,
+                RenderButton("C-Down", "C-Down Outline", pad.button & BTN_CDOWN, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("CDownOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -261,7 +269,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("LBtn"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("L-Btn", "L-Btn Outline", pads[0].button & BTN_L, scaledBGSize,
+                RenderButton("L-Btn", "L-Btn Outline", pad.button & BTN_L, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("LBtnOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -269,7 +277,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("RBtn"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("R-Btn", "R-Btn Outline", pads[0].button & BTN_R, scaledBGSize,
+                RenderButton("R-Btn", "R-Btn Outline", pad.button & BTN_R, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("RBtnOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -277,7 +285,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("ZBtn"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("Z-Btn", "Z-Btn Outline", pads[0].button & BTN_Z, scaledBGSize,
+                RenderButton("Z-Btn", "Z-Btn Outline", pad.button & BTN_Z, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("ZBtnOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -287,7 +295,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("StartBtn"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("Start-Btn", "Start-Btn Outline", pads[0].button & BTN_START, scaledBGSize,
+                RenderButton("Start-Btn", "Start-Btn Outline", pad.button & BTN_START, scaledBGSize,
                              useGlobalOutlineMode ? buttonOutlineMode
                                                   : CVarGetInteger(CVAR_INPUT_VIEWER("StartBtnOutlineMode"),
                                                                    BUTTON_OUTLINE_NOT_PRESSED));
@@ -297,25 +305,25 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("Dpad"), 0)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("Dpad-Left", "Dpad-Left Outline", pads[0].button & BTN_DLEFT, scaledBGSize,
+                RenderButton("Dpad-Left", "Dpad-Left Outline", pad.button & BTN_DLEFT, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("DpadOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("Dpad-Right", "Dpad-Right Outline", pads[0].button & BTN_DRIGHT, scaledBGSize,
+                RenderButton("Dpad-Right", "Dpad-Right Outline", pad.button & BTN_DRIGHT, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("DpadOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("Dpad-Up", "Dpad-Up Outline", pads[0].button & BTN_DUP, scaledBGSize,
+                RenderButton("Dpad-Up", "Dpad-Up Outline", pad.button & BTN_DUP, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("DpadOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("Dpad-Down", "Dpad-Down Outline", pads[0].button & BTN_DDOWN, scaledBGSize,
+                RenderButton("Dpad-Down", "Dpad-Down Outline", pad.button & BTN_DDOWN, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("DpadOutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -325,7 +333,7 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("Mod1"), 0)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("Modifier-1", "Modifier-1 Outline", pads[0].button & BTN_CUSTOM_MODIFIER1, scaledBGSize,
+                RenderButton("Modifier-1", "Modifier-1 Outline", pad.button & BTN_CUSTOM_MODIFIER1, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("Mod1OutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
@@ -334,14 +342,14 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("Mod2"), 0)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                RenderButton("Modifier-2", "Modifier-2 Outline", pads[0].button & BTN_CUSTOM_MODIFIER2, scaledBGSize,
+                RenderButton("Modifier-2", "Modifier-2 Outline", pad.button & BTN_CUSTOM_MODIFIER2, scaledBGSize,
                              useGlobalOutlineMode
                                  ? buttonOutlineMode
                                  : CVarGetInteger(CVAR_INPUT_VIEWER("Mod2OutlineMode"), BUTTON_OUTLINE_NOT_PRESSED));
             }
 
-            const bool analogStickIsInDeadzone = !pads[0].stick_x && !pads[0].stick_y;
-            const bool rightStickIsInDeadzone = !pads[0].right_stick_x && !pads[0].right_stick_y;
+            const bool analogStickIsInDeadzone = !pad.stick_x && !pad.stick_y;
+            const bool rightStickIsInDeadzone = !pad.right_stick_x && !pad.right_stick_y;
 
             // Analog Stick
             const int analogOutlineMode =
@@ -361,8 +369,8 @@ void InputViewer::DrawElement() {
                 (analogStickMode == STICK_MODE_HIDDEN_IN_DEADZONE && !analogStickIsInDeadzone)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(
-                    ImVec2(aPos.x + maxStickDistance * ((float)(pads[0].stick_x) / MAX_AXIS_RANGE) * scale,
-                           aPos.y - maxStickDistance * ((float)(pads[0].stick_y) / MAX_AXIS_RANGE) * scale));
+                    ImVec2(aPos.x + maxStickDistance * ((float)(pad.stick_x) / MAX_AXIS_RANGE) * scale,
+                           aPos.y - maxStickDistance * ((float)(pad.stick_y) / MAX_AXIS_RANGE) * scale));
                 ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName("Analog-Stick"),
                              scaledBGSize, ImVec2(0, 0), ImVec2(1.0f, 1.0f));
             }
@@ -385,55 +393,77 @@ void InputViewer::DrawElement() {
                 (rightStickMode == STICK_MODE_HIDDEN_IN_DEADZONE && !rightStickIsInDeadzone)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(
-                    ImVec2(aPos.x + maxRightStickDistance * ((float)(pads[0].right_stick_x) / MAX_AXIS_RANGE) * scale,
-                           aPos.y - maxRightStickDistance * ((float)(pads[0].right_stick_y) / MAX_AXIS_RANGE) * scale));
+                    ImVec2(aPos.x + maxRightStickDistance * ((float)(pad.right_stick_x) / MAX_AXIS_RANGE) * scale,
+                           aPos.y - maxRightStickDistance * ((float)(pad.right_stick_y) / MAX_AXIS_RANGE) * scale));
                 ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName("Right-Stick"),
                              scaledBGSize, ImVec2(0, 0), ImVec2(1.0f, 1.0f));
             }
 
-            // Analog stick angle text
-            if (showAnalogAngles) {
-                ImGui::SetCursorPos(
-                    ImVec2(aPos.x + 10 + CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Offset"), 0) * scale,
-                           scaledBGSize.y + aPos.y + 10));
+            // Left Analog stick angle text
+            if (showLeftAnalogAngles) {
+                ImGui::SetCursorPos(ImVec2(
+                    aPos.x + 10 + CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.HortizontalOffset"), 0) * scale,
+                    aPos.y + 10 + CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.VerticalOffset"), 0) * scale));
                 // Scale font with input viewer scale
                 float oldFontScale = ImGui::GetFont()->Scale;
-                ImGui::GetFont()->Scale *= scale * CVarGetFloat(CVAR_INPUT_VIEWER("AnalogAngles.Scale"), 1.0f);
+                ImGui::GetFont()->Scale *= scale * CVarGetFloat(CVAR_INPUT_VIEWER("LeftAnalogAngles.Scale"), 1.0f);
                 ImGui::PushFont(ImGui::GetFont());
 
                 // Calculate polar R coordinate from X and Y angles, squared to avoid sqrt
-                const int32_t rSquared = pads[0].stick_x * pads[0].stick_x + pads[0].stick_y * pads[0].stick_y;
+                const int32_t rSquared = pad.stick_x * pad.stick_x + pad.stick_y * pad.stick_y;
 
                 // ESS range
-                const int range1Min = CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Range1.Min"), 8);
-                const int range1Max = CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Range1.Max"), 27);
+                const int range1Min = CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Range1.Min"), 8);
+                const int range1Max = CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Range1.Max"), 27);
                 // Walking speed range
-                const int range2Min = CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Range2.Min"), 27);
-                const int range2Max = CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Range2.Max"), 62);
+                const int range2Min = CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Range2.Min"), 27);
+                const int range2Max = CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Range2.Max"), 62);
 
                 // Push color based on angle ranges
-                if (CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Range1.Enabled"), 0) &&
+                if (CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Range1.Enabled"), 0) &&
                     (rSquared >= (range1Min * range1Min)) && (rSquared < (range1Max * range1Max))) {
-                    ImGui::PushStyleColor(
-                        ImGuiCol_Text, VecFromRGBA8(CVarGetColor(CVAR_INPUT_VIEWER("AnalogAngles.Range1.Color.Value"),
-                                                                 range1ColorDefault)));
-                } else if (CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Range2.Enabled"), 0) &&
+                    ImGui::PushStyleColor(ImGuiCol_Text, VecFromRGBA8(CVarGetColor(
+                                                             CVAR_INPUT_VIEWER("LeftAnalogAngles.Range1.Color.Value"),
+                                                             range1ColorDefault)));
+                } else if (CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Range2.Enabled"), 0) &&
                            (rSquared >= (range2Min * range2Min)) && (rSquared < (range2Max * range2Max))) {
-                    ImGui::PushStyleColor(
-                        ImGuiCol_Text, VecFromRGBA8(CVarGetColor(CVAR_INPUT_VIEWER("AnalogAngles.Range2.Color.Value"),
-                                                                 range2ColorDefault)));
+                    ImGui::PushStyleColor(ImGuiCol_Text, VecFromRGBA8(CVarGetColor(
+                                                             CVAR_INPUT_VIEWER("LeftAnalogAngles.Range2.Color.Value"),
+                                                             range2ColorDefault)));
                 } else {
-                    ImGui::PushStyleColor(ImGuiCol_Text,
-                                          VecFromRGBA8(CVarGetColor(CVAR_INPUT_VIEWER("AnalogAngles.TextColor.Value"),
-                                                                    textColorDefault)));
+                    ImGui::PushStyleColor(
+                        ImGuiCol_Text, VecFromRGBA8(CVarGetColor(CVAR_INPUT_VIEWER("LeftAnalogAngles.TextColor.Value"),
+                                                                 textColorDefault)));
                 }
 
                 // Render text
-                ImGui::Text("X: %-3d  Y: %-3d", pads[0].stick_x, pads[0].stick_y);
+                ImGui::Text("Left: X:%-3d Y:%-3d", pad.stick_x, pad.stick_y);
                 // Restore original color
                 ImGui::PopStyleColor();
                 // Restore original font scale
                 ImGui::GetFont()->Scale = oldFontScale;
+                ImGui::PopFont();
+            }
+
+            // Right Analog stick angle text
+            if (showRightAnalogAngles) {
+                ImGui::SetCursorPos(ImVec2(
+                    aPos.x + 10 + CVarGetInteger(CVAR_INPUT_VIEWER("RightAnalogAngles.HortizontalOffset"), 170) * scale,
+                    aPos.y + 10 + CVarGetInteger(CVAR_INPUT_VIEWER("RightAnalogAngles.VerticalOffset"), 0) * scale));
+                // Scale font with input viewer scale
+                float oldFontScale = ImGui::GetFont()->Scale;
+                ImGui::GetFont()->Scale *= scale * CVarGetFloat(CVAR_INPUT_VIEWER("RightAnalogAngles.Scale"), 1.0f);
+                ImGui::PushFont(ImGui::GetFont());
+
+                ImGui::PushStyleColor(ImGuiCol_Text,
+                                      VecFromRGBA8(CVarGetColor(CVAR_INPUT_VIEWER("RightAnalogAngles.TextColor.Value"),
+                                                                textColorDefault)));
+
+                // Render text
+                ImGui::Text("Right: X:%-3d Y:%-3d", pad.right_stick_x, pad.right_stick_y);
+                // Restore original font scale
+                ImGui::GetFont()->Scale = oldFontScale;
+                ImGui::PopStyleColor();
                 ImGui::PopFont();
             }
 
@@ -443,10 +473,6 @@ void InputViewer::DrawElement() {
         ImGui::PopStyleVar();
         ImGui::PopStyleColor();
     }
-}
-
-InputViewerSettingsWindow::~InputViewerSettingsWindow() {
-    SPDLOG_TRACE("destruct input viewer settings window");
 }
 
 void InputViewerSettingsWindow::DrawElement() {
@@ -680,17 +706,17 @@ void InputViewerSettingsWindow::DrawElement() {
         UIWidgets::PaddedSeparator(true, true);
     }
 
-    if (ImGui::CollapsingHeader("Analog Angle Values")) {
-        // gAnalogAngles
+    if (ImGui::CollapsingHeader("Left Analog Angle Values")) {
+        // gInputViewer.LeftAnalogAngles
         CVarCheckbox(
-            "Show Analog Stick Angle Values", CVAR_INPUT_VIEWER("AnalogAngles.Enabled"),
+            "Show Left Analog Stick Angle Values", CVAR_INPUT_VIEWER("LeftAnalogAngles.Enabled"),
             CheckboxOptions().Color(THEME_COLOR).Tooltip("Displays analog stick angle values in the input viewer"));
-        if (CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Enabled"), 0)) {
-            // gInputViewer.AnalogAngles.TextColor
-            CVarColorPicker("Text Color", CVAR_INPUT_VIEWER("AnalogAngles.TextColor"), textColorDefault, true,
+        if (CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Enabled"), 0)) {
+            // gInputViewer.LeftAnalogAngles.TextColor
+            CVarColorPicker("LS Text Color", CVAR_INPUT_VIEWER("LeftAnalogAngles.TextColor"), textColorDefault, true,
                             ColorPickerRandomButton | ColorPickerResetButton);
-            // gAnalogAngleScale
-            CVarSliderFloat("Angle Text Scale: %.2f%%", CVAR_INPUT_VIEWER("AnalogAngles.Scale"),
+            // gInputViewer.LeftAnalogAngles.Scale
+            CVarSliderFloat("LS Angle Text Scale: %.2f%%", CVAR_INPUT_VIEWER("LeftAnalogAngles.Scale"),
                             FloatSliderOptions()
                                 .Color(THEME_COLOR)
                                 .IsPercentage()
@@ -698,43 +724,93 @@ void InputViewerSettingsWindow::DrawElement() {
                                 .Max(5.0f)
                                 .DefaultValue(1.0f)
                                 .ShowAdjustmentButtons(true));
-            // gInputViewer.AnalogAngles.Offset
-            CVarSliderInt("Angle Text Offset: %dpx", CVAR_INPUT_VIEWER("AnalogAngles.Offset"),
+            // gInputViewer.LeftAnalogAngles.HortizontalOffset
+            CVarSliderInt("LS Angle Text Hortizontal Offset: %dpx",
+                          CVAR_INPUT_VIEWER("LeftAnalogAngles.HortizontalOffset"),
                           IntSliderOptions()
                               .Color(THEME_COLOR)
                               .Min(0)
-                              .Max(400)
+                              .Max(188)
                               .DefaultValue(0)
                               .ShowAdjustmentButtons(true)
-                              .Tooltip("Sets the distance to move the right stick in the input viewer. Useful for "
-                                       "custom input viewers."));
+                              .Tooltip("Sets the hortizontal offset of the text."));
+            // gInputViewer.LeftAnalogAngles.VerticalOffset
+            CVarSliderInt("LS Angle Text Vertical Offset: %dpx", CVAR_INPUT_VIEWER("LeftAnalogAngles.VerticalOffset"),
+                          IntSliderOptions()
+                              .Color(THEME_COLOR)
+                              .Min(0)
+                              .Max(173)
+                              .DefaultValue(173)
+                              .ShowAdjustmentButtons(true)
+                              .Tooltip("Sets the vertical offset of the text."));
             UIWidgets::PaddedSeparator(true, true);
-            // gInputViewer.AnalogAngles.Range1.Enabled
+            // gInputViewer.LeftAnalogAngles.Range1.Enabled
             CVarCheckbox(
-                "Highlight ESS Position", CVAR_INPUT_VIEWER("AnalogAngles.Range1.Enabled"),
+                "Highlight ESS Position", CVAR_INPUT_VIEWER("LeftAnalogAngles.Range1.Enabled"),
                 CheckboxOptions()
                     .Color(THEME_COLOR)
                     .Tooltip(
                         "Highlights the angle value text when the analog stick is in ESS position (on flat ground)"));
-            if (CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Range1.Enabled"), 0)) {
-                // gInputViewer.AnalogAngles.Range1.Color
-                CVarColorPicker("ESS Color", CVAR_INPUT_VIEWER("AnalogAngles.Range1.Color"), range1ColorDefault, true,
-                                ColorPickerRandomButton | ColorPickerResetButton);
+            if (CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Range1.Enabled"), 0)) {
+                // gInputViewer.LeftAnalogAngles.Range1.Color
+                CVarColorPicker("ESS Color", CVAR_INPUT_VIEWER("LeftAnalogAngles.Range1.Color"), range1ColorDefault,
+                                true, ColorPickerRandomButton | ColorPickerResetButton);
             }
 
             UIWidgets::PaddedSeparator(true, true);
-            // gInputViewer.AnalogAngles.Range2.Enabled
-            CVarCheckbox("Highlight Walking Speed Angles", CVAR_INPUT_VIEWER("AnalogAngles.Range2.Enabled"),
+            // gInputViewer.LeftAnalogAngles.Range2.Enabled
+            CVarCheckbox("Highlight Walking Speed Angles", CVAR_INPUT_VIEWER("LeftAnalogAngles.Range2.Enabled"),
                          CheckboxOptions()
                              .Color(THEME_COLOR)
                              .Tooltip("Highlights the angle value text when the analog stick is at an angle that would "
                                       "produce a walking speed (on flat ground)\n\n"
                                       "Useful for 1.0 Empty Jumpslash Quick Put Away"));
-            if (CVarGetInteger(CVAR_INPUT_VIEWER("AnalogAngles.Range2.Enabled"), 0)) {
-                // gInputViewer.AnalogAngles.Range2.Color
-                CVarColorPicker("Walking Speed Color", CVAR_INPUT_VIEWER("AnalogAngles.Range2.Color"),
+            if (CVarGetInteger(CVAR_INPUT_VIEWER("LeftAnalogAngles.Range2.Enabled"), 0)) {
+                // gInputViewer.LeftAnalogAngles.Range2.Color
+                CVarColorPicker("Walking Speed Color", CVAR_INPUT_VIEWER("LeftAnalogAngles.Range2.Color"),
                                 range2ColorDefault, true, ColorPickerRandomButton | ColorPickerResetButton);
             }
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Right Analog Angle Values")) {
+        // gInputViewer.RightAnalogAngles
+        CVarCheckbox(
+            "Show Right Analog Stick Angle Values", CVAR_INPUT_VIEWER("RightAnalogAngles.Enabled"),
+            CheckboxOptions().Color(THEME_COLOR).Tooltip("Displays analog stick angle values in the input viewer"));
+        if (CVarGetInteger(CVAR_INPUT_VIEWER("RightAnalogAngles.Enabled"), 0)) {
+            // gInputViewer.RightAnalogAngles.TextColor
+            CVarColorPicker("RS Text Color", CVAR_INPUT_VIEWER("RightAnalogAngles.TextColor"), textColorDefault, true,
+                            ColorPickerRandomButton | ColorPickerResetButton);
+            // gInputViewer.RightAnalogAngles.Scale
+            CVarSliderFloat("RS Angle Text Scale: %.2f%%", CVAR_INPUT_VIEWER("RightAnalogAngles.Scale"),
+                            FloatSliderOptions()
+                                .Color(THEME_COLOR)
+                                .IsPercentage()
+                                .Min(0.1f)
+                                .Max(5.0f)
+                                .DefaultValue(1.0f)
+                                .ShowAdjustmentButtons(true));
+            // gInputViewer.RightAnalogAngles.HortizontalOffset
+            CVarSliderInt("RS Angle Text Hortizontal Offset: %dpx",
+                          CVAR_INPUT_VIEWER("RightAnalogAngles.HortizontalOffset"),
+                          IntSliderOptions()
+                              .Color(THEME_COLOR)
+                              .Min(0)
+                              .Max(188)
+                              .DefaultValue(170)
+                              .ShowAdjustmentButtons(true)
+                              .Tooltip("Sets the hortizontal offset of the text."));
+            // gInputViewer.LeftAnalogAngles.VerticalOffset
+            CVarSliderInt("RS Angle Text Vertical offset: %dpx", CVAR_INPUT_VIEWER("RightAnalogAngles.VerticalOffset"),
+                          IntSliderOptions()
+                              .Color(THEME_COLOR)
+                              .Min(0)
+                              .Max(173)
+                              .DefaultValue(173)
+                              .ShowAdjustmentButtons(true)
+                              .Tooltip("Sets the vertical offset of the text."));
+            UIWidgets::PaddedSeparator(true, true);
         }
     }
     PopStyleHeader();
