@@ -9,7 +9,7 @@
 #include "HudEditor.h"
 #include "Notification.h"
 #include <variant>
-#include "StringHelper.h"
+#include <ship/utils/StringHelper.h>
 #include <spdlog/fmt/fmt.h>
 #include "variables.h"
 #include <variant>
@@ -206,9 +206,10 @@ WidgetInfo& BenMenu::AddWidget(WidgetPath& pathInfo, std::string widgetName, Wid
     return widget;
 }
 
-// Last generated with the following command on 05/19/2025
+// Last generated with the following command on 10/30/2025. The gap in commits is so that cherry-picks from other repos
+// do not get mixed in.
 // clang-format off
-// git shortlog -sn 2332f63f5a9ca4b949f029c11a9744d601d7155f..HEAD | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+/"/' | sed -E 's/(.+)/\1",/'
+// { git shortlog -sn 2332f63..558f59b ; git shortlog -sn dfcc80e..HEAD; } | sort -k2 | uniq -f1 | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+/"/' | sed -E 's/(.+)/\1",/'
 // clang-format on
 std::vector<std::string> contributors = {
     "ProxySaw", // "Garrett Cox", manual replacement
@@ -262,6 +263,8 @@ std::vector<std::string> contributors = {
     "justawayofthesamurai",
     "verbes4",
     "ammar sadaoui",
+    "Mrlinkwii",
+    "Corbin Park",
 };
 
 void BenMenu::AddSettings() {
@@ -967,17 +970,6 @@ void BenMenu::AddEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
-    AddWidget(path, "SFX", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Mute Low HP Alarm", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.LowHpAlarm")
-        .Options(CheckboxOptions().Tooltip("Mutes the beeping alarm when you are critically low on health."));
-    AddWidget(path, "Mute Carpenter Sounds", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.MuteCarpenterSfx")
-        .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
-                                           "from the tower in South Clock Town."));
-    AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.ChildGoronCry")
-        .Options(CheckboxOptions().Tooltip("Mutes the crying Goron child inside Goron Shrine."));
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
@@ -1920,6 +1912,11 @@ void BenMenu::InitElement() {
                return !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0);
            },
             "Vertical Resolution Toggle is Off" } },
+        { DISABLE_FOR_LINKS_VOICE_PITCH_MULTIPLIER_OFF,
+          { [](disabledInfo& info) -> bool {
+               return !CVarGetInteger("gAudioEditor.LinkVoiceFreqMultiplier.Enable", 0);
+           },
+            "Enable Link's Voice Pitch Multiplier is Disabled" } },
     };
 }
 

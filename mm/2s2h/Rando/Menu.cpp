@@ -10,7 +10,6 @@ std::unordered_map<int32_t, const char*> logicOptions = {
     { RO_LOGIC_GLITCHLESS, "Glitchless" },
     { RO_LOGIC_NO_LOGIC, "No Logic" },
     { RO_LOGIC_NEARLY_NO_LOGIC, "Nearly No Logic" },
-    { RO_LOGIC_FRENCH_VANILLA, "French Vanilla" },
     { RO_LOGIC_VANILLA, "Vanilla" },
 };
 
@@ -29,13 +28,9 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
     { RO_ACCESS_TRIALS_OPEN, "Open" },
 };
 
-std::vector<int32_t> incompatibleWithFrenchVanilla = {
-    RO_SHUFFLE_BOSS_SOULS,
-    RO_PLENTIFUL_ITEMS,
-};
-
 std::vector<int32_t> incompatibleWithVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
+    RO_SHUFFLE_SWIM,
     RO_PLENTIFUL_ITEMS,
 };
 
@@ -59,16 +54,11 @@ void ClearIncompatibleSetting() {
     int32_t currentLogicSetting =
         CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, Rando::StaticData::Options[RO_LOGIC].defaultValue);
     switch (currentLogicSetting) {
-        // French Vanilla can't have any options that add items without a corresponding check
-        case RO_LOGIC_FRENCH_VANILLA:
-            CVarClear(Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
-            CVarClear(Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
-            // TODO: Handle Starting Items to ensure starting sword/shield
-            break;
-        // Similar to French Vanilla, Vanilla can't add items without corresponding checks
+        // Vanilla can't add items without corresponding checks
         case RO_LOGIC_VANILLA:
             CVarClear(Rando::StaticData::Options[RO_PLENTIFUL_ITEMS].cvar);
             CVarClear(Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar);
+            CVarClear(Rando::StaticData::Options[RO_SHUFFLE_SWIM].cvar);
             break;
         default:
             break;
@@ -79,12 +69,6 @@ bool IncompatibleWithLogicSetting(int32_t option) {
     int32_t currentLogicSetting =
         CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, Rando::StaticData::Options[RO_LOGIC].defaultValue);
     switch (currentLogicSetting) {
-        case RO_LOGIC_FRENCH_VANILLA:
-            if (std::find(incompatibleWithFrenchVanilla.begin(), incompatibleWithFrenchVanilla.end(), option) !=
-                incompatibleWithFrenchVanilla.end()) {
-                return true;
-            }
-            break;
         case RO_LOGIC_VANILLA:
             if (std::find(incompatibleWithVanilla.begin(), incompatibleWithVanilla.end(), option) !=
                 incompatibleWithVanilla.end()) {
@@ -193,9 +177,6 @@ static void DrawLogicConditionsTab() {
         "- Oath to Order and Remains cannot be placed on the Moon.\n"
         "- Deku Mask, Zora Mask, Sonata, and Bossa Nova cannot be placed in their respective Temples or on "
         "the Moon.\n\n"
-        "French Vanilla - This is an alternative variant to Glitchless, but the items are biased to be "
-        "closer to their vanilla locations. Tends to be an more beginner friendly experience.\n"
-        "Not compatible with settings that add items to the pool, like Boss Souls or Plentiful Items.\n\n"
         "Vanilla - The items are not shuffled.\n"
         "Not compatible with settings that add items to the pool, like Boss Souls or Plentiful Items.");
     ImGui::EndChild();
@@ -296,7 +277,9 @@ static void DrawItemsTab() {
     ImGui::BeginChild("randoItemsColumn1", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
     CVarCheckbox("Shuffle Swim", Rando::StaticData::Options[RO_SHUFFLE_SWIM].cvar,
                  CheckboxOptions({ { .tooltip = "Shuffles the ability to Swim, entering the Swim state or submerging\n"
-                                                "into deep water will respawn Link." } }));
+                                                "into deep water will respawn Link.",
+                                     .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_SWIM),
+                                     .disabledTooltip = "Incompatible with current Logic Setting" } }));
     CVarCheckbox("Deku Stick Bag", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Deku Nut Bag", "gPlaceholderBool",
@@ -306,6 +289,14 @@ static void DrawItemsTab() {
     CVarCheckbox("Child Wallet", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Infinite Upgrades", "gPlaceholderBool",
+                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Song of Double Time", "gPlaceholderBool",
+                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Inverted Song of Time", "gPlaceholderBool",
+                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Saria's Song", "gPlaceholderBool",
+                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Sun's Song", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
     ImGui::SameLine();
@@ -323,19 +314,63 @@ static void DrawItemsTab() {
                                        "that must be found in order for their corresponding boss to spawn.",
                             .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_BOSS_SOULS),
                             .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox("Enemy Drops", Rando::StaticData::Options[RO_SHUFFLE_ENEMY_DROPS].cvar,
+                 CheckboxOptions({ { .tooltip = "Shuffles the first drop from a non Boss Enemy." } }));
     CVarCheckbox("Enemy Souls", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn3", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
-    CVarCheckbox("Song of Double Time", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Inverted Song of Time", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Saria's Song", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Sun's Song", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Shuffle Traps", Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar,
+                 CheckboxOptions({ { .tooltip = "Ice Trap time!" } }));
+    CVarSliderInt(
+        "##trapcount", Rando::StaticData::Options[RO_TRAP_AMOUNT].cvar,
+        IntSliderOptions({ { .tooltip = "How many Traps are shuffled into the Item Pool.",
+                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                             .disabledTooltip = "Shuffle Traps is disabled." } })
+            .LabelPosition(LabelPosition::None)
+            .Color(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)))
+            .Format("Traps: %i")
+            .Min(1)
+            .Max(10)
+            .DefaultValue(5));
+    ImGui::SeparatorText("Toggle Trap Types");
+    CVarCheckbox(
+        "Freeze Traps", "gRando.Traps.Freeze",
+        CheckboxOptions({ { .tooltip = "Freezes Link in place.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Blast Traps", "gRando.Traps.Blast",
+        CheckboxOptions({ { .tooltip = "Link explodes with Powder Keg force.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Shock Traps", "gRando.Traps.Shock",
+        CheckboxOptions({ { .tooltip = "Shocks Link for a few seconds.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Jinx Traps", "gRando.Traps.Jinx",
+        CheckboxOptions({ { .tooltip = "Afflicts Link with Jinx.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Wallet Traps", "gRando.Traps.Wallet",
+        CheckboxOptions({ { .tooltip = "Links rupees scatter around him.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox( // This only spawns a Like Like, more enemies may be added in the future but each would need fine
+                  // tuning
+        "Like Like Traps", "gRando.Traps.Enemy",
+        CheckboxOptions({ { .tooltip = "Spawns a Like Like on top of Link.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Time Traps", "gRando.Traps.Time",
+        CheckboxOptions({ { .tooltip = "Advances Time 90 Minutes (Game Time).",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
     ImGui::EndChild();
 }
 
@@ -494,9 +529,9 @@ static void DrawStartingItemsTab() {
 }
 
 static void DrawLocationsTab() {
-    if (CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, RO_LOGIC_GLITCHLESS) >= RO_LOGIC_FRENCH_VANILLA) {
+    if (CVarGetInteger(Rando::StaticData::Options[RO_LOGIC].cvar, RO_LOGIC_GLITCHLESS) >= RO_LOGIC_VANILLA) {
         ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Red),
-                           "This setting is not compatible with French Vanilla or Vanilla Logic.");
+                           "This setting is not compatible with Vanilla Logic.");
         return;
     }
 

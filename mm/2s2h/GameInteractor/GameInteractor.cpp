@@ -1,7 +1,7 @@
 #include "GameInteractor.h"
 #include <variant>
-#include "spdlog/spdlog.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <spdlog/spdlog.h>
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/CustomItem/CustomItem.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 
@@ -273,6 +273,10 @@ void GameInteractor_ExecuteOnBottleContentsUpdate(u8 item) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnBottleContentsUpdate>(item);
 }
 
+void GameInteractor_ExecuteOnSeqPlayerInit(int32_t playerIdx, int32_t seqId) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSeqPlayerInit>(playerIdx, seqId);
+}
+
 bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...) {
     // Only the external function can use the Variadic Function syntax
     // To pass the va args to the next caller must be done using va_list and reading the args into it
@@ -510,10 +514,15 @@ void ProcessEvents(Actor* actor) {
             f32 x2 = e->posX * c - e->posZ * s;
             f32 z2 = e->posX * s + e->posZ * c;
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, e->actorId, x + x2, y + e->posY, z + z2, 0,
-                        e->rot + player->actor.world.rot.y, 0, e->params);
+                        e->rotY + player->actor.world.rot.y, 0, e->params);
         } else {
-            Actor_Spawn(&gPlayState->actorCtx, gPlayState, e->actorId, e->posX, e->posY, e->posZ, 0, e->rot, 0,
-                        e->params);
+            Actor_Spawn(&gPlayState->actorCtx, gPlayState, e->actorId, e->posX, e->posY, e->posZ, e->rotX, e->rotY,
+                        e->rotZ, e->params);
+        }
+        GameInteractor::Instance->currentEvent = GIEventNone{};
+    } else if (auto e = std::get_if<GIEventTrap>(&nextEvent)) {
+        if (e->action) {
+            e->action();
         }
         GameInteractor::Instance->currentEvent = GIEventNone{};
     }
