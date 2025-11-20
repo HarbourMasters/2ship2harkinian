@@ -36,6 +36,7 @@ Please keep the flow simple and easy for the user. If you plan to add more to th
 #define COLOR_GREY UIWidgets::Colors::Gray
 #define COLOR_GREEN UIWidgets::Colors::Green
 #define COLOR_ORANGE UIWidgets::Colors::Orange
+#define COLOR_RED UIWidgets::Colors::Red
 
 #define TEXT_COLOR(color) UIWidgets::ColorValues.at(color)
 
@@ -212,15 +213,14 @@ void DrawQuickStartQuestOptions() {
         }
         ImGui::TableNextColumn();
         if (UIWidgets::Button(
-                "Use Current Settings",
+                "Current Settings",
                 { .color = quickStartOptions.presetOption == QUICK_START_NONE ? COLOR_GREEN : COLOR_GREY })) {
             quickStartOptions.presetOption = QUICK_START_NONE;
         }
         ImGui::TableNextColumn();
-        if (UIWidgets::Button("Quality of Life Enhanced",
-                              { .color = quickStartOptions.presetOption == QUICK_START_PRESET_ENHANCED
-                                             ? COLOR_GREEN
-                                             : COLOR_GREY })) {
+        if (UIWidgets::Button("Enhanced", { .color = quickStartOptions.presetOption == QUICK_START_PRESET_ENHANCED
+                                                         ? COLOR_GREEN
+                                                         : COLOR_GREY })) {
             quickStartOptions.presetOption = QUICK_START_PRESET_ENHANCED;
         }
         ImGui::EndTable();
@@ -280,13 +280,13 @@ void DrawQuickStartQuestOptions() {
     }
 }
 
-void DrawQuickStartQuestAccept() {
+void DrawQuickStartQuestReview() {
     static std::string trackerInputRename;
     std::string reviewText = "";
     if (quickStartOptions.questID == QUICK_START_NONE ||
         (quickStartOptions.questID == SAVETYPE_RANDO && (quickStartOptions.rando.shuffleSet == QUICK_START_NONE ||
                                                          quickStartOptions.rando.logicOption == QUICK_START_NONE))) {
-        ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "Click Options on the left and select some options.");
+        ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "Select the Options on the left to see what changes.");
         return;
     }
     SelectMenuButtonIndex fileCheck = (SelectMenuButtonIndex)SaveManager_GetOpenFileSlot();
@@ -294,19 +294,68 @@ void DrawQuickStartQuestAccept() {
         ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "No File slot available, please delete a File first.");
         return;
     }
-    if (ImGui::BeginTable("NameEntry", 2)) {
-        ImGui::TableSetupColumn("PlayerInfo", ImGuiTableColumnFlags_WidthFixed, ImGui::GetContentRegionAvail().x / 3);
-        ImGui::TableSetupColumn("FileInfo", ImGuiTableColumnFlags_WidthStretch);
+    ImGui::SeparatorText("Here's what to expect");
+    switch (quickStartOptions.questID) {
+        case SAVETYPE_VANILLA:
+            reviewText = "The Vanilla experience:\n"
+                         "- Save Termina or get lost in the side quests.";
+            ImGui::Text(reviewText.c_str());
+            break;
+        case SAVETYPE_RANDO:
+            ImGui::Text(quickStartOptions.rando.logicOption == QUICK_START_RANDO_GLITCHLESS
+                            ? "Glitchless Logic Selected"
+                            : "No Logic Selected");
+            UIWidgets::Separator();
+            ImGui::TextColored(TEXT_COLOR(COLOR_GREEN), "The following are shuffled into your seed:");
+            reviewText = "- Chests\n"
+                         "- Piece of Heart & Heart Containers\n"
+                         "- NPC Rewards\n"
+                         "- Shops & Tingle Maps\n"
+                         "- Gold Skulltula Tokens & Stray Fairies";
+            if (quickStartOptions.rando.shuffleSet == QUICK_START_RANDO_ALL) {
+                reviewText += "\n"
+                              "- Pots, Crates, Barrels, & Grass\n"
+                              "- Snowballs\n"
+                              "- Freestanding Items\n"
+                              "- Boss Souls\n"
+                              "- Frogs";
+            }
+            if (ImGui::BeginChild("SeedDetails")) {
+                ImGui::Text(reviewText.c_str());
+                ImGui::TextColored(TEXT_COLOR(COLOR_GREEN), "Plentiful Items is also enabled, this will shuffle\n"
+                                                            "additional copies of Progression Items into the pool.");
+                UIWidgets::Separator();
+                ImGui::Text("There are plenty of other options within the Menus.\n"
+                            "Use the Search at the top if you know what you are\n"
+                            "looking for. Otherwise, browse through to see what\n"
+                            "all we have to offer!");
+                ImGui::EndChild();
+            }
+            break;
+        default:
+            break;
+    }
+}
 
+void DrawQuickStartSelectioncheck() {
+    static std::string trackerInputRename;
+    if (quickStartOptions.questID == QUICK_START_NONE ||
+        (quickStartOptions.questID == SAVETYPE_RANDO && (quickStartOptions.rando.shuffleSet == QUICK_START_NONE ||
+                                                         quickStartOptions.rando.logicOption == QUICK_START_NONE))) {
+        ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "Not Ready");
+        return;
+    }
+    ImGui::SeparatorText("Ready to start?");
+    if (ImGui::BeginTable("NameEntry", 2, ImGuiTableFlags_SizingStretchSame)) {
         ImGui::TableNextColumn();
-        ImGui::SeparatorText("Ready to start?");
         UIWidgets::InputString("##playername", &trackerInputRename,
                                UIWidgets::InputOptions()
                                    .LabelPosition(UIWidgets::LabelPosition::None)
                                    .Color(BenGui::mBenMenu->GetMenuThemeColor())
                                    .PlaceholderText("Enter Your Name"));
+        ImGui::TableNextColumn();
         if (UIWidgets::Button("Let's Go!", { .size = ImVec2(ImGui::GetContentRegionAvail().x, 0),
-                                             .color = trackerInputRename.empty() ? COLOR_ORANGE : COLOR_GREEN })) {
+                                             .color = trackerInputRename.empty() ? COLOR_RED : COLOR_GREEN })) {
             if (!trackerInputRename.empty()) {
                 if (quickStartOptions.questID == SAVETYPE_RANDO) {
                     SetRandoQuickStartOptions();
@@ -315,64 +364,8 @@ void DrawQuickStartQuestAccept() {
                 QuickStartQuestInit(trackerInputRename.c_str());
             }
         }
-        ImGui::TableNextColumn();
-        ImGui::SeparatorText("Here's what to expect");
-        switch (quickStartOptions.questID) {
-            case SAVETYPE_VANILLA:
-                reviewText = "The Vanilla experience:\n"
-                             "- Save Termina or get lost in the side quests.";
-                ImGui::Text(reviewText.c_str());
-                break;
-            case SAVETYPE_RANDO:
-                ImGui::Text(quickStartOptions.rando.logicOption == QUICK_START_RANDO_GLITCHLESS
-                                ? "Glitchless Logic Selected"
-                                : "No Logic Selected");
-                UIWidgets::Separator();
-                ImGui::TextColored(TEXT_COLOR(COLOR_GREEN), "The following are shuffled into your seed:");
-                reviewText = "- Chests\n"
-                             "- Piece of Heart & Heart Containers\n"
-                             "- NPC Rewards\n"
-                             "- Shops & Tingle Maps\n"
-                             "- Gold Skulltula Tokens & Stray Fairies";
-                if (quickStartOptions.rando.shuffleSet == QUICK_START_RANDO_ALL) {
-                    reviewText += "\n"
-                                  "- Pots, Crates, Barrels, & Grass\n"
-                                  "- Snowballs\n"
-                                  "- Freestanding Items\n"
-                                  "- Boss Souls\n"
-                                  "- Frogs";
-                }
-                if (ImGui::BeginChild("SeedDetails")) {
-                    ImGui::Text(reviewText.c_str());
-                    ImGui::TextColored(TEXT_COLOR(COLOR_GREEN),
-                                       "Plentiful Items is also enabled, this will shuffle\n"
-                                       "additional copies of Progression Items into the pool.");
-                    UIWidgets::Separator();
-                    ImGui::Text("There are plenty of other options within the Menus.\n"
-                                "Use the Search at the top if you know what you are\n"
-                                "looking for. Otherwise, browse through to see what\n"
-                                "all we have to offer!");
-                    ImGui::EndChild();
-                }
-                break;
-            default:
-                break;
-        }
         ImGui::EndTable();
     }
-}
-
-void DrawQuickStartSelectioncheck() {
-    bool isReady = false;
-    if (quickStartOptions.questID == SAVETYPE_VANILLA) {
-        isReady = true;
-    } else if (quickStartOptions.questID == SAVETYPE_RANDO && quickStartOptions.rando.logicOption != QUICK_START_NONE &&
-               quickStartOptions.rando.shuffleSet != QUICK_START_NONE) {
-        isReady = true;
-    }
-    ImGui::TextColored(TEXT_COLOR(isReady ? COLOR_GREEN : COLOR_ORANGE),
-                       isReady ? "Ready to Go! Click Start on the left to review your options and jump in."
-                               : "Finish selecting options.");
 }
 
 void DrawQuickStartMenu() {
@@ -380,18 +373,21 @@ void DrawQuickStartMenu() {
     DrawQuickStartHeader();
     UIWidgets::Separator();
     if (fileSelectMenu->configMode == CM_MAIN_MENU) {
-        DrawQuickStartQuestSelect();
-        UIWidgets::Separator();
-        DrawQuickStartQuestOptions();
-        UIWidgets::Separator();
-        DrawQuickStartSelectioncheck();
+        if (ImGui::BeginTable("QuickStartMenu", 2, ImGuiTableFlags_SizingStretchSame)) {
+            ImGui::TableNextColumn();
+            DrawQuickStartQuestSelect();
+            UIWidgets::Separator();
+            DrawQuickStartQuestOptions();
+            UIWidgets::Separator();
+            DrawQuickStartSelectioncheck();
+
+            ImGui::TableNextColumn();
+            DrawQuickStartQuestReview();
+            ImGui::EndTable();
+        }
     } else {
         ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "Waiting for File Select Screen...");
     }
-}
-
-void DrawQuickStartReviewMenu() {
-    DrawQuickStartQuestAccept();
 }
 
 void RegisterQuickStartMenu() {
@@ -399,11 +395,6 @@ void RegisterQuickStartMenu() {
     mBenMenu->AddSidebarEntry("QuickStart", "Options", 1);
     WidgetPath path = { "QuickStart", "Options", SECTION_COLUMN_1 };
     mBenMenu->AddWidget(path, "Options", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawQuickStartMenu(); });
-    mBenMenu->AddSidebarEntry("QuickStart", "Start", 1);
-    path.sidebarName = "Start";
-    mBenMenu->AddWidget(path, "Start", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
-        DrawQuickStartReviewMenu();
-    });
 }
 
 static RegisterMenuInitFunc initFunc(RegisterQuickStartMenu);
