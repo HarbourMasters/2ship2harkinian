@@ -5490,7 +5490,7 @@ void EnInvadepoh_Reset() {
     sInvasionState = INVASION_STATE_NONE;
     sRewardFinished = false;
     sAliensExtremeThreat = false;
-    for (int i = 0; i < ALIEN_COUNT; i ++) {
+    for (int i = 0; i < ALIEN_COUNT; i++) {
         sAliens[i] = NULL;
         sAlienStateFlags[i] = 0;
     }
