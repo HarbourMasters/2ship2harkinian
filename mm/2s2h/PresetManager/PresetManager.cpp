@@ -256,6 +256,121 @@ nlohmann::json curatedPresetJ = R"(
 }
 )"_json;
 
+nlohmann::json vanillaEnhancedPresetJ = R"(
+{
+    "ClearCVars": [
+        "gCheats",
+        "gCollisionViewer",
+        "gDeveloperTools",
+        "gDisplayOverlay",
+        "gEnhancements",
+        "gEventLog",
+        "gFixes",
+        "gHudEditor",
+        "gModes",
+        "gNetwork",
+        "gNotifications",
+        "gRando",
+        "gWindows",
+        "ItemTracker"
+    ],
+    "CVars": {
+        "gCheats": {
+            "EasyFrameAdvance": 1
+        },
+        "gEnhancements": {
+            "Cutscenes": {
+                "SkipEnemyCutscenes": 1,
+                "SkipEntranceCutscenes": 1,
+                "SkipFirstCycle": 1,
+                "SkipGetItemCutscenes": 1,
+                "SkipIntroSequence": 1,
+                "SkipMiscInteractions": 1,
+                "SkipOnePointCutscenes": 1,
+                "SkipStoryCutscenes": 1
+            },
+            "Dialogue": {
+                "FastText": 1
+            },
+            "DifficultyOptions": {
+                "DekuGuardSearchBalls": 1,
+                "LowerBankRewardThresholds": 1
+            },
+            "Dpad": {
+                "DpadEquips": 1
+            },
+            "Equipment": {
+                "BetterPictoMessage": 1,
+                "ChuDrops": 1,
+                "MagicArrowEquipSpeed": 1
+            },
+            "Fixes": {
+                "CompletedHeartContainerAudio": 1,
+                "ControlCharacters": 1,
+                "FierceDeityZTargetMovement": 1
+            },
+            "Graphics": {
+                "3DItemDrops": 1,
+                "FixSceneGeometrySeams": 1
+            },
+            "Masks": {
+                "FastTransformation": 1,
+                "FierceDeitysAnywhere": 1,
+                "GoronRollingFastSpikes": 1,
+                "NoBlastMaskCooldown": 1,
+                "PersistentBunnyHood": {
+                    "Enabled": 1
+                }
+            },
+            "Playback": {
+                "DpadOcarina": 0,
+                "NoDropOcarinaInput": 1,
+                "SkipScarecrowSong": 1
+            },
+            "Player": {
+                "ClimbSpeed": 2,
+                "FasterPushAndPull": 1,
+                "InstantPutaway": 1
+            },
+            "PlayerActions": {
+                "InstantRecall": 1
+            },
+            "Saving": {
+                "PauseSave": 1
+            },
+            "Songs": {
+                "BetterSongOfDoubleTime": 1,
+                "FasterSongPlayback": 1
+            },
+            "Timesavers": {
+                "DampeDiggingSkip": 1,
+                "FastChests": 1,
+                "GalleryTwofer": 1,
+                "MarineLabHP": 1,
+                "SkipBalladOfWindfish": 1
+            }
+        },
+        "gFixes": {
+            "FixAmmoCountEnvColor": 1,
+            "FixEponaStealingSword": 1,
+            "FixIkanaGreatFairyFountainColor": 1
+        },
+        "gRando": {
+            "SpoilerFile": "",
+            "SpoilerFileIndex": 0
+        },
+        "gSettings": {
+            "OverlayFont": "Press Start 2P"
+        },
+        "gWindows": {
+            "Notifications": 1
+        }
+    },
+	"type": "2S2H_PRESET",
+    "version": 1
+}
+)"_json;
+
 std::unordered_map<std::string, std::pair<nlohmann::json, std::set<std::string>>> presets = {};
 const std::filesystem::path presetsFolderPath(Ship::Context::GetPathRelativeToAppDirectory("presets", appShortName));
 
@@ -264,6 +379,7 @@ void PresetManager_RefreshPresets() {
     presets.insert(
         { "Defaults (Everything Off)", { defaultsPresetJ, { "Developer Tools", "Enhancements", "HUD", "Rando" } } });
     presets.insert({ "Curated", { curatedPresetJ, { "Developer Tools", "Enhancements", "HUD" } } });
+    presets.insert({ "Vanilla Enhanced", { vanillaEnhancedPresetJ, { "Enhancements", "Cheats" } } });
 
     // ensure the presets folder exists
     if (!std::filesystem::exists(presetsFolderPath)) {

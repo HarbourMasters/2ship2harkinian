@@ -565,18 +565,15 @@ void Menu::DrawElement() {
     ImVec2 pos = window->DC.CursorPos;
     float centerX = pos.x + windowWidth / 2 - (style.ItemSpacing.x * (menuEntries.size() + 1));
     std::vector<ImVec2> headerSizes;
-    float headerWidth = style.ItemSpacing.x;
+    float headerWidth = 0.0f;
     bool headerSearch = !CVarGetInteger("gSettings.Menu.SidebarSearch", 0);
     if (headerSearch) {
-        headerWidth += 200.0f + style.ItemSpacing.x + style.FramePadding.x;
+        headerWidth += 200.0f;
     }
     for (auto& label : menuOrder) {
         ImVec2 size = ImGui::CalcTextSize(label.c_str());
         headerSizes.push_back(size);
-        headerWidth += size.x + style.FramePadding.x * 2;
-        if (label == headerIndex) {
-            headerWidth += style.ItemSpacing.x;
-        }
+        headerWidth += size.x + style.FramePadding.x * 2 + style.ItemSpacing.x;
     }
     // Full screen menu with widths below 1280, heights below 800.
     // 5% of screen width/height padding on both sides above those resolutions.
