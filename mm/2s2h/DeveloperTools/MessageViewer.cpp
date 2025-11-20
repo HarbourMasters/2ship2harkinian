@@ -5,6 +5,7 @@
 #include "BenPort.h"
 
 #include <message_data_static.h>
+#include <sstream>
 
 extern "C" {
 #include "functions.h"
@@ -13,46 +14,6 @@ extern "C" {
 }
 
 using namespace UIWidgets;
-
-int AutoLineBreak(ImGuiInputTextCallbackData* data) {
-    if (!data || !data->Buf) {
-        return 0;
-    }
-
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
-    if (!window) {
-        return 0;
-    }
-
-    float maxWidth = ImGui::GetContentRegionAvail().x;
-    float lineWidth = 0.0f;
-    size_t i = 0;
-
-    while (data->Buf[i] != '\0' && i < data->BufSize - 1) {
-        if (data->Buf[i] == '\n') {
-            lineWidth = 0.0f;
-            i++;
-            continue;
-        }
-        char chStr[2] = { data->Buf[i], '\0' };
-        float charWidth = ImGui::CalcTextSize(chStr).x;
-        lineWidth += charWidth;
-        if (lineWidth > maxWidth) {
-            if (data->BufTextLen + 1 < data->BufSize) {
-                memmove(data->Buf + i + 1, data->Buf + i, data->BufTextLen - i + 1);
-                data->Buf[i] = '\n';
-                data->BufTextLen++;
-                lineWidth = 0.0f;
-                i++;
-            } else {
-                break;
-            }
-        }
-        i++;
-    }
-
-    return 0;
-}
 
 static std::string ParseEscapeSequences(const std::string& input) {
     std::string output;
@@ -93,16 +54,18 @@ static bool ValidateTextIdExists(uint16_t textId) {
     return false;
 }
 
+static void FormatByteAsEscapeSequence(std::ostringstream& stream, uint8_t value) {
+    stream << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)value;
+}
+
 void MessageViewerWindow::InitElement() {
     mTextIdBuf = static_cast<char*>(calloc(MAX_STRING_SIZE, sizeof(char)));
     mCustomMessageBuf = static_cast<char*>(calloc(MAX_STRING_SIZE, sizeof(char)));
-    mcustomMessageRaw = static_cast<char*>(calloc(MAX_STRING_SIZE, sizeof(char)));
 }
 
 MessageViewerWindow::~MessageViewerWindow() {
     free(mTextIdBuf);
     free(mCustomMessageBuf);
-    free(mcustomMessageRaw);
 }
 
 void MessageViewerWindow::DrawElement() {
@@ -157,24 +120,8 @@ void MessageViewerWindow::DrawElement() {
     // Custom Message Builder Section
     ImGui::SeparatorText("Custom Message Builder");
 
-    float currentMessageBoxWidth = ImGui::GetContentRegionAvail().x;
-
     PushStyleInput(THEME_COLOR);
-    if (ImGui::InputTextMultiline("##CustomMessage", mCustomMessageBuf, MAX_STRING_SIZE,
-                                  ImVec2(ImGui::GetContentRegionAvail().x, 100), ImGuiInputTextFlags_CallbackEdit,
-                                  AutoLineBreak)) {
-        if (previousMessageBoxWidth != currentMessageBoxWidth) {
-            previousMessageBoxWidth = currentMessageBoxWidth;
-            mcustomMessageRaw[0] = '\0';
-            for (size_t i = 0; i < sizeof(mCustomMessageBuf); i++) {
-                if (mCustomMessageBuf[i] == '\n') {
-                    continue;
-                }
-                mcustomMessageRaw[i] = mCustomMessageBuf[i];
-            }
-            mCustomMessageBuf = mcustomMessageRaw;
-        }
-    }
+    ImGui::InputTextMultiline("##CustomMessage", mCustomMessageBuf, MAX_STRING_SIZE, ImVec2(-1, 100));
     PopStyleInput();
 
     Tooltip(
@@ -233,25 +180,23 @@ void MessageViewerWindow::LoadMessageToEditor() {
     CustomMessage::Entry entry = CustomMessage::LoadVanillaMessageTableEntry(mTextId);
 
     // Message header format (11 bytes) - see: https://wiki.cloudmodding.com/mm/Text_Format
-    // [align|boxType][yPos|skip][icon][nextID][cost1][cost2][0xFF][0xFF]
-
-    uint8_t textAlignment = 0;
-    uint8_t textUnskippable = 0;
+    // Bytes 0-1 are stored as raw bytes in segment[] (not packed)
+    // Game code reads bytes 0-1 as a 16-bit value and extracts fields using bit masks (see Message_OpenText() in
+    // z_message.c:3396-3402) Message_DecodeHeader() reads bytes 2-10 (icon, nextTextId, costs, padding) - see
+    // z_message.c:2131-2173 We store/load raw bytes directly to match CustomMessage system format
 
     std::ostringstream rawMessage;
 
-    // Format header bytes
-    rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0')
-               << (int)((textAlignment << 4) | (entry.textboxType & 0x0F));
-    rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0')
-               << (int)((entry.textboxYPos << 4) | (textUnskippable & 0x0F));
-    rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)entry.icon;
-    rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)((entry.nextMessageID & 0xFF00) >> 8);
-    rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)(entry.nextMessageID & 0x00FF);
-    rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)((entry.firstItemCost & 0xFF00) >> 8);
-    rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)(entry.firstItemCost & 0x00FF);
-    rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)((entry.secondItemCost & 0xFF00) >> 8);
-    rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)(entry.secondItemCost & 0x00FF);
+    // Format header bytes - write raw bytes as stored in segment (matching CustomMessage::LoadCustomMessageIntoFont)
+    FormatByteAsEscapeSequence(rawMessage, entry.textboxType);
+    FormatByteAsEscapeSequence(rawMessage, entry.textboxYPos);
+    FormatByteAsEscapeSequence(rawMessage, entry.icon);
+    FormatByteAsEscapeSequence(rawMessage, (entry.nextMessageID & 0xFF00) >> 8);
+    FormatByteAsEscapeSequence(rawMessage, entry.nextMessageID & 0x00FF);
+    FormatByteAsEscapeSequence(rawMessage, (entry.firstItemCost & 0xFF00) >> 8);
+    FormatByteAsEscapeSequence(rawMessage, entry.firstItemCost & 0x00FF);
+    FormatByteAsEscapeSequence(rawMessage, (entry.secondItemCost & 0xFF00) >> 8);
+    FormatByteAsEscapeSequence(rawMessage, entry.secondItemCost & 0x00FF);
     rawMessage << "\\xff\\xff"; // Padding bytes
 
     // Format message content bytes
@@ -262,12 +207,15 @@ void MessageViewerWindow::LoadMessageToEditor() {
             rawMessage << (char)byte;
         } else {
             // Control code - format as \xXX
-            rawMessage << "\\x" << std::hex << std::setw(2) << std::setfill('0') << (int)byte;
+            FormatByteAsEscapeSequence(rawMessage, byte);
         }
     }
 
     // Copy the formatted string to the custom message buffer
     std::string formattedMessage = rawMessage.str();
+    if (formattedMessage.size() >= MAX_STRING_SIZE) {
+        formattedMessage = formattedMessage.substr(0, MAX_STRING_SIZE - 1);
+    }
     strncpy(mCustomMessageBuf, formattedMessage.c_str(), MAX_STRING_SIZE - 1);
     mCustomMessageBuf[MAX_STRING_SIZE - 1] = '\0';
 }
@@ -288,25 +236,6 @@ bool MessageViewerWindow::ParseTextIdFromBuffer(uint16_t& outTextId) {
         }
         return true;
     } catch (const std::exception&) { return false; }
-}
-
-bool MessageViewerWindow::ValidateTextIdExists(uint16_t textId) {
-    if (gPlayState == nullptr) {
-        return false;
-    }
-
-    MessageTableEntry* msgEntry = gPlayState->msgCtx.messageTableNES;
-    if (msgEntry == nullptr) {
-        return false;
-    }
-
-    while (msgEntry->textId != 0xFFFF) {
-        if (msgEntry->textId == textId) {
-            return true;
-        }
-        msgEntry++;
-    }
-    return false;
 }
 
 void MessageDebug_StartTextBox(const char* tableId, uint16_t textId, uint8_t language) {
@@ -338,13 +267,15 @@ void MessageDebug_DisplayCustomMessage(const char* customMessage) {
     // Create a custom message entry
     CustomMessage::Entry entry;
 
-    // Check if message starts with header (11+ bytes starting with escape sequences)
-    if (processedMessage.length() >= MESSAGE_HEADER_SIZE && strlen(customMessage) >= 2 && customMessage[0] == '\\' &&
-        customMessage[1] == 'x') {
+    // Check if message starts with header (11+ bytes)
+    // Header detection: verify processed message has at least MESSAGE_HEADER_SIZE bytes
+    // and first byte is in control character range (< 0x20), indicating it's likely a header byte
+    if (processedMessage.length() >= MESSAGE_HEADER_SIZE && (unsigned char)processedMessage[0] < 0x20) {
 
-        // Parse header bytes
-        entry.textboxType = (processedMessage[0] & 0x0F);
-        entry.textboxYPos = (processedMessage[1] & 0xF0) >> 4;
+        // Parse header bytes - read raw bytes as stored (matching CustomMessage::LoadVanillaMessageTableEntry)
+        // Game code unpacks these bytes using bit masks, but we store/load raw bytes
+        entry.textboxType = processedMessage[0];
+        entry.textboxYPos = processedMessage[1];
         entry.icon = (unsigned char)processedMessage[2];
         entry.nextMessageID = ((unsigned char)processedMessage[3] << 8) | (unsigned char)processedMessage[4];
         entry.firstItemCost = ((unsigned char)processedMessage[5] << 8) | (unsigned char)processedMessage[6];
@@ -357,7 +288,7 @@ void MessageDebug_DisplayCustomMessage(const char* customMessage) {
     } else {
         // No header - use defaults for user-written messages
         entry.textboxType = 0;
-        entry.textboxYPos = 3;
+        entry.textboxYPos = 0x30;
         entry.icon = 0xFE;
         entry.nextMessageID = 0xFFFF;
         entry.firstItemCost = 0xFFFF;

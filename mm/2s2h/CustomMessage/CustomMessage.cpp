@@ -119,10 +119,8 @@ CustomMessage::Entry CustomMessage::LoadVanillaMessageTableEntry(u16 textId) {
 
     CustomMessage::Entry entry;
 
-    // Unpack vanilla message header from bit-packed format
-    uint16_t packedHeader = (msgEntry->segment[0] << 8) | msgEntry->segment[1];
-    entry.textboxType = (packedHeader & 0x0F00) >> 8; // Bits 8-11
-    entry.textboxYPos = (packedHeader & 0x00F0) >> 4; // Bits 4-7
+    entry.textboxType = msgEntry->segment[0];
+    entry.textboxYPos = msgEntry->segment[1];
     entry.icon = msgEntry->segment[2];
     entry.nextMessageID = (msgEntry->segment[3] << 8) | msgEntry->segment[4];
     entry.firstItemCost = (msgEntry->segment[5] << 8) | msgEntry->segment[6];
@@ -138,16 +136,9 @@ void CustomMessage::LoadCustomMessageIntoFont(CustomMessage::Entry entry) {
 
     char buff[1280] = { 0 };
 
-    // Copy message header - pack into 16-bit value as game expects
-    // Bits 12-15: textAlignment (0=centered, 1=left-aligned)
-    // Bits  8-11: textBoxType
-    // Bits  4-7:  textBoxPos
-    // Bits  0-3:  textUnskippable (0=skippable, 1/3=unskippable)
-    uint8_t textAlignment = 0;
-    uint8_t textUnskippable = 0;
-
-    buff[0] = (textAlignment << 4) | (entry.textboxType & 0x0F);
-    buff[1] = (entry.textboxYPos << 4) | (textUnskippable & 0x0F);
+    // Copy message header
+    buff[0] = entry.textboxType;
+    buff[1] = entry.textboxYPos;
     buff[2] = entry.icon;
     buff[3] = (entry.nextMessageID & 0xFF00) >> 8;
     buff[4] = (entry.nextMessageID & 0x00FF);

@@ -28,7 +28,6 @@ void MessageDebug_DisplayCustomMessage(const char* customMessage);
 
 class MessageViewerWindow : public Ship::GuiWindow {
   public:
-    static inline const char* TABLE_ID = "MessageViewer";
     using GuiWindow::GuiWindow;
 
     void InitElement() override;
@@ -42,19 +41,15 @@ class MessageViewerWindow : public Ship::GuiWindow {
     void DisplayCustomMessage() const;
     void LoadMessageToEditor();
     bool ParseTextIdFromBuffer(uint16_t& outTextId);
-    static bool ValidateTextIdExists(uint16_t textId);
 
     static constexpr uint16_t MAX_STRING_SIZE = 1024;
     static constexpr int HEXADECIMAL = 0;
     static constexpr int DECIMAL = 1;
 
-    float previousMessageBoxWidth;
-
     char* mTextIdBuf;
     uint16_t mTextId;
     int mTextIdBase = HEXADECIMAL;
     char* mCustomMessageBuf;
-    char* mcustomMessageRaw;
     std::string mCustomMessageString;
     bool mDisplayExistingMessageClicked = false;
     bool mDisplayCustomMessageClicked = false;
