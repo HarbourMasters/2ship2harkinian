@@ -213,7 +213,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         }
 
                         // Skip checks that have been excluded in the Locations menu and add their vanilla item to the
-                        // pool except if Logic is set to Vanilla or French Vanilla.
+                        // pool except if Logic is set to Vanilla.
                         if (RANDO_SAVE_OPTIONS[RO_LOGIC] <= RO_LOGIC_NEARLY_NO_LOGIC) {
                             auto it = std::find(excludedChecks.begin(), excludedChecks.end(), randoCheckId);
                             if (it != excludedChecks.end()) {
@@ -327,6 +327,18 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     throw std::runtime_error("No items in logic");
                 }
 
+                // Handle Shuffling Traps
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRAPS] == RO_GENERIC_YES) {
+                    for (int i = 0; i < RANDO_SAVE_OPTIONS[RO_TRAP_AMOUNT]; i++) {
+                        for (int j = 0; j < itemPool.size(); j++) {
+                            if (itemPool[j] == RI_JUNK) {
+                                itemPool[j] = RI_TRAP;
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 int heartPiecesRemoved = 0;
                 // Add/Remove junk items to/from the pool to make the item pool size match the check pool size
                 while (checkPool.size() != itemPool.size()) {
@@ -428,8 +440,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     Rando::Logic::ApplyNearlyNoLogicToSaveContext(checkPool, itemPool);
                 } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_GLITCHLESS) {
                     Rando::Logic::ApplyGlitchlessLogicToSaveContext(checkPool, itemPool);
-                } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_FRENCH_VANILLA) {
-                    Rando::Logic::ApplyFrenchVanillaLogicToSaveContext(checkPool, itemPool);
                 } else {
                     throw std::runtime_error("Logic option not implemented: " +
                                              std::to_string(RANDO_SAVE_OPTIONS[RO_LOGIC]));
@@ -460,6 +470,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
             RANDO_SAVE_CHECKS[RC_STARTING_ITEM_DEKU_MASK].eligible = true;
             RANDO_SAVE_CHECKS[RC_STARTING_ITEM_SONG_OF_HEALING].eligible = true;
+
+            GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRandoSeedGeneration>();
 
         } catch (const std::exception& e) {
             SPDLOG_ERROR("Error with randomizer save creation: {}", e.what());

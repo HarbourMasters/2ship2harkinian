@@ -239,6 +239,9 @@ typedef enum {
     VB_BUY_GORMAN_MILK,
     VB_PLAY_LOW_HP_ALARM,
     VB_PLAY_GORON_CHILD_CRY,
+    VB_PLAY_ENEMY_PROXIMITY_MUSIC,
+    VB_PLAY_TATL_CALL_AUDIO,
+    VB_LINK_VOICE_PITCH_MULTIPLIER,
     VB_SNOWBALL_DROP_COLLECTIBLE,
     VB_SNOWBALL_SET_FLAG,
     VB_START_JUMPSLASH,
@@ -256,7 +259,10 @@ typedef enum {
     VB_USE_ITEM_CONSIDER_ITEM_ACTION,
     VB_ENEMY_DROP_COLLECTIBLE,
     VB_DRAW_SLIME_RANDO_ITEM,
-    VB_TIME_UNTIL_MOON_CRASH_CALCULATION
+    VB_TIME_UNTIL_MOON_CRASH_CALCULATION,
+    VB_ENABLE_OBJECT_DEPENDENCY,
+    VB_OBJ_MURE2_SET_CHILD_ROOM,
+    VB_OBJ_MURE3_DROP_COLLECTIBLE,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -370,7 +376,9 @@ struct GIEventSpawnActor {
     f32 posX;
     f32 posY;
     f32 posZ;
-    s16 rot;
+    s16 rotX;
+    s16 rotY;
+    s16 rotZ;
     s32 params;
     // if true, the coordinates are made relative to the player's position and rotation, 0 rotation is facing the same
     // direction as the player, x+ is to the players right, y+ is up, z+ is in front of the player
@@ -384,7 +392,11 @@ struct GIEventTransition {
     u8 transitionType;
 };
 
-typedef std::variant<GIEventNone, GIEventGiveItem, GIEventSpawnActor, GIEventTransition> GIEvent;
+struct GIEventTrap {
+    std::function<void()> action;
+};
+
+typedef std::variant<GIEventNone, GIEventGiveItem, GIEventSpawnActor, GIEventTransition, GIEventTrap> GIEvent;
 
 class GameInteractor {
   public:
@@ -753,6 +765,8 @@ bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
 
 void GameInteractor_ExecuteOnBottleContentsUpdate(u8 item);
+
+void GameInteractor_ExecuteOnSeqPlayerInit(int32_t playerIdx, int32_t seqId);
 
 bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
 #define REGISTER_VB_SHOULD(flag, body)                                                      \
