@@ -4,6 +4,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/ShipUtils.h"
 
 extern "C" {
 #include "z64game.h"
@@ -594,7 +595,7 @@ void OnFileLoad() {
                 // Use different message format for each song
                 if (isSongOfTime) {
                     entry.msg = "Save and return to " + destinationText + "?\n%gYes\nNo\xC2";
-                } else {
+                } else { // Song of Double Time
                     entry.msg = "Time moves strangely...\nProceed to " + destinationText + "?\n%gYes\nNo\xC2";
                 }
 
@@ -627,16 +628,10 @@ void OnFileLoad() {
         if (shouldIncludeTerminalHours) {
             // Calculate remaining hours from configured terminal time to 6:00 AM
             u16 terminalTime = GetConfiguredTerminalTime();
-            u16 dawnTime = DAWN_TIME;
 
             // Calculate time difference (terminal time to dawn)
-            u32 timeDiff;
-            if (terminalTime <= dawnTime) {
-                timeDiff = dawnTime - terminalTime;
-            } else {
-                // Handle wrap-around (e.g., 23:00 to 06:00)
-                timeDiff = (DAWN_TIME + CLOCK_TIME(24, 0)) - terminalTime;
-            }
+            u32 terminalZeroed = ZERO_DAY_START(terminalTime);
+            u32 timeDiff = (DAY_LENGTH - terminalZeroed) % DAY_LENGTH;
 
             // Convert to hours (round up to ensure we don't under-calculate)
             u32 terminalHours = (timeDiff + CLOCK_TIME_HOUR - 1) / CLOCK_TIME_HOUR;
@@ -657,8 +652,8 @@ void OnFileLoad() {
 
 // Initialize clock settings and item pool for file creation
 void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
-    if (!RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] || RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_FRENCH_VANILLA) {
-        return; // Skip if clocks not enabled or in vanilla logic
+    if (!RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
+        return; // Skip if clocks not enabled
     }
 
     int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];

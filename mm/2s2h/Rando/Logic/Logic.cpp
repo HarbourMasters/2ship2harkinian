@@ -64,18 +64,13 @@ RegionTimeState InitialTimeState() {
 std::unordered_map<RandoRegionId, RegionTimeState> InitializeRegionTimeStates(RandoRegionId startRegion) {
     std::unordered_map<RandoRegionId, RegionTimeState> states;
 
-    if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_FRENCH_VANILLA) {
-        // Vanilla: all time available
-        states[startRegion] = { .timeSlices = TIME_ALL_SLICES, .canStayOverTime = true };
+    // Start with appropriate time based on Clock Shuffle
+    if (SettingClocks()) {
+        // Clock Shuffle: start with owned time slices only
+        states[startRegion] = { .timeSlices = TimeLogic::GetOwnedTimeSlices(), .canStayOverTime = false };
     } else {
-        // Glitchless/etc: start with appropriate time based on Clock Shuffle
-        if (SettingClocks()) {
-            // Clock Shuffle: start with owned time slices only
-            states[startRegion] = { .timeSlices = TimeLogic::GetOwnedTimeSlices(), .canStayOverTime = false };
-        } else {
-            // No Clock Shuffle: start at Day 1 6am
-            states[startRegion] = InitialTimeState();
-        }
+        // No Clock Shuffle: start at Day 1 6am
+        states[startRegion] = InitialTimeState();
     }
 
     return states;
