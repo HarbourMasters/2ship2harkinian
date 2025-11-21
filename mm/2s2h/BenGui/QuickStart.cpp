@@ -411,6 +411,7 @@ void QuickStart::Draw() {
     if (CVarGetInteger("gWindows.QuickStart", 0)) {
         return;
     }
+    
     auto* viewport = ImGui::GetMainViewport();
     auto windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
 
@@ -418,6 +419,7 @@ void QuickStart::Draw() {
     ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
     ImGui::SetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
     if (ImGui::Begin("QuickStartMain", nullptr, windowFlags)) {
+        ImGui::SetWindowFontScale(1.3f);
         DrawQuickStartHeader();
         UIWidgets::Separator();
         if (fileSelectMenu->configMode == CM_MAIN_MENU) {
