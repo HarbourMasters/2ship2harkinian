@@ -2903,7 +2903,7 @@ void Player_SetCylinderForAttack(Player* this, u32 dmgFlags, s32 damage, s32 rad
     if (radius > 30) {
         this->cylinder.base.ocFlags1 = OC1_NONE;
     } else {
-        if (GameInteractor_Should(VB_SET_PLAYER_CYLINDER_OC_FLAGS, true, this, dmgFlags)) {
+        if (GameInteractor_Should(VB_SET_PLAYER_CYLINDER_OC_FLAGS, true, this)) {
             this->cylinder.base.ocFlags1 = OC1_ON | OC1_TYPE_ALL;
         }
     }
