@@ -1187,11 +1187,10 @@ void DrawQuestStatusTab() {
     ImGui::SeparatorText("Songs");
     auto drawSongRange = [](int32_t start, int32_t end) {
         for (int32_t i = start; i <= end; i++) {
-            float lineStartX = ImGui::GetCursorPosX();
             ImVec2 itemSize = DrawSong(static_cast<QuestItem>(i));
-            bool isLastItem = (i == end);
-            if (!isLastItem) {
-                float nextItemMaxX = lineStartX + itemSize.x + ImGui::GetStyle().ItemSpacing.x + itemSize.x;
+            if (i != end) {
+                float currentCursorX = ImGui::GetCursorPosX();
+                float nextItemMaxX = currentCursorX + ImGui::GetStyle().ItemSpacing.x + itemSize.x;
                 float regionMaxX = ImGui::GetWindowContentRegionMax().x;
                 if (nextItemMaxX <= regionMaxX) {
                     ImGui::SameLine();
@@ -1355,10 +1354,12 @@ void DrawDungeonItemTab() {
             s32 minStray = 0;
             s32 maxStray = 15;
             int currentStrays = gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId];
+            ImGui::PushItemWidth(ImGui::GetFontSize() * 12.0f);
             if (ImGui::SliderScalar("##strayCount", ImGuiDataType_S32, &currentStrays, &minStray, &maxStray,
                                     "Strays: %d")) {
                 gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] = currentStrays;
             }
+            ImGui::PopItemWidth();
             ImGui::EndPopup();
         }
         if (ImGui::BeginPopup("smallKeys")) {
@@ -1419,8 +1420,14 @@ void ClearAllEquippedItems() {
     for (size_t form = 0; form < ARRAY_COUNT(buttonItems); form++) {
         for (size_t slot = 0; slot < ARRAY_COUNT(buttonItems[form]); slot++) {
             if (slot == EQUIP_SLOT_B) {
+                // Form 0 is shared by FD and Human via CUR_FORM
+                // FD uses Deity Sword (not in B slot), Human uses regular swords
+                if (form == 0 && GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY) {
+                    // FD expects innate B action; leave untouched
+                    continue;
+                }
                 if (form != 0) {
-                    // Goron/Deku/Zora/FD expect their innate B actions; leave untouched.
+                    // Goron/Deku/Zora expect their innate B actions; leave untouched.
                     continue;
                 }
 
