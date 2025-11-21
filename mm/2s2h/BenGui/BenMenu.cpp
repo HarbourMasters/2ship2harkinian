@@ -86,6 +86,12 @@ static const std::vector<const char*> debugSaveOptions = {
     "Empty save",         // DEBUG_SAVE_INFO_NONE
 };
 
+#ifdef _DEBUG
+DebugLogOption defaultLogLevel = DEBUG_LOG_TRACE;
+#else
+DebugLogOption defaultLogLevel = DEBUG_LOG_INFO;
+#endif
+
 static const std::vector<const char*> logLevels = {
     "Trace",    // DEBUG_LOG_TRACE
     "Debug",    // DEBUG_LOG_DEBUG
@@ -970,17 +976,6 @@ void BenMenu::AddEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
-    AddWidget(path, "SFX", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Mute Low HP Alarm", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.LowHpAlarm")
-        .Options(CheckboxOptions().Tooltip("Mutes the beeping alarm when you are critically low on health."));
-    AddWidget(path, "Mute Carpenter Sounds", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.MuteCarpenterSfx")
-        .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
-                                           "from the tower in South Clock Town."));
-    AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.ChildGoronCry")
-        .Options(CheckboxOptions().Tooltip("Mutes the crying Goron child inside Goron Shrine."));
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
@@ -1690,10 +1685,11 @@ void BenMenu::AddDevTools() {
         .Options(ComboboxOptions()
                      .Tooltip("The log level determines which messages are printed to the "
                               "console. This does not affect the log file output.")
-                     .ComboVec(&logLevels))
+                     .ComboVec(&logLevels)
+                     .DefaultIndex(defaultLogLevel))
         .Callback([](WidgetInfo& info) {
             Ship::Context::GetInstance()->GetLogger()->set_level(
-                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", defaultLogLevel));
         })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Frame Advance", WIDGET_CHECKBOX)
@@ -1915,6 +1911,11 @@ void BenMenu::InitElement() {
                return !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0);
            },
             "Vertical Resolution Toggle is Off" } },
+        { DISABLE_FOR_LINKS_VOICE_PITCH_MULTIPLIER_OFF,
+          { [](disabledInfo& info) -> bool {
+               return !CVarGetInteger("gAudioEditor.LinkVoiceFreqMultiplier.Enable", 0);
+           },
+            "Enable Link's Voice Pitch Multiplier is Disabled" } },
     };
 }
 
