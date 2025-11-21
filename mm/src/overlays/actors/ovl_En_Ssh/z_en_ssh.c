@@ -690,7 +690,7 @@ void EnSsh_Init(Actor* thisx, PlayState* play) {
     this->initialYaw = this->actor.world.rot.y;
     EnSsh_SetupAction(this, EnSsh_Start);
     if (GameInteractor_Should(VB_HAVE_ALL_SKULLTULA_TOKENS,
-                              Inventory_GetSkullTokenCount(play->sceneId) >= SPIDER_HOUSE_TOKENS_REQUIRED, this)) {
+                              Inventory_GetSkullTokenCount(play->sceneId) >= SPIDER_HOUSE_TOKENS_REQUIRED)) {
         Actor_Kill(&this->actor);
     }
 }
