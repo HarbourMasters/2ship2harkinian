@@ -93,6 +93,44 @@ std::vector<uint8_t> ConvertNameSet(const char* input) {
     return result;
 }
 
+void CenterText(const char* text) {
+    ImVec2 textSize = ImGui::CalcTextSize(text);
+
+    float windowWidth = ImGui::GetWindowSize().x;
+    float textX = (windowWidth - textSize.x) * 0.5f;
+
+    ImGui::SetCursorPosX(textX);
+    ImGui::TextColored(TEXT_COLOR(COLOR_WHITE), "%s", text);
+}
+
+void CenterFullWidthSeparatorText(const char* text, std::string type) {
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImDrawList* drawList = ImGui::GetWindowDrawList();
+    ImVec2 textSize = ImGui::CalcTextSize(text);
+    ImVec2 region;
+    ImVec2 textPos;
+
+    if (type == "Full") {
+        region = ImVec2(viewport->WorkPos.x, viewport->WorkPos.x + viewport->WorkSize.x);
+        textPos = ImVec2(region.x + (viewport->WorkSize.x - textSize.x) * 0.5f, ImGui::GetCursorScreenPos().y);
+    } else {
+        ImVec2 cursor = ImGui::GetCursorScreenPos();
+        float regionWidth = ImGui::GetContentRegionAvail().x;
+        region = ImVec2(cursor.x, cursor.x + regionWidth);
+        textPos = ImVec2(region.x + (regionWidth - textSize.x) * 0.5f, cursor.y);
+    }
+
+    float spacing = ImGui::GetStyle().ItemSpacing.y;
+    float lineY = textPos.y + textSize.y * 0.5f;
+    ImU32 lineColor = IM_COL32(255, 255, 255, 255);
+
+    drawList->AddLine(ImVec2(region.x, lineY), ImVec2(textPos.x - spacing, lineY), lineColor, 2.0f);
+    drawList->AddLine(ImVec2(textPos.x + textSize.x + spacing, lineY), ImVec2(region.y, lineY), lineColor, 2.0f);
+
+    ImGui::SetCursorScreenPos(ImVec2(textPos.x, textPos.y));
+    ImGui::TextColored(TEXT_COLOR(COLOR_WHITE), text);
+}
+
 void SetPresetOption(QuickStartSettings option) {
     if (option != QUICK_START_NONE) {
         PresetManager_ApplyPreset(option == QUICK_START_PRESET_DEFAULT ? defaultsPresetJ : vanillaEnhancedPresetJ);
@@ -179,14 +217,14 @@ void QuickStartQuestInit(const char* fileNameEntry) {
 }
 
 void DrawQuickStartHeader() {
-    ImGui::SeparatorText("Welcome to the Quick Start Section");
-    ImGui::Text("This section will ask you a series of questions about what you are looking to do.\n"
+    CenterFullWidthSeparatorText("Welcome to the Quick Start Section", "Full");
+    CenterText("This section will ask you a series of questions about what you are looking to do.\n"
                 "Once complete you will be brought straight into the game with settings that match\n"
                 "the options you selected.");
 }
 
 void DrawQuickStartQuestSelect() {
-    ImGui::SeparatorText("Which Quest are you feeling today?");
+    CenterFullWidthSeparatorText("Which Quest are you feeling today?", "Half");
     if (ImGui::BeginTable("QuestSelect", 2, ImGuiTableFlags_SizingStretchSame)) {
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Vanilla",
@@ -203,7 +241,7 @@ void DrawQuickStartQuestSelect() {
 }
 
 void DrawQuickStartQuestOptions() {
-    ImGui::SeparatorText("Choose your preferred experience");
+    CenterFullWidthSeparatorText("Choose your preferred experience", "Half");
     if (ImGui::BeginTable("ExperienceTable", 3, ImGuiTableFlags_SizingStretchSame)) {
         ImGui::TableNextColumn();
         if (UIWidgets::Button(
@@ -230,8 +268,8 @@ void DrawQuickStartQuestOptions() {
             SetPresetOption(quickStartOptions.presetOption);
         }
     }
-
-    ImGui::SeparatorText("What playstyle for the Quest?");
+    UIWidgets::Separator();
+    CenterFullWidthSeparatorText("What playstyle for the Quest?", "Half");
     switch (quickStartOptions.questID) {
         case SAVETYPE_VANILLA:
             ImGui::Text("Vanilla Selected");
@@ -255,7 +293,8 @@ void DrawQuickStartQuestOptions() {
                 }
                 ImGui::EndTable();
             }
-            ImGui::SeparatorText("Glitchless or No Logic?");
+            UIWidgets::Separator();
+            CenterFullWidthSeparatorText("Glitchless or No Logic?", "Half");
             if (ImGui::BeginTable("RandoOptions2", 2, ImGuiTableFlags_SizingStretchSame)) {
                 ImGui::TableNextColumn();
                 if (UIWidgets::Button("Glitchless",
@@ -294,7 +333,7 @@ void DrawQuickStartQuestReview() {
         ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "No File slot available, please delete a File first.");
         return;
     }
-    ImGui::SeparatorText("Here's what to expect");
+    CenterFullWidthSeparatorText("Here's what to expect", "Half");
     switch (quickStartOptions.questID) {
         case SAVETYPE_VANILLA:
             reviewText = "The Vanilla experience:\n"
@@ -345,7 +384,7 @@ void DrawQuickStartSelectioncheck() {
         ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "Not Ready");
         return;
     }
-    ImGui::SeparatorText("Ready to start?");
+    CenterFullWidthSeparatorText("Ready to start?", "Half");
     if (ImGui::BeginTable("NameEntry", 2, ImGuiTableFlags_SizingStretchSame)) {
         ImGui::TableNextColumn();
         UIWidgets::InputString("##playername", &trackerInputRename,
@@ -368,35 +407,36 @@ void DrawQuickStartSelectioncheck() {
     }
 }
 
-void DrawQuickStartMenu() {
-    FileSelectState* fileSelectMenu = (FileSelectState*)gGameState;
-    DrawQuickStartHeader();
-    UIWidgets::Separator();
-    if (fileSelectMenu->configMode == CM_MAIN_MENU) {
-        if (ImGui::BeginTable("QuickStartMenu", 2, ImGuiTableFlags_SizingStretchSame)) {
-            ImGui::TableNextColumn();
-            DrawQuickStartQuestSelect();
-            UIWidgets::Separator();
-            DrawQuickStartQuestOptions();
-            UIWidgets::Separator();
-            DrawQuickStartSelectioncheck();
+void QuickStart::Draw() {
+    if (CVarGetInteger("gWindows.QuickStart", 0)) {
+        return;
+    }
+    auto* viewport = ImGui::GetMainViewport();
+    auto windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
 
-            ImGui::TableNextColumn();
-            DrawQuickStartQuestReview();
-            ImGui::EndTable();
+    FileSelectState* fileSelectMenu = (FileSelectState*)gGameState;
+    ImGui::SetNextWindowPos(viewport->WorkPos, ImGuiCond_Always);
+    ImGui::SetNextWindowSize(viewport->WorkSize, ImGuiCond_Always);
+    if (ImGui::Begin("QuickStartMain", nullptr, windowFlags)) {
+        DrawQuickStartHeader();
+        UIWidgets::Separator();
+        if (fileSelectMenu->configMode == CM_MAIN_MENU) {
+            if (ImGui::BeginTable("QuickStartMenu", 2, ImGuiTableFlags_SizingStretchSame)) {
+                ImGui::TableNextColumn();
+                DrawQuickStartQuestSelect();
+                UIWidgets::Separator();
+                DrawQuickStartQuestOptions();
+                UIWidgets::Separator();
+                DrawQuickStartSelectioncheck();
+
+                ImGui::TableNextColumn();
+                DrawQuickStartQuestReview();
+                ImGui::EndTable();
+            }
+        } else {
+            ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "Waiting for File Select Screen...");
         }
-    } else {
-        ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "Waiting for File Select Screen...");
+        ImGui::End();
     }
 }
-
-void RegisterQuickStartMenu() {
-    mBenMenu->AddMenuEntry("QuickStart", "gSettings.Menu.QuickStartSidebarSection");
-    mBenMenu->AddSidebarEntry("QuickStart", "Options", 1);
-    WidgetPath path = { "QuickStart", "Options", SECTION_COLUMN_1 };
-    mBenMenu->AddWidget(path, "Options", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawQuickStartMenu(); });
-}
-
-static RegisterMenuInitFunc initFunc(RegisterQuickStartMenu);
-
 } // namespace Ship

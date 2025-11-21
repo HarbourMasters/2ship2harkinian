@@ -26,16 +26,16 @@ typedef struct {
 } QuickStartSelection;
 
 namespace Ship {
-void RegisterQuickStartMenu();
+//void RegisterQuickStartMenu();
 
 class QuickStart : public GuiWindow {
   public:
     using GuiWindow::GuiWindow;
 
     void InitElement() override{};
-    void DrawElement() override{};
+    void DrawElement() override {};
     void UpdateElement() override{};
-    void Draw() override{};
+    void Draw() override;
 };
 } // namespace Ship
 
