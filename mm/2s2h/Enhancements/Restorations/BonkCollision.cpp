@@ -12,8 +12,8 @@ void RegisterBonkCollision() {
         if (dmgFlags == DMG_NORMAL_ROLL) {
             // OR the new flags instead of directly assigning them
             player->cylinder.base.ocFlags1 |= OC1_ON | OC1_TYPE_ALL;
+            *should = false;
         }
-        *should = false;
     });
 }
 
