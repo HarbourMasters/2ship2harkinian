@@ -173,9 +173,9 @@ void InputViewer::DrawElement() {
                                                      : 0) +
                                                 20));
 
-            ImGui::SetNextWindowContentSize(ImVec2(
-                scaledBGSize.x,
-                scaledBGSize.y + (showLeftAnalogAngles || showRightAnalogAngles ? 15.0f * scale * maxScale : 0.0f)));
+            ImGui::SetNextWindowContentSize(
+                ImVec2(scaledBGSize.x,
+                       scaledBGSize.y + (showLeftAnalogAngles || showRightAnalogAngles ? 15 * scale * maxScale : 0)));
         } else {
             ImGui::SetNextWindowContentSize(
                 ImVec2(mainPos.x + size.x - scaledBGSize.x - 30, mainPos.y + size.y - scaledBGSize.y - 30));
