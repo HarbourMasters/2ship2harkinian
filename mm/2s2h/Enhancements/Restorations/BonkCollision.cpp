@@ -8,7 +8,11 @@
 void RegisterBonkCollision() {
     COND_VB_SHOULD(VB_SET_PLAYER_CYLINDER_OC_FLAGS, CVAR, {
         Player* player = va_arg(args, Player*);
-        player->cylinder.base.ocFlags1 |= OC1_ON | OC1_TYPE_ALL; // OR the new flags instead of directly assigning them
+        u32 dmgFlags = va_arg(args, u32);
+        if (dmgFlags == DMG_NORMAL_ROLL) {
+            player->cylinder.base.ocFlags1 |=
+                OC1_ON | OC1_TYPE_ALL; // OR the new flags instead of directly assigning them
+        }
         *should = false;
     });
 }
