@@ -466,11 +466,14 @@ void SaveItemTrackerLayout() {
     };
 
     auto allConfig = Ship::Context::GetInstance()->GetConfig()->GetNestedJson();
-    if (allConfig.find("Window.ItemTrackerLayout") == allConfig.end()) {
-        allConfig["Window.ItemTrackerLayout"] = nlohmann::json::object();
+    if (allConfig.find("UConfs") == allConfig.end()) {
+        allConfig["UConfs"] = nlohmann::json::object();
+        Ship::Context::GetInstance()->GetConfig()->SetBlock("UConfs", allConfig["UConfs"]);
+        Ship::Context::GetInstance()->GetConfig()->Save();
     }
+    allConfig["UConfs.ItemTrackerLayout"] = nlohmann::json::object();
 
-    auto& itemTrackerConfig = allConfig["Window.ItemTrackerLayout"];
+    auto& itemTrackerConfig = allConfig["UConfs.ItemTrackerLayout"];
     itemTrackerConfig = nlohmann::json::object();
 
     uint16_t windowType = 0;
@@ -500,17 +503,17 @@ void SaveItemTrackerLayout() {
         windowType++;
     }
 
-    Ship::Context::GetInstance()->GetConfig()->SetBlock("Window.ItemTrackerLayout", itemTrackerConfig);
+    Ship::Context::GetInstance()->GetConfig()->SetBlock("UConfs.ItemTrackerLayout", itemTrackerConfig);
     Ship::Context::GetInstance()->GetConfig()->Save();
 }
 
 void LoadItemTrackerLayout() {
     auto allConfig = Ship::Context::GetInstance()->GetConfig()->GetNestedJson();
-    if (allConfig.find("Window") == allConfig.end()) {
+    if (allConfig.find("UConfs") == allConfig.end()) {
         return;
     }
 
-    auto& windowConfig = allConfig["Window"];
+    auto& windowConfig = allConfig["UConfs"];
     if (windowConfig.find("ItemTrackerLayout") == windowConfig.end()) {
         return;
     }
