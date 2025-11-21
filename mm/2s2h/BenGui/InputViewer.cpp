@@ -70,77 +70,77 @@ void InputViewer::DrawElement() {
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
                 "Input-Viewer-Background", "textures/buttons/InputViewerBackground.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "A-Btn", "textures/buttons/IV_ABtn.png");
+                "A-Btn", "textures/buttons/ABtn.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "B-Btn", "textures/buttons/IV_BBtn.png");
+                "B-Btn", "textures/buttons/BBtn.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "L-Btn", "textures/buttons/IV_LBtn.png");
+                "L-Btn", "textures/buttons/LBtn.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "R-Btn", "textures/buttons/IV_RBtn.png");
+                "R-Btn", "textures/buttons/RBtn.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Z-Btn", "textures/buttons/IV_ZBtn.png");
+                "Z-Btn", "textures/buttons/ZBtn.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Start-Btn", "textures/buttons/IV_StartBtn.png");
+                "Start-Btn", "textures/buttons/StartBtn.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "C-Left", "textures/buttons/IV_CLeft.png");
+                "C-Left", "textures/buttons/CLeft.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "C-Right", "textures/buttons/IV_CRight.png");
+                "C-Right", "textures/buttons/CRight.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage("C-Up",
-                                                                                         "textures/buttons/IV_CUp.png");
+                                                                                         "textures/buttons/CUp.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "C-Down", "textures/buttons/IV_CDown.png");
+                "C-Down", "textures/buttons/CDown.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Analog-Stick", "textures/buttons/IV_AnalogStick.png");
+                "Analog-Stick", "textures/buttons/AnalogStick.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Dpad-Left", "textures/buttons/IV_DPadLeft.png");
+                "Dpad-Left", "textures/buttons/DPadLeft.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Dpad-Right", "textures/buttons/IV_DPadRight.png");
+                "Dpad-Right", "textures/buttons/DPadRight.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Dpad-Up", "textures/buttons/IV_DPadUp.png");
+                "Dpad-Up", "textures/buttons/DPadUp.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Dpad-Down", "textures/buttons/IV_DPadDown.png");
+                "Dpad-Down", "textures/buttons/DPadDown.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Modifier-1", "textures/buttons/IV_Mod1.png");
+                "Modifier-1", "textures/buttons/Mod1.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Modifier-2", "textures/buttons/IV_Mod2.png");
+                "Modifier-2", "textures/buttons/Mod2.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Right-Stick", "textures/buttons/IV_RightStick.png");
+                "Right-Stick", "textures/buttons/RightStick.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "A-Btn Outline", "textures/buttons/IV_ABtnOutline.png");
+                "A-Btn Outline", "textures/buttons/ABtnOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "B-Btn Outline", "textures/buttons/IV_BBtnOutline.png");
+                "B-Btn Outline", "textures/buttons/BBtnOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "L-Btn Outline", "textures/buttons/IV_LBtnOutline.png");
+                "L-Btn Outline", "textures/buttons/LBtnOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "R-Btn Outline", "textures/buttons/IV_RBtnOutline.png");
+                "R-Btn Outline", "textures/buttons/RBtnOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Z-Btn Outline", "textures/buttons/IV_ZBtnOutline.png");
+                "Z-Btn Outline", "textures/buttons/ZBtnOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Start-Btn Outline", "textures/buttons/IV_StartBtnOutline.png");
+                "Start-Btn Outline", "textures/buttons/StartBtnOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "C-Left Outline", "textures/buttons/IV_CLeftOutline.png");
+                "C-Left Outline", "textures/buttons/CLeftOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "C-Right Outline", "textures/buttons/IV_CRightOutline.png");
+                "C-Right Outline", "textures/buttons/CRightOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "C-Up Outline", "textures/buttons/IV_CUpOutline.png");
+                "C-Up Outline", "textures/buttons/CUpOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "C-Down Outline", "textures/buttons/IV_CDownOutline.png");
+                "C-Down Outline", "textures/buttons/CDownOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Analog-Stick Outline", "textures/buttons/IV_AnalogStickOutline.png");
+                "Analog-Stick Outline", "textures/buttons/AnalogStickOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Dpad-Left Outline", "textures/buttons/IV_DPadLeftOutline.png");
+                "Dpad-Left Outline", "textures/buttons/DPadLeftOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Dpad-Right Outline", "textures/buttons/IV_DPadRightOutline.png");
+                "Dpad-Right Outline", "textures/buttons/DPadRightOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Dpad-Up Outline", "textures/buttons/IV_DPadUpOutline.png");
+                "Dpad-Up Outline", "textures/buttons/DPadUpOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Dpad-Down Outline", "textures/buttons/IV_DPadDownOutline.png");
+                "Dpad-Down Outline", "textures/buttons/DPadDownOutline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Modifier-1 Outline", "textures/buttons/IV_Mod1Outline.png");
+                "Modifier-1 Outline", "textures/buttons/Mod1Outline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Modifier-2 Outline", "textures/buttons/IV_Mod2Outline.png");
+                "Modifier-2 Outline", "textures/buttons/Mod2Outline.png");
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(
-                "Right-Stick Outline", "textures/buttons/IV_RightStickOutline.png");
+                "Right-Stick Outline", "textures/buttons/RightStickOutline.png");
             sButtonTexturesLoaded = true;
         }
 
