@@ -86,4 +86,5 @@ void RegisterLinkSpeedModifier() {
 }
 
 static RegisterShipInitFunc initWalkSpeedFunc(RegisterLinkSpeedModifier,
-                                              { CVAR_SPEED_MODIFIER_NAME, CVAR_WALK_MODIFIER_NAME, CVAR_SWIM_MODIFIER_NAME });
+                                              { CVAR_SPEED_MODIFIER_NAME, CVAR_WALK_MODIFIER_NAME,
+                                                CVAR_SWIM_MODIFIER_NAME });
