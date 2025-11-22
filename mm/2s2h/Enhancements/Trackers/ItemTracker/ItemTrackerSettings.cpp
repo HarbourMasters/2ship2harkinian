@@ -500,16 +500,11 @@ void SaveItemTrackerLayout() {
 
 void LoadItemTrackerLayout() {
     auto allConfig = Ship::Context::GetInstance()->GetConfig()->GetNestedJson();
-    if (allConfig.find("UConfs") == allConfig.end()) {
+    if (allConfig.find("ItemTrackerLayout") == allConfig.end()) {
         return;
     }
 
-    auto& windowConfig = allConfig["UConfs"];
-    if (windowConfig.find("ItemTrackerLayout") == windowConfig.end()) {
-        return;
-    }
-
-    auto& itemTrackerConfig = windowConfig["ItemTrackerLayout"];
+    auto& itemTrackerConfig = allConfig["ItemTrackerLayout"];
 
     for (auto& [windowKey, windowData] : itemTrackerConfig.items()) {
         std::vector<TrackerItemListObject>* window = windowKey == "Main"
