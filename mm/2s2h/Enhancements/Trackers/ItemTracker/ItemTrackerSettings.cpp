@@ -503,7 +503,7 @@ void SaveItemTrackerLayout() {
         windowType++;
     }
 
-    Ship::Context::GetInstance()->GetConfig()->SetBlock("UConfs.ItemTrackerLayout", itemTrackerConfig);
+    Ship::Context::GetInstance()->GetConfig()->SetBlock("ItemTrackerLayout", itemTrackerConfig);
     Ship::Context::GetInstance()->GetConfig()->Save();
 }
 
