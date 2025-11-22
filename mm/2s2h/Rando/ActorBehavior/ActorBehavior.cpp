@@ -14,9 +14,6 @@ static ObjectExtension::Register<ActorRandoCheckId> ActorRandoCheckIdRegister;
 // This is kind of a catch-all for things that are simple enough to not need their own file.
 void MiscVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_list optionalArg) {
     switch (id) {
-        case VB_MADAME_AROMA_ASK_FOR_HELP:
-            *should = !CHECK_WEEKEVENTREG(WEEKEVENTREG_BOMBERS_NOTEBOOK_EVENT_RECEIVED_KAFEIS_MASK);
-            break;
         case VB_GIVE_ITEM_FROM_ROMANI:
             *should = CHECK_QUEST_ITEM(QUEST_SONG_EPONA);
             break;
@@ -33,13 +30,13 @@ void MiscVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_list opti
     }
 }
 
-RandoCheckId Rando::ActorBehavior::GetActorRandoCheckId(Actor* actor) {
-    const ActorRandoCheckId* actorRandoCheckId = ObjectExtension::GetInstance().Get<ActorRandoCheckId>(actor);
+RandoCheckId Rando::ActorBehavior::GetObjectRandoCheckId(void* object) {
+    const ActorRandoCheckId* actorRandoCheckId = ObjectExtension::GetInstance().Get<ActorRandoCheckId>(object);
     return actorRandoCheckId != nullptr ? actorRandoCheckId->randoCheckId : RC_UNKNOWN;
 }
 
-void Rando::ActorBehavior::SetActorRandoCheckId(const Actor* actor, RandoCheckId rc) {
-    ObjectExtension::GetInstance().Set<ActorRandoCheckId>(actor, ActorRandoCheckId{ rc });
+void Rando::ActorBehavior::SetObjectRandoCheckId(const void* object, RandoCheckId rc) {
+    ObjectExtension::GetInstance().Set<ActorRandoCheckId>(object, ActorRandoCheckId{ rc });
 }
 
 // Entry point for the module, run once on game boot
