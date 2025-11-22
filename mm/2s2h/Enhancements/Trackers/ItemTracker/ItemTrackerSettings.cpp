@@ -465,16 +465,7 @@ void SaveItemTrackerLayout() {
         &BenGui::mItemTrackerWindow->randoItemWindows,
     };
 
-    auto allConfig = Ship::Context::GetInstance()->GetConfig()->GetNestedJson();
-    if (allConfig.find("UConfs") == allConfig.end()) {
-        allConfig["UConfs"] = nlohmann::json::object();
-        Ship::Context::GetInstance()->GetConfig()->SetBlock("UConfs", allConfig["UConfs"]);
-        Ship::Context::GetInstance()->GetConfig()->Save();
-    }
-    allConfig["UConfs.ItemTrackerLayout"] = nlohmann::json::object();
-
-    auto& itemTrackerConfig = allConfig["UConfs.ItemTrackerLayout"];
-    itemTrackerConfig = nlohmann::json::object();
+    auto itemTrackerConfig = nlohmann::json::object();
 
     uint16_t windowType = 0;
 
