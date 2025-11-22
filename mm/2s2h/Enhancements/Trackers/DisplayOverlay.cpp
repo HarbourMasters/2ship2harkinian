@@ -75,7 +75,7 @@ void DisplayOverlayWindow::Draw() {
                 timeToDisplay = (GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.fileCreatedAt);
                 break;
             case TIMER_DISPLAY_IGT:
-                timeToDisplay = ((GetUnixTimestamp() - gSaveContext.save.shipSaveInfo.lastTimeLog) +
+                timeToDisplay = ((GetUnixTimestamp() - gSaveContext.shipSaveContext.lastTimeLog) +
                                  gSaveContext.save.shipSaveInfo.filePlaytime);
                 break;
             default:

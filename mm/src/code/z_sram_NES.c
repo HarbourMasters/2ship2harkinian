@@ -1018,8 +1018,8 @@ void Sram_InitNewSave(void) {
     gSaveContext.save.shipSaveInfo.saveType = SAVETYPE_VANILLA;
     gSaveContext.save.shipSaveInfo.fileCreatedAt = 0;
     gSaveContext.save.shipSaveInfo.fileCompletedAt = 0;
-    gSaveContext.save.shipSaveInfo.lastTimeLog = 0;
     gSaveContext.save.shipSaveInfo.filePlaytime = 0;
+    gSaveContext.shipSaveContext.lastTimeLog = 0;
     //  #endregion
 
     Sram_GenerateRandomSaveFields();
@@ -1250,8 +1250,8 @@ void Sram_InitDebugSave(void) {
     gSaveContext.save.shipSaveInfo.saveType = SAVETYPE_VANILLA;
     gSaveContext.save.shipSaveInfo.fileCreatedAt = 0;
     gSaveContext.save.shipSaveInfo.fileCompletedAt = 0;
-    gSaveContext.save.shipSaveInfo.lastTimeLog = 0;
     gSaveContext.save.shipSaveInfo.filePlaytime = 0;
+    gSaveContext.shipSaveContext.lastTimeLog = 0;
     // #endregion
 
     Sram_GenerateRandomSaveFields();
