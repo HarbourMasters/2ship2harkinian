@@ -15,7 +15,7 @@ static uint64_t lastSaveTimestamp = GetUnixTimestamp();
 static HOOK_ID autosaveGameStateUpdateHookId = 0;
 static HOOK_ID autosaveGameStateDrawFinishHookId = 0;
 static HOOK_ID skipEntranceCutsceneHookId = 0;
-static HOOK_ID killSkipEntranceCutsceneHookId = 0;
+static HOOK_ID gameplayStartHookId = 0;
 
 // Used for saving through Autosaves and Pause Menu saves.
 extern "C" int SavingEnhancements_GetSaveEntrance() {
@@ -45,7 +45,7 @@ extern "C" int SavingEnhancements_GetSaveEntrance() {
             // Stone Tower Temple (inverted) + Twinmold
             case SCENE_INISIE_R:
             case SCENE_INISIE_BS:
-                return ENTRANCE(STONE_TOWER_TEMPLE, 0);
+                return ENTRANCE(STONE_TOWER_TEMPLE_INVERTED, 0);
             default:
                 return ENTRANCE(SOUTH_CLOCK_TOWN, 0);
         }
@@ -183,36 +183,42 @@ void loadRespawnData(s16 fileNum) {
 
 /*
  * Upon loading a save, skip any cutscenes that would play if the save is from a cutscene entrance (e.g. owl warps, Link
- * bowing at Mikau's grave, etc.). An OnPassPlayerInputs hook is then used to unregister the entrance cutscene skip
- * hook so that subsequent cutscenes are not also skipped.
+ * bowing at Mikau's grave, etc.). An OnPassPlayerInputs hook is used to detect when gameplay actually starts (any
+ * entrance cutscenes are done), at which point the cutscene skip hook is unregistered. This handles any potential cases
+ * where multiple cutscenes play in succession.
  */
-void skipEntranceCutsceneOnLoad(s16 fileNum) {
-    if (!killSkipEntranceCutsceneHookId) {
-        // Create hook to kill cutscene hook once player assumes control
-        killSkipEntranceCutsceneHookId =
-            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPassPlayerInputs>([](Input* input) {
-                // We have reached gameplay. The cutscene skip hook must not be used anymore, so kill it.
-                if (skipEntranceCutsceneHookId) {
-                    GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(
-                        skipEntranceCutsceneHookId);
-                    skipEntranceCutsceneHookId = 0;
-                }
-                // And now kill the kill hook itself since it does not need to run more than once.
-                GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPassPlayerInputs>(
-                    killSkipEntranceCutsceneHookId);
-                killSkipEntranceCutsceneHookId = 0;
-            });
+static void UnregisterEntranceCutsceneSkip() {
+    if (skipEntranceCutsceneHookId) {
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(
+            skipEntranceCutsceneHookId);
+        skipEntranceCutsceneHookId = 0;
     }
 
-    // If there is a cutscene upon load (i.e. entrance cutscene), just skip it
-    if (!skipEntranceCutsceneHookId) {
-        skipEntranceCutsceneHookId = REGISTER_VB_SHOULD(VB_START_CUTSCENE, {
-            // Only skip normal cutscenes
-            if (gSaveContext.gameMode == GAMEMODE_NORMAL && gPlayState->sceneId != SCENE_SPOT00) {
-                *should = false;
-            }
-        });
+    if (gameplayStartHookId) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPassPlayerInputs>(gameplayStartHookId);
+        gameplayStartHookId = 0;
     }
+}
+
+void skipEntranceCutsceneOnLoad(s16 fileNum) {
+    // Clean up any existing hooks first
+    UnregisterEntranceCutsceneSkip();
+    // Register hook to skip entrance cutscenes - may skip multiple if they chain
+    skipEntranceCutsceneHookId = REGISTER_VB_SHOULD(VB_START_CUTSCENE, {
+        // Only skip normal cutscenes
+        if (gSaveContext.gameMode == GAMEMODE_NORMAL && gPlayState != nullptr && gPlayState->sceneId != SCENE_SPOT00) {
+            *should = false;
+        }
+    });
+
+    // Register hook to detect when gameplay starts (all cutscenes done)
+    // OnPassPlayerInputs only fires during normal gameplay, not during cutscenes
+    gameplayStartHookId =
+        GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPassPlayerInputs>([](Input* input) {
+            // Gameplay has started; any entrance cutscenes are done
+            // Now unregister both hooks so normal cutscenes can play
+            UnregisterEntranceCutsceneSkip();
+        });
 }
 
 void RegisterSavingEnhancements() {
