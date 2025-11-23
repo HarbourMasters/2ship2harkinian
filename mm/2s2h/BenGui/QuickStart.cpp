@@ -47,7 +47,8 @@ QuickStartSelection quickStartOptions = { .questID = QUICK_START_NONE,
 
 namespace BenGui {
 extern std::shared_ptr<BenMenu> mBenMenu;
-}
+extern std::shared_ptr<Ship::QuickStart> mQuickStartMenu;
+} // namespace BenGui
 
 using namespace BenGui;
 namespace Ship {
@@ -214,13 +215,14 @@ void QuickStartQuestInit(const char* fileNameEntry) {
     fileSelect->connectorAlpha[fileSelect->buttonIndex] = 255;
 
     FileSelect_LoadGame(gGameState);
+    mQuickStartMenu->Hide();
 }
 
 void DrawQuickStartHeader() {
     CenterFullWidthSeparatorText("Welcome to the Quick Start Section", "Full");
     CenterText("This section will ask you a series of questions about what you are looking to do.\n"
-                "Once complete you will be brought straight into the game with settings that match\n"
-                "the options you selected.");
+               "Once complete you will be brought straight into the game with settings that match\n"
+               "the options you selected.");
 }
 
 void DrawQuickStartQuestSelect() {
@@ -320,7 +322,6 @@ void DrawQuickStartQuestOptions() {
 }
 
 void DrawQuickStartQuestReview() {
-    static std::string trackerInputRename;
     std::string reviewText = "";
     if (quickStartOptions.questID == QUICK_START_NONE ||
         (quickStartOptions.questID == SAVETYPE_RANDO && (quickStartOptions.rando.shuffleSet == QUICK_START_NONE ||
@@ -331,6 +332,23 @@ void DrawQuickStartQuestReview() {
     SelectMenuButtonIndex fileCheck = (SelectMenuButtonIndex)SaveManager_GetOpenFileSlot();
     if (fileCheck - 1 < 0) {
         ImGui::TextColored(TEXT_COLOR(COLOR_ORANGE), "No File slot available, please delete a File first.");
+        if (ImGui::BeginTable("EraseFileButtons", 3, ImGuiTableFlags_SizingStretchSame)) {
+            for (int i = 0; i <= FS_BTN_SELECT_FILE_3; i++) {
+                ImGui::TableNextColumn();
+                std::string buttonLabel = "Delete File ";
+                buttonLabel += std::to_string(i).c_str();
+                if (UIWidgets::Button(buttonLabel.c_str(), { .color = COLOR_RED })) {
+                    FileSelectState* fileSelectState = (FileSelectState*)gGameState;
+                    Sram_EraseSave(fileSelectState, &fileSelectState->sramCtx, i);
+                    Sram_SetFlashPagesDefault(&fileSelectState->sramCtx,
+                                              gFlashSaveStartPages[i * FLASH_SAVE_MAIN_MULTIPLIER],
+                                              gFlashSpecialSaveNumPages[i * FLASH_SAVE_MAIN_MULTIPLIER]);
+                    Sram_StartWriteToFlashDefault(&fileSelectState->sramCtx);
+                    fileSelectState->configMode = CM_ERASE_WAIT_FOR_FLASH_SAVE;
+                }
+            }
+            ImGui::EndTable();
+        }
         return;
     }
     CenterFullWidthSeparatorText("Here's what to expect", "Half");
@@ -377,7 +395,7 @@ void DrawQuickStartQuestReview() {
 }
 
 void DrawQuickStartSelectioncheck() {
-    static std::string trackerInputRename;
+    static std::string fileNameEntry;
     if (quickStartOptions.questID == QUICK_START_NONE ||
         (quickStartOptions.questID == SAVETYPE_RANDO && (quickStartOptions.rando.shuffleSet == QUICK_START_NONE ||
                                                          quickStartOptions.rando.logicOption == QUICK_START_NONE))) {
@@ -387,20 +405,20 @@ void DrawQuickStartSelectioncheck() {
     CenterFullWidthSeparatorText("Ready to start?", "Half");
     if (ImGui::BeginTable("NameEntry", 2, ImGuiTableFlags_SizingStretchSame)) {
         ImGui::TableNextColumn();
-        UIWidgets::InputString("##playername", &trackerInputRename,
+        UIWidgets::InputString("##playername", &fileNameEntry,
                                UIWidgets::InputOptions()
                                    .LabelPosition(UIWidgets::LabelPosition::None)
                                    .Color(BenGui::mBenMenu->GetMenuThemeColor())
                                    .PlaceholderText("Enter Your Name"));
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Let's Go!", { .size = ImVec2(ImGui::GetContentRegionAvail().x, 0),
-                                             .color = trackerInputRename.empty() ? COLOR_RED : COLOR_GREEN })) {
-            if (!trackerInputRename.empty()) {
+                                             .color = fileNameEntry.empty() ? COLOR_RED : COLOR_GREEN })) {
+            if (!fileNameEntry.empty()) {
                 if (quickStartOptions.questID == SAVETYPE_RANDO) {
                     SetRandoQuickStartOptions();
                 }
                 CVarSetInteger("gRando.Enabled", quickStartOptions.questID == SAVETYPE_VANILLA ? 0 : 1);
-                QuickStartQuestInit(trackerInputRename.c_str());
+                QuickStartQuestInit(fileNameEntry.c_str());
             }
         }
         ImGui::EndTable();
@@ -408,10 +426,10 @@ void DrawQuickStartSelectioncheck() {
 }
 
 void QuickStart::Draw() {
-    if (CVarGetInteger("gWindows.QuickStart", 0)) {
+    if (!IsVisible()) {
         return;
     }
-    
+
     auto* viewport = ImGui::GetMainViewport();
     auto windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
 

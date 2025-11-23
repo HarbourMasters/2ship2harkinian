@@ -109,10 +109,15 @@ CrowdControl* CrowdControl::Instance;
 #include <ship/window/gui/resource/FontFactory.h>
 #include "2s2h/Enhancements/Audio/AudioCollection.h"
 #include "BenGui/BenInputEditorWindow.h"
+#include "BenGui/QuickStart.h"
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
 AudioCollection* AudioCollection::Instance;
+
+namespace BenGui {
+extern std::shared_ptr<Ship::QuickStart> mQuickStartMenu;
+}
 
 extern "C" char** cameraStrings;
 bool prevAltAssets = false;
@@ -813,6 +818,10 @@ extern "C" void Graph_StartFrame() {
     OTRGlobals::Instance->context->GetWindow()->SetLastScancode(-1);
 
     switch (dwScancode) {
+        case KbScancode::LUS_KB_F1: {
+            BenGui::mQuickStartMenu->ToggleVisibility();
+            break;
+        }
 #if 0
         case KbScancode::LUS_KB_F5: {
             if (CVarGetInteger("gSaveStatesEnabled", 0) == 0) {
