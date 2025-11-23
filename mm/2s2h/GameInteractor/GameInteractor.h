@@ -262,6 +262,8 @@ typedef enum {
     VB_ENABLE_OBJECT_DEPENDENCY,
     VB_OBJ_MURE2_SET_CHILD_ROOM,
     VB_OBJ_MURE3_DROP_COLLECTIBLE,
+    VB_SET_PLAYER_CYLINDER_OC_FLAGS,
+    VB_GORON_RACE_RUBBERBANDING,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -729,6 +731,7 @@ void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 void GameInteractor_ExecuteOnInterfaceDrawStart();
 void GameInteractor_ExecuteAfterInterfaceClockDraw();
 void GameInteractor_ExecuteBeforeInterfaceClockDraw();
+void GameInteractor_ExecuteOnGameCompletion();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);

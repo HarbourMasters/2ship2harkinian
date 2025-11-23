@@ -387,7 +387,7 @@ typedef struct RandoSaveInfo {
     u32 randoSaveOptions[RO_MAX]; // Type here may change in the future
     char randoStartingItems[512];
     s8 foundDungeonKeys[9]; // Tracks the number of dungeon keys found, opposed to the number of keys in the inventory
-    u8 foundTriforcePieces;
+    u16 foundTriforcePieces;
 } RandoSaveInfo;
 
 // These are values added by 2S2H that we need to be persisted to the save file
@@ -397,7 +397,8 @@ typedef struct ShipSaveInfo {
     s32 pauseSaveEntrance;
     SaveType saveType;
     uint64_t fileCreatedAt;
-    uint64_t fileCompletedAt; // For now this is always Majora final blow, has the potential to be something else later on
+    uint64_t fileCompletedAt;
+    uint64_t filePlaytime;
     char commitHash[8];
     RandoSaveInfo rando;
 } ShipSaveInfo;
@@ -433,6 +434,7 @@ typedef struct DpadSaveContext {
 // See `ShipSaveInfo` for values on the SaveContext that are persisted.
 typedef struct ShipSaveContext {
     DpadSaveContext dpad;
+    uint64_t lastTimeLog;
 } ShipSaveContext;
 // #endregion
 
