@@ -61,6 +61,7 @@ std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
 std::shared_ptr<TimesplitsWindow> mTimesplitsWindow;
 std::shared_ptr<TimesplitsSettingsWindow> mTimesplitsSettingsWindow;
+std::shared_ptr<BenModalWindow> mModalWindow;
 std::shared_ptr<Ship::QuickStart> mQuickStartMenu;
 
 UIWidgets::Colors GetMenuThemeColor() {
@@ -174,6 +175,7 @@ void Destroy() {
     gui->RemoveAllGuiWindows();
     mBenMenuBar = nullptr;
     mBenMenu = nullptr;
+    mModalWindow = nullptr;
     mStatsWindow = nullptr;
     mConsoleWindow = nullptr;
     mGfxDebuggerWindow = nullptr;
@@ -194,4 +196,10 @@ void Destroy() {
     mItemTrackerSettingsWindow = nullptr;
     mQuickStartMenu = nullptr;
 }
+
+void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2,
+                   std::function<void()> button1callback, std::function<void()> button2callback) {
+    mModalWindow->RegisterPopup(title, message, button1, button2, button1callback, button2callback);
+}
+
 } // namespace BenGui

@@ -3,6 +3,7 @@
 #include "BenPort.h"
 #include "BenInputEditorWindow.h"
 #include <ship/window/gui/GuiElement.h>
+#include "BenModals.h"
 #include "Notification.h"
 #include <variant>
 #include <spdlog/fmt/fmt.h>
@@ -20,7 +21,10 @@ std::vector<ImVec2> windowTypeSizes = { {} };
 extern std::unordered_map<s16, const char*> warpPointSceneList;
 extern void Warp();
 
-namespace BenGui {}
+namespace BenGui {
+extern std::shared_ptr<BenModalWindow> mModalWindow;
+}
+std::vector<SearchWidget> extraSearchWidgets = {};
 
 namespace Ship {
 std::string disabledTempTooltip;
@@ -103,6 +107,10 @@ void Menu::UpdateWindowBackendObjects() {
     for (auto& backend : *availableWindowBackends) {
         availableWindowBackendsMap[backend] = windowBackendsMap.at(backend);
     }
+}
+
+bool Menu::IsMenuPopped() {
+    return popped;
 }
 
 UIWidgets::Colors Menu::GetMenuThemeColor() {
@@ -210,12 +218,33 @@ uint32_t Menu::DrawSearchResults(std::string& menuSearchText) {
             }
         }
     }
+    for (auto& entry : extraSearchWidgets) {
+        if (entry.info.type == WIDGET_SEARCH || entry.info.type == WIDGET_SEPARATOR ||
+            entry.info.type == WIDGET_SEPARATOR_TEXT || entry.info.isHidden || entry.info.hideInSearch) {
+            continue;
+        }
+        std::string widgetStr = entry.info.name + entry.info.options->tooltip + entry.extraTerms + entry.sidebarName;
+        std::transform(widgetStr.begin(), widgetStr.end(), widgetStr.begin(), ::tolower);
+        widgetStr.erase(std::remove(widgetStr.begin(), widgetStr.end(), ' '), widgetStr.end());
+        if (widgetStr.find(menuSearchText) != std::string::npos) {
+            MenuDrawItem(entry.info, 400, menuThemeIndex);
+            ImGui::PushStyleColor(ImGuiCol_Text, UIWidgets::ColorValues.at(UIWidgets::Colors::Gray));
+            std::string origin = fmt::format("  ({} -> {}, {})", entry.menuName, entry.sidebarName, entry.location);
+            ImGui::Text("%s", origin.c_str());
+            ImGui::PopStyleColor();
+            searchCount++;
+        }
+    }
     return searchCount;
 }
 
 void Menu::AddMenuEntry(std::string entryName, const char* entryCvar) {
     menuEntries.emplace(entryName, MainMenuEntry{ entryName, entryCvar });
     menuOrder.push_back(entryName);
+}
+
+void Menu::AddSearchWidget(SearchWidget widget) {
+    extraSearchWidgets.push_back(widget);
 }
 
 std::unordered_map<uint32_t, disabledInfo>& Menu::GetDisabledMap() {
@@ -599,21 +628,6 @@ void Menu::DrawElement() {
         headerHeight += style.ScrollbarSize;
         scrollbar = true;
     }
-    UIWidgets::ButtonOptions options = {};
-    options.size = UIWidgets::Sizes::Inline;
-    options.tooltip = "Close Menu (Esc)";
-    if (UIWidgets::Button(ICON_FA_TIMES_CIRCLE, options)) {
-        ToggleVisibility();
-
-        // Update gamepad navigation after close based on if other menus are still visible
-        auto mImGuiIo = &ImGui::GetIO();
-        if (CVarGetInteger(CVAR_IMGUI_CONTROLLER_NAV, 0) &&
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible()) {
-            mImGuiIo->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-        } else {
-            mImGuiIo->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
-        }
-    }
     ImGui::SameLine();
     ImGui::SetNextWindowSizeConstraints({ 0, headerHeight }, { headerWidth, headerHeight });
     ImVec2 headerSelSize = { menuSize.x - buttonSize.x * 3 - style.ItemSpacing.x * 3, headerHeight };
@@ -676,7 +690,26 @@ void Menu::DrawElement() {
         ImGui::PopStyleColor();
     }
     ImGui::EndChild();
-    ImGui::SameLine(menuSize.x - (buttonSize.x * 2) - style.ItemSpacing.x);
+    ImGui::SameLine(menuSize.x - (buttonSize.x * 3) - style.ItemSpacing.x * 3);
+    UIWidgets::ButtonOptions options = {};
+    options.color = UIWidgets::Colors::Red;
+    options.size = UIWidgets::Sizes::Inline;
+    options.tooltip = "Quit 2S2H";
+    if (UIWidgets::Button(ICON_FA_POWER_OFF, options)) {
+        BenGui::mModalWindow->RegisterPopup(
+            "Quit 2S2H", "Are you sure you want to quit 2S2H?", "Quit", "Cancel",
+            []() {
+                std::shared_ptr<Menu> menu =
+                    static_pointer_cast<Menu>(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenu());
+                if (!menu->IsMenuPopped()) {
+                    menu->ToggleVisibility();
+                }
+                Ship::Context::GetInstance()->GetWindow()->Close();
+            },
+            nullptr);
+    }
+    ImGui::PopStyleVar();
+    ImGui::SameLine();
     UIWidgets::ButtonOptions options2 = {};
     options2.color = UIWidgets::Colors::Red;
     options2.size = UIWidgets::Sizes::Inline;
@@ -696,16 +729,20 @@ void Menu::DrawElement() {
     }
     ImGui::SameLine();
     UIWidgets::ButtonOptions options3 = {};
-    options3.color = UIWidgets::Colors::Red;
     options3.size = UIWidgets::Sizes::Inline;
-    options3.tooltip = "Quit 2S2H";
-    if (UIWidgets::Button(ICON_FA_POWER_OFF, options3)) {
-        if (!popped) {
-            ToggleVisibility();
+    options3.tooltip = "Close Menu (Esc)";
+    if (UIWidgets::Button(ICON_FA_TIMES_CIRCLE, options3)) {
+        ToggleVisibility();
+
+        // Update gamepad navigation after close based on if other menus are still visible
+        auto mImGuiIo = &ImGui::GetIO();
+        if (CVarGetInteger(CVAR_IMGUI_CONTROLLER_NAV, 0) &&
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible()) {
+            mImGuiIo->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        } else {
+            mImGuiIo->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
         }
-        Ship::Context::GetInstance()->GetWindow()->Close();
     }
-    ImGui::PopStyleVar();
 
     pos.y += headerHeight + style.ItemSpacing.y;
     pos.x = centerX - menuSize.x / 2 + (style.ItemSpacing.x * (menuEntries.size() + 1));
