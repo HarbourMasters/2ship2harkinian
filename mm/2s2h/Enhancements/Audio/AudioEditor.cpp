@@ -14,6 +14,7 @@
 #include "2s2h/BenGui/BenGui.hpp"
 #include "AudioCollection.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/cvar_prefixes.h"
 #include <random>
 
 extern "C" Vec3f gZeroVec3f;
@@ -54,7 +55,6 @@ size_t AuthenticCountBySequenceType(SeqType type) {
     return AudioCollection::Instance->CountSequencesByType(type);
 }
 
-#define CVAR_AUDIO(var) CVAR_PREFIX_AUDIO "." var
 
 // Grabs the current BGM sequence ID and replays it
 // which will lookup the proper override, or reset back to vanilla
