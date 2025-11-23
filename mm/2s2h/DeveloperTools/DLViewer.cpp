@@ -381,93 +381,113 @@ void DrawColorEditor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a, const std::
 std::string GetCommandMetadata(Gfx* gfx, int cmd, size_t currentIndex, size_t totalInstructions) {
     std::string metadata;
 
-    if (cmd == G_SETTILE) {
-        metadata =
-            fmt::format("FMT:{} SIZ:{} LINE:{} TMEM:{} TILE:{} PAL:{}", _SHIFTR(gfx->words.w0, 21, 3),
-                        _SHIFTR(gfx->words.w0, 19, 2), _SHIFTR(gfx->words.w0, 9, 9), _SHIFTR(gfx->words.w0, 0, 9),
-                        _SHIFTR(gfx->words.w1, 24, 3), _SHIFTR(gfx->words.w1, 20, 4));
-    } else if (cmd == G_SETTIMG) {
-        metadata = fmt::format("FMT:{} SIZ:{} WIDTH:{}", _SHIFTR(gfx->words.w0, 21, 3), _SHIFTR(gfx->words.w0, 19, 2),
-                               _SHIFTR(gfx->words.w0, 0, 10));
-    } else if (cmd == G_SETTIMG_OTR_HASH) {
-        if (currentIndex + 1 < totalInstructions) {
-            gfx++;
-            uint64_t hash = ((uint64_t)gfx->words.w0 << 32) + (uint64_t)gfx->words.w1;
-            const char* fileName = ResourceGetNameByCrc(hash);
+    switch (cmd) {
+        case G_SETTILE:
+            metadata =
+                fmt::format("FMT:{} SIZ:{} LINE:{} TMEM:{} TILE:{} PAL:{}", _SHIFTR(gfx->words.w0, 21, 3),
+                            _SHIFTR(gfx->words.w0, 19, 2), _SHIFTR(gfx->words.w0, 9, 9), _SHIFTR(gfx->words.w0, 0, 9),
+                            _SHIFTR(gfx->words.w1, 24, 3), _SHIFTR(gfx->words.w1, 20, 4));
+            break;
+        case G_SETTIMG:
             metadata = fmt::format("FMT:{} SIZ:{} WIDTH:{}", _SHIFTR(gfx->words.w0, 21, 3),
                                    _SHIFTR(gfx->words.w0, 19, 2), _SHIFTR(gfx->words.w0, 0, 10));
-            gfx--;
-            if (fileName) {
-                metadata += fmt::format(" | {}", fileName);
+            break;
+        case G_SETTIMG_OTR_HASH: {
+            if (currentIndex + 1 < totalInstructions) {
+                gfx++;
+                uint64_t hash = ((uint64_t)gfx->words.w0 << 32) + (uint64_t)gfx->words.w1;
+                const char* fileName = ResourceGetNameByCrc(hash);
+                metadata = fmt::format("FMT:{} SIZ:{} WIDTH:{}", _SHIFTR(gfx->words.w0, 21, 3),
+                                       _SHIFTR(gfx->words.w0, 19, 2), _SHIFTR(gfx->words.w0, 0, 10));
+                gfx--;
+                if (fileName) {
+                    metadata += fmt::format(" | {}", fileName);
+                }
+            } else {
+                metadata = "FMT:? SIZ:? WIDTH:? (incomplete)";
             }
-        } else {
-            metadata = "FMT:? SIZ:? WIDTH:? (incomplete)";
+            break;
         }
-    } else if (cmd == G_SETTIMG_OTR_FILEPATH) {
-        if (currentIndex + 1 < totalInstructions) {
+        case G_SETTIMG_OTR_FILEPATH: {
+            if (currentIndex + 1 < totalInstructions) {
+                char* fileName = (char*)gfx->words.w1;
+                gfx++;
+                metadata = fmt::format("FMT:{} SIZ:{} WIDTH:{}", _SHIFTR(gfx->words.w0, 21, 3),
+                                       _SHIFTR(gfx->words.w0, 19, 2), _SHIFTR(gfx->words.w0, 0, 10));
+                gfx--;
+                if (fileName) {
+                    metadata += fmt::format(" | {}", fileName);
+                }
+            } else {
+                metadata = "FMT:? SIZ:? WIDTH:? (incomplete)";
+            }
+            break;
+        }
+        case G_VTX:
+            metadata = fmt::format("Num:{} Offset:{}", _SHIFTR(gfx->words.w0, 12, 8),
+                                   _SHIFTR(gfx->words.w0, 1, 7) - _SHIFTR(gfx->words.w0, 12, 8));
+            break;
+        case G_VTX_OTR_HASH: {
+            uint32_t w0 = gfx->words.w0; // Save original w0
+            if (currentIndex + 1 < totalInstructions) {
+                gfx++;
+                uint64_t hash = ((uint64_t)gfx->words.w0 << 32) + (uint64_t)gfx->words.w1;
+                const char* fileName = ResourceGetNameByCrc(hash);
+                metadata = fmt::format("Num:{} Offset:{}", _SHIFTR(w0, 12, 8), _SHIFTR(w0, 1, 7) - _SHIFTR(w0, 12, 8));
+                gfx--;
+                if (fileName) {
+                    metadata += fmt::format(" | {}", fileName);
+                }
+            } else {
+                metadata = fmt::format("Num:{} Offset:{} (incomplete)", _SHIFTR(w0, 12, 8),
+                                       _SHIFTR(w0, 1, 7) - _SHIFTR(w0, 12, 8));
+            }
+            break;
+        }
+        case G_VTX_OTR_FILEPATH: {
+            uint32_t w0 = gfx->words.w0; // Save original w0
+            if (currentIndex + 1 < totalInstructions) {
+                char* fileName = (char*)gfx->words.w1;
+                gfx++;
+                metadata = fmt::format("Num:{} Offset:{}", _SHIFTR(w0, 12, 8), _SHIFTR(w0, 1, 7) - _SHIFTR(w0, 12, 8));
+                gfx--;
+                if (fileName) {
+                    metadata += fmt::format(" | {}", fileName);
+                }
+            } else {
+                metadata = fmt::format("Num:{} Offset:{} (incomplete)", _SHIFTR(w0, 12, 8),
+                                       _SHIFTR(w0, 1, 7) - _SHIFTR(w0, 12, 8));
+            }
+            break;
+        }
+        case G_DL_OTR_HASH: {
+            if (currentIndex + 1 < totalInstructions) {
+                gfx++;
+                uint64_t hash = ((uint64_t)gfx->words.w0 << 32) + (uint64_t)gfx->words.w1;
+                const char* fileName = ResourceGetNameByCrc(hash);
+                gfx--;
+                if (fileName) {
+                    metadata = fileName;
+                }
+            } else {
+                metadata = "(incomplete)";
+            }
+            break;
+        }
+        case G_DL_OTR_FILEPATH: {
             char* fileName = (char*)gfx->words.w1;
-            gfx++;
-            metadata = fmt::format("FMT:{} SIZ:{} WIDTH:{}", _SHIFTR(gfx->words.w0, 21, 3),
-                                   _SHIFTR(gfx->words.w0, 19, 2), _SHIFTR(gfx->words.w0, 0, 10));
-            gfx--;
-            if (fileName) {
-                metadata += fmt::format(" | {}", fileName);
-            }
-        } else {
-            metadata = "FMT:? SIZ:? WIDTH:? (incomplete)";
-        }
-    } else if (cmd == G_VTX) {
-        metadata = fmt::format("Num:{} Offset:{}", _SHIFTR(gfx->words.w0, 12, 8),
-                               _SHIFTR(gfx->words.w0, 1, 7) - _SHIFTR(gfx->words.w0, 12, 8));
-    } else if (cmd == G_VTX_OTR_HASH) {
-        uint32_t w0 = gfx->words.w0; // Save original w0
-        if (currentIndex + 1 < totalInstructions) {
-            gfx++;
-            uint64_t hash = ((uint64_t)gfx->words.w0 << 32) + (uint64_t)gfx->words.w1;
-            const char* fileName = ResourceGetNameByCrc(hash);
-            metadata = fmt::format("Num:{} Offset:{}", _SHIFTR(w0, 12, 8), _SHIFTR(w0, 1, 7) - _SHIFTR(w0, 12, 8));
-            gfx--;
-            if (fileName) {
-                metadata += fmt::format(" | {}", fileName);
-            }
-        } else {
-            metadata = fmt::format("Num:{} Offset:{} (incomplete)", _SHIFTR(w0, 12, 8),
-                                   _SHIFTR(w0, 1, 7) - _SHIFTR(w0, 12, 8));
-        }
-    } else if (cmd == G_VTX_OTR_FILEPATH) {
-        uint32_t w0 = gfx->words.w0; // Save original w0
-        if (currentIndex + 1 < totalInstructions) {
-            char* fileName = (char*)gfx->words.w1;
-            gfx++;
-            metadata = fmt::format("Num:{} Offset:{}", _SHIFTR(w0, 12, 8), _SHIFTR(w0, 1, 7) - _SHIFTR(w0, 12, 8));
-            gfx--;
-            if (fileName) {
-                metadata += fmt::format(" | {}", fileName);
-            }
-        } else {
-            metadata = fmt::format("Num:{} Offset:{} (incomplete)", _SHIFTR(w0, 12, 8),
-                                   _SHIFTR(w0, 1, 7) - _SHIFTR(w0, 12, 8));
-        }
-    } else if (cmd == G_DL_OTR_HASH) {
-        if (currentIndex + 1 < totalInstructions) {
-            gfx++;
-            uint64_t hash = ((uint64_t)gfx->words.w0 << 32) + (uint64_t)gfx->words.w1;
-            const char* fileName = ResourceGetNameByCrc(hash);
-            gfx--;
             if (fileName) {
                 metadata = fileName;
             }
-        } else {
-            metadata = "(incomplete)";
+            break;
         }
-    } else if (cmd == G_DL_OTR_FILEPATH) {
-        char* fileName = (char*)gfx->words.w1;
-        if (fileName) {
-            metadata = fileName;
+        case G_SETGRAYSCALE: {
+            bool state = gfx->words.w1 != 0;
+            metadata = state ? "Enabled" : "Disabled";
+            break;
         }
-    } else if (cmd == G_SETGRAYSCALE) {
-        bool state = gfx->words.w1 != 0;
-        metadata = state ? "Enabled" : "Disabled";
+        default:
+            break;
     }
 
     return metadata;
