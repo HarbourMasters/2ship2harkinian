@@ -132,8 +132,7 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .connections = {
             CONNECTION(RR_DEKU_PALACE_INSIDE_LOWER, CAN_BE_DEKU),
-            // TODO: This soil patch can be watered with the Day 2 rain. Clock shuffle will need to require Day 2 or another water source.
-            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER, (CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER)) && HAS_ITEM(ITEM_MAGIC_BEANS)),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER, (CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER)) && CAN_USE_DAY2_RAIN_BEAN),
         },
     };
     Regions[RR_DEKU_SHRINE_ENTRANCE] = RandoRegion{ .name = "Entrance", .sceneId = SCENE_DANPEI,

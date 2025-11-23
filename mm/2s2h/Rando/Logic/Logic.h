@@ -210,6 +210,12 @@ void ValidateRegionTimeOwnership(RandoRegionId regionId, RandoCheckId checkId, u
 #define CAN_GROW_BEAN_PLANT        \
     (HAS_ITEM(ITEM_MAGIC_BEANS) && \
      (CAN_PLAY_SONG(STORMS) || (HAS_BOTTLE && (CAN_ACCESS(SPRING_WATER) || CAN_ACCESS(HOT_SPRING_WATER)))))
+// Bean patches that auto-water on Day 2 (Doggy Racetrack, Deku Palace Upper)
+// Rain only occurs Day 2 from 7:00 AM to 5:30 PM (not Night 2)
+// Requires Day 2 access OR manual watering capability
+#define CAN_USE_DAY2_RAIN_BEAN                                               \
+    (HAS_ITEM(ITEM_MAGIC_BEANS) && (CLOCK_DAY2() || CAN_PLAY_SONG(STORMS) || \
+                                    (HAS_BOTTLE && (CAN_ACCESS(SPRING_WATER) || CAN_ACCESS(HOT_SPRING_WATER)))))
 #define CAN_USE_MAGIC_ARROW(arrowType) (HAS_ITEM(ITEM_BOW) && HAS_ITEM(ITEM_ARROW_##arrowType) && HAS_MAGIC)
 #define CAN_LIGHT_TORCH_NEAR_ANOTHER (HAS_ITEM(ITEM_DEKU_STICK) || CAN_USE_MAGIC_ARROW(FIRE))
 #define KEY_COUNT(dungeon) (gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_SCENE_INDEX_##dungeon])
