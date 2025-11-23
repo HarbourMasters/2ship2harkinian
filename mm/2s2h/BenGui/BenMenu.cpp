@@ -144,6 +144,12 @@ static const std::vector<const char*> goronRaceDifficultyOptions = {
     "Skip",     // GORON_RACE_DIFFICULTY_SKIP
 };
 
+static const std::vector<const char*> timerDisplayOptions = {
+    "Off",          // TIMER_DISPLAY_NONE
+    "Real-Time",    // TIMER_DISPLAY_RTA
+    "In-Game Time", // TIMER_DISPLAY_IGT
+};
+
 static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
     { 0, "1x" }, { 1, "2x" }, { 2, "4x" }, { 3, "8x" }, { 4, "16x" }, { 10, "1 Hit KO" },
 };
@@ -589,10 +595,17 @@ void BenMenu::AddSettings() {
         .Options(ButtonOptions().Tooltip("Displays a test notification."));
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "In-Game Timer", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Toggle Display Overlay", WIDGET_WINDOW_BUTTON)
+    AddWidget(path, "Display", WIDGET_CVAR_COMBOBOX)
         .CVar("gWindows.DisplayOverlay")
         .WindowName("Display Overlay")
-        .Options(ButtonOptions().Tooltip("Toggles the Display Overlay window for In-game Timers."));
+        .Options(
+            ComboboxOptions()
+                .Tooltip(
+                    "How the timer should be displayed in the overlay.\n\n"
+                    "- Off: Do not display a timer\n"
+                    "- Real-Time: Display the time that has elapsed since creating the save file, regardless of play.\n"
+                    "- In-Game Time: Display the time spent playing the save file")
+                .ComboVec(&timerDisplayOptions));
     AddWidget(path, "Hide Window Background", WIDGET_CVAR_CHECKBOX)
         .CVar("gDisplayOverlay.Background")
         .Options(CheckboxOptions().Tooltip("Hides the background of the Display Overlay window."));
@@ -1412,6 +1425,10 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Restores the appearance of Woodfall mountain to not look poisoned "
                                            "when viewed from Termina Field after clearing Woodfall Temple\n\n"
                                            "Requires a scene reload to take effect."));
+    AddWidget(path, "Bonk Collision", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Restorations.BonkCollision")
+        .Options(
+            CheckboxOptions().Tooltip("Corrects rolls to allow bonking trees near the end of the roll, as in OoT."));
     AddWidget(path, "Simulated Input Lag", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_SIMULATED_INPUT_LAG)
         .Options(IntSliderOptions()
