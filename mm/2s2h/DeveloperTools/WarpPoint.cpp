@@ -108,11 +108,10 @@ void RegisterWarpPoint() {
 }
 
 void RenderWarpPointSection() {
-    bool skipToFileSelect = CVarGetInteger("gEnhancements.Cutscenes.SkipToFileSelect", 0);
+    bool skipToFileSelect = (bool)CVarGetInteger("gEnhancements.Cutscenes.SkipToFileSelect", 0);
     UIWidgets::CVarCheckbox(
         "Boot to Warp Point on Launch", WARP_POINT_CVAR "BootToWarpPoint",
-        UIWidgets::CheckboxOptions({ { .disabled = CVarGetInteger("gEnhancements.Cutscenes.SkipToFileSelect", 0),
-                                       .disabledTooltip = "Incompatible with Skip to File Select enhancement" } })
+        UIWidgets::CheckboxOptions({ { .disabled = skipToFileSelect, 0),
             .DefaultValue(true)
             .Color(THEME_COLOR)
             .Tooltip(
