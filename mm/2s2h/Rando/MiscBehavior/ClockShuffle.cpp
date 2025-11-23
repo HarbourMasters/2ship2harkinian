@@ -411,7 +411,7 @@ void ApplyTimeSkip(int nextHalfDay, EnTest4* enTest4) {
         gSaveContext.save.day--;
     } else {
         Interface_NewDay(gPlayState, gSaveContext.save.day);
-        Environment_AdjustLights(gPlayState, 0.0f, 0.0f, 0.0f, 0.0f);
+        Environment_NewDay(&gPlayState->envCtx);
     }
 
     enTest4->prevTime = time - CLOCK_TIME(0, 1);
@@ -647,6 +647,43 @@ void OnFileLoad() {
 
         // Set the time variable to our calculated value
         *timeVar = ownedTime;
+    });
+
+    // Hook scarecrow dance time skip to redirect to next owned half-day
+    COND_VB_SHOULD(VB_SCARECROW_DANCE_SET_TIME, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], {
+        *should = false; // Skip vanilla behavior
+
+        // Calculate next owned half-day after current
+        int currentHalfDay = GetCurrentHalfDayIndex();
+        u8 ownedHalfDaysMask = ClockItems::GetAllOwnedHalfDaysMask();
+        int nextHalfDay = ClockItems::FindNextOwnedHalfDayAfter(currentHalfDay, ownedHalfDaysMask);
+
+        if (nextHalfDay == ClockItems::TERMINAL_STATE) {
+            // Jump to terminal time
+            gSaveContext.save.day = 3;
+            gSaveContext.save.time = GetConfiguredTerminalTime();
+            gSaveContext.respawnFlag = -8; // No daytelop for terminal
+        } else {
+            // Get target half-day configuration
+            const HalfDayTimeConfig* config = GetHalfDayTimeConfig(nextHalfDay);
+            bool isNightHalf = (nextHalfDay % 2 == 1);
+            s32 targetDay = config->dayNumber;
+            u16 targetTime = config->startTime;
+
+            if (isNightHalf) {
+                // Advancing to night - use respawnFlag -8 (no daytelop)
+                gSaveContext.save.day = targetDay;
+                gSaveContext.save.time = targetTime;
+                gSaveContext.respawnFlag = -8;
+            } else {
+                // Advancing to dawn - use respawnFlag -4 (triggers daytelop)
+                // CRITICAL: Subtract 1 from day because daytelop will increment it
+                gSaveContext.save.day = targetDay - 1;
+                gSaveContext.save.time = targetTime;
+                gSaveContext.respawnFlag = -4;
+                SET_EVENTINF(EVENTINF_TRIGGER_DAYTELOP);
+            }
+        }
     });
 }
 
