@@ -15,6 +15,7 @@ DEFINE_HOOK(BeforeMoonCrashSaveReset, ())
 DEFINE_HOOK(OnInterfaceDrawStart, ())
 DEFINE_HOOK(AfterInterfaceClockDraw, ())
 DEFINE_HOOK(BeforeInterfaceClockDraw, ())
+DEFINE_HOOK(OnGameCompletion, ())
 
 DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum))
 DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum))
@@ -52,3 +53,9 @@ DEFINE_HOOK(OnItemGive, (u8 item))
 DEFINE_HOOK(OnBottleContentsUpdate, (u8 item))
 
 DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, va_list originalArgs))
+
+// Audio
+DEFINE_HOOK(OnSeqPlayerInit, (s32 playerIdx, s32 seqId));
+
+// Rando
+DEFINE_HOOK(OnRandoSeedGeneration, ());

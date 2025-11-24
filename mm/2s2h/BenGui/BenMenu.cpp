@@ -86,6 +86,12 @@ static const std::vector<const char*> debugSaveOptions = {
     "Empty save",         // DEBUG_SAVE_INFO_NONE
 };
 
+#ifdef _DEBUG
+DebugLogOption defaultLogLevel = DEBUG_LOG_TRACE;
+#else
+DebugLogOption defaultLogLevel = DEBUG_LOG_INFO;
+#endif
+
 static const std::vector<const char*> logLevels = {
     "Trace",    // DEBUG_LOG_TRACE
     "Debug",    // DEBUG_LOG_DEBUG
@@ -130,6 +136,18 @@ static const std::vector<const char*> maskOfTruthGrottoOptions = {
     "Wear Mask of Truth", // HIDDEN_GROTTOS_VISIBLITY_WEAR_MASK_OF_TRUTH
     "Have Mask of Truth", // HIDDEN_GROTTOS_VISIBLITY_HAVE_MASK_OF_TRUTH
     "Always",             // HIDDEN_GROTTOS_VISIBLITY_ALWAYS
+};
+
+static const std::vector<const char*> goronRaceDifficultyOptions = {
+    "Vanilla",  // GORON_RACE_DIFFICULTY_VANILLA
+    "Balanced", // GORON_RACE_DIFFICULTY_BALANCED
+    "Skip",     // GORON_RACE_DIFFICULTY_SKIP
+};
+
+static const std::vector<const char*> timerDisplayOptions = {
+    "Off",          // TIMER_DISPLAY_NONE
+    "Real-Time",    // TIMER_DISPLAY_RTA
+    "In-Game Time", // TIMER_DISPLAY_IGT
 };
 
 static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
@@ -577,10 +595,17 @@ void BenMenu::AddSettings() {
         .Options(ButtonOptions().Tooltip("Displays a test notification."));
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "In-Game Timer", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Toggle Display Overlay", WIDGET_WINDOW_BUTTON)
+    AddWidget(path, "Display", WIDGET_CVAR_COMBOBOX)
         .CVar("gWindows.DisplayOverlay")
         .WindowName("Display Overlay")
-        .Options(ButtonOptions().Tooltip("Toggles the Display Overlay window for In-game Timers."));
+        .Options(
+            ComboboxOptions()
+                .Tooltip(
+                    "How the timer should be displayed in the overlay.\n\n"
+                    "- Off: Do not display a timer\n"
+                    "- Real-Time: Display the time that has elapsed since creating the save file, regardless of play.\n"
+                    "- In-Game Time: Display the time spent playing the save file")
+                .ComboVec(&timerDisplayOptions));
     AddWidget(path, "Hide Window Background", WIDGET_CVAR_CHECKBOX)
         .CVar("gDisplayOverlay.Background")
         .Options(CheckboxOptions().Tooltip("Hides the background of the Display Overlay window."));
@@ -970,17 +995,6 @@ void BenMenu::AddEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
-    AddWidget(path, "SFX", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Mute Low HP Alarm", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.LowHpAlarm")
-        .Options(CheckboxOptions().Tooltip("Mutes the beeping alarm when you are critically low on health."));
-    AddWidget(path, "Mute Carpenter Sounds", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.MuteCarpenterSfx")
-        .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
-                                           "from the tower in South Clock Town."));
-    AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.ChildGoronCry")
-        .Options(CheckboxOptions().Tooltip("Mutes the crying Goron child inside Goron Shrine."));
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
@@ -1411,6 +1425,10 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Restores the appearance of Woodfall mountain to not look poisoned "
                                            "when viewed from Termina Field after clearing Woodfall Temple\n\n"
                                            "Requires a scene reload to take effect."));
+    AddWidget(path, "Bonk Collision", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Restorations.BonkCollision")
+        .Options(
+            CheckboxOptions().Tooltip("Corrects rolls to allow bonking trees near the end of the roll, as in OoT."));
     AddWidget(path, "Simulated Input Lag", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_SIMULATED_INPUT_LAG)
         .Options(IntSliderOptions()
@@ -1545,6 +1563,16 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Minigames.MarkShootingGalleryOctoroks")
         .Options(CheckboxOptions().Tooltip("Places markers on the Town Shooting Gallery Octoroks, indicating whether "
                                            "they should be hit."));
+    AddWidget(path, "Goron Race", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.GoronRace")
+        .Options(ComboboxOptions()
+                     .Tooltip("Set CPU behavior for the Goron Race:\n"
+                              "- Vanilla: Gorons ahead of Link slow down, and Gorons behind speed up.\n"
+                              "- Balanced: Gorons ahead of Link slow down, but Gorons behind do not speed up.\n"
+                              "- Skip: Instantly win the race.\n")
+                     .DefaultIndex(GoronRaceDifficultyOptions::GORON_RACE_DIFFICULTY_VANILLA)
+                     .ComboVec(&goronRaceDifficultyOptions));
+
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
@@ -1690,10 +1718,11 @@ void BenMenu::AddDevTools() {
         .Options(ComboboxOptions()
                      .Tooltip("The log level determines which messages are printed to the "
                               "console. This does not affect the log file output.")
-                     .ComboVec(&logLevels))
+                     .ComboVec(&logLevels)
+                     .DefaultIndex(defaultLogLevel))
         .Callback([](WidgetInfo& info) {
             Ship::Context::GetInstance()->GetLogger()->set_level(
-                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", defaultLogLevel));
         })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Frame Advance", WIDGET_CHECKBOX)
@@ -1915,6 +1944,11 @@ void BenMenu::InitElement() {
                return !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0);
            },
             "Vertical Resolution Toggle is Off" } },
+        { DISABLE_FOR_LINKS_VOICE_PITCH_MULTIPLIER_OFF,
+          { [](disabledInfo& info) -> bool {
+               return !CVarGetInteger("gAudioEditor.LinkVoiceFreqMultiplier.Enable", 0);
+           },
+            "Enable Link's Voice Pitch Multiplier is Disabled" } },
     };
 }
 

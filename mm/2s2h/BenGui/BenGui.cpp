@@ -20,8 +20,8 @@
 
 #include "include/global.h"
 
-#include "Enhancements/Trackers/ItemTracker.h"
-#include "Enhancements/Trackers/ItemTrackerSettings.h"
+#include "Enhancements/Trackers/ItemTracker/ItemTracker.h"
+#include "Enhancements/Trackers/ItemTracker/ItemTrackerSettings.h"
 #include "Enhancements/Trackers/DisplayOverlay.h"
 #include "Enhancements/Trackers//TimeSplits/Timesplits.h"
 #include "Enhancements/Trackers/TimeSplits/TimesplitsSettings.h"
@@ -60,6 +60,7 @@ std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
 std::shared_ptr<TimesplitsWindow> mTimesplitsWindow;
 std::shared_ptr<TimesplitsSettingsWindow> mTimesplitsSettingsWindow;
+std::shared_ptr<BenModalWindow> mModalWindow;
 
 UIWidgets::Colors GetMenuThemeColor() {
     return mBenMenu->GetMenuThemeColor();
@@ -162,6 +163,10 @@ void SetupGuiElements() {
     mRandoCheckTrackerSettingsWindow = std::make_shared<Rando::CheckTracker::SettingsWindow>(
         "gWindows.CheckTrackerSettings", "Check Tracker Settings");
     gui->AddGuiWindow(mRandoCheckTrackerSettingsWindow);
+
+    mModalWindow = std::make_shared<BenModalWindow>("gWindows.ModalWindow", "Modal Window");
+    gui->AddGuiWindow(mModalWindow);
+    mModalWindow->Show();
 }
 
 void Destroy() {
@@ -170,6 +175,7 @@ void Destroy() {
     gui->RemoveAllGuiWindows();
     mBenMenuBar = nullptr;
     mBenMenu = nullptr;
+    mModalWindow = nullptr;
     mStatsWindow = nullptr;
     mConsoleWindow = nullptr;
     mGfxDebuggerWindow = nullptr;
@@ -189,4 +195,10 @@ void Destroy() {
     mItemTrackerWindow = nullptr;
     mItemTrackerSettingsWindow = nullptr;
 }
+
+void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2,
+                   std::function<void()> button1callback, std::function<void()> button2callback) {
+    mModalWindow->RegisterPopup(title, message, button1, button2, button1callback, button2callback);
+}
+
 } // namespace BenGui
