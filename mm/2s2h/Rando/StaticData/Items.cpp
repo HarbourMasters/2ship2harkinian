@@ -361,6 +361,16 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return (const char*)gItemIconTingleMapTex;
         case RI_TRIFORCE_PIECE:
             return (const char*)gTriforcePieceTex;
+        case RI_OCARINA_BUTTON_A:
+            return (const char*)gOcarinaATex;
+        case RI_OCARINA_BUTTON_C_DOWN:
+            return (const char*)gOcarinaCDownTex;
+        case RI_OCARINA_BUTTON_C_LEFT:
+            return (const char*)gOcarinaCLeftTex;
+        case RI_OCARINA_BUTTON_C_RIGHT:
+            return (const char*)gOcarinaCRightTex;
+        case RI_OCARINA_BUTTON_C_UP:
+            return (const char*)gOcarinaCUpTex;
         default:
             break;
     }

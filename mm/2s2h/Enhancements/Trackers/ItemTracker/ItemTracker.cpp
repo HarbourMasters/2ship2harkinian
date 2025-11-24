@@ -34,7 +34,7 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
 
     if (isRandoItem) {
         TrackerImageObject randoImageObject;
-        randoImageObject.textureColor = ImVec4(1, 1, 1, 1);
+        randoImageObject.textureColor = Ship_GetRandoItemColorTint(itemId);
 
         switch (itemId) {
             case RI_FROG_BLUE:
@@ -106,6 +106,13 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
                 break;
             case RI_TRIFORCE_PIECE:
                 itemObtained = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces > 0;
+                break;
+            case RI_OCARINA_BUTTON_A:
+            case RI_OCARINA_BUTTON_C_DOWN:
+            case RI_OCARINA_BUTTON_C_LEFT:
+            case RI_OCARINA_BUTTON_C_RIGHT:
+            case RI_OCARINA_BUTTON_C_UP:
+                itemObtained = Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_A + (itemId - RI_OCARINA_BUTTON_A));
                 break;
             default:
                 break;
@@ -431,6 +438,7 @@ void ItemTrackerWindow::Draw() {
     uint32_t windowIndex = TRACKER_MAIN;
     for (auto* window : itemTrackerWindows) {
         if (window->empty()) {
+            windowIndex++;
             continue;
         }
         bool singleWindowOpen = false;
