@@ -53,6 +53,16 @@ extern std::shared_ptr<Ship::QuickStart> mQuickStartMenu;
 using namespace BenGui;
 namespace Ship {
 
+static int LimitFileNameLength(ImGuiInputTextCallbackData* data) {
+    const int maxChars = 8;
+    if (data->BufTextLen > maxChars) {
+        data->Buf[maxChars] = '\0';
+        data->BufDirty = true;
+        data->CursorPos = maxChars;
+    }
+    return 0;
+}
+
 std::vector<uint8_t> ConvertNameSet(const char* input) {
     std::vector<uint8_t> result;
     if (!input) {
@@ -157,9 +167,8 @@ void SetRandoQuickStartOptions() {
     CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_OWL_STATUES].cvar, 1);
     CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_SHOPS].cvar, 1);
     CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_TINGLE_SHOPS].cvar, 1);
-    CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_COWS].cvar, 1);
     CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_GOLD_SKULLTULAS].cvar, 1);
-    CVarSetInteger(Rando::StaticData::Options[RO_MINIMUM_STRAY_FAIRIES].cvar, 1);
+    CVarSetInteger(Rando::StaticData::Options[RO_MINIMUM_STRAY_FAIRIES].cvar, 15);
     CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_BOSS_REMAINS].cvar, 1);
 
     if (quickStartOptions.rando.shuffleSet == QUICK_START_RANDO_ALL) {
@@ -168,7 +177,6 @@ void SetRandoQuickStartOptions() {
         CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_BARREL_DROPS].cvar, 1);
         CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_SNOWBALL_DROPS].cvar, 1);
         CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_GRASS_DROPS].cvar, 1);
-        CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_FROGS].cvar, 1);
         CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_FREESTANDING_ITEMS].cvar, 1);
         CVarSetInteger(Rando::StaticData::Options[RO_SHUFFLE_BOSS_SOULS].cvar, 1);
     }
@@ -375,8 +383,7 @@ void DrawQuickStartQuestReview() {
                               "- Pots, Crates, Barrels, & Grass\n"
                               "- Snowballs\n"
                               "- Freestanding Items\n"
-                              "- Boss Souls\n"
-                              "- Frogs";
+                              "- Boss Souls";
             }
             if (ImGui::BeginChild("SeedDetails")) {
                 ImGui::Text(reviewText.c_str());
@@ -396,7 +403,7 @@ void DrawQuickStartQuestReview() {
 }
 
 void DrawQuickStartSelectioncheck() {
-    static std::string fileNameEntry;
+    static char fileNameBuf[9];
     if (quickStartOptions.questID == QUICK_START_NONE ||
         (quickStartOptions.questID == SAVETYPE_RANDO && (quickStartOptions.rando.shuffleSet == QUICK_START_NONE ||
                                                          quickStartOptions.rando.logicOption == QUICK_START_NONE))) {
@@ -406,20 +413,19 @@ void DrawQuickStartSelectioncheck() {
     CenterFullWidthSeparatorText("Ready to start?", "Half");
     if (ImGui::BeginTable("NameEntry", 2, ImGuiTableFlags_SizingStretchSame)) {
         ImGui::TableNextColumn();
-        UIWidgets::InputString("##playername", &fileNameEntry,
-                               UIWidgets::InputOptions()
-                                   .LabelPosition(UIWidgets::LabelPosition::None)
-                                   .Color(BenGui::mBenMenu->GetMenuThemeColor())
-                                   .PlaceholderText("Enter Your Name"));
+        UIWidgets::PushStyleInput(BenGui::mBenMenu->GetMenuThemeColor());
+        ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+        ImGui::InputTextWithHint("##name", "Enter your Name", fileNameBuf, sizeof(fileNameBuf), ImGuiInputTextFlags_CallbackEdit, LimitFileNameLength);
+        UIWidgets::PopStyleInput();
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Let's Go!", { .size = ImVec2(ImGui::GetContentRegionAvail().x, 0),
-                                             .color = fileNameEntry.empty() ? COLOR_RED : COLOR_GREEN })) {
-            if (!fileNameEntry.empty()) {
+                                             .color = strlen(fileNameBuf) > 0 ? COLOR_RED : COLOR_GREEN })) {
+            if (strlen(fileNameBuf) > 0) {
                 if (quickStartOptions.questID == SAVETYPE_RANDO) {
                     SetRandoQuickStartOptions();
                 }
                 CVarSetInteger("gRando.Enabled", quickStartOptions.questID == SAVETYPE_VANILLA ? 0 : 1);
-                QuickStartQuestInit(fileNameEntry.c_str());
+                QuickStartQuestInit(fileNameBuf);
             }
         }
         ImGui::EndTable();
