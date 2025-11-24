@@ -7,10 +7,15 @@ extern "C" {
 #include <functions.h>
 }
 
+#define CVAR_REMEMBER_SAVE_LOCATION_NAME "gEnhancements.Saving.RememberSaveLocation"
+#define CVAR_REMEMBER_SAVE_LOCATION CVarGetInteger(CVAR_REMEMBER_SAVE_LOCATION_NAME, 0)
+
 static uint32_t autosaveInterval = 0;
 static uint32_t iconTimer = 0;
 static uint64_t currentTimestamp = 0;
 static uint64_t lastSaveTimestamp = GetUnixTimestamp();
+static uint32_t lastEntrance = -1;
+static uint32_t entranceToSave = -1;
 
 static HOOK_ID autosaveGameStateUpdateHookId = 0;
 static HOOK_ID autosaveGameStateDrawFinishHookId = 0;
@@ -19,12 +24,12 @@ static HOOK_ID gameplayStartHookId = 0;
 
 // Used for saving through Autosaves and Pause Menu saves.
 extern "C" int SavingEnhancements_GetSaveEntrance() {
-    if (CVarGetInteger("gEnhancements.Saving.RememberSaveLocation", 0)) {
+    if (CVAR_REMEMBER_SAVE_LOCATION) {
         // Maintain respawn information, used for grottos
         for (int i = 0; i < RESPAWN_MODE_MAX; i++) {
             gSaveContext.save.shipSaveInfo.respawn[i] = gSaveContext.respawn[i];
         }
-        return gSaveContext.save.entrance;
+        return entranceToSave;
     } else {
         switch (gPlayState->sceneId) {
             // Woodfall Temple + Odolwa
@@ -229,11 +234,25 @@ void RegisterSavingEnhancements() {
         }
     });
 
+    COND_VB_SHOULD(VB_PLAY_TRANSITION_CS, CVAR_REMEMBER_SAVE_LOCATION, {
+        /*
+         * Update the entrance to save, unless we're leaving a grotto. Grottos exit to entrance 0 of the destination
+         * scene and adjust the position manually. In effect, there is no real entrance to target for loading purposes,
+         * so we just load into the last grotto instead under those circumstances.
+         */
+        if (lastEntrance != -1 && !(Entrance_GetSceneIdAbsolute(gSaveContext.save.entrance) != SCENE_KAKUSIANA &&
+                                    Entrance_GetSceneIdAbsolute(lastEntrance) == SCENE_KAKUSIANA)) {
+            entranceToSave = gSaveContext.save.entrance;
+        }
+        lastEntrance = gSaveContext.save.entrance;
+    });
+
     COND_HOOK(OnSaveLoad, true, [](s16 fileNum) {
         if (gSaveContext.save.shipSaveInfo.fileCreatedAt == 0) {
             gSaveContext.save.shipSaveInfo.fileCreatedAt = GetUnixTimestamp();
         }
         gSaveContext.shipSaveContext.lastTimeLog = GetUnixTimestamp();
+        lastEntrance = entranceToSave = gSaveContext.save.shipSaveInfo.pauseSaveEntrance;
     });
 
     // Owl statue prompt
