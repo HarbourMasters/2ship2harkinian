@@ -177,7 +177,8 @@ void SetRandoQuickStartOptions() {
 }
 
 void QuickStartQuestInit(const char* fileNameEntry) {
-    std::vector<uint8_t> playerName = ConvertNameSet(fileNameEntry);
+    static std::string cleanFileName = Ship_RemoveSpecialCharacters(fileNameEntry);
+    std::vector<uint8_t> playerName = ConvertNameSet(cleanFileName.c_str());
     FileSelectState* fileSelect = (FileSelectState*)gGameState;
     SramContext* sramCtx = &fileSelect->sramCtx;
 
@@ -307,10 +308,10 @@ void DrawQuickStartQuestOptions() {
                 }
                 ImGui::TableNextColumn();
                 if (UIWidgets::Button("No Logic",
-                                      { .color = quickStartOptions.rando.logicOption == QUICK_START_RANDO_NOLOGIC
+                                      { .color = quickStartOptions.rando.logicOption == QUICK_START_RANDO_NO_LOGIC
                                                      ? COLOR_GREEN
                                                      : COLOR_GREY })) {
-                    quickStartOptions.rando.logicOption = QUICK_START_RANDO_NOLOGIC;
+                    quickStartOptions.rando.logicOption = QUICK_START_RANDO_NO_LOGIC;
                 }
                 ImGui::EndTable();
             }

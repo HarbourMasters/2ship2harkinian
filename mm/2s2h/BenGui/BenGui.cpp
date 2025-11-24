@@ -165,7 +165,7 @@ void SetupGuiElements() {
         "gWindows.CheckTrackerSettings", "Check Tracker Settings");
     gui->AddGuiWindow(mRandoCheckTrackerSettingsWindow);
 
-    mQuickStartMenu = std::make_shared<Ship::QuickStart>("gWindows.QuickStart.", "QuickStart Menu");
+    mQuickStartMenu = std::make_shared<Ship::QuickStart>("gWindows.QuickStart", "QuickStart Menu");
     gui->AddGuiWindow(mQuickStartMenu);
 }
 

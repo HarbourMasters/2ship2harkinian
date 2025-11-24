@@ -11,7 +11,7 @@ typedef enum {
     QUICK_START_RANDO_BASE,
     QUICK_START_RANDO_ALL,
     QUICK_START_RANDO_GLITCHLESS,
-    QUICK_START_RANDO_NOLOGIC,
+    QUICK_START_RANDO_NO_LOGIC,
 } QuickStartSettings;
 
 typedef struct {
