@@ -415,7 +415,8 @@ void DrawQuickStartSelectioncheck() {
         ImGui::TableNextColumn();
         UIWidgets::PushStyleInput(BenGui::mBenMenu->GetMenuThemeColor());
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-        ImGui::InputTextWithHint("##name", "Enter your Name", fileNameBuf, sizeof(fileNameBuf), ImGuiInputTextFlags_CallbackEdit, LimitFileNameLength);
+        ImGui::InputTextWithHint("##name", "Enter your Name", fileNameBuf, sizeof(fileNameBuf),
+                                 ImGuiInputTextFlags_CallbackEdit, LimitFileNameLength);
         UIWidgets::PopStyleInput();
         ImGui::TableNextColumn();
         if (UIWidgets::Button("Let's Go!", { .size = ImVec2(ImGui::GetContentRegionAvail().x, 0),
