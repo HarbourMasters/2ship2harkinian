@@ -1351,6 +1351,7 @@ void DrawDungeonItemTab() {
             SetDungeonItems(DUNGEON_BOSS_KEY, i);
         }
         if (ImGui::BeginPopup("strayFairies")) {
+            UIWidgets::PushStyleSlider(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
             s32 minStray = 0;
             s32 maxStray = 15;
             int currentStrays = gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId];
@@ -1360,9 +1361,11 @@ void DrawDungeonItemTab() {
                 gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] = currentStrays;
             }
             ImGui::PopItemWidth();
+            UIWidgets::PopStyleSlider();
             ImGui::EndPopup();
         }
         if (ImGui::BeginPopup("smallKeys")) {
+            UIWidgets::PushStyleSlider(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
             s32 minKey = -1;
             s32 maxKey = smallKeyCounts[dungeonId];
             int currentKeys = gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId];
@@ -1372,6 +1375,7 @@ void DrawDungeonItemTab() {
                 gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId] = currentKeys;
             }
             ImGui::PopItemWidth();
+            UIWidgets::PopStyleSlider();
             ImGui::EndPopup();
         }
         ImGui::EndChild();
@@ -1420,26 +1424,22 @@ void ClearAllEquippedItems() {
     for (size_t form = 0; form < ARRAY_COUNT(buttonItems); form++) {
         for (size_t slot = 0; slot < ARRAY_COUNT(buttonItems[form]); slot++) {
             if (slot == EQUIP_SLOT_B) {
+                // Goron/Deku/Zora/FD expect their innate B actions; leave untouched.
                 // Form 0 is shared by FD and Human via CUR_FORM
-                // FD uses Deity Sword (not in B slot), Human uses regular swords
-                if (form == 0 && GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY) {
-                    // FD expects innate B action; leave untouched
-                    continue;
-                }
-                if (form != 0) {
-                    // Goron/Deku/Zora expect their innate B actions; leave untouched.
+                if (form != 0 || GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY) {
                     continue;
                 }
 
                 int swordValue = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
                 if (swordValue == EQUIP_VALUE_SWORD_NONE) {
-                    swordValue = EQUIP_VALUE_SWORD_KOKIRI;
+                    buttonItems[form][slot] = ITEM_NONE;
+                } else {
+                    buttonItems[form][slot] = ITEM_SWORD_KOKIRI + swordValue - EQUIP_VALUE_SWORD_KOKIRI;
                 }
-
-                buttonItems[form][slot] = ITEM_SWORD_KOKIRI + swordValue - EQUIP_VALUE_SWORD_KOKIRI;
                 continue;
             }
 
+            // B slot stores item directly (sword); cButtonSlots only maps C-buttons to inventory slots
             buttonItems[form][slot] = ITEM_NONE;
             cButtonSlots[form][slot] = SLOT_NONE;
         }
