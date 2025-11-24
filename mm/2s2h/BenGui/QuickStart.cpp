@@ -288,7 +288,7 @@ void DrawQuickStartQuestOptions() {
                     quickStartOptions.rando.shuffleSet = QUICK_START_RANDO_BASE;
                 }
                 ImGui::TableNextColumn();
-                if (UIWidgets::Button("Shuffle All Options",
+                if (UIWidgets::Button("Shuffle Advanced Options",
                                       { .color = quickStartOptions.rando.shuffleSet == QUICK_START_RANDO_ALL
                                                      ? COLOR_GREEN
                                                      : COLOR_GREY })) {
