@@ -161,9 +161,8 @@ void EnSth_Init(Actor* thisx, PlayState* play) {
             break;
 
         case STH_TYPE_MOON_LOOKING: // South Clock Town
-            if (GameInteractor_Should(
-                    VB_HAVE_ALL_SKULLTULA_TOKENS,
-                    (gSaveContext.save.saveInfo.skullTokenCount & 0xFFFF) >= SPIDER_HOUSE_TOKENS_REQUIRED)) {
+            if (GameInteractor_Should(VB_HAVE_ALL_SKULLTULA_TOKENS, (gSaveContext.save.saveInfo.skullTokenCount &
+                                                                     0xFFFF) >= SPIDER_HOUSE_TOKENS_REQUIRED)) {
                 Actor_Kill(&this->actor);
                 return;
             }
