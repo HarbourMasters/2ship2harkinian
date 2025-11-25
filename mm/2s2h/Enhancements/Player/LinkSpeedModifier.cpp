@@ -74,9 +74,11 @@ void RegisterLinkSpeedModifier() {
 
             if (CHECK_BTN_ALL(input->press.button, BTN_CUSTOM_MODIFIER1)) {
                 speedToggle1 = !speedToggle1;
+                speedToggle2 = false;
             }
             if (CHECK_BTN_ALL(input->press.button, BTN_CUSTOM_MODIFIER2)) {
                 speedToggle2 = !speedToggle2;
+                speedToggle1 = false;
             }
         }
     });
