@@ -13161,8 +13161,6 @@ void Player_Update(Actor* thisx, PlayState* play) {
 
     GameInteractor_ExecuteOnPassPlayerInputs(&input);
 
-    GameInteractor_Should(VB_SPEED_MODIFIER_TOGGLE, true);
-
     Player_UpdateCommon(this, play, &input);
 skipUpdate:
     play->actorCtx.isOverrideInputOn = false;
