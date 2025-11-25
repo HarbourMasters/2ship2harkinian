@@ -7,7 +7,6 @@
 extern "C" {
 #include "variables.h"
 #include "functions.h"
-#include "overlays/actors/ovl_En_Sth/z_en_sth.h"
 }
 
 void ApplySwampSpiderHouseHint(u16* textId, bool* loadFromMessageTable) {

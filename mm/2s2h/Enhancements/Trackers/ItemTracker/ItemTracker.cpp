@@ -339,6 +339,7 @@ std::string GetItemCounts(int16_t itemId, bool isRandoItem) {
             case ITEM_STONE_TOWER_KEY_SMALL:
                 dungeonIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4;
                 countStr = DUNGEON_KEY_COUNT(dungeonIndex) < 0 ? "0" : std::to_string(DUNGEON_KEY_COUNT(dungeonIndex));
+                break;
             default:
                 break;
         }
