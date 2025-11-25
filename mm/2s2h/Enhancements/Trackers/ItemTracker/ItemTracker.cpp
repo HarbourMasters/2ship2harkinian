@@ -5,6 +5,7 @@
 #include "Rando/Rando.h"
 
 #include "2s2h/ShipUtils.h"
+#include <spdlog/fmt/fmt.h>
 
 extern "C" {
 #include "z64save.h"
@@ -296,7 +297,7 @@ std::string GetItemCounts(int16_t itemId, bool isRandoItem) {
     if (isRandoItem) {
         if (itemId == RI_TRIFORCE_PIECE) {
             int16_t maxPieces = gSaveContext.save.shipSaveInfo.rando.randoSaveOptions[RO_TRIFORCE_PIECES_REQUIRED];
-            countStr = std::format(FORMAT_COUNT, gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces,
+            countStr = fmt::format(FORMAT_COUNT, gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces,
                                    maxPieces == 1000 ? "1k" : std::to_string(maxPieces));
         }
     } else {
@@ -319,7 +320,7 @@ std::string GetItemCounts(int16_t itemId, bool isRandoItem) {
                 break;
             case ITEM_SKULL_TOKEN_SWAMP:
             case ITEM_SKULL_TOKEN_OCEAN:
-                countStr = std::format(
+                countStr = fmt::format(
                     FORMAT_COUNT,
                     Inventory_GetSkullTokenCount(itemId == ITEM_SKULL_TOKEN_SWAMP ? SCENE_KINSTA1 : SCENE_KINDAN2),
                     IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_SKULLTULA_TOKENS] : SPIDER_HOUSE_TOKENS_REQUIRED);
@@ -328,7 +329,7 @@ std::string GetItemCounts(int16_t itemId, bool isRandoItem) {
             case ITEM_SNOWHEAD_STRAY_FAIRY:
             case ITEM_GREAT_BAY_STRAY_FAIRY:
             case ITEM_STONE_TOWER_STRAY_FAIRY:
-                countStr = std::format(
+                countStr = fmt::format(
                     FORMAT_COUNT, gSaveContext.save.saveInfo.inventory.strayFairies[itemId - ITEM_WOODFALL_STRAY_FAIRY],
                     IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL);
                 break;
