@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/ShipInit.hpp"
 
 extern "C" {
 #include <variables.h>
@@ -14,8 +15,8 @@ static uint32_t autosaveInterval = 0;
 static uint32_t iconTimer = 0;
 static uint64_t currentTimestamp = 0;
 static uint64_t lastSaveTimestamp = GetUnixTimestamp();
-static uint32_t lastEntrance = -1;
-static uint32_t entranceToSave = -1;
+static int lastEntrance = -1;
+static int entranceToSave = -1;
 
 static HOOK_ID autosaveGameStateUpdateHookId = 0;
 static HOOK_ID autosaveGameStateDrawFinishHookId = 0;
@@ -234,19 +235,6 @@ void RegisterSavingEnhancements() {
         }
     });
 
-    COND_VB_SHOULD(VB_PLAY_TRANSITION_CS, CVAR_REMEMBER_SAVE_LOCATION, {
-        /*
-         * Update the entrance to save, unless we're leaving a grotto. Grottos exit to entrance 0 of the destination
-         * scene and adjust the position manually. In effect, there is no real entrance to target for loading purposes,
-         * so we just load into the last grotto instead under those circumstances.
-         */
-        if (lastEntrance != -1 && !(Entrance_GetSceneIdAbsolute(gSaveContext.save.entrance) != SCENE_KAKUSIANA &&
-                                    Entrance_GetSceneIdAbsolute(lastEntrance) == SCENE_KAKUSIANA)) {
-            entranceToSave = gSaveContext.save.entrance;
-        }
-        lastEntrance = gSaveContext.save.entrance;
-    });
-
     COND_HOOK(OnSaveLoad, true, [](s16 fileNum) {
         if (gSaveContext.save.shipSaveInfo.fileCreatedAt == 0) {
             gSaveContext.save.shipSaveInfo.fileCreatedAt = GetUnixTimestamp();
@@ -275,8 +263,6 @@ void RegisterSavingEnhancements() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeMoonCrashSaveReset>([]() { DeleteOwlSave(); });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveLoad>(loadRespawnData);
-
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveLoad>(skipEntranceCutsceneOnLoad);
 }
 
 void RegisterAutosave() {
@@ -311,3 +297,22 @@ void RegisterAutosave() {
             });
     }
 }
+
+void RegisterRememberSaveLocation() {
+    COND_VB_SHOULD(VB_PLAY_TRANSITION_CS, CVAR_REMEMBER_SAVE_LOCATION, {
+        /*
+         * Update the entrance to save, unless we're leaving a grotto. Grottos exit to entrance 0 of the destination
+         * scene and adjust the position manually. In effect, there is no real entrance to target for loading purposes,
+         * so we just load into the last grotto instead under those circumstances.
+         */
+        if (lastEntrance != -1 && !(Entrance_GetSceneIdAbsolute(gSaveContext.save.entrance) != SCENE_KAKUSIANA &&
+                                    Entrance_GetSceneIdAbsolute(lastEntrance) == SCENE_KAKUSIANA)) {
+            entranceToSave = gSaveContext.save.entrance;
+        }
+        lastEntrance = gSaveContext.save.entrance;
+    });
+
+    COND_HOOK(OnSaveLoad, CVAR_REMEMBER_SAVE_LOCATION, skipEntranceCutsceneOnLoad);
+}
+
+static RegisterShipInitFunc initFunc(RegisterRememberSaveLocation, { CVAR_REMEMBER_SAVE_LOCATION_NAME });
