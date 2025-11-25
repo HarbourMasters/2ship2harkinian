@@ -11,6 +11,9 @@ extern s32 Player_SetAction(PlayState* play, Player* player, PlayerActionFunc ac
 extern void Player_Action_1(Player* player, PlayState* play);
 }
 
+static bool playErrorChime = false;
+static int16_t lastOcarinaButton = BTN_B;
+
 void RespawnOnWaterTouch(Player* player) {
     // This is Honey & Darlings Shop, touching the water ends the minigame as its vanilla behavior.
     // No reason to handle it a second time here.
@@ -26,9 +29,24 @@ void RespawnOnWaterTouch(Player* player) {
 }
 
 void Rando::ActorBehavior::InitPlayerBehavior() {
-    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM], [](Actor* actor) {
+    bool shouldPlayerRegister =
+        IS_RANDO && (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] || RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS]);
+
+    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, shouldPlayerRegister, [](Actor* actor) {
+        Player* player = GET_PLAYER(gPlayState);
         if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SWIM)) {
-            RespawnOnWaterTouch(GET_PLAYER(gPlayState));
+            RespawnOnWaterTouch(player);
+        }
+
+        if (player->stateFlags2 & PLAYER_STATE2_USING_OCARINA) {
+            Input* input = CONTROLLER1(&gPlayState->state);
+
+            if (CHECK_BTN_ANY(input->press.button, BTN_A | BTN_CDOWN | BTN_CLEFT | BTN_CRIGHT | BTN_CUP)) {
+                if (lastOcarinaButton != input->press.button) {
+                    lastOcarinaButton = input->press.button;
+                    playErrorChime = true;
+                }
+            }
         }
     });
 
@@ -39,7 +57,10 @@ void Rando::ActorBehavior::InitPlayerBehavior() {
         if (!Flags_GetRandoInf(((*sCurOcarinaButtonIndex) - OCARINA_BTN_A) + RANDO_INF_OBTAINED_OCARINA_BUTTON_A)) {
             *sCurOcarinaButtonIndex = OCARINA_BTN_INVALID;
             *sCurOcarinaPitch = OCARINA_PITCH_NONE;
-            Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
+            if (playErrorChime) {
+                Audio_PlaySfx(NA_SE_SY_OCARINA_ERROR);
+                playErrorChime = false;
+            }
         }
     });
 }
