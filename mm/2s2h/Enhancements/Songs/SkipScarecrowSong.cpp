@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/Rando/Logic/Logic.h"
 
 extern "C" {
 #include "variables.h"
@@ -21,7 +22,16 @@ void RegisterSkipScarecrowSong() {
          */
         if ((enKakasi->picto.actor.xzDistToPlayer < enKakasi->songSummonDist) &&
             ((BREG(1) != 0) || (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_ACTIVE))) {
-            *should = true;
+
+            // In Rando we may utilize Ocarina Buttons, ensure this is honored.
+            if (IS_RANDO) {
+                if (Rando::Logic::canPlaySong(OCARINA_SONG_SCARECROW_SPAWN)) {
+                    *should = true;
+                }
+            } else {
+                *should = true;
+            }
+
             // Properly get out of the ocarina playing state
             AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
             Message_CloseTextbox(gPlayState);

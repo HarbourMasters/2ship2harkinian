@@ -5,7 +5,6 @@
  */
 
 #include "z_en_zob.h"
-#include "GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_ATTENTION_ENABLED | ACTOR_FLAG_FRIENDLY)
 

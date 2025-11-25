@@ -57,14 +57,15 @@ extern std::map<RandoRegionId, RandoRegion> Regions;
      (IS_DEKU && HAS_ITEM(ITEM_MASK_DEKU)) || (IS_GORON && HAS_ITEM(ITEM_MASK_GORON)))
 #define CHECK_MAX_HP(TARGET_HP) ((TARGET_HP * 16) <= gSaveContext.save.saveInfo.playerData.healthCapacity)
 #define HAS_MAGIC (gSaveContext.save.saveInfo.playerData.isMagicAcquired)
-#define CAN_HOOK_SCARECROW (HAS_ITEM(ITEM_OCARINA_OF_TIME) && HAS_ITEM(ITEM_HOOKSHOT))
+#define CAN_HOOK_SCARECROW \
+    (HAS_ITEM(ITEM_OCARINA_OF_TIME) && HAS_ITEM(ITEM_HOOKSHOT) && canPlaySong(OCARINA_SONG_SCARECROW_SPAWN))
 #define CAN_USE_EXPLOSIVE ((HAS_ITEM(ITEM_BOMB) || HAS_ITEM(ITEM_BOMBCHU) || HAS_ITEM(ITEM_MASK_BLAST)))
 #define CAN_USE_HUMAN_SWORD (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) >= EQUIP_VALUE_SWORD_KOKIRI)
 #define CAN_USE_SWORD (CAN_USE_HUMAN_SWORD || HAS_ITEM(ITEM_SWORD_GREAT_FAIRY) || CAN_BE_DEITY)
 // Be careful here, as some checks require you to play the song as a specific form
 #define CAN_PLAY_SONG(song)                                                   \
     (HAS_ITEM(ITEM_OCARINA_OF_TIME) && CHECK_QUEST_ITEM(QUEST_SONG_##song) && \
-     Rando::Logic::canPlaySong(Ship_GetOcarinaSongByQuestId(QUEST_SONG_##song)))
+     Rando::Logic::canPlaySong((QUEST_SONG_##song - QUEST_SONG_SONATA) + OCARINA_SONG_SONATA))
 #define CAN_RIDE_EPONA (CAN_PLAY_SONG(EPONA))
 #define GBT_CAN_REVERSE_WATER_FLOW                                                         \
     (RANDO_EVENTS[RE_GREAT_BAY_RED_SWITCH_1] && RANDO_EVENTS[RE_GREAT_BAY_RED_SWITCH_2] && \
@@ -138,6 +139,16 @@ inline std::string LogicString(std::string condition) {
     return condition;
 }
 
+inline uint8_t FoundOcarinaButtons() {
+    uint8_t foundButtons = 0;
+    for (int i = RANDO_INF_OBTAINED_OCARINA_BUTTON_A; i < RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP; i++) {
+        if (Flags_GetRandoInf((RandoInf)i)) {
+            foundButtons++;
+        }
+    }
+    return foundButtons;
+}
+
 inline bool canPlaySong(u8 songId) {
     switch (songId) {
         case OCARINA_SONG_SONATA:
@@ -198,8 +209,9 @@ inline bool canPlaySong(u8 songId) {
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_A) &&
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN) &&
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT));
-        // case OCARINA_SONG_SCARECROW_SPAWN:
-        //    break;
+        case OCARINA_SONG_SCARECROW_SPAWN:
+            return FoundOcarinaButtons() >= 2;
+            break;
         default:
             return true;
     }

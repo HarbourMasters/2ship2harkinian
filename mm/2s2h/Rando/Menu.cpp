@@ -282,8 +282,8 @@ static void DrawItemsTab() {
                                      .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_SWIM),
                                      .disabledTooltip = "Incompatible with current Logic Setting" } }));
     CVarCheckbox("Shuffle Ocarina Buttons", Rando::StaticData::Options[RO_SHUFFLE_OCARINA_BUTTONS].cvar,
-                 CheckboxOptions({ { .tooltip = "Shuffles the Buttons used to play Ocarina Notes,\n"
-                                                "you will be unable to play a song until you find all\n"
+                 CheckboxOptions({ { .tooltip = "Shuffles the Buttons used to play Ocarina Notes.\n"
+                                                "You will be unable to play a song until you find all\n"
                                                 "notes for the given melody.",
                                      .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_OCARINA_BUTTONS),
                                      .disabledTooltip = "Incompatible with current Logic Setting" } }));

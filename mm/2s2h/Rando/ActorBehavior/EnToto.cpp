@@ -43,9 +43,9 @@ void Rando::ActorBehavior::InitEnTotoBehavior() {
     COND_VB_SHOULD(VB_TOTO_START_SOUND_CHECK, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS], {
         EnToto* totoActor = va_arg(args, EnToto*);
         if (totoActor->text->textId == 0x2B24) {
-            if (!(Rando::Logic::canPlaySong(OCARINA_SONG_WIND_FISH_HUMAN) ||
-                  Rando::Logic::canPlaySong(OCARINA_SONG_WIND_FISH_DEKU) ||
-                  Rando::Logic::canPlaySong(OCARINA_SONG_WIND_FISH_GORON) ||
+            if (!(Rando::Logic::canPlaySong(OCARINA_SONG_WIND_FISH_HUMAN) &&
+                  Rando::Logic::canPlaySong(OCARINA_SONG_WIND_FISH_DEKU) &&
+                  Rando::Logic::canPlaySong(OCARINA_SONG_WIND_FISH_GORON) &&
                   Rando::Logic::canPlaySong(OCARINA_SONG_WIND_FISH_ZORA))) {
                 Message_ContinueTextbox(gPlayState, 0x2B25);
                 func_80BA36C0(totoActor, gPlayState, 0);
