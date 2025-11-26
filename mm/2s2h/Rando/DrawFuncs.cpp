@@ -172,6 +172,20 @@ s32 DrawEnSkb_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3
     return false;
 }
 
+void DrawEnIk_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx) {
+    if (limbIndex == IRON_KNUCKLE_LIMB_HELMET_ARMOR) {
+        OPEN_DISPS(play->state.gfxCtx);
+
+        Gfx* xlu = POLY_XLU_DISP;
+
+        MATRIX_FINALIZE_AND_LOAD(&xlu[0], play->state.gfxCtx);
+        gSPDisplayList(&xlu[1], (Gfx*)gIronKnuckleHelmetMarkingDL);
+        POLY_XLU_DISP = &xlu[2];
+
+        CLOSE_DISPS(play->state.gfxCtx);
+    }
+}
+
 // Enemy Soul Draw Functions
 extern void DrawArmos() {
     static bool initialized = false;
@@ -653,7 +667,8 @@ extern void DrawIronKnuckle() {
     gSPSegment(&gfx[3], 0x0A, (uintptr_t)gIronKnuckleBrownArmorMaterialDL);
     POLY_OPA_DISP = &gfx[4];
 
-    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL,
+                          DrawEnIk_PostLimbDraw, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 12.0f, 12.0f, 12.0f });
