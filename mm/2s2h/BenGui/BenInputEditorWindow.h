@@ -97,7 +97,6 @@ class BenInputEditorWindow : public Ship::GuiWindow {
     void DrawPortTab(uint8_t portIndex);
     std::set<N64ButtonMask> mButtonsBitmasks;
     std::set<N64ButtonMask> mDpadBitmasks;
-    std::set<N64ButtonMask> mModifierButtonsBitmasks;
     bool mInputEditorPopupOpen;
     void DrawSetDefaultsButton(uint8_t portIndex);
     void DrawClearAllButton(uint8_t portIndex);

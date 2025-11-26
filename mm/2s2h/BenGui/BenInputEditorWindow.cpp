@@ -27,7 +27,6 @@ void BenInputEditorWindow::InitElement() {
 
     mButtonsBitmasks = { BTN_A, BTN_B, BTN_START, BTN_L, BTN_R, BTN_Z, BTN_CUP, BTN_CDOWN, BTN_CLEFT, BTN_CRIGHT };
     mDpadBitmasks = { BTN_DUP, BTN_DDOWN, BTN_DLEFT, BTN_DRIGHT };
-    mModifierButtonsBitmasks = { BTN_CUSTOM_MODIFIER1, BTN_CUSTOM_MODIFIER2 };
 
     addButtonName(BTN_A, "A");
     addButtonName(BTN_B, "B");

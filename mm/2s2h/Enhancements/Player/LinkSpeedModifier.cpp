@@ -41,6 +41,7 @@ void RegisterLinkSpeedModifier() {
     });
 
     COND_VB_SHOULD(VB_SPEED_MODIFIER_SWIM, CVAR_SWIM && CVAR_SPEED, {
+        *should = false;
         f32* incrStep = va_arg(args, f32*);
         f32* maxSpeed = va_arg(args, f32*);
         f32* speed = va_arg(args, f32*);
