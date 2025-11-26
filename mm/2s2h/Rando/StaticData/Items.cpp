@@ -364,6 +364,40 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_SOUL_MAJORA:
         case RI_SOUL_ODOLWA:
         case RI_SOUL_TWINMOLD:
+        case RI_SOUL_ARMOS:
+        case RI_SOUL_BAD_BAT:
+        case RI_SOUL_BEAMOS:
+        case RI_SOUL_BOE:
+        case RI_SOUL_BUBBLE:
+        case RI_SOUL_CHUCHU:
+        case RI_SOUL_DEATH_ARMOS:
+        case RI_SOUL_DEKU_BABA:
+        case RI_SOUL_DINOLFOS:
+        case RI_SOUL_DODONGO:
+        case RI_SOUL_DRAGONFLY:
+        case RI_SOUL_EENO:
+        case RI_SOUL_FLYING_POT:
+        case RI_SOUL_FREEZARD:
+        case RI_SOUL_GUAY:
+        case RI_SOUL_HIPLOOP:
+        case RI_SOUL_IRON_KNUCKLE:
+        case RI_SOUL_KEESE:
+        case RI_SOUL_LEEVER:
+        case RI_SOUL_LIKE_LIKE:
+        case RI_SOUL_MAD_SCRUB:
+        case RI_SOUL_NEJIRON:
+        case RI_SOUL_OCTOROK:
+        case RI_SOUL_PEAHAT:
+        case RI_SOUL_REAL_BOMBCHU:
+        case RI_SOUL_REDEAD:
+        case RI_SOUL_SHELLBLADE:
+        case RI_SOUL_SKULLFISH:
+        case RI_SOUL_SKULLTULA:
+        case RI_SOUL_SNAPPER:
+        case RI_SOUL_STALCHILD:
+        case RI_SOUL_TEKTITE:
+        case RI_SOUL_WALLMASTER:
+        case RI_SOUL_WOLFOS:
             return (const char*)gDungeonMapSkullTex;
         case RI_FROG_BLUE:
         case RI_FROG_CYAN:
@@ -391,7 +425,7 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_TRIFORCE_PIECE:
             return (const char*)gTriforcePieceTex;
         default:
-            break;
+            return (const char*)gPauseUnusedCursorTex;
     }
 
     s16 itemId = Rando::StaticData::Items[randoItemId].itemId;
