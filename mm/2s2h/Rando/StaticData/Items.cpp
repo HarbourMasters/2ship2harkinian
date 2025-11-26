@@ -425,7 +425,7 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_TRIFORCE_PIECE:
             return (const char*)gTriforcePieceTex;
         default:
-            return (const char*)gPauseUnusedCursorTex;
+            break;
     }
 
     s16 itemId = Rando::StaticData::Items[randoItemId].itemId;

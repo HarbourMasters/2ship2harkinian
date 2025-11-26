@@ -62,7 +62,7 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 }
 
 // Soul Effects
-void DrawEnLight(Color_RGB8 flameColor, Vec3f flameSize) {
+extern void DrawEnLight(Color_RGB8 flameColor, Vec3f flameSize) {
     Gfx* sp68;
     static s8 unk_144 = (s8)(Rand_ZeroOne() * 255.0f);
     static u32 lastUpdate = 0;

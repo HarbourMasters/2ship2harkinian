@@ -3,6 +3,8 @@
 
 #include "Rando/Rando.h"
 
+void DrawEnLight(Color_RGB8 flameColor, Vec3f flameSize);
+
 // Boss Functions
 void DrawGoht();
 void DrawGyorg();
