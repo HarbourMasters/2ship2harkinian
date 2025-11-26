@@ -514,19 +514,19 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             Rando::DrawItem(Rando::ConvertItem(randoItemId), actor);
             break;
         case RI_SOUL_ARMOS:
-        case RI_SOUL_BAT:
+        case RI_SOUL_BAD_BAT:
         case RI_SOUL_BEAMOS:
         case RI_SOUL_BOE:
-        case RI_SOUL_BOMBCHU:
         case RI_SOUL_BUBBLE:
+        case RI_SOUL_CHUCHU:
         case RI_SOUL_DEATH_ARMOS:
         case RI_SOUL_DEKU_BABA:
         case RI_SOUL_DINOLFOS:
         case RI_SOUL_DODONGO:
+        case RI_SOUL_DRAGONFLY:
         case RI_SOUL_EENO:
         case RI_SOUL_FLYING_POT:
         case RI_SOUL_FREEZARD:
-        case RI_SOUL_GRASSHOPPER:
         case RI_SOUL_GUAY:
         case RI_SOUL_HIPLOOP:
         case RI_SOUL_IRON_KNUCKLE:
@@ -537,11 +537,11 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SOUL_NEJIRON:
         case RI_SOUL_OCTOROK:
         case RI_SOUL_PEAHAT:
+        case RI_SOUL_REAL_BOMBCHU:
         case RI_SOUL_REDEAD:
         case RI_SOUL_SHELLBLADE:
         case RI_SOUL_SKULLFISH:
         case RI_SOUL_SKULLTULA:
-        case RI_SOUL_SLIME:
         case RI_SOUL_SNAPPER:
         case RI_SOUL_STALCHILD:
         case RI_SOUL_TEKTITE:
