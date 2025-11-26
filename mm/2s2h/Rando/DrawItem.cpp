@@ -365,7 +365,7 @@ void DrawTriforcePiece(RandoItemId randoItemId) {
         (Gfx*)gTriforcePiece2DL,
     };
 
-    u8 currentTriforcePieces = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
+    u16 currentTriforcePieces = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
 
     OPEN_DISPS(gPlayState->state.gfxCtx);
 

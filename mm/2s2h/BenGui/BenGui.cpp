@@ -20,8 +20,8 @@
 
 #include "include/global.h"
 
-#include "Enhancements/Trackers/ItemTracker.h"
-#include "Enhancements/Trackers/ItemTrackerSettings.h"
+#include "Enhancements/Trackers/ItemTracker/ItemTracker.h"
+#include "Enhancements/Trackers/ItemTracker/ItemTrackerSettings.h"
 #include "Enhancements/Trackers/DisplayOverlay.h"
 #include "Enhancements/Trackers//TimeSplits/Timesplits.h"
 #include "Enhancements/Trackers/TimeSplits/TimesplitsSettings.h"
@@ -60,6 +60,9 @@ std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
 std::shared_ptr<TimesplitsWindow> mTimesplitsWindow;
 std::shared_ptr<TimesplitsSettingsWindow> mTimesplitsSettingsWindow;
+std::shared_ptr<InputViewer> mInputViewer;
+std::shared_ptr<InputViewerSettingsWindow> mInputViewerSettings;
+std::shared_ptr<BenModalWindow> mModalWindow;
 
 UIWidgets::Colors GetMenuThemeColor() {
     return mBenMenu->GetMenuThemeColor();
@@ -162,6 +165,15 @@ void SetupGuiElements() {
     mRandoCheckTrackerSettingsWindow = std::make_shared<Rando::CheckTracker::SettingsWindow>(
         "gWindows.CheckTrackerSettings", "Check Tracker Settings");
     gui->AddGuiWindow(mRandoCheckTrackerSettingsWindow);
+
+    mInputViewer = std::make_shared<InputViewer>("gWindows.InputViewer", "Input Viewer");
+    gui->AddGuiWindow(mInputViewer);
+    mInputViewerSettings = std::make_shared<InputViewerSettingsWindow>("gWindows.InputViewerSettings",
+                                                                       "Input Viewer Settings", ImVec2(500, 525));
+    gui->AddGuiWindow(mInputViewerSettings);
+    mModalWindow = std::make_shared<BenModalWindow>("gWindows.ModalWindow", "Modal Window");
+    gui->AddGuiWindow(mModalWindow);
+    mModalWindow->Show();
 }
 
 void Destroy() {
@@ -170,6 +182,7 @@ void Destroy() {
     gui->RemoveAllGuiWindows();
     mBenMenuBar = nullptr;
     mBenMenu = nullptr;
+    mModalWindow = nullptr;
     mStatsWindow = nullptr;
     mConsoleWindow = nullptr;
     mGfxDebuggerWindow = nullptr;
@@ -188,5 +201,13 @@ void Destroy() {
     mAudioEditorWindow = nullptr;
     mItemTrackerWindow = nullptr;
     mItemTrackerSettingsWindow = nullptr;
+    mInputViewer = nullptr;
+    mInputViewerSettings = nullptr;
 }
+
+void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2,
+                   std::function<void()> button1callback, std::function<void()> button2callback) {
+    mModalWindow->RegisterPopup(title, message, button1, button2, button1callback, button2callback);
+}
+
 } // namespace BenGui

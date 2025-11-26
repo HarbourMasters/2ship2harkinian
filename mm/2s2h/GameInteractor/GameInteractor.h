@@ -239,6 +239,9 @@ typedef enum {
     VB_BUY_GORMAN_MILK,
     VB_PLAY_LOW_HP_ALARM,
     VB_PLAY_GORON_CHILD_CRY,
+    VB_PLAY_ENEMY_PROXIMITY_MUSIC,
+    VB_PLAY_TATL_CALL_AUDIO,
+    VB_LINK_VOICE_PITCH_MULTIPLIER,
     VB_SNOWBALL_DROP_COLLECTIBLE,
     VB_SNOWBALL_SET_FLAG,
     VB_START_JUMPSLASH,
@@ -257,6 +260,12 @@ typedef enum {
     VB_ENEMY_DROP_COLLECTIBLE,
     VB_DRAW_SLIME_RANDO_ITEM,
     VB_ENABLE_OBJECT_DEPENDENCY,
+    VB_OBJ_MURE2_SET_CHILD_ROOM,
+    VB_OBJ_MURE3_DROP_COLLECTIBLE,
+    VB_SET_PLAYER_CYLINDER_OC_FLAGS,
+    VB_GORON_RACE_RUBBERBANDING,
+    VB_HAVE_ALL_SKULLTULA_TOKENS,
+    VB_NOT_HAVE_ALL_SKULLTULA_TOKENS,
     VB_APPLY_DAMAGE_TO_ACTOR,
 } GIVanillaBehavior;
 
@@ -725,6 +734,7 @@ void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 void GameInteractor_ExecuteOnInterfaceDrawStart();
 void GameInteractor_ExecuteAfterInterfaceClockDraw();
 void GameInteractor_ExecuteBeforeInterfaceClockDraw();
+void GameInteractor_ExecuteOnGameCompletion();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
@@ -760,6 +770,8 @@ bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
 
 void GameInteractor_ExecuteOnBottleContentsUpdate(u8 item);
+
+void GameInteractor_ExecuteOnSeqPlayerInit(int32_t playerIdx, int32_t seqId);
 
 bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
 #define REGISTER_VB_SHOULD(flag, body)                                                      \
