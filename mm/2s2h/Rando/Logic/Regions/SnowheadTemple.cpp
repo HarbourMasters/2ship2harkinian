@@ -96,6 +96,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_BOTTOM_CHEST, CAN_BE_GORON),
             CHECK(RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_BOTTOM_POT_01, true),
             CHECK(RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_BOTTOM_POT_02, true),
+            CHECK(RC_ENEMY_DROP_RED_BUBBLE, CanKillEnemy(ACTOR_EN_BBFALL))
         },
         .connections = {
             CONNECTION(RR_SNOWHEAD_TEMPLE_CENTRAL_ROOM_FIRST_FLOOR, true),
@@ -182,6 +183,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SNOWHEAD_TEMPLE_COMPASS_ROOM_POT_04, true),
             CHECK(RC_SNOWHEAD_TEMPLE_COMPASS_ROOM_POT_05, true),
             CHECK(RC_SNOWHEAD_TEMPLE_SF_COMPASS_ROOM_CRATE, (CAN_USE_EXPLOSIVE && HAS_ITEM(ITEM_MASK_GREAT_FAIRY))), // TODO : Zora Mask can be used from the upper ledge to reach this after breaking the crate. Implement as a trick?
+            CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_EN_WF)),
         },
         .connections = {
             CONNECTION(RR_SNOWHEAD_TEMPLE_ENTRANCE_AFTER_BLOCK,     KEY_COUNT(SNOWHEAD_TEMPLE) >= 1),
@@ -216,6 +218,7 @@ static RegisterShipInitFunc initFunc([]() {
       .checks = {
           CHECK(RC_SNOWHEAD_TEMPLE_ENTRANCE_POT_01, CAN_BE_GORON),
           CHECK(RC_SNOWHEAD_TEMPLE_ENTRANCE_POT_02, CAN_BE_GORON),
+          CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_EN_WF)),
       },
       .connections = {
           CONNECTION(RR_SNOWHEAD_TEMPLE_CENTRAL_ROOM_FIRST_FLOOR,   CAN_USE_MAGIC_ARROW(FIRE)),
@@ -325,6 +328,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SNOWHEAD_TEMPLE_SNOW_ROOM_SMALL_SNOWBALL_06, true),
             CHECK(RC_SNOWHEAD_TEMPLE_SNOW_ROOM_SMALL_SNOWBALL_07, true),
             CHECK(RC_SNOWHEAD_TEMPLE_SNOW_ROOM_SMALL_SNOWBALL_08, true),
+            CHECK(RC_ENEMY_DROP_EENO, CanKillEnemy(ACTOR_EN_SNOWMAN)),
         },
         .connections = {
             CONNECTION(RR_SNOWHEAD_TEMPLE_CENTRAL_ROOM_THIRD_FLOOR, KEY_COUNT(SNOWHEAD_TEMPLE) >= 3),

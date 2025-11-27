@@ -53,6 +53,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_MOON_TRIAL_LINK_POT_07, true),
             CHECK(RC_MOON_TRIAL_LINK_POT_08, true),
             CHECK(RC_MOON_TRIAL_LINK_PIECE_OF_HEART, HAS_ITEM(ITEM_HOOKSHOT) && HAS_ITEM(ITEM_BOMBCHU) && HAS_ITEM(ITEM_BOW)),
+            CHECK(RC_ENEMY_DROP_IRON_KNUCKLE, CanKillEnemy(ACTOR_EN_IK)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(THE_MOON, 0),                     ENTRANCE(MOON_LINK_TRIAL, 0), true),

@@ -25,7 +25,8 @@ static RegisterShipInitFunc initFunc([]() {
             // TODO: Zora Egg Here
             CHECK(RC_PIRATE_FORTRESS_CAPTAIN_ROOM_BARREL_01, RANDO_EVENTS[RE_PIRATE_FORTRESS_BEEHIVE_HIT]),
             CHECK(RC_PIRATE_FORTRESS_CAPTAIN_ROOM_BARREL_02, RANDO_EVENTS[RE_PIRATE_FORTRESS_BEEHIVE_HIT]),
-            CHECK(RC_PIRATE_FORTRESS_INTERIOR_HOOKSHOT_CHEST, RANDO_EVENTS[RE_PIRATE_FORTRESS_BEEHIVE_HIT])
+            CHECK(RC_PIRATE_FORTRESS_INTERIOR_HOOKSHOT_CHEST, RANDO_EVENTS[RE_PIRATE_FORTRESS_BEEHIVE_HIT]),
+            CHECK(RC_ENEMY_DROP_SHELLBLADE, CanKillEnemy(ACTOR_EN_SB)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(PIRATES_FORTRESS, 1),             ENTRANCE(PIRATES_FORTRESS_INTERIOR, 0), true),
@@ -111,8 +112,9 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_PIRATES_FORTRESS_LEFT_CLAM_EGG_ROOM] = RandoRegion{ .name = "Left Clam Room", .sceneId = SCENE_PIRATE,
         .checks = {
             CHECK(RC_PIRATE_FORTRESS_INTERIOR_GUARDED_BARREL, true),
-            CHECK(RC_PIRATE_FORTRESS_INTERIOR_GUARDED_POT_01,  true),
-            CHECK(RC_PIRATE_FORTRESS_INTERIOR_GUARDED_POT_02,  true),
+            CHECK(RC_PIRATE_FORTRESS_INTERIOR_GUARDED_POT_01, true),
+            CHECK(RC_PIRATE_FORTRESS_INTERIOR_GUARDED_POT_02, true),
+            CHECK(RC_ENEMY_DROP_SHELLBLADE, CanKillEnemy(ACTOR_EN_SB)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(PIRATES_FORTRESS, 4),             ENTRANCE(PIRATES_FORTRESS_INTERIOR, 3), true),
@@ -275,6 +277,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_PIRATE_FORTRESS_INTERIOR_BARREL_MAZE_POT_01, true),
             CHECK(RC_PIRATE_FORTRESS_INTERIOR_BARREL_MAZE_POT_02, true),
             CHECK(RC_PIRATE_FORTRESS_INTERIOR_BARREL_MAZE_POT_03, true),
+            CHECK(RC_ENEMY_DROP_SHELLBLADE, CanKillEnemy(ACTOR_EN_SB)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(PIRATES_FORTRESS, 6),             ENTRANCE(PIRATES_FORTRESS_INTERIOR, 5), true)

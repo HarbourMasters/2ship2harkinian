@@ -120,17 +120,6 @@ extern std::map<RandoRegionId, RandoRegion> Regions;
         }                                                     \
     }
 
-inline bool CanReachRegions(std::vector<RandoRegionId> regionList) {
-    std::set<RandoRegionId> reachableRegions;
-    FindReachableRegions(GetRegionIdFromEntrance(gSaveContext.save.entrance), reachableRegions);
-    for (auto& target : regionList) {
-        if (reachableRegions.count(target) > 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
 inline std::string LogicString(std::string condition) {
     if (condition == "true")
         return "";

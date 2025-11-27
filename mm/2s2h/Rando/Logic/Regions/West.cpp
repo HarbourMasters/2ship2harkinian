@@ -114,6 +114,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_COAST_FISHERMAN_GROTTO_GRASS_12, true),
             CHECK(RC_GREAT_BAY_COAST_FISHERMAN_GROTTO_GRASS_13, true),
             CHECK(RC_GREAT_BAY_COAST_FISHERMAN_GROTTO_GRASS_14, true),
+            CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
         .connections = {
             CONNECTION(RR_GREAT_BAY_COAST, true), // TODO: Grotto mapping
@@ -130,6 +131,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_COAST_GRASS_03, true),
             CHECK(RC_GREAT_BAY_COAST_GRASS_04, true),
             CHECK(RC_GREAT_BAY_COAST_GRASS_05, true),
+            CHECK(RC_ENEMY_DROP_LEEVER, CanKillEnemy(ACTOR_EN_NEO_REEBA)),
+            CHECK(RC_ENEMY_DROP_LIKE_LIKE, CanKillEnemy(ACTOR_EN_RR)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 2),                ENTRANCE(GREAT_BAY_COAST, 0), true),
@@ -295,12 +298,16 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ZORA_CAPE_GROTTO_GRASS_12, true),
             CHECK(RC_ZORA_CAPE_GROTTO_GRASS_13, true),
             CHECK(RC_ZORA_CAPE_GROTTO_GRASS_14, true),
+            CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
         .connections = {
             CONNECTION(RR_ZORA_CAPE, true), // TODO: Grotto mapping
         },
     };
     Regions[RR_ZORA_CAPE_OUTSIDE_FAIRY_FOUNTAIN] = RandoRegion{ .sceneId = SCENE_31MISAKI,
+        .checks = {
+            CHECK(RC_ENEMY_DROP_GUAY, CanKillEnemy(ACTOR_EN_CROW)),
+        },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(FAIRY_FOUNTAIN, 3),               ENTRANCE(ZORA_CAPE, 5), CAN_USE_EXPLOSIVE),
         },
@@ -312,10 +319,12 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_ZORA_CAPE_LEDGE_CHEST_01,             HAS_ITEM(ITEM_HOOKSHOT)),
             CHECK(RC_ZORA_CAPE_LEDGE_CHEST_02,             HAS_ITEM(ITEM_HOOKSHOT)),
-            CHECK(RC_ZORA_CAPE_UNDERWATER_CHEST,          CAN_BE_ZORA && CAN_USE_ABILITY(SWIM)),
-            CHECK(RC_ZORA_CAPE_WATERFALL_PIECE_OF_HEART,  CAN_BE_ZORA && CAN_USE_ABILITY(SWIM)),
+            CHECK(RC_ZORA_CAPE_UNDERWATER_CHEST,           CAN_BE_ZORA && CAN_USE_ABILITY(SWIM)),
+            CHECK(RC_ZORA_CAPE_WATERFALL_PIECE_OF_HEART,   CAN_BE_ZORA && CAN_USE_ABILITY(SWIM)),
             CHECK(RC_ZORA_CAPE_NEAR_BEAVERS_POT_01,        true),
             CHECK(RC_ZORA_CAPE_NEAR_BEAVERS_POT_02,        true),
+            CHECK(RC_ENEMY_DROP_LEEVER,                    CanKillEnemy(ACTOR_EN_NEO_REEBA)),
+            CHECK(RC_ENEMY_DROP_LIKE_LIKE,                 CanKillEnemy(ACTOR_EN_RR)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(GREAT_BAY_COAST, 1),              ENTRANCE(ZORA_CAPE, 0), true),
