@@ -178,12 +178,12 @@ void SetupGuiElements() {
         CVAR_WINDOW("CheckTrackerSettings"), "Check Tracker Settings");
     gui->AddGuiWindow(mRandoCheckTrackerSettingsWindow);
 
-    mInputViewer = std::make_shared<InputViewer>("gWindows.InputViewer", "Input Viewer");
+    mInputViewer = std::make_shared<InputViewer>(CVAR_WINDOW("InputViewer"), "Input Viewer");
     gui->AddGuiWindow(mInputViewer);
-    mInputViewerSettings = std::make_shared<InputViewerSettingsWindow>("gWindows.InputViewerSettings",
+    mInputViewerSettings = std::make_shared<InputViewerSettingsWindow>(CVAR_WINDOW("InputViewerSettings"),
                                                                        "Input Viewer Settings", ImVec2(500, 525));
     gui->AddGuiWindow(mInputViewerSettings);
-    mModalWindow = std::make_shared<BenModalWindow>("gWindows.ModalWindow", "Modal Window");
+    mModalWindow = std::make_shared<BenModalWindow>(CVAR_WINDOW("ModalWindow"), "Modal Window");
     gui->AddGuiWindow(mModalWindow);
     mModalWindow->Show();
 }

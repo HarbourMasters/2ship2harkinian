@@ -618,11 +618,11 @@ void ItemTrackerSettingsWindow::DrawElement() {
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
 
-        if (CVarGetInteger("gWindows.ItemTracker", 0)) {
-            UIWidgets::WindowButton("Hide Item Tracker", "gWindows.ItemTracker", BenGui::mItemTrackerWindow,
+        if (CVarGetInteger(CVAR_WINDOW("ItemTracker"), 0)) {
+            UIWidgets::WindowButton("Hide Item Tracker", CVAR_WINDOW("ItemTracker"), BenGui::mItemTrackerWindow,
                                     { .size = UIWidgets::Sizes::Inline, .color = WIDGET_COLOR });
         } else {
-            UIWidgets::WindowButton("Show Item Tracker", "gWindows.ItemTracker", BenGui::mItemTrackerWindow,
+            UIWidgets::WindowButton("Show Item Tracker", CVAR_WINDOW("ItemTracker"), BenGui::mItemTrackerWindow,
                                     { .size = UIWidgets::Sizes::Inline, .color = WIDGET_COLOR });
         }
         UIWidgets::Separator();

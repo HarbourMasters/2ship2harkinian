@@ -64,7 +64,7 @@ void InputViewer::Draw() {
 }
 
 void InputViewer::DrawElement() {
-    if (CVarGetInteger("gWindows.InputViewer", 0)) {
+    if (CVarGetInteger(CVAR_WINDOW("InputViewer"), 0)) {
         static bool sButtonTexturesLoaded = false;
         if (!sButtonTexturesLoaded) {
             Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage(

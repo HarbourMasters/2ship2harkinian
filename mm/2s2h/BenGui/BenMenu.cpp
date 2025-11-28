@@ -631,13 +631,13 @@ void BenMenu::AddSettings() {
     AddSidebarEntry("Settings", path.sidebarName, 2);
     AddWidget(path, "Input Viewer", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Toggle Input Viewer", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.InputViewer")
+        .CVar(CVAR_WINDOW("InputViewer"))
         .WindowName("Input Viewer")
         .Options(ButtonOptions().Tooltip("Toggles the Input Viewer."));
 
     AddWidget(path, "Input Viewer Settings", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Popout Input Viewer Settings", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.InputViewerSettings")
+        .CVar(CVAR_WINDOW("InputViewerSettings"))
         .WindowName("Input Viewer Settings")
         .Options(ButtonOptions().Tooltip("Enables the separate Input Viewer Settings Window."));
 }
