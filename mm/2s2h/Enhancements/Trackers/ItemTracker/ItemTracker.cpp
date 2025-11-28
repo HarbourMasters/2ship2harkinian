@@ -3,6 +3,7 @@
 
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "Rando/Rando.h"
+#include "2s2h/cvar_prefixes.h"
 
 #include "2s2h/ShipUtils.h"
 #include <spdlog/fmt/fmt.h>

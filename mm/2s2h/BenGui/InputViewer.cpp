@@ -10,6 +10,7 @@
 
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/BenGui/BenGui.hpp"
+#include "2s2h/cvar_prefixes.h"
 
 using namespace UIWidgets;
 

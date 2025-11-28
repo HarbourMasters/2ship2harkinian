@@ -3,6 +3,7 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "ShipUtils.h"
 #include "ship/config/Config.h"
+#include "2s2h/cvar_prefixes.h"
 
 namespace BenGui {
 extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
