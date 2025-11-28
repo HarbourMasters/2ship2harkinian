@@ -11,7 +11,7 @@ extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 void ItemTrackerSettingsWindow::UpdateElement() {
 }
 
-#define WIDGET_COLOR UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5))
+#define WIDGET_COLOR UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5))
 
 static const char* windowTypes[2] = { "Floating", "Window" };
 
