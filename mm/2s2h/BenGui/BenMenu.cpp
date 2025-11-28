@@ -2016,7 +2016,7 @@ void BenMenu::InitElement() {
             "Vertical Resolution Toggle is Off" } },
         { DISABLE_FOR_LINKS_VOICE_PITCH_MULTIPLIER_OFF,
           { [](disabledInfo& info) -> bool {
-               return !CVarGetInteger("gAudioEditor.LinkVoiceFreqMultiplier.Enable", 0);
+               return !CVarGetInteger(CVAR_AUDIO("LinkVoiceFreqMultiplier.Enable"), 0);
            },
             "Enable Link's Voice Pitch Multiplier is Disabled" } },
         { DISABLE_FOR_KOUME_INVINCIBLE,

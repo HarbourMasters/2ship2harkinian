@@ -9,7 +9,7 @@ extern "C" {
 // For Link's voice pitch SFX modifier
 static f32 freqMultiplier = 1;
 
-#define CVAR_NAME "gAudioEditor.LinkVoiceFreqMultiplier.Enable"
+#define CVAR_NAME CVAR_AUDIO("LinkVoiceFreqMultiplier.Enable")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterLinksVoicePitchMultiplier() {
@@ -20,7 +20,7 @@ void RegisterLinksVoicePitchMultiplier() {
         if (sfxId >= NA_SE_VO_LI_SWORD_N && sfxId <= NA_SE_VO_DEMO_394 || sfxId == NA_SE_PL_TRANSFORM_VOICE) {
 
             *should = false;
-            freqMultiplier = CVarGetFloat("gAudioEditor.LinkVoiceFreqMultiplier.Scale", 1.0);
+            freqMultiplier = CVarGetFloat(CVAR_AUDIO("LinkVoiceFreqMultiplier.Scale"), 1.0);
             if (freqMultiplier <= 0) {
                 freqMultiplier = 1;
             }

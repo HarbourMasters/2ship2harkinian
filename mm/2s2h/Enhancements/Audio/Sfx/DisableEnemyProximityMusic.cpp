@@ -2,7 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
-#define CVAR_NAME "gAudioEditor.EnemyBGMDisable"
+#define CVAR_NAME CVAR_AUDIO("EnemyBGMDisable")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterDisableEnemyProximityMusic() {

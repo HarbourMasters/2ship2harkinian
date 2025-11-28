@@ -11,7 +11,7 @@ extern "C" {
 extern PlayState* gPlayState;
 }
 
-#define CVAR_SEQOVERLAY_NAME "gAudioEditor.SeqNameNotification"
+#define CVAR_SEQOVERLAY_NAME CVAR_AUDIO("SeqNameNotification")
 #define CVAR_SEQOVERLAY_DEFAULT 0
 #define CVAR_SEQOVERLAY_VALUE CVarGetInteger(CVAR_SEQOVERLAY_NAME, CVAR_SEQOVERLAY_DEFAULT)
 
@@ -31,7 +31,7 @@ void NotifySequenceName(int32_t playerIdx, int32_t seqId) {
         if (sequenceName != NULL) {
             Notification::Emit({
                 .message = ICON_FA_MUSIC " " + std::string(sequenceName),
-                .remainingTime = static_cast<float>(CVarGetInteger("gAudioEditor.SeqNameNotificationDuration", 10)),
+                .remainingTime = static_cast<float>(CVarGetInteger(CVAR_AUDIO("SeqNameNotificationDuration"), 10)),
                 .mute = true,
             });
         }
