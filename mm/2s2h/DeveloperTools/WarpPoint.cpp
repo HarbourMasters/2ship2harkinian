@@ -109,7 +109,7 @@ void RegisterWarpPoint() {
 }
 
 void RenderWarpPointSection() {
-    bool skipToFileSelect = (bool)CVarGetInteger("gEnhancements.Cutscenes.SkipToFileSelect", 0);
+    bool skipToFileSelect = (bool)CVarGetInteger(CVAR_ENHANCEMENT("Cutscenes.SkipToFileSelect"), 0);
     UIWidgets::CVarCheckbox(
         "Boot to Warp Point on Launch", WARP_POINT_CVAR "BootToWarpPoint",
         UIWidgets::CheckboxOptions({ { .disabled = skipToFileSelect,

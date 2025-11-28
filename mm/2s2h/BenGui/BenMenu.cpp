@@ -1457,7 +1457,7 @@ void BenMenu::AddEnhancements() {
                                            "when viewed from Termina Field after clearing Woodfall Temple\n\n"
                                            "Requires a scene reload to take effect."));
     AddWidget(path, "Bonk Collision", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Restorations.BonkCollision")
+        .CVar(CVAR_ENHANCEMENT("Restorations.BonkCollision"))
         .Options(
             CheckboxOptions().Tooltip("Corrects rolls to allow bonking trees near the end of the roll, as in OoT."));
     AddWidget(path, "Simulated Input Lag", WIDGET_CVAR_SLIDER_INT)
@@ -1591,7 +1591,7 @@ void BenMenu::AddEnhancements() {
                      .Max(20)
                      .DefaultValue(20));
     AddWidget(path, "Goron Race", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.GoronRace")
+        .CVar(CVAR_ENHANCEMENT("DifficultyOptions.GoronRace"))
         .Options(ComboboxOptions()
                      .Tooltip("Set CPU behavior for the Goron Race:\n"
                               "- Vanilla: Gorons ahead of Link slow down, and Gorons behind speed up.\n"
