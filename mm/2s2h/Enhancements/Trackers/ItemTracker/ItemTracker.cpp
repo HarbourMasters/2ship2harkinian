@@ -369,7 +369,7 @@ void DrawItemSlot(int16_t itemId, float scale, bool isRandoItem) {
                  ImVec2(imageObject.textureDimensions.x * scale, imageObject.textureDimensions.y * scale), ImVec2(0, 0),
                  ImVec2(1, 1), imageObject.textureColor, ImVec4(0, 0, 0, 0));
     UIWidgets::Tooltip(GetItemTrackerItemName(itemId, isRandoItem).c_str());
-    if (CVarGetInteger("gSettings.ItemTracker.ItemCounts", 0)) {
+    if (CVarGetInteger(CVAR_TRACKER_ITEM("ItemCounts"), 0)) {
         DrawItemCounts(itemId, isRandoItem, imageObject.textureDimensions * scale, scale, currentPos);
     }
 }
@@ -409,10 +409,10 @@ void ItemTrackerWindow::Draw() {
                                    ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize |
                                    ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar;
 
-    if (!CVarGetInteger("gSettings.ItemTracker.WindowType", 0)) {
+    if (!CVarGetInteger(CVAR_TRACKER_ITEM("WindowType"), 0)) {
         windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoDocking;
     }
-    shouldWindowSplit = CVarGetInteger("gSettings.ItemTracker.WindowGroup", 0);
+    shouldWindowSplit = CVarGetInteger(CVAR_TRACKER_ITEM("WindowGroup"), 0);
 
     std::vector<std::vector<TrackerItemListObject>*> itemTrackerWindows = {
         &BenGui::mItemTrackerWindow->namedItemWindows,

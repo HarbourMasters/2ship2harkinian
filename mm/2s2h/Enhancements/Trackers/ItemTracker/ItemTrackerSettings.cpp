@@ -543,13 +543,13 @@ void DrawTrackerOptions() {
     ImGui::SeparatorText("Custom Windows");
     if (ImGui::BeginTable("OptionsList", 2)) {
         ImGui::TableNextColumn();
-        UIWidgets::CVarCombobox("Window Type", "gSettings.ItemTracker.WindowType", windowTypes,
+        UIWidgets::CVarCombobox("Window Type", CVAR_TRACKER_ITEM("WindowType"), windowTypes,
                                 { .alignment = UIWidgets::ComponentAlignment::Right,
                                   .labelPosition = UIWidgets::LabelPosition::Near,
                                   .color = WIDGET_COLOR });
         ImGui::TableNextColumn();
-        UIWidgets::CVarCheckbox("Split Window Groups", "gSettings.ItemTracker.WindowGroup");
-        UIWidgets::CVarCheckbox("Show Item Counts", "gSettings.ItemTracker.ItemCounts");
+        UIWidgets::CVarCheckbox("Split Window Groups", CVAR_TRACKER_ITEM("WindowGroup"));
+        UIWidgets::CVarCheckbox("Show Item Counts", CVAR_TRACKER_ITEM("ItemCounts"));
         ImGui::EndTable();
     }
     UIWidgets::InputString("Window Name", &trackerInputName,
