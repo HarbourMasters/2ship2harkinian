@@ -81,9 +81,9 @@ static const std::vector<const char*> motionBlurOptions = {
     "Always On",         // MOTION_BLUR_ALWAYS_ON
 };
 static const std::vector<const char*> debugSaveOptions = {
-    "100% save",          // DEBUG_SAVE_INFO_COMPLETE
-    "Vanilla debug save", // DEBUG_SAVE_INFO_VANILLA_DEBUG
     "Empty save",         // DEBUG_SAVE_INFO_NONE
+    "Vanilla debug save", // DEBUG_SAVE_INFO_VANILLA_DEBUG
+    "100% save",          // DEBUG_SAVE_INFO_COMPLETE
 };
 
 #ifdef _DEBUG
@@ -623,6 +623,22 @@ void BenMenu::AddSettings() {
     path.sidebarName = "Presets";
     AddSidebarEntry("Settings", "Presets", 1);
     AddWidget(path, "Presets", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { PresetManager_Draw(); });
+
+    // Input Viewer
+    path.sidebarName = "Input Viewer";
+    path.column = SECTION_COLUMN_1;
+    AddSidebarEntry("Settings", path.sidebarName, 2);
+    AddWidget(path, "Input Viewer", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Toggle Input Viewer", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.InputViewer")
+        .WindowName("Input Viewer")
+        .Options(ButtonOptions().Tooltip("Toggles the Input Viewer."));
+
+    AddWidget(path, "Input Viewer Settings", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Popout Input Viewer Settings", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.InputViewerSettings")
+        .WindowName("Input Viewer Settings")
+        .Options(ButtonOptions().Tooltip("Enables the separate Input Viewer Settings Window."));
 }
 int32_t motionBlurStrength;
 
@@ -1827,6 +1843,12 @@ void BenMenu::AddDevTools() {
         .CVar("gWindows.DLViewer")
         .Options(ButtonOptions().Tooltip("Enables the DL Viewer window for inspecting and editing display lists."))
         .WindowName("DL Viewer");
+    path = { "Dev Tools", "Message Viewer", SECTION_COLUMN_1 };
+    AddSidebarEntry("Dev Tools", "Message Viewer", 1);
+    AddWidget(path, "Popout Message Viewer", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.MessageViewer")
+        .Options(ButtonOptions().Tooltip("Enables the Message Viewer window for testing in-game messages."))
+        .WindowName("Message Viewer");
 }
 
 BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name)
