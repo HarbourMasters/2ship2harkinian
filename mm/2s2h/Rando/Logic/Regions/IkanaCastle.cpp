@@ -40,6 +40,7 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_ANCIENT_CASTLE_OF_IKANA_EXTERIOR_POT, true),
             CHECK(RC_ENEMY_DROP_GUAY, CanKillEnemy(ACTOR_EN_CROW)),
+            CHECK(RC_ENEMY_DROP_GARO, CanKillEnemy(ACTOR_EN_JSO)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(BENEATH_THE_WELL, 1),             ENTRANCE(IKANA_CASTLE, 0), true),
@@ -157,12 +158,16 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ANCIENT_CASTLE_OF_IKANA_BOSS_POT_06, true),
             CHECK(RC_ANCIENT_CASTLE_OF_IKANA_BOSS_POT_07, true),
             CHECK(RC_ANCIENT_CASTLE_OF_IKANA_BOSS_POT_08, true),
+            CHECK(RC_ENEMY_DROP_IGOS_DU_IKANA, CanKillEnemy(ACTOR_EN_KNIGHT)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(IKANA_CASTLE, 6),                 ENTRANCE(IGOS_DU_IKANAS_LAIR, 0), true)
         }
     };
-    Regions[RR_IKANA_CASTLE_WIZZROBE_ROOM] = RandoRegion{ .name = "Wizzrobe Room", .sceneId = SCENE_CASTLE,
+    Regions[RR_IKANA_CASTLE_WIZZROBE_ROOM] = RandoRegion{ .name = "Wizrobe Room", .sceneId = SCENE_CASTLE,
+        .checks = {
+            CHECK(RC_ENEMY_DROP_WIZROBE, CanKillEnemy(ACTOR_EN_WIZ)),
+        },
         .connections = {
             CONNECTION(RR_IKANA_CASTLE_FLOORMASTER_ROOM_REDEAD_AREA, CanKillEnemy(ACTOR_EN_WIZ)),
             CONNECTION(RR_IKANA_CASTLE_REDEAD_WALKWAY, CanKillEnemy(ACTOR_EN_WIZ))

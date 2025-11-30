@@ -203,8 +203,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_MOUNTAIN_VILLAGE_TUNNEL_GROTTO_GRASS_11, true),
             CHECK(RC_MOUNTAIN_VILLAGE_TUNNEL_GROTTO_GRASS_12, true),
             CHECK(RC_MOUNTAIN_VILLAGE_TUNNEL_GROTTO_GRASS_13, true),
-            CHECK(RC_MOUNTAIN_VILLAGE_TUNNEL_GROTTO_GRASS_14, true),  
-            CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),          
+            CHECK(RC_MOUNTAIN_VILLAGE_TUNNEL_GROTTO_GRASS_14, true),
+            CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
         .connections = {
             CONNECTION(RR_MOUNTAIN_VILLAGE, true), // TODO: Grotto mapping
@@ -267,6 +267,10 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_10, HAS_ITEM(ITEM_LENS_OF_TRUTH) && HAS_MAGIC),
             CHECK(RC_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_11, HAS_ITEM(ITEM_LENS_OF_TRUTH) && HAS_MAGIC),
             CHECK(RC_ENEMY_DROP_GUAY, RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE] && CanKillEnemy(ACTOR_EN_CROW)),
+            CHECK(RC_ENEMY_DROP_GIANT_BEE, CanKillEnemy(ACTOR_EN_BEE) && RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE]),
+            CHECK(RC_ENEMY_DROP_BOE, CanKillEnemy(ACTOR_EN_MKK) && RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE]),
+            CHECK(RC_ENEMY_DROP_TEKTITE, CanKillEnemy(ACTOR_OBJ_SNOWBALL) && CanKillEnemy(ACTOR_EN_TITE)), // Day 1 and 3 only
+            CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_OBJ_SNOWBALL) && CanKillEnemy(ACTOR_EN_WF)), //  Day 2 only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(MOUNTAIN_SMITHY, 0),              ENTRANCE(MOUNTAIN_VILLAGE_WINTER, 1), true),
@@ -363,6 +367,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ENEMY_DROP_GUAY, RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE] && CanKillEnemy(ACTOR_EN_CROW)),
             CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_EN_WF)),
             CHECK(RC_ENEMY_DROP_TEKTITE, CanKillEnemy(ACTOR_EN_TITE)),
+            CHECK(RC_ENEMY_DROP_SNAPPER, CanKillEnemy(ACTOR_OBJ_SNOWBALL) && CanKillEnemy(ACTOR_EN_KAME)),
         },
         .exits = { //     TO                                     FROM
             EXIT(ENTRANCE(GROTTOS, 5),                  ENTRANCE(PATH_TO_GORON_VILLAGE_WINTER, 0), RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE] || CAN_USE_MAGIC_ARROW(FIRE)), // TODO: Grotto mapping Hot spring
@@ -389,6 +394,9 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_02, true),
             CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_03, true),
             CHECK(RC_ENEMY_DROP_TEKTITE, CanKillEnemy(ACTOR_EN_TITE)),
+            CHECK(RC_ENEMY_DROP_BOE, CanKillEnemy(ACTOR_EN_MKK)), // Night only
+            CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_OBJ_SNOWBALL) && CanKillEnemy(ACTOR_EN_WF)), // Day 2 only
+            CHECK(RC_ENEMY_DROP_SNAPPER, CanKillEnemy(ACTOR_OBJ_SNOWBALL) && CanKillEnemy(ACTOR_EN_KAME)), // Day 3 only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 3),                ENTRANCE(PATH_TO_MOUNTAIN_VILLAGE, 0), true),
@@ -407,6 +415,9 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_10, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
             CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_11, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
             CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_04, true),
+            CHECK(RC_ENEMY_DROP_BOE, CanKillEnemy(ACTOR_EN_MKK)), // Night only
+            CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_OBJ_SNOWBALL) && CanKillEnemy(ACTOR_EN_WF)), // Day 2 only
+            CHECK(RC_ENEMY_DROP_SNAPPER, CanKillEnemy(ACTOR_OBJ_SNOWBALL) && CanKillEnemy(ACTOR_EN_KAME)), // Day 3 only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(MOUNTAIN_VILLAGE_WINTER, 6),      ENTRANCE(PATH_TO_MOUNTAIN_VILLAGE, 1), true),
@@ -513,6 +524,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SNOWHEAD_LARGE_SNOWBALL_06, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
             CHECK(RC_ENEMY_DROP_KEESE, CanKillEnemy(ACTOR_EN_FIREFLY)),
             CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_EN_WF)),
+            CHECK(RC_ENEMY_DROP_BOE, CanKillEnemy(ACTOR_EN_MKK)), // Night only
         },
         .connections = {
             CONNECTION(RR_SNOWHEAD_NEAR_PATH, true),

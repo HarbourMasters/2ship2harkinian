@@ -46,7 +46,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_1_BATS_POT_01, true),
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_1_BATS_POT_02, true),
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_1_BATS_POT_03, true),
-            CHECK(RC_ENEMY_DROP_SKULLTULA, CanKillEnemy(ACTOR_EN_ST)),
+            CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(IKANA_GRAVEYARD, 3),              ENTRANCE(BENEATH_THE_GRAVERYARD, 1), true),
@@ -70,6 +70,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_2_AFTER_PIT_POT_02, true),
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_2_AFTER_PIT_POT_03, true),
             CHECK(RC_BENEATH_THE_GRAVEYARD_NIGHT_2_AFTER_PIT_POT_04, true),
+            CHECK(RC_ENEMY_DROP_SKULLTULA, CanKillEnemy(ACTOR_EN_ST)),
         },
         .connections = {
             CONNECTION(RR_BENEATH_THE_GRAVEYARD_NIGHT_2_BOSS, CAN_USE_EXPLOSIVE),
@@ -99,9 +100,8 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_GHOST_HUT] = RandoRegion{ .sceneId = SCENE_TOUGITES,
         .checks = {
-            // The first three sisters can be damaged with almost anything, but Meg requires ranged attacks.
-            // Not using CAN_USE_EXPLOSIVE here, as the Blast Mask cannot reach, and the Powder Keg can only be used once.
-            CHECK(RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART, CHECK_MAX_HP(4) && (CAN_USE_PROJECTILE || HAS_ITEM(ITEM_BOMB) || HAS_ITEM(ITEM_BOMBCHU))),
+            CHECK(RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART, CHECK_MAX_HP(4) && CanKillEnemy(ACTOR_EN_PO_SISTERS)),
+            CHECK(RC_ENEMY_DROP_POE_SISTER, CHECK_MAX_HP(4) && CanKillEnemy(ACTOR_EN_PO_SISTERS)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(IKANA_CANYON, 1),                 ENTRANCE(GHOST_HUT, 0), true),
@@ -144,6 +144,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_IKANA_CANYON_SCRUB_HUGE_RUPEE, Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_OCEAN) && CAN_BE_ZORA),
             CHECK(RC_IKANA_CANYON_SCRUB_POTION_REFILL, CUR_UPG_VALUE(UPG_WALLET) >= 1),
             CHECK(RC_ENEMY_DROP_OCTOROK, CanKillEnemy(ACTOR_EN_OKUTA)),
+            CHECK(RC_ENEMY_DROP_GARO, CanKillEnemy(ACTOR_EN_JSO)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ROAD_TO_IKANA, 1),                ENTRANCE(IKANA_CANYON, 0), true), 
@@ -226,7 +227,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_IKANA_GRAVEYARD_GRASS_07, true),
             CHECK(RC_IKANA_GRAVEYARD_GRASS_08, true),
             CHECK(RC_IKANA_GRAVEYARD_GRASS_09, true),
-            CHECK(RC_ENEMY_DROP_STALCHILD, CanKillEnemy(ACTOR_EN_SKB)),
+            CHECK(RC_ENEMY_DROP_STALCHILD, CanKillEnemy(ACTOR_EN_SKB)), // Night only
+            CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT)), // Day only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ROAD_TO_IKANA, 2),                ENTRANCE(IKANA_GRAVEYARD, 0), true),
@@ -244,8 +246,10 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_IKANA_GRAVEYARD_UPPER] = RandoRegion{ .name = "Upper", .sceneId = SCENE_BOTI,
         .checks = {
-            CHECK(RC_IKANA_GRAVEYARD_CAPTAIN_MASK, true),
+            CHECK(RC_IKANA_GRAVEYARD_CAPTAIN_MASK, CanKillEnemy(ACTOR_EN_SKB) && CanKillEnemy(ACTOR_EN_BSB)),
             CHECK(RC_ENEMY_DROP_STALCHILD, CanKillEnemy(ACTOR_EN_SKB)),
+            CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT)), // Day only
+            CHECK(RC_ENEMY_DROP_CAPTAIN_KEETA, CanKillEnemy(ACTOR_EN_SKB) && CanKillEnemy(ACTOR_EN_BSB)),
         },
         .connections = {
             CONNECTION(RR_IKANA_GRAVEYARD_LOWER, true)
@@ -390,6 +394,10 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SECRET_SHRINE_POT_07, (CAN_USE_PROJECTILE && CAN_USE_ABILITY(SWIM)) || CAN_BE_ZORA),
             CHECK(RC_SECRET_SHRINE_POT_08, (CAN_USE_PROJECTILE && CAN_USE_ABILITY(SWIM)) || CAN_BE_ZORA),
             CHECK(RC_SECRET_SHRINE_POT_09, (CAN_USE_PROJECTILE && CAN_USE_ABILITY(SWIM)) || CAN_BE_ZORA),
+            CHECK(RC_ENEMY_DROP_GARO_MASTER, CanKillEnemy(ACTOR_EN_JSO2)),
+            CHECK(RC_ENEMY_DROP_WIZROBE, CanKillEnemy(ACTOR_EN_WIZ)),
+            CHECK(RC_ENEMY_DROP_WART, CanKillEnemy(ACTOR_BOSS_04)),
+            CHECK(RC_ENEMY_DROP_DINOLFOS, CanKillEnemy(ACTOR_EN_DINOFOS)),
         },
         .connections = {
             CONNECTION(RR_SECRET_SHRINE_ENTRANCE, true),

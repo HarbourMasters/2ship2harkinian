@@ -86,6 +86,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_STONE_TOWER_TEMPLE_CENTER_SMALL_CRATE_02, true),
             CHECK(RC_STONE_TOWER_TEMPLE_CENTER_SMALL_CRATE_03, true),
             CHECK(RC_ENEMY_DROP_BEAMOS, CanKillEnemy(ACTOR_EN_VM)),
+            CHECK(RC_ENEMY_DROP_DEXIHAND, CanKillEnemy(ACTOR_EN_WDHAND)),
         },
         .connections = {
             CONNECTION(RR_STONE_TOWER_TEMPLE_OUTSIDE_SWITCH_ROOM, KEY_COUNT(STONE_TOWER_TEMPLE) >= 1),
@@ -121,6 +122,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_STONE_TOWER_TEMPLE_MIRRORS_ROOM_LARGE_CRATE_01, (CAN_BE_GORON && (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) >= EQUIP_VALUE_SHIELD_MIRROR)) || CAN_USE_MAGIC_ARROW(LIGHT)),
             CHECK(RC_STONE_TOWER_TEMPLE_MIRRORS_ROOM_LARGE_CRATE_02, (CAN_BE_GORON && (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) >= EQUIP_VALUE_SHIELD_MIRROR)) || CAN_USE_MAGIC_ARROW(LIGHT)),
             CHECK(RC_ENEMY_DROP_NEJIRON, CanKillEnemy(ACTOR_EN_BAGUO)),
+            CHECK(RC_ENEMY_DROP_BOE, CanKillEnemy(ACTOR_EN_MKK)),
         },
         .connections = {
             CONNECTION(RR_STONE_TOWER_TEMPLE_DEEP_POOL_ROOM, KEY_COUNT(STONE_TOWER_TEMPLE) >= 2),
@@ -152,6 +154,7 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_STONE_TOWER_TEMPLE_GARO_MASTER_ROOM] = RandoRegion{ .name = "Garo Master Room", .sceneId = SCENE_INISIE_N,
         .checks = {
             CHECK(RC_STONE_TOWER_TEMPLE_LIGHT_ARROW_CHEST, CanKillEnemy(ACTOR_EN_JSO2)),
+            CHECK(RC_ENEMY_DROP_GARO_MASTER, CanKillEnemy(ACTOR_EN_JSO2)),
         },
         .connections = {
             CONNECTION(RR_STONE_TOWER_TEMPLE_LAVA_WIND_ROOM, CanKillEnemy(ACTOR_EN_JSO2)),
@@ -194,11 +197,12 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_STONE_TOWER_TEMPLE_BRIDGE] = RandoRegion{ .sceneId = SCENE_INISIE_N,
         .checks = {
-            CHECK(RC_STONE_TOWER_TEMPLE_WATER_BRIDGE_CHEST, CAN_USE_PROJECTILE),
+            CHECK(RC_STONE_TOWER_TEMPLE_WATER_BRIDGE_CHEST, CanKillEnemy(ACTOR_EN_EGOL)),
+            CHECK(RC_ENEMY_DROP_EYEGORE, CanKillEnemy(ACTOR_EN_EGOL)),
         },
         .connections = {
             CONNECTION(RR_STONE_TOWER_TEMPLE_SPIKED_BAR_ROOM_UPPER, true),
-            CONNECTION(RR_STONE_TOWER_TEMPLE_ENTRANCE, CAN_USE_PROJECTILE)
+            CONNECTION(RR_STONE_TOWER_TEMPLE_ENTRANCE, CanKillEnemy(ACTOR_EN_EGOL))
         }
     };
 
@@ -258,7 +262,7 @@ static RegisterShipInitFunc initFunc([]() {
             CONNECTION(RR_STONE_TOWER_TEMPLE_INVERTED_WIZZROBE_ROOM, CAN_USE_MAGIC_ARROW(LIGHT))
         }
     };
-    Regions[RR_STONE_TOWER_TEMPLE_INVERTED_WIZZROBE_ROOM] = RandoRegion{ .name = "Wizzrobe Room", .sceneId = SCENE_INISIE_R,
+    Regions[RR_STONE_TOWER_TEMPLE_INVERTED_WIZZROBE_ROOM] = RandoRegion{ .name = "Wizrobe Room", .sceneId = SCENE_INISIE_R,
         .checks = {
             CHECK(RC_STONE_TOWER_TEMPLE_INVERTED_WIZZROBE_CHEST, CanKillEnemy(ACTOR_EN_WIZ) && HAS_ITEM(ITEM_HOOKSHOT)),
             CHECK(RC_STONE_TOWER_TEMPLE_INVERTED_WIZZROBE_POT_01, HAS_ITEM(ITEM_HOOKSHOT)),
@@ -287,6 +291,10 @@ static RegisterShipInitFunc initFunc([]() {
         }
     };
     Regions[RR_STONE_TOWER_TEMPLE_INVERTED_UNDER_BRIDGE] = RandoRegion{ .name = "Under Bridge", .sceneId = SCENE_INISIE_R,
+        .checks = {
+            CHECK(RC_ENEMY_DROP_FLYING_POT, CanKillEnemy(ACTOR_EN_TUBO_TRAP)),
+            // There is a Dexihand here, but there's no reasonable way to kill it and collect its drop.
+        },
         .connections = {
             CONNECTION(RR_STONE_TOWER_TEMPLE_INVERTED_POE_ROOM, true),
             CONNECTION(RR_STONE_TOWER_TEMPLE_INVERTED_PATH_TO_GOMESS, CAN_BE_DEKU && (HAS_ITEM(ITEM_HOOKSHOT) || HAS_ITEM(ITEM_BOW) || CAN_BE_ZORA)), // Deku bubbles can work with TIGHT aim, prob better to not consider that in logic
@@ -342,11 +350,12 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_STONE_TOWER_TEMPLE_INVERTED_BRIDGE] = RandoRegion{ .name = "Bridge", .sceneId = SCENE_INISIE_R,
         .checks = {
-            CHECK(RC_STONE_TOWER_TEMPLE_INVERTED_GIANT_MASK, CAN_USE_PROJECTILE),
+            CHECK(RC_STONE_TOWER_TEMPLE_INVERTED_GIANT_MASK, CanKillEnemy(ACTOR_EN_EGOL)),
+            CHECK(RC_ENEMY_DROP_EYEGORE, CanKillEnemy(ACTOR_EN_EGOL)),
         },
         .connections = {
             CONNECTION(RR_STONE_TOWER_TEMPLE_INVERTED_ENTRANCE_TOP, KEY_COUNT(STONE_TOWER_TEMPLE) >= 4),
-            CONNECTION(RR_STONE_TOWER_TEMPLE_INVERTED_SPIKED_BAR_ROOM_UPPER, CAN_USE_PROJECTILE)
+            CONNECTION(RR_STONE_TOWER_TEMPLE_INVERTED_SPIKED_BAR_ROOM_UPPER, CanKillEnemy(ACTOR_EN_EGOL))
         },
     };
     Regions[RR_STONE_TOWER_TEMPLE_INVERTED_SPIKED_BAR_ROOM_UPPER] = RandoRegion{ .name = "Spiked Bar Room Upper", .sceneId = SCENE_INISIE_R,

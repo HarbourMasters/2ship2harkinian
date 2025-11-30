@@ -110,6 +110,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_TERMINA_FIELD_COW_GROTTO_GRASS_70, true),
             CHECK(RC_TERMINA_FIELD_COW_GROTTO_GRASS_71, true),
             CHECK(RC_TERMINA_FIELD_COW_GROTTO_GRASS_72, true),
+            CHECK(RC_ENEMY_DROP_GIANT_BEE, CAN_USE_PROJECTILE), // In a beehive
         },
         .connections = {
             CONNECTION(RR_TERMINA_FIELD, true), // TODO: Grotto mapping
@@ -152,6 +153,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_03, true),
             CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_04, true),
             CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_05, true),
+            CHECK(RC_ENEMY_DROP_GIANT_BEE, CAN_USE_PROJECTILE), // In a beehive
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 0),                ENTRANCE(GROTTOS, 0), true), // TODO: Grotto mapping
@@ -503,6 +505,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ENEMY_DROP_LEEVER, CanKillEnemy(ACTOR_EN_NEO_REEBA)),
             CHECK(RC_ENEMY_DROP_DODONGO, CanKillEnemy(ACTOR_EN_DODONGO)), // Day only
             CHECK(RC_ENEMY_DROP_EENO, CanKillEnemy(ACTOR_EN_SNOWMAN)), // Night only
+            CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT)),
+            CHECK(RC_ENEMY_DROP_TAKKURI, CanKillEnemy(ACTOR_EN_THIEFBIRD)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(GROTTOS, 0),                      ENTRANCE(TERMINA_FIELD, 0), CAN_USE_EXPLOSIVE || CAN_BE_GORON), // TODO: Grotto mapping Gossip Stone #3

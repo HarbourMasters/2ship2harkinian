@@ -62,6 +62,9 @@ static RegisterShipInitFunc initFunc([]() {
         }
     };
     Regions[RR_BENEATH_THE_WELL_DEXIHAND_ROOM] = RandoRegion{ .name = "Dexihand Room", .sceneId = SCENE_REDEAD,
+        .checks = {
+            CHECK(RC_ENEMY_DROP_DEXIHAND, CanKillEnemy(ACTOR_EN_WDHAND)),
+        },
         .connections = {
             CONNECTION(RR_BENEATH_THE_WELL_THREE_SPIKED_BARS, true),
         },
@@ -102,6 +105,7 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_ENEMY_DROP_KEESE, CanKillEnemy(ACTOR_EN_FIREFLY)),
             CHECK(RC_ENEMY_DROP_WALLMASTER, CanKillEnemy(ACTOR_EN_WALLMAS)),
+            CHECK(RC_ENEMY_DROP_FREEZARD, CanKillEnemy(ACTOR_EN_FZ)),
         },
         .connections = {
             CONNECTION(RR_BENEATH_THE_WELL_ENTRANCE, true),
