@@ -163,6 +163,11 @@ void Rando::ActorBehavior::InitEnemyDropBehavior() {
 
     COND_HOOK(OnActorKill, IS_RANDO, [](Actor* actor) {
         if (SHUFFLE_DROPS) {
+            // Ignore Gold Skulltulas
+            if (actor->id == ACTOR_EN_SW && ENSW_GET_3(actor)) {
+                return;
+            }
+
             if (actor->room == gPlayState->roomCtx.curRoom.num) { // Ignore room change actor kills
                 for (auto& map : enemyDropProfiles) {
                     if (map.first == actor->id) {
@@ -173,8 +178,6 @@ void Rando::ActorBehavior::InitEnemyDropBehavior() {
                             position.x += Math_SinS(actor->world.rot.y + 0x8000) * (500.0f + BREG(38));
                             position.y += -100.0f + BREG(33);
                             position.z += Math_CosS(actor->world.rot.y + 0x8000) * (500.0f + BREG(38));
-                        } else if (actor->id == ACTOR_EN_SW && ENSW_GET_3(actor)) { // Ignore Gold Skulltulas
-                            return;
                         }
                         ProcessDropProfile(position, map.second, DROP_TYPE_KILL);
                         break;
