@@ -82,7 +82,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(MILK_ROAD, 2),                    ENTRANCE(GORMAN_TRACK, 3), RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
         },
         .connections = {
-            CONNECTION(RR_GORMAN_TRACK, CAN_PLAY_SONG(EPONA) || RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
+            CONNECTION(RR_GORMAN_TRACK, RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
         },
     };
     Regions[RR_MILK_ROAD] = RandoRegion{ .sceneId = SCENE_ROMANYMAE,
