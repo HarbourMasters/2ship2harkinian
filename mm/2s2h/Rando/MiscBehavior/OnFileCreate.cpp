@@ -9,6 +9,7 @@ extern "C" {
 #include "functions.h"
 #include "variables.h"
 #include "ShipUtils.h"
+#include "overlays/actors/ovl_En_Sth/z_en_sth.h"
 }
 
 // Very primitive randomizer implementation, when a save is created, if rando is enabled
@@ -94,6 +95,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     for (RandoItemId itemId : MapsAndCompasses) {
                         startingItems.push_back(itemId);
                     }
+                }
+
+                // If Skulltula tokens are not shuffled, use the vanilla requirement
+                if (!RANDO_SAVE_OPTIONS[RO_SHUFFLE_GOLD_SKULLTULAS]) {
+                    RANDO_SAVE_OPTIONS[RO_MINIMUM_SKULLTULA_TOKENS] = SPIDER_HOUSE_TOKENS_REQUIRED;
                 }
 
                 std::vector<RandoCheckId> checkPool;
@@ -466,6 +472,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
             RANDO_SAVE_CHECKS[RC_STARTING_ITEM_DEKU_MASK].eligible = true;
             RANDO_SAVE_CHECKS[RC_STARTING_ITEM_SONG_OF_HEALING].eligible = true;
+
+            GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRandoSeedGeneration>();
 
         } catch (const std::exception& e) {
             SPDLOG_ERROR("Error with randomizer save creation: {}", e.what());

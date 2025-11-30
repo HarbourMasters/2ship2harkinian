@@ -2903,7 +2903,9 @@ void Player_SetCylinderForAttack(Player* this, u32 dmgFlags, s32 damage, s32 rad
     if (radius > 30) {
         this->cylinder.base.ocFlags1 = OC1_NONE;
     } else {
-        this->cylinder.base.ocFlags1 = OC1_ON | OC1_TYPE_ALL;
+        if (GameInteractor_Should(VB_SET_PLAYER_CYLINDER_OC_FLAGS, true, this, dmgFlags)) {
+            this->cylinder.base.ocFlags1 = OC1_ON | OC1_TYPE_ALL;
+        }
     }
 
     this->cylinder.elem.elemMaterial = ELEM_MATERIAL_UNK2;
@@ -12208,8 +12210,10 @@ void Player_UpdateCamAndSeqModes(PlayState* play, Player* this) {
         }
 
         if (play->actorCtx.attention.bgmEnemy != NULL) {
-            seqMode = SEQ_MODE_ENEMY;
-            Audio_UpdateEnemyBgmVolume(sqrtf(play->actorCtx.attention.bgmEnemy->xyzDistToPlayerSq));
+            if (GameInteractor_Should(VB_PLAY_ENEMY_PROXIMITY_MUSIC, true)) {
+                seqMode = SEQ_MODE_ENEMY;
+                Audio_UpdateEnemyBgmVolume(sqrtf(play->actorCtx.attention.bgmEnemy->xyzDistToPlayerSq));
+            }
         }
 
         Audio_SetSequenceMode(seqMode);

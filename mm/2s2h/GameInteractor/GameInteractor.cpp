@@ -82,6 +82,10 @@ void GameInteractor_ExecuteBeforeInterfaceClockDraw() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeInterfaceClockDraw>();
 }
 
+void GameInteractor_ExecuteOnGameCompletion() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameCompletion>();
+}
+
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum) {
     SPDLOG_DEBUG("OnSceneInit: sceneId: {}, spawnNum: {}", sceneId, spawnNum);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneInit>(sceneId, spawnNum);
@@ -271,6 +275,10 @@ void GameInteractor_ExecuteOnBottleContentsUpdate(u8 item) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnBottleContentsUpdate>(item);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnBottleContentsUpdate>(item, item);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnBottleContentsUpdate>(item);
+}
+
+void GameInteractor_ExecuteOnSeqPlayerInit(int32_t playerIdx, int32_t seqId) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSeqPlayerInit>(playerIdx, seqId);
 }
 
 bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...) {
