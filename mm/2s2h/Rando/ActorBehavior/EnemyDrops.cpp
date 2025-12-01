@@ -10,8 +10,6 @@ extern "C" {
 #include "overlays/actors/ovl_En_Sw/z_en_sw.h"
 }
 
-#define SHUFFLE_DROPS (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_DROPS] != RO_GENERIC_OFF)
-
 typedef enum {
     DROP_TYPE_NORMAL,
     DROP_TYPE_KILL,
@@ -62,13 +60,12 @@ std::unordered_map<int16_t, std::tuple<RandoCheckId, ActorType, EnemyDropType>> 
     { ACTOR_EN_OKUTA,       { RC_ENEMY_DROP_OCTOROK, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     { ACTOR_EN_PEEHAT,      { RC_ENEMY_DROP_PEAHAT, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     { ACTOR_EN_KAIZOKU,     { RC_ENEMY_DROP_PIRATE, ACTORCAT_ENEMY, DROP_TYPE_KILL } },
-    // TODO: Come up with answer for Poes and Big Poes. They do not normally drop any items, but they do leave behind
-    // bottleable flames. Should that flame be randomized, replaced with an RI drop, or something else?
+    // Poes and Big Poes are excluded because they drop a bottleable item, which may make more sense for bottle shuffle.
     { ACTOR_EN_PO_SISTERS,  { RC_ENEMY_DROP_POE_SISTER, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     { ACTOR_EN_BBFALL,      { RC_ENEMY_DROP_RED_BUBBLE, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
-    // TODO: Determine how to handle ACTOR_EN_TALK_GIBUD and ACTOR_EN_RAILGIBUD. Neither have normal drops, and
-    // ACTOR_EN_TALK_GIBUD is immortal and thus cannot use the kill top drop. Furthermore, should Gibdos and Redeads
-    // have the same drop check or separate ones? Gibdos turn into Redeads when hit with Fire Arrows.
+    // Gibdos are excluded. Well Gibdos only get "killed" when receiving their requested item, which may not make sense
+    // for enemy drops. Patrolling Gibdos take forever to die, and one of them doesn't call Actor_Kill at all, but also
+    // does not handle normal drops.
     { ACTOR_EN_RD,          { RC_ENEMY_DROP_REDEAD, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     { ACTOR_EN_SB,          { RC_ENEMY_DROP_SHELLBLADE, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     { ACTOR_EN_PR2,         { RC_ENEMY_DROP_SKULLFISH, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
@@ -77,7 +74,7 @@ std::unordered_map<int16_t, std::tuple<RandoCheckId, ActorType, EnemyDropType>> 
     { ACTOR_EN_BIGPAMET,    { RC_ENEMY_DROP_SNAPPER, ACTORCAT_BOSS, DROP_TYPE_KILL } },
     { ACTOR_EN_KAME,        { RC_ENEMY_DROP_SNAPPER, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     { ACTOR_EN_HINT_SKB,    { RC_ENEMY_DROP_STALCHILD, ACTORCAT_NPC, DROP_TYPE_NORMAL } },
-    // TODO: Could add ACTOR_EN_RAIL_SKB, but it neither calls a drop function nor dies when attacked. It respawns. It's
+    // ACTOR_EN_RAIL_SKB is excluded. It neither calls a drop function nor dies when attacked. It respawns. It's
     // logically gated no differently from the regular ACTOR_EN_SKB in the same region, so leave it be for now.
     { ACTOR_EN_SKB,         { RC_ENEMY_DROP_STALCHILD, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     { ACTOR_EN_THIEFBIRD,   { RC_ENEMY_DROP_TAKKURI, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
@@ -151,60 +148,58 @@ bool SpawnNormalEnemyDrop(Vec3f position, u32 params) {
 }
 
 void Rando::ActorBehavior::InitEnemyDropBehavior() {
-    COND_VB_SHOULD(VB_ENEMY_DROP_COLLECTIBLE, IS_RANDO, {
-        if (SHUFFLE_DROPS) {
-            Vec3f position = va_arg(args, Vec3f);
-            u32 params = va_arg(args, u32);
-            if (SpawnNormalEnemyDrop(position, params)) {
-                *should = false;
-            }
+    bool shouldRegister = IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_DROPS];
+
+    COND_VB_SHOULD(VB_ENEMY_DROP_COLLECTIBLE, shouldRegister, {
+        Vec3f position = va_arg(args, Vec3f);
+        u32 params = va_arg(args, u32);
+        if (SpawnNormalEnemyDrop(position, params)) {
+            *should = false;
         }
     });
 
-    COND_HOOK(OnActorKill, IS_RANDO, [](Actor* actor) {
-        if (SHUFFLE_DROPS) {
-            // Ignore Gold Skulltulas
-            if (actor->id == ACTOR_EN_SW && ENSW_GET_3(actor)) {
-                return;
-            }
+    COND_HOOK(OnActorKill, shouldRegister, [](Actor* actor) {
+        // Ignore Gold Skulltulas
+        if (actor->id == ACTOR_EN_SW && ENSW_GET_3(actor)) {
+            return;
+        }
 
-            if (actor->room == gPlayState->roomCtx.curRoom.num) { // Ignore room change actor kills
-                for (auto& map : enemyDropProfiles) {
-                    if (map.first == actor->id) {
-                        Vec3f position = actor->world.pos;
-                        if (actor->id == ACTOR_EN_DRAGON) {
-                            // The Deep Python's base is out of bounds. Mimic what it does when spawning the Seahorse.
-                            position = actor->parent->world.pos;
-                            position.x += Math_SinS(actor->world.rot.y + 0x8000) * (500.0f + BREG(38));
-                            position.y += -100.0f + BREG(33);
-                            position.z += Math_CosS(actor->world.rot.y + 0x8000) * (500.0f + BREG(38));
-                        }
-                        ProcessDropProfile(position, map.second, DROP_TYPE_KILL);
-                        break;
+        if (actor->room == gPlayState->roomCtx.curRoom.num) { // Ignore room change actor kills
+            for (auto& map : enemyDropProfiles) {
+                if (map.first == actor->id) {
+                    Vec3f position = actor->world.pos;
+                    if (actor->id == ACTOR_EN_DRAGON) {
+                        // The Deep Python's base is out of bounds. Mimic what it does when spawning the Seahorse.
+                        position = actor->parent->world.pos;
+                        position.x += Math_SinS(actor->world.rot.y + 0x8000) * (500.0f + BREG(38));
+                        position.y += -100.0f + BREG(33);
+                        position.z += Math_CosS(actor->world.rot.y + 0x8000) * (500.0f + BREG(38));
                     }
+                    ProcessDropProfile(position, map.second, DROP_TYPE_KILL);
+                    break;
                 }
             }
         }
     });
 
     // Captain Keeta dies in a cutscene, so spawn that drop once the weekeventreg flag is set
-    COND_HOOK(OnFlagSet, IS_RANDO, [](FlagType flagType, u32 flag) {
-        if (SHUFFLE_DROPS && flagType == FLAG_WEEK_EVENT_REG && flag == WEEKEVENTREG_23_04) {
+    COND_HOOK(OnFlagSet, shouldRegister, [](FlagType flagType, u32 flag) {
+        if (flagType == FLAG_WEEK_EVENT_REG && flag == WEEKEVENTREG_23_04) {
             // Spawn near where Link ends up after the fight
             SpawnDropItem({ -100.0f, 525.0f, -2330.0f }, RC_ENEMY_DROP_CAPTAIN_KEETA);
         }
     });
 
     // Igos dies in a cutscene, so spawn that drop once the scene clear flag is set
-    COND_HOOK(OnSceneFlagSet, IS_RANDO, [](s16 sceneId, FlagType flagType, u32 flag) {
-        if (SHUFFLE_DROPS && sceneId == SCENE_IKNINSIDE && flagType == FLAG_CYCL_SCENE_CLEARED_ROOM && flag == 1) {
+    COND_HOOK(OnSceneFlagSet, shouldRegister, [](s16 sceneId, FlagType flagType, u32 flag) {
+        if (sceneId == SCENE_IKNINSIDE && flagType == FLAG_CYCL_SCENE_CLEARED_ROOM && flag == 1) {
             // Spawn on the throne
             SpawnDropItem({ 1408.25f, 76.0f, 2863.5f }, RC_ENEMY_DROP_IGOS_DU_IKANA);
         }
     });
 
-    COND_VB_SHOULD(VB_DRAW_SLIME_RANDO_ITEM, IS_RANDO, {
-        if (SHUFFLE_DROPS && !RANDO_SAVE_CHECKS[RC_ENEMY_DROP_CHUCHU].cycleObtained) {
+    COND_VB_SHOULD(VB_DRAW_SLIME_RANDO_ITEM, shouldRegister, {
+        if (!RANDO_SAVE_CHECKS[RC_ENEMY_DROP_CHUCHU].cycleObtained) {
             RandoItemId randoItemId = Rando::ConvertItem(RANDO_SAVE_CHECKS[RC_ENEMY_DROP_CHUCHU].randoItemId);
 
             EnSlime* slime = va_arg(args, EnSlime*);

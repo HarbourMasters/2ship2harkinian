@@ -439,7 +439,7 @@ void CheckTrackerDrawNonLogicalList() {
                          * omit the tooltip for them in particular.
                          */
                         if (accessLogicString != "" &&
-                            !(randoCheckId >= RC_ENEMY_DROP_ARMOS && randoCheckId <= RC_ENEMY_DROP_WOLFOS)) {
+                            !(randoCheckId >= RC_ENEMY_DROP_ALIEN && randoCheckId <= RC_ENEMY_DROP_WOLFOS)) {
                             UIWidgets::Tooltip(accessLogicString.c_str());
                         }
                         ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0, ImGui::IsItemHovered()
