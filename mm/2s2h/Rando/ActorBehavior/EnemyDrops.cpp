@@ -26,7 +26,6 @@ std::unordered_map<int16_t, std::tuple<RandoCheckId, ActorType, EnemyDropType>> 
     // Boes do call drop collectible code, but only the ones in an unused grotto reach that point. We could add an init
     // hook to EnMkk to set unk_14C to a non-zero value, but the kill type works for now.
     { ACTOR_EN_MKK,         { RC_ENEMY_DROP_BOE, ACTORCAT_ENEMY, DROP_TYPE_KILL } },
-    { ACTOR_EN_RAT,         { RC_ENEMY_DROP_BOMBCHU, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     { ACTOR_EN_SLIME,       { RC_ENEMY_DROP_CHUCHU, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     // Captain Keeta dies in a cutscene, so that drop is handled specially below.
     { ACTOR_EN_FAMOS,       { RC_ENEMY_DROP_DEATH_ARMOS, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
@@ -62,6 +61,7 @@ std::unordered_map<int16_t, std::tuple<RandoCheckId, ActorType, EnemyDropType>> 
     { ACTOR_EN_KAIZOKU,     { RC_ENEMY_DROP_PIRATE, ACTORCAT_ENEMY, DROP_TYPE_KILL } },
     // Poes and Big Poes are excluded because they drop a bottleable item, which may make more sense for bottle shuffle.
     { ACTOR_EN_PO_SISTERS,  { RC_ENEMY_DROP_POE_SISTER, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
+    { ACTOR_EN_RAT,         { RC_ENEMY_DROP_REAL_BOMBCHU, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     { ACTOR_EN_BBFALL,      { RC_ENEMY_DROP_RED_BUBBLE, ACTORCAT_ENEMY, DROP_TYPE_NORMAL } },
     // Gibdos are excluded. Well Gibdos only get "killed" when receiving their requested item, which may not make sense
     // for enemy drops. Patrolling Gibdos take forever to die, and one of them doesn't call Actor_Kill at all, but also

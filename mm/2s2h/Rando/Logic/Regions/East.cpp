@@ -287,7 +287,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ROAD_TO_IKANA_POT, CAN_HOOK_SCARECROW),
             CHECK(RC_ROAD_TO_IKANA_STONE_MASK, HAS_ITEM(ITEM_LENS_OF_TRUTH) && HAS_MAGIC && HAS_BOTTLE && (CAN_ACCESS(RED_POTION_REFILL) || CAN_ACCESS(BLUE_POTION_REFILL))),
             CHECK(RC_ENEMY_DROP_BLUE_BUBBLE, CanKillEnemy(ACTOR_EN_BB)), // Night only
-            CHECK(RC_ENEMY_DROP_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT)), // Day only
+            CHECK(RC_ENEMY_DROP_REAL_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT)), // Day only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(IKANA_GRAVEYARD, 0),              ENTRANCE(ROAD_TO_IKANA, 2), true)
@@ -301,7 +301,7 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_ROAD_TO_IKANA_CHEST, HAS_ITEM(ITEM_HOOKSHOT)),
             CHECK(RC_ENEMY_DROP_BLUE_BUBBLE, CanKillEnemy(ACTOR_EN_BB)), // Night only
-            CHECK(RC_ENEMY_DROP_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT)), // Day only
+            CHECK(RC_ENEMY_DROP_REAL_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT)), // Day only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 4),                ENTRANCE(ROAD_TO_IKANA, 0), true),
