@@ -13,8 +13,10 @@ void EnSyatekiMan_Town_RunGame(EnSyatekiMan* enSyatekiMan, PlayState* play);
 #define SWAMP_CVAR CVarGetInteger(SWAMP_CVAR_NAME, 2180)
 #define TOWN_CVAR_NAME "gEnhancements.Minigames.TownArcheryScore"
 #define TOWN_CVAR CVarGetInteger(TOWN_CVAR_NAME, 50)
+#define BOAT_CVAR_NAME "gEnhancements.Minigames.BoatArcheryScore"
+#define BOAT_CVAR CVarGetInteger(BOAT_CVAR_NAME, 20)
 
-void RegisterArchery() {
+static void RegisterSwampArchery() {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_SYATEKI_MAN, SWAMP_CVAR != 2180, [](Actor* actor, bool* should) {
         EnSyatekiMan* enSyatekiMan = (EnSyatekiMan*)actor;
 
@@ -38,7 +40,9 @@ void RegisterArchery() {
         *sBonusTimer = 11;
         *should = true;
     });
+}
 
+static void RegisterTownArchery() {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_SYATEKI_MAN, TOWN_CVAR != 50, [](Actor* actor, bool* should) {
         EnSyatekiMan* enSyatekiMan = (EnSyatekiMan*)actor;
 
@@ -51,4 +55,10 @@ void RegisterArchery() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterArchery, { SWAMP_CVAR_NAME, TOWN_CVAR_NAME });
+static void RegisterBoatArchery() {
+    COND_HOOK(AfterEndOfCycleSave, BOAT_CVAR != 20, []() { HS_SET_BOAT_ARCHERY_HIGH_SCORE(BOAT_CVAR - 1); });
+}
+
+static RegisterShipInitFunc initFunc_Swamp(RegisterSwampArchery, { SWAMP_CVAR_NAME });
+static RegisterShipInitFunc initFunc_Town(RegisterTownArchery, { TOWN_CVAR_NAME });
+static RegisterShipInitFunc initFunc_Boat(RegisterBoatArchery, { BOAT_CVAR_NAME });

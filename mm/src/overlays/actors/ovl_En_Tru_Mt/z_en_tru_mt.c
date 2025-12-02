@@ -337,7 +337,7 @@ void func_80B76924(EnTruMt* this) {
 void func_80B76980(EnTruMt* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
-    if (gSaveContext.minigameHiddenScore >= 10) {
+    if (gSaveContext.minigameHiddenScore >= CVarGetInteger("gEnhancements.Minigames.BoatArcheryHealth", 10)) {
         Message_StartTextbox(play, 0x87F, &this->actor);
         SET_EVENTINF(EVENTINF_36);
         SET_EVENTINF(EVENTINF_40);
