@@ -22,15 +22,12 @@ void RegisterSkipScarecrowSong() {
          */
         if ((enKakasi->picto.actor.xzDistToPlayer < enKakasi->songSummonDist) &&
             ((BREG(1) != 0) || (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_ACTIVE))) {
-
             // In Rando we may utilize Ocarina Buttons, ensure this is honored.
-            if (IS_RANDO) {
-                if (Rando::Logic::canPlaySong(OCARINA_SONG_SCARECROW_SPAWN)) {
-                    *should = true;
-                }
-            } else {
-                *should = true;
+            if (IS_RANDO && Rando::Logic::canPlaySong(OCARINA_SONG_SCARECROW_SPAWN)) {
+                    return;
             }
+
+            *should = true;
 
             // Properly get out of the ocarina playing state
             AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
