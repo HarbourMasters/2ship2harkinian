@@ -143,7 +143,7 @@ inline std::string LogicString(std::string condition) {
 
 inline uint8_t FoundOcarinaButtons() {
     uint8_t foundButtons = 0;
-    for (int i = RANDO_INF_OBTAINED_OCARINA_BUTTON_A; i < RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP; i++) {
+    for (int i = RANDO_INF_OBTAINED_OCARINA_BUTTON_A; i <= RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP; i++) {
         if (Flags_GetRandoInf((RandoInf)i)) {
             foundButtons++;
         }
