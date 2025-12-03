@@ -185,7 +185,7 @@ void SetRandoQuickStartOptions() {
 }
 
 void QuickStartQuestInit(const char* fileNameEntry) {
-    static std::string cleanFileName = Ship_RemoveSpecialCharacters(fileNameEntry);
+    std::string cleanFileName = Ship_RemoveSpecialCharacters(fileNameEntry);
     std::vector<uint8_t> playerName = ConvertNameSet(cleanFileName.c_str());
     FileSelectState* fileSelect = (FileSelectState*)gGameState;
     SramContext* sramCtx = &fileSelect->sramCtx;
