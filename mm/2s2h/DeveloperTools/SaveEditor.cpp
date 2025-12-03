@@ -1352,7 +1352,7 @@ void DrawDungeonItemTab() {
             SetDungeonItems(DUNGEON_BOSS_KEY, i);
         }
         if (ImGui::BeginPopup("strayFairies")) {
-            UIWidgets::PushStyleSlider(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+            UIWidgets::PushStyleSlider(UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)));
             s32 minStray = 0;
             s32 maxStray = 15;
             int currentStrays = gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId];
@@ -1366,7 +1366,7 @@ void DrawDungeonItemTab() {
             ImGui::EndPopup();
         }
         if (ImGui::BeginPopup("smallKeys")) {
-            UIWidgets::PushStyleSlider(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+            UIWidgets::PushStyleSlider(UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)));
             s32 minKey = -1;
             s32 maxKey = smallKeyCounts[dungeonId];
             int currentKeys = gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId];
@@ -2261,7 +2261,7 @@ void DrawRandoTab() {
 }
 
 void SaveEditorWindow::DrawElement() {
-    UIWidgets::PushStyleTabs(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
+    UIWidgets::PushStyleTabs(UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), 5)));
     if (ImGui::BeginTabBar("SaveContextTabBar", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
         if (ImGui::BeginTabItem("General")) {
             DrawGeneralTab();

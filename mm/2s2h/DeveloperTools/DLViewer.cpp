@@ -4,6 +4,7 @@
 #include <fast/resource/type/DisplayList.h>
 #include <fast/resource/ResourceType.h>
 #include "BenPort.h"
+#include "2s2h/cvar_prefixes.h"
 #include <libultraship/bridge/resourcebridge.h>
 
 extern "C" {
@@ -227,13 +228,13 @@ void DrawViewOptions() {
     }
 
     if (ImGui::BeginPopup("dlViewerOptions")) {
-        UIWidgets::CVarCheckbox("Show Command Index", "gDeveloperTools.DLViewer.ShowCommandIndex",
+        UIWidgets::CVarCheckbox("Show Command Index", CVAR_DEVELOPER_TOOLS("DLViewer.ShowCommandIndex"),
                                 { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Show Raw Hex Values", "gDeveloperTools.DLViewer.ShowCommandHex",
+        UIWidgets::CVarCheckbox("Show Raw Hex Values", CVAR_DEVELOPER_TOOLS("DLViewer.ShowCommandHex"),
                                 { .defaultValue = 0 });
-        UIWidgets::CVarCheckbox("Show Metadata", "gDeveloperTools.DLViewer.ShowMetadata", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Color Preview", "gDeveloperTools.DLViewer.ColorPreview", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Expanded View", "gDeveloperTools.DLViewer.ExpandedView", { .defaultValue = 0 });
+        UIWidgets::CVarCheckbox("Show Metadata", CVAR_DEVELOPER_TOOLS("DLViewer.ShowMetadata"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("Color Preview", CVAR_DEVELOPER_TOOLS("DLViewer.ColorPreview"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("Expanded View", CVAR_DEVELOPER_TOOLS("DLViewer.ExpandedView"), { .defaultValue = 0 });
         ImGui::EndPopup();
     }
 }
@@ -244,21 +245,21 @@ void DrawInstructionFilters() {
     }
 
     if (ImGui::BeginPopup("dlViewerFilters")) {
-        bool allChecked = CVarGetInteger("gDeveloperTools.DLViewer.Filter.Color", 1) &&
-                          CVarGetInteger("gDeveloperTools.DLViewer.Filter.Texture", 1) &&
-                          CVarGetInteger("gDeveloperTools.DLViewer.Filter.Geometry", 1) &&
-                          CVarGetInteger("gDeveloperTools.DLViewer.Filter.DisplayList", 1) &&
-                          CVarGetInteger("gDeveloperTools.DLViewer.Filter.Sync", 1) &&
-                          CVarGetInteger("gDeveloperTools.DLViewer.Filter.Other", 1) &&
-                          CVarGetInteger("gDeveloperTools.DLViewer.Filter.Unknown", 0);
+        bool allChecked = CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Color"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Texture"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Geometry"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.DisplayList"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Sync"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Other"), 1) &&
+                          CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"), 0);
 
-        bool someChecked = CVarGetInteger("gDeveloperTools.DLViewer.Filter.Color", 0) ||
-                           CVarGetInteger("gDeveloperTools.DLViewer.Filter.Texture", 0) ||
-                           CVarGetInteger("gDeveloperTools.DLViewer.Filter.Geometry", 0) ||
-                           CVarGetInteger("gDeveloperTools.DLViewer.Filter.DisplayList", 0) ||
-                           CVarGetInteger("gDeveloperTools.DLViewer.Filter.Sync", 0) ||
-                           CVarGetInteger("gDeveloperTools.DLViewer.Filter.Other", 0) ||
-                           CVarGetInteger("gDeveloperTools.DLViewer.Filter.Unknown", 0);
+        bool someChecked = CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Color"), 0) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Texture"), 0) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Geometry"), 0) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.DisplayList"), 0) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Sync"), 0) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Other"), 0) ||
+                           CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"), 0);
 
         ImGuiContext* g = ImGui::GetCurrentContext();
         ImGuiItemFlags backup_item_flags = g->CurrentItemFlags;
@@ -267,25 +268,25 @@ void DrawInstructionFilters() {
         bool allCheckedValue = allChecked;
         if (UIWidgets::Checkbox("All", &allCheckedValue)) {
             int value = allCheckedValue ? 1 : 0;
-            CVarSetInteger("gDeveloperTools.DLViewer.Filter.Color", value);
-            CVarSetInteger("gDeveloperTools.DLViewer.Filter.Texture", value);
-            CVarSetInteger("gDeveloperTools.DLViewer.Filter.Geometry", value);
-            CVarSetInteger("gDeveloperTools.DLViewer.Filter.DisplayList", value);
-            CVarSetInteger("gDeveloperTools.DLViewer.Filter.Sync", value);
-            CVarSetInteger("gDeveloperTools.DLViewer.Filter.Other", value);
-            CVarSetInteger("gDeveloperTools.DLViewer.Filter.Unknown", value);
+            CVarSetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Color"), value);
+            CVarSetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Texture"), value);
+            CVarSetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Geometry"), value);
+            CVarSetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.DisplayList"), value);
+            CVarSetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Sync"), value);
+            CVarSetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Other"), value);
+            CVarSetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"), value);
             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         }
         g->CurrentItemFlags = backup_item_flags;
 
-        UIWidgets::CVarCheckbox("Color Commands", "gDeveloperTools.DLViewer.Filter.Color", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Texture Commands", "gDeveloperTools.DLViewer.Filter.Texture", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Geometry Commands", "gDeveloperTools.DLViewer.Filter.Geometry", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Display List Commands", "gDeveloperTools.DLViewer.Filter.DisplayList",
+        UIWidgets::CVarCheckbox("Color Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Color"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("Texture Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Texture"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("Geometry Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Geometry"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("Display List Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.DisplayList"),
                                 { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Sync Commands", "gDeveloperTools.DLViewer.Filter.Sync", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Other Commands", "gDeveloperTools.DLViewer.Filter.Other", { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Unknown Commands", "gDeveloperTools.DLViewer.Filter.Unknown", { .defaultValue = 0 });
+        UIWidgets::CVarCheckbox("Sync Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Sync"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("Other Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Other"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("Unknown Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"), { .defaultValue = 0 });
         ImGui::EndPopup();
     }
 }
@@ -294,19 +295,19 @@ bool ShouldShowCommand(int cmd) {
     CommandCategory category = GetCommandCategory(cmd);
     switch (category) {
         case CommandCategory::Color:
-            return CVarGetInteger("gDeveloperTools.DLViewer.Filter.Color", 1) != 0;
+            return CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Color"), 1) != 0;
         case CommandCategory::Texture:
-            return CVarGetInteger("gDeveloperTools.DLViewer.Filter.Texture", 1) != 0;
+            return CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Texture"), 1) != 0;
         case CommandCategory::Geometry:
-            return CVarGetInteger("gDeveloperTools.DLViewer.Filter.Geometry", 1) != 0;
+            return CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Geometry"), 1) != 0;
         case CommandCategory::DisplayList:
-            return CVarGetInteger("gDeveloperTools.DLViewer.Filter.DisplayList", 1) != 0;
+            return CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.DisplayList"), 1) != 0;
         case CommandCategory::Sync:
-            return CVarGetInteger("gDeveloperTools.DLViewer.Filter.Sync", 1) != 0;
+            return CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Sync"), 1) != 0;
         case CommandCategory::Other:
-            return CVarGetInteger("gDeveloperTools.DLViewer.Filter.Other", 1) != 0;
+            return CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Other"), 1) != 0;
         case CommandCategory::Unknown:
-            return CVarGetInteger("gDeveloperTools.DLViewer.Filter.Unknown", 0) != 0;
+            return CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"), 0) != 0;
         default:
             return true;
     }
@@ -363,7 +364,7 @@ void DrawColorEditor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a, const std::
     }
 
     // Color preview - vertically center with inputs
-    if (CVarGetInteger("gDeveloperTools.DLViewer.ColorPreview", 1)) {
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.ColorPreview"), 1)) {
         ImGui::SameLine();
         // Get the line height to match input fields
         float lineHeight = ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 2.0f;
@@ -509,8 +510,8 @@ void DrawInstructionRow(Gfx* gfx, size_t index, const std::string& activeDL, siz
 
     // Calculate column indices dynamically
     int colIdx = 0;
-    bool showIndex = CVarGetInteger("gDeveloperTools.DLViewer.ShowCommandIndex", 1) != 0;
-    bool showMetadata = CVarGetInteger("gDeveloperTools.DLViewer.ShowMetadata", 1) != 0;
+    bool showIndex = CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.ShowCommandIndex"), 1) != 0;
+    bool showMetadata = CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.ShowMetadata"), 1) != 0;
 
     // Index column
     if (showIndex) {
@@ -579,7 +580,7 @@ void DrawInstructionRow(Gfx* gfx, size_t index, const std::string& activeDL, siz
         UIWidgets::PopStyleCheckbox();
         ImGui::SameLine();
         ImGui::TextWrapped("State: %s", state ? "On" : "Off");
-    } else if (CVarGetInteger("gDeveloperTools.DLViewer.ShowCommandHex", 0)) {
+    } else if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.ShowCommandHex"), 0)) {
         ImGui::TextWrapped("w0: 0x%08X w1: 0x%08X", gfx->words.w0, gfx->words.w1);
     }
 
@@ -653,9 +654,9 @@ void DrawInstructionTable(std::shared_ptr<Fast::DisplayList> res) {
 
     // Determine column count based on CVars
     int columnCount = 3; // Command, Parameters, Actions (always visible)
-    if (CVarGetInteger("gDeveloperTools.DLViewer.ShowCommandIndex", 1))
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.ShowCommandIndex"), 1))
         columnCount++;
-    if (CVarGetInteger("gDeveloperTools.DLViewer.ShowMetadata", 1))
+    if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.ShowMetadata"), 1))
         columnCount++;
 
     int columnIndex = 0;
@@ -664,7 +665,7 @@ void DrawInstructionTable(std::shared_ptr<Fast::DisplayList> res) {
                               ImGuiTableFlags_Resizable | ImGuiTableFlags_SizingStretchProp)) {
 
         // Setup columns
-        if (CVarGetInteger("gDeveloperTools.DLViewer.ShowCommandIndex", 1)) {
+        if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.ShowCommandIndex"), 1)) {
             ImGui::TableSetupColumn("Idx", ImGuiTableColumnFlags_WidthFixed, IDX_COLUMN_WIDTH);
         }
         // Use cached width if available
@@ -678,7 +679,7 @@ void DrawInstructionTable(std::shared_ptr<Fast::DisplayList> res) {
         }
         ImGui::TableSetupColumn("Command", ImGuiTableColumnFlags_WidthFixed, maxCmdWidth);
         ImGui::TableSetupColumn("Parameters", ImGuiTableColumnFlags_WidthFixed, PARAMS_COLUMN_WIDTH);
-        if (CVarGetInteger("gDeveloperTools.DLViewer.ShowMetadata", 1)) {
+        if (CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.ShowMetadata"), 1)) {
             ImGui::TableSetupColumn("Metadata", ImGuiTableColumnFlags_WidthStretch);
         }
         // Auto-size Actions column to header text (use cached if available)
@@ -696,7 +697,7 @@ void DrawInstructionTable(std::shared_ptr<Fast::DisplayList> res) {
             int cmd = gfx->words.w0 >> 24;
 
             // Skip commands not in filter
-            if (cmdMap.find(cmd) == cmdMap.end() && !CVarGetInteger("gDeveloperTools.DLViewer.Filter.Unknown", 0)) {
+            if (cmdMap.find(cmd) == cmdMap.end() && !CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"), 0)) {
                 continue;
             }
 
@@ -721,7 +722,7 @@ void DrawInstructionTable(std::shared_ptr<Fast::DisplayList> res) {
                 if (i < totalInstructions) {
                     ImGui::TableNextRow();
                     int colIdx = 0;
-                    bool showIndex = CVarGetInteger("gDeveloperTools.DLViewer.ShowCommandIndex", 1) != 0;
+                    bool showIndex = CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.ShowCommandIndex"), 1) != 0;
                     if (showIndex) {
                         ImGui::TableSetColumnIndex(colIdx++);
                         ImGui::Text("%zu", i);
@@ -759,7 +760,7 @@ void DLViewerWindow::DrawElement() {
         cachedActionsHeaderWidth = ImGui::CalcTextSize("Actions").x + ImGui::GetStyle().FramePadding.x * 2.0f;
     }
 
-    ImGui::BeginDisabled(CVarGetInteger("gDeveloperTools.DisableChanges", 0));
+    ImGui::BeginDisabled(CVarGetInteger(CVAR_DEVELOPER_TOOLS("DisableChanges"), 0));
 
     if (OTRGlobals::Instance->fontMonoLarger != nullptr) {
         ImGui::PushFont(OTRGlobals::Instance->fontMonoLarger);
