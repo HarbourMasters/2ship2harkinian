@@ -213,7 +213,6 @@ inline bool canPlaySong(u8 songId) {
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT));
         case OCARINA_SONG_SCARECROW_SPAWN:
             return FoundOcarinaButtons() >= 2;
-            break;
         default:
             return true;
     }
