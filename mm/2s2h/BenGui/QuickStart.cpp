@@ -191,7 +191,7 @@ void QuickStartQuestInit(const char* fileNameEntry) {
     SramContext* sramCtx = &fileSelect->sramCtx;
 
     fileSelect->buttonIndex = (SelectMenuButtonIndex)SaveManager_GetOpenFileSlot() - 1;
-    if (fileSelect->buttonIndex < FS_BTN_SELECT_FILE_1) {
+    if (cleanFileName != fileNameEntry || fileSelect->buttonIndex < FS_BTN_SELECT_FILE_1) {
         Audio_PlaySfx(NA_SE_SY_QUIZ_INCORRECT);
         return;
     }
