@@ -146,6 +146,10 @@ void RegisterSkipGiantsChamber() {
                 GameInteractor::Instance->events.erase(it);
                 handleGiantsCheck((SceneId)transition.transitionType);
             }
+        } else if (gSaveContext.save.entrance == ENTRANCE(WOODFALL, 0) && gSaveContext.save.cutsceneIndex == 0xFFF0) {
+            // Odolwa's Lair repeat warps go straight to the Woodfall clear cutscene. Skip that too.
+            gSaveContext.save.entrance = ENTRANCE(WOODFALL_TEMPLE, 1);
+            gSaveContext.save.cutsceneIndex = 0;
         }
     });
 
