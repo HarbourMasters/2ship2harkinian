@@ -15,6 +15,8 @@ void EnSyatekiMan_Town_RunGame(EnSyatekiMan* enSyatekiMan, PlayState* play);
 #define TOWN_CVAR CVarGetInteger(TOWN_CVAR_NAME, 50)
 #define BOAT_CVAR_NAME "gEnhancements.Minigames.BoatArcheryScore"
 #define BOAT_CVAR CVarGetInteger(BOAT_CVAR_NAME, 20)
+#define BOAT_HEALTH_CVAR_NAME "gEnhancements.Minigames.BoatArcheryHealth"
+#define BOAT_HEALTH_CVAR CVarGetInteger(BOAT_HEALTH_CVAR_NAME, 20)
 
 static void RegisterSwampArchery() {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_SYATEKI_MAN, SWAMP_CVAR != 2180, [](Actor* actor, bool* should) {
@@ -59,6 +61,12 @@ static void RegisterBoatArchery() {
     COND_HOOK(AfterEndOfCycleSave, BOAT_CVAR != 20, []() { HS_SET_BOAT_ARCHERY_HIGH_SCORE(BOAT_CVAR - 1); });
 }
 
+static void RegisterKoumeHealth() {
+    REGISTER_VB_SHOULD(VB_FAIL_BOAT_ARCHERY, { *should = gSaveContext.minigameHiddenScore >= BOAT_HEALTH_CVAR; });
+}
+
 static RegisterShipInitFunc initFunc_Swamp(RegisterSwampArchery, { SWAMP_CVAR_NAME });
 static RegisterShipInitFunc initFunc_Town(RegisterTownArchery, { TOWN_CVAR_NAME });
+
 static RegisterShipInitFunc initFunc_Boat(RegisterBoatArchery, { BOAT_CVAR_NAME });
+static RegisterShipInitFunc initFunc_Health(RegisterKoumeHealth);
