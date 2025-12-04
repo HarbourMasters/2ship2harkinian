@@ -12,7 +12,7 @@ extern "C" {
 
 extern u16 sOwlWarpEntrancesForMods[];
 
-void SkipSoaringCutscene(Actor* actor, bool* should) {
+static void SkipSoaringCutscene(Actor* actor, bool* should) {
     s16 ocarinaMode = OWL_WARP_CS_GET_OCARINA_MODE(actor);
     if (ocarinaMode == ENTEST7_ARRIVE) {
         return;
@@ -35,7 +35,7 @@ void SkipSoaringCutscene(Actor* actor, bool* should) {
     gPlayState->transitionType = TRANS_TYPE_FADE_BLACK;
 }
 
-void RegisterSkipSoaringCutscene() {
+static void RegisterSkipSoaringCutscene() {
     COND_ID_HOOK(ShouldActorInit, ACTOR_EN_TEST7, CVAR, SkipSoaringCutscene);
 }
 
