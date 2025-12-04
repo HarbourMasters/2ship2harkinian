@@ -18,9 +18,10 @@ extern s32 gHorseIsMounted;
 
 /*
  * This became a static var in decomp, so we cannot extern it. It is already redundantly defined in z_sram_NES.c and
- * z_en_test7.c, so let's just define it a third time for now instead of modifying source.
+ * z_en_test7.c, so let's just define it a third time for now instead of modifying source. At least we can extern it
+ * here for other hooks to use.
  */
-static u16 sOwlWarpEntrances[OWL_WARP_MAX - 1] = {
+extern u16 sOwlWarpEntrancesForMods[OWL_WARP_MAX - 1] = {
     ENTRANCE(GREAT_BAY_COAST, 11),         // OWL_WARP_GREAT_BAY_COAST
     ENTRANCE(ZORA_CAPE, 6),                // OWL_WARP_ZORA_CAPE
     ENTRANCE(SNOWHEAD, 3),                 // OWL_WARP_SNOWHEAD
@@ -72,7 +73,7 @@ void HandleConfirmingState(PauseContext* pauseCtx, Input* input) {
 
             Message_CloseTextbox(gPlayState);
 
-            gPlayState->nextEntrance = sOwlWarpEntrances[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
+            gPlayState->nextEntrance = sOwlWarpEntrancesForMods[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
             gPlayState->transitionType = TRANS_TYPE_FADE_WHITE;
         } else { // No
