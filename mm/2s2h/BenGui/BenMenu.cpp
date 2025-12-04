@@ -1588,13 +1588,12 @@ void BenMenu::AddEnhancements() {
                               "- Skip: Instantly win the race.\n")
                      .DefaultIndex(GoronRaceDifficultyOptions::GORON_RACE_DIFFICULTY_VANILLA)
                      .ComboVec(&goronRaceDifficultyOptions));
-    AddWidget(path, "Swamp Boat Archery High Score", WIDGET_CVAR_SLIDER_INT)
+    AddWidget(path, "Swamp Boat Archery Target Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.BoatArcheryScore")
         .Options(IntSliderOptions()
-                     .Tooltip("Sets the initial target score of the Swamp Boat Archery minigame. The high score will "
-                              "be set to this value minus one at the start of each cycle.")
-                     .Min(10)
-                     .Max(40)
+                     .Tooltip("Sets the initial target score of the Swamp Boat Archery minigame.")
+                     .Min(1)
+                     .Max(50)
                      .DefaultValue(20));
     AddWidget(path, "Koume's Health", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.BoatArcheryHealth")
