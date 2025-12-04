@@ -57,12 +57,22 @@ static void RegisterTownArchery() {
     });
 }
 
+static void ResetBoatArcheryScore(UNUSED Actor* actor) {
+    if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_25_20)) {
+        HS_SET_BOAT_ARCHERY_HIGH_SCORE(BOAT_CVAR - 1);
+    }
+}
+
 static void RegisterBoatArchery() {
-    COND_HOOK(AfterEndOfCycleSave, BOAT_CVAR != 20, []() { HS_SET_BOAT_ARCHERY_HIGH_SCORE(BOAT_CVAR - 1); });
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_DNH, BOAT_CVAR != 20, ResetBoatArcheryScore);
+}
+
+static bool ShouldFailBoatArchery() {
+    return gSaveContext.minigameHiddenScore >= BOAT_HEALTH_CVAR;
 }
 
 static void RegisterKoumeHealth() {
-    REGISTER_VB_SHOULD(VB_FAIL_BOAT_ARCHERY, { *should = gSaveContext.minigameHiddenScore >= BOAT_HEALTH_CVAR; });
+    REGISTER_VB_SHOULD(VB_FAIL_BOAT_ARCHERY, { *should = ShouldFailBoatArchery(); });
 }
 
 static RegisterShipInitFunc initFunc_Swamp(RegisterSwampArchery, { SWAMP_CVAR_NAME });

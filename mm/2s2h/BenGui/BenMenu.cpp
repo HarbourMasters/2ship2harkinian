@@ -1591,7 +1591,8 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Swamp Boat Archery Target Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.BoatArcheryScore")
         .Options(IntSliderOptions()
-                     .Tooltip("Sets the initial target score of the Swamp Boat Archery minigame.")
+                     .Tooltip("Sets the initial target score of the Swamp Boat Archery minigame. The target score "
+                              "gets set the first time you play the minigame in each cycle.")
                      .Min(1)
                      .Max(50)
                      .DefaultValue(20));
