@@ -9,6 +9,7 @@ extern "C" {
 #define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
+// These skips still allow the first textboxes to display, but they do ignore most of the scenes
 static bool ShouldStartMayorsOfficeCutscene(s16 csId) {
     /*
      * The Mayor starts these cutscenes but passes the target actor, which always seems to be Viscen for the start.
@@ -37,7 +38,6 @@ static bool ShouldStartMayorsOfficeCutscene(s16 csId) {
     return true;
 }
 
-// These skips still allow the first textboxes to display, but they do ignore most of the scenes
 static void RegisterSkipMayorsOfficeCutscene() {
     COND_VB_SHOULD(VB_START_CUTSCENE, CVAR, {
         if (gPlayState->sceneId != SCENE_SONCHONOIE) {
