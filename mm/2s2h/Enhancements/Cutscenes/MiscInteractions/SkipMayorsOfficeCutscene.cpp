@@ -45,7 +45,7 @@ static void RegisterSkipMayorsOfficeCutscene() {
         }
 
         s16* csId = va_arg(args, s16*);
-        *should = ShouldSkipMayorsOfficeCutscene(*csId);
+        *should = !ShouldSkipMayorsOfficeCutscene(*csId);
     });
 }
 
