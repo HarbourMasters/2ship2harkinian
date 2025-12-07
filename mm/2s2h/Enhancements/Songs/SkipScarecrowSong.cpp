@@ -24,7 +24,7 @@ void RegisterSkipScarecrowSong() {
             ((BREG(1) != 0) || (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_ACTIVE))) {
             // In Rando we may utilize Ocarina Buttons, ensure this is honored.
             if (IS_RANDO && Rando::Logic::canPlaySong(OCARINA_SONG_SCARECROW_SPAWN)) {
-                    return;
+                return;
             }
 
             *should = true;
