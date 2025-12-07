@@ -395,8 +395,8 @@ void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
 
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
 
-    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
-    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)abilityItemModel[randoItemId - RI_ABILITY_SWIM]);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)abilityItemModel[randoItemId - RI_ABILITY_SWIM]);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
