@@ -1836,6 +1836,19 @@ void BenMenu::AddDevTools() {
         .CVar("gWindows.EventLog")
         .Options(ButtonOptions().Tooltip("Enables the Event Log window."))
         .WindowName("Event Log");
+
+    path = { "Dev Tools", "DL Viewer", SECTION_COLUMN_1 };
+    AddSidebarEntry("Dev Tools", "DL Viewer", 1);
+    AddWidget(path, "Popout DL Viewer", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.DLViewer")
+        .Options(ButtonOptions().Tooltip("Enables the DL Viewer window for inspecting and editing display lists."))
+        .WindowName("DL Viewer");
+    path = { "Dev Tools", "Message Viewer", SECTION_COLUMN_1 };
+    AddSidebarEntry("Dev Tools", "Message Viewer", 1);
+    AddWidget(path, "Popout Message Viewer", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.MessageViewer")
+        .Options(ButtonOptions().Tooltip("Enables the Message Viewer window for testing in-game messages."))
+        .WindowName("Message Viewer");
 }
 
 BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name)
