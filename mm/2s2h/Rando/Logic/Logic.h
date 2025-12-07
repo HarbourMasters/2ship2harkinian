@@ -143,7 +143,7 @@ inline std::string LogicString(std::string condition) {
 
 inline uint8_t FoundOcarinaButtons() {
     uint8_t foundButtons = 0;
-    for (int i = RANDO_INF_OBTAINED_OCARINA_BUTTON_A; i < RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP; i++) {
+    for (int i = RANDO_INF_OBTAINED_OCARINA_BUTTON_A; i <= RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP; i++) {
         if (Flags_GetRandoInf((RandoInf)i)) {
             foundButtons++;
         }
@@ -213,7 +213,6 @@ inline bool canPlaySong(u8 songId) {
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT));
         case OCARINA_SONG_SCARECROW_SPAWN:
             return FoundOcarinaButtons() >= 2;
-            break;
         default:
             return true;
     }

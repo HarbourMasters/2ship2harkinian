@@ -261,8 +261,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 // Shuffle Ocarina Buttons or grant the Rando INF if not enabled
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS] == RO_GENERIC_YES) {
-                    for (int i = RI_OCARINA_BUTTON_A; i <= RI_OCARINA_BUTTON_C_UP; i++) {
-                        itemPool.push_back((RandoItemId)i);
+                    for (RandoItemId i = RI_OCARINA_BUTTON_A; i <= RI_OCARINA_BUTTON_C_UP; i++) {
+                        itemPool.push_back(i);
                     }
                 } else {
                     for (int i = RANDO_INF_OBTAINED_OCARINA_BUTTON_A; i <= RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP;
