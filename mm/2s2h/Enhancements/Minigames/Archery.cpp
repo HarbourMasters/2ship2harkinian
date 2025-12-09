@@ -74,7 +74,7 @@ static bool ShouldFailBoatArchery() {
 }
 
 static void RegisterKoumeHealth() {
-    REGISTER_VB_SHOULD(VB_FAIL_BOAT_ARCHERY, { *should = ShouldFailBoatArchery(); });
+    COND_VB_SHOULD(VB_FAIL_BOAT_ARCHERY, BOAT_HEALTH_CVAR != 10, { *should = ShouldFailBoatArchery(); });
 }
 
 static void RegisterKoumeInvincible() {
@@ -85,5 +85,5 @@ static RegisterShipInitFunc initFunc_Swamp(RegisterSwampArchery, { SWAMP_CVAR_NA
 static RegisterShipInitFunc initFunc_Town(RegisterTownArchery, { TOWN_CVAR_NAME });
 
 static RegisterShipInitFunc initFunc_Boat(RegisterBoatArchery, { BOAT_CVAR_NAME });
-static RegisterShipInitFunc initFunc_Health(RegisterKoumeHealth);
+static RegisterShipInitFunc initFunc_Health(RegisterKoumeHealth, { BOAT_HEALTH_CVAR_NAME });
 static RegisterShipInitFunc initFunc_Invincible(RegisterKoumeInvincible, { BOAT_NO_DAMAGE_CVAR_NAME });
