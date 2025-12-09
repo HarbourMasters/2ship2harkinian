@@ -182,7 +182,9 @@ s32 func_80B761FC(EnTruMt* this, PlayState* play) {
                 this->unk_3A4 = 0;
                 Actor_PlaySfx(&this->actor, NA_SE_EN_KOUME_DAMAGE2);
             }
-            play->interfaceCtx.minigameHiddenPoints = 1;
+            if (GameInteractor_Should(VB_KOUME_TAKE_DAMAGE, true)) {
+                play->interfaceCtx.minigameHiddenPoints = 1;
+            }
             Actor_SetColorFilter(&this->actor, COLORFILTER_COLORFLAG_RED, 255, COLORFILTER_BUFFLAG_OPA, 25);
             return true;
         }

@@ -16,7 +16,9 @@ void EnSyatekiMan_Town_RunGame(EnSyatekiMan* enSyatekiMan, PlayState* play);
 #define BOAT_CVAR_NAME "gEnhancements.Minigames.BoatArcheryScore"
 #define BOAT_CVAR CVarGetInteger(BOAT_CVAR_NAME, 20)
 #define BOAT_HEALTH_CVAR_NAME "gEnhancements.Minigames.BoatArcheryHealth"
-#define BOAT_HEALTH_CVAR CVarGetInteger(BOAT_HEALTH_CVAR_NAME, 20)
+#define BOAT_HEALTH_CVAR CVarGetInteger(BOAT_HEALTH_CVAR_NAME, 10)
+#define BOAT_NO_DAMAGE_CVAR_NAME "gEnhancements.Minigames.BoatArcheryInvincible"
+#define BOAT_NO_DAMAGE_CVAR CVarGetInteger(BOAT_NO_DAMAGE_CVAR_NAME, 0)
 
 static void RegisterSwampArchery() {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_SYATEKI_MAN, SWAMP_CVAR != 2180, [](Actor* actor, bool* should) {
@@ -75,8 +77,13 @@ static void RegisterKoumeHealth() {
     REGISTER_VB_SHOULD(VB_FAIL_BOAT_ARCHERY, { *should = ShouldFailBoatArchery(); });
 }
 
+static void RegisterKoumeInvincible() {
+    COND_VB_SHOULD(VB_KOUME_TAKE_DAMAGE, BOAT_NO_DAMAGE_CVAR, { *should = false; });
+}
+
 static RegisterShipInitFunc initFunc_Swamp(RegisterSwampArchery, { SWAMP_CVAR_NAME });
 static RegisterShipInitFunc initFunc_Town(RegisterTownArchery, { TOWN_CVAR_NAME });
 
 static RegisterShipInitFunc initFunc_Boat(RegisterBoatArchery, { BOAT_CVAR_NAME });
 static RegisterShipInitFunc initFunc_Health(RegisterKoumeHealth);
+static RegisterShipInitFunc initFunc_Invincible(RegisterKoumeInvincible, { BOAT_NO_DAMAGE_CVAR_NAME });
