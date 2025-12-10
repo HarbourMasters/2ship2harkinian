@@ -1,6 +1,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/ShipUtils.h"
 
 extern "C" {
 #include "variables.h"
@@ -9,8 +10,6 @@ extern "C" {
 
 #define CVAR_NAME "gEnhancements.Songs.SkipSoaringCutscene"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
-
-extern u16 sOwlWarpEntrancesForMods[];
 
 static void SkipSoaringCutscene(Actor* actor, bool* should) {
     s16 ocarinaMode = OWL_WARP_CS_GET_OCARINA_MODE(actor);
