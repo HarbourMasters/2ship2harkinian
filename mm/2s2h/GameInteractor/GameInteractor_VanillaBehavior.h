@@ -130,8 +130,15 @@ typedef enum {
     VB_BE_HOOKSHOT_SURFACE,
 
     // #### `result`
+    // #### In `EnDoor_Idle`, for `*EnDoor`:
     // ```c
     // fabsf(playerPosRelToDoor.z) < 50.0f
+    // ```
+    // #### `args`
+    // - `*f32`
+    // #### In `func_808A0E28`, for `*DoorShutter`:
+    // ```c
+    // fabsf(temp_f0) < 50.0f
     // ```
     // #### `args`
     // - `*f32`
