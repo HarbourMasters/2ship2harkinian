@@ -1,11 +1,12 @@
 #include "PresetManager.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include <filesystem>
 #include <fstream>
 #include <set>
 #include "2s2h/BenPort.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/BenGui/Notification.h"
+#include <ship/window/FileDropMgr.h>
 
 std::unordered_map<std::string, std::string> tagMap = {
     { "gEventLog", "Developer Tools" },
@@ -148,7 +149,8 @@ nlohmann::json curatedPresetJ = R"(
                 "FierceDeityPutaway": 1,
                 "InfiniteDekuHopping": 1,
                 "InstantPutaway": 1,
-                "PreventDiveOverWater": 1
+                "PreventDiveOverWater": 1,
+                "UnderwaterOcarina": 1
             },
             "PlayerActions": {
                 "ArrowCycle": 1,
@@ -384,7 +386,7 @@ void PresetManager_CreatePreset(std::string presetName) {
     } catch (...) { Notification::Emit({ .suffix = "Failed to create preset" }); }
 }
 
-bool PresetManager_HandleFileDropped(const std::string& filePath) {
+bool PresetManager_HandleFileDropped(char* filePath) {
     try {
         std::ifstream fileStream(filePath);
 
@@ -524,6 +526,7 @@ void PresetManager_Draw() {
 }
 
 void PresetManager_RegisterHooks() {
+    Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(PresetManager_HandleFileDropped);
     PresetManager_RefreshPresets();
 }
 

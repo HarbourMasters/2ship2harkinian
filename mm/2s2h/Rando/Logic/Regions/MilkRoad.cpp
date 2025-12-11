@@ -22,7 +22,8 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             // TODO: Trick: Jumpslash to clip through (similar to Clock Town Straw).
             // Zora can just climb up, adding it to logic for now but if someone wants to make it a trick later feel free.
-            CHECK(RC_DOGGY_RACETRACK_CHEST, HAS_ITEM(ITEM_HOOKSHOT) || CAN_GROW_BEAN_PLANT || CAN_BE_ZORA),
+            // TODO: This soil patch can be watered with the Day 2 rain. Clock shuffle will need to require Day 2 or another water source.
+            CHECK(RC_DOGGY_RACETRACK_CHEST, HAS_ITEM(ITEM_HOOKSHOT) || HAS_ITEM(ITEM_MAGIC_BEANS) || CAN_BE_ZORA),
             CHECK(RC_DOGGY_RACETRACK_PIECE_OF_HEART,    HAS_ITEM(ITEM_MASK_TRUTH)),
             CHECK(RC_DOGGY_RACETRACK_POT_01, true),
             CHECK(RC_DOGGY_RACETRACK_POT_02, true),
@@ -43,15 +44,15 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .connections = {
             // TODO: Also apparently can be reached using a trick with Goron mask and Bombs. Add trick later here
-            CONNECTION(RR_GORMAN_TRACK_INNER, CAN_PLAY_SONG(EPONA) || RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
+            CONNECTION(RR_GORMAN_TRACK_INNER, RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
         },
     };
     Regions[RR_GORMAN_TRACK_INNER] = RandoRegion{ .sceneId = SCENE_KOEPONARACE,
         .checks = {
-            // The grass is reachable either by racing the Gorman brothers on Epona OR by entering through the second
-            // night alternate route after saving the Romani Ranch cows. The crate cannot be interacted with via the
-            // former method; it is only accessible via the second night route after saving the cows.
-            CHECK(RC_GORMAN_TRACK_LARGE_CRATE, RANDO_EVENTS[RE_COWS_FROM_ALIENS]), 
+            // The grass is technically reachable while racing on Epona, but successfully picking up the drops can be
+            // dubious. We can make this a trick in the future. For now, gate the entire region behind saving the ranch
+            // from aliens.
+            CHECK(RC_GORMAN_TRACK_LARGE_CRATE, true), 
             CHECK(RC_GORMAN_TRACK_GRASS_01, true),
             CHECK(RC_GORMAN_TRACK_GRASS_02, true),
             CHECK(RC_GORMAN_TRACK_GRASS_03, true),
@@ -81,7 +82,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(MILK_ROAD, 2),                    ENTRANCE(GORMAN_TRACK, 3), RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
         },
         .connections = {
-            CONNECTION(RR_GORMAN_TRACK, CAN_PLAY_SONG(EPONA) || RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
+            CONNECTION(RR_GORMAN_TRACK, RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
         },
     };
     Regions[RR_MILK_ROAD] = RandoRegion{ .sceneId = SCENE_ROMANYMAE,

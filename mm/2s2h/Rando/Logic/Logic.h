@@ -5,7 +5,6 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
 
-#include <unordered_map>
 #include <set>
 #include <cassert>
 
@@ -20,13 +19,9 @@ namespace Logic {
 
 void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions);
 RandoRegionId GetRegionIdFromEntrance(s32 entrance);
-void ApplyFrenchVanillaLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
-                                          std::vector<RandoItemId>& itemPool);
-void ApplyGlitchlessLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
-                                       std::vector<RandoItemId>& itemPool);
-void ApplyNearlyNoLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
-                                     std::vector<RandoItemId>& itemPool);
-void ApplyNoLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool, std::vector<RandoItemId>& itemPool);
+void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
+void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
+void ApplyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
 
 struct RandoRegionExit {
     s32 returnEntrance;
@@ -37,14 +32,14 @@ struct RandoRegionExit {
 struct RandoRegion {
     const char* name = "";
     SceneId sceneId;
-    std::unordered_map<RandoCheckId, std::pair<std::function<bool()>, std::string>> checks;
-    std::unordered_map<s32, RandoRegionExit> exits;
-    std::unordered_map<RandoRegionId, std::pair<std::function<bool()>, std::string>> connections;
+    std::map<RandoCheckId, std::pair<std::function<bool()>, std::string>> checks;
+    std::map<s32, RandoRegionExit> exits;
+    std::map<RandoRegionId, std::pair<std::function<bool()>, std::string>> connections;
     std::vector<std::pair<RandoEvent, std::function<bool()>>> events;
     std::set<s32> oneWayEntrances;
 };
 
-extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
+extern std::map<RandoRegionId, RandoRegion> Regions;
 
 // TODO: This may not stay here
 #define IS_DEKU (GET_PLAYER_FORM == PLAYER_FORM_DEKU)
@@ -89,11 +84,18 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
      (CAN_PLAY_SONG(STORMS) || (HAS_BOTTLE && (CAN_ACCESS(SPRING_WATER) || CAN_ACCESS(HOT_SPRING_WATER)))))
 #define CAN_USE_MAGIC_ARROW(arrowType) (HAS_ITEM(ITEM_BOW) && HAS_ITEM(ITEM_ARROW_##arrowType) && HAS_MAGIC)
 #define CAN_LIGHT_TORCH_NEAR_ANOTHER (HAS_ITEM(ITEM_DEKU_STICK) || CAN_USE_MAGIC_ARROW(FIRE))
-#define KEY_COUNT(dungeon) (gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_INDEX_##dungeon])
+#define KEY_COUNT(dungeon) (gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_SCENE_INDEX_##dungeon])
 #define CAN_AFFORD(rc)                                                                                                \
     ((RANDO_SAVE_CHECKS[rc].price < 100) || (RANDO_SAVE_CHECKS[rc].price <= 200 && CUR_UPG_VALUE(UPG_WALLET) >= 1) || \
      (CUR_UPG_VALUE(UPG_WALLET) >= 2))
-#define HAS_ALL_STRAY_FAIRIES(dungeonIndex) (gSaveContext.save.saveInfo.inventory.strayFairies[dungeonIndex] >= 15)
+#define HAS_ENOUGH_STRAY_FAIRIES(dungeonIndex) \
+    (gSaveContext.save.saveInfo.inventory.strayFairies[dungeonIndex] >= RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES])
+#define FOUND_ALL_FROGS                                                                  \
+    (CHECK_WEEKEVENTREG(WEEKEVENTREG_33_01) && CHECK_WEEKEVENTREG(WEEKEVENTREG_32_40) && \
+     CHECK_WEEKEVENTREG(WEEKEVENTREG_32_80) && CHECK_WEEKEVENTREG(WEEKEVENTREG_33_02))
+#define CAN_USE_ABILITY(ability) Flags_GetRandoInf(RI_ABILITY_##ability - RI_ABILITY_SWIM + RANDO_INF_OBTAINED_SWIM)
+#define HAS_ENOUGH_SKULLTULA_TOKENS(sceneId) \
+    (Inventory_GetSkullTokenCount(sceneId) >= RANDO_SAVE_OPTIONS[RO_MINIMUM_SKULLTULA_TOKENS])
 
 #define EVENT(randoEvent, condition)         \
     {                                        \
@@ -118,6 +120,17 @@ extern std::unordered_map<RandoRegionId, RandoRegion> Regions;
         }                                                     \
     }
 
+inline bool CanReachRegions(std::vector<RandoRegionId> regionList) {
+    std::set<RandoRegionId> reachableRegions;
+    FindReachableRegions(GetRegionIdFromEntrance(gSaveContext.save.entrance), reachableRegions);
+    for (auto& target : regionList) {
+        if (reachableRegions.count(target) > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 inline std::string LogicString(std::string condition) {
     if (condition == "true")
         return "";
@@ -125,19 +138,19 @@ inline std::string LogicString(std::string condition) {
     return condition;
 }
 
-inline bool CanAccessDungeon(DungeonIndex dungeonIndex) {
+inline bool CanAccessDungeon(DungeonSceneIndex dungeonIndex) {
     bool hasSongAccess = false;
     bool hasFormAccess = false;
     switch (dungeonIndex) {
-        case DUNGEON_INDEX_WOODFALL_TEMPLE:
+        case DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE:
             hasSongAccess = CAN_PLAY_SONG(SONATA);
             hasFormAccess = CAN_BE_DEKU && HAS_ITEM(ITEM_OCARINA_OF_TIME);
             break;
-        case DUNGEON_INDEX_SNOWHEAD_TEMPLE:
+        case DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE:
             hasSongAccess = CAN_PLAY_SONG(LULLABY);
             hasFormAccess = CAN_BE_GORON && HAS_ITEM(ITEM_OCARINA_OF_TIME);
             break;
-        case DUNGEON_INDEX_GREAT_BAY_TEMPLE:
+        case DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE:
             hasSongAccess = CAN_PLAY_SONG(BOSSA_NOVA);
             hasFormAccess = CAN_BE_ZORA && HAS_ITEM(ITEM_OCARINA_OF_TIME);
             break;
@@ -206,25 +219,25 @@ inline bool CanKillEnemy(ActorId EnemyId) {
         case ACTOR_EN_KNIGHT: // Igos du Ikana/IdI Lackey
             return (CAN_USE_MAGIC_ARROW(FIRE) &&
                     (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) >= EQUIP_VALUE_SHIELD_MIRROR) &&
-                    (CAN_USE_HUMAN_SWORD || CAN_BE_DEKU || CAN_BE_GORON || CAN_BE_ZORA));
+                    (CAN_USE_SWORD || CAN_BE_DEKU || CAN_BE_GORON || CAN_BE_ZORA));
         case ACTOR_EN_KAIZOKU: // Fighter Pirate
             return (CAN_USE_SWORD || CAN_BE_ZORA);
         case ACTOR_EN_PAMETFROG: // Swamp Gekko
             return (HAS_ITEM(ITEM_BOW) && (CAN_BE_DEKU || CAN_USE_EXPLOSIVE || CAN_BE_GORON));
         case ACTOR_EN_BIGSLIME: // Great Bay Gekko
             return (CAN_USE_MAGIC_ARROW(ICE));
-        case ACTOR_EN_SW: // Gold Skulltula
-            return (CAN_USE_PROJECTILE || CAN_BE_DEKU || CAN_BE_GORON || CAN_USE_HUMAN_SWORD || CAN_USE_EXPLOSIVE);
+        case ACTOR_EN_SW: // Gold Skulltula & Skullwalltula
+            return (CAN_USE_PROJECTILE || CAN_BE_DEKU || CAN_BE_GORON || CAN_USE_SWORD || CAN_USE_EXPLOSIVE);
         case ACTOR_EN_DINOFOS: // Dinofos
             return (CAN_USE_SWORD || CAN_BE_GORON || HAS_ITEM(ITEM_BOW) || (CAN_BE_DEKU && HAS_MAGIC));
         case ACTOR_EN_WIZ: // Wizrobe
             return (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_SWORD || CAN_BE_GORON);
         case ACTOR_EN_WF: // Wolfos
-            return (CAN_USE_HUMAN_SWORD || (CAN_BE_DEKU && HAS_MAGIC) || CAN_BE_GORON || CAN_BE_ZORA);
+            return (CAN_USE_SWORD || (CAN_BE_DEKU && HAS_MAGIC) || CAN_BE_GORON || CAN_BE_ZORA);
         case ACTOR_EN_JSO2: // Garo Master
             return (HAS_ITEM(ITEM_BOW) || CAN_BE_GORON || CAN_USE_SWORD);
         case ACTOR_EN_IK: // Iron Knuckle
-            return (CAN_USE_HUMAN_SWORD || CAN_BE_GORON);
+            return (CAN_USE_SWORD || CAN_BE_GORON);
         case ACTOR_EN_GRASSHOPPER: // Dragonfly
             return ((CAN_BE_DEKU && HAS_MAGIC) || CAN_USE_EXPLOSIVE || HAS_ITEM(ITEM_DEKU_NUT) || CAN_USE_SWORD ||
                     CAN_BE_ZORA);
@@ -239,10 +252,79 @@ inline bool CanKillEnemy(ActorId EnemyId) {
             return (CAN_USE_SWORD || HAS_ITEM(ITEM_HOOKSHOT) || HAS_ITEM(ITEM_BOW) || CAN_USE_EXPLOSIVE ||
                     CAN_BE_GORON || CAN_BE_ZORA);
         case ACTOR_EN_DEKUBABA: // Neck bending Deku Baba
-            return (CAN_USE_HUMAN_SWORD || CAN_BE_DEKU || CAN_BE_GORON || CAN_BE_ZORA || HAS_ITEM(ITEM_BOW) ||
+            return (CAN_USE_SWORD || CAN_BE_DEKU || CAN_BE_GORON || CAN_BE_ZORA || HAS_ITEM(ITEM_BOW) ||
                     CAN_USE_EXPLOSIVE || HAS_ITEM(ITEM_DEKU_STICK));
         case ACTOR_OBJ_SNOWBALL: // Large Snowball
             return (CAN_USE_EXPLOSIVE || CAN_BE_GORON || CAN_USE_MAGIC_ARROW(FIRE));
+        case ACTOR_EN_AM: // Armos
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_BE_DEKU || CAN_USE_EXPLOSIVE);
+        case ACTOR_EN_VM: // Beamos
+            return (CAN_USE_EXPLOSIVE);
+        case ACTOR_EN_BB:     // Blue Bubble
+        case ACTOR_EN_BBFALL: // Red Bubble
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_DEKU_STICK));
+        case ACTOR_EN_RAT:       // Real Bombchu
+        case ACTOR_EN_TUBO_TRAP: // Flying Pot
+            return true;
+        case ACTOR_EN_FAMOS: // Death Armos
+            return (CAN_USE_MAGIC_ARROW(LIGHT));
+        case ACTOR_EN_DODONGO: // Dodongo
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC));
+        case ACTOR_EN_FLOORMAS: // Floormaster
+        case ACTOR_EN_WALLMAS:  // Wallmaster
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK));
+        case ACTOR_EN_FZ: // Freezard
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_USE_MAGIC_ARROW(FIRE) ||
+                    HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_CROW: // Guay (Generic, excludes the one circling Clock Town En_Ruppecrow)
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_BE_DEKU || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_FIREFLY: // Keese
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_BE_DEKU || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_RR: // Like Like
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK));
+        case ACTOR_EN_DEKUNUTS: // Mad Scrub
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_BE_DEKU || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_KAREBABA: // Wilted/Mini Babas
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_BE_DEKU);
+        case ACTOR_EN_PEEHAT: // Peahat
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_BE_DEKU || HAS_ITEM(ITEM_DEKU_STICK));
+        case ACTOR_EN_RD: // Redead & Gibdos
+            return (CAN_USE_SWORD || CAN_BE_DEKU || CAN_BE_GORON || CAN_BE_ZORA || HAS_ITEM(ITEM_DEKU_STICK));
+        case ACTOR_EN_SKB: // Stalchild
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_TITE: // Tektite
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW));
+        case ACTOR_EN_SLIME: // Chuchus
+            return (CAN_USE_SWORD || CAN_BE_ZORA || CAN_BE_DEKU || HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_DEKU_STICK));
+        case ACTOR_EN_SNOWMAN: // Eeno
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_WDHAND: // Dexihand (Basic kill method, seems like a pain to require other things)
+            return (CAN_BE_ZORA && HAS_MAGIC);
+        case ACTOR_EN_KAME: // Snapper (non Gekko Miniboss)
+            return (CAN_BE_DEKU || CAN_USE_EXPLOSIVE || CAN_BE_GORON);
+        case ACTOR_EN_SB: // Shellblade
+            return (CAN_BE_ZORA && HAS_MAGIC);
+        case ACTOR_EN_OKUTA: // Octorok
+            return (CAN_USE_PROJECTILE);
+        case ACTOR_EN_BAGUO: // Nejiron
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_NEO_REEBA: // Leever
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK));
+        case ACTOR_EN_PP:
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
+                    HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
+        case ACTOR_EN_PR2:
+            return (CAN_BE_ZORA && HAS_MAGIC);
+        case ACTOR_BOSS_05: // Bio Deku Baba
+            return CAN_BE_ZORA && CAN_USE_ABILITY(SWIM);
         default: // Incorrect actor ID inputed.
             assert(false);
             return false;

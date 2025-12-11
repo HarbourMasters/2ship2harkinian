@@ -1,4 +1,4 @@
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 
@@ -30,11 +30,13 @@ extern "C" int SavingEnhancements_GetSaveEntrance() {
         case SCENE_SEA:
         case SCENE_SEA_BS:
             return ENTRANCE(GREAT_BAY_TEMPLE, 0);
-        // Stone Tower Temple (+ inverted) + Twinmold
+        // Stone Tower Temple
         case SCENE_INISIE_N:
+            return ENTRANCE(STONE_TOWER_TEMPLE, 0);
+        // Stone Tower Temple (inverted) + Twinmold
         case SCENE_INISIE_R:
         case SCENE_INISIE_BS:
-            return ENTRANCE(STONE_TOWER_TEMPLE, 0);
+            return ENTRANCE(STONE_TOWER_TEMPLE_INVERTED, 0);
         default:
             return ENTRANCE(SOUTH_CLOCK_TOWN, 0);
     }
@@ -82,6 +84,14 @@ extern "C" bool SavingEnhancements_CanSave() {
     }
 
     return true;
+}
+
+extern "C" void SavingEnhancements_AdvancePlaytime() {
+    if (gSaveContext.save.shipSaveInfo.fileCompletedAt == 0) {
+        uint64_t timestamp = GetUnixTimestamp();
+        gSaveContext.save.shipSaveInfo.filePlaytime += timestamp - gSaveContext.shipSaveContext.lastTimeLog;
+        gSaveContext.shipSaveContext.lastTimeLog = timestamp;
+    }
 }
 
 void DeleteOwlSave() {
@@ -135,7 +145,8 @@ void HandleAutoSave() {
         // Create owl save
         gSaveContext.save.isOwlSave = true;
         gSaveContext.save.shipSaveInfo.pauseSaveEntrance = SavingEnhancements_GetSaveEntrance();
-        Play_SaveCycleSceneFlags(&gPlayState->state);
+        SavingEnhancements_AdvancePlaytime();
+        Play_SaveCycleSceneFlags(gPlayState);
         gSaveContext.save.saveInfo.playerData.savedSceneId = gPlayState->sceneId;
         func_8014546C(&gPlayState->sramCtx);
         Sram_SetFlashPagesOwlSave(&gPlayState->sramCtx,
@@ -155,7 +166,29 @@ void RegisterSavingEnhancements() {
         }
     });
 
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() { DeleteOwlSave(); });
+    COND_HOOK(OnSaveLoad, true, [](s16 fileNum) {
+        if (gSaveContext.save.shipSaveInfo.fileCreatedAt == 0) {
+            gSaveContext.save.shipSaveInfo.fileCreatedAt = GetUnixTimestamp();
+        }
+        gSaveContext.shipSaveContext.lastTimeLog = GetUnixTimestamp();
+    });
+
+    // Owl statue prompt
+    COND_ID_HOOK(OnOpenText, 0xC01, true,
+                 [](u16* textId, bool* loadFromMessageTable) { SavingEnhancements_AdvancePlaytime(); });
+
+    // Finished the game, mark fileCompletedAt accordingly
+    COND_HOOK(OnGameCompletion, true, []() {
+        if (gSaveContext.save.shipSaveInfo.fileCompletedAt == 0) {
+            SavingEnhancements_AdvancePlaytime();
+            gSaveContext.save.shipSaveInfo.fileCompletedAt = GetUnixTimestamp();
+        }
+    });
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() {
+        SavingEnhancements_AdvancePlaytime();
+        DeleteOwlSave();
+    });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeMoonCrashSaveReset>([]() { DeleteOwlSave(); });
 }

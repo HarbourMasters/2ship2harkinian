@@ -147,6 +147,7 @@ typedef enum {
     VB_DEKU_GUARD_SHOW_SEARCH_BALLS,
     VB_DISPLAY_SONG_OF_DOUBLE_TIME_PROMPT,
     VB_SMITHY_START_UPGRADING_SWORD,
+    VB_SMITHY_CHECK_FOR_SWORD,
     VB_SMITHY_CHECK_FOR_RAZOR_SWORD,
     VB_SMITHY_CHECK_FOR_GILDED_SWORD,
     VB_HAVE_BLAST_MASK,
@@ -238,13 +239,33 @@ typedef enum {
     VB_BUY_GORMAN_MILK,
     VB_PLAY_LOW_HP_ALARM,
     VB_PLAY_GORON_CHILD_CRY,
+    VB_PLAY_ENEMY_PROXIMITY_MUSIC,
+    VB_PLAY_TATL_CALL_AUDIO,
+    VB_LINK_VOICE_PITCH_MULTIPLIER,
     VB_SNOWBALL_DROP_COLLECTIBLE,
     VB_SNOWBALL_SET_FLAG,
     VB_START_JUMPSLASH,
+    VB_DESPAWN_FROG,
     VB_SETUP_TRANSITION,
     VB_BE_NEAR_DOOR,
     VB_LOAD_PLAYER_ANIMATION_FRAME,
     VB_PLAY_SCENE_SEQUENCE,
+    VB_DISABLE_ITEM_UNDERWATER,
+    VB_PLAY_SLOW_CHEST_CS,
+    VB_BE_CLIMBABLE_SURFACE,
+    VB_PLAYER_CUTSCENE_ACTION,
+    VB_SET_CAMERA_AT_EYE,
+    VB_SET_CAMERA_FOV,
+    VB_USE_ITEM_CONSIDER_ITEM_ACTION,
+    VB_ENEMY_DROP_COLLECTIBLE,
+    VB_DRAW_SLIME_RANDO_ITEM,
+    VB_ENABLE_OBJECT_DEPENDENCY,
+    VB_OBJ_MURE2_SET_CHILD_ROOM,
+    VB_OBJ_MURE3_DROP_COLLECTIBLE,
+    VB_SET_PLAYER_CYLINDER_OC_FLAGS,
+    VB_GORON_RACE_RUBBERBANDING,
+    VB_HAVE_ALL_SKULLTULA_TOKENS,
+    VB_NOT_HAVE_ALL_SKULLTULA_TOKENS,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -358,7 +379,9 @@ struct GIEventSpawnActor {
     f32 posX;
     f32 posY;
     f32 posZ;
-    s16 rot;
+    s16 rotX;
+    s16 rotY;
+    s16 rotZ;
     s32 params;
     // if true, the coordinates are made relative to the player's position and rotation, 0 rotation is facing the same
     // direction as the player, x+ is to the players right, y+ is up, z+ is in front of the player
@@ -372,7 +395,11 @@ struct GIEventTransition {
     u8 transitionType;
 };
 
-typedef std::variant<GIEventNone, GIEventGiveItem, GIEventSpawnActor, GIEventTransition> GIEvent;
+struct GIEventTrap {
+    std::function<void()> action;
+};
+
+typedef std::variant<GIEventNone, GIEventGiveItem, GIEventSpawnActor, GIEventTransition, GIEventTrap> GIEvent;
 
 class GameInteractor {
   public:
@@ -706,6 +733,7 @@ void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 void GameInteractor_ExecuteOnInterfaceDrawStart();
 void GameInteractor_ExecuteAfterInterfaceClockDraw();
 void GameInteractor_ExecuteBeforeInterfaceClockDraw();
+void GameInteractor_ExecuteOnGameCompletion();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
@@ -722,6 +750,7 @@ void GameInteractor_ExecuteOnActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorKill(Actor* actor);
 void GameInteractor_ExecuteOnActorDestroy(Actor* actor);
 void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex);
+void GameInteractor_ExecuteOnBossDefeated(s16 actorId);
 
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 flag);
@@ -738,6 +767,10 @@ void GameInteractor_ExecuteOnOpenText(u16* textId, bool* loadFromMessageTable);
 
 bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
+
+void GameInteractor_ExecuteOnBottleContentsUpdate(u8 item);
+
+void GameInteractor_ExecuteOnSeqPlayerInit(int32_t playerIdx, int32_t seqId);
 
 bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
 #define REGISTER_VB_SHOULD(flag, body)                                                      \
@@ -778,6 +811,7 @@ bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
 
 int GameInteractor_InvertControl(GIInvertType type);
 uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);
+uint32_t GameInteractor_RightStickOcarina(Input* input);
 
 #ifdef __cplusplus
 }

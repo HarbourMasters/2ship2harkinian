@@ -1,11 +1,15 @@
 #include "StaticData.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/ShipUtils.h"
 #include "2s2h/Rando/Rando.h"
+#include "2s2h_assets.h"
 
 extern "C" {
 extern s16 D_801CFF94[250];
 #include "assets/interface/parameter_static/parameter_static.h"
+#include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
+#include "interface/icon_item_field_static/icon_item_field_static.h"
+#include "assets/archives/icon_item_static/icon_item_static_yar.h"
 }
 
 namespace Rando {
@@ -22,6 +26,7 @@ namespace StaticData {
 // clang-format off
 std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_UNKNOWN,                    "",     "Unknown",                    RITYPE_JUNK,            ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_ABILITY_SWIM,               "the",  "Ability to Swim",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_ARROW_FIRE,                 "",     "Fire Arrows",                RITYPE_MAJOR,           ITEM_ARROW_FIRE,                 GI_ARROW_FIRE,               GID_ARROW_FIRE),
     RI(RI_ARROW_ICE,                  "",     "Ice Arrows",                 RITYPE_MAJOR,           ITEM_ARROW_ICE,                  GI_ARROW_ICE,                GID_ARROW_ICE),
     RI(RI_ARROW_LIGHT,                "",     "Light Arrows",               RITYPE_MAJOR,           ITEM_ARROW_LIGHT,                GI_ARROW_LIGHT,              GID_ARROW_LIGHT),
@@ -58,6 +63,10 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_DOUBLE_DEFENSE,             "",     "Double Defense",             RITYPE_HEALTH,          ITEM_NONE,                       GI_NONE,                     GID_HEART_CONTAINER),
     RI(RI_DOUBLE_MAGIC,               "a",    "Magic Upgrade",              RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_MAGIC_JAR_BIG),
     RI(RI_FAIRY_REFILL,               "a",    "Fairy",                      RITYPE_JUNK,            ITEM_FAIRY,                      GI_FAIRY,                    GID_FAIRY_2),
+    RI(RI_FROG_BLUE,                  "a",    "Blue Frog",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_MASK_DON_GERO,            GID_NONE),
+    RI(RI_FROG_CYAN,                  "a",    "Cyan Frog",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_MASK_DON_GERO,            GID_NONE),
+    RI(RI_FROG_PINK,                  "a",    "Pink Frog",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_MASK_DON_GERO,            GID_NONE),
+    RI(RI_FROG_WHITE,                 "a",    "White Frog",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_MASK_DON_GERO,            GID_NONE),
     RI(RI_GOLD_DUST_REFILL,           "a",    "Gold Dust Refill",           RITYPE_LESSER,          ITEM_GOLD_DUST_2,                GI_GOLD_DUST_2,              GID_GOLD_DUST),
     RI(RI_GREAT_BAY_BOSS_KEY,         "the",  "Great Bay Boss Key",         RITYPE_BOSS_KEY,        ITEM_KEY_BOSS,                   GI_KEY_BOSS,                 GID_KEY_BOSS),
     RI(RI_GREAT_BAY_COMPASS,          "the",  "Great Bay Compass",          RITYPE_LESSER,          ITEM_COMPASS,                    GI_COMPASS,                  GID_COMPASS),
@@ -181,6 +190,9 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_TINGLE_MAP_SNOWHEAD,        "",     "Tingle's Snowhead Map",      RITYPE_LESSER,          ITEM_TINGLE_MAP,                 GI_TINGLE_MAP_SNOWHEAD,      GID_TINGLE_MAP),
     RI(RI_TINGLE_MAP_STONE_TOWER,     "",     "Tingle's Stone Tower Map",   RITYPE_LESSER,          ITEM_TINGLE_MAP,                 GI_TINGLE_MAP_STONE_TOWER,   GID_TINGLE_MAP),
     RI(RI_TINGLE_MAP_WOODFALL,        "",     "Tingle's Woodfall Map",      RITYPE_LESSER,          ITEM_TINGLE_MAP,                 GI_TINGLE_MAP_WOODFALL,      GID_TINGLE_MAP),
+    RI(RI_TRAP,                       "a",    "Knockoff Item",              RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_TRIFORCE_PIECE,             "a",    "Piece of the Triforce",      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_TRIFORCE_PIECE_PREVIOUS,    "a",    "Piece of the Triforce",      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // This only exists to aid in the drawing of unique models, it has no use outside of that.
     RI(RI_WALLET_ADULT,               "the",  "Adult's Wallet",             RITYPE_MAJOR,           ITEM_WALLET_ADULT,               GI_WALLET_ADULT,             GID_WALLET_ADULT),
     RI(RI_WALLET_GIANT,               "the",  "Giant's Wallet",             RITYPE_LESSER,          ITEM_WALLET_GIANT,               GI_WALLET_GIANT,             GID_WALLET_GIANT),
     RI(RI_WOODFALL_BOSS_KEY,          "the",  "Woodfall Boss Key",          RITYPE_BOSS_KEY,        ITEM_KEY_BOSS,                   GI_KEY_BOSS,                 GID_KEY_BOSS),
@@ -189,86 +201,37 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_WOODFALL_SMALL_KEY,         "a",    "Woodfall Small Key",         RITYPE_SMALL_KEY,       ITEM_KEY_SMALL,                  GI_KEY_SMALL,                GID_KEY_SMALL),
     RI(RI_WOODFALL_STRAY_FAIRY,       "a",    "Woodfall Stray Fairy",       RITYPE_STRAY_FAIRY,     ITEM_STRAY_FAIRIES,              GI_STRAY_FAIRY,              GID_NONE),
 };
-// clang-format on
 
-std::vector<RandoItemId> StartingItemsMap = {
-    RI_ARROW_FIRE,
-    RI_ARROW_ICE,
-    RI_ARROW_LIGHT,
-    RI_BOMBERS_NOTEBOOK,
-    RI_BOTTLE_EMPTY,
-    RI_DEED_LAND,
-    RI_DEED_MOUNTAIN,
-    RI_DEED_OCEAN,
-    RI_DEED_SWAMP,
-    RI_DOUBLE_DEFENSE,
-    RI_GREAT_FAIRY_SWORD,
-    RI_GREAT_SPIN_ATTACK,
-    RI_HOOKSHOT,
-    RI_LENS,
-    RI_LETTER_TO_KAFEI,
-    RI_LETTER_TO_MAMA,
-    RI_MASK_ALL_NIGHT,
-    RI_MASK_BLAST,
-    RI_MASK_BREMEN,
-    RI_MASK_BUNNY,
-    RI_MASK_CAPTAIN,
-    RI_MASK_CIRCUS_LEADER,
-    RI_MASK_COUPLE,
-    RI_MASK_DEKU,
-    RI_MASK_DON_GERO,
-    RI_MASK_FIERCE_DEITY,
-    RI_MASK_GARO,
-    RI_MASK_GIANT,
-    RI_MASK_GIBDO,
-    RI_MASK_GORON,
-    RI_MASK_GREAT_FAIRY,
-    RI_MASK_KAFEIS_MASK,
-    RI_MASK_KAMARO,
-    RI_MASK_KEATON,
-    RI_MASK_POSTMAN,
-    RI_MASK_ROMANI,
-    RI_MASK_SCENTS,
-    RI_MASK_STONE,
-    RI_MASK_TRUTH,
-    RI_MASK_ZORA,
-    RI_MOONS_TEAR,
-    RI_OCARINA,
-    RI_PENDANT_OF_MEMORIES,
-    RI_PICTOGRAPH_BOX,
-    RI_POWDER_KEG,
-    RI_PROGRESSIVE_BOMB_BAG,
-    RI_PROGRESSIVE_BOMB_BAG,
-    RI_PROGRESSIVE_BOMB_BAG,
-    RI_PROGRESSIVE_BOW,
-    RI_PROGRESSIVE_BOW,
-    RI_PROGRESSIVE_BOW,
-    RI_PROGRESSIVE_MAGIC,
-    RI_PROGRESSIVE_MAGIC,
-    RI_PROGRESSIVE_SWORD,
-    RI_PROGRESSIVE_SWORD,
-    RI_PROGRESSIVE_SWORD,
-    RI_PROGRESSIVE_WALLET,
-    RI_PROGRESSIVE_WALLET,
-    RI_REMAINS_GOHT,
-    RI_REMAINS_GYORG,
-    RI_REMAINS_ODOLWA,
-    RI_REMAINS_TWINMOLD,
-    RI_ROOM_KEY,
-    RI_SHIELD_HERO,
-    RI_SHIELD_MIRROR,
-    RI_SONG_ELEGY,
-    RI_SONG_EPONA,
-    RI_SONG_HEALING,
-    RI_PROGRESSIVE_LULLABY,
-    RI_PROGRESSIVE_LULLABY,
-    RI_SONG_NOVA,
-    RI_SONG_OATH,
-    RI_SONG_SOARING,
-    RI_SONG_SONATA,
-    RI_SONG_STORMS,
-    RI_SONG_TIME,
+std::unordered_map<StartingItemCategory, std::vector<RandoItemId>> StartingItemsMap = {
+    { STARTING_ITEMS_INVENTORY, 
+        { RI_OCARINA,               RI_PROGRESSIVE_BOW, RI_ARROW_FIRE,  RI_ARROW_ICE,   RI_ARROW_LIGHT,
+          RI_PROGRESSIVE_BOMB_BAG,  RI_BOMBCHU,         RI_DEKU_STICK,  RI_DEKU_NUT,    RI_MAGIC_BEAN,
+          RI_POWDER_KEG,            RI_PICTOGRAPH_BOX,  RI_LENS,        RI_HOOKSHOT,    RI_GREAT_FAIRY_SWORD,
+          RI_BOTTLE_EMPTY
+        } },
+    { STARTING_ITEMS_MASK,
+        { RI_MASK_POSTMAN,  RI_MASK_ALL_NIGHT,      RI_MASK_BLAST,          RI_MASK_STONE,      RI_MASK_GREAT_FAIRY,    RI_MASK_DEKU,
+          RI_MASK_KEATON,   RI_MASK_BREMEN,         RI_MASK_BUNNY,          RI_MASK_DON_GERO,   RI_MASK_SCENTS,         RI_MASK_GORON,
+          RI_MASK_ROMANI,   RI_MASK_CIRCUS_LEADER,  RI_MASK_KAFEIS_MASK,    RI_MASK_COUPLE,     RI_MASK_TRUTH,          RI_MASK_ZORA,
+          RI_MASK_KAMARO,   RI_MASK_GIBDO,          RI_MASK_GARO,           RI_MASK_CAPTAIN,    RI_MASK_GIANT,          RI_MASK_FIERCE_DEITY
+        } },
+    { STARTING_ITEMS_QUEST,
+        { RI_BOMBERS_NOTEBOOK,  RI_REMAINS_ODOLWA,      RI_REMAINS_GOHT,        RI_REMAINS_GYORG,       RI_REMAINS_TWINMOLD,
+          RI_PROGRESSIVE_SWORD, RI_SHIELD_HERO,         RI_SHIELD_MIRROR,       RI_PROGRESSIVE_MAGIC,   RI_DOUBLE_DEFENSE,  
+          RI_PROGRESSIVE_WALLET,
+          RI_SONG_TIME,         RI_SONG_HEALING,        RI_SONG_EPONA,          RI_SONG_SOARING,    RI_SONG_STORMS,
+          RI_SONG_SONATA,       RI_PROGRESSIVE_LULLABY, RI_SONG_NOVA,           RI_SONG_ELEGY,      RI_SONG_OATH
+        } },
+    { STARTING_ITEMS_TRADE,
+        { RI_MOONS_TEAR, RI_DEED_LAND, RI_DEED_SWAMP, RI_DEED_MOUNTAIN, RI_DEED_OCEAN, RI_ROOM_KEY, RI_LETTER_TO_MAMA,
+          RI_LETTER_TO_KAFEI, RI_PENDANT_OF_MEMORIES
+        } },
+    { STARTING_ITEMS_MISC, 
+        { RI_SOUL_GOHT, RI_SOUL_GYORG,  RI_SOUL_MAJORA, RI_SOUL_ODOLWA, RI_SOUL_TWINMOLD,
+          RI_FROG_BLUE, RI_FROG_CYAN,   RI_FROG_PINK,   RI_FROG_WHITE
+        } }, 
 };
+// clang-format on
 
 RandoItemId GetItemIdFromName(const char* name) {
     for (auto& [randoItemId, randoStaticItem] : Items) {
@@ -362,6 +325,37 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return (const char*)gItemIcons[ITEM_SONG_LULLABY];
         case RI_PROGRESSIVE_MAGIC:
             return (const char*)gItemIcons[ITEM_MAGIC_JAR_SMALL];
+        case RI_SOUL_GOHT:
+        case RI_SOUL_GYORG:
+        case RI_SOUL_MAJORA:
+        case RI_SOUL_ODOLWA:
+        case RI_SOUL_TWINMOLD:
+            return (const char*)gDungeonMapSkullTex;
+        case RI_FROG_BLUE:
+        case RI_FROG_CYAN:
+        case RI_FROG_PINK:
+        case RI_FROG_WHITE:
+            return (const char*)gItemIcons[ITEM_MASK_DON_GERO];
+        case RI_OWL_CLOCK_TOWN_SOUTH:
+        case RI_OWL_GREAT_BAY_COAST:
+        case RI_OWL_IKANA_CANYON:
+        case RI_OWL_MILK_ROAD:
+        case RI_OWL_MOUNTAIN_VILLAGE:
+        case RI_OWL_SNOWHEAD:
+        case RI_OWL_SOUTHERN_SWAMP:
+        case RI_OWL_STONE_TOWER:
+        case RI_OWL_WOODFALL:
+        case RI_OWL_ZORA_CAPE:
+            return (const char*)gWorldMapOwlFaceTex;
+        case RI_TINGLE_MAP_CLOCK_TOWN:
+        case RI_TINGLE_MAP_GREAT_BAY:
+        case RI_TINGLE_MAP_ROMANI_RANCH:
+        case RI_TINGLE_MAP_SNOWHEAD:
+        case RI_TINGLE_MAP_STONE_TOWER:
+        case RI_TINGLE_MAP_WOODFALL:
+            return (const char*)gItemIconTingleMapTex;
+        case RI_TRIFORCE_PIECE:
+            return (const char*)gTriforcePieceTex;
         default:
             break;
     }

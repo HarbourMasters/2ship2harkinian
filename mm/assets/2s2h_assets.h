@@ -370,3 +370,21 @@ static const ALIGN_ASSET(2) char gCrateTrackerIcon[] = dgCrateTrackerIcon;
 
 #define dgBarrelTrackerIcon "__OTR__textures/icons/gBarrelTrackerIcon"
 static const ALIGN_ASSET(2) char gBarrelTrackerIcon[] = dgBarrelTrackerIcon;
+
+#define dgGiFlippersDL "__OTR__objects/object_ability_swim/gGiFlippersDL"
+static const ALIGN_ASSET(2) char gGiFlippersDL[] = dgGiFlippersDL;
+
+#define dgTriforcePiece0DL "__OTR__objects/object_triforce_piece_0/gTriforcePiece0DL"
+static const ALIGN_ASSET(2) char gTriforcePiece0DL[] = dgTriforcePiece0DL;
+
+#define dgTriforcePiece1DL "__OTR__objects/object_triforce_piece_1/gTriforcePiece1DL"
+static const ALIGN_ASSET(2) char gTriforcePiece1DL[] = dgTriforcePiece1DL;
+
+#define dgTriforcePiece2DL "__OTR__objects/object_triforce_piece_2/gTriforcePiece2DL"
+static const ALIGN_ASSET(2) char gTriforcePiece2DL[] = dgTriforcePiece2DL;
+
+#define dgTriforcePieceCompletedDL "__OTR__objects/object_triforce_completed/gTriforcePieceCompletedDL"
+static const ALIGN_ASSET(2) char gTriforcePieceCompletedDL[] = dgTriforcePieceCompletedDL;
+
+#define dgTrapDL "__OTR__objects/object_trap/gTrapDL"
+static const ALIGN_ASSET(2) char gTrapDL[] = dgTrapDL;

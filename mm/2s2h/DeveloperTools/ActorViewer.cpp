@@ -2,7 +2,7 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/NameTag/NameTag.h"
-#include "2s2h/ActorExtension/ActorListIndex.h"
+#include "2s2h/ObjectExtension/ActorListIndex.h"
 #include <spdlog/fmt/fmt.h>
 #include <string>
 #include <vector>
@@ -358,8 +358,8 @@ void ActorViewerWindow::DrawElement() {
 
             if (UIWidgets::Button("Fetch: Target", { { .tooltip = "Grabs actor with target arrow above it." } })) {
                 Player* player = GET_PLAYER(gPlayState);
-                if (player->lockOnActor != nullptr) {
-                    SetSelectedActor(player->lockOnActor);
+                if (player->focusActor != nullptr) {
+                    SetSelectedActor(player->focusActor);
                 }
             }
             if (UIWidgets::Button("Fetch: Held", { { .tooltip = "Grabs actor Link is currently holding." } })) {

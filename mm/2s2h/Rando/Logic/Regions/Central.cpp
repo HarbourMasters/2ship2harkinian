@@ -20,7 +20,7 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_ASTRAL_OBSERVATORY_PASSAGE] = RandoRegion{ .name = "Passage", .sceneId = SCENE_TENMON_DAI,
         .checks = {
-            CHECK(RC_ASTRAL_OBSERVATORY_PASSAGE_CHEST, CAN_USE_EXPLOSIVE),
+            CHECK(RC_ASTRAL_OBSERVATORY_PASSAGE_CHEST, CAN_USE_EXPLOSIVE && (CAN_USE_ABILITY(SWIM) || CAN_BE_ZORA)),
             CHECK(RC_ASTRAL_OBSERVATORY_PASSAGE_POT_01, true),
             CHECK(RC_ASTRAL_OBSERVATORY_PASSAGE_POT_02, true),
             CHECK(RC_ASTRAL_OBSERVATORY_PASSAGE_POT_03, true),
@@ -120,9 +120,10 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_CLOCK_TOWN_LAUNDRY] = RandoRegion{ .sceneId = SCENE_ALLEY,
         .checks = {
             CHECK(RC_CLOCK_TOWN_STRAY_FAIRY,                    true),
-            CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_01,  true),
-            CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_02,  true),
-            CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_03,  true),
+            CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_01,  CAN_USE_ABILITY(SWIM) || CAN_BE_ZORA),
+            CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_02,  CAN_USE_ABILITY(SWIM) || CAN_BE_ZORA),
+            CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_03,  CAN_USE_ABILITY(SWIM) || CAN_BE_ZORA),
+            CHECK(RC_CLOCK_TOWN_LAUNDRY_FROG,                   HAS_ITEM(ITEM_MASK_DON_GERO)),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_GURU_GURU,              true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_SMALL_CRATE,            true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_POOL_GRASS_01, true),
@@ -133,9 +134,6 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(SOUTH_CLOCK_TOWN, 6),             ENTRANCE(LAUNDRY_POOL, 0), true),
             EXIT(ENTRANCE(CURIOSITY_SHOP, 1),               ENTRANCE(LAUNDRY_POOL, 1), Flags_GetRandoInf(RANDO_INF_OBTAINED_LETTER_TO_KAFEI))
         },
-        .events = {
-            EVENT(RE_ACCESS_FROG_WHITE, true),
-        }
     };
     Regions[RR_CLOCK_TOWN_NORTH] = RandoRegion{ .sceneId = SCENE_BACKTOWN,
         .checks = {
@@ -301,11 +299,11 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_SWORDSMAN_SCHOOL] = RandoRegion{ .sceneId = SCENE_DOUJOU,
         .checks = {
             CHECK(RC_SWORDSMAN_SCHOOL_PIECE_OF_HEART, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_01, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_02, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_03, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_04, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_05, CAN_USE_HUMAN_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_01, CAN_USE_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_02, CAN_USE_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_03, CAN_USE_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_04, CAN_USE_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_05, CAN_USE_SWORD),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(WEST_CLOCK_TOWN, 3),              ENTRANCE(SWORDMANS_SCHOOL, 0), true),

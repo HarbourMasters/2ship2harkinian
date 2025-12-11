@@ -9,16 +9,15 @@ namespace Rando {
 
 namespace Logic {
 
-void ApplyNearlyNoLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& checkPool,
-                                     std::vector<RandoItemId>& itemPool) {
+void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool) {
     for (size_t i = 0; i < itemPool.size(); i++) {
         std::swap(itemPool[i], itemPool[Ship_Random(0, itemPool.size() - 1)]);
     }
 
-    std::unordered_map<RandoItemId, RandoCheckId> importantItems;
+    std::map<RandoItemId, RandoCheckId> importantItems;
     std::vector<RandoCheckId> safeChecks;
 
-    std::unordered_map<RandoItemId, std::vector<SceneId>> itemToSceneBlacklist = {
+    std::map<RandoItemId, std::vector<SceneId>> itemToSceneBlacklist = {
         { RI_MASK_DEKU,
           { SCENE_MITURIN, SCENE_MITURIN_BS, SCENE_LAST_DEKU, SCENE_LAST_GORON, SCENE_LAST_ZORA, SCENE_LAST_LINK,
             SCENE_SOUGEN, SCENE_LAST_BS } },
@@ -43,13 +42,26 @@ void ApplyNearlyNoLogicToSaveContext(std::unordered_map<RandoCheckId, bool>& che
           { SCENE_LAST_DEKU, SCENE_LAST_GORON, SCENE_LAST_ZORA, SCENE_LAST_LINK, SCENE_SOUGEN, SCENE_LAST_BS } },
     };
 
-    for (auto& [randoCheckId, _] : checkPool) {
+    for (auto& randoCheckId : checkPool) {
         if (randoCheckId == RC_UNKNOWN) {
             continue;
         }
 
-        RandoItemId randoItemId = itemPool.back();
-        itemPool.pop_back();
+        RandoItemId randoItemId = RI_NONE;
+        if (RANDO_SAVE_CHECKS[randoCheckId].skipped) {
+            uint32_t index = 0;
+            for (auto& item : itemPool) {
+                if (Rando::StaticData::Items[item].randoItemType == RITYPE_JUNK) {
+                    randoItemId = item;
+                    itemPool.erase(itemPool.begin() + index);
+                    break;
+                }
+                index++;
+            }
+        } else {
+            randoItemId = itemPool.back();
+            itemPool.pop_back();
+        }
 
         RANDO_SAVE_CHECKS[randoCheckId].shuffled = true;
         RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoItemId;
