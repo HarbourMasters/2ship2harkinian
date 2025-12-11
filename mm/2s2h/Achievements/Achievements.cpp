@@ -4,7 +4,7 @@
 #include "2s2h/BenGui/Notification.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
-#include "public/bridge/consolevariablebridge.h"
+#include "libultraship/bridge/consolevariablebridge.h"
 
 #include <cstring>
 #include <string>
@@ -142,7 +142,7 @@ void ProcessQueuedEvents() {
     }
 
     // If player is dead, stop
-    if (player->stateFlags1 & PLAYER_STATE1_80) {
+    if (player->stateFlags1 & PLAYER_STATE1_DEAD) {
         return;
     }
 

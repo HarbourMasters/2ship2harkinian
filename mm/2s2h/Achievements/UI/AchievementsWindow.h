@@ -6,7 +6,7 @@
 
 // Third-party libraries
 #include <imgui.h>
-#include "window/gui/GuiWindow.h"
+#include "ship/window/gui/GuiWindow.h"
 
 // Forward declarations
 struct Achievement;

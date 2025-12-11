@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "window/gui/GuiWindow.h"
+#include "ship/window/gui/GuiWindow.h"
 #include "2s2h/Achievements/StaticData/Registry.h"
 
 namespace Achievements {

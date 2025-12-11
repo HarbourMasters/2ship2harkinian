@@ -5,11 +5,11 @@
 #include <vector>
 
 #include <imgui.h>
-#include <IconsFontAwesome4.h>
+#include <ship/window/gui/IconsFontAwesome4.h>
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/spdlog.h>
 #include <libultraship/libultraship.h>
-#include <public/bridge/consolevariablebridge.h>
+#include <libultraship/bridge/consolevariablebridge.h>
 
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/Rando/Rando.h"
