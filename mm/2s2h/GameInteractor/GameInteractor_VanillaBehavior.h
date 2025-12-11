@@ -566,6 +566,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // gSaveContext.minigameHiddenScore >= 10
+    // ```
+    // #### `args`
+    // - None
+    VB_FAIL_BOAT_ARCHERY,
+
+    // #### `result`
+    // ```c
     // (gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] == ITEM_NONE) && (play->envCtx.sceneTimeSpeed != 0)
     // ```
     // #### `args`
@@ -588,6 +596,14 @@ typedef enum {
     // #### `args`
     // - `*EnFish2`
     VB_FISH2_SPAWN_HEART_PIECE,
+
+    // #### `result`
+    // ```c
+    // (freezeFlashTimer > 0) && ((freezeFlashTimer % 2) != 0)
+    // ```
+    // #### `args`
+    // - None
+    VB_FLASH_SCREEN_FOR_ENEMY_KILL,
 
     // #### `result`
     // ```c
@@ -1066,6 +1082,14 @@ typedef enum {
     // #### `args`
     // - None
     VB_KILL_GORON_VILLAGE_OWL,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_KOUME_TAKE_DAMAGE,
 
     // #### `result`
     // ```c
