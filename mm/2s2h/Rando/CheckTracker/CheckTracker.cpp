@@ -433,10 +433,10 @@ void CheckTrackerDrawNonLogicalList() {
                                                             ? accessLogicFuncs[randoCheckId]
                                                             : "";
                         /*
-                         * Enemy checks are multiple in number and may have unique conditions per location. This can
-                         * result in arbitrary particular instances' conditions being displayed for the general check.
-                         * Since the basic requirement of defeating the enemy is self-explanatory and the minimum, we'll
-                         * omit the tooltip for them in particular.
+                         * Enemy drop checks are multiple in number and may have unique conditions per location. This
+                         * can result in arbitrary particular instances' conditions being displayed for the general
+                         * check. Since the basic requirement of defeating the enemy is self-explanatory and the
+                         * minimum, we'll omit the logic tooltip for them in particular.
                          */
                         if (accessLogicString != "" &&
                             !(randoCheckId >= RC_ENEMY_DROP_ALIEN && randoCheckId <= RC_ENEMY_DROP_WOLFOS)) {
