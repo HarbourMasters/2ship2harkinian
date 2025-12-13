@@ -190,7 +190,10 @@ OTRGlobals::OTRGlobals() {
     prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
-    auto controlDeck = std::make_shared<LUS::ControlDeck>(std::vector<CONTROLLERBUTTONS_T>({}));
+    auto controlDeck = std::make_shared<LUS::ControlDeck>(std::vector<CONTROLLERBUTTONS_T>({
+        BTN_CUSTOM_MODIFIER1,
+        BTN_CUSTOM_MODIFIER2,
+    }));
     context->InitControlDeck(controlDeck);
 
     context->InitCrashHandler();
@@ -1265,6 +1268,36 @@ extern "C" void ResourceMgr_UnpatchGfxByName(const char* path, const char* patch
         *gfx = originalGfx[path][patchName].instruction;
 
         originalGfx[path].erase(patchName);
+    }
+}
+
+extern "C" size_t ResourceMgr_GetPatchCountForDL(const char* path) {
+    if (originalGfx.contains(path)) {
+        return originalGfx[path].size();
+    }
+    return 0;
+}
+
+extern "C" void ResourceMgr_ResetAllPatchesForDL(const char* path) {
+    if (!originalGfx.contains(path)) {
+        return;
+    }
+
+    auto res = std::static_pointer_cast<Fast::DisplayList>(
+        Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
+
+    // Iterate through all patches and restore original instructions
+    auto& patches = originalGfx[path];
+    for (auto it = patches.begin(); it != patches.end();) {
+        Gfx* gfx = (Gfx*)&res->Instructions[it->second.index];
+        *gfx = it->second.instruction;
+        // erase() returns the next iterator, allowing safe iteration during removal
+        it = patches.erase(it);
+    }
+
+    // Clean up empty map entry
+    if (patches.empty()) {
+        originalGfx.erase(path);
     }
 }
 

@@ -5,6 +5,7 @@
 #include "Rando/Rando.h"
 
 #include "2s2h/ShipUtils.h"
+#include <spdlog/fmt/fmt.h>
 
 extern "C" {
 #include "z64save.h"
@@ -12,11 +13,14 @@ extern "C" {
 #include <macros.h>
 #include <functions.h>
 #include "2s2h_assets.h"
+#include "overlays/actors/ovl_En_Si/z_en_si.h"
 }
 
 namespace BenGui {
 extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 }
+
+#define FORMAT_COUNT "{}/{}"
 
 ImVec4 trackerWindowOpacity = ImVec4(0, 0, 0, 0.5f);
 
@@ -307,13 +311,8 @@ std::string GetItemCounts(int16_t itemId, bool isRandoItem) {
     if (isRandoItem) {
         if (itemId == RI_TRIFORCE_PIECE) {
             int16_t maxPieces = gSaveContext.save.shipSaveInfo.rando.randoSaveOptions[RO_TRIFORCE_PIECES_REQUIRED];
-            countStr = std::to_string(gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces).c_str();
-            countStr += "/";
-            if (maxPieces == 1000) {
-                countStr += "1k";
-            } else {
-                countStr += std::to_string(maxPieces).c_str();
-            }
+            countStr = fmt::format(FORMAT_COUNT, gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces,
+                                   maxPieces == 1000 ? "1k" : std::to_string(maxPieces));
         }
     } else {
         int dungeonIndex = 0;
@@ -325,40 +324,35 @@ std::string GetItemCounts(int16_t itemId, bool isRandoItem) {
             case ITEM_DEKU_NUT:
             case ITEM_MAGIC_BEANS:
             case ITEM_POWDER_KEG:
-                countStr = std::to_string(AMMO(itemId)).c_str();
+                countStr = std::to_string(AMMO(itemId));
                 break;
             case ITEM_WALLET_ADULT:
-                countStr = std::to_string(gSaveContext.save.saveInfo.playerData.rupees).c_str();
+                countStr = std::to_string(gSaveContext.save.saveInfo.playerData.rupees);
                 break;
             case ITEM_PICTOGRAPH_BOX:
                 countStr = CHECK_QUEST_ITEM(QUEST_PICTOGRAPH) ? "1" : "0";
                 break;
             case ITEM_SKULL_TOKEN_SWAMP:
             case ITEM_SKULL_TOKEN_OCEAN:
-                countStr = std::to_string(Inventory_GetSkullTokenCount(
-                                              itemId == ITEM_SKULL_TOKEN_SWAMP ? SCENE_KINSTA1 : SCENE_KINDAN2))
-                               .c_str();
-                countStr += "/";
-                countStr += "30";
+                countStr = fmt::format(
+                    FORMAT_COUNT,
+                    Inventory_GetSkullTokenCount(itemId == ITEM_SKULL_TOKEN_SWAMP ? SCENE_KINSTA1 : SCENE_KINDAN2),
+                    IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_SKULLTULA_TOKENS] : SPIDER_HOUSE_TOKENS_REQUIRED);
                 break;
             case ITEM_WOODFALL_STRAY_FAIRY:
             case ITEM_SNOWHEAD_STRAY_FAIRY:
             case ITEM_GREAT_BAY_STRAY_FAIRY:
             case ITEM_STONE_TOWER_STRAY_FAIRY:
-                countStr = std::to_string(
-                               gSaveContext.save.saveInfo.inventory.strayFairies[itemId - ITEM_WOODFALL_STRAY_FAIRY])
-                               .c_str();
+                countStr = fmt::format(
+                    FORMAT_COUNT, gSaveContext.save.saveInfo.inventory.strayFairies[itemId - ITEM_WOODFALL_STRAY_FAIRY],
+                    IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL);
                 break;
             case ITEM_WOODFALL_KEY_SMALL:
             case ITEM_SNOWHEAD_KEY_SMALL:
             case ITEM_GREAT_BAY_KEY_SMALL:
             case ITEM_STONE_TOWER_KEY_SMALL:
                 dungeonIndex = (itemId - ITEM_WOODFALL_DUNGEON_MAP) / 4;
-                if (DUNGEON_KEY_COUNT(dungeonIndex) < 0) {
-                    countStr = "0";
-                } else {
-                    countStr = std::to_string(DUNGEON_KEY_COUNT(dungeonIndex)).c_str();
-                }
+                countStr = DUNGEON_KEY_COUNT(dungeonIndex) < 0 ? "0" : std::to_string(DUNGEON_KEY_COUNT(dungeonIndex));
                 break;
             default:
                 break;
@@ -444,52 +438,50 @@ void ItemTrackerWindow::Draw() {
 
     uint32_t windowIndex = TRACKER_MAIN;
     for (auto* window : itemTrackerWindows) {
-        if (window->empty()) {
-            windowIndex++;
-            continue;
-        }
-        bool singleWindowOpen = false;
-        if (!shouldWindowSplit) {
-            ImVec4 mainBg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
-            mainBg.w = (*window)[0].windowOpacity;
-            ImGui::PushStyleColor(ImGuiCol_WindowBg, mainBg);
-            singleWindowOpen =
-                ImGui::Begin(windowIndex == TRACKER_MAIN ? "Main Tracker" : "Rando Tracker", nullptr, windowFlags);
-        }
+        if (!window->empty()) {
+            bool singleWindowOpen = false;
+            if (!shouldWindowSplit) {
+                ImVec4 mainBg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+                mainBg.w = (*window)[0].windowOpacity;
+                ImGui::PushStyleColor(ImGuiCol_WindowBg, mainBg);
+                singleWindowOpen =
+                    ImGui::Begin(windowIndex == TRACKER_MAIN ? "Main Tracker" : "Rando Tracker", nullptr, windowFlags);
+            }
 
-        uint32_t index = 0;
-        for (auto& object : *window) {
-            if (object.itemList.empty()) {
+            uint32_t index = 0;
+            for (auto& object : *window) {
+                if (object.itemList.empty()) {
+                    index++;
+                    continue;
+                }
+
+                bool isWindowOpen = false;
+
+                if (shouldWindowSplit) {
+                    ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
+                    bg.w = object.windowOpacity;
+                    ImGui::PushStyleColor(ImGuiCol_WindowBg, bg);
+                    std::string windowName = std::string(object.windowName) + "##" + std::to_string(index);
+                    isWindowOpen = ImGui::Begin(windowName.c_str(), nullptr, windowFlags);
+                } else {
+                    isWindowOpen = singleWindowOpen;
+                }
+
+                if (isWindowOpen) {
+                    DrawItemWindowList(object, windowIndex == TRACKER_MAIN ? false : true);
+                }
+
+                if (shouldWindowSplit) {
+                    ImGui::PopStyleColor(1);
+                    ImGui::End();
+                }
+
                 index++;
-                continue;
             }
-
-            bool isWindowOpen = false;
-
-            if (shouldWindowSplit) {
-                ImVec4 bg = ImGui::GetStyleColorVec4(ImGuiCol_WindowBg);
-                bg.w = object.windowOpacity;
-                ImGui::PushStyleColor(ImGuiCol_WindowBg, bg);
-                std::string windowName = std::string(object.windowName) + "##" + std::to_string(index);
-                isWindowOpen = ImGui::Begin(windowName.c_str(), nullptr, windowFlags);
-            } else {
-                isWindowOpen = singleWindowOpen;
-            }
-
-            if (isWindowOpen) {
-                DrawItemWindowList(object, windowIndex == TRACKER_MAIN ? false : true);
-            }
-
-            if (shouldWindowSplit) {
+            if (!shouldWindowSplit) {
                 ImGui::PopStyleColor(1);
                 ImGui::End();
             }
-
-            index++;
-        }
-        if (!shouldWindowSplit) {
-            ImGui::PopStyleColor(1);
-            ImGui::End();
         }
         windowIndex++;
     }

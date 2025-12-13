@@ -3,6 +3,9 @@
 
 #pragma once
 
+#define BTN_CUSTOM_MODIFIER1 0x0040
+#define BTN_CUSTOM_MODIFIER2 0x0080
+
 #define GAME_REGION_NTSC 0
 #define GAME_REGION_PAL 1
 
@@ -95,6 +98,8 @@ Gfx* ResourceMgr_LoadGfxByCRC(uint64_t crc);
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
 void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction);
 void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName);
+size_t ResourceMgr_GetPatchCountForDL(const char* path);
+void ResourceMgr_ResetAllPatchesForDL(const char* path);
 u8* ResourceMgr_LoadArrayByNameAsU8(const char* path, u8* buffer);
 char* ResourceMgr_LoadArrayByNameAsVec3s(const char* path);
 char* ResourceMgr_LoadArrayByName(const char* path);
