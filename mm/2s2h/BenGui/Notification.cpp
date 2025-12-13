@@ -1,7 +1,14 @@
+// Local includes
 #include "Notification.h"
-#include <libultraship/libultraship.h>
-#include <algorithm>
 
+// Standard library
+#include <algorithm>
+#include <map>
+
+// Ship/libultraship
+#include <libultraship/libultraship.h>
+
+// extern "C"
 extern "C" {
 #include "functions.h"
 #include "variables.h"
@@ -11,6 +18,7 @@ namespace Notification {
 
 static uint32_t nextId = 0;
 static std::vector<Options> notifications = {};
+static std::map<uint32_t, float> notificationHeights = {}; // Cache actual heights by notification ID
 
 void Window::Draw() {
     auto vp = ImGui::GetMainViewport();
@@ -47,7 +55,7 @@ void Window::Draw() {
 
         if (notification.isAchievement) {
             // Enhanced layout for achievements
-            DrawEnhancedNotification(notification, basePosition, inverseIndex, position, padding);
+            DrawEnhancedNotification(notification, basePosition, position, padding, index);
         } else {
             // Original simple layout for regular notifications
             DrawRegularNotification(notification, basePosition, inverseIndex, position, padding, vp);
@@ -123,32 +131,11 @@ void Window::DrawRegularNotification(const Options& notification, ImVec2 basePos
     ImGui::PopStyleColor(2);
 }
 
-void Window::DrawEnhancedNotification(const Options& notification, ImVec2 basePosition, int inverseIndex, int position,
-                                      float padding) {
+void Window::DrawEnhancedNotification(const Options& notification, ImVec2 basePosition, int position, float padding,
+                                      int index) {
     const float enhancedWidth = 380.0f;
-    const float enhancedHeight = 100.0f; // For spacing calculations
     const float iconSize = 54.0f;
     const float textAreaWidth = enhancedWidth - iconSize - 30.0f; // Account for padding and spacing
-
-    // Calculate position for enhanced notifications
-    ImVec2 notificationPos;
-    switch (position) {
-        case 0: // Top Left
-            notificationPos = ImVec2(basePosition.x, basePosition.y + ((enhancedHeight + padding) * inverseIndex));
-            break;
-        case 1: // Top Right
-            notificationPos =
-                ImVec2(basePosition.x - enhancedWidth, basePosition.y + ((enhancedHeight + padding) * inverseIndex));
-            break;
-        case 2: // Bottom Left
-            notificationPos =
-                ImVec2(basePosition.x, basePosition.y - ((enhancedHeight + padding) * (inverseIndex + 1)));
-            break;
-        case 3: // Bottom Right
-            notificationPos = ImVec2(basePosition.x - enhancedWidth,
-                                     basePosition.y - ((enhancedHeight + padding) * (inverseIndex + 1)));
-            break;
-    }
 
     // Enhanced styling
     ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
@@ -173,8 +160,6 @@ void Window::DrawEnhancedNotification(const Options& notification, ImVec2 basePo
                  ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize |
                      ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollWithMouse |
                      ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar);
-
-    ImGui::SetWindowPos(notificationPos);
 
     // Layout with proper vertical centering
     if (notification.itemIcon != nullptr) {
@@ -243,6 +228,67 @@ void Window::DrawEnhancedNotification(const Options& notification, ImVec2 basePo
         }
     }
 
+    // Get actual window size after content layout
+    ImVec2 actualWinSize = ImGui::GetWindowSize();
+
+    // Calculate position using accumulated heights from cache
+    float accumulatedHeight = 0.0f;
+    if (position == 0 || position == 1) {
+        // Top positions: accumulate heights of notifications before this one
+        for (int i = 0; i < index; ++i) {
+            if (notifications[i].isAchievement) {
+                auto it = notificationHeights.find(notifications[i].id);
+                if (it != notificationHeights.end()) {
+                    accumulatedHeight += it->second + padding;
+                } else {
+                    // Fallback estimate if height not yet cached
+                    accumulatedHeight += 100.0f + padding;
+                }
+            } else {
+                // Regular notifications use smaller estimate
+                accumulatedHeight += 50.0f + padding;
+            }
+        }
+    } else {
+        // Bottom positions: accumulate heights of notifications after this one
+        for (int i = index + 1; i < static_cast<int>(notifications.size()); ++i) {
+            if (notifications[i].isAchievement) {
+                auto it = notificationHeights.find(notifications[i].id);
+                if (it != notificationHeights.end()) {
+                    accumulatedHeight += it->second + padding;
+                } else {
+                    // Fallback estimate if height not yet cached
+                    accumulatedHeight += 100.0f + padding;
+                }
+            } else {
+                // Regular notifications use smaller estimate
+                accumulatedHeight += 50.0f + padding;
+            }
+        }
+    }
+
+    ImVec2 notificationPos;
+    switch (position) {
+        case 0: // Top Left
+            notificationPos = ImVec2(basePosition.x, basePosition.y + accumulatedHeight);
+            break;
+        case 1: // Top Right
+            notificationPos = ImVec2(basePosition.x - enhancedWidth, basePosition.y + accumulatedHeight);
+            break;
+        case 2: // Bottom Left
+            notificationPos = ImVec2(basePosition.x, basePosition.y - actualWinSize.y - accumulatedHeight);
+            break;
+        case 3: // Bottom Right
+            notificationPos =
+                ImVec2(basePosition.x - enhancedWidth, basePosition.y - actualWinSize.y - accumulatedHeight);
+            break;
+    }
+
+    ImGui::SetWindowPos(notificationPos);
+
+    // Store actual height in cache for future positioning calculations
+    notificationHeights[notification.id] = actualWinSize.y;
+
     ImGui::End();
 
     // Restore style settings
@@ -261,6 +307,8 @@ void Window::UpdateElement() {
 
         // Remove expired notifications.
         if (notification.remainingTime <= 0) {
+            // Clear cached height for removed notification
+            notificationHeights.erase(notification.id);
             notifications.erase(notifications.begin() + index);
             --index;
         }
@@ -279,7 +327,7 @@ void Emit(Options notification) {
     }
 }
 
-void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore) {
+void EmitAchievement(const char* iconPath, const std::string& achievementName, int harbourMastery) {
     Options notification;
     notification.id = nextId++;
     notification.itemIcon = iconPath;
@@ -288,8 +336,8 @@ void EmitAchievement(const char* iconPath, const std::string& achievementName, i
     notification.message = achievementName;
     notification.messageColor = ImVec4(1.0f, 1.0f, 1.0f, 1.0f); // White
 
-    if (gamerscore > 0) {
-        notification.suffix = std::to_string(gamerscore) + "G";
+    if (harbourMastery > 0) {
+        notification.suffix = std::to_string(harbourMastery) + " HM";
         notification.suffixColor = ImVec4(1.0f, 0.85f, 0.0f, 1.0f); // Gold
     }
 

@@ -70,7 +70,7 @@ std::shared_ptr<InputViewer> mInputViewer;
 std::shared_ptr<InputViewerSettingsWindow> mInputViewerSettings;
 std::shared_ptr<BenModalWindow> mModalWindow;
 std::shared_ptr<Achievements::UI::AchievementsWindow> mAchievementsWindow;
-std::shared_ptr<Achievements::DeveloperTools::AchievementEditor> mAchievementEditorWindow;
+std::shared_ptr<DeveloperTools::AchievementEditor> mAchievementEditorWindow;
 
 UIWidgets::Colors GetMenuThemeColor() {
     return mBenMenu->GetMenuThemeColor();
@@ -151,7 +151,7 @@ void SetupGuiElements() {
     mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor", ImVec2(520, 600));
     gui->AddGuiWindow(mAudioEditorWindow);
 
-    mAchievementEditorWindow = std::make_shared<Achievements::DeveloperTools::AchievementEditor>(
+    mAchievementEditorWindow = std::make_shared<DeveloperTools::AchievementEditor>(
         "gWindows.AchievementEditor", "Achievement Editor", ImVec2(1000, 700));
     gui->AddGuiWindow(mAchievementEditorWindow);
 

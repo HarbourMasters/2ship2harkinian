@@ -1,22 +1,29 @@
+// Local includes
 #include "AchievementEditor.h"
 
+// Standard library
 #include <algorithm>
 #include <string>
 #include <vector>
+
+// Third-party
 #include <imgui.h>
 #include <spdlog/spdlog.h>
-#include <ship/window/gui/IconsFontAwesome4.h>
-#include <libultraship/libultraship.h>
-#include <libultraship/bridge/consolevariablebridge.h>
 
-#include "2s2h/BenGui/UIWidgets.hpp"
-#include "2s2h/Achievements/Core.h"
-#include "2s2h/Achievements/StaticData/Registry.h"
-#include "2s2h/Achievements/UI/AchievementsWindow.h"
+// Ship/libultraship
+#include <libultraship/bridge/consolevariablebridge.h>
+#include <libultraship/libultraship.h>
+#include <ship/window/gui/IconsFontAwesome4.h>
 
 extern "C" {
 #include "variables.h"
 }
+
+// 2s2h
+#include "2s2h/Achievements/Achievements.h"
+#include "2s2h/Achievements/StaticData/Registry.h"
+#include "2s2h/Achievements/UI/AchievementsWindow.h"
+#include "2s2h/BenGui/UIWidgets.hpp"
 
 namespace {
 constexpr const char* CVAR_CATEGORY_FILTER = CVAR_PREFIX_DEVELOPER_TOOLS ".AchievementEditor.CategoryFilter";
@@ -30,17 +37,10 @@ namespace BenGui {
 extern std::shared_ptr<Achievements::UI::AchievementsWindow> mAchievementsWindow;
 }
 
-namespace Achievements {
-
 namespace DeveloperTools {
 
-// Static Data
-
 static const char* TAB_NAMES[] = { "Browser", "Events", "Diagnostics", "Bulk Operations" };
-
 static const char* CATEGORY_NAMES[] = { "All Categories", "General", "Vanilla", "Randomizer" };
-
-// Lifecycle Methods
 
 void AchievementEditor::InitElement() {
     mCategoryFilter = static_cast<AchievementCategory>(CVarGetInteger(CVAR_CATEGORY_FILTER, -1));
@@ -157,9 +157,7 @@ void AchievementEditor::DrawFilterControls() {
     ImGui::SeparatorText("Filters");
 
     ImGui::PushItemWidth(-1);
-    if (ImGui::InputTextWithHint("##SearchBox", "Search achievements...", mSearchText, sizeof(mSearchText))) {
-        // Search updated
-    }
+    if (ImGui::InputTextWithHint("##SearchBox", "Search achievements...", mSearchText, sizeof(mSearchText))) {}
     ImGui::PopItemWidth();
 
     ImGui::Spacing();
@@ -213,10 +211,10 @@ void AchievementEditor::DrawAchievementList() {
 
     uint32_t totalCount = GetTotalCount();
     uint32_t unlockedCount = GetUnlockedCount();
-    uint32_t totalScore = GetTotalGamerscore();
-    uint32_t unlockedScore = GetUnlockedGamerscore();
+    uint32_t totalScore = GetTotalHarbourMastery();
+    uint32_t unlockedScore = GetUnlockedHarbourMastery();
 
-    ImGui::Text("Progress: %u/%u (%u%%) | Score: %u/%u", unlockedCount, totalCount,
+    ImGui::Text("Progress: %u/%u (%u%%) | HM: %u/%u", unlockedCount, totalCount,
                 totalCount > 0 ? (unlockedCount * 100) / totalCount : 0, unlockedScore, totalScore);
 
     ImGui::Spacing();
@@ -225,8 +223,8 @@ void AchievementEditor::DrawAchievementList() {
         bool foundAny = false;
 
         for (int i = 0; i < static_cast<int>(AchievementId::ACHIEVEMENT_ID_MAX); i++) {
-            AchievementId id = static_cast<AchievementId>(i);
-            const Achievement* achievement = Achievements::StaticData::GetAchievement(id);
+            const AchievementId achievementId = static_cast<AchievementId>(i);
+            const Achievement* achievement = Achievements::StaticData::GetAchievement(achievementId);
 
             if (!achievement || !ShouldShowAchievement(achievement)) {
                 continue;
@@ -331,8 +329,8 @@ void AchievementEditor::DrawAchievementCard(const Achievement* achievement) {
     }
 
     float availableWidth = cardWidth - AchievementEditorUI::Layout::ICON_SIZE - padding * 3;
-    if (achievement->gamerscore > 0) {
-        std::string scoreText = "Score: " + std::to_string(achievement->gamerscore);
+    if (achievement->harbourMastery > 0) {
+        std::string scoreText = "HM: " + std::to_string(achievement->harbourMastery);
         float scoreWidth = ImGui::CalcTextSize(scoreText.c_str()).x;
         availableWidth -= scoreWidth + padding;
     }
@@ -343,8 +341,8 @@ void AchievementEditor::DrawAchievementCard(const Achievement* achievement) {
 
     ImGui::EndGroup();
 
-    if (achievement->gamerscore > 0) {
-        std::string scoreText = "Score: " + std::to_string(achievement->gamerscore);
+    if (achievement->harbourMastery > 0) {
+        std::string scoreText = "HM: " + std::to_string(achievement->harbourMastery);
         float scoreWidth = ImGui::CalcTextSize(scoreText.c_str()).x;
 
         ImGui::SetCursorScreenPos(ImVec2(cardPos.x + cardWidth - scoreWidth - padding, cardPos.y + padding));
@@ -384,7 +382,6 @@ void AchievementEditor::DrawSelectedAchievementInfo() {
 
     bool isUnlocked = IS_ACH_UNLOCKED(achievement->id);
 
-    // Icon and basic info
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
     if (!gui) {
         SPDLOG_ERROR("Failed to get GUI context for achievement editor details");
@@ -403,7 +400,6 @@ void AchievementEditor::DrawSelectedAchievementInfo() {
     ImGui::Text("Name: %s", achievement->name);
     ImGui::Text("ID: %d", static_cast<int>(achievement->id));
 
-    // Status
     ImGui::Text("Status: ");
     ImGui::SameLine();
     ImGui::TextColored(isUnlocked ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)
@@ -414,11 +410,10 @@ void AchievementEditor::DrawSelectedAchievementInfo() {
         ImGui::Text("Type: Secret Achievement");
     }
 
-    if (achievement->gamerscore > 0) {
-        ImGui::Text("Gamerscore: %d", achievement->gamerscore);
+    if (achievement->harbourMastery > 0) {
+        ImGui::Text("Harbour Mastery: %d", achievement->harbourMastery);
     }
 
-    // Category
     const char* categoryName = "Unknown";
     switch (achievement->category) {
         case AchievementCategory::GENERAL:
@@ -450,13 +445,12 @@ void AchievementEditor::DrawEventProgressDisplay() {
     ImGui::Spacing();
 
     uint32_t completedEvents = 0;
-    for (AchievementEvent eventId : achievement->requiredEvents) {
-        if (IS_ACH_TRIGGERED(eventId)) {
+    for (const AchievementEvent achievementEventId : achievement->requiredEvents) {
+        if (IS_ACH_TRIGGERED(achievementEventId)) {
             completedEvents++;
         }
     }
 
-    // Progress bar
     float progress = achievement->requiredEvents.size() > 0
                          ? static_cast<float>(completedEvents) / achievement->requiredEvents.size()
                          : 0.0f;
@@ -467,7 +461,6 @@ void AchievementEditor::DrawEventProgressDisplay() {
 
     ImGui::Spacing();
 
-    // Event list
     if (ImGui::BeginChild("EventList", ImVec2(0, 150), true)) {
         if (ImGui::BeginTable("EventTable", 3, ImGuiTableFlags_SizingFixedFit)) {
             ImGui::TableSetupColumn("Status", ImGuiTableColumnFlags_WidthFixed, 30.0f);
@@ -475,34 +468,31 @@ void AchievementEditor::DrawEventProgressDisplay() {
             ImGui::TableSetupColumn("Action", ImGuiTableColumnFlags_WidthFixed, 90.0f);
 
             for (size_t i = 0; i < achievement->requiredEvents.size(); i++) {
-                AchievementEvent eventId = achievement->requiredEvents[i];
-                bool isTriggered = IS_ACH_TRIGGERED(eventId);
+                const AchievementEvent achievementEventId = achievement->requiredEvents[i];
+                const bool isTriggered = IS_ACH_TRIGGERED(achievementEventId);
 
                 ImGui::PushID(static_cast<int>(i));
                 ImGui::TableNextRow();
 
-                // Status
                 ImGui::TableNextColumn();
                 ImGui::TextColored(isTriggered ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)
                                                : UIWidgets::ColorValues.at(UIWidgets::Colors::Red),
                                    "%s", isTriggered ? ICON_FA_CHECK_CIRCLE : ICON_FA_CIRCLE);
 
-                // Event name column
                 ImGui::TableNextColumn();
-                const auto* event = Achievements::StaticData::GetEvent(eventId);
+                const Event* event = Achievements::StaticData::GetEvent(achievementEventId);
                 const char* eventName = event ? event->name : "Unknown Event";
                 ImGui::TextWrapped("%s", eventName);
 
-                // Action button column
                 ImGui::TableNextColumn();
                 if (UIWidgets::Button(isTriggered ? "Reset" : "Trigger",
                                       UIWidgets::ButtonOptions()
                                           .Size(UIWidgets::Sizes::Inline)
                                           .Color(isTriggered ? UIWidgets::Colors::Orange : UIWidgets::Colors::Green))) {
                     if (isTriggered) {
-                        Achievements::ResetEvent(eventId);
+                        Achievements::ResetEvent(achievementEventId);
                     } else {
-                        Achievements::TriggerEvent(eventId, true);
+                        Achievements::TriggerEvent(achievementEventId, true);
                     }
                     if (BenGui::mAchievementsWindow) {
                         BenGui::mAchievementsWindow->InvalidateCache();
@@ -532,17 +522,14 @@ void AchievementEditor::DrawAchievementActions() {
     ImGui::Text("Testing Actions:");
     ImGui::Spacing();
 
-    // Primary action button
     if (isUnlocked) {
         if (UIWidgets::Button(
                 "Lock Achievement",
                 UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Fill).Color(UIWidgets::Colors::Orange))) {
             Achievements::Lock(achievement->id);
-            // Reset all required events to provide a clean testing state
-            for (AchievementEvent eventId : achievement->requiredEvents) {
-                Achievements::ResetEvent(eventId);
+            for (const AchievementEvent achievementEventId : achievement->requiredEvents) {
+                Achievements::ResetEvent(achievementEventId);
             }
-            // Invalidate achievements window cache
             if (BenGui::mAchievementsWindow) {
                 BenGui::mAchievementsWindow->InvalidateCache();
             }
@@ -552,25 +539,20 @@ void AchievementEditor::DrawAchievementActions() {
         if (UIWidgets::Button(
                 "Unlock Achievement",
                 UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Fill).Color(UIWidgets::Colors::Green))) {
-            // Trigger all required events to unlock
-            for (AchievementEvent eventId : achievement->requiredEvents) {
-                Achievements::TriggerEvent(eventId, true);
+            for (const AchievementEvent achievementEventId : achievement->requiredEvents) {
+                Achievements::TriggerEvent(achievementEventId, true);
             }
-            // Invalidate achievements window cache
             if (BenGui::mAchievementsWindow) {
                 BenGui::mAchievementsWindow->InvalidateCache();
             }
         }
         UIWidgets::Tooltip("Trigger all required events to unlock this achievement");
     }
-
-    // Note: Individual event manipulation is available in the Event Progress section above
 }
 
 void AchievementEditor::DrawEventTesting() {
     ImGui::SeparatorText("Event Testing");
 
-    // Two-column layout: event list | controls
     if (ImGui::BeginTable("EventLayout", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_BordersInnerV)) {
         ImGui::TableSetupColumn("Events", ImGuiTableColumnFlags_WidthStretch, 0.7f);
         ImGui::TableSetupColumn("Controls", ImGuiTableColumnFlags_WidthStretch, 0.3f);
@@ -590,7 +572,6 @@ void AchievementEditor::DrawEventStatusGrid() {
     ImGui::Spacing();
 
     if (ImGui::BeginChild("EventGrid", ImVec2(0, 0), true)) {
-        // Use a scrollable list instead of grid for better UX
         if (ImGui::BeginTable("AllEventsTable", 3,
                               ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg | ImGuiTableFlags_SizingFixedFit)) {
             ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 30.0f);
@@ -607,7 +588,6 @@ void AchievementEditor::DrawEventStatusGrid() {
                 ImGui::PushID(i);
                 ImGui::TableNextRow();
 
-                // Highlight selected row
                 if (isSelected) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
                                            ImGui::ColorConvertFloat4ToU32(ImVec4(0.2f, 0.4f, 0.8f, 0.3f)));
@@ -644,7 +624,6 @@ void AchievementEditor::DrawEventTriggerControls() {
     ImGui::Text("Event Controls");
     ImGui::Spacing();
 
-    // Selected event info
     ImGui::Text("Selected Event:");
     ImGui::Indent();
     const auto* event = Achievements::StaticData::GetEvent(mSelectedEventId);
@@ -668,7 +647,6 @@ void AchievementEditor::DrawEventTriggerControls() {
         } else {
             Achievements::TriggerEvent(mSelectedEventId, true);
         }
-        // Invalidate achievements window cache
         if (BenGui::mAchievementsWindow) {
             BenGui::mAchievementsWindow->InvalidateCache();
         }
@@ -689,7 +667,6 @@ void AchievementEditor::DrawEventTriggerControls() {
         for (int i = 0; i < static_cast<int>(AchievementEvent::ACHIEVEMENT_EVENT_MAX); i++) {
             Achievements::TriggerEvent(static_cast<AchievementEvent>(i), true);
         }
-        // Invalidate achievements window cache
         if (BenGui::mAchievementsWindow) {
             BenGui::mAchievementsWindow->InvalidateCache();
         }
@@ -701,7 +678,6 @@ void AchievementEditor::DrawEventTriggerControls() {
         for (int i = 0; i < static_cast<int>(AchievementEvent::ACHIEVEMENT_EVENT_MAX); i++) {
             Achievements::ResetEvent(static_cast<AchievementEvent>(i));
         }
-        // Invalidate achievements window cache
         if (BenGui::mAchievementsWindow) {
             BenGui::mAchievementsWindow->InvalidateCache();
         }
@@ -712,7 +688,6 @@ void AchievementEditor::DrawEventTriggerControls() {
 void AchievementEditor::DrawSystemDiagnostics() {
     ImGui::SeparatorText("System Diagnostics");
 
-    // Three sections: info | statistics | validation
     if (ImGui::BeginTabBar("DiagnosticsTabs")) {
         if (ImGui::BeginTabItem("System Info")) {
             DrawSystemInfo();
@@ -768,8 +743,8 @@ void AchievementEditor::DrawSystemInfo() {
 void AchievementEditor::DrawStatistics() {
     uint32_t totalCount = GetTotalCount();
     uint32_t unlockedCount = GetUnlockedCount();
-    uint32_t totalScore = GetTotalGamerscore();
-    uint32_t unlockedScore = GetUnlockedGamerscore();
+    uint32_t totalScore = GetTotalHarbourMastery();
+    uint32_t unlockedScore = GetUnlockedHarbourMastery();
 
     ImGui::Text("Achievement Statistics");
     ImGui::Spacing();
@@ -783,7 +758,7 @@ void AchievementEditor::DrawStatistics() {
 
     ImGui::Spacing();
 
-    ImGui::Text("Gamerscore:");
+    ImGui::Text("Harbour Mastery:");
     float scorePercent = totalScore > 0 ? (static_cast<float>(unlockedScore) / totalScore) * 100.0f : 0.0f;
     ImGui::ProgressBar(static_cast<float>(unlockedScore) / totalScore, ImVec2(-1, 0),
                        (std::to_string(unlockedScore) + " / " + std::to_string(totalScore) + " (" +
@@ -904,7 +879,6 @@ void AchievementEditor::DrawBulkOperations() {
     if (UIWidgets::Button("Unlock All Achievements",
                           UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Fill).Color(UIWidgets::Colors::Green))) {
         UnlockAllAchievements();
-        // Invalidate achievements window cache
         if (BenGui::mAchievementsWindow) {
             BenGui::mAchievementsWindow->InvalidateCache();
         }
@@ -916,7 +890,6 @@ void AchievementEditor::DrawBulkOperations() {
         for (int i = 0; i < static_cast<int>(AchievementId::ACHIEVEMENT_ID_MAX); i++) {
             Achievements::Lock(static_cast<AchievementId>(i));
         }
-        // Invalidate achievements window cache
         if (BenGui::mAchievementsWindow) {
             BenGui::mAchievementsWindow->InvalidateCache();
         }
@@ -936,7 +909,6 @@ void AchievementEditor::DrawBulkOperations() {
         for (int i = 0; i < static_cast<int>(AchievementEvent::ACHIEVEMENT_EVENT_MAX); i++) {
             Achievements::TriggerEvent(static_cast<AchievementEvent>(i), true);
         }
-        // Invalidate achievements window cache
         if (BenGui::mAchievementsWindow) {
             BenGui::mAchievementsWindow->InvalidateCache();
         }
@@ -948,7 +920,6 @@ void AchievementEditor::DrawBulkOperations() {
         for (int i = 0; i < static_cast<int>(AchievementEvent::ACHIEVEMENT_EVENT_MAX); i++) {
             Achievements::ResetEvent(static_cast<AchievementEvent>(i));
         }
-        // Invalidate achievements window cache
         if (BenGui::mAchievementsWindow) {
             BenGui::mAchievementsWindow->InvalidateCache();
         }
@@ -965,7 +936,6 @@ void AchievementEditor::DrawBulkOperations() {
     if (UIWidgets::Button("Clear All Progress",
                           UIWidgets::ButtonOptions().Size(UIWidgets::Sizes::Fill).Color(UIWidgets::Colors::Red))) {
         ClearAllProgress();
-        // Invalidate achievements window cache
         if (BenGui::mAchievementsWindow) {
             BenGui::mAchievementsWindow->InvalidateCache();
         }
@@ -1076,29 +1046,29 @@ uint32_t AchievementEditor::GetTotalCount() const {
     return static_cast<uint32_t>(AchievementId::ACHIEVEMENT_ID_MAX);
 }
 
-uint32_t AchievementEditor::GetTotalGamerscore() const {
+uint32_t AchievementEditor::GetTotalHarbourMastery() const {
     uint32_t total = 0;
     for (int i = 0; i < static_cast<int>(AchievementId::ACHIEVEMENT_ID_MAX); i++) {
         const Achievement* achievement = Achievements::StaticData::GetAchievement(static_cast<AchievementId>(i));
         if (achievement) {
-            total += achievement->gamerscore;
+            total += achievement->harbourMastery;
         }
     }
     return total;
 }
 
-uint32_t AchievementEditor::GetUnlockedGamerscore() const {
+uint32_t AchievementEditor::GetUnlockedHarbourMastery() const {
     if (!IS_ACHIEVEMENTS) {
         return 0;
     }
 
     uint32_t unlocked = 0;
     for (int i = 0; i < static_cast<int>(AchievementId::ACHIEVEMENT_ID_MAX); i++) {
-        AchievementId id = static_cast<AchievementId>(i);
-        if (IS_ACH_UNLOCKED(id)) {
-            const Achievement* achievement = Achievements::StaticData::GetAchievement(id);
+        const AchievementId achievementId = static_cast<AchievementId>(i);
+        if (IS_ACH_UNLOCKED(achievementId)) {
+            const Achievement* achievement = Achievements::StaticData::GetAchievement(achievementId);
             if (achievement) {
-                unlocked += achievement->gamerscore;
+                unlocked += achievement->harbourMastery;
             } else {
                 SPDLOG_DEBUG("Achievement {} is unlocked but has no data", i);
             }
@@ -1125,21 +1095,18 @@ void AchievementEditor::UnlockAllAchievements() {
     for (int i = 0; i < static_cast<int>(AchievementId::ACHIEVEMENT_ID_MAX); i++) {
         const Achievement* achievement = Achievements::StaticData::GetAchievement(static_cast<AchievementId>(i));
         if (achievement) {
-            // Trigger all required events for this achievement
-            for (AchievementEvent eventId : achievement->requiredEvents) {
-                Achievements::TriggerEvent(eventId, true);
+            for (const AchievementEvent achievementEventId : achievement->requiredEvents) {
+                Achievements::TriggerEvent(achievementEventId, true);
             }
         }
     }
 }
 
 void AchievementEditor::ClearAllProgress() {
-    // Lock all achievements
     for (int i = 0; i < static_cast<int>(AchievementId::ACHIEVEMENT_ID_MAX); i++) {
         Achievements::Lock(static_cast<AchievementId>(i));
     }
 
-    // Reset all events
     for (int i = 0; i < static_cast<int>(AchievementEvent::ACHIEVEMENT_EVENT_MAX); i++) {
         Achievements::ResetEvent(static_cast<AchievementEvent>(i));
     }
@@ -1154,17 +1121,16 @@ void AchievementEditor::FixCompletionIssues() {
     uint32_t fixedCount = 0;
 
     for (int i = 0; i < static_cast<int>(AchievementId::ACHIEVEMENT_ID_MAX); i++) {
-        AchievementId achId = static_cast<AchievementId>(i);
-        const Achievement* achievement = Achievements::StaticData::GetAchievement(achId);
+        const AchievementId achievementId = static_cast<AchievementId>(i);
+        const Achievement* achievement = Achievements::StaticData::GetAchievement(achievementId);
 
-        if (!achievement || achievement->requiredEvents.empty() || IS_ACH_UNLOCKED(achId)) {
+        if (!achievement || achievement->requiredEvents.empty() || IS_ACH_UNLOCKED(achievementId)) {
             continue;
         }
 
-        // Check if all required events are triggered
         bool allEventsTriggered = true;
-        for (AchievementEvent eventId : achievement->requiredEvents) {
-            if (!IS_ACH_TRIGGERED(eventId)) {
+        for (const AchievementEvent achievementEventId : achievement->requiredEvents) {
+            if (!IS_ACH_TRIGGERED(achievementEventId)) {
                 allEventsTriggered = false;
                 break;
             }
@@ -1182,5 +1148,3 @@ void AchievementEditor::FixCompletionIssues() {
 }
 
 } // namespace DeveloperTools
-
-} // namespace Achievements

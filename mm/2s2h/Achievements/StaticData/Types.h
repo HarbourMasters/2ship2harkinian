@@ -1,7 +1,7 @@
-#pragma once
+#ifndef ACHIEVEMENT_STATIC_DATA_TYPES_H
+#define ACHIEVEMENT_STATIC_DATA_TYPES_H
 
 typedef enum {
-    // Bomber's Notebook (BN) - All 20 individual achievements
     BN_HONORARY_MEMBER,
     BN_FAITHFUL_BRIDE,
     BN_MINI_HE,
@@ -22,51 +22,34 @@ typedef enum {
     BN_THERES_THREE_OF_YOU,
     BN_PERFECTING_THE_ART,
     BN_WINDMILL_MAN,
-    BN_LOCAL_HERO, // Meta-achievement for completing all BN entries
+    BN_LOCAL_HERO,
 
-    // Time Manipulation
-    TIMELORD, // Replaces the old internal achievement system
+    TIMELORD,
 
     ACHIEVEMENT_ID_MAX
 } AchievementId;
 
 typedef enum {
-    // Honorary Member Events (maps to LEARNED_SECRET_CODE + RECEIVED_BOMBERS_NOTEBOOK)
     EVENT_LEARNED_SECRET_CODE,
     EVENT_RECEIVED_BOMBERS_NOTEBOOK,
-
-    // Faithful Bride Events (maps to 6 specific WEEKEVENTREG flags)
     EVENT_RECEIVED_ROOM_KEY,
     EVENT_PROMISED_MIDNIGHT_MEETING,
     EVENT_RECEIVED_LETTER_TO_KAFEI,
     EVENT_DEPOSITED_LETTER_TO_KAFEI,
     EVENT_DELIVERED_PENDANT_OF_MEMORIES,
     EVENT_RECEIVED_COUPLES_MASK,
-
-    // Mini-He Events (maps to 4 specific WEEKEVENTREG flags)
     EVENT_PROMISED_TO_MEET_KAFEI,
     EVENT_RECEIVED_PENDANT_OF_MEMORIES,
     EVENT_ESCAPED_SAKONS_HIDEOUT,
-    // NOTE: RECEIVED_COUPLES_MASK is shared between Faithful Bride and Mini-He
-
-    // Ambiguous Allegiance Events (maps to 3 specific WEEKEVENTREG flags)
     EVENT_RECEIVED_KEATON_MASK,
     EVENT_RECEIVED_PRIORITY_MAIL,
     EVENT_RECEIVED_ALL_NIGHT_MASK,
-
-    // Frail D.I.D. Event (maps to single WEEKEVENTREG flag)
     EVENT_RECEIVED_BLAST_MASK,
-
-    // Brave Little Archer Events (maps to 3 specific WEEKEVENTREG flags)
     EVENT_PROMISED_TO_HELP_WITH_THEM,
     EVENT_DEFENDED_AGAINST_THEM,
     EVENT_RECEIVED_MILK_BOTTLE,
-
-    // Mature Ranch Hand Events (maps to 2 specific WEEKEVENTREG flags)
     EVENT_ESCORTED_CREMIA,
     EVENT_RECEIVED_ROMANIS_MASK,
-
-    // Single-event achievements (maps to individual WEEKEVENTREG flags)
     EVENT_RECEIVED_MAYOR_HP,
     EVENT_DELIVERED_PRIORITY_MAIL,
     EVENT_RECEIVED_CIRCUS_LEADERS_MASK,
@@ -83,12 +66,8 @@ typedef enum {
     EVENT_RECEIVED_STONE_MASK,
     EVENT_RECEIVED_BREMEN_MASK,
     EVENT_RECEIVED_KAFEIS_MASK,
-
-    // Time manipulation events (replaces internal achievements)
     EVENT_PLAYED_SONG_OF_DOUBLE_TIME,
     EVENT_PLAYED_INVERTED_SONG_OF_TIME,
-
-    // Miscellaneous events (Currently unused)
     EVENT_TINGLE_MAP_CLOCK_TOWN,
     EVENT_TINGLE_MAP_WOODFALL,
     EVENT_TINGLE_MAP_SNOWHEAD,
@@ -133,3 +112,5 @@ typedef enum {
 
     ACHIEVEMENT_EVENT_MAX
 } AchievementEvent;
+
+#endif // ACHIEVEMENT_STATIC_DATA_TYPES_H

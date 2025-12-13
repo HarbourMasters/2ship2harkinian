@@ -1,16 +1,14 @@
-#pragma once
+#ifndef ACHIEVEMENT_STATIC_DATA_REGISTRY_H
+#define ACHIEVEMENT_STATIC_DATA_REGISTRY_H
 
+// Local includes
 #include "Types.h"
-#include <vector>
-#include <map>
 
-// Defines the context in which an achievement is available.
-// Used for filtering achievements by game mode.
-enum class AchievementCategory {
-    GENERAL, // Available in all game modes
-    VANILLA, // Primarily for vanilla-only goals (e.g., Bomber's Notebook)
-    RANDO    // For achievements specific to randomizer mode
-};
+// Standard library
+#include <map>
+#include <vector>
+
+enum class AchievementCategory { GENERAL, VANILLA, RANDO };
 
 struct Achievement {
     AchievementId id;
@@ -19,7 +17,7 @@ struct Achievement {
     const char* iconPath;
     bool secret;
     AchievementCategory category;
-    int gamerscore;
+    int harbourMastery;
     std::vector<AchievementEvent> requiredEvents;
 };
 
@@ -34,19 +32,15 @@ namespace Achievements {
 
 namespace StaticData {
 
-// External data declarations
 extern std::map<AchievementId, Achievement> Data;
 extern std::map<AchievementEvent, Event> EventData;
 
-// Initialization function
 void Init();
-
-// Data accessor functions
-const Achievement* GetAchievement(AchievementId id);
-
-// Event data accessor functions
-const Event* GetEvent(AchievementEvent eventId);
+const Achievement* GetAchievement(AchievementId achievementId);
+const Event* GetEvent(AchievementEvent achievementEventId);
 
 } // namespace StaticData
 
 } // namespace Achievements
+
+#endif // ACHIEVEMENT_STATIC_DATA_REGISTRY_H

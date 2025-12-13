@@ -1,30 +1,37 @@
+// Local includes
 #include "AchievementsWindow.h"
+#include "../Achievements.h"
+#include "../StaticData/Registry.h"
 
+// Standard library
 #include <algorithm>
 #include <string>
 #include <vector>
 
+// Third-party
 #include <imgui.h>
-#include <ship/window/gui/IconsFontAwesome4.h>
 #include <spdlog/fmt/fmt.h>
 #include <spdlog/spdlog.h>
-#include <libultraship/libultraship.h>
-#include <libultraship/bridge/consolevariablebridge.h>
 
-#include "2s2h/BenGui/UIWidgets.hpp"
-#include "2s2h/Rando/Rando.h"
-#include "../Core.h"
-#include "../StaticData/Registry.h"
+// Ship/libultraship
+#include <libultraship/bridge/consolevariablebridge.h>
+#include <libultraship/libultraship.h>
+#include <ship/window/gui/IconsFontAwesome4.h>
+
+// Assets
+#include "assets/archives/icon_item_static/icon_item_static_yar.h"
+#include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
+#include "assets/interface/schedule_static/schedule_static.h"
 
 extern "C" {
-#include <variables.h>
-#include "assets/archives/icon_item_static/icon_item_static_yar.h"
-#include "assets/interface/schedule_static/schedule_static.h"
-#include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
+#include "variables.h"
 }
 
+// 2s2h
+#include "2s2h/BenGui/UIWidgets.hpp"
+#include "2s2h/Rando/Rando.h"
+
 namespace {
-// CVAR Constants
 constexpr const char* CVAR_ACHIEVEMENTS_ENABLED = CVAR_PREFIX_ENHANCEMENT ".Achievements.Enabled";
 constexpr const char* CVAR_FILTER_LOCKED_ONLY = CVAR_PREFIX_ENHANCEMENT ".Achievements.Filter.LockedOnly";
 constexpr const char* CVAR_FILTER_UNLOCKED_ONLY = CVAR_PREFIX_ENHANCEMENT ".Achievements.Filter.UnlockedOnly";
@@ -34,15 +41,12 @@ namespace Achievements {
 
 namespace UI {
 
-// Lifecycle Methods
-
 AchievementsWindow::~AchievementsWindow() {
     SaveSettings();
     SPDLOG_TRACE("destruct achievements window");
 }
 
 void AchievementsWindow::InitElement() {
-    // Initialize member variables
     mShowLockedOnly = false;
     mShowUnlockedOnly = false;
     mIsRandomizerMode = false;
@@ -50,11 +54,8 @@ void AchievementsWindow::InitElement() {
     mIsValidGameMode = false;
     mStatsNeedUpdate = true;
 
-    // Load settings and initialize resources
     LoadSettings();
     InitializeTextures();
-
-    SPDLOG_DEBUG("AchievementsWindow initialized");
 }
 
 void AchievementsWindow::UpdateElement() {
@@ -96,8 +97,6 @@ void AchievementsWindow::DrawElement() {
     ImGui::PopStyleVar();
     ImGui::PopStyleColor(2);
 }
-
-// Main UI Sections
 
 void AchievementsWindow::DrawInGameInterface() {
     DrawHeaderPanel();
@@ -144,8 +143,6 @@ void AchievementsWindow::DrawActivationPrompt() {
     DrawActivationDisclaimer();
 }
 
-// Header Section
-
 void AchievementsWindow::DrawHeaderPanel() {
     DrawProgressSection();
     ImGui::Dummy(ImVec2(0, AchievementsUI::Layout::TIGHT_SPACING));
@@ -160,7 +157,6 @@ void AchievementsWindow::DrawProgressSection() {
     float availableWidth = ImGui::GetContentRegionAvail().x;
     const ImVec4 progressColor = UIWidgets::ColorValues.at(UIWidgets::Colors::Orange);
 
-    // Calculate text strings
     const float fontScale = 1.2f;
     int progressPercent = (stats.totalCount > 0)
                               ? static_cast<int>((static_cast<float>(stats.unlockedCount) / stats.totalCount) * 100)
@@ -173,7 +169,6 @@ void AchievementsWindow::DrawProgressSection() {
     std::string totalScoreStr = fmt::format("/{}", stats.totalScore);
     std::string hmStr = " HM";
 
-    // Calculate layout
     ImGui::SetWindowFontScale(fontScale);
     ImVec2 unlockedCountSize = ImGui::CalcTextSize(unlockedCountStr.c_str());
     ImVec2 totalCountSize = ImGui::CalcTextSize(totalCountStr.c_str());
@@ -191,7 +186,6 @@ void AchievementsWindow::DrawProgressSection() {
         std::max(AchievementsUI::ProgressBar::MIN_WIDTH, availableWidth - leftContentWidth - rightContentWidth -
                                                              (AchievementsUI::Layout::STANDARD_SPACING * 2));
 
-    // Draw progress section
     ImVec2 baseScreenPos = ImGui::GetCursorScreenPos();
     ImDrawList* drawList = ImGui::GetWindowDrawList();
 
@@ -202,7 +196,6 @@ void AchievementsWindow::DrawProgressSection() {
     float iconOffsetY = (frameHeight - AchievementsUI::Icon::HEADER_SIZE) * 0.5f;
     float textOffsetY = (frameHeight - largeTextHeight) * 0.5f;
 
-    // Left side
     ImGui::SetCursorScreenPos(ImVec2(baseScreenPos.x, baseScreenPos.y + iconOffsetY));
     DrawProgressIcon();
 
@@ -215,14 +208,12 @@ void AchievementsWindow::DrawProgressSection() {
     drawList->AddText(textPos, dimColor, percentStr.c_str());
     ImGui::SetWindowFontScale(1.0f);
 
-    // Center
     float progressStartX = baseScreenPos.x + leftContentWidth + AchievementsUI::Layout::STANDARD_SPACING;
     float progressBarHeight = frameHeight * AchievementsUI::ProgressBar::HEIGHT_RATIO;
     float progressBarOffsetY = (frameHeight - progressBarHeight) * 0.5f;
     ImGui::SetCursorScreenPos(ImVec2(progressStartX, baseScreenPos.y + progressBarOffsetY));
     DrawProgressBar(progress, progressBarWidth, progressBarHeight, progressColor);
 
-    // Right side
     float rightStartX = baseScreenPos.x + availableWidth - rightContentWidth;
     ImGui::SetCursorScreenPos(ImVec2(rightStartX, baseScreenPos.y + iconOffsetY));
     DrawScoreIcon();
@@ -240,7 +231,7 @@ void AchievementsWindow::DrawProgressSection() {
 }
 
 void AchievementsWindow::DrawFilterSection() {
-    UIWidgets::PushStyleCombobox();
+    UIWidgets::PushStyleCombobox(UIWidgets::Colors::Orange);
     mAchievementFilter.Draw("##AchievementSearch", -1.0f);
     UIWidgets::PopStyleCombobox();
 
@@ -253,8 +244,6 @@ void AchievementsWindow::DrawFilterSection() {
 
     DrawFilterButtons();
 }
-
-// Achievement List
 
 void AchievementsWindow::DrawAchievementList() {
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(0.0f, 0.0f));
@@ -269,7 +258,8 @@ void AchievementsWindow::DrawAchievementList() {
 
         ImGui::Dummy(ImVec2(0, AchievementsUI::Layout::TIGHT_SPACING));
 
-        bool isFirstCard = true;
+        // Collect and sort achievements
+        std::vector<const Achievement*> achievements;
         for (int i = 0; i < static_cast<int>(AchievementId::ACHIEVEMENT_ID_MAX); i++) {
             AchievementId id = static_cast<AchievementId>(i);
             const Achievement* achievement = Achievements::StaticData::GetAchievement(id);
@@ -278,6 +268,17 @@ void AchievementsWindow::DrawAchievementList() {
                 continue;
             }
 
+            achievements.push_back(achievement);
+        }
+
+        // Sort achievements by priority
+        std::sort(achievements.begin(), achievements.end(), [this](const Achievement* a, const Achievement* b) {
+            return GetAchievementSortPriority(a) < GetAchievementSortPriority(b);
+        });
+
+        // Render sorted achievements
+        bool isFirstCard = true;
+        for (const Achievement* achievement : achievements) {
             if (!isFirstCard) {
                 ImGui::Dummy(ImVec2(0, AchievementsUI::Layout::STANDARD_SPACING));
             }
@@ -340,8 +341,6 @@ void AchievementsWindow::DrawAchievementCard(const Achievement* achievement) {
 
     ImGui::PopID();
 }
-
-// Card Components
 
 void AchievementsWindow::DrawCardIcon(const Achievement* achievement, AchievementsUI::CardTheme theme,
                                       bool hasProgress) {
@@ -406,12 +405,12 @@ void AchievementsWindow::DrawCardContent(const Achievement* achievement, Achieve
 
 void AchievementsWindow::DrawCardScore(const Achievement* achievement, AchievementsUI::CardTheme theme,
                                        const ImVec2& cardPos, float cardWidth) {
-    if (achievement->gamerscore <= 0)
+    if (achievement->harbourMastery <= 0)
         return;
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
 
-    std::string scoreText = fmt::format("{} HM", achievement->gamerscore);
+    std::string scoreText = fmt::format("{} HM", achievement->harbourMastery);
     float scoreTextWidth = ImGui::CalcTextSize(scoreText.c_str()).x;
 
     float scoreX = cardPos.x + cardWidth - AchievementsUI::Card::PADDING - scoreTextWidth;
@@ -435,9 +434,9 @@ void AchievementsWindow::DrawProgressIcons(const Achievement* achievement) {
     }
 
     std::vector<std::pair<AchievementEvent, bool>> sortedEvents;
-    for (AchievementEvent eventId : achievement->requiredEvents) {
-        bool isEventTriggered = IS_ACH_TRIGGERED(eventId);
-        sortedEvents.emplace_back(eventId, isEventTriggered);
+    for (const AchievementEvent achievementEventId : achievement->requiredEvents) {
+        const bool isEventTriggered = IS_ACH_TRIGGERED(achievementEventId);
+        sortedEvents.emplace_back(achievementEventId, isEventTriggered);
     }
 
     std::sort(sortedEvents.begin(), sortedEvents.end(),
@@ -476,8 +475,6 @@ void AchievementsWindow::DrawProgressIcons(const Achievement* achievement) {
 
     ImGui::EndGroup();
 }
-
-// Helper Functions
 
 void AchievementsWindow::DrawFontIcon(const char* icon, const ImVec4& color, AchievementsUI::CardTheme theme) {
     ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -590,8 +587,6 @@ void AchievementsWindow::DrawActivationDisclaimer() {
     }
 }
 
-// Utility Methods
-
 AchievementsWindow::ProgressStats AchievementsWindow::CalculateProgressStats() const {
     if (!mStatsNeedUpdate) {
         return mCachedStats;
@@ -614,11 +609,11 @@ AchievementsWindow::ProgressStats AchievementsWindow::CalculateProgressStats() c
         }
 
         stats.totalCount++;
-        stats.totalScore += achievement->gamerscore;
+        stats.totalScore += achievement->harbourMastery;
 
         if (IS_ACH_UNLOCKED(id)) {
             stats.unlockedCount++;
-            stats.unlockedScore += achievement->gamerscore;
+            stats.unlockedScore += achievement->harbourMastery;
         }
     }
 
@@ -639,8 +634,8 @@ AchievementsUI::CardTheme AchievementsWindow::DetermineCardTheme(const Achieveme
     }
 
     if (!isSecret && achievement->requiredEvents.size() > 1) {
-        for (AchievementEvent eventId : achievement->requiredEvents) {
-            if (IS_ACH_TRIGGERED(eventId)) {
+        for (const AchievementEvent achievementEventId : achievement->requiredEvents) {
+            if (IS_ACH_TRIGGERED(achievementEventId)) {
                 hasProgress = true;
                 break;
             }
@@ -648,6 +643,38 @@ AchievementsUI::CardTheme AchievementsWindow::DetermineCardTheme(const Achieveme
     }
 
     return hasProgress ? AchievementsUI::CardTheme::PROGRESS : AchievementsUI::CardTheme::LOCKED;
+}
+
+int AchievementsWindow::GetAchievementSortPriority(const Achievement* achievement) const {
+    if (!achievement) {
+        return 999; // Put invalid achievements at the end
+    }
+
+    bool hasProgress = false;
+    AchievementsUI::CardTheme theme = DetermineCardTheme(achievement, hasProgress);
+    bool isSecret = achievement->secret;
+
+    // Priority order (lower number = higher priority):
+    // 0: Locked with progress
+    // 1: Unlocked (only in "All" view)
+    // 2: Locked (not secret)
+    // 3: Secrets
+
+    if (theme == AchievementsUI::CardTheme::PROGRESS) {
+        return 0; // Locked with progress - highest priority
+    }
+
+    if (theme == AchievementsUI::CardTheme::UNLOCKED) {
+        // In "Locked" view, unlocked achievements are filtered out by ShouldShowAchievement
+        // So we only see them in "All" view
+        return 1; // Unlocked - second priority
+    }
+
+    if (isSecret) {
+        return 3; // Secrets - lowest priority
+    }
+
+    return 2; // Regular locked - third priority
 }
 
 bool AchievementsWindow::ShouldShowAchievement(const Achievement* achievement) const {
@@ -707,8 +734,6 @@ bool AchievementsWindow::IsRandomizerMode() const {
     return IS_RANDO;
 }
 
-// Resource Management
-
 void AchievementsWindow::InitializeTextures() {
     if (mTextures.initialized)
         return;
@@ -753,8 +778,6 @@ void AchievementsWindow::InvalidateCache() {
     mStatsNeedUpdate = true;
 }
 
-// Layout Helpers
-
 ImVec4 AchievementsWindow::GetCardColors(AchievementsUI::CardTheme theme, bool isBackground) const {
     switch (theme) {
         case AchievementsUI::CardTheme::UNLOCKED:
@@ -783,8 +806,6 @@ ImVec4 AchievementsWindow::GetTextColor(AchievementsUI::CardTheme theme, bool is
                              : UIWidgets::ColorValues.at(UIWidgets::Colors::Gray);
     }
 }
-
-// Panel Helpers
 
 void AchievementsWindow::BeginAchievementsPanel() {
     const float borderRounding = 6.0f;
@@ -827,8 +848,6 @@ void AchievementsWindow::BeginAchievementsPanel() {
 void AchievementsWindow::EndAchievementsPanel() {
     ImGui::EndChild();
 }
-
-// Misc. Helper Methods
 
 void AchievementsWindow::DrawProgressIcon() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -877,8 +896,6 @@ void AchievementsWindow::DrawCardBackground(const ImVec2& pos, const ImVec2& siz
                                 AchievementsUI::Card::BORDER_ROUNDING);
     }
 }
-
-// Settings Management
 
 void AchievementsWindow::LoadSettings() {
     mShowLockedOnly = CVarGetInteger(CVAR_FILTER_LOCKED_ONLY, 0);

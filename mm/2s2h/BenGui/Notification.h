@@ -33,12 +33,12 @@ class Window : public Ship::GuiWindow {
   private:
     void DrawRegularNotification(const Options& notification, ImVec2 basePosition, int inverseIndex, int position,
                                  float padding, ImGuiViewport* vp);
-    void DrawEnhancedNotification(const Options& notification, ImVec2 basePosition, int inverseIndex, int position,
-                                  float padding);
+    void DrawEnhancedNotification(const Options& notification, ImVec2 basePosition, int position, float padding,
+                                  int index);
 };
 
 void Emit(Options notification);
-void EmitAchievement(const char* iconPath, const std::string& achievementName, int gamerscore);
+void EmitAchievement(const char* iconPath, const std::string& achievementName, int harbourMastery);
 void EmitAchievementProgress(const char* iconPath, const char* name, int current, int target);
 void EmitAchievementProgressWithEvent(const char* iconPath, const char* eventName, const char* achievementName,
                                       int current, int target);

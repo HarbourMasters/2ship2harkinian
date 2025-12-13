@@ -63,7 +63,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/ShipUtils.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/PresetManager/PresetManager.h"
-#include "2s2h/Achievements/Core.h"
+#include "2s2h/Achievements/Achievements.h"
 
 // Resource Types/Factories
 #include <ship/resource/type/Blob.h>
