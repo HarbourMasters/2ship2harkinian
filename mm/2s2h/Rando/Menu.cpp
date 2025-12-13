@@ -61,7 +61,7 @@ static const ImVec4 CLOCK_DAY_TINT = ImVec4(1.0f, 0.85f, 0.3f, 1.0f);
 static const ImVec4 CLOCK_NIGHT_TINT = ImVec4(0.3f, 0.5f, 1.0f, 1.0f);
 static const float DISABLED_ITEM_ALPHA = 0.3f;
 static const char* CLOCK_PROGRESSIVE_TOOLTIP =
-    "\n\nClock items are not compatible with Progressive Clock modes.\nSwitch to Random mode to use starting clocks.";
+    "\n\nTime items are not compatible with Progressive Time modes.\nSwitch to Random mode to use starting time.";
 
 // Apply clock-specific rendering (tint colors and tooltips) based on progressive mode
 static void ApplyClockItemRendering(RandoItemId item, ImVec4& tintColor, std::string& tooltipText,
@@ -360,14 +360,14 @@ static void DrawItemsTab() {
                  CheckboxOptions({ { .tooltip = "Shuffles the first drop from a non Boss Enemy." } }));
     CVarCheckbox("Enemy Souls", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Clock Fragments", Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar,
+    CVarCheckbox("Shuffle Time", Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar,
                  CheckboxOptions({ { .tooltip = "Breaks the 3-day cycle into 6 separate half-days (Day 1 Day/Night, "
                                                 "Day 2 Day/Night, Day 3 Day/Night) that must be unlocked as items. "
                                                 "Players can only access time periods they've obtained. Attempting to "
                                                 "access unowned time redirects to the next owned half-day.",
                                      .disabled = IncompatibleWithLogicSetting(RO_CLOCK_SHUFFLE),
                                      .disabledTooltip = "Incompatible with current Logic Setting" } }));
-    // Only show clock progression options when clock fragments is enabled
+    // Only show time progression options when shuffle time is enabled
     if (CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar, 0)) {
         static std::unordered_map<int32_t, const char*> clockModeOptions = {
             { RO_CLOCK_SHUFFLE_RANDOM, "Random" },
@@ -377,7 +377,7 @@ static void DrawItemsTab() {
         {
             int32_t value =
                 CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, RO_CLOCK_SHUFFLE_RANDOM);
-            if (UIWidgets::Combobox<int32_t>("Clock Progression Mode", &value, &clockModeOptions)) {
+            if (UIWidgets::Combobox<int32_t>("Time Progression Mode", &value, &clockModeOptions)) {
                 CVarSetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, value);
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
             }
@@ -560,7 +560,7 @@ static void DrawStartingItemsTab() {
         if (category.first == STARTING_ITEMS_MASK) {
             tableColumns++;
         } else if (category.first == STARTING_ITEMS_MISC) {
-            tableColumns = 6; // Need 6 columns for the 6 clock items on their own row
+            tableColumns = 6; // Need 6 columns for the 6 time items on their own row
         }
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
         if (ImGui::BeginChild(std::to_string(category.first).c_str(), ImVec2(0, 0),
@@ -587,7 +587,7 @@ static void DrawStartingItemsTab() {
                     ImTextureID textureId =
                         Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
 
-                    // Force new row for Song of Time, first frog, and first clock item
+                    // Force new row for Song of Time, first frog, and first time item
                     if (item == RI_SONG_TIME || item == RI_FROG_BLUE || item == RI_CLOCK_DAY_1) {
                         ImGui::TableNextRow();
                     }

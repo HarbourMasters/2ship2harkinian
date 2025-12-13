@@ -695,7 +695,7 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
 
     int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
 
-    // Check if player has selected any starting clock items
+    // Check if player has selected any starting time items
     std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(RANDO_STARTING_ITEMS, ",");
     std::vector<int> startingClockHalves;
 
@@ -710,12 +710,12 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
 
     // If player selected starting clocks, use those instead of random/progressive logic
     if (!startingClockHalves.empty()) {
-        // Grant all selected starting clocks
+        // Grant all selected starting time
         for (int halfDayIndex : startingClockHalves) {
             Flags_SetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + halfDayIndex));
         }
 
-        // Add remaining (non-starting) clock items to pool
+        // Add remaining (non-starting) time items to pool
         // Only works in random mode - progressive mode items are added elsewhere
         if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
             for (int i = 0; i < 6; ++i) {
@@ -730,7 +730,7 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
             }
         }
     } else {
-        // No starting clocks selected - use default logic
+        // No starting time selected - use default logic
         int initialClockHalf;
 
         if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
@@ -745,7 +745,7 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
         Flags_SetRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + initialClockHalf));
 
         if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
-            // Add remaining 5 individual clock items to pool
+            // Add remaining 5 individual time items to pool
             for (int i = 0; i < 6; ++i) {
                 if (i == initialClockHalf)
                     continue;
@@ -754,7 +754,7 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
                     itemPool.push_back(clockItem);
             }
         } else {
-            // Add 5 progressive clock items to pool (6 total - 1 granted = 5 remaining)
+            // Add 5 progressive time items to pool (6 total - 1 granted = 5 remaining)
             for (int i = 0; i < 5; ++i)
                 itemPool.push_back(RI_CLOCK_PROGRESSIVE);
         }

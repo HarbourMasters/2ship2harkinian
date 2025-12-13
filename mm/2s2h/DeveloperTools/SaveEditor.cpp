@@ -898,10 +898,10 @@ void DrawItemsAndMasksTab() {
 
     if (gSaveContext.save.shipSaveInfo.saveType == SAVETYPE_RANDO) {
         if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
-            // Clock Items Management Section
-            ImGui::SeparatorText("Clock Items");
+            // Time Items Management Section
+            ImGui::SeparatorText("Time Items");
 
-            // Individual clock items in 3x2 grid with static positioning
+            // Individual time items in 3x2 grid with static positioning
             RandoItemId clockItems[] = { RI_CLOCK_DAY_1,   RI_CLOCK_DAY_2,   RI_CLOCK_DAY_3,
                                          RI_CLOCK_NIGHT_1, RI_CLOCK_NIGHT_2, RI_CLOCK_NIGHT_3 };
 

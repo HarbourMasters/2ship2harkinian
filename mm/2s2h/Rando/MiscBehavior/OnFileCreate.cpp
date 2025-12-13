@@ -254,7 +254,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     }
                 }
 
-                // Initialize clock shuffle settings and item pool
+                // Initialize shuffle time settings and item pool
                 ClockShuffle::InitializeFileClocks(itemPool);
 
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] == RO_GENERIC_YES) {
