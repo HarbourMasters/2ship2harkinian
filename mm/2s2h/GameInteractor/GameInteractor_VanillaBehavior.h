@@ -1979,6 +1979,26 @@ typedef enum {
     // #### `args`
     // - `*f32` (speed)
     VB_ZTARGET_SPEED_CHECK,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_SPEED_MODIFIER_WALK,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - '*f32' (incrStep)
+    // - '*f32' (maxSpeed)
+    // - '*f32' (speed)
+    // - '*f32' (speedTarget)
+    // - 'f32'  (swimMod)
+    VB_SPEED_MODIFIER_SWIM,
 } GIVanillaBehavior;
 
 #endif
