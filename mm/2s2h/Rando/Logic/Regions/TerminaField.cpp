@@ -498,13 +498,13 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_TERMINA_FIELD_GRASS_214, true),
             CHECK(RC_TERMINA_FIELD_GRASS_215, true),
             CHECK(RC_TERMINA_FIELD_GRASS_216, true),
-            CHECK(RC_ENEMY_DROP_BLUE_BUBBLE, CanKillEnemy(ACTOR_EN_BB)), // Night only
+            CHECK(RC_ENEMY_DROP_BLUE_BUBBLE, CanKillEnemy(ACTOR_EN_BB) && IS_NIGHT()), // Night only
             CHECK(RC_ENEMY_DROP_DEKU_BABA, CanKillEnemy(ACTOR_EN_DEKUBABA)),
-            CHECK(RC_ENEMY_DROP_CHUCHU, CanKillEnemy(ACTOR_EN_SLIME)), // Day only
-            CHECK(RC_ENEMY_DROP_REAL_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT)), // Day only
+            CHECK(RC_ENEMY_DROP_CHUCHU, CanKillEnemy(ACTOR_EN_SLIME) && IS_DAY()), // Day only
+            CHECK(RC_ENEMY_DROP_REAL_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT) && IS_DAY()), // Day only
             CHECK(RC_ENEMY_DROP_LEEVER, CanKillEnemy(ACTOR_EN_NEO_REEBA)),
-            CHECK(RC_ENEMY_DROP_DODONGO, CanKillEnemy(ACTOR_EN_DODONGO)), // Day only
-            CHECK(RC_ENEMY_DROP_EENO, CanKillEnemy(ACTOR_EN_SNOWMAN)), // Night only
+            CHECK(RC_ENEMY_DROP_DODONGO, CanKillEnemy(ACTOR_EN_DODONGO) && IS_DAY()), // Day only
+            CHECK(RC_ENEMY_DROP_EENO, CanKillEnemy(ACTOR_EN_SNOWMAN) && IS_NIGHT()), // Night only
             CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT)),
             CHECK(RC_ENEMY_DROP_TAKKURI, CanKillEnemy(ACTOR_EN_THIEFBIRD)),
         },

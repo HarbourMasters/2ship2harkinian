@@ -201,7 +201,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ROMANI_RANCH_GRASS_55, true),
             CHECK(RC_ROMANI_RANCH_GRASS_56, true),
             CHECK(RC_ROMANI_RANCH_GRASS_57, true),
-            CHECK(RC_ENEMY_DROP_ALIEN, CanKillEnemy(ACTOR_EN_INVADEPOH)), // Night 1 only
+            CHECK(RC_ENEMY_DROP_ALIEN, CanKillEnemy(ACTOR_EN_INVADEPOH) && IS_NIGHT1()), // Night 1 only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(MILK_ROAD, 1),                    ENTRANCE(ROMANI_RANCH, 0), true),

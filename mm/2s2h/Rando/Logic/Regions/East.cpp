@@ -170,7 +170,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_IKANA_CANYON_OWL_STATUE, CAN_USE_SWORD),
             CHECK(RC_IKANA_CANYON_TINGLE_MAP_01, CAN_USE_PROJECTILE && CAN_AFFORD(RC_IKANA_CANYON_TINGLE_MAP_01)),
             CHECK(RC_IKANA_CANYON_TINGLE_MAP_02, CAN_USE_PROJECTILE && CAN_AFFORD(RC_IKANA_CANYON_TINGLE_MAP_02)),
-            CHECK(RC_ENEMY_DROP_GUAY, CanKillEnemy(ACTOR_EN_CROW)), // Day only
+            CHECK(RC_ENEMY_DROP_GUAY, CanKillEnemy(ACTOR_EN_CROW) && IS_DAY()), // Day only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(GHOST_HUT, 0),                    ENTRANCE(IKANA_CANYON, 1), true),
@@ -227,8 +227,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_IKANA_GRAVEYARD_GRASS_07, true),
             CHECK(RC_IKANA_GRAVEYARD_GRASS_08, true),
             CHECK(RC_IKANA_GRAVEYARD_GRASS_09, true),
-            CHECK(RC_ENEMY_DROP_STALCHILD, CanKillEnemy(ACTOR_EN_SKB)), // Night only
-            CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT)), // Day only
+            CHECK(RC_ENEMY_DROP_STALCHILD, CanKillEnemy(ACTOR_EN_SKB) && IS_NIGHT()), // Night only
+            CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT) && IS_DAY()), // Day only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ROAD_TO_IKANA, 2),                ENTRANCE(IKANA_GRAVEYARD, 0), true),
@@ -248,7 +248,7 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_IKANA_GRAVEYARD_CAPTAIN_MASK, CanKillEnemy(ACTOR_EN_SKB) && CanKillEnemy(ACTOR_EN_BSB)),
             CHECK(RC_ENEMY_DROP_STALCHILD, CanKillEnemy(ACTOR_EN_SKB)),
-            CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT)), // Day only
+            CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT) && IS_DAY()), // Day only
             CHECK(RC_ENEMY_DROP_CAPTAIN_KEETA, CanKillEnemy(ACTOR_EN_SKB) && CanKillEnemy(ACTOR_EN_BSB)),
         },
         .connections = {
@@ -273,7 +273,7 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_ROAD_TO_IKANA_ABOVE_LEDGE] = RandoRegion{ .name = "Above Ledge", .sceneId = SCENE_IKANAMAE,
         .checks = {
-            CHECK(RC_ENEMY_DROP_NEJIRON, CanKillEnemy(ACTOR_EN_BAGUO)), // Day only
+            CHECK(RC_ENEMY_DROP_NEJIRON, CanKillEnemy(ACTOR_EN_BAGUO) && IS_DAY()), // Day only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(IKANA_CANYON, 0),                 ENTRANCE(ROAD_TO_IKANA, 1), true),
@@ -286,8 +286,8 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_ROAD_TO_IKANA_POT, CAN_HOOK_SCARECROW),
             CHECK(RC_ROAD_TO_IKANA_STONE_MASK, HAS_ITEM(ITEM_LENS_OF_TRUTH) && HAS_MAGIC && HAS_BOTTLE && (CAN_ACCESS(RED_POTION_REFILL) || CAN_ACCESS(BLUE_POTION_REFILL))),
-            CHECK(RC_ENEMY_DROP_BLUE_BUBBLE, CanKillEnemy(ACTOR_EN_BB)), // Night only
-            CHECK(RC_ENEMY_DROP_REAL_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT)), // Day only
+            CHECK(RC_ENEMY_DROP_BLUE_BUBBLE, CanKillEnemy(ACTOR_EN_BB) && IS_NIGHT()), // Night only
+            CHECK(RC_ENEMY_DROP_REAL_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT) && IS_DAY()), // Day only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(IKANA_GRAVEYARD, 0),              ENTRANCE(ROAD_TO_IKANA, 2), true)
@@ -300,8 +300,8 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_ROAD_TO_IKANA_FIELD_SIDE] = RandoRegion{ .name = "Field Side", .sceneId = SCENE_IKANAMAE,
         .checks = {
             CHECK(RC_ROAD_TO_IKANA_CHEST, HAS_ITEM(ITEM_HOOKSHOT)),
-            CHECK(RC_ENEMY_DROP_BLUE_BUBBLE, CanKillEnemy(ACTOR_EN_BB)), // Night only
-            CHECK(RC_ENEMY_DROP_REAL_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT)), // Day only
+            CHECK(RC_ENEMY_DROP_BLUE_BUBBLE, CanKillEnemy(ACTOR_EN_BB) && IS_NIGHT()), // Night only
+            CHECK(RC_ENEMY_DROP_REAL_BOMBCHU, CanKillEnemy(ACTOR_EN_RAT) && IS_DAY()), // Day only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 4),                ENTRANCE(ROAD_TO_IKANA, 0), true),

@@ -252,8 +252,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GRASS_19, true),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GRASS_20, true),
             CHECK(RC_ENEMY_DROP_DEKU_BABA, CanKillEnemy(ACTOR_EN_DEKUBABA)),
-            CHECK(RC_ENEMY_DROP_CHUCHU, CanKillEnemy(ACTOR_EN_SLIME)), // Day only
-            CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_EN_WF)), // Night only
+            CHECK(RC_ENEMY_DROP_CHUCHU, CanKillEnemy(ACTOR_EN_SLIME) && IS_DAY()), // Day only
+            CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_EN_WF) && IS_NIGHT()), // Night only
             CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT)),
         },
         .exits = { //     TO                                         FROM
