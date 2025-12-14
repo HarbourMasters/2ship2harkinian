@@ -66,13 +66,15 @@ void Rando::ActorBehavior::InitEnCowBehavior() {
             *should = false;
             return;
         }
+
+        ((EnCow*)actor)->flags |= EN_COW_FLAG_WONT_GIVE_MILK;
+
         RandoCheckId randoCheckId = IdentifyCow(actor);
 
         if (randoCheckId == RC_UNKNOWN) {
             *should = true;
             return;
         }
-        ((EnCow*)actor)->flags |= EN_COW_FLAG_WONT_GIVE_MILK;
 
         RandoSaveCheck& randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
         if (!randoSaveCheck.shuffled || randoSaveCheck.cycleObtained) {
