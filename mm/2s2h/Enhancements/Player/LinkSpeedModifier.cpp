@@ -70,7 +70,7 @@ void RegisterLinkSpeedModifier() {
         Math_AsymStepToF(speed, *speedTarget * 0.8f * swimMod, *incrStep, (fabsf(*speed) * 0.02f) + 0.05f);
     });
 
-    COND_HOOK(OnPassPlayerInputs, CVAR_WALK && CVAR_SPEED || CVAR_SWIM && CVAR_SPEED, [](Input* input) {
+    COND_HOOK(OnPassPlayerInputs, CVAR_SPEED && (CVAR_WALK || CVAR_SWIM), [](Input* input) {
         if (CVAR_SPEED_TOGGLE) {
 
             if (CHECK_BTN_ALL(input->press.button, BTN_CUSTOM_MODIFIER1)) {
@@ -84,9 +84,9 @@ void RegisterLinkSpeedModifier() {
         }
     });
 
-    COND_HOOK(OnConsoleLogoUpdate, CVAR_WALK && CVAR_SPEED || CVAR_SWIM && CVAR_SPEED, []() {
-        speedToggle1 = 0;
-        speedToggle2 = 0;
+    COND_HOOK(OnConsoleLogoUpdate, CVAR_SPEED && (CVAR_WALK || CVAR_SWIM), []() {
+        speedToggle1 = false;
+        speedToggle2 = false;
     });
 }
 
