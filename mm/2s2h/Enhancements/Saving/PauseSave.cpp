@@ -1,5 +1,6 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/ShipInit.hpp"
+#include "SavingEnhancements.h"
 
 extern "C" PlayState* gPlayState;
 
