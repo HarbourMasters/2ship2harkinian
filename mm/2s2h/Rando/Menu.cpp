@@ -188,7 +188,7 @@ static void DrawLogicConditionsTab() {
                              Rando::StaticData::Options[RO_ACCESS_MOON_REMAINS_COUNT].cvar,
                              IntSliderOptions().Min(0).Max(4).DefaultValue(4));
     UIWidgets::CVarSliderInt("Moon Access Masks Required", Rando::StaticData::Options[RO_ACCESS_MOON_MASKS_COUNT].cvar,
-                             IntSliderOptions().Min(0).Max(20).DefaultValue(20));
+                             IntSliderOptions().Min(0).Max(20).DefaultValue(0));
     UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, &accessTrialsOptions);
     ImGui::EndChild();
     ImGui::BeginChild("randoLogicTricks", ImVec2(0, 0));
