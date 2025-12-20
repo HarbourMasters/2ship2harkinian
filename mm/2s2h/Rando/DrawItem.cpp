@@ -3,7 +3,6 @@
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/DrawFuncs.h"
 #include "2s2h_assets.h"
-#include "ActorBehavior/Souls.h"
 
 extern "C" {
 #include "variables.h"
@@ -402,10 +401,61 @@ void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+std::unordered_map<RandoItemId, std::function<void()>> soulDrawMap = {
+    // { RI_SOUL_ALIEN, DrawArmos },
+    { RI_SOUL_ARMOS, DrawArmos },
+    { RI_SOUL_BAD_BAT, DrawBat },
+    { RI_SOUL_BEAMOS, DrawBeamos },
+    { RI_SOUL_BUBBLE, DrawBubble },
+    { RI_SOUL_BOE, DrawBoe },
+    { RI_SOUL_CHUCHU, DrawSlime },
+    { RI_SOUL_DEATH_ARMOS, DrawDeathArmos },
+    // { RI_SOUL_DEEP_PYTHON, DrawArmos },
+    { RI_SOUL_DEKU_BABA, DrawDekuBaba },
+    // { RI_SOUL_DEXIHAND, DrawArmos },
+    { RI_SOUL_DINOLFOS, DrawDinolfos },
+    { RI_SOUL_DODONGO, DrawDodongo },
+    { RI_SOUL_DRAGONFLY, DrawGrasshopper },
+    { RI_SOUL_EENO, DrawEeno },
+    // { RI_SOUL_EYEGORE, DrawArmos },
+    { RI_SOUL_FLYING_POT, DrawFlyingPot },
+    { RI_SOUL_FREEZARD, DrawFreezard },
+    // { RI_SOUL_GARO, DrawArmos },
+    // { RI_SOUL_GARO_MASTER, DrawArmos },
+    // { RI_SOUL_GEKKO, DrawArmos },
+    // { RI_SOUL_GEKKO, DrawArmos },
+    // { RI_SOUL_GIANT_BEE, DrawArmos },
+    { RI_SOUL_GUAY, DrawGuay },
+    { RI_SOUL_HIPLOOP, DrawHiploop },
+    { RI_SOUL_IRON_KNUCKLE, DrawIronKnuckle },
+    { RI_SOUL_KEESE, DrawKeese },
+    { RI_SOUL_LEEVER, DrawLeever },
+    { RI_SOUL_LIKE_LIKE, DrawLikeLike },
+    { RI_SOUL_MAD_SCRUB, DrawMadScrub },
+    { RI_SOUL_NEJIRON, DrawNejiron },
+    { RI_SOUL_OCTOROK, DrawOctorok },
+    { RI_SOUL_PEAHAT, DrawPeahat },
+    // { RI_SOUL_PIRATE, DrawArmos },
+    // { RI_SOUL_POE_SISTER, DrawArmos },
+    { RI_SOUL_REAL_BOMBCHU, DrawRealBombchu },
+    { RI_SOUL_REDEAD, DrawRedead },
+    { RI_SOUL_SHELLBLADE, DrawShellBlade },
+    { RI_SOUL_SKULLFISH, DrawSkullfish },
+    { RI_SOUL_SKULLTULA, DrawSkulltula },
+    { RI_SOUL_SNAPPER, DrawSnapper },
+    { RI_SOUL_STALCHILD, DrawStalchild },
+    // { RI_SOUL_TAKKURI, DrawArmos },
+    { RI_SOUL_TEKTITE, DrawTektite },
+    { RI_SOUL_WALLMASTER, DrawWallmaster },
+    // { RI_SOUL_WART, DrawArmos },
+    // { RI_SOUL_WIZROBE, DrawArmos },
+    { RI_SOUL_WOLFOS, DrawWolfos },
+};
+
 void DrawSoul(RandoItemId randoItemId) {
-    auto it = soulMap.find(randoItemId);
-    if (it != soulMap.end()) {
-        std::get<0>(it->second)();
+    auto it = soulDrawMap.find(randoItemId);
+    if (it != soulDrawMap.end()) {
+        it->second();
     }
 }
 

@@ -1,4 +1,3 @@
-#include "Souls.h"
 #include "ActorBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "Rando/DrawFuncs.h"
@@ -12,56 +11,6 @@ extern "C" {
 void BossHakugin_DrawIce(BossHakugin*, PlayState*);
 }
 
-// clang-format off
-std::unordered_map<RandoItemId, std::tuple<std::function<void()>, std::vector<ActorId>, RandoInf>> soulMap = {
-    { RI_SOUL_ARMOS,        { DrawArmos,        { ACTOR_EN_AM }, RANDO_INF_OBTAINED_SOUL_OF_ARMOS } },
-    { RI_SOUL_BAD_BAT,      { DrawBat,          { ACTOR_EN_BAT }, RANDO_INF_OBTAINED_SOUL_OF_BAD_BATS } },
-    { RI_SOUL_BEAMOS,       { DrawBeamos,       { ACTOR_EN_VM }, RANDO_INF_OBTAINED_SOUL_OF_BEAMOS } },
-    { RI_SOUL_BOE,          { DrawBoe,          { ACTOR_EN_MKK }, RANDO_INF_OBTAINED_SOUL_OF_BOES } },
-    { RI_SOUL_BUBBLE,       { DrawBubble,       { ACTOR_EN_BB, ACTOR_EN_BBFALL }, RANDO_INF_OBTAINED_SOUL_OF_BUBBLES } },
-    { RI_SOUL_DEATH_ARMOS,  { DrawDeathArmos,   { ACTOR_EN_FAMOS }, RANDO_INF_OBTAINED_SOUL_OF_DEATH_ARMOS } },
-    { RI_SOUL_DEKU_BABA,    { DrawDekuBaba,     { ACTOR_EN_DEKUBABA, ACTOR_EN_KAREBABA, ACTOR_BOSS_05 }, RANDO_INF_OBTAINED_SOUL_OF_DEKU_BABAS } },
-    { RI_SOUL_DINOLFOS,     { DrawDinolfos,     { ACTOR_EN_DINOFOS }, RANDO_INF_OBTAINED_SOUL_OF_DINOLFOS } },
-    { RI_SOUL_DODONGO,      { DrawDodongo,      { ACTOR_EN_DODONGO }, RANDO_INF_OBTAINED_SOUL_OF_DODONGOS } },
-    { RI_SOUL_DRAGONFLY,    { DrawGrasshopper,  { ACTOR_EN_GRASSHOPPER }, RANDO_INF_OBTAINED_SOUL_OF_DRAGONFLIES } },
-    { RI_SOUL_EENO,         { DrawEeno,         { ACTOR_EN_SNOWMAN }, RANDO_INF_OBTAINED_SOUL_OF_EENOS } },
-    { RI_SOUL_FLYING_POT,   { DrawFlyingPot,    { ACTOR_EN_TUBO_TRAP }, RANDO_INF_OBTAINED_SOUL_OF_FLYING_POTS } },
-    { RI_SOUL_FREEZARD,     { DrawFreezard,     { ACTOR_EN_FZ }, RANDO_INF_OBTAINED_SOUL_OF_FREEZARDS } },
-    { RI_SOUL_GUAY,         { DrawGuay,         { ACTOR_EN_CROW, ACTOR_EN_RUPPECROW }, RANDO_INF_OBTAINED_SOUL_OF_GUAYS } },
-    { RI_SOUL_HIPLOOP,      { DrawHiploop,      { ACTOR_EN_PP }, RANDO_INF_OBTAINED_SOUL_OF_HIPLOOPS } },
-    { RI_SOUL_IRON_KNUCKLE, { DrawIronKnuckle,  { ACTOR_EN_IK }, RANDO_INF_OBTAINED_SOUL_OF_IRON_KNUCKLES } },
-    { RI_SOUL_KEESE,        { DrawKeese,        { ACTOR_EN_FIREFLY }, RANDO_INF_OBTAINED_SOUL_OF_KEESE } },
-    { RI_SOUL_LEEVER,       { DrawLeever,       { ACTOR_EN_NEO_REEBA }, RANDO_INF_OBTAINED_SOUL_OF_LEEVERS } },
-    { RI_SOUL_LIKE_LIKE,    { DrawLikeLike,     { ACTOR_EN_RR }, RANDO_INF_OBTAINED_SOUL_OF_LIKE_LIKES } },
-    { RI_SOUL_MAD_SCRUB,    { DrawMadScrub,     { ACTOR_EN_DEKUNUTS }, RANDO_INF_OBTAINED_SOUL_OF_MAD_SCRUBS } },
-    { RI_SOUL_NEJIRON,      { DrawNejiron,      { ACTOR_EN_BAGUO }, RANDO_INF_OBTAINED_SOUL_OF_NEJIRONS } },
-    { RI_SOUL_OCTOROK,      { DrawOctorok,      { ACTOR_EN_OKUTA }, RANDO_INF_OBTAINED_SOUL_OF_OCTOROKS } },
-    { RI_SOUL_PEAHAT,       { DrawPeahat,       { ACTOR_EN_PEEHAT }, RANDO_INF_OBTAINED_SOUL_OF_PEAHATS } },
-    { RI_SOUL_REAL_BOMBCHU, { DrawRealBombchu,  { ACTOR_EN_RAT }, RANDO_INF_OBTAINED_SOUL_OF_REAL_BOMBCHU } },
-    { RI_SOUL_REDEAD,       { DrawRedead,       { ACTOR_EN_RD, ACTOR_EN_RAILGIBUD }, RANDO_INF_OBTAINED_SOUL_OF_REDEADS } },
-    { RI_SOUL_SHELLBLADE,   { DrawShellBlade,   { ACTOR_EN_SB }, RANDO_INF_OBTAINED_SOUL_OF_SHELLBLADES } },
-    { RI_SOUL_SKULLFISH,    { DrawSkullfish,    { ACTOR_EN_PR, ACTOR_EN_PRZ, ACTOR_EN_PR2 }, RANDO_INF_OBTAINED_SOUL_OF_SKULLFISH } },
-    { RI_SOUL_SKULLTULA,    { DrawSkulltula,    { ACTOR_EN_ST, ACTOR_EN_SW }, RANDO_INF_OBTAINED_SOUL_OF_SKULLTULAS } },
-    { RI_SOUL_CHUCHU,       { DrawSlime,        { ACTOR_EN_SLIME }, RANDO_INF_OBTAINED_SOUL_OF_CHUCHUS } },
-    { RI_SOUL_SNAPPER,      { DrawSnapper,      { ACTOR_EN_KAME }, RANDO_INF_OBTAINED_SOUL_OF_SNAPPERS } },
-    { RI_SOUL_STALCHILD,    { DrawStalchild,    { ACTOR_EN_SKB, ACTOR_EN_RAIL_SKB }, RANDO_INF_OBTAINED_SOUL_OF_STALCHILDREN } },
-    { RI_SOUL_TEKTITE,      { DrawTektite,      { ACTOR_EN_TITE }, RANDO_INF_OBTAINED_SOUL_OF_TEKTITES } },
-    { RI_SOUL_WALLMASTER,   { DrawWallmaster,   { ACTOR_EN_WALLMAS, ACTOR_EN_FLOORMAS }, RANDO_INF_OBTAINED_SOUL_OF_WALLMASTERS } },
-    { RI_SOUL_WOLFOS,       { DrawWolfos,       { ACTOR_EN_WF }, RANDO_INF_OBTAINED_SOUL_OF_WOLFOS } },
-};
-// clang-format on
-
-RandoItemId GetRandoItemIdByActor(int16_t actorId) {
-    for (auto& soul : soulMap) {
-        for (auto& actor : std::get<1>(soul.second)) {
-            if (actor == actorId) {
-                return soul.first;
-            }
-        }
-    }
-    return RI_UNKNOWN;
-}
-
 bool shouldMajoraRegister() {
     bool registerStatus = false;
     if (IS_RANDO) {
@@ -72,6 +21,75 @@ bool shouldMajoraRegister() {
     }
     return registerStatus;
 }
+
+#define RI_TO_RANDO_INF(randoItemId) ((randoItemId - RI_SOUL_ARMOS) + RANDO_INF_OBTAINED_SOUL_OF_ARMOS)
+
+// clang-format off
+std::unordered_map<int16_t, RandoItemId> soulMap = {
+    // TODO: Combine all Poes into one soul? regular, big, sisters. regular and big have no drops as of yet
+    // TODO: Special cases: Igos du Ikana, Captain Keeta
+    // FIXME: Real Bomchus and flying pots don't depend on attack collision to die; they can die from hitting anything
+    // { ACTOR_EN_INVADEPOH, RI_SOUL_ALIEN },
+    { ACTOR_EN_AM,          RI_SOUL_ARMOS },
+    { ACTOR_EN_BAT,         RI_SOUL_BAD_BAT },
+    { ACTOR_EN_VM,          RI_SOUL_BEAMOS },
+    { ACTOR_EN_BB,          RI_SOUL_BUBBLE },
+    { ACTOR_EN_BBFALL,      RI_SOUL_BUBBLE },
+    { ACTOR_EN_MKK,         RI_SOUL_BOE },
+    { ACTOR_EN_SLIME,       RI_SOUL_CHUCHU },
+    { ACTOR_EN_FAMOS,       RI_SOUL_DEATH_ARMOS },
+    // { ACTOR_EN_DRAGON, RI_SOUL_DEEP_PYTHON },
+    { ACTOR_EN_DEKUBABA,    RI_SOUL_DEKU_BABA },
+    { ACTOR_EN_KAREBABA,    RI_SOUL_DEKU_BABA },
+    { ACTOR_BOSS_05,        RI_SOUL_DEKU_BABA },
+    // { ACTOR_EN_WDHAND, RI_SOUL_DEXIHAND },
+    { ACTOR_EN_DINOFOS,     RI_SOUL_DINOLFOS },
+    { ACTOR_EN_DODONGO,     RI_SOUL_DODONGO },
+    { ACTOR_EN_GRASSHOPPER, RI_SOUL_DRAGONFLY },
+    { ACTOR_EN_SNOWMAN,     RI_SOUL_EENO },
+    // { ACTOR_EN_EGOL, RI_SOUL_EYEGORE },
+    { ACTOR_EN_TUBO_TRAP,   RI_SOUL_FLYING_POT },
+    { ACTOR_EN_FZ,          RI_SOUL_FREEZARD },
+    // { ACTOR_EN_JSO, RI_SOUL_GARO },
+    // { ACTOR_EN_JSO2, RI_SOUL_GARO_MASTER },
+    // { ACTOR_EN_BIGSLIME, RI_SOUL_GEKKO },
+    // { ACTOR_EN_PAMETFROG, RI_SOUL_GEKKO },
+    // { ACTOR_EN_BEE, RI_SOUL_GIANT_BEE },
+    { ACTOR_EN_CROW,        RI_SOUL_GUAY },
+    { ACTOR_EN_RUPPECROW,   RI_SOUL_GUAY },
+    { ACTOR_EN_PP,          RI_SOUL_HIPLOOP },
+    { ACTOR_EN_IK,          RI_SOUL_IRON_KNUCKLE },
+    { ACTOR_EN_FIREFLY,     RI_SOUL_KEESE },
+    { ACTOR_EN_NEO_REEBA,   RI_SOUL_LEEVER },
+    { ACTOR_EN_RR,          RI_SOUL_LIKE_LIKE },
+    { ACTOR_EN_DEKUNUTS,    RI_SOUL_MAD_SCRUB },
+    { ACTOR_EN_BAGUO,       RI_SOUL_NEJIRON },
+    { ACTOR_EN_OKUTA,       RI_SOUL_OCTOROK },
+    { ACTOR_EN_PEEHAT,      RI_SOUL_PEAHAT },
+    // { ACTOR_EN_KAIZOKU, RI_SOUL_PIRATE },
+    // { ACTOR_EN_PO_SISTERS, RI_SOUL_POE_SISTER },
+    { ACTOR_EN_RAT,         RI_SOUL_REAL_BOMBCHU },
+    { ACTOR_EN_RD,          RI_SOUL_REDEAD },
+    { ACTOR_EN_SB,          RI_SOUL_SHELLBLADE },
+    { ACTOR_EN_PR,          RI_SOUL_SKULLFISH },
+    { ACTOR_EN_PR2,         RI_SOUL_SKULLFISH },
+    { ACTOR_EN_PRZ,         RI_SOUL_SKULLFISH },
+    { ACTOR_EN_ST,          RI_SOUL_SKULLTULA },
+    { ACTOR_EN_SW,          RI_SOUL_SKULLTULA },
+    { ACTOR_EN_BIGPAMET,    RI_SOUL_SNAPPER },
+    { ACTOR_EN_KAME,        RI_SOUL_SNAPPER },
+    { ACTOR_EN_HINT_SKB,    RI_SOUL_STALCHILD },
+    { ACTOR_EN_RAIL_SKB,    RI_SOUL_STALCHILD },
+    { ACTOR_EN_SKB,         RI_SOUL_STALCHILD },
+    // { ACTOR_EN_THIEFBIRD, RI_SOUL_TAKKURI },
+    { ACTOR_EN_TITE,        RI_SOUL_TEKTITE },
+    { ACTOR_EN_FLOORMAS,    RI_SOUL_WALLMASTER },
+    { ACTOR_EN_WALLMAS,     RI_SOUL_WALLMASTER },
+    // { ACTOR_BOSS_04, RI_SOUL_WART },
+    // { ACTOR_EN_WIZ, RI_SOUL_WIZROBE },
+    { ACTOR_EN_WF,          RI_SOUL_WOLFOS },
+};
+// clang-format on
 
 void ShouldActorUpdate(Actor* actor, bool* should, RandoInf randoInf) {
     if (!Flags_GetRandoInf(randoInf)) {
@@ -92,26 +110,18 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
     bool shouldBossRegister = IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES;
     bool shouldEnemyInjure = IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] == RO_GENERIC_YES;
 
-    COND_VB_SHOULD(VB_APPLY_DAMAGE_TO_ACTOR, shouldEnemyInjure, {
-        Actor* actor = va_arg(args, Actor*);
-        u32 dmgFlags = va_arg(args, u32);
-        u32 damageEffect = actor->colChkInfo.damageEffect;
-        u32 damage = actor->colChkInfo.damage;
+    COND_VB_SHOULD(VB_PERFORM_AC_COLLISION, shouldEnemyInjure, {
+        Collider* at = va_arg(args, Collider*);
+        Collider* ac = va_arg(args, Collider*);
 
-        if (actor->category != ACTORCAT_ENEMY) {
-            return;
-        }
-
-        RandoItemId randoItemId = GetRandoItemIdByActor(actor->id);
-        if (randoItemId == RI_UNKNOWN) {
-            return;
-        }
-
-        auto findSoulFlag = soulMap.find(randoItemId);
+        auto findSoulFlag = soulMap.find(ac->actor->id);
         if (findSoulFlag != soulMap.end()) {
-            if (!Flags_GetRandoInf(std::get<2>(findSoulFlag->second))) {
-                actor->colChkInfo.damage = 0;
-                *should = false;
+            RandoItemId randoItemId = findSoulFlag->second;
+            if (randoItemId != RI_UNKNOWN) {
+
+                if (!Flags_GetRandoInf(RI_TO_RANDO_INF(randoItemId))) {
+                    *should = false;
+                }
             }
         }
     });
@@ -172,22 +182,14 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
         }
     });
 
-    COND_VB_SHOULD(VB_DRAW_LOCK_ON_ARROW, IS_RANDO, {
+    COND_VB_SHOULD(VB_DRAW_LOCK_ON_ARROW, shouldEnemyInjure, {
         Actor* refActor = va_arg(args, Actor*);
-
-        if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] && refActor->category == ACTORCAT_ENEMY) {
-            for (auto& [randoItemId, data] : soulMap) {
-                auto& actorList = std::get<1>(data);
-
-                if (std::find(actorList.begin(), actorList.end(), refActor->id) != actorList.end()) {
-                    if (!Flags_GetRandoInf(std::get<2>(data))) {
-                        *should = false;
-                        break;
-                    }
-                }
-            }
-            if (!*should) {
+        auto findSoulFlag = soulMap.find(refActor->id);
+        if (findSoulFlag != soulMap.end()) {
+            RandoItemId randoItemId = findSoulFlag->second;
+            if (!Flags_GetRandoInf(RI_TO_RANDO_INF(randoItemId))) {
                 DrawEnLight({ 155, 0, 0 }, { 1.0f, 1.0f, 1.0f });
+                *should = false;
             }
         }
     });

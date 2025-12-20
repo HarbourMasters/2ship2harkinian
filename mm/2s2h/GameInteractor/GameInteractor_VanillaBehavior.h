@@ -73,15 +73,6 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // true
-    // ```
-    // #### `args`
-    // - `*Actor`
-    // - `u32` (dmgFlags)
-    VB_APPLY_DAMAGE_TO_ACTOR,
-
-    // #### `result`
-    // ```c
     // !play->interfaceCtx.perfectLettersOn
     // ```
     // #### `args`

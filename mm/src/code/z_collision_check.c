@@ -3526,14 +3526,12 @@ void CollisionCheck_ApplyDamage(struct PlayState* play, CollisionCheckContext* c
                 }
             }
         }
-        if (GameInteractor_Should(VB_APPLY_DAMAGE_TO_ACTOR, true, col->actor, elem->acDmgInfo.dmgFlags)) {
-            if (col->actor->colChkInfo.damageTable != NULL) {
-                col->actor->colChkInfo.damageEffect = effect;
-            }
-            if (!(col->acFlags & AC_HARD) || ((col->acFlags & AC_HARD) && (atElem->atDmgInfo.dmgFlags == 0x20000000))) {
-                if (col->actor->colChkInfo.damage < finalDamage) {
-                    col->actor->colChkInfo.damage = finalDamage;
-                }
+        if (col->actor->colChkInfo.damageTable != NULL) {
+            col->actor->colChkInfo.damageEffect = effect;
+        }
+        if (!(col->acFlags & AC_HARD) || ((col->acFlags & AC_HARD) && (atElem->atDmgInfo.dmgFlags == 0x20000000))) {
+            if (col->actor->colChkInfo.damage < finalDamage) {
+                col->actor->colChkInfo.damage = finalDamage;
             }
         }
     }
