@@ -73,6 +73,15 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor`
+    // - `u32` (dmgFlags)
+    VB_APPLY_DAMAGE_TO_ACTOR,
+
+    // #### `result`
+    // ```c
     // !play->interfaceCtx.perfectLettersOn
     // ```
     // #### `args`
@@ -432,6 +441,14 @@ typedef enum {
     // #### `args`
     // - `*DmHina`
     VB_DRAW_BOSS_REMAINS,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Actor`
+    VB_DRAW_LOCK_ON_ARROW,
 
     // #### `result`
     // ```c
