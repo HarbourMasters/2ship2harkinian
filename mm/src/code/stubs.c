@@ -200,12 +200,18 @@ void gSPDisplayList(Gfx* pkt, Gfx* dl) {
     __gSPDisplayList(pkt, dl);
 }
 
-int gDPSetTileSizeInterp(Gfx* pkt, int t, float uls, float ult, float lrs, float lrt) {
-    __gDPSetTileSizeInterp(pkt++, t, 0, 0, 0, 0);
-    memcpy(&pkt[0].words.w0, &uls, sizeof(float));
-    memcpy(&pkt[0].words.w1, &ult, sizeof(float));
-    memcpy(&pkt[1].words.w0, &lrs, sizeof(float));
-    memcpy(&pkt[1].words.w1, &lrt, sizeof(float));
+void gDPSetTileSizeInterp(Gfx* pkt, int t, float uls, float ult, float lrs, float lrt) {
+    __gDPSetTileSizeInterp(pkt, t, 0, 0, 0, 0);
+    pkt->words.w0 = _SHIFTL(G_SETTILESIZE_INTERP, 24, 8);
+    pkt++;
+
+    pkt->words.w0 = *(u32*)&uls;
+    pkt->words.w1 = *(u32*)&ult;
+    pkt++;
+
+    pkt->words.w0 = *(u32*)&lrs;
+    pkt->words.w1 = *(u32*)&lrt;
+    pkt++;
 }
 
 void gSPDisplayListOffset(Gfx* pkt, Gfx* dl, int offset) {

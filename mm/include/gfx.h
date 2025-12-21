@@ -109,7 +109,7 @@ void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target);
 // void gDPSetTextureImage(Gfx* pkt, u32 format, u32 size, u32 width, uintptr_t i);
 // void gDPSetTextureImageFB(Gfx* pkt, u32 format, u32 size, u32 width, int fb);
 void gSPDisplayList(Gfx* pkt, Gfx* dl);
-int gDPSetTileSizeInterp(Gfx* pkt, int t, float uls, float ult, float lrs, float lrt);
+void gDPSetTileSizeInterp(Gfx* pkt, int t, float uls, float ult, float lrs, float lrt);
 void gSPDisplayListOffset(Gfx* pkt, Gfx* dl, int offset);
 void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
 void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
