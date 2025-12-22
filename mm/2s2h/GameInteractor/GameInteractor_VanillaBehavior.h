@@ -2010,6 +2010,22 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_MSG_LOAD_RUPEES_TEXT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_MSG_PLAY_INPUT_COUNT_SOUND,
+
+    // #### `result`
+    // ```c
     // false
     // ```
     // #### `args`
