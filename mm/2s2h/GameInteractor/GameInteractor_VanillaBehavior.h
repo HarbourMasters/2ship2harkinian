@@ -1613,6 +1613,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // false
+    // ```
+    // #### `args`
+    // - None
+    VB_SAVE_ON_B_BUTTON_IN_PAUSE_MENU,
+
+    // #### `result`
+    // ```c
     // true
     // ```
     // #### `args`
@@ -1809,6 +1817,25 @@ typedef enum {
     // #### `args`
     // - `*s32` (which boss remains to return, see `func_808B849C`)
     VB_SPAWN_BOSS_REMAINS,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - '*f32' (incrStep)
+    // - '*f32' (maxSpeed)
+    // - '*f32' (speed)
+    // - '*f32' (speedTarget)
+    VB_SPEED_MODIFIER_SWIM,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_SPEED_MODIFIER_WALK,
 
     // #### `result`
     // ```c
