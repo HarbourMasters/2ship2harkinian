@@ -459,11 +459,16 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_SWAMP_SHOOTING_GALLERY] = RandoRegion{ .sceneId = SCENE_SYATEKI_MORI,
         .checks = {
-            CHECK(RC_SWAMP_SHOOTING_GALLERY_HIGH_SCORE, HAS_ITEM(ITEM_BOW) && (BEFORE(TIME_NIGHT1_PM_10_00) || BETWEEN(TIME_DAY2_AM_06_00, TIME_NIGHT2_PM_10_00) || BETWEEN(TIME_DAY3_AM_06_00, TIME_NIGHT3_PM_10_00))),
-            CHECK(RC_SWAMP_SHOOTING_GALLERY_PERFECT_SCORE, HAS_ITEM(ITEM_BOW) && (BEFORE(TIME_NIGHT1_PM_10_00) || BETWEEN(TIME_DAY2_AM_06_00, TIME_NIGHT2_PM_10_00) || BETWEEN(TIME_DAY3_AM_06_00, TIME_NIGHT3_PM_10_00))),
+            CHECK(RC_SWAMP_SHOOTING_GALLERY_HIGH_SCORE, HAS_ITEM(ITEM_BOW)),
+            CHECK(RC_SWAMP_SHOOTING_GALLERY_PERFECT_SCORE, HAS_ITEM(ITEM_BOW)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2),       ENTRANCE(SWAMP_SHOOTING_GALLERY, 0), true),
+        },
+        .timeStayRestrictions = {
+            STAY(TIME_NIGHT1_PM_10_00, false),
+            STAY(TIME_NIGHT2_PM_10_00, false),
+            STAY(TIME_NIGHT3_PM_10_00, false),
         },
     };
     Regions[RR_TOURIST_INFORMATION] = RandoRegion{ .sceneId = SCENE_MAP_SHOP,
@@ -552,16 +557,16 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_WOODS_OF_MYSTERY] = RandoRegion{ .sceneId = SCENE_26SARUNOMORI,
         .checks = {
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_01, FIRST_DAY()),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_02, FIRST_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_01, true),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_02, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_03, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_04, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_05, true),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_04, FIRST_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_05, FIRST_DAY()),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_06, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_07, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_08, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_09, FINAL_DAY()),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_10, FINAL_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_09, true),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_10, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_11, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_12, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_13, true),
@@ -572,9 +577,9 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_18, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_19, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_20, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_21, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_22, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_23, true),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_21, SECOND_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_22, FINAL_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_23, FINAL_DAY()),
             CHECK(RC_ENEMY_DROP_SNAPPER, CAN_BE_DEKU || CanKillEnemy(ACTOR_EN_KAME)),
         },
         .exits = { //     TO                                         FROM

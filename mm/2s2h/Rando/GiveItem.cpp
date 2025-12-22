@@ -259,18 +259,18 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_OWL_ZORA_CAPE:
             Sram_ActivateOwl(OWL_WARP_ZORA_CAPE);
             break;
-        case RI_CLOCK_DAY_1:
-        case RI_CLOCK_NIGHT_1:
-        case RI_CLOCK_DAY_2:
-        case RI_CLOCK_NIGHT_2:
-        case RI_CLOCK_DAY_3:
-        case RI_CLOCK_NIGHT_3: {
-            Flags_SetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 + (randoItemId - RI_CLOCK_DAY_1));
+        case RI_TIME_DAY_1:
+        case RI_TIME_NIGHT_1:
+        case RI_TIME_DAY_2:
+        case RI_TIME_NIGHT_2:
+        case RI_TIME_DAY_3:
+        case RI_TIME_NIGHT_3: {
+            Flags_SetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 + (randoItemId - RI_TIME_DAY_1));
             break;
         }
-        case RI_CLOCK_PROGRESSIVE: {
+        case RI_TIME_PROGRESSIVE: {
             // Convert to actual half-day per mode
-            RandoItemId concrete = Rando::ConvertItem(RI_CLOCK_PROGRESSIVE);
+            RandoItemId concrete = Rando::ConvertItem(RI_TIME_PROGRESSIVE);
             if (concrete != RI_JUNK) {
                 Rando::GiveItem(concrete);
             }

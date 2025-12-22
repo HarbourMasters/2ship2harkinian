@@ -506,24 +506,6 @@ inline bool ClockFilter() {
     (BETWEEN(TIME_NIGHT1_AM_12_00, TIME_DAY2_AM_06_00) || BETWEEN(TIME_NIGHT2_AM_12_00, TIME_DAY3_AM_06_00) || \
      AFTER(TIME_NIGHT3_AM_12_00))
 
-// ============================================================================
-// COMPLEX TIME MACROS
-// ============================================================================
-
-// Grandma Story check: Can access the first grandma story time window
-// Available before 4:00 PM on Day 1, or between 6:00 AM and 4:00 PM on Day 2,
-// or if player has clocks to progress time beyond those periods
-#define GRANDMA_STORY_1()                                                                                   \
-    ((BEFORE(TIME_DAY1_PM_04_00) && CLOCK_NIGHT1()) || BETWEEN(TIME_DAY2_AM_06_00, TIME_DAY2_PM_04_00) ||   \
-     (IS_DAY1() && (CLOCK_NIGHT1() || CLOCK_DAY2() || CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())) || \
-     (IS_DAY2() && (CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())))
-
-// Grandma Story check: Can access the second grandma story time window
-// Requires clocks to access later time periods (Day 2+ or Night 2+)
-#define GRANDMA_STORY_2()                                                                 \
-    ((IS_DAY1() && (CLOCK_DAY2() || CLOCK_NIGHT2() || CLOCK_DAY3() || CLOCK_NIGHT3())) || \
-     (IS_DAY2() && (CLOCK_DAY3() || CLOCK_NIGHT3())))
-
 inline bool CanKillEnemy(ActorId EnemyId) {
     switch (EnemyId) {
         case ACTOR_BOSS_01: // Odolwa

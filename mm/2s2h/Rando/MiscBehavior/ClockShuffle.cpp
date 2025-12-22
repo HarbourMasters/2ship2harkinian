@@ -38,22 +38,10 @@ enum ClockHalfIndex : int {
 
 // Convert a rando item ID to its corresponding half-day index
 int GetHalfDayIndexFromClockItem(RandoItemId clockItemId) {
-    switch (clockItemId) {
-        case RI_CLOCK_DAY_1:
-            return HALF_DAY1_DAY;
-        case RI_CLOCK_NIGHT_1:
-            return HALF_DAY1_NIGHT;
-        case RI_CLOCK_DAY_2:
-            return HALF_DAY2_DAY;
-        case RI_CLOCK_NIGHT_2:
-            return HALF_DAY2_NIGHT;
-        case RI_CLOCK_DAY_3:
-            return HALF_DAY3_DAY;
-        case RI_CLOCK_NIGHT_3:
-            return HALF_DAY3_NIGHT;
-        default:
-            return INVALID; // Invalid item
+    if (clockItemId >= RI_TIME_DAY_1 && clockItemId <= RI_TIME_NIGHT_3) {
+        return (int)(clockItemId - RI_TIME_DAY_1);
     }
+    return INVALID;
 }
 
 // Convert a half-day index back to its rando item ID
@@ -64,12 +52,12 @@ RandoItemId GetClockItemFromHalfDayIndex(int halfDayIndex) {
 
     // Map each half-day index to its corresponding rando item
     static const RandoItemId clockItemMap[] = {
-        RI_CLOCK_DAY_1,   // HALF_DAY1_DAY   (index 0)
-        RI_CLOCK_NIGHT_1, // HALF_DAY1_NIGHT (index 1)
-        RI_CLOCK_DAY_2,   // HALF_DAY2_DAY   (index 2)
-        RI_CLOCK_NIGHT_2, // HALF_DAY2_NIGHT (index 3)
-        RI_CLOCK_DAY_3,   // HALF_DAY3_DAY   (index 4)
-        RI_CLOCK_NIGHT_3, // HALF_DAY3_NIGHT (index 5)
+        RI_TIME_DAY_1,   // HALF_DAY1_DAY   (index 0)
+        RI_TIME_NIGHT_1, // HALF_DAY1_NIGHT (index 1)
+        RI_TIME_DAY_2,   // HALF_DAY2_DAY   (index 2)
+        RI_TIME_NIGHT_2, // HALF_DAY2_NIGHT (index 3)
+        RI_TIME_DAY_3,   // HALF_DAY3_DAY   (index 4)
+        RI_TIME_NIGHT_3, // HALF_DAY3_NIGHT (index 5)
     };
 
     return clockItemMap[halfDayIndex];
@@ -117,12 +105,12 @@ int FindNextOwnedHalfDayAfter(int startHalfDay, u8 ownedMask) {
 
 // Check if a rando item is a clock item
 bool IsClockItem(RandoItemId itemId) {
-    return (itemId >= RI_CLOCK_DAY_1 && itemId <= RI_CLOCK_NIGHT_3) || itemId == RI_CLOCK_PROGRESSIVE;
+    return (itemId >= RI_TIME_DAY_1 && itemId <= RI_TIME_NIGHT_3) || itemId == RI_TIME_PROGRESSIVE;
 }
 
 // Check if a clock item is a day clock (vs night clock)
 bool IsDayClock(RandoItemId itemId) {
-    return itemId == RI_CLOCK_DAY_1 || itemId == RI_CLOCK_DAY_2 || itemId == RI_CLOCK_DAY_3;
+    return itemId == RI_TIME_DAY_1 || itemId == RI_TIME_DAY_2 || itemId == RI_TIME_DAY_3;
 }
 
 } // namespace ClockItems
@@ -460,7 +448,7 @@ void CheckAndSkipUnownedTime(Actor* timeActor) {
 
 // Check if a specific day/time is owned by the player in ClockShuffle mode
 bool IsTimeOwnedForClockShuffle(s32 day, u16 time) {
-    if (!IS_RANDO || !RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
+    if (!RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
         return true;
     }
 
@@ -521,6 +509,61 @@ void CorrectInitialTime() {
     }
 }
 
+void ProcessClockShuffleMessage(u16* textId, bool* loadFromMessageTable, bool isSongOfTime) {
+    auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
+
+    // Determine target half-day based on which song is used
+    int targetHalfDay;
+    if (isSongOfTime) {
+        // Song of Time: go to earliest owned half-day
+        targetHalfDay = ClockItems::FindEarliestOwnedHalfDay(false);
+    } else {
+        // Song of Double Time: go to next owned half-day after current
+        int currentHalfDay = GetCurrentHalfDayIndex();
+        u8 ownedHalfDaysMask = ClockItems::GetAllOwnedHalfDaysMask();
+        targetHalfDay = ClockItems::FindNextOwnedHalfDayAfter(currentHalfDay, ownedHalfDaysMask);
+    }
+
+    std::string destinationText;
+    if (targetHalfDay == ClockItems::TERMINAL_STATE) {
+        destinationText = "%rFinal Hours%w";
+    } else {
+        // Convert half-day index to readable text
+        int targetDay = (targetHalfDay / 2) + 1;
+        bool isNight = (targetHalfDay % 2 == 1);
+
+        if (isNight) {
+            destinationText = "%rNight of ";
+            if (targetDay == 1)
+                destinationText += "First";
+            else if (targetDay == 2)
+                destinationText += "Second";
+            else if (targetDay == 3)
+                destinationText += "Third";
+            destinationText += " Day%w";
+        } else {
+            destinationText = "%rDawn of the ";
+            if (targetDay == 1)
+                destinationText += "First";
+            else if (targetDay == 2)
+                destinationText += "Second";
+            else if (targetDay == 3)
+                destinationText += "Third";
+            destinationText += " Day%w";
+        }
+    }
+
+    // Use different message format for each song
+    if (isSongOfTime) {
+        entry.msg = "Save and return to " + destinationText + "?\n%gYes\nNo\xC2";
+    } else { // Song of Double Time
+        entry.msg = "Time moves strangely...\nProceed to " + destinationText + "?\n%gYes\nNo\xC2";
+    }
+
+    CustomMessage::LoadCustomMessageIntoFont(entry);
+    *loadFromMessageTable = false;
+}
+
 void OnFileLoad() {
     // Correct Day 0 time on file load BEFORE scene initialization
     // OnSaveLoad fires before Play_Init, ensuring time is correct before Environment_PlaySceneSequence processes audio
@@ -541,68 +584,20 @@ void OnFileLoad() {
                  });
 
     // Hook Song of Time and Song of Double Time message IDs
-    COND_HOOK(
-        OnOpenText, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], [](u16* textId, bool* loadFromMessageTable) {
-            // Check if this is a Song of Time or Song of Double Time message
-            bool isSongOfTime = (*textId == 0x1B8A);
-            bool isSongOfDoubleTime =
-                (*textId == 0x1B91 || *textId == 0x1B90 || *textId == 0x1B8F || *textId == 0x1B92 || *textId == 0x1B8E);
+    COND_ID_HOOK(OnOpenText, 0x1B8A, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE],
+                 [](u16* textId, bool* loadFromMessageTable) {
+                     ProcessClockShuffleMessage(textId, loadFromMessageTable, true);
+                 });
 
-            if (isSongOfTime || isSongOfDoubleTime) {
-                auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
+    auto onDoubleTime = [](u16* textId, bool* loadFromMessageTable) {
+        ProcessClockShuffleMessage(textId, loadFromMessageTable, false);
+    };
 
-                // Determine target half-day based on which song is used
-                int targetHalfDay;
-                if (isSongOfTime) {
-                    // Song of Time: go to earliest owned half-day
-                    targetHalfDay = ClockItems::FindEarliestOwnedHalfDay(false);
-                } else {
-                    // Song of Double Time: go to next owned half-day after current
-                    int currentHalfDay = GetCurrentHalfDayIndex();
-                    u8 ownedHalfDaysMask = ClockItems::GetAllOwnedHalfDaysMask();
-                    targetHalfDay = ClockItems::FindNextOwnedHalfDayAfter(currentHalfDay, ownedHalfDaysMask);
-                }
-
-                std::string destinationText;
-                if (targetHalfDay == ClockItems::TERMINAL_STATE) {
-                    destinationText = "%rFinal Hours%w";
-                } else {
-                    // Convert half-day index to readable text
-                    int targetDay = (targetHalfDay / 2) + 1;
-                    bool isNight = (targetHalfDay % 2 == 1);
-
-                    if (isNight) {
-                        destinationText = "%rNight of ";
-                        if (targetDay == 1)
-                            destinationText += "First";
-                        else if (targetDay == 2)
-                            destinationText += "Second";
-                        else if (targetDay == 3)
-                            destinationText += "Third";
-                        destinationText += " Day%w";
-                    } else {
-                        destinationText = "%rDawn of the ";
-                        if (targetDay == 1)
-                            destinationText += "First";
-                        else if (targetDay == 2)
-                            destinationText += "Second";
-                        else if (targetDay == 3)
-                            destinationText += "Third";
-                        destinationText += " Day%w";
-                    }
-                }
-
-                // Use different message format for each song
-                if (isSongOfTime) {
-                    entry.msg = "Save and return to " + destinationText + "?\n%gYes\nNo\xC2";
-                } else { // Song of Double Time
-                    entry.msg = "Time moves strangely...\nProceed to " + destinationText + "?\n%gYes\nNo\xC2";
-                }
-
-                CustomMessage::LoadCustomMessageIntoFont(entry);
-                *loadFromMessageTable = false;
-            }
-        });
+    COND_ID_HOOK(OnOpenText, 0x1B91, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
+    COND_ID_HOOK(OnOpenText, 0x1B90, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
+    COND_ID_HOOK(OnOpenText, 0x1B8F, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
+    COND_ID_HOOK(OnOpenText, 0x1B92, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
+    COND_ID_HOOK(OnOpenText, 0x1B8E, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
 
     COND_VB_SHOULD(VB_TIME_UNTIL_MOON_CRASH_CALCULATION, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], {
         *should = false; // Skip vanilla calculation
@@ -696,7 +691,8 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
     int clockMode = RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE];
 
     // Check if player has selected any starting time items
-    std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(RANDO_STARTING_ITEMS, ",");
+    std::vector<RandoItemId> startingItems =
+        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
     std::vector<int> startingClockHalves;
 
     for (RandoItemId item : startingItems) {
@@ -716,7 +712,7 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
         }
 
         // Add remaining (non-starting) time items to pool
-        // Only works in random mode - progressive mode items are added elsewhere
+        // Progressive mode items are added in the else block of this conditional
         if (clockMode == RO_CLOCK_SHUFFLE_RANDOM) {
             for (int i = 0; i < 6; ++i) {
                 // Skip if this clock was a starting item
@@ -756,7 +752,7 @@ void InitializeFileClocks(std::vector<RandoItemId>& itemPool) {
         } else {
             // Add 5 progressive time items to pool (6 total - 1 granted = 5 remaining)
             for (int i = 0; i < 5; ++i)
-                itemPool.push_back(RI_CLOCK_PROGRESSIVE);
+                itemPool.push_back(RI_TIME_PROGRESSIVE);
         }
     }
 }

@@ -181,13 +181,13 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_STONE_TOWER_MAP,            "the",  "Stone Tower Map",            RITYPE_LESSER,          ITEM_DUNGEON_MAP,                GI_MAP,                      GID_DUNGEON_MAP),
     RI(RI_STONE_TOWER_SMALL_KEY,      "a",    "Stone Tower Small Key",      RITYPE_SMALL_KEY,       ITEM_KEY_SMALL,                  GI_KEY_SMALL,                GID_KEY_SMALL),
     RI(RI_STONE_TOWER_STRAY_FAIRY,    "a",    "Stone Tower Stray Fairy",    RITYPE_STRAY_FAIRY,     ITEM_STRAY_FAIRIES,              GI_STRAY_FAIRY,              GID_NONE),
-    RI(RI_CLOCK_DAY_1,                "a",    "Clock (Day 1)",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_CLOCK_NIGHT_1,              "a",    "Clock (Night 1)",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_CLOCK_DAY_2,                "a",    "Clock (Day 2)",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_CLOCK_NIGHT_2,              "a",    "Clock (Night 2)",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_CLOCK_DAY_3,                "a",    "Clock (Day 3)",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_CLOCK_NIGHT_3,              "a",    "Clock (Night 3)",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_CLOCK_PROGRESSIVE,          "a",    "Progressive Clock",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_TIME_DAY_1,                 "a",    "Time (Day 1)",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_TIME_NIGHT_1,               "a",    "Time (Night 1)",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_TIME_DAY_2,                 "a",    "Time (Day 2)",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_TIME_NIGHT_2,               "a",    "Time (Night 2)",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_TIME_DAY_3,                 "a",    "Time (Day 3)",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_TIME_NIGHT_3,               "a",    "Time (Night 3)",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_TIME_PROGRESSIVE,           "a",    "Progressive Time",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SWORD_GILDED,               "the",  "Gilded Sword",               RITYPE_LESSER,          ITEM_SWORD_GILDED,               GI_SWORD_GILDED,             GID_SWORD_GILDED),
     RI(RI_SWORD_KOKIRI,               "the",  "Kokiri Sword",               RITYPE_MAJOR,           ITEM_SWORD_KOKIRI,               GI_SWORD_KOKIRI,             GID_SWORD_KOKIRI),
     RI(RI_SWORD_RAZOR,                "the",  "Razor Sword",                RITYPE_LESSER,          ITEM_SWORD_RAZOR,                GI_SWORD_RAZOR,              GID_SWORD_RAZOR),
@@ -236,7 +236,7 @@ std::unordered_map<StartingItemCategory, std::vector<RandoItemId>> StartingItems
     { STARTING_ITEMS_MISC, 
         { RI_SOUL_GOHT, RI_SOUL_GYORG,  RI_SOUL_MAJORA, RI_SOUL_ODOLWA, RI_SOUL_TWINMOLD,
           RI_FROG_BLUE, RI_FROG_CYAN,   RI_FROG_PINK,   RI_FROG_WHITE,
-          RI_CLOCK_DAY_1, RI_CLOCK_NIGHT_1, RI_CLOCK_DAY_2, RI_CLOCK_NIGHT_2, RI_CLOCK_DAY_3, RI_CLOCK_NIGHT_3
+          RI_TIME_DAY_1, RI_TIME_NIGHT_1, RI_TIME_DAY_2, RI_TIME_NIGHT_2, RI_TIME_DAY_3, RI_TIME_NIGHT_3
         } }, 
 };
 // clang-format on
@@ -364,15 +364,15 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return (const char*)gItemIconTingleMapTex;
         case RI_TRIFORCE_PIECE:
             return (const char*)gTriforcePieceTex;
-        case RI_CLOCK_DAY_1:
-        case RI_CLOCK_DAY_2:
-        case RI_CLOCK_DAY_3:
+        case RI_TIME_DAY_1:
+        case RI_TIME_DAY_2:
+        case RI_TIME_DAY_3:
             return (const char*)gThreeDayClockSunHourTex;
-        case RI_CLOCK_NIGHT_1:
-        case RI_CLOCK_NIGHT_2:
-        case RI_CLOCK_NIGHT_3:
+        case RI_TIME_NIGHT_1:
+        case RI_TIME_NIGHT_2:
+        case RI_TIME_NIGHT_3:
             return (const char*)gThreeDayClockMoonHourTex;
-        case RI_CLOCK_PROGRESSIVE:
+        case RI_TIME_PROGRESSIVE:
             return (const char*)gThreeDayClockSunHourTex;
         default:
             break;

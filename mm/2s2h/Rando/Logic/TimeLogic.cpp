@@ -85,7 +85,7 @@ uint64_t ExpandTimeForward(uint64_t timeSlices, const RandoRegion& region) {
 
 // Owned time calculation - aggregates all owned half-day time slices
 uint64_t GetOwnedTimeSlices() {
-    if (!IS_RANDO || !RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
+    if (!RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
         return TIME_ALL_SLICES;
     }
 
@@ -96,7 +96,8 @@ uint64_t GetOwnedTimeSlices() {
         }
     }
 
-    return timeSlices ? timeSlices : (1ULL << TIME_DAY1_AM_06_00);
+    // If no clocks are owned, ensure we at least have access to the start of the game (Day 1 6 AM)
+    return timeSlices ? timeSlices : (TIME_BIT_ONE << TIME_DAY1_AM_06_00);
 }
 
 // Validation helper for clock ownership during logic generation

@@ -902,8 +902,8 @@ void DrawItemsAndMasksTab() {
             ImGui::SeparatorText("Time Items");
 
             // Individual time items in 3x2 grid with static positioning
-            RandoItemId clockItems[] = { RI_CLOCK_DAY_1,   RI_CLOCK_DAY_2,   RI_CLOCK_DAY_3,
-                                         RI_CLOCK_NIGHT_1, RI_CLOCK_NIGHT_2, RI_CLOCK_NIGHT_3 };
+            RandoItemId clockItems[] = { RI_TIME_DAY_1,   RI_TIME_DAY_2,   RI_TIME_DAY_3,
+                                         RI_TIME_NIGHT_1, RI_TIME_NIGHT_2, RI_TIME_NIGHT_3 };
 
             const char* clockNames[] = { "Day 1", "Day 2", "Day 3", "Night 1", "Night 2", "Night 3" };
 

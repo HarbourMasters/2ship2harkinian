@@ -588,7 +588,7 @@ static void DrawStartingItemsTab() {
                         Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
 
                     // Force new row for Song of Time, first frog, and first time item
-                    if (item == RI_SONG_TIME || item == RI_FROG_BLUE || item == RI_CLOCK_DAY_1) {
+                    if (item == RI_SONG_TIME || item == RI_FROG_BLUE || item == RI_TIME_DAY_1) {
                         ImGui::TableNextRow();
                     }
                     ImGui::TableNextColumn();

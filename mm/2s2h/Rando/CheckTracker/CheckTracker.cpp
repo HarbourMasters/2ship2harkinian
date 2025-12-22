@@ -172,12 +172,7 @@ void CheckTrackerDrawLogicalList() {
             sScrollToTargetScene = -1;
             sScrollToTargetEntrance = -1;
         }
-
         auto& randoRegion = Rando::Logic::Regions[regionId];
-
-        // Set current region time for check evaluation
-        Rando::Logic::SetCurrentRegionTime(regionTimeStates, regionId);
-
         std::vector<std::pair<RandoCheckId, std::string>> availableChecks;
         std::vector<std::pair<std::string, std::string>> availableEvents;
         uint32_t obtainedCheckSum = 0;

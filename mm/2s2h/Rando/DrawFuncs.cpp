@@ -282,19 +282,19 @@ extern void DrawClock(RandoItemId randoItemId, Actor* actor) {
     static int16_t sunMoonPanelRotation = 0;
 
     switch (randoItemId) {
-        case RI_CLOCK_DAY_1:
-        case RI_CLOCK_DAY_2:
-        case RI_CLOCK_DAY_3:
+        case RI_TIME_DAY_1:
+        case RI_TIME_DAY_2:
+        case RI_TIME_DAY_3:
             clockFaceRotation = 0xC000;
             sunMoonPanelRotation = 0;
             break;
-        case RI_CLOCK_NIGHT_1:
-        case RI_CLOCK_NIGHT_2:
-        case RI_CLOCK_NIGHT_3:
+        case RI_TIME_NIGHT_1:
+        case RI_TIME_NIGHT_2:
+        case RI_TIME_NIGHT_3:
             clockFaceRotation = 0;
             sunMoonPanelRotation = 0x8000;
             break;
-        case RI_CLOCK_PROGRESSIVE:
+        case RI_TIME_PROGRESSIVE:
             clockFaceRotation = gSaveContext.save.isNight ? 0 : 0xC000;
             sunMoonPanelRotation = gSaveContext.save.isNight ? 0x8000 : 0;
             break;

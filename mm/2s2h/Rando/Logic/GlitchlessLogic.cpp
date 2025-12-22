@@ -137,7 +137,7 @@ void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std
                     GiveItem(ConvertItem(randoItemId));
 
                     // Update time states for all regions when time items are obtained
-                    if (randoItemId >= RI_CLOCK_DAY_1 && randoItemId <= RI_CLOCK_PROGRESSIVE) {
+                    if (randoItemId >= RI_TIME_DAY_1 && randoItemId <= RI_TIME_PROGRESSIVE) {
                         uint64_t newTimeSlices = TimeLogic::GetOwnedTimeSlices();
                         // Update RR_MAX time state first - this is the source for new region discoveries
                         if (regionTimeStates.find(RR_MAX) != regionTimeStates.end()) {

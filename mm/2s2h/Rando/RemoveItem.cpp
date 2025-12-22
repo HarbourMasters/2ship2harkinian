@@ -283,16 +283,16 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_TINGLE_MAP_STONE_TOWER:
             CLEAR_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_STONE_TOWER);
             break;
-        case RI_CLOCK_DAY_1:
-        case RI_CLOCK_NIGHT_1:
-        case RI_CLOCK_DAY_2:
-        case RI_CLOCK_NIGHT_2:
-        case RI_CLOCK_DAY_3:
-        case RI_CLOCK_NIGHT_3: {
-            Flags_ClearRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 + (randoItemId - RI_CLOCK_DAY_1));
+        case RI_TIME_DAY_1:
+        case RI_TIME_NIGHT_1:
+        case RI_TIME_DAY_2:
+        case RI_TIME_NIGHT_2:
+        case RI_TIME_DAY_3:
+        case RI_TIME_NIGHT_3: {
+            Flags_ClearRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 + (randoItemId - RI_TIME_DAY_1));
             break;
         }
-        case RI_CLOCK_PROGRESSIVE: {
+        case RI_TIME_PROGRESSIVE: {
             // Remove most recently earned half-day per current mode
             const bool descending = (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE] == RO_CLOCK_SHUFFLE_DESCENDING);
             // For ascending mode, remove the latest (search from end)
