@@ -2555,6 +2555,9 @@ typedef enum {
     // #### `args`
     // - `*f32` (speed)
     VB_ZTARGET_SPEED_CHECK,
+
+    // FIXME: add docs
+    VB_SHOULD_QUICKSPIN,
 } GIVanillaBehavior;
 
 #endif
