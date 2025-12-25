@@ -36,6 +36,15 @@ bool Mouse_IsCaptured() {
     return Ship::Context::GetInstance()->GetWindow()->IsMouseCaptured();
 }
 
+void Mouse_UpdateCaptureByState() {
+    // checks:
+    // - forced via F2
+    // - game start (forced)
+    // - in pause (kaleido)
+    // - in menu
+    // - fullscreen mode
+}
+
 void HandlePauseCapture(PauseContext* pauseCtx) {
     static bool buf = false;
     static bool paused = false;
