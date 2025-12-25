@@ -51,8 +51,6 @@
 #include "2s2h/Enhancements/Controls/Mouse/Mouse.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
-#define THIS ((Player*)thisx)
-
 void Player_Init(Actor* thisx, PlayState* play);
 void Player_Destroy(Actor* thisx, PlayState* play);
 void Player_Update(Actor* thisx, PlayState* play);
@@ -5633,15 +5631,12 @@ s32 Player_CanSpinAttack(Player* this) {
         return false;
     }
 
-    iter = &this->unk_ADF[0];
+    iter = &this->controlStickSpinAngles[0];
     iter2 = &sp3C[0];
 
     if (GameInteractor_Should(VB_SHOULD_QUICKSPIN, false, iter2, sp3C)) {
         return true;
     }
-
-    iter = &this->controlStickSpinAngles[0];
-    iter2 = &sp3C[0];
 
     for (i = 0; i < ARRAY_COUNT(this->controlStickSpinAngles); i++, iter++, iter2++) {
         if ((*iter2 = *iter) < 0) {
@@ -9364,6 +9359,7 @@ void func_8083C6E8(Player* this, PlayState* play) {
         this->actor.focus.rot.y = this->actor.shape.rot.y;
         Math_SmoothStepToS(&this->actor.focus.rot.x, sp46, 14, 0xFA0, 30);
 
+        // wth am i doin here?
         // FIXME: FIXMEEEEE
         // FIXME: additional cvar check for settings
         //if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
@@ -15326,20 +15322,20 @@ void Player_Action_17(Player* this, PlayState* play) {
 }
 
 void Ship_HandleShielding(Player* this, PlayState* play) {
-    func_80832F24(this);
+    Player_DecelerateToZero(this);
 
     if (this->transformation == PLAYER_FORM_GORON) {
         SkelAnime_Update(&this->unk_2C8);
 
         if (!func_8083FE38(this, play)) {
-            if (!Player_ActionChange_11(this, play)) {
+            if (!Player_ActionHandler_11(this, play)) {
                 this->stateFlags1 &= ~PLAYER_STATE1_400000;
 
                 if (this->itemAction <= PLAYER_IA_MINUS1) {
                     func_80123C58(this);
                 }
 
-                func_80836A98(this, D_8085BE84[PLAYER_ANIMGROUP_21][this->modelAnimType], play);
+                func_80836A98(this, D_8085BE84[PLAYER_ANIMGROUP_defense_end][this->modelAnimType], play);
                 func_80830B38(this);
             } else {
                 this->stateFlags1 |= PLAYER_STATE1_400000;
@@ -15351,7 +15347,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
 
     if (PlayerAnimation_Update(play, &this->skelAnime)) {
         if (!Player_IsGoronOrDeku(this)) {
-            Player_AnimationPlayLoop(play, this, D_8085BE84[PLAYER_ANIMGROUP_20][this->modelAnimType]);
+            Player_Anim_PlayLoop(play, this, D_8085BE84[PLAYER_ANIMGROUP_defense_wait][this->modelAnimType]);
         }
 
         this->av2.actionVar2 = 1;
@@ -15421,7 +15417,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
                 this->av1.actionVar1 = 0;
             }
         } else if (!func_8083FE38(this, play)) {
-            if (Player_ActionChange_11(this, play)) {
+            if (Player_ActionHandler_11(this, play)) {
                 func_8083FD80(this, play);
             } else {
                 this->stateFlags1 &= ~PLAYER_STATE1_400000;
@@ -15436,7 +15432,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
                         func_80123C58(this);
                     }
 
-                    func_80836A98(this, D_8085BE84[PLAYER_ANIMGROUP_21][this->modelAnimType], play);
+                    func_80836A98(this, D_8085BE84[PLAYER_ANIMGROUP_defense_end][this->modelAnimType], play);
                 }
 
                 Player_PlaySfx(this, NA_SE_IT_SHIELD_REMOVE);
@@ -15449,7 +15445,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
 
     this->stateFlags1 |= PLAYER_STATE1_400000;
     Player_SetModelsForHoldingShield(this);
-    this->unk_AA6 |= 0xC1;
+    this->unk_AA6_rotFlags |= 0xC1;
 }
 
 // Player_Action_Shielding

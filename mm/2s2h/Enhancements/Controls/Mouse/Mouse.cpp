@@ -1,11 +1,10 @@
 #include "Mouse.h"
 
-#include "Context.h"
+#include "ship/Context.h"
 #include "ShipInit.hpp"
 #include "GameInteractor/GameInteractor.h"
-#include "public/bridge/consolevariablebridge.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
-#include "Window.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 
 static MouseCoords current;
 
