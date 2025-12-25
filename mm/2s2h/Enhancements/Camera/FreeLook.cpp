@@ -167,7 +167,8 @@ bool Camera_CanFreeLook(Camera* camera) {
         MouseCoords mouseDelta = Mouse_GetDelta();
         Player* player = GET_PLAYER(gPlayState);
         if (mouseDelta.x != 0 || mouseDelta.y != 0) {
-            if (player->lockOnActor == NULL) {
+            // TODO: why auto? consider
+            if (player->autoLockOnActor == NULL) {
                 sCanFreeLook = true;
             } else if (
                 CVarGetInteger("gEnhancements.Camera.Mouse.ZTargetFreeLookEnabled", 1)
