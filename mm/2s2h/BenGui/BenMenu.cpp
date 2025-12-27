@@ -1023,13 +1023,13 @@ void BenMenu::AddEnhancements() {
                      .ComboVec(&cremiaRewardOptions));
     AddWidget(path, "Accessibility", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Disable Screen Flash for Enemy Kills", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.A11y.NoScreenFlashForEnemyKill")
+        .CVar(CVAR_ENHANCEMENT("A11y.NoScreenFlashForEnemyKill"))
         .Options(CheckboxOptions().Tooltip("Disables the white screen flash on enemy kill."));
     AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.BowReticle")
+        .CVar(CVAR_ENHANCEMENT("Graphics.BowReticle"))
         .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
     AddWidget(path, "Mark Shooting Gallery Octoroks", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.MarkShootingGalleryOctoroks")
+        .CVar(CVAR_ENHANCEMENT("Minigames.MarkShootingGalleryOctoroks"))
         .Options(CheckboxOptions().Tooltip("Places markers on the Town Shooting Gallery Octoroks, indicating whether "
                                            "they should be hit."));
     path.column = SECTION_COLUMN_3;
@@ -1050,7 +1050,7 @@ void BenMenu::AddEnhancements() {
             "into the game, you will be placed either at the entrance of the dungeon you saved in, or "
             "in South Clock Town, unless Remember Save Location is enabled."));
     AddWidget(path, "Remember Save Location", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Saving.RememberSaveLocation")
+        .CVar(CVAR_ENHANCEMENT("Saving.RememberSaveLocation"))
         .Options(CheckboxOptions().Tooltip("When loading a save, places Link at the last entrance he went through."));
     AddWidget(path, "Autosave", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENHANCEMENT("Saving.Autosave"))
@@ -1278,7 +1278,7 @@ void BenMenu::AddEnhancements() {
         .CVar(CVAR_ENHANCEMENT("Songs.SkipSoTCutscenes"))
         .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs."));
     AddWidget(path, "Skip Soaring cutscene", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Songs.SkipSoaringCutscene")
+        .CVar(CVAR_ENHANCEMENT("Songs.SkipSoaringCutscene"))
         .Options(CheckboxOptions().Tooltip("Skips the cutscene when using the Song of Soaring to warp."));
 
     // Time Savers
@@ -1600,7 +1600,7 @@ void BenMenu::AddEnhancements() {
                      .DefaultIndex(GoronRaceDifficultyOptions::GORON_RACE_DIFFICULTY_VANILLA)
                      .ComboVec(&goronRaceDifficultyOptions));
     AddWidget(path, "Swamp Boat Archery Target Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BoatArcheryScore")
+        .CVar(CVAR_ENHANCEMENT("Minigames.BoatArcheryScore"))
         .Options(IntSliderOptions()
                      .Tooltip("Sets the initial target score of the Swamp Boat Archery minigame. The target score "
                               "gets set the first time you play the minigame in each cycle.")
@@ -1608,7 +1608,7 @@ void BenMenu::AddEnhancements() {
                      .Max(50)
                      .DefaultValue(20));
     AddWidget(path, "Koume's Health", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BoatArcheryHealth")
+        .CVar(CVAR_ENHANCEMENT("Minigames.BoatArcheryHealth"))
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_KOUME_INVINCIBLE).active) {
                 info.activeDisables.push_back(DISABLE_FOR_KOUME_INVINCIBLE);
@@ -1621,7 +1621,7 @@ void BenMenu::AddEnhancements() {
                      .Max(30)
                      .DefaultValue(10));
     AddWidget(path, "Invincible", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.BoatArcheryInvincible")
+        .CVar(CVAR_ENHANCEMENT("Minigames.BoatArcheryInvincible"))
         .Options(CheckboxOptions().Tooltip("Koume's health does not decrease when hit."));
 
     path.column = SECTION_COLUMN_3;
@@ -2019,7 +2019,7 @@ void BenMenu::InitElement() {
             "Enable Link's Voice Pitch Multiplier is Disabled" } },
         { DISABLE_FOR_KOUME_INVINCIBLE,
           { [](disabledInfo& info) -> bool {
-               return CVarGetInteger("gEnhancements.Minigames.BoatArcheryInvincible", 0);
+               return CVarGetInteger(CVAR_ENHANCEMENT("Minigames.BoatArcheryInvincible"), 0);
            },
             "Koume is Invincible" } },
     };

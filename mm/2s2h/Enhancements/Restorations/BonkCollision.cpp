@@ -2,7 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
-#define CVAR_NAME "gEnhancements.Restorations.BonkCollision"
+#define CVAR_NAME CVAR_ENHANCEMENT("Restorations.BonkCollision")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterBonkCollision() {

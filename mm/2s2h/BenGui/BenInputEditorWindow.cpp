@@ -1205,20 +1205,20 @@ void BenInputEditorWindow::DrawModifierButtonsSection(uint8_t port) {
     DrawButtonLine("M1", port, BTN_CUSTOM_MODIFIER1);
     DrawButtonLine("M2", port, BTN_CUSTOM_MODIFIER2);
 
-    ImGui::BeginDisabled(CVarGetInteger("gSettings.DisableChanges", 0));
-    CVarCheckbox("Enable Speed Modifiers", "gSettings.SpeedModifier.Enable",
+    ImGui::BeginDisabled(CVarGetInteger(CVAR_SETTING("DisableChanges"), 0));
+    CVarCheckbox("Enable Speed Modifiers", CVAR_SETTING("SpeedModifier.Enable"),
                  CheckboxOptions()
                      .Color(THEME_COLOR)
                      .Tooltip("Hold the assigned button to change the maximum walking or swimming speed."));
-    if (CVarGetInteger("gSettings.SpeedModifier.Enable", 0)) {
+    if (CVarGetInteger(CVAR_SETTING("SpeedModifier.Enable"), 0)) {
         UIWidgets::Spacer(5);
         Ship::GuiWindow::BeginGroupPanel("Speed Modifier", ImGui::GetContentRegionAvail());
-        CVarCheckbox("Toggle modifier instead of holding", "gSettings.SpeedModifier.Toggle",
+        CVarCheckbox("Toggle modifier instead of holding", CVAR_SETTING("SpeedModifier.Toggle"),
                      CheckboxOptions().Color(THEME_COLOR));
         Ship::GuiWindow::BeginGroupPanel("Walk Modifier", ImGui::GetContentRegionAvail());
-        CVarCheckbox("Enable Walk Speed Modifier", "gSettings.SpeedModifier.WalkEnable",
+        CVarCheckbox("Enable Walk Speed Modifier", CVAR_SETTING("SpeedModifier.WalkEnable"),
                      CheckboxOptions().Color(THEME_COLOR));
-        CVarSliderFloat("Walk Modifier 1: %.0f %%", "gSettings.SpeedModifier.WalkMapping1",
+        CVarSliderFloat("Walk Modifier 1: %.0f %%", CVAR_SETTING("SpeedModifier.WalkMapping1"),
                         FloatSliderOptions()
                             .Color(THEME_COLOR)
                             .IsPercentage()
@@ -1226,7 +1226,7 @@ void BenInputEditorWindow::DrawModifierButtonsSection(uint8_t port) {
                             .Max(15.0f)
                             .DefaultValue(1.0f)
                             .ShowAdjustmentButtons(true));
-        CVarSliderFloat("Walk Modifier 2: %.0f %%", "gSettings.SpeedModifier.WalkMapping2",
+        CVarSliderFloat("Walk Modifier 2: %.0f %%", CVAR_SETTING("SpeedModifier.WalkMapping2"),
                         FloatSliderOptions()
                             .Color(THEME_COLOR)
                             .IsPercentage()
@@ -1236,9 +1236,9 @@ void BenInputEditorWindow::DrawModifierButtonsSection(uint8_t port) {
                             .ShowAdjustmentButtons(true));
         Ship::GuiWindow::EndGroupPanel(0);
         Ship::GuiWindow::BeginGroupPanel("Swim Modifier", ImGui::GetContentRegionAvail());
-        CVarCheckbox("Enable Swim Speed Modifier", "gSettings.SpeedModifier.SwimEnable",
+        CVarCheckbox("Enable Swim Speed Modifier", CVAR_SETTING("SpeedModifier.SwimEnable"),
                      CheckboxOptions().Color(THEME_COLOR));
-        CVarSliderFloat("Swim Modifier 1: %.0f %%", "gSettings.SpeedModifier.SwimMapping1",
+        CVarSliderFloat("Swim Modifier 1: %.0f %%", CVAR_SETTING("SpeedModifier.SwimMapping1"),
                         FloatSliderOptions()
                             .Color(THEME_COLOR)
                             .IsPercentage()
@@ -1246,7 +1246,7 @@ void BenInputEditorWindow::DrawModifierButtonsSection(uint8_t port) {
                             .Max(8.75f)
                             .DefaultValue(1.0f)
                             .ShowAdjustmentButtons(true));
-        CVarSliderFloat("Swim Modifier 2: %.0f %%", "gSettings.SpeedModifier.SwimMapping2",
+        CVarSliderFloat("Swim Modifier 2: %.0f %%", CVAR_SETTING("SpeedModifier.SwimMapping2"),
                         FloatSliderOptions()
                             .Color(THEME_COLOR)
                             .IsPercentage()

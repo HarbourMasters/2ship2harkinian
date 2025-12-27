@@ -9,7 +9,7 @@ extern "C" {
 
 #define CVAR_NAME CVAR_ENHANCEMENT("Timesavers.SwampBoatSpeed")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
-#define SCORE_CVAR_NAME "gEnhancements.Minigames.BoatArcheryScore"
+#define SCORE_CVAR_NAME CVAR_ENHANCEMENT("Minigames.BoatArcheryScore")
 #define SCORE_CVAR CVarGetInteger(SCORE_CVAR_NAME, 20)
 
 void RegisterSwampBoatSpeed() {

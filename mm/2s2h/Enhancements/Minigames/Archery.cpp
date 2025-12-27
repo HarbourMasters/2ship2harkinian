@@ -14,11 +14,11 @@ void EnSyatekiMan_Town_RunGame(EnSyatekiMan* enSyatekiMan, PlayState* play);
 #define SWAMP_CVAR CVarGetInteger(SWAMP_CVAR_NAME, 2180)
 #define TOWN_CVAR_NAME CVAR_ENHANCEMENT("Minigames.TownArcheryScore")
 #define TOWN_CVAR CVarGetInteger(TOWN_CVAR_NAME, 50)
-#define BOAT_CVAR_NAME "gEnhancements.Minigames.BoatArcheryScore"
+#define BOAT_CVAR_NAME CVAR_ENHANCEMENT("Minigames.BoatArcheryScore")
 #define BOAT_CVAR CVarGetInteger(BOAT_CVAR_NAME, 20)
-#define BOAT_HEALTH_CVAR_NAME "gEnhancements.Minigames.BoatArcheryHealth"
+#define BOAT_HEALTH_CVAR_NAME CVAR_ENHANCEMENT("Minigames.BoatArcheryHealth")
 #define BOAT_HEALTH_CVAR CVarGetInteger(BOAT_HEALTH_CVAR_NAME, 10)
-#define BOAT_NO_DAMAGE_CVAR_NAME "gEnhancements.Minigames.BoatArcheryInvincible"
+#define BOAT_NO_DAMAGE_CVAR_NAME CVAR_ENHANCEMENT("Minigames.BoatArcheryInvincible")
 #define BOAT_NO_DAMAGE_CVAR CVarGetInteger(BOAT_NO_DAMAGE_CVAR_NAME, 0)
 
 static void RegisterSwampArchery() {

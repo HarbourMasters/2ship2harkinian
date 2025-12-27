@@ -1,10 +1,11 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/ShipInit.hpp"
 #include "SavingEnhancements.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" PlayState* gPlayState;
 
-#define CVAR_NAME "gEnhancements.Saving.PauseSave"
+#define CVAR_NAME CVAR_ENHANCEMENT("Saving.PauseSave")
 #define CVAR CVarGetInteger(CVAR_NAME, false)
 
 void RegisterPauseSave() {

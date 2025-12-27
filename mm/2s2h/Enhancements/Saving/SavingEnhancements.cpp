@@ -9,7 +9,7 @@ extern "C" {
 #include <functions.h>
 }
 
-#define CVAR_REMEMBER_SAVE_LOCATION_NAME "gEnhancements.Saving.RememberSaveLocation"
+#define CVAR_REMEMBER_SAVE_LOCATION_NAME CVAR_ENHANCEMENT("Saving.RememberSaveLocation")
 #define CVAR_REMEMBER_SAVE_LOCATION CVarGetInteger(CVAR_REMEMBER_SAVE_LOCATION_NAME, 0)
 
 static uint32_t autosaveInterval = 0;

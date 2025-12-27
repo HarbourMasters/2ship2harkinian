@@ -2,13 +2,14 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/cvar_prefixes.h"
 
 extern "C" {
 #include "variables.h"
 #include "overlays/actors/ovl_En_Test7/z_en_test7.h"
 }
 
-#define CVAR_NAME "gEnhancements.Songs.SkipSoaringCutscene"
+#define CVAR_NAME CVAR_ENHANCEMENT("Songs.SkipSoaringCutscene")
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 static void SkipSoaringCutscene(Actor* actor, bool* should) {

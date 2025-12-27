@@ -140,13 +140,13 @@ void SetupGuiElements() {
     mEventLogWindow = std::make_shared<EventLogWindow>(CVAR_WINDOW("EventLog"), "Event Log", ImVec2(520, 600));
     gui->AddGuiWindow(mEventLogWindow);
 
-    mDLViewerWindow = std::make_shared<DLViewerWindow>("gWindows.DLViewer", "DL Viewer", ImVec2(520, 600));
+    mDLViewerWindow = std::make_shared<DLViewerWindow>(CVAR_WINDOW("DLViewer"), "DL Viewer", ImVec2(520, 600));
     gui->AddGuiWindow(mDLViewerWindow);
     mMessageViewerWindow =
-        std::make_shared<MessageViewerWindow>("gWindows.MessageViewer", "Message Viewer", ImVec2(520, 600));
+        std::make_shared<MessageViewerWindow>(CVAR_WINDOW("MessageViewer"), "Message Viewer", ImVec2(520, 600));
     gui->AddGuiWindow(mMessageViewerWindow);
 
-    mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor", ImVec2(520, 600));
+    mAudioEditorWindow = std::make_shared<AudioEditor>(CVAR_WINDOW("AudioEditor"), "Audio Editor", ImVec2(520, 600));
     gui->AddGuiWindow(mAudioEditorWindow);
 
     mItemTrackerWindow = std::make_shared<ItemTrackerWindow>(CVAR_WINDOW("ItemTracker"), "Item Tracker");

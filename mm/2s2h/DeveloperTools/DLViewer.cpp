@@ -280,13 +280,16 @@ void DrawInstructionFilters() {
         g->CurrentItemFlags = backup_item_flags;
 
         UIWidgets::CVarCheckbox("Color Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Color"), { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Texture Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Texture"), { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Geometry Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Geometry"), { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("Texture Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Texture"),
+                                { .defaultValue = 1 });
+        UIWidgets::CVarCheckbox("Geometry Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Geometry"),
+                                { .defaultValue = 1 });
         UIWidgets::CVarCheckbox("Display List Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.DisplayList"),
                                 { .defaultValue = 1 });
         UIWidgets::CVarCheckbox("Sync Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Sync"), { .defaultValue = 1 });
         UIWidgets::CVarCheckbox("Other Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Other"), { .defaultValue = 1 });
-        UIWidgets::CVarCheckbox("Unknown Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"), { .defaultValue = 0 });
+        UIWidgets::CVarCheckbox("Unknown Commands", CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"),
+                                { .defaultValue = 0 });
         ImGui::EndPopup();
     }
 }
@@ -697,7 +700,8 @@ void DrawInstructionTable(std::shared_ptr<Fast::DisplayList> res) {
             int cmd = gfx->words.w0 >> 24;
 
             // Skip commands not in filter
-            if (cmdMap.find(cmd) == cmdMap.end() && !CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"), 0)) {
+            if (cmdMap.find(cmd) == cmdMap.end() &&
+                !CVarGetInteger(CVAR_DEVELOPER_TOOLS("DLViewer.Filter.Unknown"), 0)) {
                 continue;
             }
 

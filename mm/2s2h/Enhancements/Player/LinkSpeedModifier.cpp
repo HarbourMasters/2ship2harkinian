@@ -8,10 +8,10 @@ extern "C" {
 extern Input* sPlayerControlInput;
 }
 
-#define CVAR_SPEED_MODIFIER_NAME "gSettings.SpeedModifier.Enable"
-#define CVAR_SPEED_MODIFIER_TOGGLE "gSettings.SpeedModifier.Toggle"
-#define CVAR_WALK_MODIFIER_NAME "gSettings.SpeedModifier.WalkEnable"
-#define CVAR_SWIM_MODIFIER_NAME "gSettings.SpeedModifier.SwimEnable"
+#define CVAR_SPEED_MODIFIER_NAME CVAR_SETTING("SpeedModifier.Enable")
+#define CVAR_SPEED_MODIFIER_TOGGLE CVAR_SETTING("SpeedModifier.Toggle")
+#define CVAR_WALK_MODIFIER_NAME CVAR_SETTING("SpeedModifier.WalkEnable")
+#define CVAR_SWIM_MODIFIER_NAME CVAR_SETTING("SpeedModifier.SwimEnable")
 #define CVAR_SPEED CVarGetInteger(CVAR_SPEED_MODIFIER_NAME, 0)
 #define CVAR_SPEED_TOGGLE CVarGetInteger(CVAR_SPEED_MODIFIER_TOGGLE, 0)
 #define CVAR_WALK CVarGetInteger(CVAR_WALK_MODIFIER_NAME, 0)
@@ -27,15 +27,15 @@ void RegisterLinkSpeedModifier() {
 
         if (CVAR_SPEED_TOGGLE) {
             if (speedToggle1) {
-                *speedTarget *= CVarGetFloat("gSettings.SpeedModifier.WalkMapping1", 1.0f);
+                *speedTarget *= CVarGetFloat(CVAR_SETTING("SpeedModifier.WalkMapping1"), 1.0f);
             } else if (speedToggle2) {
-                *speedTarget *= CVarGetFloat("gSettings.SpeedModifier.WalkMapping2", 1.0f);
+                *speedTarget *= CVarGetFloat(CVAR_SETTING("SpeedModifier.WalkMapping2"), 1.0f);
             }
         } else {
             if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_CUSTOM_MODIFIER1)) {
-                *speedTarget *= CVarGetFloat("gSettings.SpeedModifier.WalkMapping1", 1.0f);
+                *speedTarget *= CVarGetFloat(CVAR_SETTING("SpeedModifier.WalkMapping1"), 1.0f);
             } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_CUSTOM_MODIFIER2)) {
-                *speedTarget *= CVarGetFloat("gSettings.SpeedModifier.WalkMapping2", 1.0f);
+                *speedTarget *= CVarGetFloat(CVAR_SETTING("SpeedModifier.WalkMapping2"), 1.0f);
             }
         }
     });
@@ -50,18 +50,18 @@ void RegisterLinkSpeedModifier() {
 
         if (CVAR_SPEED_TOGGLE) {
             if (speedToggle1) {
-                swimMod *= CVarGetFloat("gSettings.SpeedModifier.SwimMapping1", 1.0f);
+                swimMod *= CVarGetFloat(CVAR_SETTING("SpeedModifier.SwimMapping1"), 1.0f);
             } else if (speedToggle2) {
-                swimMod *= CVarGetFloat("gSettings.SpeedModifier.SwimMapping2", 1.0f);
+                swimMod *= CVarGetFloat(CVAR_SETTING("SpeedModifier.SwimMapping2"), 1.0f);
             }
 
             // sControlInput is NULL to prevent inputs while surfacing after obtaining an underwater item so we want
             // to ignore it for that case
         } else if (sPlayerControlInput != NULL) {
             if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_CUSTOM_MODIFIER1)) {
-                swimMod *= CVarGetFloat("gSettings.SpeedModifier.SwimMapping1", 1.0f);
+                swimMod *= CVarGetFloat(CVAR_SETTING("SpeedModifier.SwimMapping1"), 1.0f);
             } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_CUSTOM_MODIFIER2)) {
-                swimMod *= CVarGetFloat("gSettings.SpeedModifier.SwimMapping2", 1.0f);
+                swimMod *= CVarGetFloat(CVAR_SETTING("SpeedModifier.SwimMapping2"), 1.0f);
             }
         }
 

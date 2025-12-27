@@ -102,7 +102,7 @@ void SaveExcludedChecks() {
 }
 
 void LoadExcludedChecks() {
-    std::string checksList = CVarGetString("gRando.ExcludedChecks", "");
+    std::string checksList = CVarGetString(CVAR_RANDOMIZER("ExcludedChecks"), "");
 
     if (checksList != "") {
         std::string word;
@@ -519,7 +519,7 @@ static void DrawStartingItemsTab() {
                             currentStartingItems += ",";
                         }
                         currentStartingItems += std::to_string(item);
-                        CVarSetString("gRando.StartingItems", currentStartingItems.c_str());
+                        CVarSetString(CVAR_RANDOMIZER("StartingItems"), currentStartingItems.c_str());
                         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
                     }
                     UIWidgets::Tooltip(randoStaticItem.name);
@@ -579,7 +579,7 @@ static void DrawCheckFilterTab() {
         return;
     }
 
-    auto menuThemeColor = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", LightBlue));
+    auto menuThemeColor = UIWidgets::Colors(CVarGetInteger(CVAR_SETTING("Menu.Theme"), LightBlue));
     bool excludeAllChecks = false;
     bool excludeFiltered = false;
     bool removeFiltered = false;

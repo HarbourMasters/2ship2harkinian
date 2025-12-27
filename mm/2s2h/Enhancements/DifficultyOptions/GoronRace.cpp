@@ -8,7 +8,7 @@ extern "C" {
 #include "functions.h"
 }
 
-#define CVAR_NAME "gEnhancements.DifficultyOptions.GoronRace"
+#define CVAR_NAME CVAR_ENHANCEMENT("DifficultyOptions.GoronRace")
 #define CVAR CVarGetInteger(CVAR_NAME, GORON_RACE_DIFFICULTY_VANILLA)
 
 void RegisterGoronRaceDifficulty() {
