@@ -2,6 +2,7 @@
 #define RANDO_LOGIC_H
 
 #include "Rando/Rando.h"
+#include "Rando/ActorBehavior/Souls.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
 
@@ -187,6 +188,11 @@ inline bool MeetsMoonRequirements() {
 }
 
 inline bool CanKillEnemy(ActorId EnemyId) {
+    // If enemy souls are shuffled, and the relevant soul is not obtained, we cannot kill that enemy.
+    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] && !HaveEnemySoul(EnemyId)) {
+        return false;
+    }
+
     switch (EnemyId) {
         case ACTOR_BOSS_01: // Odolwa
             return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_USE_EXPLOSIVE || CAN_USE_MAGIC_ARROW(FIRE) ||

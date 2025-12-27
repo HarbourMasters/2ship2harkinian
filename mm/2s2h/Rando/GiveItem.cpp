@@ -273,6 +273,7 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_MAJORA:
         case RI_SOUL_ODOLWA:
         case RI_SOUL_TWINMOLD:
+        case RI_SOUL_ALIEN:
         case RI_SOUL_ARMOS:
         case RI_SOUL_BAD_BAT:
         case RI_SOUL_BEAMOS:
@@ -280,13 +281,19 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_BUBBLE:
         case RI_SOUL_CHUCHU:
         case RI_SOUL_DEATH_ARMOS:
+        case RI_SOUL_DEEP_PYTHON:
         case RI_SOUL_DEKU_BABA:
+        case RI_SOUL_DEXIHAND:
         case RI_SOUL_DINOLFOS:
         case RI_SOUL_DODONGO:
         case RI_SOUL_DRAGONFLY:
         case RI_SOUL_EENO:
+        case RI_SOUL_EYEGORE:
         case RI_SOUL_FLYING_POT:
         case RI_SOUL_FREEZARD:
+        case RI_SOUL_GARO:
+        case RI_SOUL_GEKKO:
+        case RI_SOUL_GIANT_BEE:
         case RI_SOUL_GUAY:
         case RI_SOUL_HIPLOOP:
         case RI_SOUL_IRON_KNUCKLE:
@@ -297,6 +304,8 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_NEJIRON:
         case RI_SOUL_OCTOROK:
         case RI_SOUL_PEAHAT:
+        case RI_SOUL_PIRATE:
+        case RI_SOUL_POE:
         case RI_SOUL_REAL_BOMBCHU:
         case RI_SOUL_REDEAD:
         case RI_SOUL_SHELLBLADE:
@@ -304,10 +313,13 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_SKULLTULA:
         case RI_SOUL_SNAPPER:
         case RI_SOUL_STALCHILD:
+        case RI_SOUL_TAKKURI:
         case RI_SOUL_TEKTITE:
         case RI_SOUL_WALLMASTER:
+        case RI_SOUL_WART:
+        case RI_SOUL_WIZROBE:
         case RI_SOUL_WOLFOS:
-            Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ARMOS + (randoItemId - RI_SOUL_ARMOS));
+            Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ALIENS + (randoItemId - RI_SOUL_ALIEN));
             break;
         case RI_FROG_BLUE:
             SET_WEEKEVENTREG(WEEKEVENTREG_33_01);

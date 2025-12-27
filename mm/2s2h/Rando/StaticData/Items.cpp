@@ -171,6 +171,7 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_SONG_STORMS,                "the",  "Song of Storms",             RITYPE_MAJOR,           ITEM_SONG_STORMS,                GI_NONE,                     GID_NONE),
     RI(RI_SONG_SUN,                   "the",  "Sun's Song",                 RITYPE_MAJOR,           ITEM_SONG_SUN,                   GI_NONE,                     GID_NONE),
     RI(RI_SONG_TIME,                  "the",  "Song of Time",               RITYPE_MAJOR,           ITEM_SONG_TIME,                  GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_ALIEN,                 "the",  "Soul of Aliens",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_ARMOS,                 "the",  "Soul of Armos",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_BAD_BAT,               "the",  "Soul of Bad Bats",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_BEAMOS,                "the",  "Soul of Beamos",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -178,13 +179,19 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_SOUL_BUBBLE,                "the",  "Soul of Bubbles",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_CHUCHU,                "the",  "Soul of Chuchus",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_DEATH_ARMOS,           "the",  "Soul of Death Armos",        RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_DEEP_PYTHON,           "the",  "Soul of Deep Pythons",       RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_DEKU_BABA,             "the",  "Soul of Deku Babas",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_DEXIHAND,              "the",  "Soul of Dexihands",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_DINOLFOS,              "the",  "Soul of Dinolfos",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_DODONGO,               "the",  "Soul of Dodongos",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_DRAGONFLY,             "the",  "Soul of Dragonflies",        RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_EENO,                  "the",  "Soul of Eenos",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_EYEGORE,               "the",  "Soul of Eyegores",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_FLYING_POT,            "the",  "Soul of Flying Pots",        RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_FREEZARD,              "the",  "Soul of Freezards",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_GARO,                  "the",  "Soul of Garos",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_GEKKO,                 "the",  "Soul of Gekkos",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_GIANT_BEE,             "the",  "Soul of Giant Bees",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
 	RI(RI_SOUL_GOHT,                  "the",  "Soul of Goht",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_GUAY,                  "the",  "Soul of Guays",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_HIPLOOP,               "the",  "Soul of Hiploops",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -199,6 +206,8 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_SOUL_OCTOROK,               "the",  "Soul of Octoroks",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
 	RI(RI_SOUL_ODOLWA,                "the",  "Soul of Odolwa",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_PEAHAT,                "the",  "Soul of Peahats",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_PIRATE,                "the",  "Soul of Pirates",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_POE,                   "the",  "Soul of Poes",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_REAL_BOMBCHU,          "the",  "Soul of Real Bombchus",      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_REDEAD,                "the",  "Soul of Redeads",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_SHELLBLADE,            "the",  "Soul of Shellblades",        RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -206,9 +215,12 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_SOUL_SKULLTULA,             "the",  "Soul of Skulltulas",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_SNAPPER,               "the",  "Soul of Snappers",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_STALCHILD,             "the",  "Soul of Stalchildren",       RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_TAKKURI,               "the",  "Soul of Takkuri",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_TEKTITE,               "the",  "Soul of Tektites",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
 	RI(RI_SOUL_TWINMOLD,              "the",  "Soul of Twinmold",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_WALLMASTER,            "the",  "Soul of Wallmasters",        RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_WART,                  "the",  "Soul of Warts",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_WIZROBE,               "the",  "Soul of Wizrobes",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_WOLFOS,                "the",  "Soul of Wolfos",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_STONE_TOWER_BOSS_KEY,       "the",  "Stone Tower Boss Key",       RITYPE_BOSS_KEY,        ITEM_KEY_BOSS,                   GI_KEY_BOSS,                 GID_KEY_BOSS),
     RI(RI_STONE_TOWER_COMPASS,        "the",  "Stone Tower Compass",        RITYPE_LESSER,          ITEM_COMPASS,                    GI_COMPASS,                  GID_COMPASS),
@@ -364,6 +376,7 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_SOUL_MAJORA:
         case RI_SOUL_ODOLWA:
         case RI_SOUL_TWINMOLD:
+        case RI_SOUL_ALIEN:
         case RI_SOUL_ARMOS:
         case RI_SOUL_BAD_BAT:
         case RI_SOUL_BEAMOS:
@@ -371,13 +384,19 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_SOUL_BUBBLE:
         case RI_SOUL_CHUCHU:
         case RI_SOUL_DEATH_ARMOS:
+        case RI_SOUL_DEEP_PYTHON:
         case RI_SOUL_DEKU_BABA:
+        case RI_SOUL_DEXIHAND:
         case RI_SOUL_DINOLFOS:
         case RI_SOUL_DODONGO:
         case RI_SOUL_DRAGONFLY:
         case RI_SOUL_EENO:
+        case RI_SOUL_EYEGORE:
         case RI_SOUL_FLYING_POT:
         case RI_SOUL_FREEZARD:
+        case RI_SOUL_GARO:
+        case RI_SOUL_GEKKO:
+        case RI_SOUL_GIANT_BEE:
         case RI_SOUL_GUAY:
         case RI_SOUL_HIPLOOP:
         case RI_SOUL_IRON_KNUCKLE:
@@ -388,6 +407,8 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_SOUL_NEJIRON:
         case RI_SOUL_OCTOROK:
         case RI_SOUL_PEAHAT:
+        case RI_SOUL_PIRATE:
+        case RI_SOUL_POE:
         case RI_SOUL_REAL_BOMBCHU:
         case RI_SOUL_REDEAD:
         case RI_SOUL_SHELLBLADE:
@@ -395,8 +416,11 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_SOUL_SKULLTULA:
         case RI_SOUL_SNAPPER:
         case RI_SOUL_STALCHILD:
+        case RI_SOUL_TAKKURI:
         case RI_SOUL_TEKTITE:
         case RI_SOUL_WALLMASTER:
+        case RI_SOUL_WART:
+        case RI_SOUL_WIZROBE:
         case RI_SOUL_WOLFOS:
             return (const char*)gDungeonMapSkullTex;
         case RI_FROG_BLUE:

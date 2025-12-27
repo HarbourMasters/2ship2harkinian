@@ -401,56 +401,56 @@ void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+// clang-format off
 std::unordered_map<RandoItemId, std::function<void()>> soulDrawMap = {
-    // { RI_SOUL_ALIEN, DrawArmos },
-    { RI_SOUL_ARMOS, DrawArmos },
-    { RI_SOUL_BAD_BAT, DrawBat },
-    { RI_SOUL_BEAMOS, DrawBeamos },
-    { RI_SOUL_BUBBLE, DrawBubble },
-    { RI_SOUL_BOE, DrawBoe },
-    { RI_SOUL_CHUCHU, DrawSlime },
-    { RI_SOUL_DEATH_ARMOS, DrawDeathArmos },
-    // { RI_SOUL_DEEP_PYTHON, DrawArmos },
-    { RI_SOUL_DEKU_BABA, DrawDekuBaba },
-    // { RI_SOUL_DEXIHAND, DrawArmos },
-    { RI_SOUL_DINOLFOS, DrawDinolfos },
-    { RI_SOUL_DODONGO, DrawDodongo },
-    { RI_SOUL_DRAGONFLY, DrawGrasshopper },
-    { RI_SOUL_EENO, DrawEeno },
-    // { RI_SOUL_EYEGORE, DrawArmos },
-    { RI_SOUL_FLYING_POT, DrawFlyingPot },
-    { RI_SOUL_FREEZARD, DrawFreezard },
-    // { RI_SOUL_GARO, DrawArmos },
-    // { RI_SOUL_GARO_MASTER, DrawArmos },
-    // { RI_SOUL_GEKKO, DrawArmos },
-    // { RI_SOUL_GEKKO, DrawArmos },
-    // { RI_SOUL_GIANT_BEE, DrawArmos },
-    { RI_SOUL_GUAY, DrawGuay },
-    { RI_SOUL_HIPLOOP, DrawHiploop },
+    { RI_SOUL_ALIEN,        DrawAlien },
+    { RI_SOUL_ARMOS,        DrawArmos },
+    { RI_SOUL_BAD_BAT,      DrawBat },
+    { RI_SOUL_BEAMOS,       DrawBeamos },
+    { RI_SOUL_BUBBLE,       DrawBubble },
+    { RI_SOUL_BOE,          DrawBoe },
+    { RI_SOUL_CHUCHU,       DrawSlime },
+    { RI_SOUL_DEATH_ARMOS,  DrawDeathArmos },
+    { RI_SOUL_DEEP_PYTHON,  DrawDeepPython },
+    { RI_SOUL_DEKU_BABA,    DrawDekuBaba },
+    { RI_SOUL_DEXIHAND,     DrawDexihand },
+    { RI_SOUL_DINOLFOS,     DrawDinolfos },
+    { RI_SOUL_DODONGO,      DrawDodongo },
+    { RI_SOUL_DRAGONFLY,    DrawGrasshopper },
+    { RI_SOUL_EENO,         DrawEeno },
+    { RI_SOUL_EYEGORE,      DrawEyegore },
+    { RI_SOUL_FLYING_POT,   DrawFlyingPot },
+    { RI_SOUL_FREEZARD,     DrawFreezard },
+    { RI_SOUL_GARO,         DrawGaro },
+    { RI_SOUL_GEKKO,        DrawGekko },
+    { RI_SOUL_GIANT_BEE,    DrawGiantBee },
+    { RI_SOUL_GUAY,         DrawGuay },
+    { RI_SOUL_HIPLOOP,      DrawHiploop },
     { RI_SOUL_IRON_KNUCKLE, DrawIronKnuckle },
-    { RI_SOUL_KEESE, DrawKeese },
-    { RI_SOUL_LEEVER, DrawLeever },
-    { RI_SOUL_LIKE_LIKE, DrawLikeLike },
-    { RI_SOUL_MAD_SCRUB, DrawMadScrub },
-    { RI_SOUL_NEJIRON, DrawNejiron },
-    { RI_SOUL_OCTOROK, DrawOctorok },
-    { RI_SOUL_PEAHAT, DrawPeahat },
-    // { RI_SOUL_PIRATE, DrawArmos },
-    // { RI_SOUL_POE_SISTER, DrawArmos },
+    { RI_SOUL_KEESE,        DrawKeese },
+    { RI_SOUL_LEEVER,       DrawLeever },
+    { RI_SOUL_LIKE_LIKE,    DrawLikeLike },
+    { RI_SOUL_MAD_SCRUB,    DrawMadScrub },
+    { RI_SOUL_NEJIRON,      DrawNejiron },
+    { RI_SOUL_OCTOROK,      DrawOctorok },
+    { RI_SOUL_PEAHAT,       DrawPeahat },
+    { RI_SOUL_PIRATE,       DrawPirate },
+    { RI_SOUL_POE,          DrawPoe },
     { RI_SOUL_REAL_BOMBCHU, DrawRealBombchu },
-    { RI_SOUL_REDEAD, DrawRedead },
-    { RI_SOUL_SHELLBLADE, DrawShellBlade },
-    { RI_SOUL_SKULLFISH, DrawSkullfish },
-    { RI_SOUL_SKULLTULA, DrawSkulltula },
-    { RI_SOUL_SNAPPER, DrawSnapper },
-    { RI_SOUL_STALCHILD, DrawStalchild },
-    // { RI_SOUL_TAKKURI, DrawArmos },
-    { RI_SOUL_TEKTITE, DrawTektite },
-    { RI_SOUL_WALLMASTER, DrawWallmaster },
-    // { RI_SOUL_WART, DrawArmos },
-    // { RI_SOUL_WIZROBE, DrawArmos },
-    { RI_SOUL_WOLFOS, DrawWolfos },
+    { RI_SOUL_REDEAD,       DrawRedead },
+    { RI_SOUL_SHELLBLADE,   DrawShellBlade },
+    { RI_SOUL_SKULLFISH,    DrawSkullfish },
+    { RI_SOUL_SKULLTULA,    DrawSkulltula },
+    { RI_SOUL_SNAPPER,      DrawSnapper },
+    { RI_SOUL_STALCHILD,    DrawStalchild },
+    { RI_SOUL_TAKKURI,      DrawTakkuri },
+    { RI_SOUL_TEKTITE,      DrawTektite },
+    { RI_SOUL_WALLMASTER,   DrawWallmaster },
+    { RI_SOUL_WART,         DrawWart },
+    { RI_SOUL_WIZROBE,      DrawWizrobe },
+    { RI_SOUL_WOLFOS,       DrawWolfos },
 };
+// clang-format on
 
 void DrawSoul(RandoItemId randoItemId) {
     auto it = soulDrawMap.find(randoItemId);
@@ -563,6 +563,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_PROGRESSIVE_WALLET:
             Rando::DrawItem(Rando::ConvertItem(randoItemId), actor);
             break;
+        case RI_SOUL_ALIEN:
         case RI_SOUL_ARMOS:
         case RI_SOUL_BAD_BAT:
         case RI_SOUL_BEAMOS:
@@ -570,13 +571,19 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SOUL_BUBBLE:
         case RI_SOUL_CHUCHU:
         case RI_SOUL_DEATH_ARMOS:
+        case RI_SOUL_DEEP_PYTHON:
         case RI_SOUL_DEKU_BABA:
+        case RI_SOUL_DEXIHAND:
         case RI_SOUL_DINOLFOS:
         case RI_SOUL_DODONGO:
         case RI_SOUL_DRAGONFLY:
         case RI_SOUL_EENO:
+        case RI_SOUL_EYEGORE:
         case RI_SOUL_FLYING_POT:
         case RI_SOUL_FREEZARD:
+        case RI_SOUL_GARO:
+        case RI_SOUL_GEKKO:
+        case RI_SOUL_GIANT_BEE:
         case RI_SOUL_GUAY:
         case RI_SOUL_HIPLOOP:
         case RI_SOUL_IRON_KNUCKLE:
@@ -587,6 +594,8 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SOUL_NEJIRON:
         case RI_SOUL_OCTOROK:
         case RI_SOUL_PEAHAT:
+        case RI_SOUL_PIRATE:
+        case RI_SOUL_POE:
         case RI_SOUL_REAL_BOMBCHU:
         case RI_SOUL_REDEAD:
         case RI_SOUL_SHELLBLADE:
@@ -594,8 +603,11 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SOUL_SKULLTULA:
         case RI_SOUL_SNAPPER:
         case RI_SOUL_STALCHILD:
+        case RI_SOUL_TAKKURI:
         case RI_SOUL_TEKTITE:
         case RI_SOUL_WALLMASTER:
+        case RI_SOUL_WART:
+        case RI_SOUL_WIZROBE:
         case RI_SOUL_WOLFOS:
             DrawSoul(randoItemId);
             break;

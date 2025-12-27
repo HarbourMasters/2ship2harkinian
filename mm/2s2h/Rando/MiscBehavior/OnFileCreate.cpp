@@ -262,11 +262,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES) {
                         itemPool.push_back(boss);
                     } else {
-                        Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ARMOS + ((RandoItemId)boss - RI_SOUL_ARMOS));
+                        Flags_SetRandoInf(ENEMY_SOUL_RI_TO_RANDO_INF(boss));
                     }
                 }
 
-                for (int i = RI_SOUL_ARMOS; i <= RI_SOUL_WOLFOS; i++) {
+                for (int i = RI_SOUL_ALIEN; i <= RI_SOUL_WOLFOS; i++) {
                     bool shouldSkipSoul = false;
                     for (auto& boss : bossSouls) {
                         if (boss == (RandoItemId)i) {
@@ -278,7 +278,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] == RO_GENERIC_YES) {
                             itemPool.push_back((RandoItemId)i);
                         } else {
-                            Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ARMOS + ((RandoItemId)i - RI_SOUL_ARMOS));
+                            Flags_SetRandoInf(ENEMY_SOUL_RI_TO_RANDO_INF(i));
                         }
                     }
                 }
@@ -454,7 +454,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 // Give INF for Enemy Soul if the option is OFF
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] == RO_GENERIC_NO) {
-                    for (int i = RANDO_INF_OBTAINED_SOUL_OF_ARMOS; i <= RANDO_INF_OBTAINED_SOUL_OF_WOLFOS; i++) {
+                    for (int i = RANDO_INF_OBTAINED_SOUL_OF_ALIENS; i <= RANDO_INF_OBTAINED_SOUL_OF_WOLFOS; i++) {
                         Flags_SetRandoInf(i);
                     }
                 }
