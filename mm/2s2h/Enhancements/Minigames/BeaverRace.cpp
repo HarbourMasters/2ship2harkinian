@@ -81,9 +81,8 @@ void RegisterBeaverRaceSpeedup() {
     });
 
     COND_ID_HOOK(OnOpenText, 0x10FA, CVAR_SPEEDUP, [](u16* textId, bool* loadFromMessageTable) {
-        std::string replaceMsg = "The time limit is %r1:50%w, let's race.";
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg.replace(entry.msg.begin(), entry.msg.end(), replaceMsg);
+        entry.msg = "The time limit is %r1:50%w, let's race.";
 
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
