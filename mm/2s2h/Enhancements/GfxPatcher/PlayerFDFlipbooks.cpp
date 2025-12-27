@@ -55,7 +55,7 @@ static void PlayerFDFlipbooks_PatchOnce(void) {
         sPlayerMouthTextures[PLAYER_FORM_FIERCE_DEITY][i] = (TexturePtr)sFDMouthTextures[i];
     }
 
-    sFDFacePatchState = 2;
+    sFDFacePatchState = 1;
 }
 
 void PlayerFDFlipbooks_Patch(void) {

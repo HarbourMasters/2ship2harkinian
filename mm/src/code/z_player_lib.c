@@ -13,7 +13,6 @@
 #include "objects/object_link_zora/object_link_zora.h"
 #include "objects/object_link_nuts/object_link_nuts.h"
 #include "objects/object_link_child/object_link_child.h"
-#include "2s2h/Enhancements/PlayerFDFlipbooks.h"
 
 // Assets for each mask
 #include "objects/object_mask_truth/object_mask_truth.h"
@@ -2058,7 +2057,6 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
 
     // Only Human, Zora, and Goron will read the eye textures in the head limb display list.
     // Fierce Deity and Deku will point this segment to garbage data, but it will be unread from.
-    PlayerFDFlipbooks_Patch();
     gSPSegment(&gfx[0], 0x08, Lib_SegmentedToVirtual(sPlayerEyesTextures[playerForm][eyeIndex]));
 
     // 2S2H [Port] Hess crash fix
