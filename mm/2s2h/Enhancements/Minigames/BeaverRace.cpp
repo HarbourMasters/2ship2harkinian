@@ -72,10 +72,9 @@ void RegisterBeaverRaceSpeedup() {
     });
 
     COND_ID_HOOK(OnOpenText, 0x10D6, CVAR_SPEEDUP, [](u16* textId, bool* loadFromMessageTable) {
-        std::string replaceMsg = "My older brother will show you\x11the way, so follow him and\x11"
-                                 "don't get separated!";
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-        entry.msg.replace(entry.msg.begin(), entry.msg.end(), replaceMsg);
+        entry.msg = "My older brother will show you\x11the way, so follow him and\x11"
+                    "don't get separated!";
 
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
