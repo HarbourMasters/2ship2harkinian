@@ -1029,9 +1029,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Ammo Buyback Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Items.AmmoBuyback")
         .Options(ComboboxOptions()
-                     .Tooltip("Choose whether to allow selling ammo items (arrows, bombs, bombchus, deku sticks, deku "
-                              "nuts, magic beans, powder keg) "
-                              "to the Curiosity Shop owner for rupees.\n"
+                     .Tooltip("Choose whether to allow selling ammo items (Arrows, Bombs, Bombchus, Deku Sticks, Deku "
+                              "Nuts, Magic Beans, Powder Keg) "
+                              "to the Curiosity Shop owner for Rupees.\n"
                               "-Vanilla: Ammo items cannot be sold\n"
                               "-Full Price: Sell at full value\n"
                               "-Half Price: Sell at half value (rounded up)")

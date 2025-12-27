@@ -63,21 +63,21 @@ static s16 GetPricePerUnit(ItemId itemId) {
 static const char* GetNameForDialogue(ItemId itemId) {
     switch (itemId) {
         case ITEM_BOW:
-            return "arrows";
+            return "%rArrows%w";
         case ITEM_BOMB:
-            return "bombs";
+            return "%rBombs%w";
         case ITEM_BOMBCHU:
-            return "bombchus";
+            return "%rBombchus%w";
         case ITEM_DEKU_STICK:
-            return "deku sticks";
+            return "%rDeku Sticks%w";
         case ITEM_DEKU_NUT:
-            return "deku nuts";
+            return "%rDeku Nuts%w";
         case ITEM_MAGIC_BEANS:
-            return "magic beans";
+            return "%rMagic Beans%w";
         case ITEM_POWDER_KEG:
-            return "powder kegs";
+            return "%rPowder Kegs%w";
         default:
-            return "items";
+            return "%ritems%w";
     }
 }
 
@@ -153,12 +153,22 @@ static void HandleStart(EnFsn* enFsn, PlayState* play) {
     if (GetPricePerUnit(buttonItem) > 0 && IsItemAvailable(buttonItem) && AMMO(buttonItem) > 0) {
         sAmmoSale.actor = enFsn;
         sAmmoSale.itemId = buttonItem;
-        sAmmoSale.quantity = 1;
-        sAmmoSale.price = 0;
-        // Last Rupees selected starts at 10 (1.0 or 01)
-        sAmmoSale.lastRupeesSelected = 10;
-        sAmmoSale.isInputActive = true;
-        play->msgCtx.rupeesSelected = 10;
+        sAmmoSale.lastRupeesSelected = 10; // Default for input mode
+
+        // If player only has 1, skip inputs
+        s16 maxAllowed = MIN(AMMO(buttonItem), MAX_AMMO_SELL_QUANTITY);
+
+        if (maxAllowed == 1) {
+            sAmmoSale.quantity = 1;
+            sAmmoSale.price = GetSalePrice(buttonItem, 1);
+            sAmmoSale.isInputActive = false;
+            enFsn->price = sAmmoSale.price;
+        } else {
+            sAmmoSale.quantity = 1;
+            sAmmoSale.price = 0;
+            sAmmoSale.isInputActive = true;
+            play->msgCtx.rupeesSelected = 10;
+        }
 
         enFsn->actionFunc = EnFsn_MakeOffer;
         player->actor.textId = TEXT_ID_FSN_OFFER;
@@ -285,6 +295,12 @@ static void HandleOfferResponse(EnFsn* enFsn, PlayState* play) {
     if (sAmmoSale.isInputActive)
         return;
 
+    // Guard against these text states to prevent premature Reset
+    if (play->msgCtx.msgMode == MSGMODE_NONE || play->msgCtx.msgMode == MSGMODE_TEXT_START ||
+        play->msgCtx.msgMode == MSGMODE_TEXT_BOX_GROWING || play->msgCtx.msgMode == MSGMODE_TEXT_STARTING) {
+        return;
+    }
+
     u8 talkState = Message_GetState(&play->msgCtx);
 
     // If choice was made (not 0/Yes), or text ended, reset
@@ -327,7 +343,8 @@ static void GenerateBuybackDialogue(u16* textId, bool* loadFromMessageTable) {
         // Offer Textbox with Price Injection
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         entry.autoFormat = false;
-        CustomMessage::Replace(&entry.msg, "\xDE", std::to_string(sAmmoSale.price) + " Rupees");
+        CustomMessage::Replace(&entry.msg, std::string(1, (char)MESSAGE_HELD_ITEM_PRICE),
+                               std::to_string(sAmmoSale.price) + " Rupees");
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     }
@@ -337,8 +354,10 @@ static void UpdateBuybackInteraction(Actor* actor) {
     EnFsn* enFsn = (EnFsn*)actor;
     PlayState* play = gPlayState;
 
-    if (enFsn->actionFunc == EnFsn_StartBuying)
+    if (enFsn->actionFunc == EnFsn_StartBuying) {
         HandleStart(enFsn, play);
+        return;
+    }
     if (sAmmoSale.actor != enFsn)
         return;
     if (sAmmoSale.isInputActive)
@@ -369,15 +388,14 @@ static void RegisterAmmoBuyback() {
             *should = false;
     });
 
-    COND_VB_SHOULD(VB_MSG_PLAY_INPUT_COUNT_SOUND, CVAR != AMMO_BUYBACK_VANILLA, {
-        if (sAmmoSale.isInputActive)
-            *should = false;
-    });
+    COND_VB_SHOULD(VB_MSG_PLAY_INPUT_COUNT_SOUND, sAmmoSale.isInputActive, { *should = false; });
 
     COND_VB_SHOULD(VB_GIVE_ITEM_FROM_OFFER, CVAR != AMMO_BUYBACK_VANILLA, {
         GetItemId* item = va_arg(args, GetItemId*);
         Actor* actor = va_arg(args, Actor*);
-        Resolve((EnFsn*)actor, should);
+        if (sAmmoSale.actor != nullptr && sAmmoSale.actor == (EnFsn*)actor) {
+            Resolve((EnFsn*)actor, should);
+        }
     });
 }
 
