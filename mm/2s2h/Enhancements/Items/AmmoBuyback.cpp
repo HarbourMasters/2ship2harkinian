@@ -366,6 +366,11 @@ static void UpdateBuybackInteraction(Actor* actor) {
         HandleOfferResponse(enFsn, play);
 }
 
+static void OnFsnDestroy(Actor* actor) {
+    if (sAmmoSale.actor == (EnFsn*)actor)
+        Reset();
+}
+
 static void BlockAmmoBuybackInput() {
     if (!gPlayState || (GameState*)gPlayState != gGameState)
         return;
@@ -381,6 +386,7 @@ static void RegisterAmmoBuyback() {
     COND_HOOK(OnInterfaceDrawStart, CVAR != AMMO_BUYBACK_VANILLA, DrawAmmoSelectionDigits);
     COND_ID_HOOK(OnOpenText, TEXT_ID_FSN_OFFER, CVAR != AMMO_BUYBACK_VANILLA, GenerateBuybackDialogue);
     COND_ID_HOOK(OnActorUpdate, ACTOR_EN_FSN, CVAR != AMMO_BUYBACK_VANILLA, UpdateBuybackInteraction);
+    COND_ID_HOOK(OnActorDestroy, ACTOR_EN_FSN, CVAR != AMMO_BUYBACK_VANILLA, OnFsnDestroy);
     COND_HOOK(OnGameStateMainStart, CVAR != AMMO_BUYBACK_VANILLA, BlockAmmoBuybackInput);
 
     COND_VB_SHOULD(VB_MSG_LOAD_RUPEES_TEXT, CVAR != AMMO_BUYBACK_VANILLA, {
