@@ -23,65 +23,69 @@ static void EmitDepositNotification(s16 depositAmount, s16 newBalance) {
 }
 
 static void GrantWalletReward() {
-    u32 walletLevel = CUR_UPG_VALUE(UPG_WALLET);
-    s16 itemDrawId = (walletLevel == 0) ? (s16)GID_WALLET_ADULT : (s16)GID_WALLET_GIANT;
+    if (IS_RANDO) {
+        SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_WALLET_UPGRADE);
+        RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_BANK_ADULTS_WALLET].eligible = true;
+    } else {
+        u32 walletLevel = CUR_UPG_VALUE(UPG_WALLET);
+        s16 itemDrawId = (walletLevel == 0) ? (s16)GID_WALLET_ADULT : (s16)GID_WALLET_GIANT;
 
-    GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
-        .showGetItemCutscene = true, .param = itemDrawId, .giveItem = [](Actor* actor, PlayState* play) {
-            u32 walletLevel = CUR_UPG_VALUE(UPG_WALLET);
-            ItemId wallet = (walletLevel == 0) ? ITEM_WALLET_ADULT : ITEM_WALLET_GIANT;
-            const char* walletName = (walletLevel == 0) ? "Adult's Wallet" : "Giant's Wallet";
+        GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
+            .showGetItemCutscene = true, .param = itemDrawId, .giveItem = [](Actor* actor, PlayState* play) {
+                u32 walletLevel = CUR_UPG_VALUE(UPG_WALLET);
+                ItemId wallet = (walletLevel == 0) ? ITEM_WALLET_ADULT : ITEM_WALLET_GIANT;
+                const char* walletName = (walletLevel == 0) ? "Adult's Wallet" : "Giant's Wallet";
 
-            if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {
-                CustomMessage::SetActiveCustomMessage(std::string("You got ") + walletName + "!", { .textboxType = 2 });
-            } else {
-                CustomMessage::StartTextbox(std::string("You got ") + walletName + "!\x1C\x02\x10",
-                                            { .textboxType = 2 });
-            }
+                if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {
+                    CustomMessage::SetActiveCustomMessage(std::string("You got ") + walletName + "!",
+                                                          { .textboxType = 2 });
+                } else {
+                    CustomMessage::StartTextbox(std::string("You got ") + walletName + "!\x1C\x02\x10",
+                                                { .textboxType = 2 });
+                }
 
-            SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_WALLET_UPGRADE);
-            Item_Give(play, wallet);
-
-            if (IS_RANDO) {
-                RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_BANK_ADULTS_WALLET].eligible = true;
-            }
-        } });
+                SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_WALLET_UPGRADE);
+                Item_Give(play, wallet);
+            } });
+    }
 }
 
 static void GrantBlueRupeeReward() {
-    GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
-        .showGetItemCutscene = true, .param = GID_RUPEE_BLUE, .giveItem = [](Actor* actor, PlayState* play) {
-            if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {
-                CustomMessage::SetActiveCustomMessage("You got a Blue Rupee!", { .textboxType = 2 });
-            } else {
-                CustomMessage::StartTextbox("You got a Blue Rupee!\x1C\x02\x10", { .textboxType = 2 });
-            }
+    if (IS_RANDO) {
+        SET_WEEKEVENTREG(WEEKEVENTREG_59_80);
+        RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_BANK_INTEREST].eligible = true;
+    } else {
+        GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
+            .showGetItemCutscene = true, .param = GID_RUPEE_BLUE, .giveItem = [](Actor* actor, PlayState* play) {
+                if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {
+                    CustomMessage::SetActiveCustomMessage("You got a Blue Rupee!", { .textboxType = 2 });
+                } else {
+                    CustomMessage::StartTextbox("You got a Blue Rupee!\x1C\x02\x10", { .textboxType = 2 });
+                }
 
-            SET_WEEKEVENTREG(WEEKEVENTREG_59_80);
-            Item_Give(play, ITEM_RUPEE_BLUE);
-
-            if (IS_RANDO) {
-                RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_BANK_INTEREST].eligible = true;
-            }
-        } });
+                SET_WEEKEVENTREG(WEEKEVENTREG_59_80);
+                Item_Give(play, ITEM_RUPEE_BLUE);
+            } });
+    }
 }
 
 static void GrantHeartPieceReward() {
-    GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
-        .showGetItemCutscene = true, .param = GID_HEART_PIECE, .giveItem = [](Actor* actor, PlayState* play) {
-            if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {
-                CustomMessage::SetActiveCustomMessage("You got a Piece of Heart!", { .textboxType = 2 });
-            } else {
-                CustomMessage::StartTextbox("You got a Piece of Heart!\x1C\x02\x10", { .textboxType = 2 });
-            }
+    if (IS_RANDO) {
+        SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_HEART_PIECE);
+        RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_BANK_PIECE_OF_HEART].eligible = true;
+    } else {
+        GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
+            .showGetItemCutscene = true, .param = GID_HEART_PIECE, .giveItem = [](Actor* actor, PlayState* play) {
+                if (CUSTOM_ITEM_FLAGS & CustomItem::GIVE_ITEM_CUTSCENE) {
+                    CustomMessage::SetActiveCustomMessage("You got a Piece of Heart!", { .textboxType = 2 });
+                } else {
+                    CustomMessage::StartTextbox("You got a Piece of Heart!\x1C\x02\x10", { .textboxType = 2 });
+                }
 
-            SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_HEART_PIECE);
-            Item_Give(play, ITEM_HEART_PIECE);
-
-            if (IS_RANDO) {
-                RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_BANK_PIECE_OF_HEART].eligible = true;
-            }
-        } });
+                SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_HEART_PIECE);
+                Item_Give(play, ITEM_HEART_PIECE);
+            } });
+    }
 }
 
 static void GrantBankerReward(s16 balanceBeforeDeposit, s16 balanceAfterDeposit) {
