@@ -13,12 +13,11 @@ extern Input* sPlayerControlInput;
 void RegisterGreatFairySwordBButton() {
     COND_VB_SHOULD(VB_GET_ITEM_ON_BUTTON, CVAR, {
         Player* player = GET_PLAYER(gPlayState);
-        EquipSlot slot = va_arg(args, EquipSlot);
+        EquipSlot slot = (EquipSlot)va_arg(args, int);
         ItemId* item = va_arg(args, ItemId*);
 
         if (slot == EQUIP_SLOT_B && player->transformation == PLAYER_FORM_HUMAN &&
             player->heldItemId == ITEM_SWORD_GREAT_FAIRY) {
-            *should = true;
             *item = ITEM_SWORD_GREAT_FAIRY;
         }
     });
