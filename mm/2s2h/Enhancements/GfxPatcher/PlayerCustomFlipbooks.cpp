@@ -27,14 +27,10 @@ static const char* sFDMouthTextures[PLAYER_MOUTH_MAX] = {
 };
 
 static const char* sDekuEyesTextures[PLAYER_EYES_MAX] = {
-    "__OTR__objects/object_link_nuts/gLinkDekuEyesOpenTex",
-    "__OTR__objects/object_link_nuts/gLinkDekuEyesHalfTex",
-    "__OTR__objects/object_link_nuts/gLinkDekuEyesClosedTex",
-    "__OTR__objects/object_link_nuts/gLinkDekuEyesRightTex",
-    "__OTR__objects/object_link_nuts/gLinkDekuEyesLeftTex",
-    "__OTR__objects/object_link_nuts/gLinkDekuEyesUpTex",
-    "__OTR__objects/object_link_nuts/gLinkDekuEyesDownTex",
-    "__OTR__objects/object_link_nuts/gLinkDekuEyesWincingTex",
+    "__OTR__objects/object_link_nuts/gLinkDekuEyesOpenTex",   "__OTR__objects/object_link_nuts/gLinkDekuEyesHalfTex",
+    "__OTR__objects/object_link_nuts/gLinkDekuEyesClosedTex", "__OTR__objects/object_link_nuts/gLinkDekuEyesRightTex",
+    "__OTR__objects/object_link_nuts/gLinkDekuEyesLeftTex",   "__OTR__objects/object_link_nuts/gLinkDekuEyesUpTex",
+    "__OTR__objects/object_link_nuts/gLinkDekuEyesDownTex",   "__OTR__objects/object_link_nuts/gLinkDekuEyesWincingTex",
 };
 
 static const char* sDekuMouthTextures[PLAYER_MOUTH_MAX] = {
@@ -135,4 +131,3 @@ static void PlayerCustomFlipbooks_PatchOnce(void) {
 void PlayerCustomFlipbooks_Patch(void) {
     PlayerCustomFlipbooks_PatchOnce();
 }
-
