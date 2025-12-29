@@ -11,6 +11,7 @@ extern "C" {
 #include "assets/objects/object_gi_reserve00/object_gi_reserve00.h"
 
 s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMini);
+s32 EnRd_ShouldNotDance(PlayState* play);
 
 // clang-format off
 // Boss Includes
@@ -36,8 +37,12 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Dodongo */       #include "assets/objects/object_dodongo/object_dodongo.h"
 /* Dragonfly */     #include "assets/objects/object_grasshopper/object_grasshopper.h"
 /* Eeno */          #include "assets/objects/object_snowman/object_snowman.h"
+/* Eyegore */       #include "assets/objects/object_eg/object_eg.h"
 /* Flying Pot */    #include "assets/objects/gameplay_dangeon_keep/gameplay_dangeon_keep.h"
 /* Freezard */      #include "assets/objects/object_fz/object_fz.h"
+/* Garo */          #include "assets/objects/object_jso/object_jso.h"
+/* Gekko */         #include "overlays/actors/ovl_En_Pametfrog/z_en_pametfrog.h"
+/* Giant Bee */     #include "assets/objects/object_bee/object_bee.h"
 /* Guay */          #include "assets/objects/object_crow/object_crow.h"
 /* Hiploop */       #include "assets/objects/object_pp/object_pp.h"
 /* Iron Knuckle */  #include "assets/objects/object_ik/object_ik.h"
@@ -48,6 +53,9 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Nejiron */       #include "assets/objects/object_gmo/object_gmo.h"
 /* Octorok */       #include "assets/objects/object_okuta/object_okuta.h"
 /* Peehat */        #include "assets/objects/object_ph/object_ph.h"
+/* Pirate */        #include "assets/objects/object_kz/object_kz.h"
+/* Poe */           #include "assets/objects/object_po/object_po.h"
+/* Poe */           #include "assets/objects/object_bigpo/object_bigpo.h"
 /* Real Bombchu */  #include "assets/objects/object_rat/object_rat.h"
 /* Redead */        #include "assets/objects/object_rd/object_rd.h"
 /* Shellblade */    #include "assets/objects/object_sb/object_sb.h"
@@ -55,8 +63,11 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 /* Skulltula */     #include "assets/objects/object_st/object_st.h"
 /* Snapper */       #include "assets/objects/object_tl/object_tl.h"
 /* Stalchild */     #include "assets/objects/object_skb/object_skb.h"
+/* Takkuri */       #include "assets/objects/object_thiefbird/object_thiefbird.h"
 /* Tektite */       #include "assets/objects/object_tite/object_tite.h"
 /* Wallmaster */    #include "assets/objects/object_wallmaster/object_wallmaster.h"
+/* Wart */          #include "assets/objects/object_boss04/object_boss04.h"
+/* Wizrobe */       #include "assets/objects/object_wiz/object_wiz.h"
 /* Wolfos */        #include "assets/objects/object_wf/object_wf.h"
 
 // Other Actor Includes
@@ -64,13 +75,16 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
 // clang-format on
 }
 
-#define SETUP_DRAW_TYPE(LIMB_MAX, SKEL_HEADER, ANIM_HEADER, INIT, INIT_TYPE, HEADER_TYPE)                         \
-    static bool initialized = false;                                                                              \
-    static SkelAnime skelAnime;                                                                                   \
-    static Vec3s jointTable[LIMB_MAX];                                                                            \
-    static Vec3s morphTable[LIMB_MAX];                                                                            \
-    static u32 lastUpdate = 0;                                                                                    \
-    INIT if (!initialized) {                                                                                      \
+#define SETUP_DRAW(LIMB_MAX)           \
+    static bool initialized = false;   \
+    static SkelAnime skelAnime;        \
+    static Vec3s jointTable[LIMB_MAX]; \
+    static Vec3s morphTable[LIMB_MAX]; \
+    static u32 lastUpdate = 0;         \
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+#define SETUP_DRAW_TYPE(LIMB_MAX, SKEL_HEADER, ANIM_HEADER, INIT_TYPE, HEADER_TYPE)                               \
+    if (!initialized) {                                                                                           \
         initialized = true;                                                                                       \
         INIT_TYPE(gPlayState, &skelAnime, (HEADER_TYPE*)&SKEL_HEADER, (AnimationHeader*)&ANIM_HEADER, jointTable, \
                   morphTable, LIMB_MAX);                                                                          \
@@ -80,11 +94,11 @@ s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec
         SkelAnime_Update(&skelAnime);                                                                             \
     }
 
-#define SETUP_SKEL(LIMB_MAX, SKEL_HEADER, ANIM_HEADER, INIT) \
-    SETUP_DRAW_TYPE(LIMB_MAX, SKEL_HEADER, ANIM_HEADER, INIT, SkelAnime_Init, SkeletonHeader)
+#define SETUP_SKEL(LIMB_MAX, SKEL_HEADER, ANIM_HEADER) \
+    SETUP_DRAW_TYPE(LIMB_MAX, SKEL_HEADER, ANIM_HEADER, SkelAnime_Init, SkeletonHeader)
 
 #define SETUP_FLEX_SKEL(LIMB_MAX, SKEL_HEADER, ANIM_HEADER, INIT) \
-    SETUP_DRAW_TYPE(LIMB_MAX, SKEL_HEADER, ANIM_HEADER, INIT, SkelAnime_InitFlex, FlexSkeletonHeader)
+    SETUP_DRAW_TYPE(LIMB_MAX, SKEL_HEADER, ANIM_HEADER, SkelAnime_InitFlex, FlexSkeletonHeader)
 
 // Soul Effects
 extern void DrawEnLight(Color_RGB8 flameColor, Vec3f flameSize) {
@@ -209,15 +223,20 @@ void DrawEnIk_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* r
     }
 }
 
+void EnKaizoku_TransformLimbDraw(PlayState* play, s32 limbIndex, Actor* thisx) {
+    // Even if this does nothing, it must exist, as TransformLimbDrawOpa is not null checked before invocation.
+}
+
 // Enemy Soul Draw Functions
 extern void DrawAlien() {
-    SETUP_FLEX_SKEL(ALIEN_LIMB_MAX, gAlienSkel, gAlienFloatAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Gfx_SetupDL60_XluNoCD(gPlayState->state.gfxCtx);
-                    Matrix_Scale(0.007f, 0.007f, 0.007f, MTXMODE_APPLY););
+    SETUP_DRAW(ALIEN_LIMB_MAX);
+    static uintptr_t eyeTexture = (uintptr_t)Lib_SegmentedToVirtual((TexturePtr)gAlienEyeTex);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.007f, 0.007f, 0.007f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(ALIEN_LIMB_MAX, gAlienSkel, gAlienFloatAnim);
 
-    // FIXME: The eyes sporadically vanish. Come back to this.
-    Scene_SetRenderModeXlu(gPlayState, 0, 1);
-    AnimatedMat_Draw(gPlayState, (AnimatedMaterial*)Lib_SegmentedToVirtual((void*)gAlienEmptyTexAnim));
+    gSPSegment(POLY_OPA_DISP++, 0x08, eyeTexture);
+    gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -225,12 +244,13 @@ extern void DrawAlien() {
 }
 
 extern void DrawArmos() {
-    SETUP_SKEL(OBJECT_AM_LIMB_MAX, object_am_Skel_005948, gArmosHopAnim,
+    SETUP_DRAW(OBJECT_AM_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3100, 0, MTXMODE_APPLY);
+    SETUP_SKEL(OBJECT_AM_LIMB_MAX, object_am_Skel_005948, gArmosHopAnim);
 
-               OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-               Matrix_Translate(0, -3100, 0, MTXMODE_APPLY););
-
+    gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -274,9 +294,11 @@ extern void DrawBat() {
 }
 
 extern void DrawBeamos() {
-    SETUP_SKEL(BEAMOS_LIMB_MAX, gBeamosSkel, gBeamosAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-               Matrix_Translate(0, -3200, 0, MTXMODE_APPLY););
+    SETUP_DRAW(BEAMOS_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3200, 0, MTXMODE_APPLY);
+    SETUP_SKEL(BEAMOS_LIMB_MAX, gBeamosSkel, gBeamosAnim);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -315,21 +337,11 @@ extern void DrawBoe() {
     DrawEnLight({ 155, 155, 155 }, { 1000.0f, 1000.0f, 1000.0f });
 }
 
-extern void DrawRealBombchu() {
-    SETUP_FLEX_SKEL(REAL_BOMBCHU_LIMB_MAX, gRealBombchuSkel, gRealBombchuRunAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Gfx_SetupDL60_XluNoCD(gPlayState->state.gfxCtx);
-                    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY); Matrix_Translate(0, -1500.0f, 0, MTXMODE_APPLY););
-
-    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL,
-                          DrawEnRealBombchu_PostLimbDraw, NULL);
-
-    CLOSE_DISPS(gPlayState->state.gfxCtx);
-    DrawEnLight({ 155, 155, 155 }, { 6.0f, 6.0f, 6.0f });
-}
-
 extern void DrawBubble() {
-    SETUP_SKEL(BUBBLE_LIMB_MAX, gBubbleSkel, gBubbleFlyingAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY););
+    SETUP_DRAW(BUBBLE_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    SETUP_SKEL(BUBBLE_LIMB_MAX, gBubbleSkel, gBubbleFlyingAnim);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -338,10 +350,12 @@ extern void DrawBubble() {
 }
 
 extern void DrawDeathArmos() {
-    SETUP_SKEL(FAMOS_LIMB_MAX, gFamosSkel, gFamosIdleAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
-               AnimatedMat_Draw(gPlayState, (AnimatedMaterial*)gFamosNormalGlowingEmblemTexAnim);
-               Matrix_Scale(0.008f, 0.008f, 0.008f, MTXMODE_APPLY); Matrix_Translate(0, -4100, 0, MTXMODE_APPLY););
+    SETUP_DRAW(FAMOS_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    AnimatedMat_Draw(gPlayState, (AnimatedMaterial*)gFamosNormalGlowingEmblemTexAnim);
+    Matrix_Scale(0.008f, 0.008f, 0.008f, MTXMODE_APPLY);
+    Matrix_Translate(0, -4100, 0, MTXMODE_APPLY);
+    SETUP_SKEL(FAMOS_LIMB_MAX, gFamosSkel, gFamosIdleAnim);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -350,24 +364,22 @@ extern void DrawDeathArmos() {
 }
 
 extern void DrawDeepPython() {
-    if (false) { // FIXME: This crashes
-        SETUP_SKEL(DEEP_PYTHON_LIMB_MAX, gDeepPythonSkel, gDeepPythonSmallSideSwayAnim,
-                   OPEN_DISPS(gPlayState->state.gfxCtx);
-                   Matrix_Scale(0.008f, 0.008f, 0.008f, MTXMODE_APPLY); Matrix_Translate(0, -4100, 0, MTXMODE_APPLY););
+    SETUP_DRAW(DEEP_PYTHON_LIMB_MAX);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(DEEP_PYTHON_LIMB_MAX, gDeepPythonSkel, gDeepPythonUnusedSideSwayAnim);
 
-        Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
-        // Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
-        SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL,
-                              NULL);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
-        CLOSE_DISPS(gPlayState->state.gfxCtx);
-        DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-    }
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
 }
 
 extern void DrawDekuBaba() {
-    SETUP_SKEL(DEKUBABA_LIMB_MAX, gDekuBabaSkel, gDekuBabaFastChompAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY););
+    SETUP_DRAW(DEKUBABA_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    SETUP_SKEL(DEKUBABA_LIMB_MAX, gDekuBabaSkel, gDekuBabaFastChompAnim);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -376,20 +388,28 @@ extern void DrawDekuBaba() {
 }
 
 extern void DrawDexihand() {
-    SETUP_SKEL(DEXIHAND_LIMB_MAX, gDexihandSkel, gDexihandIdleAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY););
-    SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
+    SETUP_DRAW(DEXIHAND_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(DEXIHAND_LIMB_MAX, gDexihandSkel, gDexihandIdleAnim);
+
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+
     CLOSE_DISPS(gPlayState->state.gfxCtx);
-    DrawEnLight({ 155, 155, 155 }, { 6.0f, 6.0f, 6.0f });
+    DrawEnLight({ 155, 155, 70 }, { 6.0f, 6.0f, 6.0f });
 }
 
 extern void DrawDinolfos() {
-    SETUP_FLEX_SKEL(DINOLFOS_LIMB_MAX, gDinolfosSkel, gDinolfosIdleAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.014f, 0.014f, 0.014f, MTXMODE_APPLY);
-                    Matrix_Translate(0, -2200.0f, 0, MTXMODE_APPLY););
+    static uintptr_t eyeTexture = (uintptr_t)Lib_SegmentedToVirtual((TexturePtr)gDinolfosEyeOpenTex);
+    SETUP_DRAW(DINOLFOS_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.014f, 0.014f, 0.014f, MTXMODE_APPLY);
+    Matrix_Translate(0, -2200.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(DINOLFOS_LIMB_MAX, gDinolfosSkel, gDinolfosIdleAnim);
 
     Scene_SetRenderModeXlu(gPlayState, 0, 1);
-    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)&gDinolfosEyeOpenTex);
+    gSPSegment(POLY_OPA_DISP++, 0x08, eyeTexture);
+    gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -397,10 +417,24 @@ extern void DrawDinolfos() {
 }
 
 extern void DrawDodongo() {
-    SETUP_SKEL(OBJECT_DODONGO_LIMB_MAX, object_dodongo_Skel_008318, object_dodongo_Anim_004C20,
-               OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
-               Matrix_Translate(0, -1500.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(OBJECT_DODONGO_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.015f, 0.015f, 0.015f, MTXMODE_APPLY);
+    Matrix_Translate(0, -1500.0f, 0, MTXMODE_APPLY);
+    SETUP_SKEL(OBJECT_DODONGO_LIMB_MAX, object_dodongo_Skel_008318, object_dodongo_Anim_004C20);
+
+    SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
+}
+
+extern void DrawDragonfly() {
+    SETUP_DRAW(DRAGONFLY_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -700.0f, 0, MTXMODE_APPLY);
+    SETUP_SKEL(DRAGONFLY_LIMB_MAX, gDragonflySkel, gDragonflyFlyAnim);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -409,20 +443,36 @@ extern void DrawDodongo() {
 }
 
 extern void DrawEeno() {
-    SETUP_FLEX_SKEL(EENO_LIMB_MAX, gEenoSkel, gEenoIdleAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx); Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
-                    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY); Matrix_Translate(0, -3000.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(EENO_LIMB_MAX);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3000.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(EENO_LIMB_MAX, gEenoSkel, gEenoIdleAnim);
 
     Scene_SetRenderModeXlu(gPlayState, 0, 1);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
-    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
+    DrawEnLight({ 155, 155, 35 }, { 10.0f, 10.0f, 10.0f });
 }
 
 extern void DrawEyegore() {
-    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-} // TODO: Implement
+    static AnimatedMaterial* sEyegoreEyeLaserTexAnim =
+        (AnimatedMaterial*)Lib_SegmentedToVirtual((void*)gEyegoreEyeLaserTexAnim);
+    SETUP_DRAW(EYEGORE_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.006f, 0.006f, 0.006f, MTXMODE_APPLY);
+    Matrix_Translate(0, -4000.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(EYEGORE_LIMB_MAX, gEyegoreSkel, gEyegoreUnusedWalkAnim);
+
+    AnimatedMat_Draw(gPlayState, sEyegoreEyeLaserTexAnim);
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+    POLY_OPA_DISP = Play_SetFog(gPlayState, POLY_OPA_DISP);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 192, 192, 64 }, { 20.0f, 20.0f, 20.0f });
+}
 
 extern void DrawFlyingPot() {
     OPEN_DISPS(gPlayState->state.gfxCtx);
@@ -456,21 +506,37 @@ extern void DrawFreezard() {
 }
 
 extern void DrawGaro() {
-    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-} // TODO: Implement
+    SETUP_DRAW(GARO_LIMB_MAX);
+    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    SETUP_FLEX_SKEL(GARO_LIMB_MAX, gGaroSkel, gGaroIdleAnim);
+
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 150, 255, 150 }, { 8.0f, 8.0f, 8.0f });
+}
 
 extern void DrawGekko() {
-    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-} // TODO: Implement
+    SETUP_DRAW(GEKKO_LIMB_MAX);
+    Matrix_Scale(0.006f, 0.006f, 0.006f, MTXMODE_APPLY);
+    Matrix_Translate(0, -4100.0f, 0, MTXMODE_APPLY);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    SETUP_FLEX_SKEL(GEKKO_LIMB_MAX, gGekkoSkel, gGekkoBoxingStanceAnim);
+
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 150, 100, 255 }, { 20.0f, 20.0f, 20.0f });
+}
 
 extern void DrawGiantBee() {
-    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-} // TODO: Implement
-
-extern void DrawGrasshopper() { // TODO: Rename to Dragonfly
-    SETUP_SKEL(DRAGONFLY_LIMB_MAX, gDragonflySkel, gDragonflyFlyAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-               Matrix_Translate(0, -700.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(OBJECT_BEE_LIMB_MAX);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    SETUP_SKEL(OBJECT_BEE_LIMB_MAX, gBeeSkel, gBeeFlyingAnim);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -479,9 +545,11 @@ extern void DrawGrasshopper() { // TODO: Rename to Dragonfly
 }
 
 extern void DrawGuay() {
-    SETUP_FLEX_SKEL(OBJECT_CROW_LIMB_MAX, gGuaySkel, gGuayFlyAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx); Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
-                    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY););
+    SETUP_DRAW(OBJECT_CROW_LIMB_MAX);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(OBJECT_CROW_LIMB_MAX, gGuaySkel, gGuayFlyAnim);
 
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
@@ -490,9 +558,11 @@ extern void DrawGuay() {
 }
 
 extern void DrawHiploop() {
-    SETUP_FLEX_SKEL(HIPLOOP_LIMB_MAX, gHiploopSkel, gHiploopChargeAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
-                    Matrix_Translate(0, -1400.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(HIPLOOP_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    Matrix_Translate(0, -1400.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(HIPLOOP_LIMB_MAX, gHiploopSkel, gHiploopChargeAnim);
 
     Scene_SetRenderModeXlu(gPlayState, 0, 1);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
@@ -502,9 +572,11 @@ extern void DrawHiploop() {
 }
 
 extern void DrawIronKnuckle() {
-    SETUP_FLEX_SKEL(IRON_KNUCKLE_LIMB_MAX, gIronKnuckleSkel, gIronKnuckleWalkAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-                    Matrix_Translate(0, -2900.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(IRON_KNUCKLE_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -2900.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(IRON_KNUCKLE_LIMB_MAX, gIronKnuckleSkel, gIronKnuckleWalkAnim);
 
     Gfx* gfx = POLY_XLU_DISP;
     gSPDisplayList(&gfx[0], gSetupDLs[SETUPDL_25]);
@@ -524,9 +596,11 @@ extern void DrawIronKnuckle() {
 }
 
 extern void DrawKeese() {
-    SETUP_SKEL(FIRE_KEESE_LIMB_MAX, gFireKeeseSkel, gFireKeeseFlyAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-               Matrix_Translate(0, -700.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(FIRE_KEESE_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -700.0f, 0, MTXMODE_APPLY);
+    SETUP_SKEL(FIRE_KEESE_LIMB_MAX, gFireKeeseSkel, gFireKeeseFlyAnim);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, DrawEnFirefly_PostLimbDraw, NULL);
 
@@ -534,10 +608,15 @@ extern void DrawKeese() {
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
 }
 
-extern void DrawLeever() { // TODO: Somehow don't spin it? It's so fast
-    SETUP_SKEL(LEEVER_LIMB_MAX, gLeeverSkel, gLeeverSpinAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.05f, 0.05f, 0.05f, MTXMODE_APPLY);
-               Matrix_Translate(0, -700.0f, 0, MTXMODE_APPLY););
+extern void DrawLeever() {
+    SETUP_DRAW(LEEVER_LIMB_MAX);
+    // The Leever animation already spins in the same direction as the Get Item animation, which looks really fast.
+    // Reverse the animation so that it spins more slowly.
+    skelAnime.playSpeed = -1.0f;
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.05f, 0.05f, 0.05f, MTXMODE_APPLY);
+    Matrix_Translate(0, -700.0f, 0, MTXMODE_APPLY);
+    SETUP_SKEL(LEEVER_LIMB_MAX, gLeeverSkel, gLeeverSpinAnim);
 
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x01, 255, 255, 255, 255);
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
@@ -631,9 +710,11 @@ extern void DrawLikeLike() {
 }
 
 extern void DrawMadScrub() {
-    SETUP_SKEL(DEKU_SCRUB_LIMB_MAX, gDekuScrubSkel, gDekuScrubLookAroundAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-               Matrix_Translate(0, -2300, 0, MTXMODE_APPLY););
+    SETUP_DRAW(DEKU_SCRUB_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -2300, 0, MTXMODE_APPLY);
+    SETUP_SKEL(DEKU_SCRUB_LIMB_MAX, gDekuScrubSkel, gDekuScrubLookAroundAnim);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -642,9 +723,11 @@ extern void DrawMadScrub() {
 }
 
 extern void DrawNejiron() {
-    SETUP_SKEL(NEJIRON_LIMB_MAX, gNejironSkel, gNejironIdleAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
-               Matrix_Scale(0.015f, 0.015f, 0.015f, MTXMODE_APPLY););
+    SETUP_DRAW(NEJIRON_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.015f, 0.015f, 0.015f, MTXMODE_APPLY);
+    SETUP_SKEL(NEJIRON_LIMB_MAX, gNejironSkel, gNejironIdleAnim);
 
     gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)gNejironEyeOpenTex);
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
@@ -654,9 +737,11 @@ extern void DrawNejiron() {
 }
 
 extern void DrawOctorok() {
-    SETUP_SKEL(OCTOROK_LIMB_MAX, gOctorokSkel, gOctorokFloatAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.007f, 0.007f, 0.007f, MTXMODE_APPLY);
-               Matrix_Translate(0, -700.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(OCTOROK_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.007f, 0.007f, 0.007f, MTXMODE_APPLY);
+    Matrix_Translate(0, -700.0f, 0, MTXMODE_APPLY);
+    SETUP_SKEL(OCTOROK_LIMB_MAX, gOctorokSkel, gOctorokFloatAnim);
 
     Gfx* gfxPtr = POLY_OPA_DISP;
     gSPDisplayList(&gfxPtr[0], gSetupDLs[SETUPDL_25]);
@@ -670,8 +755,10 @@ extern void DrawOctorok() {
 }
 
 extern void DrawPeahat() {
-    SETUP_SKEL(OBJECT_PH_LIMB_MAX, object_ph_Skel_001C80, object_ph_Anim_0009C4, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY););
+    SETUP_DRAW(OBJECT_PH_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    SETUP_SKEL(OBJECT_PH_LIMB_MAX, object_ph_Skel_001C80, object_ph_Anim_0009C4);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -680,30 +767,63 @@ extern void DrawPeahat() {
 }
 
 extern void DrawPirate() {
+    static uintptr_t eyeTexture = (uintptr_t)Lib_SegmentedToVirtual((TexturePtr)gFighterPirateEyeOpenTex);
+    SETUP_DRAW(KAIZOKU_LIMB_MAX);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -2000.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(KAIZOKU_LIMB_MAX, gFighterPirateSkel, gFighterPirateFightingIdleAnim);
+
+    gSPSegment(POLY_OPA_DISP++, 0x08, eyeTexture);
+    SkelAnime_DrawTransformFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL,
+                                   NULL, EnKaizoku_TransformLimbDraw, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-} // TODO: Implement
+}
 
 extern void DrawPoe() {
-    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-} // TODO: Implement
+    SETUP_DRAW(POE_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.0075f, 0.0075f, 0.0075f, MTXMODE_APPLY);
+    Matrix_Translate(0, -5000.0f, 0, MTXMODE_APPLY);
+    SETUP_SKEL(POE_LIMB_MAX, gPoeSkel, gPoeFloatAnim);
 
-extern void DrawRedead() { // TODO: Possibly downsize, may need to refactor SETUP_SKEL()?
-    static bool initialized = false;
-    static SkelAnime skelAnime;
-    static Vec3s jointTable[REDEAD_LIMB_MAX];
-    static Vec3s morphTable[REDEAD_LIMB_MAX];
-    static u32 lastUpdate = 0;
+    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)D_801AEFA0);
+    gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
+    SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
+}
+
+extern void DrawRealBombchu() {
+    SETUP_DRAW(REAL_BOMBCHU_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Gfx_SetupDL60_XluNoCD(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    Matrix_Translate(0, -1500.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(REAL_BOMBCHU_LIMB_MAX, gRealBombchuSkel, gRealBombchuRunAnim);
+
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL,
+                          DrawEnRealBombchu_PostLimbDraw, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 6.0f, 6.0f, 6.0f });
+}
+
+extern void DrawRedead() {
     static u32 animUpdate = 0;
     static uint32_t rdAnimID = 0;
     static AnimationHeader* currentAnim = (AnimationHeader*)gGibdoRedeadIdleAnim;
-
-    std::vector<AnimationHeader*> rdAnims = {
+    static std::vector<AnimationHeader*> rdAnims = {
         (AnimationHeader*)gGibdoRedeadSquattingDanceAnim,
         (AnimationHeader*)gGibdoRedeadClappingDanceAnim,
         (AnimationHeader*)gGibdoRedeadPirouetteAnim,
     };
+    SETUP_DRAW(REDEAD_LIMB_MAX);
 
-    OPEN_DISPS(gPlayState->state.gfxCtx);
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
     Gfx_SetupDL60_XluNoCD(gPlayState->state.gfxCtx);
     Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
@@ -716,22 +836,17 @@ extern void DrawRedead() { // TODO: Possibly downsize, may need to refactor SETU
     }
 
     if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
-        Player* player = GET_PLAYER(gPlayState);
-        if (player->currentMask == PLAYER_MASK_GIBDO) {
-            if (animUpdate != gPlayState->state.frames) {
-                if (animUpdate <= gPlayState->state.frames - 35) {
-                    animUpdate = gPlayState->state.frames;
-                    currentAnim = rdAnims[rdAnimID];
-                    if (rdAnimID >= rdAnims.size() - 1) {
-                        rdAnimID = 0;
-                    } else {
-                        rdAnimID++;
-                    }
-                    Animation_MorphToLoop(&skelAnime, currentAnim, -6.0f);
-                }
-            }
-        } else {
+        if (EnRd_ShouldNotDance(gPlayState)) {
             currentAnim = (AnimationHeader*)gGibdoRedeadIdleAnim;
+            Animation_MorphToLoop(&skelAnime, currentAnim, -6.0f);
+        } else if (animUpdate != gPlayState->state.frames && animUpdate <= gPlayState->state.frames - 35) {
+            animUpdate = gPlayState->state.frames;
+            currentAnim = rdAnims[rdAnimID];
+            if (rdAnimID >= rdAnims.size() - 1) {
+                rdAnimID = 0;
+            } else {
+                rdAnimID++;
+            }
             Animation_MorphToLoop(&skelAnime, currentAnim, -6.0f);
         }
         lastUpdate = gPlayState->state.frames;
@@ -746,10 +861,11 @@ extern void DrawRedead() { // TODO: Possibly downsize, may need to refactor SETU
 }
 
 extern void DrawShellBlade() {
-    SETUP_FLEX_SKEL(OBJECT_SB_LIMB_MAX, object_sb_Skel_002BF0, object_sb_Anim_000194,
-                    OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.007f, 0.007f, 0.007f, MTXMODE_APPLY);
-                    Matrix_Translate(0, -3500.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(OBJECT_SB_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.007f, 0.007f, 0.007f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3500.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(OBJECT_SB_LIMB_MAX, object_sb_Skel_002BF0, object_sb_Anim_000194);
 
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
@@ -758,10 +874,12 @@ extern void DrawShellBlade() {
 }
 
 extern void DrawSkullfish() {
-    SETUP_FLEX_SKEL(OBJECT_PR_2_LIMB_MAX, object_pr_Skel_004188, object_pr_Anim_004340,
-                    OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY););
+    SETUP_DRAW(OBJECT_PR_2_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(OBJECT_PR_2_LIMB_MAX, object_pr_Skel_004188, object_pr_Anim_004340);
 
+    gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
     Scene_SetRenderModeXlu(gPlayState, 0, 1);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
@@ -770,8 +888,10 @@ extern void DrawSkullfish() {
 }
 
 extern void DrawSkulltula() {
-    SETUP_SKEL(OBJECT_ST_LIMB_MAX, object_st_Skel_005298, object_st_Anim_000304, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY););
+    SETUP_DRAW(OBJECT_ST_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+    SETUP_SKEL(OBJECT_ST_LIMB_MAX, object_st_Skel_005298, object_st_Anim_000304);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -779,10 +899,10 @@ extern void DrawSkulltula() {
     DrawEnLight({ 155, 155, 155 }, { 5.0f, 5.0f, 5.0f });
 }
 
-extern void DrawSlime() {
+extern void DrawChuchu() {
     static int16_t timer = 25;
     f32 timerFactor = sqrtf(timer) * 0.2f;
-    AnimatedMaterial* sSlimeTexAnim = (AnimatedMaterial*)Lib_SegmentedToVirtual((void*)gChuchuSlimeFlowTexAnim);
+    static AnimatedMaterial* sSlimeTexAnim = (AnimatedMaterial*)Lib_SegmentedToVirtual((void*)gChuchuSlimeFlowTexAnim);
 
     OPEN_DISPS(gPlayState->state.gfxCtx);
     Matrix_Scale(
@@ -812,12 +932,14 @@ extern void DrawSlime() {
 }
 
 extern void DrawSnapper() {
-    static TexturePtr eyeTexture = Lib_SegmentedToVirtual((TexturePtr)gSnapperEyeOpenTex);
-    SETUP_FLEX_SKEL(SNAPPER_LIMB_MAX, gSnapperSkel, gSnapperIdleAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-                    Matrix_Translate(0, -3100.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(SNAPPER_LIMB_MAX);
+    static uintptr_t eyeTexture = (uintptr_t)Lib_SegmentedToVirtual((TexturePtr)gSnapperEyeOpenTex);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3100.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(SNAPPER_LIMB_MAX, gSnapperSkel, gSnapperIdleAnim);
 
-    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)eyeTexture);
+    gSPSegment(POLY_OPA_DISP++, 0x08, eyeTexture);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -825,9 +947,11 @@ extern void DrawSnapper() {
 }
 
 extern void DrawStalchild() {
-    SETUP_SKEL(STALCHILD_LIMB_MAX, gStalchildSkel, gStalchildIdleAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-               Matrix_Translate(0, -3200, 0, MTXMODE_APPLY););
+    SETUP_DRAW(STALCHILD_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3200, 0, MTXMODE_APPLY);
+    SETUP_SKEL(STALCHILD_LIMB_MAX, gStalchildSkel, gStalchildIdleAnim);
 
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, DrawEnSkb_OverrideLimbDraw, NULL, NULL);
 
@@ -836,8 +960,14 @@ extern void DrawStalchild() {
 }
 
 extern void DrawTakkuri() {
+    SETUP_DRAW(TAKKURI_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(TAKKURI_LIMB_MAX, gTakkuriSkel, gTakkuriFlyAnim);
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-} // TODO: Implement
+}
 
 extern void DrawTektite() {
     static TexturePtr D_80896B24[2][3] = {
@@ -846,11 +976,12 @@ extern void DrawTektite() {
         { (TexturePtr*)&object_tite_Tex_001B00, (TexturePtr*)&object_tite_Tex_001F00,
           (TexturePtr*)&object_tite_Tex_002100 },
     };
+    SETUP_DRAW(OBJECT_TITE_LIMB_MAX);
 
-    SETUP_SKEL(OBJECT_TITE_LIMB_MAX, object_tite_Skel_003A20, object_tite_Anim_0012E4,
-               OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-               Matrix_Translate(0, -2900.0f, 0, MTXMODE_APPLY););
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -2900.0f, 0, MTXMODE_APPLY);
+    SETUP_SKEL(OBJECT_TITE_LIMB_MAX, object_tite_Skel_003A20, object_tite_Anim_0012E4);
 
     Gfx* gfx = POLY_OPA_DISP;
 
@@ -869,9 +1000,11 @@ extern void DrawTektite() {
 }
 
 extern void DrawWallmaster() {
-    SETUP_FLEX_SKEL(WALLMASTER_LIMB_MAX, gWallmasterSkel, gWallmasterIdleAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-                    Matrix_Translate(0, -3500.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(WALLMASTER_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3500.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(WALLMASTER_LIMB_MAX, gWallmasterSkel, gWallmasterIdleAnim);
 
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
@@ -880,17 +1013,40 @@ extern void DrawWallmaster() {
 }
 
 extern void DrawWart() {
+    SETUP_DRAW(WART_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(WART_LIMB_MAX, gWartSkel, gWartIdleAnim);
+
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-} // TODO: Implement
+}
 
 extern void DrawWizrobe() {
-    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-} // TODO: Implement
+    static uintptr_t eyeTexture = (uintptr_t)Lib_SegmentedToVirtual((TexturePtr)gWizrobeEyeTex);
+    SETUP_DRAW(WIZROBE_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(0.006f, 0.006f, 0.006f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(WIZROBE_LIMB_MAX, gWizrobeSkel, gWizrobeIdleAnim);
+
+    Scene_SetRenderModeXlu(gPlayState, 0, 1);
+    gSPSegment(POLY_OPA_DISP++, 0x08, eyeTexture);
+    gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 15.0f, 15.0f, 15.0f });
+}
 
 extern void DrawWolfos() {
-    SETUP_FLEX_SKEL(WOLFOS_NORMAL_LIMB_MAX, gWolfosNormalSkel, gWolfosWaitAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
-                    Matrix_Translate(0, -3000.0f, 0, MTXMODE_APPLY););
+    SETUP_DRAW(WOLFOS_NORMAL_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3000.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(WOLFOS_NORMAL_LIMB_MAX, gWolfosNormalSkel, gWolfosWaitAnim);
 
     gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)&gWolfosNormalEyeOpenTex);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
@@ -901,9 +1057,11 @@ extern void DrawWolfos() {
 
 // Boss Souls
 extern void DrawGoht() {
-    SETUP_FLEX_SKEL(GOHT_LIMB_MAX, gGohtSkel, gGohtRunAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
-                    Matrix_Scale(0.005f, 0.005f, 0.005f, MTXMODE_APPLY););
+    SETUP_DRAW(GOHT_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(0.005f, 0.005f, 0.005f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(GOHT_LIMB_MAX, gGohtSkel, gGohtRunAnim);
 
     gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gGohtMetalPlateWithCirclePatternTex);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
@@ -913,9 +1071,11 @@ extern void DrawGoht() {
 }
 
 extern void DrawGyorg() {
-    SETUP_FLEX_SKEL(GYORG_LIMB_MAX, gGyorgSkel, gGyorgGentleSwimmingAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
-                    Matrix_Scale(0.05f, 0.05f, 0.05f, MTXMODE_APPLY););
+    SETUP_DRAW(GYORG_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(0.05f, 0.05f, 0.05f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(GYORG_LIMB_MAX, gGyorgSkel, gGyorgGentleSwimmingAnim);
 
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
@@ -924,10 +1084,12 @@ extern void DrawGyorg() {
 }
 
 extern void DrawOdolwa() {
-    SETUP_FLEX_SKEL(ODOLWA_LIMB_MAX, gOdolwaSkel, gOdolwaReadyAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
-                    Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
-                    Matrix_Scale(0.005f, 0.005f, 0.005f, MTXMODE_APPLY););
+    SETUP_DRAW(ODOLWA_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(0.005f, 0.005f, 0.005f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(ODOLWA_LIMB_MAX, gOdolwaSkel, gOdolwaReadyAnim);
 
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
@@ -936,9 +1098,10 @@ extern void DrawOdolwa() {
 }
 
 extern void DrawTwinmold() {
-    SETUP_FLEX_SKEL(TWINMOLD_HEAD_LIMB_MAX, gTwinmoldHeadSkel, gTwinmoldHeadFlyAnim,
-                    OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Scale(0.06f, 0.06f, 0.06f, MTXMODE_APPLY););
+    SETUP_DRAW(TWINMOLD_HEAD_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.06f, 0.06f, 0.06f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(TWINMOLD_HEAD_LIMB_MAX, gTwinmoldHeadSkel, gTwinmoldHeadFlyAnim);
 
     Mtx* mtxHead = (Mtx*)GRAPH_ALLOC(gPlayState->state.gfxCtx, 23 * sizeof(Mtx));
     gSPSegment(POLY_OPA_DISP++, 0x0D, (uintptr_t)mtxHead);
@@ -950,9 +1113,12 @@ extern void DrawTwinmold() {
 }
 
 extern void DrawMajora() {
-    SETUP_SKEL(MAJORAS_MASK_LIMB_MAX, gMajorasMaskSkel, gMajorasMaskFloatingAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-               Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
-               Matrix_Scale(0.05f, 0.05f, 0.05f, MTXMODE_APPLY); Matrix_ReplaceRotation(&gPlayState->billboardMtxF););
+    SETUP_DRAW(MAJORAS_MASK_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.05f, 0.05f, 0.05f, MTXMODE_APPLY);
+    Matrix_ReplaceRotation(&gPlayState->billboardMtxF);
+    SETUP_SKEL(MAJORAS_MASK_LIMB_MAX, gMajorasMaskSkel, gMajorasMaskFloatingAnim);
 
     gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)gMajorasMaskWithNormalEyesTex);
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
@@ -964,9 +1130,11 @@ extern void DrawMajora() {
 
 // Other Actors
 extern void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
-    SETUP_FLEX_SKEL(FROG_LIMB_MAX, gFrogSkel, gFrogIdleAnim, OPEN_DISPS(gPlayState->state.gfxCtx);
-                    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx); Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
-                    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY););
+    SETUP_DRAW(FROG_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(FROG_LIMB_MAX, gFrogSkel, gFrogIdleAnim);
     Color_RGBA8 envColor = { 200, 170, 0, 255 }; // FROG_YELLOW
 
     switch (randoItemId) {
