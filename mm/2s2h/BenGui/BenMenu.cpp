@@ -1112,6 +1112,11 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Oceanside wallet any day", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.OceansideWalletAnyDay")
         .Options(CheckboxOptions().Tooltip("Allows the wallet reward to be collected on any day."));
+    AddWidget(path, "Disable Magic Drops with Chateau Romani", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cycle.DisableMagicDropsWithChateau")
+        .Options(CheckboxOptions().Tooltip(
+            "When Chateau Romani is active, Magic Jar drops are replaced with Recovery Hearts (which become Rupees "
+            "if health is full)."));
     AddWidget(path, "Unstable", WIDGET_SEPARATOR_TEXT).Options(WidgetOptions().Color(Colors::Orange));
     AddWidget(path, "Disable Save Delay", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.DisableSaveDelay")

@@ -897,6 +897,8 @@ void EnItem00_DrawHeartPiece(EnItem00* this, PlayState* play) {
 }
 
 s16 func_800A7650(s16 dropId) {
+    GameInteractor_Should(VB_ITEM00_GET_DROP_ID, true, &dropId);
+
     if ((((dropId == ITEM00_BOMBS_A) || (dropId == ITEM00_BOMBS_0) || (dropId == ITEM00_BOMBS_B)) &&
          (INV_CONTENT(ITEM_BOMB) == ITEM_NONE)) ||
         (((dropId == ITEM00_ARROWS_10) || (dropId == ITEM00_ARROWS_30) || (dropId == ITEM00_ARROWS_40) ||

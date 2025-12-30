@@ -1026,6 +1026,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // dropId
+    // ```
+    // #### `args`
+    // - `s16*` (dropId)
+    VB_ITEM00_GET_DROP_ID,
+
+    // #### `result`
+    // ```c
     // !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId]
     // ```
     // #### `args`
