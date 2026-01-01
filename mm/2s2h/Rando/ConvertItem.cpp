@@ -1,4 +1,5 @@
 #include "Rando/Rando.h"
+#include "Rando/ActorBehavior/Souls.h"
 #include "2s2h/ShipUtils.h"
 #include <cassert>
 
@@ -421,12 +422,12 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
             return !CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_SNOWHEAD);
         case RI_TINGLE_MAP_STONE_TOWER:
             return !CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_STONE_TOWER);
-        case RI_SOUL_GOHT:
-        case RI_SOUL_GYORG:
-        case RI_SOUL_MAJORA:
-        case RI_SOUL_ODOLWA:
-        case RI_SOUL_TWINMOLD:
-            return !Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (randoItemId - RI_SOUL_GOHT));
+        case RI_SOUL_BOSS_GOHT:
+        case RI_SOUL_BOSS_GYORG:
+        case RI_SOUL_BOSS_MAJORA:
+        case RI_SOUL_BOSS_ODOLWA:
+        case RI_SOUL_BOSS_TWINMOLD:
+            return !Flags_GetRandoInf(SOUL_RI_TO_RANDO_INF(randoItemId));
         // These items are technically fine to receive again because they don't do anything, but we'll convert them to
         // ensure it's clear to the player something didn't go wrong. We just simply check the inventory state
         // Masks

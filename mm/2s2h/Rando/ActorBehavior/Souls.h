@@ -3,6 +3,8 @@
 
 #include "Rando/Rando.h"
 
-extern std::unordered_map<RandoItemId, std::tuple<std::function<void()>, std::vector<ActorId>, RandoInf>> soulMap;
+#define SOUL_RI_TO_RANDO_INF(randoItemId) ((randoItemId - RI_SOUL_BOSS_GOHT) + RANDO_INF_OBTAINED_SOUL_OF_BOSS_GOHT)
+
+extern bool HaveEnemySoul(ActorId enemyId);
 
 #endif // SOULS_H

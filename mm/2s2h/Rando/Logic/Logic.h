@@ -2,6 +2,7 @@
 #define RANDO_LOGIC_H
 
 #include "Rando/Rando.h"
+#include "Rando/ActorBehavior/Souls.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
 
@@ -120,17 +121,6 @@ extern std::map<RandoRegionId, RandoRegion> Regions;
         }                                                     \
     }
 
-inline bool CanReachRegions(std::vector<RandoRegionId> regionList) {
-    std::set<RandoRegionId> reachableRegions;
-    FindReachableRegions(GetRegionIdFromEntrance(gSaveContext.save.entrance), reachableRegions);
-    for (auto& target : regionList) {
-        if (reachableRegions.count(target) > 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
 inline std::string LogicString(std::string condition) {
     if (condition == "true")
         return "";
@@ -193,28 +183,34 @@ inline uint32_t RemainsCount() {
 }
 
 inline bool MeetsMoonRequirements() {
-    return RemainsCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT];
+    return RemainsCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_REMAINS_COUNT] &&
+           MoonMaskCount() >= RANDO_SAVE_OPTIONS[RO_ACCESS_MOON_MASKS_COUNT];
 }
 
 inline bool CanKillEnemy(ActorId EnemyId) {
+    // If enemy souls are shuffled, and the relevant soul is not obtained, we cannot kill that enemy.
+    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] && !HaveEnemySoul(EnemyId)) {
+        return false;
+    }
+
     switch (EnemyId) {
         case ACTOR_BOSS_01: // Odolwa
             return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_USE_EXPLOSIVE || CAN_USE_MAGIC_ARROW(FIRE) ||
                     CAN_USE_MAGIC_ARROW(LIGHT)) &&
-                   (Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ODOLWA) ||
+                   (Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_BOSS_ODOLWA) ||
                     RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_NO);
         case ACTOR_BOSS_02: // Twinmold
             return (HAS_ITEM(ITEM_BOW) || (HAS_ITEM(ITEM_MASK_GIANT) && HAS_MAGIC && CAN_USE_HUMAN_SWORD)) &&
-                   (Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_TWINMOLD) ||
+                   (Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_BOSS_TWINMOLD) ||
                     RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_NO);
         case ACTOR_BOSS_03: // Gyorg
             return ((CAN_BE_DEITY && HAS_MAGIC) || (CAN_BE_ZORA && HAS_MAGIC)) &&
-                   (Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GYORG) ||
+                   (Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_BOSS_GYORG) ||
                     RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_NO);
         case ACTOR_BOSS_04: // Wart
             return (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA);
         case ACTOR_BOSS_HAKUGIN: // Goht
-            return (CAN_USE_MAGIC_ARROW(FIRE)) && (Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT) ||
+            return (CAN_USE_MAGIC_ARROW(FIRE)) && (Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_BOSS_GOHT) ||
                                                    RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_NO);
         case ACTOR_EN_KNIGHT: // Igos du Ikana/IdI Lackey
             return (CAN_USE_MAGIC_ARROW(FIRE) &&
@@ -222,18 +218,20 @@ inline bool CanKillEnemy(ActorId EnemyId) {
                     (CAN_USE_SWORD || CAN_BE_DEKU || CAN_BE_GORON || CAN_BE_ZORA));
         case ACTOR_EN_KAIZOKU: // Fighter Pirate
             return (CAN_USE_SWORD || CAN_BE_ZORA);
-        case ACTOR_EN_PAMETFROG: // Swamp Gekko
-            return (HAS_ITEM(ITEM_BOW) && (CAN_BE_DEKU || CAN_USE_EXPLOSIVE || CAN_BE_GORON));
-        case ACTOR_EN_BIGSLIME: // Great Bay Gekko
+        case ACTOR_EN_PAMETFROG: // Woodfall Temple Gekko (and Snapper)
+            return (HAS_ITEM(ITEM_BOW) && CanKillEnemy(ACTOR_EN_BIGPAMET));
+        case ACTOR_EN_BIGSLIME: // Great Bay Temple Gekko
             return (CAN_USE_MAGIC_ARROW(ICE));
         case ACTOR_EN_SW: // Gold Skulltula & Skullwalltula
             return (CAN_USE_PROJECTILE || CAN_BE_DEKU || CAN_BE_GORON || CAN_USE_SWORD || CAN_USE_EXPLOSIVE);
-        case ACTOR_EN_DINOFOS: // Dinofos
+        case ACTOR_EN_DINOFOS: // Dinolfos
             return (CAN_USE_SWORD || CAN_BE_GORON || HAS_ITEM(ITEM_BOW) || (CAN_BE_DEKU && HAS_MAGIC));
         case ACTOR_EN_WIZ: // Wizrobe
             return (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_SWORD || CAN_BE_GORON);
         case ACTOR_EN_WF: // Wolfos
             return (CAN_USE_SWORD || (CAN_BE_DEKU && HAS_MAGIC) || CAN_BE_GORON || CAN_BE_ZORA);
+        case ACTOR_EN_JSO: // Garo
+            return (HAS_ITEM(ITEM_MASK_GARO) && (HAS_ITEM(ITEM_BOW) || CAN_BE_GORON || CAN_USE_SWORD));
         case ACTOR_EN_JSO2: // Garo Master
             return (HAS_ITEM(ITEM_BOW) || CAN_BE_GORON || CAN_USE_SWORD);
         case ACTOR_EN_IK: // Iron Knuckle
@@ -248,7 +246,7 @@ inline bool CanKillEnemy(ActorId EnemyId) {
             return (CAN_BE_DEKU || CAN_USE_EXPLOSIVE || CAN_BE_GORON);
         case ACTOR_EN_ST: // Large Skulltula
             return (CAN_USE_SWORD || CAN_USE_PROJECTILE || CAN_BE_GORON || CAN_USE_EXPLOSIVE);
-        case ACTOR_EN_BAT: // Bat Bat
+        case ACTOR_EN_BAT: // Bad Bat
             return (CAN_USE_SWORD || HAS_ITEM(ITEM_HOOKSHOT) || HAS_ITEM(ITEM_BOW) || CAN_USE_EXPLOSIVE ||
                     CAN_BE_GORON || CAN_BE_ZORA);
         case ACTOR_EN_DEKUBABA: // Neck bending Deku Baba
@@ -295,6 +293,9 @@ inline bool CanKillEnemy(ActorId EnemyId) {
             return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_BE_DEKU || HAS_ITEM(ITEM_DEKU_STICK));
         case ACTOR_EN_RD: // Redead & Gibdos
             return (CAN_USE_SWORD || CAN_BE_DEKU || CAN_BE_GORON || CAN_BE_ZORA || HAS_ITEM(ITEM_DEKU_STICK));
+        case ACTOR_EN_BSB: // Captain Keeta (May be possible without bow, but the window is tight. Requiring for now)
+            return (HAS_ITEM(ITEM_BOW) &&
+                    (CAN_USE_SWORD || HAS_ITEM(ITEM_DEKU_STICK) || CAN_USE_EXPLOSIVE || CAN_BE_GORON || CAN_BE_ZORA));
         case ACTOR_EN_SKB: // Stalchild
             return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
                     HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
@@ -308,23 +309,38 @@ inline bool CanKillEnemy(ActorId EnemyId) {
         case ACTOR_EN_WDHAND: // Dexihand (Basic kill method, seems like a pain to require other things)
             return (CAN_BE_ZORA && HAS_MAGIC);
         case ACTOR_EN_KAME: // Snapper (non Gekko Miniboss)
-            return (CAN_BE_DEKU || CAN_USE_EXPLOSIVE || CAN_BE_GORON);
+            return (CAN_USE_EXPLOSIVE || CAN_BE_GORON);
         case ACTOR_EN_SB: // Shellblade
             return (CAN_BE_ZORA && HAS_MAGIC);
         case ACTOR_EN_OKUTA: // Octorok
+        case ACTOR_EN_EGOL:  // Eyegore
             return (CAN_USE_PROJECTILE);
         case ACTOR_EN_BAGUO: // Nejiron
             return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || HAS_ITEM(ITEM_HOOKSHOT));
         case ACTOR_EN_NEO_REEBA: // Leever
             return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
                     HAS_ITEM(ITEM_DEKU_STICK));
-        case ACTOR_EN_PP:
+        case ACTOR_EN_PP: // Hiploop
             return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || (CAN_BE_DEKU && HAS_MAGIC) || HAS_ITEM(ITEM_BOW) ||
                     HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT));
-        case ACTOR_EN_PR2:
+        case ACTOR_EN_PR:  // Desbreko
+        case ACTOR_EN_PR2: // Skull fish
             return (CAN_BE_ZORA && HAS_MAGIC);
         case ACTOR_BOSS_05: // Bio Deku Baba
             return CAN_BE_ZORA && CAN_USE_ABILITY(SWIM);
+        case ACTOR_EN_BEE: // Giant Bee
+            return (CAN_USE_SWORD || CAN_BE_GORON || CAN_BE_ZORA || CAN_BE_DEKU || HAS_ITEM(ITEM_DEKU_STICK) ||
+                    CAN_USE_PROJECTILE || CAN_USE_EXPLOSIVE || HAS_ITEM(ITEM_DEKU_NUT));
+        case ACTOR_EN_DRAGON: // Deep Python
+            return (CAN_BE_ZORA && HAS_MAGIC);
+        case ACTOR_EN_PO_SISTERS:
+            // The first three sisters can be damaged with almost anything, but Meg requires ranged attacks. Not using
+            // CAN_USE_EXPLOSIVE here, as the Blast Mask cannot reach, and the Powder Keg can only be used once.
+            return (CAN_USE_PROJECTILE || HAS_ITEM(ITEM_BOMB) || HAS_ITEM(ITEM_BOMBCHU));
+        case ACTOR_EN_INVADEPOH: // Them
+            return HAS_ITEM(ITEM_BOW);
+        case ACTOR_EN_THIEFBIRD: // Takkuri
+            return (CAN_USE_PROJECTILE || CAN_BE_GORON || CAN_BE_ZORA || CAN_USE_EXPLOSIVE || CAN_USE_SWORD);
         default: // Incorrect actor ID inputed.
             assert(false);
             return false;
