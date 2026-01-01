@@ -57,6 +57,12 @@ static const std::vector<const char*> cremiaRewardOptions = {
     "Rupee",   // CREMIA_REWARD_ALWAYS_RUPEE
 };
 
+static const std::vector<const char*> ammoBuybackOptions = {
+    "Vanilla",    // AMMO_BUYBACK_VANILLA
+    "Full Price", // AMMO_BUYBACK_FULL_PRICE
+    "Half Price", // AMMO_BUYBACK_HALF_PRICE
+};
+
 static const std::vector<const char*> gibdoTradeSequenceOptions = {
     "Vanilla",  // GIBDO_TRADE_SEQUENCE_VANILLA
     "MM3D",     // GIBDO_TRADE_SEQUENCE_MM3D
@@ -113,8 +119,8 @@ static const std::vector<const char*> notificationPosition = {
 };
 
 static const std::vector<const char*> dekuGuardSearchBallsOptions = {
-    "Never",      // DEKU_GUARD_SEARCH_BALLS_NEVER
     "Night Only", // DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY
+    "Never",      // DEKU_GUARD_SEARCH_BALLS_NEVER
     "Always",     // DEKU_GUARD_SEARCH_BALLS_ALWAYS
 };
 
@@ -1024,6 +1030,16 @@ void BenMenu::AddEnhancements() {
                               "-Hug: Get the hugging cutscene\n"
                               "-Rupee: Get the rupee reward")
                      .ComboVec(&cremiaRewardOptions));
+    AddWidget(path, "Ammo Buyback Options", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Items.AmmoBuyback")
+        .Options(ComboboxOptions()
+                     .Tooltip("Choose whether to allow selling ammo items (Arrows, Bombs, Bombchus, Deku Sticks, Deku "
+                              "Nuts, Magic Beans, Powder Keg) "
+                              "to the Curiosity Shop owner for Rupees.\n"
+                              "-Vanilla: Ammo items cannot be sold\n"
+                              "-Full Price: Sell at full value\n"
+                              "-Half Price: Sell at half value (rounded up)")
+                     .ComboVec(&ammoBuybackOptions));
     AddWidget(path, "Accessibility", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Disable Screen Flash for Enemy Kills", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.A11y.NoScreenFlashForEnemyKill")
@@ -1593,6 +1609,9 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(20)
                      .DefaultValue(20));
+    AddWidget(path, "Skip Little Beaver Brother Races", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.SkipLittleBeaver")
+        .Options(CheckboxOptions().Tooltip("Only Race the Older Beaver."));
     AddWidget(path, "Goron Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.GoronRace")
         .Options(ComboboxOptions()
