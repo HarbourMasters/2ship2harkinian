@@ -22,9 +22,10 @@ static void EmitDepositNotification(s16 depositAmount, s16 newBalance) {
     Notification::Emit(notif);
 }
 
-static void GrantWalletReward() {
+static void GrantBankFirstReward() {
+    SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_WALLET_UPGRADE);
+
     if (IS_RANDO) {
-        SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_WALLET_UPGRADE);
         RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_BANK_ADULTS_WALLET].eligible = true;
     } else {
         u32 walletLevel = CUR_UPG_VALUE(UPG_WALLET);
@@ -44,15 +45,15 @@ static void GrantWalletReward() {
                                                 { .textboxType = 2 });
                 }
 
-                SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_WALLET_UPGRADE);
                 Item_Give(play, wallet);
             } });
     }
 }
 
-static void GrantBlueRupeeReward() {
+static void GrantBankInterestReward() {
+    SET_WEEKEVENTREG(WEEKEVENTREG_59_80);
+
     if (IS_RANDO) {
-        SET_WEEKEVENTREG(WEEKEVENTREG_59_80);
         RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_BANK_INTEREST].eligible = true;
     } else {
         GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
@@ -63,15 +64,15 @@ static void GrantBlueRupeeReward() {
                     CustomMessage::StartTextbox("You got a Blue Rupee!\x1C\x02\x10", { .textboxType = 2 });
                 }
 
-                SET_WEEKEVENTREG(WEEKEVENTREG_59_80);
                 Item_Give(play, ITEM_RUPEE_BLUE);
             } });
     }
 }
 
-static void GrantHeartPieceReward() {
+static void GrantBankFinalReward() {
+    SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_HEART_PIECE);
+
     if (IS_RANDO) {
-        SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_HEART_PIECE);
         RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_WEST_BANK_PIECE_OF_HEART].eligible = true;
     } else {
         GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
@@ -82,7 +83,6 @@ static void GrantHeartPieceReward() {
                     CustomMessage::StartTextbox("You got a Piece of Heart!\x1C\x02\x10", { .textboxType = 2 });
                 }
 
-                SET_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_HEART_PIECE);
                 Item_Give(play, ITEM_HEART_PIECE);
             } });
     }
@@ -97,17 +97,17 @@ static void GrantBankerReward(s16 balanceBeforeDeposit, s16 balanceAfterDeposit)
 
     if (balanceBeforeDeposit < walletThreshold && balanceAfterDeposit >= walletThreshold &&
         !CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_WALLET_UPGRADE)) {
-        GrantWalletReward();
+        GrantBankFirstReward();
     }
 
     if (balanceBeforeDeposit < interestThreshold && balanceAfterDeposit >= interestThreshold &&
         !CHECK_WEEKEVENTREG(WEEKEVENTREG_59_80)) {
-        GrantBlueRupeeReward();
+        GrantBankInterestReward();
     }
 
     if (balanceBeforeDeposit < heartPieceThreshold && balanceAfterDeposit >= heartPieceThreshold &&
         !CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_BANK_HEART_PIECE)) {
-        GrantHeartPieceReward();
+        GrantBankFinalReward();
     }
 }
 

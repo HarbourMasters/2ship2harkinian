@@ -1377,8 +1377,8 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Auto Bank Deposit", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.AutoBankDeposit")
         .Options(CheckboxOptions().Tooltip(
-            "Automatically deposits excess rupees into your bank account when your wallet is full. "
-            "Deposits stop when the bank reaches maximum capacity of 5000 rupees. "
+            "Automatically deposits excess Rupees into your bank account when your wallet is full. "
+            "Deposits stop when the bank reaches maximum capacity. "
             "Bank rewards are granted automatically. Notifications display deposit amount and new balance."));
 
     // Fixes
