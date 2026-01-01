@@ -3,7 +3,7 @@
 
 #include "Rando/Rando.h"
 
-#define ENEMY_SOUL_RI_TO_RANDO_INF(randoItemId) ((randoItemId - RI_SOUL_ALIEN) + RANDO_INF_OBTAINED_SOUL_OF_ALIENS)
+#define SOUL_RI_TO_RANDO_INF(randoItemId) ((randoItemId - RI_SOUL_BOSS_GOHT) + RANDO_INF_OBTAINED_SOUL_OF_BOSS_GOHT)
 
 extern bool HaveEnemySoul(ActorId enemyId);
 

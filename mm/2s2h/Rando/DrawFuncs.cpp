@@ -12,6 +12,7 @@ extern "C" {
 
 s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMini);
 s32 EnRd_ShouldNotDance(PlayState* play);
+Gfx* EnKnight_BuildEmptyDL(GraphicsContext* gfxCtx);
 
 // clang-format off
 // Boss Includes
@@ -27,6 +28,7 @@ s32 EnRd_ShouldNotDance(PlayState* play);
 /* Bad Bat */       #include "assets/objects/object_bat/object_bat.h"
 /* Beamos */        #include "assets/objects/object_vm/object_vm.h"
 /* Boe */           #include "assets/objects/object_mkk/object_mkk.h"
+/* Captain Keeta */ #include "assets/objects/object_bsb/object_bsb.h"
 /* Chuchu */        #include "assets/objects/object_slime/object_slime.h"
 /* Bubble */        #include "assets/objects/object_bb/object_bb.h"
 /* Death Armos */   #include "assets/objects/object_famos/object_famos.h"
@@ -43,8 +45,10 @@ s32 EnRd_ShouldNotDance(PlayState* play);
 /* Garo */          #include "assets/objects/object_jso/object_jso.h"
 /* Gekko */         #include "overlays/actors/ovl_En_Pametfrog/z_en_pametfrog.h"
 /* Giant Bee */     #include "assets/objects/object_bee/object_bee.h"
+/* Gomess */        #include "assets/objects/object_death/object_death.h"
 /* Guay */          #include "assets/objects/object_crow/object_crow.h"
 /* Hiploop */       #include "assets/objects/object_pp/object_pp.h"
+/* Igos du Ikana */ #include "assets/objects/object_knight/object_knight.h"
 /* Iron Knuckle */  #include "assets/objects/object_ik/object_ik.h"
 /* Keese */         #include "assets/objects/object_firefly/object_firefly.h"
 /* Leever */        #include "assets/objects/object_rb/object_rb.h"
@@ -349,6 +353,52 @@ extern void DrawBubble() {
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
 }
 
+extern void DrawCaptainKeeta() {
+    SETUP_DRAW(OBJECT_BSB_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -3500.0f, 0, MTXMODE_APPLY);
+    SETUP_SKEL(OBJECT_BSB_LIMB_MAX, object_bsb_Skel_00C3E0, object_bsb_Anim_004894);
+
+    gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+    SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 255, 192, 0 }, { 5.0f, 10.0f, 5.0f });
+}
+
+extern void DrawChuchu() {
+    static int16_t timer = 25;
+    f32 timerFactor = sqrtf(timer) * 0.2f;
+    static AnimatedMaterial* sSlimeTexAnim = (AnimatedMaterial*)Lib_SegmentedToVirtual((void*)gChuchuSlimeFlowTexAnim);
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Matrix_Scale(
+        0.01f,
+        ((((coss(RAD_TO_BINANG(timer * (2.0f * M_PI / 5.0f))) * SHT_MINV) * (0.07f * timerFactor)) + 1.0f) * 0.01f),
+        0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -2700.0f, 0, MTXMODE_APPLY);
+
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    AnimatedMat_Draw(gPlayState, sSlimeTexAnim);
+    gDPSetPrimColor(POLY_XLU_DISP++, 0, 100, 255, 255, 200, 255);
+    gDPSetEnvColor(POLY_XLU_DISP++, 255, 180, 0, 255);
+
+    if (timer == 0) {
+        timer = 25;
+    }
+
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+    Scene_SetRenderModeXlu(gPlayState, 1, 2);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gChuchuBodyDL);
+    gSPSegment(POLY_XLU_DISP++, 9, (uintptr_t)gChuchuEyeOpenTex);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gChuchuEyesDL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
+    timer--;
+}
+
 extern void DrawDeathArmos() {
     SETUP_DRAW(FAMOS_LIMB_MAX);
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
@@ -544,6 +594,24 @@ extern void DrawGiantBee() {
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
 }
 
+extern void DrawGomess() {
+    static AnimatedMaterial* bodyMatAnim = (AnimatedMaterial*)Lib_SegmentedToVirtual((void*)&gGomessBodyMatAnim);
+    static AnimatedMaterial* coreMatAnim = (AnimatedMaterial*)Lib_SegmentedToVirtual((void*)&gGomessCoreMatAnim);
+    SETUP_DRAW(GOMESS_LIMB_MAX);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.005f, 0.005f, 0.005f, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(GOMESS_LIMB_MAX, gGomessSkel, gGomessFloatAnim);
+
+    AnimatedMat_DrawStepOpa(gPlayState, bodyMatAnim, 23);
+    AnimatedMat_DrawOpa(gPlayState, coreMatAnim);
+    Scene_SetRenderModeXlu(gPlayState, 0, 1);
+    gDPSetEnvColor(POLY_OPA_DISP++, 30, 30, 0, 255);
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 155, 0, 0 }, { 15.0f, 15.0f, 15.0f });
+}
+
 extern void DrawGuay() {
     SETUP_DRAW(OBJECT_CROW_LIMB_MAX);
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
@@ -569,6 +637,23 @@ extern void DrawHiploop() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
+}
+
+extern void DrawIgosDuIkana() {
+    SETUP_DRAW(IGOS_LIMB_MAX);
+    gSPSegment(POLY_OPA_DISP++, 0x0A, (uintptr_t)EnKnight_BuildEmptyDL(gPlayState->state.gfxCtx));
+    gSPSegment(POLY_XLU_DISP++, 0x0A, (uintptr_t)EnKnight_BuildEmptyDL(gPlayState->state.gfxCtx));
+    gSPSegment(POLY_OPA_DISP++, 0x09, (uintptr_t)EnKnight_BuildEmptyDL(gPlayState->state.gfxCtx));
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
+    Matrix_Translate(0, -2000.0f, 0, MTXMODE_APPLY);
+    SETUP_FLEX_SKEL(IGOS_LIMB_MAX, gIgosSkel, gKnightIdleAnim);
+
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
+    POLY_OPA_DISP = Play_SetFog(gPlayState, POLY_OPA_DISP);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    DrawEnLight({ 0, 0, 0 }, { 10.0f, 10.0f, 10.0f });
 }
 
 extern void DrawIronKnuckle() {
@@ -897,38 +982,6 @@ extern void DrawSkulltula() {
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 5.0f, 5.0f, 5.0f });
-}
-
-extern void DrawChuchu() {
-    static int16_t timer = 25;
-    f32 timerFactor = sqrtf(timer) * 0.2f;
-    static AnimatedMaterial* sSlimeTexAnim = (AnimatedMaterial*)Lib_SegmentedToVirtual((void*)gChuchuSlimeFlowTexAnim);
-
-    OPEN_DISPS(gPlayState->state.gfxCtx);
-    Matrix_Scale(
-        0.01f,
-        ((((coss(RAD_TO_BINANG(timer * (2.0f * M_PI / 5.0f))) * SHT_MINV) * (0.07f * timerFactor)) + 1.0f) * 0.01f),
-        0.01f, MTXMODE_APPLY);
-    Matrix_Translate(0, -2700.0f, 0, MTXMODE_APPLY);
-
-    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
-    AnimatedMat_Draw(gPlayState, sSlimeTexAnim);
-    gDPSetPrimColor(POLY_XLU_DISP++, 0, 100, 255, 255, 200, 255);
-    gDPSetEnvColor(POLY_XLU_DISP++, 255, 180, 0, 255);
-
-    if (timer == 0) {
-        timer = 25;
-    }
-
-    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
-    Scene_SetRenderModeXlu(gPlayState, 1, 2);
-    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gChuchuBodyDL);
-    gSPSegment(POLY_XLU_DISP++, 9, (uintptr_t)gChuchuEyeOpenTex);
-    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gChuchuEyesDL);
-
-    CLOSE_DISPS(gPlayState->state.gfxCtx);
-    DrawEnLight({ 155, 155, 155 }, { 10.0f, 10.0f, 10.0f });
-    timer--;
 }
 
 extern void DrawSnapper() {

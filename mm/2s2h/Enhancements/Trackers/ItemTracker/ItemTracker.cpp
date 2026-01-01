@@ -3,6 +3,7 @@
 
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "Rando/Rando.h"
+#include "Rando/ActorBehavior/Souls.h"
 
 #include "2s2h/ShipUtils.h"
 #include <spdlog/fmt/fmt.h>
@@ -83,12 +84,12 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
             case RI_OWL_ZORA_CAPE:
                 itemObtained = GET_OWL_STATUE_ACTIVATED(OWL_WARP_ZORA_CAPE);
                 break;
-            case RI_SOUL_GOHT:
-            case RI_SOUL_GYORG:
-            case RI_SOUL_MAJORA:
-            case RI_SOUL_ODOLWA:
-            case RI_SOUL_TWINMOLD:
-                itemObtained = Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (itemId - RI_SOUL_GOHT));
+            case RI_SOUL_BOSS_GOHT:
+            case RI_SOUL_BOSS_GYORG:
+            case RI_SOUL_BOSS_MAJORA:
+            case RI_SOUL_BOSS_ODOLWA:
+            case RI_SOUL_BOSS_TWINMOLD:
+                itemObtained = Flags_GetRandoInf(SOUL_RI_TO_RANDO_INF(itemId));
                 break;
             case RI_TINGLE_MAP_CLOCK_TOWN:
                 itemObtained = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_CLOCK_TOWN);

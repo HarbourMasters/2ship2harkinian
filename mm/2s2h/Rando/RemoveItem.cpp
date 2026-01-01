@@ -1,4 +1,5 @@
 #include "Rando/Rando.h"
+#include "Rando/ActorBehavior/Souls.h"
 
 extern "C" {
 #include "variables.h"
@@ -353,12 +354,12 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_REMAINS_TWINMOLD:
             REMOVE_QUEST_ITEM(QUEST_REMAINS_TWINMOLD);
             break;
-        case RI_SOUL_GOHT:
-        case RI_SOUL_GYORG:
-        case RI_SOUL_MAJORA:
-        case RI_SOUL_ODOLWA:
-        case RI_SOUL_TWINMOLD:
-            Flags_ClearRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (randoItemId - RI_SOUL_GOHT));
+        case RI_SOUL_BOSS_GOHT:
+        case RI_SOUL_BOSS_GYORG:
+        case RI_SOUL_BOSS_MAJORA:
+        case RI_SOUL_BOSS_ODOLWA:
+        case RI_SOUL_BOSS_TWINMOLD:
+            Flags_ClearRandoInf(SOUL_RI_TO_RANDO_INF(randoItemId));
             break;
         case RI_FROG_BLUE:
             CLEAR_WEEKEVENTREG(WEEKEVENTREG_33_01);

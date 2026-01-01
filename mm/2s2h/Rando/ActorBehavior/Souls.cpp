@@ -26,70 +26,72 @@ bool shouldMajoraRegister() {
 
 // clang-format off
 std::unordered_map<int16_t, RandoItemId> enemySoulMap = {
-    // TODO: Special cases: Igos du Ikana, Captain Keeta
-    // FIXME: Real Bomchus and flying pots don't depend on attack collision to die; they can die from hitting anything
-    { ACTOR_EN_INVADEPOH,   RI_SOUL_ALIEN },
-    { ACTOR_EN_AM,          RI_SOUL_ARMOS },
-    { ACTOR_EN_BAT,         RI_SOUL_BAD_BAT },
-    { ACTOR_EN_VM,          RI_SOUL_BEAMOS },
-    { ACTOR_EN_BB,          RI_SOUL_BUBBLE },
-    { ACTOR_EN_BBFALL,      RI_SOUL_BUBBLE },
-    { ACTOR_EN_MKK,         RI_SOUL_BOE },
-    { ACTOR_EN_SLIME,       RI_SOUL_CHUCHU },
-    { ACTOR_EN_FAMOS,       RI_SOUL_DEATH_ARMOS },
-    { ACTOR_EN_DRAGON,      RI_SOUL_DEEP_PYTHON },
-    { ACTOR_EN_DEKUBABA,    RI_SOUL_DEKU_BABA },
-    { ACTOR_EN_KAREBABA,    RI_SOUL_DEKU_BABA },
-    { ACTOR_BOSS_05,        RI_SOUL_DEKU_BABA },
-    { ACTOR_EN_WDHAND,      RI_SOUL_DEXIHAND },
-    { ACTOR_EN_DINOFOS,     RI_SOUL_DINOLFOS },
-    { ACTOR_EN_DODONGO,     RI_SOUL_DODONGO },
-    { ACTOR_EN_GRASSHOPPER, RI_SOUL_DRAGONFLY },
-    { ACTOR_EN_SNOWMAN,     RI_SOUL_EENO },
-    { ACTOR_EN_EGOL,        RI_SOUL_EYEGORE },
-    { ACTOR_EN_TUBO_TRAP,   RI_SOUL_FLYING_POT },
-    { ACTOR_EN_FZ,          RI_SOUL_FREEZARD },
-    { ACTOR_EN_JSO,         RI_SOUL_GARO },
-    { ACTOR_EN_JSO2,        RI_SOUL_GARO },
-    { ACTOR_EN_BIGSLIME,    RI_SOUL_GEKKO },
-    { ACTOR_EN_PAMETFROG,   RI_SOUL_GEKKO },
-    { ACTOR_EN_BEE,         RI_SOUL_GIANT_BEE },
-    { ACTOR_EN_CROW,        RI_SOUL_GUAY },
-    { ACTOR_EN_RUPPECROW,   RI_SOUL_GUAY },
-    { ACTOR_EN_PP,          RI_SOUL_HIPLOOP },
-    { ACTOR_EN_IK,          RI_SOUL_IRON_KNUCKLE },
-    { ACTOR_EN_FIREFLY,     RI_SOUL_KEESE },
-    { ACTOR_EN_NEO_REEBA,   RI_SOUL_LEEVER },
-    { ACTOR_EN_RR,          RI_SOUL_LIKE_LIKE },
-    { ACTOR_EN_DEKUNUTS,    RI_SOUL_MAD_SCRUB },
-    { ACTOR_EN_BAGUO,       RI_SOUL_NEJIRON },
-    { ACTOR_EN_OKUTA,       RI_SOUL_OCTOROK },
-    { ACTOR_EN_PEEHAT,      RI_SOUL_PEAHAT },
-    { ACTOR_EN_KAIZOKU,     RI_SOUL_PIRATE },
-    { ACTOR_EN_BIGPO,       RI_SOUL_POE },
-    { ACTOR_EN_PO_SISTERS,  RI_SOUL_POE },
-    { ACTOR_EN_POH,         RI_SOUL_POE },
-    { ACTOR_EN_RAT,         RI_SOUL_REAL_BOMBCHU },
-    { ACTOR_EN_RD,          RI_SOUL_REDEAD },
-    { ACTOR_EN_SB,          RI_SOUL_SHELLBLADE },
-    { ACTOR_EN_PR,          RI_SOUL_SKULLFISH },
-    { ACTOR_EN_PR2,         RI_SOUL_SKULLFISH },
-    { ACTOR_EN_PRZ,         RI_SOUL_SKULLFISH },
-    { ACTOR_EN_ST,          RI_SOUL_SKULLTULA },
-    { ACTOR_EN_SW,          RI_SOUL_SKULLTULA },
-    { ACTOR_EN_BIGPAMET,    RI_SOUL_SNAPPER },
-    { ACTOR_EN_KAME,        RI_SOUL_SNAPPER },
-    { ACTOR_EN_HINT_SKB,    RI_SOUL_STALCHILD },
-    { ACTOR_EN_RAIL_SKB,    RI_SOUL_STALCHILD },
-    { ACTOR_EN_SKB,         RI_SOUL_STALCHILD },
-    { ACTOR_EN_THIEFBIRD,   RI_SOUL_TAKKURI },
-    { ACTOR_EN_TITE,        RI_SOUL_TEKTITE },
-    { ACTOR_EN_FLOORMAS,    RI_SOUL_WALLMASTER },
-    { ACTOR_EN_WALLMAS,     RI_SOUL_WALLMASTER },
-    { ACTOR_BOSS_04,        RI_SOUL_WART },
-    { ACTOR_EN_TANRON2,     RI_SOUL_WART },
-    { ACTOR_EN_WIZ,         RI_SOUL_WIZROBE },
-    { ACTOR_EN_WF,          RI_SOUL_WOLFOS },
+    // Real Bombchu and Flying Pot souls are excluded, as those actors are programmed to die to any collision, not just
+    // the damaging type. We don't have a good answer for what behavior those should follow if the hit something.
+    { ACTOR_EN_INVADEPOH,   RI_SOUL_ENEMY_ALIEN },
+    { ACTOR_EN_AM,          RI_SOUL_ENEMY_ARMOS },
+    { ACTOR_EN_BAT,         RI_SOUL_ENEMY_BAD_BAT },
+    { ACTOR_EN_VM,          RI_SOUL_ENEMY_BEAMOS },
+    { ACTOR_EN_BB,          RI_SOUL_ENEMY_BUBBLE },
+    { ACTOR_EN_BBFALL,      RI_SOUL_ENEMY_BUBBLE },
+    { ACTOR_EN_MKK,         RI_SOUL_ENEMY_BOE },
+    { ACTOR_EN_BSB,         RI_SOUL_ENEMY_CAPTAIN_KEETA },
+    { ACTOR_EN_SLIME,       RI_SOUL_ENEMY_CHUCHU },
+    { ACTOR_EN_FAMOS,       RI_SOUL_ENEMY_DEATH_ARMOS },
+    { ACTOR_EN_DRAGON,      RI_SOUL_ENEMY_DEEP_PYTHON },
+    { ACTOR_EN_DEKUBABA,    RI_SOUL_ENEMY_DEKU_BABA },
+    { ACTOR_EN_KAREBABA,    RI_SOUL_ENEMY_DEKU_BABA },
+    { ACTOR_BOSS_05,        RI_SOUL_ENEMY_DEKU_BABA },
+    { ACTOR_EN_WDHAND,      RI_SOUL_ENEMY_DEXIHAND },
+    { ACTOR_EN_DINOFOS,     RI_SOUL_ENEMY_DINOLFOS },
+    { ACTOR_EN_DODONGO,     RI_SOUL_ENEMY_DODONGO },
+    { ACTOR_EN_GRASSHOPPER, RI_SOUL_ENEMY_DRAGONFLY },
+    { ACTOR_EN_SNOWMAN,     RI_SOUL_ENEMY_EENO },
+    { ACTOR_EN_EGOL,        RI_SOUL_ENEMY_EYEGORE },
+    { ACTOR_EN_FZ,          RI_SOUL_ENEMY_FREEZARD },
+    { ACTOR_EN_JSO,         RI_SOUL_ENEMY_GARO },
+    { ACTOR_EN_JSO2,        RI_SOUL_ENEMY_GARO },
+    { ACTOR_EN_BIGSLIME,    RI_SOUL_ENEMY_GEKKO },
+    { ACTOR_EN_PAMETFROG,   RI_SOUL_ENEMY_GEKKO },
+    { ACTOR_EN_BEE,         RI_SOUL_ENEMY_GIANT_BEE },
+    { ACTOR_EN_DEATH,       RI_SOUL_ENEMY_GOMESS },
+    { ACTOR_EN_MINIDEATH,   RI_SOUL_ENEMY_GOMESS },
+    { ACTOR_EN_CROW,        RI_SOUL_ENEMY_GUAY },
+    { ACTOR_EN_RUPPECROW,   RI_SOUL_ENEMY_GUAY },
+    { ACTOR_EN_PP,          RI_SOUL_ENEMY_HIPLOOP },
+    { ACTOR_EN_KNIGHT,      RI_SOUL_ENEMY_IGOS_DU_IKANA },
+    { ACTOR_EN_IK,          RI_SOUL_ENEMY_IRON_KNUCKLE },
+    { ACTOR_EN_FIREFLY,     RI_SOUL_ENEMY_KEESE },
+    { ACTOR_EN_NEO_REEBA,   RI_SOUL_ENEMY_LEEVER },
+    { ACTOR_EN_RR,          RI_SOUL_ENEMY_LIKE_LIKE },
+    { ACTOR_EN_DEKUNUTS,    RI_SOUL_ENEMY_MAD_SCRUB },
+    { ACTOR_EN_BAGUO,       RI_SOUL_ENEMY_NEJIRON },
+    { ACTOR_EN_OKUTA,       RI_SOUL_ENEMY_OCTOROK },
+    { ACTOR_EN_PEEHAT,      RI_SOUL_ENEMY_PEAHAT },
+    { ACTOR_EN_KAIZOKU,     RI_SOUL_ENEMY_PIRATE },
+    { ACTOR_EN_BIGPO,       RI_SOUL_ENEMY_POE },
+    { ACTOR_EN_PO_SISTERS,  RI_SOUL_ENEMY_POE },
+    { ACTOR_EN_POH,         RI_SOUL_ENEMY_POE },
+    { ACTOR_EN_RD,          RI_SOUL_ENEMY_REDEAD },
+    { ACTOR_EN_SB,          RI_SOUL_ENEMY_SHELLBLADE },
+    { ACTOR_EN_PR,          RI_SOUL_ENEMY_SKULLFISH },
+    { ACTOR_EN_PR2,         RI_SOUL_ENEMY_SKULLFISH },
+    { ACTOR_EN_PRZ,         RI_SOUL_ENEMY_SKULLFISH },
+    { ACTOR_EN_ST,          RI_SOUL_ENEMY_SKULLTULA },
+    { ACTOR_EN_SW,          RI_SOUL_ENEMY_SKULLTULA },
+    { ACTOR_EN_BIGPAMET,    RI_SOUL_ENEMY_SNAPPER },
+    { ACTOR_EN_KAME,        RI_SOUL_ENEMY_SNAPPER },
+    { ACTOR_EN_HINT_SKB,    RI_SOUL_ENEMY_STALCHILD },
+    { ACTOR_EN_RAIL_SKB,    RI_SOUL_ENEMY_STALCHILD },
+    { ACTOR_EN_SKB,         RI_SOUL_ENEMY_STALCHILD },
+    { ACTOR_EN_THIEFBIRD,   RI_SOUL_ENEMY_TAKKURI },
+    { ACTOR_EN_TITE,        RI_SOUL_ENEMY_TEKTITE },
+    { ACTOR_EN_FLOORMAS,    RI_SOUL_ENEMY_WALLMASTER },
+    { ACTOR_EN_WALLMAS,     RI_SOUL_ENEMY_WALLMASTER },
+    { ACTOR_BOSS_04,        RI_SOUL_ENEMY_WART },
+    { ACTOR_EN_TANRON2,     RI_SOUL_ENEMY_WART },
+    { ACTOR_EN_WIZ,         RI_SOUL_ENEMY_WIZROBE },
+    { ACTOR_EN_WF,          RI_SOUL_ENEMY_WOLFOS },
 };
 // clang-format on
 
@@ -98,7 +100,7 @@ bool HaveEnemySoul(ActorId enemyId) {
     if (findSoulFlag != enemySoulMap.end()) {
         RandoItemId randoItemId = findSoulFlag->second;
         if (randoItemId != RI_UNKNOWN) {
-            return Flags_GetRandoInf(ENEMY_SOUL_RI_TO_RANDO_INF(randoItemId));
+            return Flags_GetRandoInf(SOUL_RI_TO_RANDO_INF(randoItemId));
         }
     }
     // Enemy soul does not exist, so act as if it is obtained
@@ -132,45 +134,48 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
 
     // ShouldActorDraw & ShouldActorUpdate for Boss Souls
     COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_HAKUGIN, shouldBossRegister, [](Actor* actor, bool* should) {
-        if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT)) {
+        if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_BOSS_GOHT)) {
             BossHakugin_DrawIce((BossHakugin*)actor, gPlayState);
             *should = false;
         }
     });
 
     COND_VB_SHOULD(VB_GOHT_UNFREEZE, shouldBossRegister, {
-        if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT)) {
+        if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_BOSS_GOHT)) {
             *should = false;
         }
     });
 
-    COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_03, shouldBossRegister,
-                 [](Actor* actor, bool* should) { ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_GYORG); });
+    COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_03, shouldBossRegister, [](Actor* actor, bool* should) {
+        ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_BOSS_GYORG);
+    });
 
-    COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_07, shouldMajoraRegister(),
-                 [](Actor* actor, bool* should) { ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_MAJORA); });
+    COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_07, shouldMajoraRegister(), [](Actor* actor, bool* should) {
+        ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_BOSS_MAJORA);
+    });
 
-    COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_01, shouldBossRegister,
-                 [](Actor* actor, bool* should) { ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_ODOLWA); });
+    COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_01, shouldBossRegister, [](Actor* actor, bool* should) {
+        ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_BOSS_ODOLWA);
+    });
 
     COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_02, shouldBossRegister, [](Actor* actor, bool* should) {
-        ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_TWINMOLD);
+        ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_BOSS_TWINMOLD);
     });
 
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_BOSS_03, shouldBossRegister, [](Actor* actor, bool* should) {
-        ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_GYORG);
+        ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_BOSS_GYORG);
     });
 
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_BOSS_07, shouldMajoraRegister(), [](Actor* actor, bool* should) {
-        ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_MAJORA);
+        ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_BOSS_MAJORA);
     });
 
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_BOSS_01, shouldBossRegister, [](Actor* actor, bool* should) {
-        ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_ODOLWA);
+        ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_BOSS_ODOLWA);
     });
 
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_BOSS_02, shouldBossRegister, [](Actor* actor, bool* should) {
-        ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_TWINMOLD);
+        ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_BOSS_TWINMOLD);
     });
 
     /*
@@ -181,14 +186,17 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
     COND_VB_SHOULD(VB_ITEM_BE_RESTRICTED, shouldBossRegister, {
         ItemId itemId = *va_arg(args, ItemId*);
         if (itemId == ITEM_MASK_GIANT && gPlayState->sceneId == SCENE_INISIE_BS &&
-            !Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_TWINMOLD)) {
+            !Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_BOSS_TWINMOLD)) {
             *should = true;
         }
     });
 
     COND_VB_SHOULD(VB_DRAW_LOCK_ON_ARROW, shouldEnemyInjure, {
         Actor* refActor = va_arg(args, Actor*);
-        if (!HaveEnemySoul((ActorId)refActor->id)) {
+        ActorId actorId = (ActorId)refActor->id;
+        // ACTOR_EN_INVADEPOH represents multiple actors, including Romani and the dog. The aliens cannot be targeted
+        // anyway, so just don't draw this arrow if the actor is ACTOR_EN_INVADEPOH.
+        if (actorId != ACTOR_EN_INVADEPOH && !HaveEnemySoul(actorId)) {
             DrawEnLight({ 155, 0, 0 }, { 1.0f, 1.0f, 1.0f });
             *should = false;
         }

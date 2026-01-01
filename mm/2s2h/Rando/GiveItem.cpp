@@ -1,4 +1,5 @@
 #include "Rando/Rando.h"
+#include "Rando/ActorBehavior/Souls.h"
 #include "Rando/MiscBehavior/MiscBehavior.h"
 
 extern "C" {
@@ -110,8 +111,8 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces ==
                 RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
                 // Blocks the ability to beat the game through killing Majora until all Triforce Pieces are found.
-                if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_MAJORA)) {
-                    Rando::GiveItem(RI_SOUL_MAJORA);
+                if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_BOSS_MAJORA)) {
+                    Rando::GiveItem(RI_SOUL_BOSS_MAJORA);
                 }
                 GameInteractor_ExecuteOnGameCompletion();
                 GameInteractor::Instance->events.emplace_back(
@@ -268,58 +269,59 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             // ITEM_POTION_RED will put a Red Potion bottle on the first bottle slot
             Item_Give(gPlayState, ITEM_LONGSHOT);
             break;
-        case RI_SOUL_GOHT:
-        case RI_SOUL_GYORG:
-        case RI_SOUL_MAJORA:
-        case RI_SOUL_ODOLWA:
-        case RI_SOUL_TWINMOLD:
-        case RI_SOUL_ALIEN:
-        case RI_SOUL_ARMOS:
-        case RI_SOUL_BAD_BAT:
-        case RI_SOUL_BEAMOS:
-        case RI_SOUL_BOE:
-        case RI_SOUL_BUBBLE:
-        case RI_SOUL_CHUCHU:
-        case RI_SOUL_DEATH_ARMOS:
-        case RI_SOUL_DEEP_PYTHON:
-        case RI_SOUL_DEKU_BABA:
-        case RI_SOUL_DEXIHAND:
-        case RI_SOUL_DINOLFOS:
-        case RI_SOUL_DODONGO:
-        case RI_SOUL_DRAGONFLY:
-        case RI_SOUL_EENO:
-        case RI_SOUL_EYEGORE:
-        case RI_SOUL_FLYING_POT:
-        case RI_SOUL_FREEZARD:
-        case RI_SOUL_GARO:
-        case RI_SOUL_GEKKO:
-        case RI_SOUL_GIANT_BEE:
-        case RI_SOUL_GUAY:
-        case RI_SOUL_HIPLOOP:
-        case RI_SOUL_IRON_KNUCKLE:
-        case RI_SOUL_KEESE:
-        case RI_SOUL_LEEVER:
-        case RI_SOUL_LIKE_LIKE:
-        case RI_SOUL_MAD_SCRUB:
-        case RI_SOUL_NEJIRON:
-        case RI_SOUL_OCTOROK:
-        case RI_SOUL_PEAHAT:
-        case RI_SOUL_PIRATE:
-        case RI_SOUL_POE:
-        case RI_SOUL_REAL_BOMBCHU:
-        case RI_SOUL_REDEAD:
-        case RI_SOUL_SHELLBLADE:
-        case RI_SOUL_SKULLFISH:
-        case RI_SOUL_SKULLTULA:
-        case RI_SOUL_SNAPPER:
-        case RI_SOUL_STALCHILD:
-        case RI_SOUL_TAKKURI:
-        case RI_SOUL_TEKTITE:
-        case RI_SOUL_WALLMASTER:
-        case RI_SOUL_WART:
-        case RI_SOUL_WIZROBE:
-        case RI_SOUL_WOLFOS:
-            Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_ALIENS + (randoItemId - RI_SOUL_ALIEN));
+        case RI_SOUL_BOSS_GOHT:
+        case RI_SOUL_BOSS_GYORG:
+        case RI_SOUL_BOSS_MAJORA:
+        case RI_SOUL_BOSS_ODOLWA:
+        case RI_SOUL_BOSS_TWINMOLD:
+        case RI_SOUL_ENEMY_ALIEN:
+        case RI_SOUL_ENEMY_ARMOS:
+        case RI_SOUL_ENEMY_BAD_BAT:
+        case RI_SOUL_ENEMY_BEAMOS:
+        case RI_SOUL_ENEMY_BOE:
+        case RI_SOUL_ENEMY_BUBBLE:
+        case RI_SOUL_ENEMY_CAPTAIN_KEETA:
+        case RI_SOUL_ENEMY_CHUCHU:
+        case RI_SOUL_ENEMY_DEATH_ARMOS:
+        case RI_SOUL_ENEMY_DEEP_PYTHON:
+        case RI_SOUL_ENEMY_DEKU_BABA:
+        case RI_SOUL_ENEMY_DEXIHAND:
+        case RI_SOUL_ENEMY_DINOLFOS:
+        case RI_SOUL_ENEMY_DODONGO:
+        case RI_SOUL_ENEMY_DRAGONFLY:
+        case RI_SOUL_ENEMY_EENO:
+        case RI_SOUL_ENEMY_EYEGORE:
+        case RI_SOUL_ENEMY_FREEZARD:
+        case RI_SOUL_ENEMY_GARO:
+        case RI_SOUL_ENEMY_GEKKO:
+        case RI_SOUL_ENEMY_GIANT_BEE:
+        case RI_SOUL_ENEMY_GOMESS:
+        case RI_SOUL_ENEMY_GUAY:
+        case RI_SOUL_ENEMY_HIPLOOP:
+        case RI_SOUL_ENEMY_IGOS_DU_IKANA:
+        case RI_SOUL_ENEMY_IRON_KNUCKLE:
+        case RI_SOUL_ENEMY_KEESE:
+        case RI_SOUL_ENEMY_LEEVER:
+        case RI_SOUL_ENEMY_LIKE_LIKE:
+        case RI_SOUL_ENEMY_MAD_SCRUB:
+        case RI_SOUL_ENEMY_NEJIRON:
+        case RI_SOUL_ENEMY_OCTOROK:
+        case RI_SOUL_ENEMY_PEAHAT:
+        case RI_SOUL_ENEMY_PIRATE:
+        case RI_SOUL_ENEMY_POE:
+        case RI_SOUL_ENEMY_REDEAD:
+        case RI_SOUL_ENEMY_SHELLBLADE:
+        case RI_SOUL_ENEMY_SKULLFISH:
+        case RI_SOUL_ENEMY_SKULLTULA:
+        case RI_SOUL_ENEMY_SNAPPER:
+        case RI_SOUL_ENEMY_STALCHILD:
+        case RI_SOUL_ENEMY_TAKKURI:
+        case RI_SOUL_ENEMY_TEKTITE:
+        case RI_SOUL_ENEMY_WALLMASTER:
+        case RI_SOUL_ENEMY_WART:
+        case RI_SOUL_ENEMY_WIZROBE:
+        case RI_SOUL_ENEMY_WOLFOS:
+            Flags_SetRandoInf(SOUL_RI_TO_RANDO_INF(randoItemId));
             break;
         case RI_FROG_BLUE:
             SET_WEEKEVENTREG(WEEKEVENTREG_33_01);
