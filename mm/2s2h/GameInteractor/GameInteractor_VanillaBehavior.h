@@ -1095,6 +1095,15 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*PlayState`
+    // - `u16` (button - BTN_DLEFT or BTN_DRIGHT)
+    VB_KALEIDO_SWITCH_PAGE_WITH_DPAD,
+
+    // #### `result`
+    // ```c
     // CHECK_WEEKEVENTREG(WEEKEVENTREG_08_80)
     // ```
     // #### `args`

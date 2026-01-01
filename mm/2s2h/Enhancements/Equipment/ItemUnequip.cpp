@@ -1,6 +1,7 @@
 #include <libultraship/bridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h_assets.h"
 
 extern "C" {
 #include "z64.h"
@@ -13,6 +14,19 @@ extern "C" {
 #define CVAR_NAME "gEnhancements.Equipment.ItemUnequip"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
+void RegisterDpadPageSwitchPrevention() {
+    COND_VB_SHOULD(VB_KALEIDO_SWITCH_PAGE_WITH_DPAD, CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0), {
+        PlayState* play = va_arg(args, PlayState*);
+        u16 button = va_arg(args, int);
+        PauseContext* pauseCtx = &play->pauseCtx;
+
+        // Prevent page switching with D-pad when on item page
+        if (pauseCtx->pageIndex == PAUSE_ITEM && pauseCtx->mainState <= PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG) {
+            *should = false;
+        }
+    });
+}
+
 void RegisterItemUnequip() {
     COND_VB_SHOULD(VB_KALEIDO_EQUIP_ITEM_TO_BUTTON, CVAR, {
         PlayState* play = va_arg(args, PlayState*);
@@ -21,9 +35,7 @@ void RegisterItemUnequip() {
 
         PauseContext* pauseCtx = &play->pauseCtx;
         s32 targetSlot = -1;
-
-        SPDLOG_INFO("ItemUnequip: equipTargetCBtn = {}, cursorItem = {}, cursorSlot = {}", 
-                    pauseCtx->equipTargetCBtn, cursorItem, cursorSlot);
+        bool isDpad = false;
 
         // Determine which button was pressed based on equipTargetCBtn
         switch (pauseCtx->equipTargetCBtn) {
@@ -38,15 +50,19 @@ void RegisterItemUnequip() {
                 break;
             case PAUSE_EQUIP_D_RIGHT:
                 targetSlot = EQUIP_SLOT_D_RIGHT;
+                isDpad = true;
                 break;
             case PAUSE_EQUIP_D_LEFT:
                 targetSlot = EQUIP_SLOT_D_LEFT;
+                isDpad = true;
                 break;
             case PAUSE_EQUIP_D_DOWN:
                 targetSlot = EQUIP_SLOT_D_DOWN;
+                isDpad = true;
                 break;
             case PAUSE_EQUIP_D_UP:
                 targetSlot = EQUIP_SLOT_D_UP;
+                isDpad = true;
                 break;
             default:
                 return;
@@ -56,19 +72,14 @@ void RegisterItemUnequip() {
         u8 equippedSlot;
         bool shouldUnequip = false;
 
-        // C-buttons
-        if (targetSlot >= EQUIP_SLOT_C_LEFT && targetSlot <= EQUIP_SLOT_C_RIGHT) {
+        // C-buttons vs D-pad
+        if (!isDpad) {
             equippedItem = BUTTON_ITEM_EQUIP(0, targetSlot);
             equippedSlot = C_SLOT_EQUIP(0, targetSlot);
-        }
-        // D-pad
-        else {
+        } else {
             equippedItem = DPAD_BUTTON_ITEM_EQUIP(0, targetSlot);
             equippedSlot = DPAD_SLOT_EQUIP(0, targetSlot);
         }
-
-        SPDLOG_INFO("ItemUnequip: targetSlot = {}, equippedItem = {}, equippedSlot = {}", 
-                    targetSlot, equippedItem, equippedSlot);
 
         // Check if we should unequip
         if (equippedItem == cursorItem) {
@@ -90,19 +101,18 @@ void RegisterItemUnequip() {
             shouldUnequip = true;
         }
 
-        if (shouldUnequip) {
-            SPDLOG_INFO("ItemUnequip: UNEQUIPPING from slot {}", targetSlot);
-            // C-buttons
-            if (targetSlot >= EQUIP_SLOT_C_LEFT && targetSlot <= EQUIP_SLOT_C_RIGHT) {
+        if (shouldUnequip) {            
+            if (!isDpad) {
+                // C-buttons
                 BUTTON_ITEM_EQUIP(0, targetSlot) = ITEM_NONE;
                 C_SLOT_EQUIP(0, targetSlot) = SLOT_NONE;
                 Interface_LoadItemIconImpl(play, targetSlot);
-            }
-            // D-pad
-            else {
+            } else {
+                // D-pad
                 DPAD_BUTTON_ITEM_EQUIP(0, targetSlot) = ITEM_NONE;
                 DPAD_SLOT_EQUIP(0, targetSlot) = SLOT_NONE;
-                Interface_Dpad_LoadItemIconImpl(play, targetSlot);
+                // Manually clear D-pad icon
+                play->interfaceCtx.iconItemSegment[DPAD_BUTTON(targetSlot) + EQUIP_SLOT_MAX] = (char*)gEmptyTexture;
             }
 
             Audio_PlaySfx(NA_SE_SY_DECIDE);
@@ -112,3 +122,4 @@ void RegisterItemUnequip() {
 }
 
 static RegisterShipInitFunc initFunc(RegisterItemUnequip, { CVAR_NAME });
+static RegisterShipInitFunc initDpadPageSwitch(RegisterDpadPageSwitchPrevention, { "gEnhancements.Dpad.DpadEquips" });
