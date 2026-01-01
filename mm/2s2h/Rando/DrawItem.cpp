@@ -494,6 +494,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_OWL_SOUTHERN_SWAMP:
         case RI_OWL_STONE_TOWER:
         case RI_OWL_WOODFALL:
+        case RI_OWL_HIDDEN:
         case RI_OWL_ZORA_CAPE:
             DrawOwlStatue();
             break;

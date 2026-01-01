@@ -264,6 +264,9 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_OWL_ZORA_CAPE:
             CLEAR_OWL_WARP(OWL_WARP_ZORA_CAPE);
             break;
+        case RI_OWL_HIDDEN:
+            CLEAR_OWL_WARP(OWL_WARP_HIDDEN);
+            break;
         case RI_TINGLE_MAP_CLOCK_TOWN:
             CLEAR_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_CLOCK_TOWN);
             break;

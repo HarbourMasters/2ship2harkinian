@@ -44,7 +44,7 @@ std::map<std::string, std::tuple<int16_t, int16_t, int16_t>> defaultItemLists = 
 std::map<std::string, std::tuple<int16_t, int16_t, int16_t>> randoItemLists = {
     { "Frogs", { RI_FROG_BLUE, RI_FROG_WHITE, 4 } },
     { "Boss Souls", { RI_SOUL_GOHT, RI_SOUL_TWINMOLD, 5 } },
-    { "Owl Statues", { RI_OWL_CLOCK_TOWN_SOUTH, RI_OWL_ZORA_CAPE, 5 } },
+    { "Owl Statues", { RI_OWL_CLOCK_TOWN_SOUTH, RI_OWL_HIDDEN, 5 } },
     { "Tingle Maps", { RI_TINGLE_MAP_CLOCK_TOWN, RI_TINGLE_MAP_WOODFALL, 6 } },
     { "Misc", { RI_TRIFORCE_PIECE, RI_TRIFORCE_PIECE, 1 } },
 };

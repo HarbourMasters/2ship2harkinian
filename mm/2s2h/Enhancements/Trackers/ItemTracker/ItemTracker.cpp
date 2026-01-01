@@ -83,6 +83,9 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
             case RI_OWL_ZORA_CAPE:
                 itemObtained = GET_OWL_STATUE_ACTIVATED(OWL_WARP_ZORA_CAPE);
                 break;
+            case RI_OWL_HIDDEN:
+                itemObtained = GET_OWL_STATUE_ACTIVATED(OWL_WARP_HIDDEN);
+                break;
             case RI_SOUL_GOHT:
             case RI_SOUL_GYORG:
             case RI_SOUL_MAJORA:
@@ -120,7 +123,7 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
             (const char*)Rando::StaticData::GetIconTexturePath((RandoItemId)itemId));
         randoImageObject.textureDimensions =
             ImVec2(ITEM_TEXTURE_SIZE,
-                   itemId >= RI_OWL_CLOCK_TOWN_SOUTH && itemId <= RI_OWL_ZORA_CAPE ? 32.0f : ITEM_TEXTURE_SIZE);
+                   itemId >= RI_OWL_CLOCK_TOWN_SOUTH && itemId <= RI_OWL_HIDDEN ? 32.0f : ITEM_TEXTURE_SIZE);
 
         return randoImageObject;
     } else {

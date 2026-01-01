@@ -372,6 +372,8 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
             return !CAN_OWL_WARP(OWL_WARP_WOODFALL);
         case RI_OWL_ZORA_CAPE:
             return !CAN_OWL_WARP(OWL_WARP_ZORA_CAPE);
+        case RI_OWL_HIDDEN:
+            return !CAN_OWL_WARP(OWL_WARP_HIDDEN);
         // These items are technically fine to receive again because they don't do anything, but we'll convert them to
         // ensure it's clear to the player something didn't go wrong.
         // Quest Items

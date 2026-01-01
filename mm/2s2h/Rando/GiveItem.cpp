@@ -258,6 +258,9 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_OWL_ZORA_CAPE:
             Sram_ActivateOwl(OWL_WARP_ZORA_CAPE);
             break;
+        case RI_OWL_HIDDEN:
+            Sram_ActivateOwl(OWL_WARP_HIDDEN);
+            break;
         case RI_HEART_CONTAINER:
         case RI_HEART_PIECE:
             gSaveContext.healthAccumulator = gSaveContext.save.saveInfo.playerData.healthCapacity + 0x10;
