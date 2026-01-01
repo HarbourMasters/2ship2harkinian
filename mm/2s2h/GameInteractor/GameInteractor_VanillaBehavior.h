@@ -1085,6 +1085,16 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*PlayState`
+    // - `u16` (cursor slot)
+    // - `u16` (cursor item)
+    VB_KALEIDO_EQUIP_ITEM_TO_BUTTON,
+
+    // #### `result`
+    // ```c
     // CHECK_WEEKEVENTREG(WEEKEVENTREG_08_80)
     // ```
     // #### `args`
