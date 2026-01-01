@@ -44,15 +44,15 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .connections = {
             // TODO: Also apparently can be reached using a trick with Goron mask and Bombs. Add trick later here
-            CONNECTION(RR_GORMAN_TRACK_INNER, CAN_PLAY_SONG(EPONA) || RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
+            CONNECTION(RR_GORMAN_TRACK_INNER, RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
         },
     };
     Regions[RR_GORMAN_TRACK_INNER] = RandoRegion{ .sceneId = SCENE_KOEPONARACE,
         .checks = {
-            // The grass is reachable either by racing the Gorman brothers on Epona OR by entering through the second
-            // night alternate route after saving the Romani Ranch cows. The crate cannot be interacted with via the
-            // former method; it is only accessible via the second night route after saving the cows.
-            CHECK(RC_GORMAN_TRACK_LARGE_CRATE, RANDO_EVENTS[RE_COWS_FROM_ALIENS]), 
+            // The grass is technically reachable while racing on Epona, but successfully picking up the drops can be
+            // dubious. We can make this a trick in the future. For now, gate the entire region behind saving the ranch
+            // from aliens.
+            CHECK(RC_GORMAN_TRACK_LARGE_CRATE, true), 
             CHECK(RC_GORMAN_TRACK_GRASS_01, true),
             CHECK(RC_GORMAN_TRACK_GRASS_02, true),
             CHECK(RC_GORMAN_TRACK_GRASS_03, true),
@@ -82,7 +82,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(MILK_ROAD, 2),                    ENTRANCE(GORMAN_TRACK, 3), RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
         },
         .connections = {
-            CONNECTION(RR_GORMAN_TRACK, CAN_PLAY_SONG(EPONA) || RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
+            CONNECTION(RR_GORMAN_TRACK, RANDO_EVENTS[RE_COWS_FROM_ALIENS]),
         },
     };
     Regions[RR_MILK_ROAD] = RandoRegion{ .sceneId = SCENE_ROMANYMAE,
@@ -122,7 +122,7 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_ROMANI_RANCH] = RandoRegion{ .sceneId = SCENE_F01,
         .checks = {
-            CHECK(RC_ROMANI_RANCH_ALIENS, HAS_ITEM(ITEM_BOW) && CAN_BE_GORON && HAS_ITEM(ITEM_POWDER_KEG)),
+            CHECK(RC_ROMANI_RANCH_ALIENS, CanKillEnemy(ACTOR_EN_INVADEPOH) && CAN_BE_GORON && HAS_ITEM(ITEM_POWDER_KEG)),
             CHECK(RC_ROMANI_RANCH_EPONAS_SONG, CAN_BE_GORON && HAS_ITEM(ITEM_POWDER_KEG)),
             CHECK(RC_ROMANI_RANCH_FIELD_COW_ENTRANCE, CAN_PLAY_SONG(EPONA) && CAN_BE_GORON && HAS_ITEM(ITEM_POWDER_KEG)),
             CHECK(RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_BACK, CAN_PLAY_SONG(EPONA) && CAN_BE_GORON && HAS_ITEM(ITEM_POWDER_KEG)),
@@ -186,6 +186,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ROMANI_RANCH_GRASS_55, true),
             CHECK(RC_ROMANI_RANCH_GRASS_56, true),
             CHECK(RC_ROMANI_RANCH_GRASS_57, true),
+            CHECK(RC_ENEMY_DROP_ALIEN, CanKillEnemy(ACTOR_EN_INVADEPOH)), // Night 1 only
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(MILK_ROAD, 1),                    ENTRANCE(ROMANI_RANCH, 0), true),

@@ -25,6 +25,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ASTRAL_OBSERVATORY_PASSAGE_POT_02, true),
             CHECK(RC_ASTRAL_OBSERVATORY_PASSAGE_POT_03, true),
             CHECK(RC_ASTRAL_OBSERVATORY_PASSAGE_POT_04, true),
+            CHECK(RC_ENEMY_DROP_SKULLTULA, CanKillEnemy(ACTOR_EN_ST)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(EAST_CLOCK_TOWN, 2),              ENTRANCE(ASTRAL_OBSERVATORY, 0), true),
@@ -299,11 +300,11 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_SWORDSMAN_SCHOOL] = RandoRegion{ .sceneId = SCENE_DOUJOU,
         .checks = {
             CHECK(RC_SWORDSMAN_SCHOOL_PIECE_OF_HEART, CAN_USE_HUMAN_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_01, CAN_USE_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_02, CAN_USE_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_03, CAN_USE_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_04, CAN_USE_SWORD),
-            CHECK(RC_SWORDSMAN_SCHOOL_POT_05, CAN_USE_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_01, CAN_USE_HUMAN_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_02, CAN_USE_HUMAN_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_03, CAN_USE_HUMAN_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_04, CAN_USE_HUMAN_SWORD),
+            CHECK(RC_SWORDSMAN_SCHOOL_POT_05, CAN_USE_HUMAN_SWORD),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(WEST_CLOCK_TOWN, 3),              ENTRANCE(SWORDMANS_SCHOOL, 0), true),
