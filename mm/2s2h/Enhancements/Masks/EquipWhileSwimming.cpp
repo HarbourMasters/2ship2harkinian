@@ -11,7 +11,7 @@ static void RegisterEquipWhileSwimming() {
         if (itemAction >= PLAYER_IA_MASK_MIN && itemAction < PLAYER_IA_MASK_GIANT) {
             *should = true;
         }
-        });
+    });
 
     COND_VB_SHOULD(VB_DISABLE_ITEM_UNDERWATER, CVAR, {
         s32 item = va_arg(args, s32);
@@ -19,7 +19,7 @@ static void RegisterEquipWhileSwimming() {
             Player_GetEnvironmentalHazard(gPlayState) > PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) {
             *should = false;
         }
-        });
+    });
 }
 
 static RegisterShipInitFunc initFunc(RegisterEquipWhileSwimming, { CVAR_NAME });
