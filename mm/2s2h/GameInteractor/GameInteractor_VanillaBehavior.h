@@ -1080,14 +1080,6 @@ typedef enum {
     // true
     // ```
     // #### `args`
-    // - None
-    VB_KALEIDO_UNPAUSE_CLOSE,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
     // - `*PlayState`
     // - `u16` (cursor slot)
     // - `u16` (cursor item)
@@ -1101,6 +1093,14 @@ typedef enum {
     // - `*PlayState`
     // - `u16` (button - BTN_DLEFT or BTN_DRIGHT)
     VB_KALEIDO_SWITCH_PAGE_WITH_DPAD,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_KALEIDO_UNPAUSE_CLOSE,
 
     // #### `result`
     // ```c
