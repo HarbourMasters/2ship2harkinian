@@ -662,7 +662,8 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                     // #endregion
 
                     // Item unequip enhancement
-                    if (!GameInteractor_Should(VB_KALEIDO_EQUIP_ITEM_TO_BUTTON, true, play, cursorSlot + ITEM_NUM_SLOTS, cursorItem)) {
+                    if (!GameInteractor_Should(VB_KALEIDO_EQUIP_ITEM_TO_BUTTON, true, play, cursorSlot + ITEM_NUM_SLOTS,
+                                               cursorItem)) {
                         return;
                     }
 

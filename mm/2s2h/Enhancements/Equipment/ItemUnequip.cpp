@@ -21,7 +21,7 @@ void RegisterDpadPageSwitchPrevention() {
         PauseContext* pauseCtx = &play->pauseCtx;
 
         // Prevent page switching with D-pad when on item or mask page
-        if ((pauseCtx->pageIndex == PAUSE_ITEM || pauseCtx->pageIndex == PAUSE_MASK) && 
+        if ((pauseCtx->pageIndex == PAUSE_ITEM || pauseCtx->pageIndex == PAUSE_MASK) &&
             pauseCtx->mainState <= PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG) {
             *should = false;
         }
@@ -109,7 +109,7 @@ void RegisterItemUnequip() {
             shouldUnequip = true;
         }
 
-        if (shouldUnequip) {            
+        if (shouldUnequip) {
             if (!isDpad) {
                 // C-buttons
                 BUTTON_ITEM_EQUIP(0, targetSlot) = ITEM_NONE;
