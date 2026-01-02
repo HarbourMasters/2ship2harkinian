@@ -576,6 +576,17 @@ void OnFileLoad() {
         }
     });
 
+    // Hook EnTest4 Init to reset pauseSaveEntrance when correcting from Day 0
+    // This prevents stale pauseSaveEntrance values from previous seeds causing wrong spawn locations
+    COND_ID_HOOK(ShouldActorInit, ACTOR_EN_TEST4, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE],
+                 [](Actor* actor, bool* should) {
+                     if (!gSaveContext.save.isOwlSave &&
+                         (gSaveContext.save.day == 0 && gSaveContext.save.time == DAY_0_0559_TIME)) {
+                         gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
+                     }
+                     *should = true;
+                 });
+
     // Hook EnTest4 BEFORE vanilla update to proactively check for time skips
     // This is critical: we must modify time BEFORE vanilla processes it!
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_TEST4, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE],
