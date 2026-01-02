@@ -890,12 +890,6 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
     PauseContext* pauseCtx = &play->pauseCtx;
 
     if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_RIGHT) {
-        // Item unequip enhancement
-        if (!GameInteractor_Should(VB_KALEIDO_EQUIP_ITEM_TO_BUTTON, true, play, pauseCtx->cursorSlot[PAUSE_ITEM],
-                                   pauseCtx->cursorItem[PAUSE_ITEM])) {
-            return;
-        }
-        
         // Swap if item is already equipped on other Item Buttons.
         if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) != ITEM_NONE) {
@@ -1042,9 +1036,6 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_RIGHT) = pauseCtx->equipTargetSlot;
         Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_RIGHT);
     } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_LEFT) {
-        // Item unequip enhancement
-        
-     
         // Swap if item is already equipped on other Item Buttons.
         if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) != ITEM_NONE) {
@@ -1194,11 +1185,6 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
         }
         
     } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_DOWN) {
-        // Item unequip enhancement
-        if (!GameInteractor_Should(VB_KALEIDO_EQUIP_ITEM_TO_BUTTON, true, play, pauseCtx->cursorSlot[PAUSE_ITEM],
-                                   pauseCtx->cursorItem[PAUSE_ITEM])) {
-            return;
-        }
         
         // Swap if item is already equipped on other Item Buttons.
         if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {
@@ -1346,11 +1332,6 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_DOWN) = pauseCtx->equipTargetSlot;
         Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_DOWN);
     } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_UP) {
-        // Item unequip enhancement
-        if (!GameInteractor_Should(VB_KALEIDO_EQUIP_ITEM_TO_BUTTON, true, play, pauseCtx->cursorSlot[PAUSE_ITEM],
-                                   pauseCtx->cursorItem[PAUSE_ITEM])) {
-            return;
-        }
        
         // Swap if item is already equipped on other Item Buttons.
         if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {

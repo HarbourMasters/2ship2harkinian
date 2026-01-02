@@ -20,8 +20,9 @@ void RegisterDpadPageSwitchPrevention() {
         u16 button = va_arg(args, int);
         PauseContext* pauseCtx = &play->pauseCtx;
 
-        // Prevent page switching with D-pad when on item page
-        if (pauseCtx->pageIndex == PAUSE_ITEM && pauseCtx->mainState <= PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG) {
+        // Prevent page switching with D-pad when on item or mask page
+        if ((pauseCtx->pageIndex == PAUSE_ITEM || pauseCtx->pageIndex == PAUSE_MASK) && 
+            pauseCtx->mainState <= PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG) {
             *should = false;
         }
     });
@@ -71,6 +72,7 @@ void RegisterItemUnequip() {
         u8 equippedItem;
         u8 equippedSlot;
         bool shouldUnequip = false;
+        bool isMask = cursorSlot >= ITEM_NUM_SLOTS;
 
         // C-buttons vs D-pad
         if (!isDpad) {
@@ -83,8 +85,14 @@ void RegisterItemUnequip() {
 
         // Check if we should unequip
         if (equippedItem == cursorItem) {
+            if (isMask) {
+                // For masks, check the slot matches (cursorSlot is already offset by ITEM_NUM_SLOTS)
+                if (equippedSlot == cursorSlot) {
+                    shouldUnequip = true;
+                }
+            }
             // For bottles, we need to check the slot too (since there are multiple bottle items)
-            if (cursorItem >= ITEM_BOTTLE && cursorItem <= ITEM_OBABA_DRINK) {
+            else if (cursorItem >= ITEM_BOTTLE && cursorItem <= ITEM_OBABA_DRINK) {
                 if (equippedSlot == cursorSlot) {
                     shouldUnequip = true;
                 }
