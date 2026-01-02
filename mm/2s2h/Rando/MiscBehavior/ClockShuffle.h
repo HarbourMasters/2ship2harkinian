@@ -13,6 +13,19 @@ extern "C" {
 namespace Rando {
 namespace ClockItems {
 
+// Internal half-day indices
+enum ClockHalfIndex : int {
+    INVALID = -1,        // Invalid/not found/uninitialized half-day index
+    HALF_DAY1_DAY = 0,   // Day 1, 6:00 AM - 5:59 PM
+    HALF_DAY1_NIGHT = 1, // Day 1, 6:00 PM - 5:59 AM
+    HALF_DAY2_DAY = 2,   // Day 2, 6:00 AM - 5:59 PM
+    HALF_DAY2_NIGHT = 3, // Day 2, 6:00 PM - 5:59 AM
+    HALF_DAY3_DAY = 4,   // Day 3, 6:00 AM - 5:59 PM
+    HALF_DAY3_NIGHT = 5, // Day 3, 6:00 PM - 5:59 AM
+    TERMINAL_STATE = 6,  // Terminal state (fallback for invalid/end states)
+    HALF_COUNT = 6,      // Total number of regular half-days (0-5)
+};
+
 RandoItemId GetClockItemFromHalfDayIndex(int halfDayIndex);
 int GetHalfDayIndexFromClockItem(RandoItemId clockItemId);
 int FindEarliestOwnedHalfDay(bool searchFromEnd = false);

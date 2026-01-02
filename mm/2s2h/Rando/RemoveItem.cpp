@@ -289,7 +289,10 @@ void Rando::RemoveItem(RandoItemId randoItemId) {
         case RI_TIME_NIGHT_2:
         case RI_TIME_DAY_3:
         case RI_TIME_NIGHT_3: {
-            Flags_ClearRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 + (randoItemId - RI_TIME_DAY_1));
+            int index = Rando::ClockItems::GetHalfDayIndexFromClockItem(randoItemId);
+            if (index != Rando::ClockItems::INVALID) {
+                Flags_ClearRandoInf(static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 + index));
+            }
             break;
         }
         case RI_TIME_PROGRESSIVE: {

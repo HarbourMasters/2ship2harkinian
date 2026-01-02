@@ -434,7 +434,8 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_TIME_NIGHT_2:
         case RI_TIME_DAY_3:
         case RI_TIME_NIGHT_3:
-            return !Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 + (randoItemId - RI_TIME_DAY_1));
+            return !Flags_GetRandoInf(RANDO_INF_OBTAINED_CLOCK_DAY_1 +
+                                      Rando::ClockItems::GetHalfDayIndexFromClockItem(randoItemId));
         case RI_TIME_PROGRESSIVE:
             return true;
         // These items are technically fine to receive again because they don't do anything, but we'll convert them to

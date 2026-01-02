@@ -24,24 +24,25 @@ namespace Rando {
 namespace ClockItems {
 
 // Internal half-day indices
-enum ClockHalfIndex : int {
-    INVALID = -1,        // Invalid/not found/uninitialized half-day index
-    HALF_DAY1_DAY = 0,   // Day 1, 6:00 AM - 5:59 PM
-    HALF_DAY1_NIGHT = 1, // Day 1, 6:00 PM - 5:59 AM
-    HALF_DAY2_DAY = 2,   // Day 2, 6:00 AM - 5:59 PM
-    HALF_DAY2_NIGHT = 3, // Day 2, 6:00 PM - 5:59 AM
-    HALF_DAY3_DAY = 4,   // Day 3, 6:00 AM - 5:59 PM
-    HALF_DAY3_NIGHT = 5, // Day 3, 6:00 PM - 5:59 AM
-    TERMINAL_STATE = 6,  // Terminal state (fallback for invalid/end states)
-    HALF_COUNT = 6,      // Total number of regular half-days (0-5)
-};
 
 // Convert a rando item ID to its corresponding half-day index
 int GetHalfDayIndexFromClockItem(RandoItemId clockItemId) {
-    if (clockItemId >= RI_TIME_DAY_1 && clockItemId <= RI_TIME_NIGHT_3) {
-        return (int)(clockItemId - RI_TIME_DAY_1);
+    switch (clockItemId) {
+        case RI_TIME_DAY_1:
+            return HALF_DAY1_DAY;
+        case RI_TIME_NIGHT_1:
+            return HALF_DAY1_NIGHT;
+        case RI_TIME_DAY_2:
+            return HALF_DAY2_DAY;
+        case RI_TIME_NIGHT_2:
+            return HALF_DAY2_NIGHT;
+        case RI_TIME_DAY_3:
+            return HALF_DAY3_DAY;
+        case RI_TIME_NIGHT_3:
+            return HALF_DAY3_NIGHT;
+        default:
+            return INVALID;
     }
-    return INVALID;
 }
 
 // Convert a half-day index back to its rando item ID
