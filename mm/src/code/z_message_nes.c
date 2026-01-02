@@ -1294,7 +1294,9 @@ void Message_DecodeNES(PlayState* play) {
                 Message_LoadCharNES(play, digits[i] + '0', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
             }
-            Message_LoadLocalizedRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4);
+            if (GameInteractor_Should(VB_MSG_LOAD_RUPEES_TEXT, true)) {
+                Message_LoadLocalizedRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4);
+            }
         } else if (curChar == MESSAGE_RUPEES_SELECTED) {
             digits[0] = digits[1] = 0;
             digits[2] = msgCtx->rupeesSelected;
@@ -1319,7 +1321,9 @@ void Message_DecodeNES(PlayState* play) {
                     decodedBufPos++;
                 }
             }
-            Message_LoadRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4, msgCtx->rupeesSelected);
+            if (GameInteractor_Should(VB_MSG_LOAD_RUPEES_TEXT, true)) {
+                Message_LoadRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4, msgCtx->rupeesSelected);
+            }
         } else if (curChar == MESSAGE_RUPEES_TOTAL) {
             digits[0] = digits[1] = digits[2] = 0;
             digits[3] = msgCtx->rupeesTotal;
@@ -1347,7 +1351,9 @@ void Message_DecodeNES(PlayState* play) {
                     decodedBufPos++;
                 }
             }
-            Message_LoadRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4, msgCtx->rupeesTotal);
+            if (GameInteractor_Should(VB_MSG_LOAD_RUPEES_TEXT, true)) {
+                Message_LoadRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4, msgCtx->rupeesTotal);
+            }
         } else if (curChar == MESSAGE_TIME_UNTIL_MOON_CRASH) {
             Message_LoadTimeNES(play, curChar, &charTexIndex, &spA4, &decodedBufPos);
         } else if (curChar == MESSAGE_STRAY_FAIRIES) {
@@ -1502,7 +1508,10 @@ void Message_DecodeNES(PlayState* play) {
                 Message_LoadCharNES(play, digits[i] + '0', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
             }
-            Message_LoadPluralRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4);
+            if (GameInteractor_Should(VB_MSG_LOAD_RUPEES_TEXT, true)) {
+                Message_LoadPluralRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4);
+            }
+
         } else if (curChar == MESSAGE_INPUT_BOMBER_CODE) {
             decodedBufPos++;
             msgCtx->unk120BE = spC6;
@@ -1677,7 +1686,9 @@ void Message_DecodeNES(PlayState* play) {
                     spA4 += 16.0f * msgCtx->textCharScale;
                 }
             }
-            Message_LoadPluralRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4);
+            if (GameInteractor_Should(VB_MSG_LOAD_RUPEES_TEXT, true)) {
+                Message_LoadPluralRupeesNES(play, &decodedBufPos, &charTexIndex, &spA4);
+            }
         } else if (curChar == MESSAGE_BOMBER_CODE) {
             for (i = 0; i < 5; i++) {
                 //! @bug OoB read & write for i == 4, digits array is only 4 elements
