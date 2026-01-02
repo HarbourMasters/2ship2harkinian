@@ -160,6 +160,12 @@ static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = 
     { 0, "1x" }, { 1, "2x" }, { 2, "4x" }, { 3, "8x" }, { 4, "16x" }, { 10, "1 Hit KO" },
 };
 
+static const std::vector<const char*> disableMagicDropsOptions = {
+    "Off",
+    "Recovery Heart",
+    "Green Rupee",
+};
+
 namespace BenGui {
 extern std::shared_ptr<BenMenu> mBenMenu;
 void FreeLookPitchMinMax() {
@@ -1112,11 +1118,12 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Oceanside wallet any day", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.OceansideWalletAnyDay")
         .Options(CheckboxOptions().Tooltip("Allows the wallet reward to be collected on any day."));
-    AddWidget(path, "Disable Magic Drops with Chateau Romani", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Disable Magic Drops with Chateau Romani", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Cycle.DisableMagicDropsWithChateau")
-        .Options(CheckboxOptions().Tooltip(
-            "When Chateau Romani is active, Magic Jar drops are replaced with Recovery Hearts (which become Rupees "
-            "if health is full)."));
+        .Options(ComboboxOptions()
+                     .Tooltip("When Chateau Romani is active, Magic Jar drops are replaced.")
+                     .DefaultIndex(DisableMagicDropsOptions::DISABLE_MAGIC_DROPS_OFF)
+                     .ComboVec(&disableMagicDropsOptions));
     AddWidget(path, "Unstable", WIDGET_SEPARATOR_TEXT).Options(WidgetOptions().Color(Colors::Orange));
     AddWidget(path, "Disable Save Delay", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.DisableSaveDelay")

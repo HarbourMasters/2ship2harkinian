@@ -64,6 +64,12 @@ enum GoronRaceDifficultyOptions {
     GORON_RACE_DIFFICULTY_SKIP,
 };
 
+enum DisableMagicDropsOptions {
+    DISABLE_MAGIC_DROPS_OFF,
+    DISABLE_MAGIC_DROPS_RECOVERY_HEART,
+    DISABLE_MAGIC_DROPS_GREEN_RUPEE,
+};
+
 // Old Entry Point
 void InitEnhancements();
 
