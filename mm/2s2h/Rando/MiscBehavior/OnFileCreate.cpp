@@ -416,7 +416,9 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     }
 
                     if (RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX] < 1 ||
-                        RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] < 1) {
+                        RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_MAX] > 1000 ||
+                        RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] < 1 ||
+                        RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] > 1000) {
                         SPDLOG_ERROR("Error with adjusting Triforce Piece placement. Resulting shuffle requires {} "
                                      "pieces and out of a total of {}",
                                      RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED],
