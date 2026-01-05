@@ -1,4 +1,5 @@
 #include "Logic.h"
+#include "Rando/MiscBehavior/ClockShuffle.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <sstream>
 
