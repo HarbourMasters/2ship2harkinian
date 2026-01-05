@@ -124,6 +124,7 @@ inline void SetCurrentRegionTime(const std::unordered_map<RandoRegionId, RegionT
 void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& reachableRegions,
                           std::unordered_map<RandoRegionId, RegionTimeState>& regionTimeStates);
 RandoRegionId GetRegionIdFromEntrance(s32 entrance);
+void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
 void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
 void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
 void ApplyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
