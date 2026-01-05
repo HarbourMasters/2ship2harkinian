@@ -566,10 +566,12 @@ void ProcessClockShuffleMessage(u16* textId, bool* loadFromMessageTable, bool is
 }
 
 void OnFileLoad() {
+    bool shouldRegister = IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE];
+
     // Correct Day 0 time on file load BEFORE scene initialization
     // OnSaveLoad fires before Play_Init, ensuring time is correct before Environment_PlaySceneSequence processes audio
     // This prevents bird chirps from playing when correcting to night half-days on initial spawn
-    if (IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE]) {
+    if (shouldRegister) {
         // Check if this is initial spawn (day=0) and needs correction
         if (!gSaveContext.save.isOwlSave && (gSaveContext.save.day == 0 && gSaveContext.save.time == DAY_0_0559_TIME)) {
             CorrectInitialTime();
@@ -578,29 +580,27 @@ void OnFileLoad() {
 
     // Hook EnTest4 BEFORE vanilla update to proactively check for time skips
     // This is critical: we must modify time BEFORE vanilla processes it!
-    COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_TEST4, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE],
-                 [](Actor* actor, bool* should) {
-                     CheckAndSkipUnownedTime(actor);
-                     *should = true; // Always let vanilla continue with our modified time
-                 });
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_TEST4, shouldRegister, [](Actor* actor, bool* should) {
+        CheckAndSkipUnownedTime(actor);
+        *should = true; // Always let vanilla continue with our modified time
+    });
 
     // Hook Song of Time and Song of Double Time message IDs
-    COND_ID_HOOK(OnOpenText, 0x1B8A, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE],
-                 [](u16* textId, bool* loadFromMessageTable) {
-                     ProcessClockShuffleMessage(textId, loadFromMessageTable, true);
-                 });
+    COND_ID_HOOK(OnOpenText, 0x1B8A, shouldRegister, [](u16* textId, bool* loadFromMessageTable) {
+        ProcessClockShuffleMessage(textId, loadFromMessageTable, true);
+    });
 
     auto onDoubleTime = [](u16* textId, bool* loadFromMessageTable) {
         ProcessClockShuffleMessage(textId, loadFromMessageTable, false);
     };
 
-    COND_ID_HOOK(OnOpenText, 0x1B91, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
-    COND_ID_HOOK(OnOpenText, 0x1B90, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
-    COND_ID_HOOK(OnOpenText, 0x1B8F, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
-    COND_ID_HOOK(OnOpenText, 0x1B92, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
-    COND_ID_HOOK(OnOpenText, 0x1B8E, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], onDoubleTime);
+    COND_ID_HOOK(OnOpenText, 0x1B91, shouldRegister, onDoubleTime);
+    COND_ID_HOOK(OnOpenText, 0x1B90, shouldRegister, onDoubleTime);
+    COND_ID_HOOK(OnOpenText, 0x1B8F, shouldRegister, onDoubleTime);
+    COND_ID_HOOK(OnOpenText, 0x1B92, shouldRegister, onDoubleTime);
+    COND_ID_HOOK(OnOpenText, 0x1B8E, shouldRegister, onDoubleTime);
 
-    COND_VB_SHOULD(VB_TIME_UNTIL_MOON_CRASH_CALCULATION, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], {
+    COND_VB_SHOULD(VB_TIME_UNTIL_MOON_CRASH_CALCULATION, shouldRegister, {
         *should = false; // Skip vanilla calculation
 
         // Get the time variable that was passed
@@ -646,7 +646,7 @@ void OnFileLoad() {
     });
 
     // Hook scarecrow dance time skip to redirect to next owned half-day
-    COND_VB_SHOULD(VB_SCARECROW_DANCE_SET_TIME, IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE], {
+    COND_VB_SHOULD(VB_SCARECROW_DANCE_SET_TIME, shouldRegister, {
         *should = false; // Skip vanilla behavior
 
         // Calculate next owned half-day after current

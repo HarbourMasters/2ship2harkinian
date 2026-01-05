@@ -114,10 +114,7 @@ void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std
 
                     RandoItemId randoItemId;
 
-                    if (RANDO_SAVE_CHECKS[randoCheckId].skipped) {
-                        // Skipped check: Use junk item pre-assigned during check exclusion (OnFileCreate.cpp:218-219)
-                        randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId;
-                    } else if (isShuffled) {
+                    if (isShuffled) {
                         randoItemId = itemPool.back();
                         itemPool.pop_back();
 
