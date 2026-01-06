@@ -557,6 +557,7 @@ void BenMenu::AddSettings() {
         .Options(ButtonOptions().Tooltip("Enables the separate Bindings Window.").Size(Sizes::Inline));
 
     path.sidebarName = "Overlay";
+    path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Overlay", 2);
     AddWidget(path, "Notifications", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Position", WIDGET_CVAR_COMBOBOX)
@@ -993,6 +994,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Equipment.InvertShieldY")
         .Options(CheckboxOptions().Tooltip(
             "Invert the Y axis while holding the shield so that it moves up with the left stick."));
+    AddWidget(path, "Great Fairy Sword B-Button Attack", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Equipment.GreatFairySwordBButton")
+        .Options(CheckboxOptions().Tooltip(
+            "When the Great Fairy's Sword is held, pressing B attacks with it instead of drawing "
+            "your equipped sword. The sword can still be put away with A as normal."));
 
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
@@ -1390,6 +1396,12 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Timesavers.SkipBalladOfWindfish")
         .Options(CheckboxOptions().Tooltip(
             "Play the complete Ballad after playing in one form if you have all three transformation masks."));
+    AddWidget(path, "Auto Bank Deposit", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.AutoBankDeposit")
+        .Options(CheckboxOptions().Tooltip(
+            "Automatically deposits excess Rupees into your bank account when your wallet is full. "
+            "Deposits stop when the bank reaches maximum capacity. "
+            "Bank rewards are granted automatically. Notifications display deposit amount and new balance."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
@@ -1641,6 +1653,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Invincible", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Minigames.BoatArcheryInvincible")
         .Options(CheckboxOptions().Tooltip("Koume's health does not decrease when hit."));
+    AddWidget(path, "Treasure Chest Shop Show Full Maze", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.TreasureChestShopShowFullMaze")
+        .Options(CheckboxOptions().Tooltip("Shows the entire maze layout in the Treasure Chest Shop minigame "
+                                           "instead of only revealing tiles near Link."));
 
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);

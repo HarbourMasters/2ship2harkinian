@@ -4,6 +4,7 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "Rando/Rando.h"
 #include "Rando/ActorBehavior/Souls.h"
+#include "Rando/MiscBehavior/ClockShuffle.h"
 
 #include "2s2h/ShipUtils.h"
 #include <spdlog/fmt/fmt.h>
@@ -89,6 +90,53 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
             case RI_SOUL_BOSS_MAJORA:
             case RI_SOUL_BOSS_ODOLWA:
             case RI_SOUL_BOSS_TWINMOLD:
+            case RI_SOUL_ENEMY_ALIEN:
+            case RI_SOUL_ENEMY_ARMOS:
+            case RI_SOUL_ENEMY_BAD_BAT:
+            case RI_SOUL_ENEMY_BEAMOS:
+            case RI_SOUL_ENEMY_BOE:
+            case RI_SOUL_ENEMY_BUBBLE:
+            case RI_SOUL_ENEMY_CAPTAIN_KEETA:
+            case RI_SOUL_ENEMY_CHUCHU:
+            case RI_SOUL_ENEMY_DEATH_ARMOS:
+            case RI_SOUL_ENEMY_DEEP_PYTHON:
+            case RI_SOUL_ENEMY_DEKU_BABA:
+            case RI_SOUL_ENEMY_DEXIHAND:
+            case RI_SOUL_ENEMY_DINOLFOS:
+            case RI_SOUL_ENEMY_DODONGO:
+            case RI_SOUL_ENEMY_DRAGONFLY:
+            case RI_SOUL_ENEMY_EENO:
+            case RI_SOUL_ENEMY_EYEGORE:
+            case RI_SOUL_ENEMY_FREEZARD:
+            case RI_SOUL_ENEMY_GARO:
+            case RI_SOUL_ENEMY_GEKKO:
+            case RI_SOUL_ENEMY_GIANT_BEE:
+            case RI_SOUL_ENEMY_GOMESS:
+            case RI_SOUL_ENEMY_GUAY:
+            case RI_SOUL_ENEMY_HIPLOOP:
+            case RI_SOUL_ENEMY_IGOS_DU_IKANA:
+            case RI_SOUL_ENEMY_IRON_KNUCKLE:
+            case RI_SOUL_ENEMY_KEESE:
+            case RI_SOUL_ENEMY_LEEVER:
+            case RI_SOUL_ENEMY_LIKE_LIKE:
+            case RI_SOUL_ENEMY_MAD_SCRUB:
+            case RI_SOUL_ENEMY_NEJIRON:
+            case RI_SOUL_ENEMY_OCTOROK:
+            case RI_SOUL_ENEMY_PEAHAT:
+            case RI_SOUL_ENEMY_PIRATE:
+            case RI_SOUL_ENEMY_POE:
+            case RI_SOUL_ENEMY_REDEAD:
+            case RI_SOUL_ENEMY_SHELLBLADE:
+            case RI_SOUL_ENEMY_SKULLFISH:
+            case RI_SOUL_ENEMY_SKULLTULA:
+            case RI_SOUL_ENEMY_SNAPPER:
+            case RI_SOUL_ENEMY_STALCHILD:
+            case RI_SOUL_ENEMY_TAKKURI:
+            case RI_SOUL_ENEMY_TEKTITE:
+            case RI_SOUL_ENEMY_WALLMASTER:
+            case RI_SOUL_ENEMY_WART:
+            case RI_SOUL_ENEMY_WIZROBE:
+            case RI_SOUL_ENEMY_WOLFOS:
                 itemObtained = Flags_GetRandoInf(SOUL_RI_TO_RANDO_INF(itemId));
                 break;
             case RI_TINGLE_MAP_CLOCK_TOWN:
@@ -108,6 +156,22 @@ extern TrackerImageObject GetTextureObject(int16_t itemId, bool isRandoItem) {
                 break;
             case RI_TINGLE_MAP_STONE_TOWER:
                 itemObtained = CHECK_WEEKEVENTREG(WEEKEVENTREG_TINGLE_MAP_BOUGHT_STONE_TOWER);
+                break;
+            case RI_TIME_DAY_1:
+            case RI_TIME_DAY_2:
+            case RI_TIME_DAY_3:
+                randoImageObject.textureColor = ImVec4(1.0f, 0.9f, 0.3f, 1.0f); // Yellow/gold for sun
+                itemObtained = Flags_GetRandoInf(
+                    static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 +
+                                          Rando::ClockItems::GetHalfDayIndexFromClockItem((RandoItemId)itemId)));
+                break;
+            case RI_TIME_NIGHT_1:
+            case RI_TIME_NIGHT_2:
+            case RI_TIME_NIGHT_3:
+                randoImageObject.textureColor = ImVec4(0.5f, 0.7f, 1.0f, 1.0f); // Light blue for moon
+                itemObtained = Flags_GetRandoInf(
+                    static_cast<RandoInf>(RANDO_INF_OBTAINED_CLOCK_DAY_1 +
+                                          Rando::ClockItems::GetHalfDayIndexFromClockItem((RandoItemId)itemId)));
                 break;
             case RI_TRIFORCE_PIECE:
                 itemObtained = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces > 0;
