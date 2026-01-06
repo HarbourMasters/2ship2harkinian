@@ -247,6 +247,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // this->animIndex == EN_DNO_ANIM_SHOCK_LOOP
+    // ```
+    // #### `args`
+    // - `this->animIndex == EN_DNO_ANIM_SHOCK_LOOP` (bool)
+    VB_DEKU_BUTLER_FIX_SHOCK_ANIM,
+
+    // #### `result`
+    // ```c
     // gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_NONE
     // ```
     // #### `args`
