@@ -961,6 +961,9 @@ void func_80A73408(EnDno* this, PlayState* play) {
                     break;
 
                 case 2:
+                    if(this->animIndex == EN_DNO_ANIM_SHOCK_LOOP) {
+                        changeAnim = false;
+                    }
                     nextAnimIndex = EN_DNO_ANIM_SHOCK_START;
                     break;
 
