@@ -11,6 +11,7 @@
 #include "z_en_dno.h"
 #include "overlays/actors/ovl_Bg_Crace_Movebg/z_bg_crace_movebg.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS                                                                                  \
     (ACTOR_FLAG_ATTENTION_ENABLED | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_UPDATE_CULLING_DISABLED | \
@@ -961,8 +962,10 @@ void func_80A73408(EnDno* this, PlayState* play) {
                     break;
 
                 case 2:
-                    if(this->animIndex == EN_DNO_ANIM_SHOCK_LOOP) {
-                        changeAnim = false;
+                    if (!GameInteractor_Should(VB_DEKU_BUTLER_FIX_SHOCK_ANIM, true)) {
+                        if (this->animIndex == EN_DNO_ANIM_SHOCK_LOOP) {
+                            changeAnim = false;
+                        }
                     }
                     nextAnimIndex = EN_DNO_ANIM_SHOCK_START;
                     break;
