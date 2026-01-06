@@ -403,6 +403,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // gSaveContext.save.saveInfo.playerData.rupees >= CUR_CAPACITY(UPG_WALLET)
+    // ```
+    // #### `args`
+    // - None
+    VB_DISCARD_EXCESS_RUPEES,
+
+    // #### `result`
+    // ```c
     // true
     // ```
     // #### `args`
@@ -628,6 +636,16 @@ typedef enum {
     // #### `args`
     // - `PlayerItemAction`
     VB_GET_ITEM_ACTION_FROM_MASK,
+
+    // #### `result`
+    // #### In `Player_GetItemOnButton`:
+    // ```c
+    // item
+    // ```
+    // #### `args`
+    // - `EquipSlot`
+    // - `*ItemId`
+    VB_GET_ITEM_ON_BUTTON,
 
     // #### `result`
     // ```c
@@ -1656,6 +1674,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_SCARECROW_DANCE_SET_TIME,
+
+    // #### `result`
+    // ```c
     // gSaveContext.save.saveInfo.inventory.items[ITEM_OCARINA_OF_TIME] == ITEM_NONE
     // ```
     // #### `args`
@@ -1968,6 +1994,14 @@ typedef enum {
     // #### `args`
     // - None
     VB_THIEF_BIRD_STEAL,
+
+    // #### `result`
+    // ```c
+    // TIME_UNTIL_MOON_CRASH
+    // ```
+    // #### `args`
+    // - `*u32` (time variable)
+    VB_TIME_UNTIL_MOON_CRASH_CALCULATION,
 
     // #### `result`
     // ```c
