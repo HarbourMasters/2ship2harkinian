@@ -1013,6 +1013,14 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Time Moves when you Move", WIDGET_CVAR_CHECKBOX)
         .CVar("gModes.TimeMovesWhenYouMove")
         .Options(CheckboxOptions().Tooltip("Time only moves when Link is not standing still."));
+    AddWidget(path, "Super Hot", WIDGET_CVAR_CHECKBOX)
+        .CVar("gModes.SuperHot")
+        .PreFunc([](WidgetInfo& info) {
+            if (mBenMenu->disabledMap.at(DISABLE_FOR_TIME_MOVES_WHEN_YOU_MOVE).active) {
+                info.activeDisables.push_back(DISABLE_FOR_TIME_MOVES_WHEN_YOU_MOVE);
+            }
+        })
+        .Options(CheckboxOptions().Tooltip("Actor updates are also tied to Link moving"));
     AddWidget(path, "Mirrored World", WIDGET_CVAR_CHECKBOX)
         .CVar("gModes.MirroredWorld.Mode")
         .Callback([](WidgetInfo& info) {
@@ -2052,6 +2060,9 @@ void BenMenu::InitElement() {
                return CVarGetInteger("gEnhancements.Minigames.BoatArcheryInvincible", 0);
            },
             "Koume is Invincible" } },
+        { DISABLE_FOR_TIME_MOVES_WHEN_YOU_MOVE,
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger("gModes.TimeMovesWhenYouMove", 0); },
+            "'Time Moves when you Move' is Disabled" } },
     };
 }
 
