@@ -116,6 +116,7 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_DEKU_PALACE_POT_01, CAN_BE_DEKU),
             CHECK(RC_DEKU_PALACE_POT_02, CAN_BE_DEKU),
+            CHECK(RC_ENEMY_DROP_MAD_SCRUB, CanKillEnemy(ACTOR_EN_DEKUNUTS)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(DEKU_KINGS_CHAMBER, 1),           ENTRANCE(DEKU_PALACE, 3), CAN_BE_DEKU), // Cell
@@ -125,6 +126,9 @@ static RegisterShipInitFunc initFunc([]() {
         },
     };
     Regions[RR_DEKU_PALACE_OUTSIDE] = RandoRegion{ .name = "Outside", .sceneId = SCENE_22DEKUCITY,
+        .checks = {
+            CHECK(RC_ENEMY_DROP_MINI_BABA, (CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER)) && CanKillEnemy(ACTOR_EN_KAREBABA)),
+        },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 3),      ENTRANCE(DEKU_PALACE, 0), true),
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 4),      ENTRANCE(DEKU_PALACE, 5), CAN_BE_DEKU), // Treetop
@@ -132,8 +136,7 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .connections = {
             CONNECTION(RR_DEKU_PALACE_INSIDE_LOWER, CAN_BE_DEKU),
-            // TODO: This soil patch can be watered with the Day 2 rain. Clock shuffle will need to require Day 2 or another water source.
-            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER, (CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER)) && HAS_ITEM(ITEM_MAGIC_BEANS)),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER, (CAN_BE_DEKU || (RANDO_EVENTS[RE_CLEARED_WOODFALL_TEMPLE] && CAN_TRAVERSE_WAIST_DEEP_WATER)) && CAN_USE_DAY2_RAIN_BEAN),
         },
     };
     Regions[RR_DEKU_SHRINE_ENTRANCE] = RandoRegion{ .name = "Entrance", .sceneId = SCENE_DANPEI,
@@ -188,9 +191,9 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_HAGS_POTION_SHOP_FREESTANDING_RUPEE, true),
             // TODO: Add CAN_ACCESS(MUSHROOM) once that is shuffled.
-            CHECK(RC_HAGS_POTION_SHOP_ITEM_01, CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_01) && HAS_ITEM(ITEM_MASK_SCENTS) && HAS_BOTTLE),
-            CHECK(RC_HAGS_POTION_SHOP_ITEM_02, CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_02)),
-            CHECK(RC_HAGS_POTION_SHOP_ITEM_03, CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_03)),
+            CHECK(RC_HAGS_POTION_SHOP_ITEM_01, (FIRST_DAY() || RANDO_EVENTS[RE_SAVED_KOUME]) && CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_01) && HAS_ITEM(ITEM_MASK_SCENTS) && HAS_BOTTLE),
+            CHECK(RC_HAGS_POTION_SHOP_ITEM_02, (FIRST_DAY() || RANDO_EVENTS[RE_SAVED_KOUME]) && CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_02)),
+            CHECK(RC_HAGS_POTION_SHOP_ITEM_03, (FIRST_DAY() || RANDO_EVENTS[RE_SAVED_KOUME]) && CAN_AFFORD(RC_HAGS_POTION_SHOP_ITEM_03)),
             CHECK(RC_HAGS_POTION_SHOP_KOTAKE, true),
         },
         .exits = { //     TO                                         FROM
@@ -217,6 +220,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GROTTO_GRASS_12, true),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GROTTO_GRASS_13, true),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GROTTO_GRASS_14, true),
+            CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
         .connections = {
             CONNECTION(RR_ROAD_TO_SOUTHERN_SWAMP, true), // TODO: Grotto mapping
@@ -247,11 +251,15 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GRASS_18, true),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GRASS_19, true),
             CHECK(RC_ROAD_TO_SOUTHERN_SWAMP_GRASS_20, true),
+            CHECK(RC_ENEMY_DROP_DEKU_BABA, CanKillEnemy(ACTOR_EN_DEKUBABA)),
+            CHECK(RC_ENEMY_DROP_CHUCHU, CanKillEnemy(ACTOR_EN_SLIME) && IS_DAY()), // Day only
+            CHECK(RC_ENEMY_DROP_WOLFOS, CanKillEnemy(ACTOR_EN_WF) && IS_NIGHT()), // Night only
+            CHECK(RC_ENEMY_DROP_BAD_BAT, CanKillEnemy(ACTOR_EN_BAT)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 1),                ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 0), true),
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 0),      ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 1), true),
-            EXIT(ENTRANCE(SWAMP_SHOOTING_GALLERY, 0),       ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2), true),
+            EXIT(ENTRANCE(SWAMP_SHOOTING_GALLERY, 0),       ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2), BEFORE(TIME_NIGHT1_PM_10_00) || BETWEEN(TIME_DAY2_AM_06_00, TIME_NIGHT2_PM_10_00) || BETWEEN(TIME_DAY3_AM_06_00, TIME_NIGHT3_PM_10_00)),
         },
         .connections = {
             CONNECTION(RR_ROAD_TO_SOUTHERN_SWAMP_GROTTO, true), // TODO: Grotto mapping
@@ -278,6 +286,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SOUTHERN_SWAMP_GROTTO_GRASS_12, true),
             CHECK(RC_SOUTHERN_SWAMP_GROTTO_GRASS_13, true),
             CHECK(RC_SOUTHERN_SWAMP_GROTTO_GRASS_14, true),
+            CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
         .connections = {
             CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, true), // TODO: Grotto mapping
@@ -313,6 +322,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_10, true),
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_11, true),
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_12, true),
+            CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 1),       ENTRANCE(SOUTHERN_SWAMP_POISONED, 0), true),
@@ -338,6 +348,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SOUTHERN_SWAMP_FROG, HAS_ITEM(ITEM_MASK_DON_GERO)),
             CHECK(RC_SOUTHERN_SWAMP_FREESTANDING_RUPEE_01, CAN_BE_DEKU || CAN_BE_ZORA),
             CHECK(RC_SOUTHERN_SWAMP_FREESTANDING_RUPEE_02, CAN_BE_DEKU || CAN_BE_ZORA),
+            CHECK(RC_ENEMY_DROP_OCTOROK, CanKillEnemy(ACTOR_EN_OKUTA) && CAN_TRAVERSE_WAIST_DEEP_WATER),
         },
         .connections = {
             CONNECTION(RR_SOUTHERN_SWAMP_SOUTH, CanGetPastBigOctoWithoutBoat()),
@@ -396,6 +407,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_28, true),
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_29, true),
             CHECK(RC_SOUTHERN_SWAMP_POISON_GRASS_30, true),
+            CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
+            CHECK(RC_ENEMY_DROP_DEKU_BABA, CanKillEnemy(ACTOR_EN_DEKUBABA)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(MAGIC_HAGS_POTION_SHOP, 0),       ENTRANCE(SOUTHERN_SWAMP_POISONED, 5), true),
@@ -431,6 +444,7 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_SOUTHERN_SWAMP_SOUTH_UPPER] = RandoRegion{ .name = "Upper South Section", .sceneId = SCENE_20SICHITAI,
         .checks = {
             CHECK(RC_SOUTHERN_SWAMP_SONG_OF_SOARING, CAN_BE_DEKU),
+            CHECK(RC_ENEMY_DROP_DRAGONFLY, CanKillEnemy(ACTOR_EN_GRASSHOPPER)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(WOODFALL, 0),                     ENTRANCE(SOUTHERN_SWAMP_POISONED, 2), CAN_BE_DEKU),
@@ -450,6 +464,11 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ROAD_TO_SOUTHERN_SWAMP, 2),       ENTRANCE(SWAMP_SHOOTING_GALLERY, 0), true),
+        },
+        .timeStayRestrictions = {
+            STAY(TIME_NIGHT1_PM_10_00, false),
+            STAY(TIME_NIGHT2_PM_10_00, false),
+            STAY(TIME_NIGHT3_PM_10_00, false),
         },
     };
     Regions[RR_TOURIST_INFORMATION] = RandoRegion{ .sceneId = SCENE_MAP_SHOP,
@@ -485,6 +504,9 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODFALL_GRASS_04, true),
             CHECK(RC_WOODFALL_GRASS_05, true),
             CHECK(RC_WOODFALL_GRASS_06, true),
+            CHECK(RC_ENEMY_DROP_DRAGONFLY, CanKillEnemy(ACTOR_EN_GRASSHOPPER)),
+            CHECK(RC_ENEMY_DROP_HIPLOOP, CanKillEnemy(ACTOR_EN_PP)),
+            CHECK(RC_ENEMY_DROP_MAD_SCRUB, CanKillEnemy(ACTOR_EN_DEKUNUTS)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 2),      ENTRANCE(WOODFALL, 0), true),
@@ -527,9 +549,10 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODS_OF_MYSTERY_GROTTO_GRASS_12, true),
             CHECK(RC_WOODS_OF_MYSTERY_GROTTO_GRASS_13, true),
             CHECK(RC_WOODS_OF_MYSTERY_GROTTO_GRASS_14, true),
+            CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
         .connections = {
-            CONNECTION(RR_WOODS_OF_MYSTERY, true), // TODO: Grotto mapping
+            CONNECTION(RR_WOODS_OF_MYSTERY, SECOND_DAY()), // TODO: Grotto mapping
         },
     };
     Regions[RR_WOODS_OF_MYSTERY] = RandoRegion{ .sceneId = SCENE_26SARUNOMORI,
@@ -537,8 +560,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_01, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_02, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_03, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_04, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_05, true),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_04, FIRST_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_05, FIRST_DAY()),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_06, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_07, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_08, true),
@@ -554,15 +577,16 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_18, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_19, true),
             CHECK(RC_WOODS_OF_MYSTERY_GRASS_20, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_21, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_22, true),
-            CHECK(RC_WOODS_OF_MYSTERY_GRASS_23, true),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_21, SECOND_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_22, FINAL_DAY()),
+            CHECK(RC_WOODS_OF_MYSTERY_GRASS_23, FINAL_DAY()),
+            CHECK(RC_ENEMY_DROP_SNAPPER, CAN_BE_DEKU || CanKillEnemy(ACTOR_EN_KAME)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 7),      ENTRANCE(WOODS_OF_MYSTERY, 0), true),
         },
         .connections = {
-            CONNECTION(RR_WOODS_OF_MYSTERY_GROTTO, true), // TODO: Grotto mapping
+            CONNECTION(RR_WOODS_OF_MYSTERY_GROTTO, SECOND_DAY()), // TODO: Grotto mapping
         },
         .events = {
             EVENT(RE_SAVED_KOUME, HAS_BOTTLE && (CAN_ACCESS(RED_POTION_REFILL) || CAN_ACCESS(BLUE_POTION_REFILL))),

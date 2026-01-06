@@ -57,6 +57,12 @@ static const std::vector<const char*> cremiaRewardOptions = {
     "Rupee",   // CREMIA_REWARD_ALWAYS_RUPEE
 };
 
+static const std::vector<const char*> ammoBuybackOptions = {
+    "Vanilla",    // AMMO_BUYBACK_VANILLA
+    "Full Price", // AMMO_BUYBACK_FULL_PRICE
+    "Half Price", // AMMO_BUYBACK_HALF_PRICE
+};
+
 static const std::vector<const char*> gibdoTradeSequenceOptions = {
     "Vanilla",  // GIBDO_TRADE_SEQUENCE_VANILLA
     "MM3D",     // GIBDO_TRADE_SEQUENCE_MM3D
@@ -113,8 +119,8 @@ static const std::vector<const char*> notificationPosition = {
 };
 
 static const std::vector<const char*> dekuGuardSearchBallsOptions = {
-    "Never",      // DEKU_GUARD_SEARCH_BALLS_NEVER
     "Night Only", // DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY
+    "Never",      // DEKU_GUARD_SEARCH_BALLS_NEVER
     "Always",     // DEKU_GUARD_SEARCH_BALLS_ALWAYS
 };
 
@@ -551,6 +557,7 @@ void BenMenu::AddSettings() {
         .Options(ButtonOptions().Tooltip("Enables the separate Bindings Window.").Size(Sizes::Inline));
 
     path.sidebarName = "Overlay";
+    path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Overlay", 2);
     AddWidget(path, "Notifications", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Position", WIDGET_CVAR_COMBOBOX)
@@ -987,6 +994,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Equipment.InvertShieldY")
         .Options(CheckboxOptions().Tooltip(
             "Invert the Y axis while holding the shield so that it moves up with the left stick."));
+    AddWidget(path, "Great Fairy Sword B-Button Attack", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Equipment.GreatFairySwordBButton")
+        .Options(CheckboxOptions().Tooltip(
+            "When the Great Fairy's Sword is held, pressing B attacks with it instead of drawing "
+            "your equipped sword. The sword can still be put away with A as normal."));
 
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
@@ -1020,6 +1032,27 @@ void BenMenu::AddEnhancements() {
                               "-Hug: Get the hugging cutscene\n"
                               "-Rupee: Get the rupee reward")
                      .ComboVec(&cremiaRewardOptions));
+    AddWidget(path, "Ammo Buyback Options", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Items.AmmoBuyback")
+        .Options(ComboboxOptions()
+                     .Tooltip("Choose whether to allow selling ammo items (Arrows, Bombs, Bombchus, Deku Sticks, Deku "
+                              "Nuts, Magic Beans, Powder Keg) "
+                              "to the Curiosity Shop owner for Rupees.\n"
+                              "-Vanilla: Ammo items cannot be sold\n"
+                              "-Full Price: Sell at full value\n"
+                              "-Half Price: Sell at half value (rounded up)")
+                     .ComboVec(&ammoBuybackOptions));
+    AddWidget(path, "Accessibility", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Disable Screen Flash for Enemy Kills", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.A11y.NoScreenFlashForEnemyKill")
+        .Options(CheckboxOptions().Tooltip("Disables the white screen flash on enemy kill."));
+    AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Graphics.BowReticle")
+        .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
+    AddWidget(path, "Mark Shooting Gallery Octoroks", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.MarkShootingGalleryOctoroks")
+        .Options(CheckboxOptions().Tooltip("Places markers on the Town Shooting Gallery Octoroks, indicating whether "
+                                           "they should be hit."));
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Saving", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)
@@ -1036,14 +1069,17 @@ void BenMenu::AddEnhancements() {
             "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
             "option to create a persistent Owl Save from your current location.\n\nWhen loading back "
             "into the game, you will be placed either at the entrance of the dungeon you saved in, or "
-            "in South Clock Town."));
+            "in South Clock Town, unless Remember Save Location is enabled."));
+    AddWidget(path, "Remember Save Location", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Saving.RememberSaveLocation")
+        .Options(CheckboxOptions().Tooltip("When loading a save, places Link at the last entrance he went through."));
     AddWidget(path, "Autosave", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.Autosave")
         .Callback([](WidgetInfo& info) { RegisterAutosave(); })
         .Options(CheckboxOptions().Tooltip(
             "Automatically create a persistent Owl Save on the chosen interval.\n\nWhen loading "
             "back into the game, you will be placed either at the entrance of the dungeon you "
-            "saved in, or in South Clock Town."));
+            "saved in, or in South Clock Town, unless Remember Save Location is enabled."));
     AddWidget(path, "Autosave Interval: %d minutes", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Saving.AutosaveInterval")
         .PreFunc([](WidgetInfo& info) {
@@ -1153,9 +1189,6 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Graphics.AuthenticLogo")
         .Options(CheckboxOptions().Tooltip("Hide the game version and build details and display the authentic "
                                            "model and texture on the boot logo start screen."));
-    AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.BowReticle")
-        .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
     AddWidget(path, "Disable Black Bar Letterboxes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.DisableBlackBars")
         .Options(CheckboxOptions().Tooltip(
@@ -1265,6 +1298,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Song of Time cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.SkipSoTCutscenes")
         .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs."));
+    AddWidget(path, "Skip Soaring cutscene", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Songs.SkipSoaringCutscene")
+        .Options(CheckboxOptions().Tooltip("Skips the cutscene when using the Song of Soaring to warp."));
 
     // Time Savers
     path = { "Enhancements", "Time Savers", SECTION_COLUMN_1 };
@@ -1360,6 +1396,12 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Timesavers.SkipBalladOfWindfish")
         .Options(CheckboxOptions().Tooltip(
             "Play the complete Ballad after playing in one form if you have all three transformation masks."));
+    AddWidget(path, "Auto Bank Deposit", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.AutoBankDeposit")
+        .Options(CheckboxOptions().Tooltip(
+            "Automatically deposits excess Rupees into your bank account when your wallet is full. "
+            "Deposits stop when the bank reaches maximum capacity. "
+            "Bank rewards are granted automatically. Notifications display deposit amount and new balance."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
@@ -1575,10 +1617,9 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(20)
                      .DefaultValue(20));
-    AddWidget(path, "Mark Shooting Gallery Octoroks", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.MarkShootingGalleryOctoroks")
-        .Options(CheckboxOptions().Tooltip("Places markers on the Town Shooting Gallery Octoroks, indicating whether "
-                                           "they should be hit."));
+    AddWidget(path, "Skip Little Beaver Brother Races", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.SkipLittleBeaver")
+        .Options(CheckboxOptions().Tooltip("Only Race the Older Beaver."));
     AddWidget(path, "Goron Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.GoronRace")
         .Options(ComboboxOptions()
@@ -1588,6 +1629,34 @@ void BenMenu::AddEnhancements() {
                               "- Skip: Instantly win the race.\n")
                      .DefaultIndex(GoronRaceDifficultyOptions::GORON_RACE_DIFFICULTY_VANILLA)
                      .ComboVec(&goronRaceDifficultyOptions));
+    AddWidget(path, "Swamp Boat Archery Target Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BoatArcheryScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the initial target score of the Swamp Boat Archery minigame. The target score "
+                              "gets set the first time you play the minigame in each cycle.")
+                     .Min(1)
+                     .Max(50)
+                     .DefaultValue(20));
+    AddWidget(path, "Koume's Health", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BoatArcheryHealth")
+        .PreFunc([](WidgetInfo& info) {
+            if (mBenMenu->disabledMap.at(DISABLE_FOR_KOUME_INVINCIBLE).active) {
+                info.activeDisables.push_back(DISABLE_FOR_KOUME_INVINCIBLE);
+            }
+        })
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets Koume's health in the Swamp Boat Archery minigame. If Koume is hit this many "
+                              "times, the minigame will end.")
+                     .Min(1)
+                     .Max(30)
+                     .DefaultValue(10));
+    AddWidget(path, "Invincible", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.BoatArcheryInvincible")
+        .Options(CheckboxOptions().Tooltip("Koume's health does not decrease when hit."));
+    AddWidget(path, "Treasure Chest Shop Show Full Maze", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.TreasureChestShopShowFullMaze")
+        .Options(CheckboxOptions().Tooltip("Shows the entire maze layout in the Treasure Chest Shop minigame "
+                                           "instead of only revealing tiles near Link."));
 
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
@@ -1978,6 +2047,11 @@ void BenMenu::InitElement() {
                return !CVarGetInteger("gAudioEditor.LinkVoiceFreqMultiplier.Enable", 0);
            },
             "Enable Link's Voice Pitch Multiplier is Disabled" } },
+        { DISABLE_FOR_KOUME_INVINCIBLE,
+          { [](disabledInfo& info) -> bool {
+               return CVarGetInteger("gEnhancements.Minigames.BoatArcheryInvincible", 0);
+           },
+            "Koume is Invincible" } },
     };
 }
 

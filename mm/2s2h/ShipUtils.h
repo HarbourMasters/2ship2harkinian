@@ -3,6 +3,13 @@
 
 #include "PR/ultratypes.h"
 
+#include "macros.h" // For CLOCK_TIME and DAY_LENGTH
+
+// Time utilities for 2s2h enhancements
+#define MORNING_TIME 0x4000 // 6:00 AM - start of day
+// Normalize time so that 6:00 AM is 0 and 5:59 AM is 0xFFFF (wraps around)
+#define ZERO_DAY_START(time) (((u16)((time)-MORNING_TIME) % DAY_LENGTH))
+
 #include "gbi.h"
 
 #ifdef __cplusplus
@@ -17,6 +24,7 @@ std::string convertEnumToReadableName(const std::string& input);
 std::vector<RandoItemId> convertStartingItemsToRandoItemId(const std::string& input, const std::string& delimiter);
 std::string CreateStartingItemsToCvar(std::vector<RandoItemId> startingItemList);
 std::string Ship_RemoveSpecialCharacters(const std::string& str);
+extern u16 sOwlWarpEntrancesForMods[];
 extern std::array<const char*, 11> digitList;
 extern const char* fairyIconTextures[];
 extern std::string Ship_FormatTimeDisplay(uint32_t value);

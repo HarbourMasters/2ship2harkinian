@@ -27,7 +27,7 @@ std::vector<std::string> listOrder = {
 };
 
 std::vector<std::string> randoListOrder = {
-    "Frogs", "Ocarina Buttons", "Boss Souls", "Owl Statues", "Tingle Maps", "Misc",
+    "Frogs", "Ocarina Buttons", "Boss Souls", "Enemy Souls", "Owl Statues", "Time", "Tingle Maps", "Misc",
 };
 
 std::map<std::string, std::tuple<int16_t, int16_t, int16_t>> defaultItemLists = {
@@ -44,9 +44,11 @@ std::map<std::string, std::tuple<int16_t, int16_t, int16_t>> defaultItemLists = 
 std::map<std::string, std::tuple<int16_t, int16_t, int16_t>> randoItemLists = {
     { "Frogs", { RI_FROG_BLUE, RI_FROG_WHITE, 4 } },
     { "Ocarina Buttons", { RI_OCARINA_BUTTON_A, RI_OCARINA_BUTTON_C_UP, 5 } },
-    { "Boss Souls", { RI_SOUL_GOHT, RI_SOUL_TWINMOLD, 5 } },
+    { "Boss Souls", { RI_SOUL_BOSS_GOHT, RI_SOUL_BOSS_TWINMOLD, 5 } },
+    { "Enemy Souls", { RI_SOUL_ENEMY_ALIEN, RI_SOUL_ENEMY_WOLFOS, 6 } },
     { "Owl Statues", { RI_OWL_CLOCK_TOWN_SOUTH, RI_OWL_ZORA_CAPE, 5 } },
     { "Tingle Maps", { RI_TINGLE_MAP_CLOCK_TOWN, RI_TINGLE_MAP_WOODFALL, 6 } },
+    { "Time", { RI_TIME_DAY_1, RI_TIME_NIGHT_3, 6 } },
     { "Misc", { RI_TRIFORCE_PIECE, RI_TRIFORCE_PIECE, 1 } },
 };
 
@@ -249,8 +251,8 @@ void DrawItemList(std::string listName, int columns) {
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
             std::vector<int16_t> emptyList;
 
-            if (listName == "Frogs" || listName == "Ocarina Buttons" || listName == "Boss Souls" ||
-                listName == "Owl Statues" || listName == "Tingle Maps" || listName == "Misc") {
+            if (listName == "Frogs" || listName == "Ocarina Buttons" || listName == "Boss Souls" || listName == "Enemy Souls" ||
+                listName == "Owl Statues" || listName == "Tingle Maps" || listName == "Time" || listName == "Misc") {
                 for (int j = std::get<0>(randoItemLists.at(listName)); j <= std::get<1>(randoItemLists.at(listName));
                      j++) {
                     ImGui::TableNextColumn();
@@ -346,8 +348,8 @@ void DrawPreviewPane() {
             }
             windowListIndex++;
         }
-        ImGui::EndChild();
     }
+    ImGui::EndChild();
 }
 
 void DrawTrackerWindowOptions(int32_t windowIndex, TrackerItemListObject& windowObject) {
@@ -607,9 +609,8 @@ void DrawTrackerCustomizationOptions() {
             DrawItemList(randoListOrder[rkey], std::get<2>(list));
             ImGui::PopID();
         }
-
-        ImGui::EndChild();
     }
+    ImGui::EndChild();
 }
 
 void ItemTrackerSettingsWindow::DrawElement() {
@@ -635,28 +636,28 @@ void ItemTrackerSettingsWindow::DrawElement() {
                     if (ImGui::BeginTabItem("Customization")) {
                         if (ImGui::BeginChild("CustomizationChild")) {
                             DrawTrackerCustomizationOptions();
-                            ImGui::EndChild();
                         }
+                        ImGui::EndChild();
                         ImGui::EndTabItem();
                     }
                     if (ImGui::BeginTabItem("Options")) {
                         if (ImGui::BeginChild("OptionsChild")) {
                             DrawTrackerOptions();
-                            ImGui::EndChild();
                         }
+                        ImGui::EndChild();
                         ImGui::EndTabItem();
                     }
                     if (ImGui::BeginTabItem("Save/Load")) {
                         if (ImGui::BeginChild("SaveChild")) {
                             DrawTrackerSaveLoadOptions();
-                            ImGui::EndChild();
                         }
+                        ImGui::EndChild();
                         ImGui::EndTabItem();
                     }
                     ImGui::EndTabBar();
                 }
-                ImGui::EndChild();
             }
+            ImGui::EndChild();
 
             ImGui::TableNextColumn();
             if (ImGui::BeginChild("WindowChild")) {
@@ -667,15 +668,15 @@ void ItemTrackerSettingsWindow::DrawElement() {
                     }
                     ImGui::EndTabBar();
                 }
-                ImGui::EndChild();
             }
+            ImGui::EndChild();
             ImGui::EndTable();
         }
         UIWidgets::PopStyleTabs();
 
         ImGui::PopStyleColor(3);
-        ImGui::EndChild();
     }
+    ImGui::EndChild();
 }
 
 void ItemTrackerSettingsWindow::InitElement() {
