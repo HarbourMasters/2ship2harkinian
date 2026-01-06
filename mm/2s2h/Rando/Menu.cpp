@@ -36,6 +36,7 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
     { RO_ACCESS_TRIALS_OPEN, "Open" },
 };
 
+// clang-format off
 std::vector<int32_t> incompatibleWithVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
     RO_SHUFFLE_SWIM,
@@ -43,6 +44,7 @@ std::vector<int32_t> incompatibleWithVanilla = {
     RO_PLENTIFUL_ITEMS,
     RO_CLOCK_SHUFFLE,
 };
+// clang-format on
 
 std::vector<RandoCheckId> checkExclusionList;
 bool isExcludedInitialized = false;

@@ -250,8 +250,8 @@ void DrawItemList(std::string listName, int columns) {
             ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5, 5));
             std::vector<int16_t> emptyList;
 
-            if (listName == "Frogs" || listName == "Boss Souls" || listName == "Enemy Souls" || listName == "Owl Statues" ||
-                listName == "Tingle Maps" || listName == "Time" || listName == "Misc") {
+            if (listName == "Frogs" || listName == "Boss Souls" || listName == "Enemy Souls" ||
+                listName == "Owl Statues" || listName == "Tingle Maps" || listName == "Time" || listName == "Misc") {
                 for (int j = std::get<0>(randoItemLists.at(listName)); j <= std::get<1>(randoItemLists.at(listName));
                      j++) {
                     ImGui::TableNextColumn();
