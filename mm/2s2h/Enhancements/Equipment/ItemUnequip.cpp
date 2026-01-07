@@ -11,30 +11,34 @@ extern "C" {
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 }
 
+#define CVAR_DPAD_NAME "gEnhancements.Dpad.DpadEquips"
+#define CVAR_DPAD CVarGetInteger(CVAR_DPAD_NAME, 0)
 #define CVAR_NAME "gEnhancements.Equipment.ItemUnequip"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterDpadPageSwitchPrevention() {
-    COND_VB_SHOULD(VB_KALEIDO_SWITCH_PAGE_WITH_DPAD, CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0), {
-        PlayState* play = va_arg(args, PlayState*);
+    COND_VB_SHOULD(VB_KALEIDO_SWITCH_PAGE_WITH_DPAD, CVAR_DPAD, {
         u16 button = va_arg(args, int);
-        PauseContext* pauseCtx = &play->pauseCtx;
+        Input* input = &gPlayState->state.input[0];
+        
+        if (CHECK_BTN_ALL(input->cur.button, button)) {
+            PauseContext* pauseCtx = &gPlayState->pauseCtx;
 
-        // Prevent page switching with D-pad when on item or mask page
-        if ((pauseCtx->pageIndex == PAUSE_ITEM || pauseCtx->pageIndex == PAUSE_MASK) &&
-            pauseCtx->mainState <= PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG) {
-            *should = false;
+            // Prevent page switching with D-pad when on item or mask page
+            if ((pauseCtx->pageIndex == PAUSE_ITEM || pauseCtx->pageIndex == PAUSE_MASK) &&
+                pauseCtx->mainState <= PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG) {
+                *should = false;
+            }
         }
     });
 }
 
 void RegisterItemUnequip() {
     COND_VB_SHOULD(VB_KALEIDO_EQUIP_ITEM_TO_BUTTON, CVAR, {
-        PlayState* play = va_arg(args, PlayState*);
         u16 cursorSlot = va_arg(args, int);
         u16 cursorItem = va_arg(args, int);
 
-        PauseContext* pauseCtx = &play->pauseCtx;
+        PauseContext* pauseCtx = &gPlayState->pauseCtx;
         s32 targetSlot = -1;
         bool isDpad = false;
 
@@ -114,13 +118,13 @@ void RegisterItemUnequip() {
                 // C-buttons
                 BUTTON_ITEM_EQUIP(0, targetSlot) = ITEM_NONE;
                 C_SLOT_EQUIP(0, targetSlot) = SLOT_NONE;
-                Interface_LoadItemIconImpl(play, targetSlot);
+                Interface_LoadItemIconImpl(gPlayState, targetSlot);
             } else {
                 // D-pad
                 DPAD_BUTTON_ITEM_EQUIP(0, targetSlot) = ITEM_NONE;
                 DPAD_SLOT_EQUIP(0, targetSlot) = SLOT_NONE;
                 // Manually clear D-pad icon
-                play->interfaceCtx.iconItemSegment[DPAD_BUTTON(targetSlot) + EQUIP_SLOT_MAX] = (char*)gEmptyTexture;
+                gPlayState->interfaceCtx.iconItemSegment[DPAD_BUTTON(targetSlot) + EQUIP_SLOT_MAX] = (char*)gEmptyTexture;
             }
 
             Audio_PlaySfx(NA_SE_SY_DECIDE);
@@ -130,4 +134,4 @@ void RegisterItemUnequip() {
 }
 
 static RegisterShipInitFunc initFunc(RegisterItemUnequip, { CVAR_NAME });
-static RegisterShipInitFunc initDpadPageSwitch(RegisterDpadPageSwitchPrevention, { "gEnhancements.Dpad.DpadEquips" });
+static RegisterShipInitFunc initDpadPageSwitch(RegisterDpadPageSwitchPrevention, { CVAR_DPAD_NAME });

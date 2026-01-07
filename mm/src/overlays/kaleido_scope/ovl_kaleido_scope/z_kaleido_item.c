@@ -701,47 +701,41 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                         pauseCtx->equipTargetCBtn = PAUSE_EQUIP_C_RIGHT;
                     }
                     // #region 2S2H [Dpad]
-                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
-                             CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DRIGHT)) {
-                        if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                            (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT))) {
-                            Audio_PlaySfx(NA_SE_SY_ERROR);
-                            return;
+                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                        if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DRIGHT)) {
+                            if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
+                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT))) {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                return;
+                            }
+                            pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_RIGHT;
+                        } else if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DLEFT)) {
+                            if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
+                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT))) {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                return;
+                            }
+                            pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_LEFT;
+                        } else if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DDOWN)) {
+                            if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
+                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN))) {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                return;
+                            }
+                            pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_DOWN;
+                        } else if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DUP)) {
+                            if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
+                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP))) {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                return;
+                            }
+                            pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_UP;
                         }
-                        pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_RIGHT;
-                    } else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
-                               CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DLEFT)) {
-                        if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                            (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT))) {
-                            Audio_PlaySfx(NA_SE_SY_ERROR);
-                            return;
-                        }
-                        pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_LEFT;
-                    } else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
-                               CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DDOWN)) {
-                        if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                            (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN))) {
-                            Audio_PlaySfx(NA_SE_SY_ERROR);
-                            return;
-                        }
-                        pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_DOWN;
-                    } else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
-                               CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DUP)) {
-                        if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                            (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP))) {
-                            Audio_PlaySfx(NA_SE_SY_ERROR);
-                            return;
-                        }
-                        pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_UP;
                     }
                     // #endregion
-
-                    // #region 2S2H [Enhancement]
-                    // Item unequip enhancement
                     if (!GameInteractor_Should(VB_KALEIDO_EQUIP_ITEM_TO_BUTTON, true, play, cursorSlot, cursorItem)) {
                         return;
                     }
-                    // #endregion
 
                     // Equip item to the C buttons
                     pauseCtx->equipTargetItem = cursorItem;
@@ -1183,9 +1177,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_LEFT) = pauseCtx->equipTargetSlot;
             Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_LEFT);
         }
-
     } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_DOWN) {
-
         // Swap if item is already equipped on other Item Buttons.
         if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) != ITEM_NONE) {
@@ -1332,7 +1324,6 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_DOWN) = pauseCtx->equipTargetSlot;
         Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_DOWN);
     } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_UP) {
-
         // Swap if item is already equipped on other Item Buttons.
         if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) != ITEM_NONE) {
