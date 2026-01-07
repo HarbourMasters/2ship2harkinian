@@ -688,7 +688,9 @@ void func_80148D64(PlayState* play) {
         }
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     } else if (msgCtx->stickAdjY >= 30) {
         msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2]++;
         if (msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] > '9') {
@@ -696,7 +698,9 @@ void func_80148D64(PlayState* play) {
         }
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
         sAnalogStickHeld = true;
         msgCtx->unk120C2++;
@@ -732,7 +736,9 @@ void func_80149048(PlayState* play) {
         }
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     } else if (msgCtx->stickAdjY >= 30) {
         msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2]++;
         if (msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] > '9') {
@@ -740,7 +746,9 @@ void func_80149048(PlayState* play) {
         }
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     }
 
     msgCtx->rupeesSelected = (msgCtx->decodedBuffer.schar[msgCtx->unk120C0] - '0') * 10;
@@ -758,7 +766,9 @@ void func_801491DC(PlayState* play) {
         msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     } else if (msgCtx->stickAdjY >= 30) {
         msgCtx->unk12054[msgCtx->unk120C2]++;
         if (msgCtx->unk12054[msgCtx->unk120C2] > 5) {
@@ -767,7 +777,9 @@ void func_801491DC(PlayState* play) {
         msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
         sAnalogStickHeld = true;
         msgCtx->unk120C2++;
@@ -801,7 +813,9 @@ void func_80149454(PlayState* play) {
         msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     } else if (msgCtx->stickAdjY >= 30) {
         msgCtx->unk12054[msgCtx->unk120C2]++;
         if (msgCtx->unk12054[msgCtx->unk120C2] > 9) {
@@ -810,7 +824,9 @@ void func_80149454(PlayState* play) {
         msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
         sAnalogStickHeld = true;
         msgCtx->unk120C2++;
@@ -844,7 +860,9 @@ void func_801496C8(PlayState* play) {
         msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
         Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
                       msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     } else if (msgCtx->stickAdjY >= 30) {
         msgCtx->unk12054[msgCtx->unk120C2]++;
         if (msgCtx->unk12054[msgCtx->unk120C2] >= 4) {
@@ -853,7 +871,9 @@ void func_801496C8(PlayState* play) {
         msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
         Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
                       msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
+            Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+        }
     } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
         sAnalogStickHeld = true;
         msgCtx->unk120C2++;
@@ -2183,7 +2203,9 @@ void Message_LoadTime(PlayState* play, u16 curChar, s32* offset, f32* arg3, s16*
     f32 timeInMinutes;
 
     if (curChar == 0x20F) {
-        dayTime = TIME_UNTIL_MOON_CRASH;
+        if (GameInteractor_Should(VB_TIME_UNTIL_MOON_CRASH_CALCULATION, true, &dayTime)) {
+            dayTime = TIME_UNTIL_MOON_CRASH;
+        }
     } else {
         dayTime = TIME_UNTIL_NEW_DAY;
     }
@@ -2932,7 +2954,9 @@ void Message_Decode(PlayState* play) {
                 decodedBufPos++;
                 msgCtx->decodedBuffer.wchar[decodedBufPos] = 0x2000;
             } else if (curChar == 0x237) {
-                timeToMoonCrash = TIME_UNTIL_MOON_CRASH;
+                if (GameInteractor_Should(VB_TIME_UNTIL_MOON_CRASH_CALCULATION, true, &timeToMoonCrash)) {
+                    timeToMoonCrash = TIME_UNTIL_MOON_CRASH;
+                }
                 digits[0] = 0;
                 digits[1] = TIME_TO_HOURS_F_ALT(timeToMoonCrash);
 

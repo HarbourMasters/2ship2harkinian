@@ -19,11 +19,13 @@ void RegisterSkipScarecrowSong() {
          * This is somewhat similar to the condition that the scarecrow normally checks, except it checks if the
          * instrument is being played at all instead of having played the Scarecrow's Song in particular, and it
          * bypasses the check that Link has taught Pierre a song this cycle.
+         *
+         * With Ocarina buttons shuffled, this enhancement will only apply if at least two buttons are obtained. This is
+         * consistent with the requirements to create the Scarecrow's Song, i.e. play at least two different notes.
          */
         if ((enKakasi->picto.actor.xzDistToPlayer < enKakasi->songSummonDist) &&
             ((BREG(1) != 0) || (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_ACTIVE))) {
-            // In Rando we may utilize Ocarina Buttons, ensure this is honored.
-            if (IS_RANDO && Rando::Logic::canPlaySong(OCARINA_SONG_SCARECROW_SPAWN)) {
+            if (IS_RANDO && !Rando::Logic::canPlaySong(OCARINA_SONG_SCARECROW_SPAWN)) {
                 return;
             }
 

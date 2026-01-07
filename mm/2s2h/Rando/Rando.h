@@ -13,7 +13,8 @@
 
 #define RANDO_STARTING_ITEMS_DEFAULT                                                                                  \
     (std::to_string(RI_PROGRESSIVE_SWORD) + "," + std::to_string(RI_SHIELD_HERO) + "," + std::to_string(RI_OCARINA) + \
-     "," + std::to_string(RI_SONG_TIME))
+     "," + std::to_string(RI_SONG_TIME))                                                                              \
+        .c_str()
 
 namespace Rando {
 
