@@ -33,6 +33,12 @@ void GrantStarters() {
         startingItems.push_back(RI_ABILITY_SWIM);
     }
 
+    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] != RO_GENERIC_YES) {
+        for (int i = RI_SOUL_ENEMY_ALIEN; i <= RI_SOUL_ENEMY_WOLFOS; i++) {
+            startingItems.push_back((RandoItemId)i);
+        }
+    }
+
     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS] != RO_GENERIC_YES) {
         for (int i = RI_OCARINA_BUTTON_A; i <= RI_OCARINA_BUTTON_C_UP; i++) {
             startingItems.push_back((RandoItemId)i);
