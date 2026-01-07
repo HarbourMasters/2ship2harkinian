@@ -20,7 +20,7 @@ void RegisterDpadPageSwitchPrevention() {
     COND_VB_SHOULD(VB_KALEIDO_SWITCH_PAGE_WITH_DPAD, CVAR_DPAD, {
         u16 button = va_arg(args, int);
         Input* input = &gPlayState->state.input[0];
-        
+
         if (CHECK_BTN_ALL(input->cur.button, button)) {
             PauseContext* pauseCtx = &gPlayState->pauseCtx;
 
@@ -124,7 +124,8 @@ void RegisterItemUnequip() {
                 DPAD_BUTTON_ITEM_EQUIP(0, targetSlot) = ITEM_NONE;
                 DPAD_SLOT_EQUIP(0, targetSlot) = SLOT_NONE;
                 // Manually clear D-pad icon
-                gPlayState->interfaceCtx.iconItemSegment[DPAD_BUTTON(targetSlot) + EQUIP_SLOT_MAX] = (char*)gEmptyTexture;
+                gPlayState->interfaceCtx.iconItemSegment[DPAD_BUTTON(targetSlot) + EQUIP_SLOT_MAX] =
+                    (char*)gEmptyTexture;
             }
 
             Audio_PlaySfx(NA_SE_SY_DECIDE);
