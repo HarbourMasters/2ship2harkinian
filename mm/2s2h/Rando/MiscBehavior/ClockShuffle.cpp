@@ -124,11 +124,14 @@ namespace ClockShuffle {
 // Set a rando inf flag on the provided save info
 static void SetRandoInfFlag(RandoSaveInfo& saveInfo, RandoInf flag) {
     if (&saveInfo == &gSaveContext.save.shipSaveInfo.rando) {
+        // Use the helper function when setting flags on the active save context
+        // This ensures GameInteractor hooks are triggered and all runtime state is updated
         Flags_SetRandoInf(flag);
-        return;
+    } else {
+        // Directly manipulate the flag array when called during seed generation
+        // where saveInfo is a temporary structure not yet written to the active save
+        saveInfo.randoInf[flag >> 4] |= static_cast<u16>(1 << (flag & 0xF));
     }
-
-    saveInfo.randoInf[flag >> 4] |= static_cast<u16>(1 << (flag & 0xF));
 }
 
 // Configuration for each half-day's timing
