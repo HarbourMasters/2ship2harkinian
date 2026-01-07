@@ -111,6 +111,9 @@ void RegisterItemUnequip() {
             shouldUnequip = true;
         } else if (cursorItem == ITEM_ARROW_LIGHT && equippedItem == ITEM_BOW_LIGHT) {
             shouldUnequip = true;
+        } else if (cursorItem == ITEM_BOW &&
+                   (equippedItem == ITEM_BOW_FIRE || equippedItem == ITEM_BOW_ICE || equippedItem == ITEM_BOW_LIGHT)) {
+            shouldUnequip = true;
         }
 
         if (shouldUnequip) {
