@@ -28,17 +28,14 @@ void RespawnOnWaterTouch(Player* player) {
 }
 
 void Rando::ActorBehavior::InitPlayerBehavior() {
-    bool shouldPlayerRegister =
-        IS_RANDO && (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] || RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS]);
-
-    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, shouldPlayerRegister, [](Actor* actor) {
+    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM], [](Actor* actor) {
         Player* player = GET_PLAYER(gPlayState);
         if (!Flags_GetRandoInf(RANDO_INF_OBTAINED_SWIM)) {
             RespawnOnWaterTouch(player);
         }
     });
 
-    COND_VB_SHOULD(VB_PLAY_OCARINA_NOTE, IS_RANDO, {
+    COND_VB_SHOULD(VB_PLAY_OCARINA_NOTE, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS], {
         u8* sCurOcarinaButtonIndex = va_arg(args, u8*);
         u8* sCurOcarinaPitch = va_arg(args, u8*);
         u8 currentOcarinaButton = *sCurOcarinaButtonIndex;

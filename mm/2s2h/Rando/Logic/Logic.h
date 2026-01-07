@@ -305,6 +305,7 @@ inline bool canPlaySong(u8 songId) {
         case OCARINA_SONG_OATH:
         case OCARINA_SONG_WIND_FISH_ZORA:
             return (Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_RIGHT) &&
+                    Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_LEFT) &&
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_DOWN) &&
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_A) &&
                     Flags_GetRandoInf(RANDO_INF_OBTAINED_OCARINA_BUTTON_C_UP));

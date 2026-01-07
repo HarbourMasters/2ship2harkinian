@@ -33,6 +33,12 @@ void GrantStarters() {
         startingItems.push_back(RI_ABILITY_SWIM);
     }
 
+    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS] != RO_GENERIC_YES) {
+        for (int i = RI_OCARINA_BUTTON_A; i <= RI_OCARINA_BUTTON_C_UP; i++) {
+            startingItems.push_back((RandoItemId)i);
+        }
+    }
+
     for (RandoItemId startingItem : startingItems) {
         Rando::GiveItem(Rando::ConvertItem(startingItem));
     }
