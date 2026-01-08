@@ -1175,7 +1175,6 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = pauseCtx->equipTargetItem;
         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_LEFT) = pauseCtx->equipTargetSlot;
         Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_LEFT);
-
     } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_DOWN) {
         // Swap if item is already equipped on other Item Buttons.
         if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {
