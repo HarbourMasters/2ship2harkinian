@@ -66,6 +66,8 @@ void RegisterJPGrottos() {
 
     COND_ID_HOOK(AfterRoomSceneCommands, SCENE_22DEKUCITY, CVAR, [](s8 sceneId, s8 roomNum) {
         isSpawningJPGrottos = true;
+        bool lightTorches = (CURRENT_TIME > CLOCK_TIME(18, 0)) || (CURRENT_TIME < CLOCK_TIME(6, 0));
+        u16 torchParams = lightTorches ? 10367 : 8319;
         if (roomNum == 1) {
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_DOOR_ANA, 0x01A7, 0x0000, 0x053C, 0x0007, 0x0011,
                         0x007F, 0x0304);
@@ -75,11 +77,11 @@ void RegisterJPGrottos() {
                         0x007F, 0x0306);
 
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_OBJ_SYOKUDAI, 448.0f, 80.0f, 675.0f, 1, 0, 0,
-                        (CURRENT_TIME > CLOCK_TIME(18, 0)) || (CURRENT_TIME < CLOCK_TIME(6, 0)) ? 10367 : 8319);
+                        torchParams);
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_OBJ_SYOKUDAI, 338.0f, 160.0f, 658.0f, 1, 0, 0,
-                        (CURRENT_TIME > CLOCK_TIME(18, 0)) || (CURRENT_TIME < CLOCK_TIME(6, 0)) ? 10367 : 8319);
+                        torchParams);
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_OBJ_SYOKUDAI, 426.0f, 0.0f, 1295.0f, 1, 0, 0,
-                        (CURRENT_TIME > CLOCK_TIME(18, 0)) || (CURRENT_TIME < CLOCK_TIME(6, 0)) ? 10367 : 8319);
+                        torchParams);
         }
         if (roomNum == 2) {
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_DOOR_ANA, 0xFE5C - 0x10000, 0x0000, 0x053C, 0x0007,
@@ -88,9 +90,9 @@ void RegisterJPGrottos() {
                         0x0013, 0x007F, 0x0308);
 
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_OBJ_SYOKUDAI, -422.0f, 0.0f, 1297.0f, 1, 0, 0,
-                        (CURRENT_TIME > CLOCK_TIME(18, 0)) || (CURRENT_TIME < CLOCK_TIME(6, 0)) ? 10367 : 8319);
+                        torchParams;
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_OBJ_SYOKUDAI, -1040.0f, 0.0f, 658.0f, 1, 0, 0,
-                        (CURRENT_TIME > CLOCK_TIME(18, 0)) || (CURRENT_TIME < CLOCK_TIME(6, 0)) ? 10367 : 8319);
+                        torchParams;
         }
         isSpawningJPGrottos = false;
     });
