@@ -84,10 +84,10 @@ void RegisterJPGrottos() {
                         torchParams);
         }
         if (roomNum == 2) {
-            Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_DOOR_ANA, -0x1A4, 0x0000, 0x053C, 0x0007,
-                        0x0012, 0x007F, 0x0307);
-            Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_DOOR_ANA, -0x410, 0x0000, 0x02BD, 0x0007,
-                        0x0013, 0x007F, 0x0308);
+            Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_DOOR_ANA, -0x1A4, 0x0000, 0x053C, 0x0007, 0x0012,
+                        0x007F, 0x0307);
+            Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_DOOR_ANA, -0x410, 0x0000, 0x02BD, 0x0007, 0x0013,
+                        0x007F, 0x0308);
 
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_OBJ_SYOKUDAI, -422.0f, 0.0f, 1297.0f, 1, 0, 0,
                         torchParams);
