@@ -90,9 +90,9 @@ void RegisterJPGrottos() {
                         0x0013, 0x007F, 0x0308);
 
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_OBJ_SYOKUDAI, -422.0f, 0.0f, 1297.0f, 1, 0, 0,
-                        torchParams;
+                        torchParams);
             Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_OBJ_SYOKUDAI, -1040.0f, 0.0f, 658.0f, 1, 0, 0,
-                        torchParams;
+                        torchParams);
         }
         isSpawningJPGrottos = false;
     });
