@@ -480,15 +480,13 @@ static void DrawItemsTab() {
             { RO_CLOCK_SHUFFLE_DESCENDING, "Progressive: Descending" },
         };
         {
-            int32_t value =
-                CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, RO_CLOCK_SHUFFLE_RANDOM);
-            if (UIWidgets::Combobox<int32_t>("Time Progression Mode", &value, &clockModeOptions)) {
-                CVarSetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, value);
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-            }
-            UIWidgets::Tooltip("Random: All 6 half-days shuffled randomly. Player starts with one random half-day.\n\n"
-                               "Progressive Ascending: Unlocks half-days in order (D1, N1, D2, N2, D3, N3).\n\n"
-                               "Progressive Descending: Unlocks half-days in reverse order (N3, D3, N2, D2, N1, D1).");
+            UIWidgets::CVarCombobox(
+                "Time Progression Mode", Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar,
+                &clockModeOptions,
+                UIWidgets::ComboboxOptions().Tooltip(
+                    "Random: All 6 half-days shuffled randomly. Player starts with one random half-day.\n\n"
+                    "Progressive Ascending: Unlocks half-days in order (D1, N1, D2, N2, D3, N3).\n\n"
+                    "Progressive Descending: Unlocks half-days in reverse order (N3, D3, N2, D2, N1, D1)."));
         }
         // Terminal time slider (Final Hours start time)
         {
@@ -499,15 +497,17 @@ static void DrawItemsTab() {
             ImGui::Spacing();
             ImGui::Text("Final Hours Start Time: %02d:%02d", hours, minutes);
             ImGui::Spacing();
-            UIWidgets::CVarSliderInt("Final Hours Start Time", Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar,
-                                     UIWidgets::IntSliderOptions().Min(0).Max(359).DefaultValue(0).LabelPosition(
-                                         UIWidgets::LabelPosition::None));
-            ImGui::Spacing();
-
-            UIWidgets::Tooltip("Controls when the final hours countdown begins (00:00 to 05:59). "
-                               "When you run out of owned half-days, this allows the player control over how much "
-                               "time is left before the moon crash.\n\n"
-                               "This setting is baked into the seed and cannot be changed after generation.");
+            UIWidgets::CVarSliderInt(
+                "Final Hours Start Time", Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar,
+                UIWidgets::IntSliderOptions()
+                    .Min(0)
+                    .Max(359)
+                    .DefaultValue(0)
+                    .LabelPosition(UIWidgets::LabelPosition::None)
+                    .Tooltip("Controls when the final hours countdown begins (00:00 to 05:59). "
+                             "When you run out of owned half-days, this allows the player control over how much "
+                             "time is left before the moon crash.\n\n"
+                             "This setting is baked into the seed and cannot be changed after generation."));
         }
     }
 

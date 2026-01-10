@@ -1,5 +1,6 @@
 #include "Rando.h"
 #include "2s2h/Rando/StaticData/StaticData.h"
+#include "2s2h/ShipUtils.h"
 #include <libultraship/libultraship.h>
 #include <libultraship/bridge/consolevariablebridge.h>
 
@@ -40,6 +41,25 @@ void GrantStartingItems() {
     if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS] != RO_GENERIC_YES) {
         for (int i = RI_OCARINA_BUTTON_A; i <= RI_OCARINA_BUTTON_C_UP; i++) {
             startingItems.push_back((RandoItemId)i);
+        }
+    }
+
+    // When shuffling time, if the player did not choose any starting time items, we need to give them at least one.
+    if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] == RO_GENERIC_YES) {
+        bool hasTimeItem = false;
+        for (RandoItemId randoItemId : startingItems) {
+            if (randoItemId >= RI_TIME_DAY_1 && randoItemId <= RI_TIME_PROGRESSIVE) {
+                hasTimeItem = true;
+                break;
+            }
+        }
+        if (!hasTimeItem) {
+            if (RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE_PROGRESSIVE] == RO_CLOCK_SHUFFLE_RANDOM) {
+                Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed);
+                startingItems.push_back((RandoItemId)(RI_TIME_DAY_1 + Ship_Random(0, 5)));
+            } else {
+                startingItems.push_back(RI_TIME_PROGRESSIVE);
+            }
         }
     }
 
