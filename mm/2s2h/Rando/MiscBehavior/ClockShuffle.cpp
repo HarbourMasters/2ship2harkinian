@@ -704,7 +704,7 @@ void InitializeFileClocks(RandoSaveInfo& saveInfo, std::vector<RandoItemId>& ite
     const int clockMode = saveInfo.randoSaveOptions[RO_CLOCK_SHUFFLE_PROGRESSIVE];
 
     // Check if player has selected any starting time items
-    std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(saveInfo.randoStartingItems, ",");
+    std::vector<RandoItemId> startingItems = Rando::GetStartingItemsFromSave(saveInfo);
     std::vector<int> startingClockHalves;
 
     auto grantClockHalf = [&](int halfDayIndex) {

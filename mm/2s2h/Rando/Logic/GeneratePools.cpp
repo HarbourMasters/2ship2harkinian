@@ -13,7 +13,7 @@ namespace Rando {
 namespace Logic {
 
 void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool) {
-    std::vector<RandoItemId> startingItems = convertStartingItemsToRandoItemId(saveInfo.randoStartingItems, ",");
+    std::vector<RandoItemId> startingItems = Rando::GetStartingItemsFromSave(saveInfo);
 
     if (saveInfo.randoSaveOptions[RO_STARTING_MAPS_AND_COMPASSES]) {
         std::vector<RandoItemId> MapsAndCompasses = {
