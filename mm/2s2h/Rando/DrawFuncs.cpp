@@ -241,10 +241,14 @@ void EnKaizoku_TransformLimbDraw(PlayState* play, s32 limbIndex, Actor* thisx) {
 extern void DrawAlien() {
     SETUP_DRAW(ALIEN_LIMB_MAX);
     static uintptr_t eyeTexture = (uintptr_t)Lib_SegmentedToVirtual((TexturePtr)gAlienEyeTex);
+    static AnimatedMaterial* sAlienEmptyTexAnim =
+        (AnimatedMaterial*)Lib_SegmentedToVirtual((TexturePtr)gAlienEmptyTexAnim);
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
     Matrix_Scale(0.007f, 0.007f, 0.007f, MTXMODE_APPLY);
     SETUP_FLEX_SKEL(ALIEN_LIMB_MAX, gAlienSkel, gAlienFloatAnim);
 
+    AnimatedMat_Draw(gPlayState, sAlienEmptyTexAnim);
+    Scene_SetRenderModeXlu(gPlayState, 0, 1);
     gSPSegment(POLY_OPA_DISP++, 0x08, eyeTexture);
     gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
@@ -366,6 +370,7 @@ extern void DrawCaptainKeeta() {
     Matrix_Translate(0, -3500.0f, 0, MTXMODE_APPLY);
     SETUP_SKEL(OBJECT_BSB_LIMB_MAX, object_bsb_Skel_00C3E0, object_bsb_Anim_004894);
 
+    Scene_SetRenderModeXlu(gPlayState, 0, 1);
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -522,6 +527,8 @@ extern void DrawEyegore() {
     Matrix_Translate(0, -4000.0f, 0, MTXMODE_APPLY);
     SETUP_FLEX_SKEL(EYEGORE_LIMB_MAX, gEyegoreSkel, gEyegoreUnusedWalkAnim);
 
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0xFF, 175, 255, 255, 255);
+    gDPSetEnvColor(POLY_OPA_DISP++, 255, 115, 155, 255);
     AnimatedMat_Draw(gPlayState, sEyegoreEyeLaserTexAnim);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
     POLY_OPA_DISP = Play_SetFog(gPlayState, POLY_OPA_DISP);
@@ -693,6 +700,8 @@ extern void DrawKeese() {
     Matrix_Translate(0, -700.0f, 0, MTXMODE_APPLY);
     SETUP_SKEL(FIRE_KEESE_LIMB_MAX, gFireKeeseSkel, gFireKeeseFlyAnim);
 
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0xFF, 255, 255, 100, 255);
+    gDPSetEnvColor(POLY_OPA_DISP++, 255, 50, 0, 0);
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, DrawEnFirefly_PostLimbDraw, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
