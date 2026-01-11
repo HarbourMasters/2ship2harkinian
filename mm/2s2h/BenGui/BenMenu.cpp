@@ -368,7 +368,8 @@ void BenMenu::AddSettings() {
         ImGui::SetNextWindowSize(ImVec2(0.0f, ImGui::GetMainViewport()->WorkSize.y / 3));
         ImGui::BeginChild("contributors");
         static double scrollSpeed = 1.5f * (ImGui::GetFontSize() / 1000.0f); // Lines to scroll per second
-        double scrollPosition = fmod(GetUnixTimestamp() * scrollSpeed, ImGui::GetScrollMaxY() + 1.0f);
+        double scrollPosition =
+            fmod((GetUnixTimestamp() % 18446744000000000000) * scrollSpeed, ImGui::GetScrollMaxY() + 1.0f);
         ImGui::SetScrollY(scrollPosition);
 
         ImGui::Dummy(ImVec2(0.0f, ImGui::GetFontSize()));
