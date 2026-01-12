@@ -2,18 +2,11 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
-extern "C" {
-#include "z64player.h"
-#include "variables.h"
-}
-
 #define CVAR_NAME "gEnhancements.Masks.EquipMaskOtherForms"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 static PlayerMask sPendingMask = PLAYER_MASK_NONE;
 static HOOK_ID sPlayerUpdateHookId = 0;
-
-static void UnregisterMaskSwap();
 
 static bool IsMask(ItemId itemId) {
     return (itemId >= ITEM_MASK_TRUTH) && (itemId <= ITEM_MASK_SCENTS);
@@ -27,6 +20,13 @@ static bool IsPlayerValid(const Player* player) {
     return player != NULL;
 }
 
+static void UnregisterMaskSwap() {
+    if (sPlayerUpdateHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnActorUpdate>(sPlayerUpdateHookId);
+        sPlayerUpdateHookId = 0;
+    }
+}
+
 static void OnTransform(Actor* actor) {
     Player* player = (Player*)actor;
 
@@ -37,13 +37,6 @@ static void OnTransform(Actor* actor) {
     } else if (player->transformation == PLAYER_FORM_HUMAN) {
         sPendingMask = PLAYER_MASK_NONE;
         UnregisterMaskSwap();
-    }
-}
-
-static void UnregisterMaskSwap() {
-    if (sPlayerUpdateHookId != 0) {
-        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnActorUpdate>(sPlayerUpdateHookId);
-        sPlayerUpdateHookId = 0;
     }
 }
 
