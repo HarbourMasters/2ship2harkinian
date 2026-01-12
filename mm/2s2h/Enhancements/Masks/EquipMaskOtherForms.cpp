@@ -52,8 +52,8 @@ static void RegisterMaskSwap() {
         return;
     }
 
-    sPlayerUpdateHookId = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(
-        ACTOR_PLAYER, OnTransform);
+    sPlayerUpdateHookId =
+        GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(ACTOR_PLAYER, OnTransform);
 }
 
 static void QueueMaskSwap(PlayerItemAction* itemAction, Player* player) {

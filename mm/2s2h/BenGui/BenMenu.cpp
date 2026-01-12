@@ -1229,8 +1229,8 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Removes the delay when using transformation masks."));
     AddWidget(path, "Equip Masks from Other Forms", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.EquipMaskOtherForms")
-        .Options(CheckboxOptions().Tooltip(
-            "Allows equipping masks while in other forms, returning you to human form with the mask immediately equipped, like in MM3D."));
+        .Options(CheckboxOptions().Tooltip("Allows equipping masks while in other forms, returning you to human form "
+                                           "with the mask immediately equipped, like in MM3D."));
     AddWidget(path, "Fierce Deity's Mask Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.FierceDeitysAnywhere")
         .Options(CheckboxOptions().Tooltip("Allow using Fierce Deity's mask outside of boss rooms."));
