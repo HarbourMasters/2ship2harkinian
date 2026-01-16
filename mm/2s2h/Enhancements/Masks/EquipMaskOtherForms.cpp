@@ -16,10 +16,6 @@ static bool IsMaskAction(PlayerItemAction itemAction) {
     return (itemAction >= PLAYER_IA_MASK_TRUTH) && (itemAction <= PLAYER_IA_MASK_SCENTS);
 }
 
-static bool IsPlayerValid(const Player* player) {
-    return player != NULL;
-}
-
 static void UnregisterMaskSwap() {
     if (sPlayerUpdateHookId != 0) {
         GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnActorUpdate>(sPlayerUpdateHookId);
@@ -49,14 +45,6 @@ static void RegisterMaskSwap() {
         GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(ACTOR_PLAYER, OnTransform);
 }
 
-static void QueueMaskSwap(PlayerItemAction* itemAction, Player* player) {
-    if (IsPlayerValid(player) && player->transformation != PLAYER_FORM_HUMAN && IsMaskAction(*itemAction)) {
-        sPendingMask = static_cast<PlayerMask>(GET_MASK_FROM_IA(*itemAction));
-        gSaveContext.save.equippedMask = sPendingMask;
-        RegisterMaskSwap();
-    }
-}
-
 static void AllowMask(ItemId* itemId, bool* should) {
     if (IsMask(*itemId)) {
         *should = false;
@@ -72,7 +60,11 @@ void RegisterMaskSwapHooks() {
     COND_VB_SHOULD(VB_USE_ITEM_CONSIDER_LINK_HUMAN, CVAR, {
         PlayerItemAction* itemAction = va_arg(args, PlayerItemAction*);
         Player* player = GET_PLAYER(gPlayState);
-        QueueMaskSwap(itemAction, player);
+        if (player != NULL && player->transformation != PLAYER_FORM_HUMAN && IsMaskAction(*itemAction)) {
+            sPendingMask = static_cast<PlayerMask>(GET_MASK_FROM_IA(*itemAction));
+            gSaveContext.save.equippedMask = sPendingMask;
+            RegisterMaskSwap();
+        }
     });
 }
 
