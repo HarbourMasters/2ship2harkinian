@@ -145,6 +145,7 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_QUIVER_50,                  "the",  "Largest Quiver",             RITYPE_LESSER,          ITEM_QUIVER_50,                  GI_QUIVER_50,                GID_QUIVER_50),
     RI(RI_RECOVERY_HEART,             "a",    "Recovery Heart",             RITYPE_JUNK,            ITEM_RECOVERY_HEART,             GI_RECOVERY_HEART,           GID_RECOVERY_HEART),
     RI(RI_RED_POTION_REFILL,          "a",    "Red Potion Refill",          RITYPE_JUNK,            ITEM_POTION_RED,                 GI_POTION_RED,               GID_POTION_RED),
+    RI(RI_SEAHORSE,                   "a",    "Seahorse",                   RITYPE_JUNK,            ITEM_SEAHORSE,                   GI_SEAHORSE,                 GID_SEAHORSE),
     RI(RI_REMAINS_GOHT,               "",     "Goht's Remains",             RITYPE_MAJOR,           ITEM_REMAINS_GOHT,               GI_REMAINS_GOHT,             GID_REMAINS_GOHT),
     RI(RI_REMAINS_GYORG,              "",     "Gyorg's Remains",            RITYPE_MAJOR,           ITEM_REMAINS_GYORG,              GI_REMAINS_GYORG,            GID_REMAINS_GYORG),
     RI(RI_REMAINS_ODOLWA,             "",     "Odolwa's Remains",           RITYPE_MAJOR,           ITEM_REMAINS_ODOLWA,             GI_REMAINS_ODOLWA,           GID_REMAINS_ODOLWA),

@@ -639,6 +639,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_EN_FSN_HAS_ITEMS,
+
+    // #### `result`
+    // ```c
     // itemAction == GET_IA_FROM_MASK(this->currentMask)
     // ```
     // #### `args`
