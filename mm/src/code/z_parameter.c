@@ -9428,16 +9428,19 @@ void Interface_Draw(PlayState* play) {
             pictoRectTop = PICTO_PHOTO_TOPLEFT_Y - 33;
             for (sp2CC = 0; sp2CC < (PICTO_PHOTO_HEIGHT / 8); sp2CC++, pictoRectTop += 8) {
                 pictoRectLeft = PICTO_PHOTO_TOPLEFT_X;
-                // 2S2H [Port] Invalidate each section. This could probably be optimized to only be done once each pic
-                gSPInvalidateTexCache(OVERLAY_DISP++,
-                                      (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
-                                          (0x500 * sp2CC));
-                gDPLoadTextureBlock(OVERLAY_DISP++,
-                                    (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
-                                        (0x500 * sp2CC),
-                                    G_IM_FMT_I, G_IM_SIZ_8b, PICTO_PHOTO_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
+                if (GameInteractor_Should(VB_PICTO_DISPLAY, true, sp2CC)) {
+                    // 2S2H [Port] Invalidate each section. This could probably be optimized to only be done once each
+                    // pic
+                    gSPInvalidateTexCache(OVERLAY_DISP++,
+                                          (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
+                                              (0x500 * sp2CC));
+                    gDPLoadTextureBlock(OVERLAY_DISP++,
+                                        (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
+                                            (0x500 * sp2CC),
+                                        G_IM_FMT_I, G_IM_SIZ_8b, PICTO_PHOTO_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                }
                 gSPTextureRectangle(OVERLAY_DISP++, pictoRectLeft << 2, pictoRectTop << 2,
                                     (pictoRectLeft + PICTO_PHOTO_WIDTH) << 2, (pictoRectTop << 2) + (8 << 2),
                                     G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);

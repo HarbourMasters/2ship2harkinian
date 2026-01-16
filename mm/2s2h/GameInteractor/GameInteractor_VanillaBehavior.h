@@ -1421,6 +1421,22 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_PICTO_DISPLAY,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*PreRender` (prerender)
+    VB_PICTO_TAKE,
+
+    // #### `result`
+    // ```c
     // Rand_Next() & 0x80
     // ```
     // #### `args`

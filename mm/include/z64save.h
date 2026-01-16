@@ -402,6 +402,7 @@ typedef struct ShipSaveInfo {
     RespawnData respawn[RESPAWN_MODE_MAX];
     char commitHash[8];
     RandoSaveInfo rando;
+    // u16 pictoPhotoRGBA[PICTO_PHOTO_SIZE];
 } ShipSaveInfo;
 // #endregion
 
@@ -436,6 +437,7 @@ typedef struct DpadSaveContext {
 typedef struct ShipSaveContext {
     DpadSaveContext dpad;
     uint64_t lastTimeLog;
+    u16 pictoPhotoRGBA[PICTO_PHOTO_SIZE] ALIGNED(64);
 } ShipSaveContext;
 // #endregion
 
