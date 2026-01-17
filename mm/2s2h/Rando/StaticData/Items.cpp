@@ -309,6 +309,15 @@ RandoItemId GetItemIdFromName(const char* name) {
     return RI_UNKNOWN;
 }
 
+RandoItemId GetItemIdFromVanillaItemId(u32 itemId) {
+    for (auto& [randoItemId, randoStaticItem] : Items) {
+        if (randoStaticItem.itemId == itemId) {
+            return randoItemId;
+        }
+    }
+    return RI_UNKNOWN;
+}
+
 // This exists because of nintendo being nintendo
 u8 GetIconForZMessage(RandoItemId randoItemId) {
     switch (randoItemId) {
@@ -393,10 +402,14 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_PROGRESSIVE_MAGIC:
             return (const char*)gItemIcons[ITEM_MAGIC_JAR_SMALL];
         case RI_SOUL_BOSS_GOHT:
+            return (const char*)gItemIcons[ITEM_REMAINS_GOHT];
         case RI_SOUL_BOSS_GYORG:
-        case RI_SOUL_BOSS_MAJORA:
+            return (const char*)gItemIcons[ITEM_REMAINS_GYORG];
         case RI_SOUL_BOSS_ODOLWA:
+            return (const char*)gItemIcons[ITEM_REMAINS_ODOLWA];
         case RI_SOUL_BOSS_TWINMOLD:
+            return (const char*)gItemIcons[ITEM_REMAINS_TWINMOLD];
+        case RI_SOUL_BOSS_MAJORA:
         case RI_SOUL_ENEMY_ALIEN:
         case RI_SOUL_ENEMY_ARMOS:
         case RI_SOUL_ENEMY_BAD_BAT:
@@ -490,6 +503,8 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return (const char*)gThreeDayClockMoonHourTex;
         case RI_TIME_PROGRESSIVE:
             return (const char*)gThreeDayClockSunHourTex;
+        case RI_ABILITY_SWIM:
+            return (const char*)gItemIcons[ITEM_MASK_ZORA];
         default:
             break;
     }
@@ -521,7 +536,7 @@ bool ShouldShowGetItemCutscene(RandoItemId itemId) {
     }
 }
 
-std::string GetItemName(RandoItemId randoItemId, bool includeArticle) {
+std::string GetItemName(RandoItemId randoItemId, bool includeArticle, RandoCheckId randoCheckId) {
     std::string result;
 
     if (includeArticle && !Ship_IsCStringEmpty(Rando::StaticData::Items[randoItemId].article)) {
@@ -531,8 +546,28 @@ std::string GetItemName(RandoItemId randoItemId, bool includeArticle) {
 
     result += Rando::StaticData::Items[randoItemId].name;
 
-    if (randoItemId == RI_JUNK) {
-        result += std::string(" (") + Rando::StaticData::Items[Rando::CurrentJunkItem()].name + ")";
+    if (randoItemId == RI_JUNK && (randoCheckId == RC_UNKNOWN ||
+                                   (Rando::StaticData::Checks[randoCheckId].randoCheckType != RCTYPE_SHOP &&
+                                    Rando::StaticData::Checks[randoCheckId].randoCheckType != RCTYPE_TINGLE_SHOP))) {
+        result += std::string(" (") + Rando::StaticData::Items[Rando::CurrentJunkItem(randoCheckId)].name + ")";
+    }
+
+    if (randoItemId == RI_TRAP && randoCheckId != RC_UNKNOWN) {
+        // Get the name of the trapped item
+        RandoItemId trappedItemId = Rando::CurrentTrapItem(randoCheckId);
+        std::string fakeItemName = GetItemName(trappedItemId, false);
+        // Pick a random letter in the item name, and double it to fool the player
+        auto letterIndex = Ship_Random(0, fakeItemName.length() - 1);
+        char letterToDouble = fakeItemName[letterIndex];
+        fakeItemName.insert(letterIndex, 1, letterToDouble);
+        result.clear();
+
+        if (includeArticle && !Ship_IsCStringEmpty(Rando::StaticData::Items[randoItemId].article)) {
+            result += Rando::StaticData::Items[randoItemId].article;
+            result += " ";
+        }
+
+        result += fakeItemName;
     }
 
     return result;
