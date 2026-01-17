@@ -639,7 +639,7 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // true
+    // false
     // ```
     // #### `args`
     // - None

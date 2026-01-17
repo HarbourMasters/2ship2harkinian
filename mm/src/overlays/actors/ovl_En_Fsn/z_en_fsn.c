@@ -351,7 +351,7 @@ s16 EnFsn_GetStolenItemId(u32 stolenItem) {
 }
 
 s32 EnFsn_HasItemsToSell(void) {
-    if (GameInteractor_Should(VB_EN_FSN_HAS_ITEMS, true)) {
+    if (GameInteractor_Should(VB_EN_FSN_HAS_ITEMS, false)) {
         return true;
     }
 

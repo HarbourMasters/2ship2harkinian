@@ -1,4 +1,5 @@
 #include "ActorBehavior.h"
+#include "Rando/ActorBehavior/CuriosityShopRefills.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/Rando/MiscBehavior/Traps.h"
@@ -25,14 +26,72 @@ static const std::vector<std::string> flavorTexts = {
     "Get it while it's hot!",         "Don't miss out on this deal!",
 };
 
+namespace {
+using Rando::ActorBehavior::GetCuriosityShopRefillIndex;
+using Rando::ActorBehavior::IsCuriosityShopRefillShopId;
+using Rando::ActorBehavior::sCuriosityShopRefills;
+
+constexpr s16 sShopItemNone = -1;
+
+struct ShopItemInfo {
+    bool isCustomRefill = false;
+    RandoCheckId checkId = RC_UNKNOWN;
+    RandoItemId itemId = RI_UNKNOWN;
+    u16 price = 0;
+    bool obtained = false;
+};
+
+bool TryGetShopItemInfo(s16 shopItemId, ShopItemInfo* outInfo) {
+    if (outInfo == nullptr) {
+        return false;
+    }
+
+    if (IsCuriosityShopRefillShopId(shopItemId)) {
+        const auto& refill = sCuriosityShopRefills[GetCuriosityShopRefillIndex(shopItemId)];
+        *outInfo = ShopItemInfo{
+            .isCustomRefill = true,
+            .checkId = RC_UNKNOWN,
+            .itemId = refill.itemId,
+            .price = refill.defaultPrice,
+            .obtained = false,
+        };
+        return true;
+    }
+
+    if (shopItemId >= 0 && shopItemId < RC_MAX) {
+        auto& randoSaveCheck = RANDO_SAVE_CHECKS[shopItemId];
+        *outInfo = ShopItemInfo{
+            .isCustomRefill = false,
+            .checkId = static_cast<RandoCheckId>(shopItemId),
+            .itemId = randoSaveCheck.randoItemId,
+            .price = randoSaveCheck.price,
+            .obtained = randoSaveCheck.obtained,
+        };
+        return true;
+    }
+
+    return false;
+}
+
+bool IsShopItemOutOfStock(const ShopItemInfo& info) {
+    if (info.isCustomRefill) {
+        return !Rando::IsItemObtainable(info.itemId, RC_UNKNOWN);
+    }
+    return !Rando::IsItemObtainable(info.itemId, info.checkId) && info.obtained;
+}
+} // namespace
+
 void EnGirlA_RandoDrawFunc(Actor* actor, PlayState* play) {
     EnGirlA* enGirlA = (EnGirlA*)actor;
 
-    auto randoSaveCheck = RANDO_SAVE_CHECKS[actor->world.rot.z];
+    ShopItemInfo shopInfo;
+    if (!TryGetShopItemInfo(actor->world.rot.z, &shopInfo)) {
+        return;
+    }
 
     Matrix_RotateYS(enGirlA->rotY, MTXMODE_APPLY);
 
-    Rando::DrawItem(randoSaveCheck.randoItemId, actor);
+    Rando::DrawItem(shopInfo.itemId, actor);
 }
 
 void EnGirlA_RandoBought(PlayState* play, EnGirlA* enGirlA) {
@@ -41,11 +100,17 @@ void EnGirlA_RandoBought(PlayState* play, EnGirlA* enGirlA) {
 }
 
 void EnGirlA_RandoRestock(PlayState* play, EnGirlA* enGirlA) {
-    auto randoSaveCheck = RANDO_SAVE_CHECKS[enGirlA->actor.world.rot.z];
+    ShopItemInfo shopInfo;
+    if (!TryGetShopItemInfo(enGirlA->actor.world.rot.z, &shopInfo)) {
+        return;
+    }
 
-    if (Rando::IsItemObtainable(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z)) {
+    if (Rando::IsItemObtainable(shopInfo.itemId, shopInfo.checkId)) {
         enGirlA->isOutOfStock = false;
         enGirlA->actor.draw = EnGirlA_RandoDrawFunc;
+    } else if (shopInfo.isCustomRefill) {
+        enGirlA->isOutOfStock = true;
+        enGirlA->actor.draw = NULL;
     }
 }
 
@@ -54,9 +119,12 @@ s32 EnGirlA_RandoCanBuyFunc(PlayState* play, EnGirlA* enGirlA) {
         return CANBUY_RESULT_NEED_RUPEES;
     }
 
-    auto randoSaveCheck = RANDO_SAVE_CHECKS[enGirlA->actor.world.rot.z];
+    ShopItemInfo shopInfo;
+    if (!TryGetShopItemInfo(enGirlA->actor.world.rot.z, &shopInfo)) {
+        return CANBUY_RESULT_CANNOT_GET_NOW;
+    }
 
-    if (!Rando::IsItemObtainable(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z)) {
+    if (!Rando::IsItemObtainable(shopInfo.itemId, shopInfo.checkId)) {
         return CANBUY_RESULT_CANNOT_GET_NOW;
     }
 
@@ -64,9 +132,18 @@ s32 EnGirlA_RandoCanBuyFunc(PlayState* play, EnGirlA* enGirlA) {
 }
 
 void EnGirlA_RandoBuyFunc(PlayState* play, EnGirlA* enGirlA) {
-    auto& randoSaveCheck = RANDO_SAVE_CHECKS[enGirlA->actor.world.rot.z];
-    RandoItemId randoItemId = Rando::ConvertItem(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z);
-    randoSaveCheck.obtained = true;
+    ShopItemInfo shopInfo;
+    if (!TryGetShopItemInfo(enGirlA->actor.world.rot.z, &shopInfo)) {
+        return;
+    }
+
+    RandoItemId randoItemId = shopInfo.itemId;
+    if (!shopInfo.isCustomRefill) {
+        auto& randoSaveCheck = RANDO_SAVE_CHECKS[shopInfo.checkId];
+        randoItemId = Rando::ConvertItem(randoSaveCheck.randoItemId, shopInfo.checkId);
+        randoSaveCheck.obtained = true;
+    }
+
     Rupees_ChangeBy(-play->msgCtx.unk1206C);
     if (randoItemId == RI_TRAP) {
         RollTrapType();
@@ -102,10 +179,12 @@ void EnGirlA_RandoInit(EnGirlA* enGirlA, PlayState* play) {
     enGirlA->rotY = 0;
     enGirlA->initialRotY = enGirlA->actor.shape.rot.y;
 
-    auto randoSaveCheck = RANDO_SAVE_CHECKS[enGirlA->actor.world.rot.z];
+    ShopItemInfo shopInfo;
+    if (!TryGetShopItemInfo(enGirlA->actor.world.rot.z, &shopInfo)) {
+        return;
+    }
 
-    if (!Rando::IsItemObtainable(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z) &&
-        randoSaveCheck.obtained) {
+    if (IsShopItemOutOfStock(shopInfo)) {
         enGirlA->isOutOfStock = true;
         enGirlA->actor.draw = NULL;
     } else {
@@ -231,38 +310,38 @@ RandoCheckId IdentifyShopItem(Actor* actor) {
     return RC_UNKNOWN;
 }
 
-RandoCheckId IdentifyActiveShopItem() {
-    RandoCheckId randoCheckId = RC_UNKNOWN;
+static s16 IdentifyActiveShopItem() {
+    s16 shopItemId = sShopItemNone;
 
     if (gPlayState->msgCtx.talkActor == nullptr) {
-        return RC_UNKNOWN;
+        return sShopItemNone;
     }
 
     if (gPlayState->msgCtx.talkActor->id == ACTOR_EN_TRT) {
         EnTrt* enTrt = (EnTrt*)gPlayState->msgCtx.talkActor;
         if (enTrt->items[enTrt->cursorIndex] != nullptr) {
-            randoCheckId = (RandoCheckId)enTrt->items[enTrt->cursorIndex]->actor.world.rot.z;
+            shopItemId = enTrt->items[enTrt->cursorIndex]->actor.world.rot.z;
         }
     } else if (gPlayState->msgCtx.talkActor->id == ACTOR_EN_OSSAN) {
         if (gPlayState->msgCtx.talkActor->params == 0 || gPlayState->msgCtx.talkActor->params == 1) {
             EnOssan* enOssan = (EnOssan*)gPlayState->msgCtx.talkActor;
             if (enOssan->items[enOssan->cursorIndex] != nullptr) {
-                randoCheckId = (RandoCheckId)enOssan->items[enOssan->cursorIndex]->actor.world.rot.z;
+                shopItemId = enOssan->items[enOssan->cursorIndex]->actor.world.rot.z;
             }
         } else {
             EnSob1* enSob1 = (EnSob1*)gPlayState->msgCtx.talkActor;
             if (enSob1->items[enSob1->cursorIndex] != nullptr) {
-                randoCheckId = (RandoCheckId)enSob1->items[enSob1->cursorIndex]->actor.world.rot.z;
+                shopItemId = enSob1->items[enSob1->cursorIndex]->actor.world.rot.z;
             }
         }
     } else if (gPlayState->msgCtx.talkActor->id == ACTOR_EN_FSN) {
         EnFsn* enFsn = (EnFsn*)gPlayState->msgCtx.talkActor;
         if (enFsn->items[enFsn->cursorIndex] != nullptr) {
-            randoCheckId = (RandoCheckId)enFsn->items[enFsn->cursorIndex]->actor.world.rot.z;
+            shopItemId = enFsn->items[enFsn->cursorIndex]->actor.world.rot.z;
         }
     }
 
-    return randoCheckId;
+    return shopItemId;
 }
 
 void Rando::ActorBehavior::InitEnGirlABehavior() {
@@ -278,14 +357,14 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
 
     // Shop item description
     COND_ID_HOOK(OnOpenText, RANDO_DESC_TEXT_ID, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
-        RandoCheckId randoCheckId = IdentifyActiveShopItem();
+        s16 shopItemId = IdentifyActiveShopItem();
+        ShopItemInfo shopInfo;
 
-        if (randoCheckId == RC_UNKNOWN) {
+        if (!TryGetShopItemInfo(shopItemId, &shopInfo)) {
             return;
         }
 
-        auto randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-        auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
+        auto randoStaticItem = Rando::StaticData::Items[shopInfo.itemId];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         // Not using formatting here, to ensure the item name and price stay on one line
@@ -293,9 +372,9 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         entry.msg = "\x01{{itemName}}: {{rupees}} Rupees\x11\x00";
         entry.msg += '\x00';
         CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.name);
-        CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(randoSaveCheck.price));
+        CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(shopInfo.price));
 
-        if (!Rando::IsItemObtainable(randoSaveCheck.randoItemId, randoCheckId) && randoSaveCheck.obtained) {
+        if (IsShopItemOutOfStock(shopInfo)) {
             entry.msg += "Out of Stock";
         } else {
             entry.msg += flavorTexts[rand() % flavorTexts.size()];
@@ -308,22 +387,22 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
 
     // Shop item purchase
     COND_ID_HOOK(OnOpenText, RANDO_CHOICE_TEXT_ID, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
-        RandoCheckId randoCheckId = IdentifyActiveShopItem();
+        s16 shopItemId = IdentifyActiveShopItem();
+        ShopItemInfo shopInfo;
 
-        if (randoCheckId == RC_UNKNOWN) {
+        if (!TryGetShopItemInfo(shopItemId, &shopInfo)) {
             return;
         }
 
-        auto randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-        auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
+        auto randoStaticItem = Rando::StaticData::Items[shopInfo.itemId];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         // Not using formatting here, to ensure the item name and price stay on one line
         entry.autoFormat = false;
-        entry.firstItemCost = randoSaveCheck.price;
+        entry.firstItemCost = shopInfo.price;
         entry.msg = "\x01{{itemName}}: {{rupees}} Rupees\x02\x11\xC2I'll buy it\x11No thanks\xBF";
         CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.name);
-        CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(randoSaveCheck.price));
+        CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(shopInfo.price));
 
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
@@ -331,24 +410,24 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
 
     // Magic Potion Shop Hag "I can't get the ingredients for this"
     COND_ID_HOOK(OnOpenText, 0x880, IS_RANDO, [](u16* textId, bool* loadFromMessageTable) {
-        RandoCheckId randoCheckId = IdentifyActiveShopItem();
+        s16 shopItemId = IdentifyActiveShopItem();
+        ShopItemInfo shopInfo;
 
-        if (randoCheckId == RC_UNKNOWN) {
+        if (!TryGetShopItemInfo(shopItemId, &shopInfo)) {
             return;
         }
 
-        auto randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
-        auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
+        auto randoStaticItem = Rando::StaticData::Items[shopInfo.itemId];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
         // Not using formatting here, to ensure the item name and price stay on one line
         entry.autoFormat = false;
-        entry.firstItemCost = randoSaveCheck.price;
+        entry.firstItemCost = shopInfo.price;
         entry.msg = "\x01{{itemName}}: {{itemPrice}} Rupees\x11\x00";
         entry.msg += '\x00';
         entry.msg += "I need a mushroom to make this.\x1A";
         CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.name);
-        CustomMessage::Replace(&entry.msg, "{{itemPrice}}", std::to_string(randoSaveCheck.price));
+        CustomMessage::Replace(&entry.msg, "{{itemPrice}}", std::to_string(shopInfo.price));
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
