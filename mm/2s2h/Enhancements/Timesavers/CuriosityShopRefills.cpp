@@ -23,7 +23,7 @@ void EnGirlA_BuyFanfare(PlayState* play, EnGirlA* enGirlA);
 #define SHOP_DESC_TEXT_ID 0x0841
 #define SHOP_CHOICE_TEXT_ID 0x0842
 
-static struct RefillItem {
+struct RefillItem {
     ItemId itemId;
     GetItemId gi;
     GetItemDrawId drawId;
