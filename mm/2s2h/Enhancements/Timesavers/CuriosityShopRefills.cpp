@@ -5,7 +5,6 @@
 #include "2s2h/Rando/Rando.h"
 
 extern "C" {
-#include "variables.h"
 #include "overlays/actors/ovl_En_Fsn/z_en_fsn.h"
 #include "overlays/actors/ovl_En_GirlA/z_en_girla.h"
 
@@ -21,18 +20,17 @@ void EnGirlA_BuyFanfare(PlayState* play, EnGirlA* enGirlA);
 #define CVAR_NAME "gEnhancements.Shops.CuriosityShopRefills"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-// Use Green Potion IDs to bypass Rando hooks
 #define SHOP_DESC_TEXT_ID 0x0841
 #define SHOP_CHOICE_TEXT_ID 0x0842
 
-struct RefillItem {
-    ItemId itemId;          // The vanilla item to check for in inventory/bottle
-    GetItemId gi;           // The Get Item ID for the offering animation
-    GetItemDrawId drawId;   // The visual model to display
-    u16 weekEventFlag;      // The prerequisite week event flag
-    RandoItemId randoItem;  // Corresponding rando item for obtainability check
-    const char* name;       // Display name for custom messages
-    u16 price;              // Rupee cost
+static struct RefillItem {
+    ItemId itemId;
+    GetItemId gi;
+    GetItemDrawId drawId;
+    u16 weekEventFlag;
+    RandoItemId randoItem;
+    const char* name;
+    u16 price;
 };
 
 static constexpr RefillItem sRefillItems[] = {
@@ -44,7 +42,7 @@ static constexpr RefillItem sRefillItems[] = {
       200 },
 };
 
-// Shop item positions (matching the rando/vanilla shop layout)
+// Shop item positions
 static const Vec3f sShopItemPositions[] = {
     { -5.0f, 35.0f, -95.0f },
     { 13.0f, 35.0f, -95.0f },
@@ -64,17 +62,17 @@ static bool IsRefillAvailable(const RefillItem& item) {
         return false;
     }
 
-    // In rando mode, we check rando-specific obtainability
     if (IS_RANDO) {
         if (item.randoItem != RI_NONE) {
             RandoCheckId itemPlacement = Rando::FindItemPlacement(item.randoItem);
             return itemPlacement != RC_UNKNOWN && RANDO_SAVE_CHECKS[itemPlacement].obtained;
         } else if (item.itemId == ITEM_SEAHORSE) {
+            // Seahorse doesn't have a rando item, check week event flag directly
             return CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_SEAHORSE_HEART_PIECE);
         }
     }
 
-    // Vanilla/Enhancement mode: check the relevant quest flag
+    // Vanilla: check the relevant quest flag
     return CHECK_WEEKEVENTREG(item.weekEventFlag);
 }
 
@@ -89,7 +87,7 @@ static bool HasAvailableRefills() {
 
 static s32 RefillItem_CanBuy(PlayState* play, EnGirlA* enGirlA) {
     const RefillItem* item = GetRefillItem(enGirlA->actor.world.rot.z);
-    
+
     if (item == nullptr) {
         return CANBUY_RESULT_CANNOT_GET_NOW;
     }
@@ -112,7 +110,7 @@ static void RefillItem_Init(EnGirlA* enGirlA, PlayState* play) {
         return;
     }
 
-    // Mimic EnGirlA initialization, tailored for refills
+    // Mimic EnGirlA initialization
     enGirlA->actor.textId = SHOP_DESC_TEXT_ID;
     enGirlA->choiceTextId = SHOP_CHOICE_TEXT_ID;
     enGirlA->getItemId = item->gi;
@@ -145,12 +143,12 @@ static const RefillItem* GetActiveRefillItem() {
     if (gPlayState->msgCtx.talkActor == nullptr || gPlayState->msgCtx.talkActor->id != ACTOR_EN_FSN) {
         return nullptr;
     }
-    
+
     auto* enFsn = (EnFsn*)gPlayState->msgCtx.talkActor;
-    if (enFsn->cursorIndex < 0 || enFsn->cursorIndex > 2) {
+    if (enFsn->cursorIndex < 0 || enFsn->cursorIndex >= ARRAY_COUNT(sShopItemPositions)) {
         return nullptr;
     }
-    
+
     auto* itemActor = enFsn->items[enFsn->cursorIndex];
     if (itemActor == nullptr) {
         return nullptr;
@@ -177,7 +175,8 @@ static void RegisterCuriosityShopRefills() {
             }
 
             const Vec3f& pos = sShopItemPositions[slotIndex];
-            Actor* spawnedActor = Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_GIRLA, pos.x, pos.y, pos.z, 0, 0, 0, SI_BOTTLE);
+            Actor* spawnedActor =
+                Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_GIRLA, pos.x, pos.y, pos.z, 0, 0, 0, SI_BOTTLE);
             if (spawnedActor != nullptr) {
                 EnGirlA* enGirlA = (EnGirlA*)spawnedActor;
                 enGirlA->actor.world.rot.z = (s16)i;
@@ -207,8 +206,8 @@ static void RegisterCuriosityShopRefills() {
         }
 
         CustomMessage::Entry entry = CustomMessage::LoadVanillaMessageTableEntry(SHOP_DESC_TEXT_ID);
-        entry.msg = "%r" + std::string(item->name) + ": " + std::to_string(item->price) + " Rupees\n" +
-                    "%wA rare refill!\x1A";
+        entry.msg =
+            "%r" + std::string(item->name) + ": " + std::to_string(item->price) + " Rupees\n" + "%wA rare refill!\x1A";
 
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
