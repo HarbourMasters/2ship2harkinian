@@ -2546,7 +2546,6 @@ typedef enum {
     RI_WOODFALL_MAP,
     RI_WOODFALL_SMALL_KEY,
     RI_WOODFALL_STRAY_FAIRY,
-    RI_SEAHORSE,
     RI_MAX_TRAP,
     RI_MAX,
 } RandoItemId;

@@ -1,5 +1,4 @@
 #include "ActorBehavior.h"
-#include "Rando/ActorBehavior/CuriosityShopRefills.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 extern "C" {
@@ -14,46 +13,6 @@ void EnFsn_ResumeInteraction(EnFsn* enFsn, PlayState* play);
 #define ENFSN_GAVE_KEATONS_MASK (1 << 2)
 #define ENFSN_GAVE_LETTER_TO_MAMA (1 << 3)
 
-void EnGirlA_RandoInit(EnGirlA* enGirlA, PlayState* play);
-
-namespace {
-using Rando::ActorBehavior::CuriosityShopRefillEntry;
-using Rando::ActorBehavior::sCuriosityShopRefills;
-
-constexpr s32 sCuriosityShopMaxItems = 3;
-constexpr u16 sCuriosityShopBottleParams = SI_BOTTLE;
-
-const std::array<Vec3f, sCuriosityShopMaxItems> sCuriosityShopItemPositions = {
-    Vec3f{ -5.0f, 35.0f, -95.0f },
-    Vec3f{ 13.0f, 35.0f, -95.0f },
-    Vec3f{ 31.0f, 35.0f, -95.0f },
-};
-
-bool CuriosityShopRefillPrerequisiteMet(const CuriosityShopRefillEntry& refill) {
-    if (refill.prerequisiteCheck != RC_UNKNOWN) {
-        return RANDO_SAVE_CHECKS[refill.prerequisiteCheck].obtained;
-    }
-
-    if (refill.prerequisiteItemId != RI_UNKNOWN) {
-        RandoCheckId itemPlacement = Rando::FindItemPlacement(refill.prerequisiteItemId);
-        if (itemPlacement != RC_UNKNOWN) {
-            return RANDO_SAVE_CHECKS[itemPlacement].obtained;
-        }
-    }
-
-    return refill.prerequisiteCheck == RC_UNKNOWN && refill.prerequisiteItemId == RI_UNKNOWN;
-}
-
-bool CuriosityShopHasAvailableRefill() {
-    for (const auto& refill : sCuriosityShopRefills) {
-        if (CuriosityShopRefillPrerequisiteMet(refill)) {
-            return true;
-        }
-    }
-    return false;
-}
-} // namespace
-
 void EndEnFsnDialogue(EnFsn* actor) {
     Player* player = GET_PLAYER(gPlayState);
 
@@ -66,45 +25,6 @@ void EndEnFsnDialogue(EnFsn* actor) {
 }
 
 void Rando::ActorBehavior::InitEnFsnBehavior() {
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_FSN, IS_RANDO, [](Actor* actor) {
-        EnFsn* enFsn = (EnFsn*)actor;
-
-        if (!ENFSN_IS_SHOP(&enFsn->actor) || gPlayState->sceneId != SCENE_AYASHIISHOP) {
-            return;
-        }
-
-        s32 slotIndex = enFsn->totalSellingItems;
-        if (slotIndex >= sCuriosityShopMaxItems) {
-            return;
-        }
-
-        for (size_t refillIndex = 0; refillIndex < sCuriosityShopRefills.size(); ++refillIndex) {
-            const auto& refill = sCuriosityShopRefills[refillIndex];
-            if (slotIndex >= sCuriosityShopMaxItems) {
-                break;
-            }
-
-            if (!CuriosityShopRefillPrerequisiteMet(refill)) {
-                continue;
-            }
-
-            const Vec3f& spawnPos = sCuriosityShopItemPositions[slotIndex];
-            EnGirlA* enGirlA = (EnGirlA*)Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_GIRLA, spawnPos.x,
-                                                     spawnPos.y, spawnPos.z, 0, 0, 0, sCuriosityShopBottleParams);
-            if (enGirlA == nullptr) {
-                continue;
-            }
-
-            enGirlA->actor.world.rot.z = sCuriosityShopRefillBaseId + static_cast<s16>(refillIndex);
-            enGirlA->mainActionFunc = EnGirlA_RandoInit;
-            enFsn->items[slotIndex] = enGirlA;
-            enFsn->itemIds[slotIndex] = sCuriosityShopBottleParams;
-            enFsn->totalSellingItems++;
-            enFsn->numSellingItems++;
-            slotIndex++;
-        }
-    });
-
     COND_VB_SHOULD(VB_GIVE_ITEM_FROM_OFFER, IS_RANDO, {
         GetItemId* item = va_arg(args, GetItemId*);
         Actor* actor = va_arg(args, Actor*);
@@ -120,11 +40,10 @@ void Rando::ActorBehavior::InitEnFsnBehavior() {
             // Handling for when the Curiosity Shop owner sells something to the player
             if (enFsn->isSelling && enFsn->cursorIndex >= 0 && enFsn->cursorIndex <= 2) {
                 EnGirlA* enGirlA = enFsn->items[enFsn->cursorIndex];
-                s16 shopItemId = enGirlA->actor.world.rot.z;
-                // Handle refill items and special checks
-                if (shopItemId == RC_CURIOSITY_SHOP_SPECIAL_ITEM ||
-                    shopItemId == RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM ||
-                    IsCuriosityShopRefillShopId(shopItemId)) {
+                RandoCheckId randoCheckId = (RandoCheckId)enGirlA->actor.world.rot.z;
+                // Only handle the two special checks. Leave stolen items as-is.
+                if (randoCheckId == RC_CURIOSITY_SHOP_SPECIAL_ITEM ||
+                    randoCheckId == RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM) {
                     *should = false;
                     EndEnFsnDialogue(enFsn);
                     enGirlA->buyFunc(gPlayState, enGirlA);
@@ -135,17 +54,11 @@ void Rando::ActorBehavior::InitEnFsnBehavior() {
                      * Curiosity Shop owner's response will then erase that textbox. Not game breaking, but something to
                      * note.
                      */
-                    if (shopItemId == RC_CURIOSITY_SHOP_SPECIAL_ITEM) {
+                    if (randoCheckId == RC_CURIOSITY_SHOP_SPECIAL_ITEM) {
                         Message_BombersNotebookQueueEvent(gPlayState, BOMBERS_NOTEBOOK_EVENT_RECEIVED_ALL_NIGHT_MASK);
                     }
                 }
             }
-        }
-    });
-
-    COND_VB_SHOULD(VB_EN_FSN_HAS_ITEMS, IS_RANDO, {
-        if (gPlayState->sceneId == SCENE_AYASHIISHOP) {
-            *should = CuriosityShopHasAvailableRefill();
         }
     });
 

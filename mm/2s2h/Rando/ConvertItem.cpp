@@ -323,7 +323,6 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_CHATEAU_ROMANI_REFILL:
         case RI_FAIRY_REFILL:
         case RI_RED_POTION_REFILL:
-        case RI_SEAHORSE:
         case RI_BLUE_POTION_REFILL:
         case RI_GREEN_POTION_REFILL:
             if (!Inventory_HasEmptyBottle()) {
