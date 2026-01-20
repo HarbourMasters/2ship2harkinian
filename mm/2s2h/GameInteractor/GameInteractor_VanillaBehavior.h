@@ -946,6 +946,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_GRANNY_STORY_INCREMENT_DAY,
+
+    // #### `result`
+    // ```c
     // gSaveContext.isMagicRequested
     // ```
     // #### `args`
