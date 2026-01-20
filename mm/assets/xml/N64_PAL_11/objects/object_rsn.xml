@@ -1,6 +1,6 @@
 ﻿<Root>
     <!-- Object for Bomb Shopkeeper-->
-    <File Name="object_rs" Segment="6">
+    <File Name="object_rsn" Segment="6">
         <!-- Bomb -->
         <DList Name="gBombShopkeeperBombDL" Offset="0x970" />
         <Texture Name="gBombShopkeeperBombFuseTex" OutName="bomb_shopkeeper_bomb_fuse" Format="i8" Width="32" Height="32" Offset="0xC08" />

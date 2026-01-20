@@ -1112,7 +1112,7 @@ void FileSelect_DrawOptionsImpl_GC(GameState* thisx) {
     if (gameRegion == GAME_REGION_PAL) {
         Matrix_Push();
         Matrix_Translate(0.0f, 0.8f, 0.0f, MTXMODE_APPLY);
-        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, this->state.gfxCtx);
         gSPVertex(POLY_OPA_DISP++, D_808153B0_cp0, 4, 0);
         gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
         Matrix_Pop();

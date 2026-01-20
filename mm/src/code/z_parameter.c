@@ -5079,9 +5079,9 @@ void Interface_LoadAButtonDoActionLabel(InterfaceContext* interfaceCtx, u16 doAc
         // #endregion
 
         if (slot) {
-            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex = doActionTblPtr[action];
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex = doActionTblPtr[doAction];
         } else {
-            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex = doActionTblPtr[action];
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex = doActionTblPtr[doAction];
         }
     } else {
         // gSegments[0x09] = OS_K0_TO_PHYSICAL(interfaceCtx->doActionSegment);
