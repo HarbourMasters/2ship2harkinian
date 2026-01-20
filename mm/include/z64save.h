@@ -436,7 +436,7 @@ typedef struct DpadSaveContext {
 typedef struct ShipSaveContext {
     DpadSaveContext dpad;
     uint64_t lastTimeLog;
-    u16 pictoPhotoRGBA[PICTO_PHOTO_SIZE] ALIGNED(64);
+    u16 pictoPhotoRGBA[PICTO_PHOTO_SIZE];
 } ShipSaveContext;
 // #endregion
 
