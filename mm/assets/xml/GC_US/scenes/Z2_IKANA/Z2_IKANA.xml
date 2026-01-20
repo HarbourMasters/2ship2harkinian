@@ -7,9 +7,9 @@
 
         <Room Name="Z2_IKANA_room_00" Offset="0x0"/>
         <DList Name="Z2_IKANA_room_00DL_001040" Offset="0x1040"/>
-        <DList Name="Z2_IKANA_room_00DL_011DF0" Offset="0x11DF0"/>
-        <DList Name="Z2_IKANA_room_00DL_023880" Offset="0x23880"/>
-        <DList Name="Z2_IKANA_room_00DL_025F28" Offset="0x25F28"/>
+        <DList Name="Z2_IKANA_room_00DL_011DF0" Offset="0x11D08"/>
+        <DList Name="Z2_IKANA_room_00DL_023880" Offset="0x237A0"/>
+        <DList Name="Z2_IKANA_room_00DL_025F28" Offset="0x25DF8"/>
     </File>
     <File Name="Z2_IKANA_room_01" Segment="3" Game="MM">
         <Room Name="Z2_IKANA_room_01" Offset="0x0"/>
