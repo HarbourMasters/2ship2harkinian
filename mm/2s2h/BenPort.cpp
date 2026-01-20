@@ -5,31 +5,30 @@
 #include <fstream>
 #include <chrono>
 
-#include <ResourceManager.h>
-#include "graphic/Fast3D/Fast3dWindow.h"
-#include <File.h>
-#include <DisplayList.h>
-#include <Window.h>
+#include <ship/resource/ResourceManager.h>
+#include <fast/Fast3dWindow.h>
+#include <ship/resource/File.h>
+#include <ship/window/Window.h>
 
 #include "z64animation.h"
 #include "z64bgcheck.h"
 #include <libultraship/libultra/gbi.h>
-#include <Fonts.h>
+#include <ship/window/gui/Fonts.h>
 #ifdef _WIN32
 #include <Windows.h>
 #else
 #include <time.h>
 #endif
-#include <AudioPlayer.h>
+#include <ship/audio/AudioPlayer.h>
 #include "variables.h"
 #include "z64.h"
 #include "macros.h"
-#include <utils/StringHelper.h>
+#include <ship/utils/StringHelper.h>
 #include <nlohmann/json.hpp>
 #include "build.h"
 
-#include <Fast3D/interpreter.h>
-#include <Fast3D/backends/gfx_rendering_api.h>
+#include <fast/interpreter.h>
+#include <fast/backends/gfx_rendering_api.h>
 
 #ifdef __APPLE__
 #include <SDL_scancode.h>
@@ -47,11 +46,14 @@ CrowdControl* CrowdControl::Instance;
 #endif
 
 #include <libultraship/libultraship.h>
+#include <libultraship/controller/controldeck/ControlDeck.h>
+#include <fast/resource/ResourceType.h>
 #include <BenGui/BenGui.hpp>
 
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
+#include "2s2h/Enhancements/GfxPatcher/PlayerCustomFlipbooks.h"
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/Rando/Rando.h"
 #include "2s2h/Rando/Spoiler/Spoiler.h"
@@ -64,11 +66,11 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/PresetManager/PresetManager.h"
 
 // Resource Types/Factories
-#include "resource/type/Blob.h"
-#include "resource/type/DisplayList.h"
-#include "resource/type/Matrix.h"
-#include "resource/type/Texture.h"
-#include "resource/type/Vertex.h"
+#include <ship/resource/type/Blob.h>
+#include <fast/resource/type/DisplayList.h>
+#include <fast/resource/type/Matrix.h>
+#include <fast/resource/type/Texture.h>
+#include <fast/resource/type/Vertex.h>
 #include "2s2h/resource/type/2shResourceType.h"
 #include "2s2h/resource/type/Animation.h"
 #include "2s2h/resource/type/Array.h"
@@ -82,11 +84,11 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/type/Scene.h"
 #include "2s2h/resource/type/Skeleton.h"
 #include "2s2h/resource/type/SkeletonLimb.h"
-#include "resource/factory/BlobFactory.h"
-#include "resource/factory/DisplayListFactory.h"
-#include "resource/factory/MatrixFactory.h"
-#include "resource/factory/TextureFactory.h"
-#include "resource/factory/VertexFactory.h"
+#include <ship/resource/factory/BlobFactory.h>
+#include <fast/resource/factory/DisplayListFactory.h>
+#include <fast/resource/factory/MatrixFactory.h>
+#include <fast/resource/factory/TextureFactory.h>
+#include <fast/resource/factory/VertexFactory.h>
 #include "2s2h/resource/importer/AnimationFactory.h"
 #include "2s2h/resource/importer/ArrayFactory.h"
 #include "2s2h/resource/importer/AudioSampleFactory.h"
@@ -103,9 +105,9 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/importer/BackgroundFactory.h"
 #include "2s2h/resource/importer/TextureAnimationFactory.h"
 #include "2s2h/resource/importer/KeyFrameFactory.h"
-#include "window/gui/resource/Font.h"
-#include "window/FileDropMgr.h"
-#include "window/gui/resource/FontFactory.h"
+#include <ship/window/gui/resource/Font.h>
+#include <ship/window/FileDropMgr.h>
+#include <ship/window/gui/resource/FontFactory.h>
 #include "2s2h/Enhancements/Audio/AudioCollection.h"
 #include "BenGui/BenInputEditorWindow.h"
 
@@ -172,17 +174,27 @@ OTRGlobals::OTRGlobals() {
 
     context = Ship::Context::CreateUninitializedInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json");
     context->InitFileDropMgr();
-    context->InitLogging();
     context->InitGfxDebugger();
     context->InitConfiguration();
     context->InitConsoleVariables();
+#if (_DEBUG)
+    auto defaultLogLevel = spdlog::level::trace;
+#else
+    auto defaultLogLevel = spdlog::level::info;
+#endif
+    auto logLevel = (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", defaultLogLevel);
+    context->InitLogging(logLevel, logLevel);
+    Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%^%l%$] %v");
 
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context->InitResourceManager(archiveFiles, {}, 3);
     prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
-    auto controlDeck = std::make_shared<LUS::ControlDeck>(std::vector<CONTROLLERBUTTONS_T>({}));
+    auto controlDeck = std::make_shared<LUS::ControlDeck>(std::vector<CONTROLLERBUTTONS_T>({
+        BTN_CUSTOM_MODIFIER1,
+        BTN_CUSTOM_MODIFIER2,
+    }));
     context->InitControlDeck(controlDeck);
 
     context->InitCrashHandler();
@@ -194,10 +206,6 @@ OTRGlobals::OTRGlobals() {
     context->InitWindow(benFast3dWindow);
 
     // Override LUS defaults
-    Ship::Context::GetInstance()->GetLogger()->set_level(
-        (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
-    Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
-
     auto overlay = context->GetInstance()->GetWindow()->GetGui()->GetGameOverlay();
     overlay->LoadFont("Press Start 2P", 12.0f, "fonts/PressStart2P-Regular.ttf");
     overlay->LoadFont("Fipps", 32.0f, "fonts/Fipps-Regular.otf");
@@ -471,33 +479,6 @@ extern "C" void OTRExtScanner() {
     }
 }
 
-void Ben_ProcessDroppedFiles(const std::string& filePath) {
-    SPDLOG_INFO("Processing dropped file: {}", filePath);
-
-    bool handled = false;
-
-    if (!handled) {
-        handled = SaveManager_HandleFileDropped(filePath);
-    }
-
-    if (!handled) {
-        handled = BinarySaveConverter_HandleFileDropped(filePath);
-    }
-
-    if (!handled) {
-        handled = Rando::Spoiler::HandleFileDropped(filePath);
-    }
-
-    if (!handled) {
-        handled = PresetManager_HandleFileDropped(filePath);
-    }
-
-    if (!handled) {
-        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
-        gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Unsupported file dropped, ignoring");
-    }
-}
-
 typedef struct {
     uint16_t major;
     uint16_t minor;
@@ -734,16 +715,16 @@ extern "C" void InitOTR() {
     GameInteractor::Instance->RegisterOwnHooks();
     CustomItem::RegisterHooks();
     CustomMessage::RegisterHooks();
+    Rando::StaticData::PopulateCheckNames();
 
     OTRMessage_Init();
     OTRAudio_Init();
     OTRExtScanner();
+    PlayerCustomFlipbooks_Patch();
 
     // Just came up with arbitrary numbers that seemed to work, this is
     // usually set once(?) in currently stubbed out areas of code.
     gIrqMgrRetraceTime = Ship_Random(700000, 850000);
-
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileDropped>(Ben_ProcessDroppedFiles);
 
     time_t now = time(NULL);
     tm* tm_now = localtime(&now);
@@ -765,6 +746,8 @@ extern "C" void InitOTR() {
 #endif
 
     std::shared_ptr<Ship::Config> conf = OTRGlobals::Instance->context->GetConfig();
+    Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(BinarySaveConverter_HandleFileDropped);
+    Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(SaveManager_HandleFileDropped);
 }
 
 extern "C" void SaveManager_ThreadPoolWait() {
@@ -916,14 +899,6 @@ extern "C" void Graph_StartFrame() {
         }
     }
 #endif
-    auto dropMgr = Ship::Context::GetInstance()->GetFileDropMgr();
-    if (dropMgr->FileDropped()) {
-        std::string filePath = dropMgr->GetDroppedFile();
-        if (!filePath.empty()) {
-            GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFileDropped>(filePath);
-        }
-        dropMgr->ClearDroppedFile();
-    }
 }
 
 void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
@@ -1298,6 +1273,36 @@ extern "C" void ResourceMgr_UnpatchGfxByName(const char* path, const char* patch
         *gfx = originalGfx[path][patchName].instruction;
 
         originalGfx[path].erase(patchName);
+    }
+}
+
+extern "C" size_t ResourceMgr_GetPatchCountForDL(const char* path) {
+    if (originalGfx.contains(path)) {
+        return originalGfx[path].size();
+    }
+    return 0;
+}
+
+extern "C" void ResourceMgr_ResetAllPatchesForDL(const char* path) {
+    if (!originalGfx.contains(path)) {
+        return;
+    }
+
+    auto res = std::static_pointer_cast<Fast::DisplayList>(
+        Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
+
+    // Iterate through all patches and restore original instructions
+    auto& patches = originalGfx[path];
+    for (auto it = patches.begin(); it != patches.end();) {
+        Gfx* gfx = (Gfx*)&res->Instructions[it->second.index];
+        *gfx = it->second.instruction;
+        // erase() returns the next iterator, allowing safe iteration during removal
+        it = patches.erase(it);
+    }
+
+    // Clean up empty map entry
+    if (patches.empty()) {
+        originalGfx.erase(path);
     }
 }
 

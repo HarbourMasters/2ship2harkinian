@@ -9,7 +9,7 @@
 #include "HudEditor.h"
 #include "Notification.h"
 #include <variant>
-#include "StringHelper.h"
+#include <ship/utils/StringHelper.h>
 #include <spdlog/fmt/fmt.h>
 #include "variables.h"
 #include <variant>
@@ -62,6 +62,12 @@ static const std::vector<const char*> cremiaRewardOptions = {
     "Rupee",   // CREMIA_REWARD_ALWAYS_RUPEE
 };
 
+static const std::vector<const char*> ammoBuybackOptions = {
+    "Vanilla",    // AMMO_BUYBACK_VANILLA
+    "Full Price", // AMMO_BUYBACK_FULL_PRICE
+    "Half Price", // AMMO_BUYBACK_HALF_PRICE
+};
+
 static const std::vector<const char*> gibdoTradeSequenceOptions = {
     "Vanilla",  // GIBDO_TRADE_SEQUENCE_VANILLA
     "MM3D",     // GIBDO_TRADE_SEQUENCE_MM3D
@@ -86,10 +92,16 @@ static const std::vector<const char*> motionBlurOptions = {
     "Always On",         // MOTION_BLUR_ALWAYS_ON
 };
 static const std::vector<const char*> debugSaveOptions = {
-    "100% save",          // DEBUG_SAVE_INFO_COMPLETE
-    "Vanilla debug save", // DEBUG_SAVE_INFO_VANILLA_DEBUG
     "Empty save",         // DEBUG_SAVE_INFO_NONE
+    "Vanilla debug save", // DEBUG_SAVE_INFO_VANILLA_DEBUG
+    "100% save",          // DEBUG_SAVE_INFO_COMPLETE
 };
+
+#ifdef _DEBUG
+DebugLogOption defaultLogLevel = DEBUG_LOG_TRACE;
+#else
+DebugLogOption defaultLogLevel = DEBUG_LOG_INFO;
+#endif
 
 static const std::vector<const char*> logLevels = {
     "Trace",    // DEBUG_LOG_TRACE
@@ -107,13 +119,20 @@ static const std::vector<const char*> timeStopOptions = {
     "Temples + Mini Dungeons", // TIME_STOP_TEMPLES_DUNGEONS
 };
 
+static const std::vector<const char*> speedModifierModeOptions = {
+    "Off",
+    "On",
+    "Hold Buttons",
+    "Toggle Buttons",
+};
+
 static const std::vector<const char*> notificationPosition = {
     "Top Left", "Top Right", "Bottom Left", "Bottom Right", "Hidden",
 };
 
 static const std::vector<const char*> dekuGuardSearchBallsOptions = {
-    "Never",      // DEKU_GUARD_SEARCH_BALLS_NEVER
     "Night Only", // DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY
+    "Never",      // DEKU_GUARD_SEARCH_BALLS_NEVER
     "Always",     // DEKU_GUARD_SEARCH_BALLS_ALWAYS
 };
 
@@ -135,6 +154,18 @@ static const std::vector<const char*> maskOfTruthGrottoOptions = {
     "Wear Mask of Truth", // HIDDEN_GROTTOS_VISIBLITY_WEAR_MASK_OF_TRUTH
     "Have Mask of Truth", // HIDDEN_GROTTOS_VISIBLITY_HAVE_MASK_OF_TRUTH
     "Always",             // HIDDEN_GROTTOS_VISIBLITY_ALWAYS
+};
+
+static const std::vector<const char*> goronRaceDifficultyOptions = {
+    "Vanilla",  // GORON_RACE_DIFFICULTY_VANILLA
+    "Balanced", // GORON_RACE_DIFFICULTY_BALANCED
+    "Skip",     // GORON_RACE_DIFFICULTY_SKIP
+};
+
+static const std::vector<const char*> timerDisplayOptions = {
+    "Off",          // TIMER_DISPLAY_NONE
+    "Real-Time",    // TIMER_DISPLAY_RTA
+    "In-Game Time", // TIMER_DISPLAY_IGT
 };
 
 static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
@@ -182,6 +213,9 @@ WidgetInfo& BenMenu::AddWidget(WidgetPath& pathInfo, std::string widgetName, Wid
         case WIDGET_CVAR_SLIDER_FLOAT:
             widget.options = std::make_shared<FloatSliderOptions>();
             break;
+        case WIDGET_CVAR_BTN_SELECTOR:
+            widget.options = std::make_shared<BtnSelectorOptions>();
+            break;
         case WIDGET_SLIDER_INT:
         case WIDGET_CVAR_SLIDER_INT:
             widget.options = std::make_shared<IntSliderOptions>();
@@ -211,9 +245,10 @@ WidgetInfo& BenMenu::AddWidget(WidgetPath& pathInfo, std::string widgetName, Wid
     return widget;
 }
 
-// Last generated with the following command on 05/19/2025
+// Last generated with the following command on 01/10/2026. The gap in commits is so that cherry-picks from other repos
+// do not get mixed in.
 // clang-format off
-// git shortlog -sn 2332f63f5a9ca4b949f029c11a9744d601d7155f..HEAD | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+/"/' | sed -E 's/(.+)/\1",/'
+// { git shortlog -sn 2332f63..558f59b ; git shortlog -sn dfcc80e..HEAD; } | awk '{n=$1; $1=""; sub(/^ /,""); c[$0]+=n} END{for(a in c) print c[a],a}' | sort -nr | sed -E 's/^[[:space:]]*[0-9]+[[:space:]]+/"/; s/(.+)/\1",/'
 // clang-format on
 std::vector<std::string> contributors = {
     "ProxySaw", // "Garrett Cox", manual replacement
@@ -224,49 +259,54 @@ std::vector<std::string> contributors = {
     "Caladius",
     "inspectredc",
     "sitton76",
+    "mckinlee",
     "Patrick12115",
     "briaguya",
     "Malkierian",
     "PurpleHato",
     "Joshua Sanchez",
     "aMannus",
-    "mckinlee",
+    "Jordan Longstaff",
     "zodiac-ill",
+    "Glought",
     "rachaellama",
-    "Adam Bird",
-    "Revo",
-    "Lars-Christian Selland",
-    "Liam Scholte",
-    "Nicholas Estelami",
-    "ReddestDream",
-    "Sirius902",
-    "Spodi",
     "lightmanLP",
+    "Spodi",
+    "Sirius902",
+    "Revo",
     "lilacLunatic",
-    "Alejandro Asenjo Nitti",
-    "AltoXorg",
-    "Ben Willmore",
-    "Captain Kitty Cat",
-    "Extloga",
-    "Felix Dietrich",
-    "Ghunzor",
-    "Hoeloe",
-    "Jacob Erly",
-    "Kenix3",
-    "Louis",
-    "MegaMech",
-    "Mothstery",
+    "ReddestDream",
     "OtherBlue",
-    "Qlonever",
-    "Quorsor",
-    "Ralphie Morell",
-    "Reinhardt R. Gaming",
-    "Rozelette",
-    "Travis",
-    "cplaster",
-    "justawayofthesamurai",
+    "Nicholas Estelami",
+    "Mrlinkwii",
+    "Liam Scholte",
+    "Lars-Christian Selland",
     "verbes4",
+    "justawayofthesamurai",
+    "cplaster",
     "ammar sadaoui",
+    "Travis",
+    "Rozelette",
+    "Reinhardt R. Gaming",
+    "Ralphie Morell",
+    "Quorsor",
+    "Qlonever",
+    "Mothstery",
+    "MegaMech",
+    "Louis",
+    "Kenix3",
+    "Jordyn Hardyman",
+    "Jacob Erly",
+    "Hoeloe",
+    "Ghunzor",
+    "Felix Dietrich",
+    "Extloga",
+    "ErawanJohnson",
+    "Corbin Park",
+    "Captain Kitty Cat",
+    "Ben Willmore",
+    "AltoXorg",
+    "Alejandro Asenjo Nitti",
 };
 
 void BenMenu::AddSettings() {
@@ -315,6 +355,9 @@ void BenMenu::AddSettings() {
         .CVar("gEnhancements.Mods.AlternateAssetsHotkey")
         .Options(
             CheckboxOptions().Tooltip("Allows pressing the Tab key to toggle alternate assets.").DefaultValue(true));
+    AddWidget(path, "Reset Button Combination:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gSettings.ResetBtn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER2));
     AddWidget(path, "Open App Files Folder", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) {
             std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
@@ -344,24 +387,33 @@ void BenMenu::AddSettings() {
 
         // Draw auto scrolling list of contributors in columns
         ImGui::SetNextWindowSize(ImVec2(0.0f, ImGui::GetMainViewport()->WorkSize.y / 3));
-        ImGui::BeginChild("contributors");
+        ImGui::BeginChild("contributors", ImVec2(0, 0), 0,
+                          ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
         static double scrollSpeed = 1.5f * (ImGui::GetFontSize() / 1000.0f); // Lines to scroll per second
-        double scrollPosition = fmod(GetUnixTimestamp() * scrollSpeed, ImGui::GetScrollMaxY() + 1.0f);
+        static int numColumns = 2; // Two columns seem to work best. Some names are too long for more on lower res
+
+        // Calculate the height of one full list iteration
+        float lineHeight = ImGui::GetTextLineHeightWithSpacing();
+        float singleListHeight =
+            (contributors.size() / numColumns + (contributors.size() % numColumns != 0 ? 1 : 0)) * lineHeight;
+
+        // Calculate scroll position that wraps seamlessly
+        double scrollPosition = fmod((GetUnixTimestamp() % 18446744000000000000) * scrollSpeed, singleListHeight);
         ImGui::SetScrollY(scrollPosition);
 
-        ImGui::Dummy(ImVec2(0.0f, ImGui::GetFontSize()));
-        static int numColumns = 2; // Two columns seem to work best. Some names are too long for more on lower res
-        for (int column = 0; column < numColumns; column++) {
-            if (column > 0)
-                ImGui::SameLine();
+        // Render the contributors list twice for infinite scroll effect
+        for (int iteration = 0; iteration < 2; iteration++) {
+            for (int column = 0; column < numColumns; column++) {
+                if (column > 0)
+                    ImGui::SameLine();
 
-            ImGui::BeginGroup();
-            for (int i = column; i < contributors.size(); i += numColumns) {
-                ImGui::Text("%s", contributors.at(i).c_str());
+                ImGui::BeginGroup();
+                for (int i = column; i < contributors.size(); i += numColumns) {
+                    ImGui::Text("%s", contributors.at(i).c_str());
+                }
+                ImGui::EndGroup();
             }
-            ImGui::EndGroup();
         }
-        ImGui::Dummy(ImVec2(0.0f, ImGui::GetFontSize()));
         ImGui::EndChild();
 
         ImGui::EndChild();
@@ -379,12 +431,13 @@ void BenMenu::AddSettings() {
 
     // Audio Settings
     path.sidebarName = "Audio";
+    path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Audio", 3);
     AddWidget(path, "Master Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gSettings.Audio.MasterVolume")
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the overall sound volume.")
-                     .ShowButtons(false)
+                     .ShowAdjustmentButtons(false)
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Main Music Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
@@ -394,7 +447,7 @@ void BenMenu::AddSettings() {
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the background music volume.")
-                     .ShowButtons(false)
+                     .ShowAdjustmentButtons(false)
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Sub Music Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
@@ -402,8 +455,11 @@ void BenMenu::AddSettings() {
         .Callback([](WidgetInfo& info) {
             AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
         })
-        .Options(
-            FloatSliderOptions().Tooltip("Adjust the sub music volume.").ShowButtons(false).Format("").IsPercentage());
+        .Options(FloatSliderOptions()
+                     .Tooltip("Adjust the sub music volume.")
+                     .ShowAdjustmentButtons(false)
+                     .Format("")
+                     .IsPercentage());
     AddWidget(path, "Sound Effects Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gSettings.Audio.SoundEffectsVolume")
         .Callback([](WidgetInfo& info) {
@@ -411,7 +467,7 @@ void BenMenu::AddSettings() {
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the sound effects volume.")
-                     .ShowButtons(false)
+                     .ShowAdjustmentButtons(false)
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Fanfare Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
@@ -419,8 +475,11 @@ void BenMenu::AddSettings() {
         .Callback([](WidgetInfo& info) {
             AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
         })
-        .Options(
-            FloatSliderOptions().Tooltip("Adjust the fanfare volume.").ShowButtons(false).Format("").IsPercentage());
+        .Options(FloatSliderOptions()
+                     .Tooltip("Adjust the fanfare volume.")
+                     .ShowAdjustmentButtons(false)
+                     .Format("")
+                     .IsPercentage());
     AddWidget(path, "Ambience Volume: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gSettings.Audio.AmbienceVolume")
         .Callback([](WidgetInfo& info) {
@@ -428,7 +487,7 @@ void BenMenu::AddSettings() {
         })
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the ambient sound volume.")
-                     .ShowButtons(false)
+                     .ShowAdjustmentButtons(false)
                      .Format("")
                      .IsPercentage());
     AddWidget(path, "Audio API", WIDGET_AUDIO_BACKEND);
@@ -460,7 +519,7 @@ void BenMenu::AddSettings() {
             FloatSliderOptions()
                 .Tooltip("Multiplies your output resolution by the value inputted, as a more intensive but effective "
                          "form of anti-aliasing.")
-                .ShowButtons(false)
+                .ShowAdjustmentButtons(false)
                 .IsPercentage()
                 .Format("")
                 .Min(0.5f)
@@ -520,8 +579,9 @@ void BenMenu::AddSettings() {
         .CVar(CVAR_ENABLE_MULTI_VIEWPORTS)
         .PreFunc(
             [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NO_MULTI_VIEWPORT).active; })
-        .Options(CheckboxOptions().Tooltip(
-            "Allows multiple windows to be opened at once. Requires a reload to take effect."));
+        .Options(CheckboxOptions()
+                     .Tooltip("Allows multiple windows to be opened at once. Requires a reload to take effect.")
+                     .DefaultValue(true));
     AddWidget(path, "Texture Filter (Needs reload)", WIDGET_CVAR_COMBOBOX)
         .CVar(CVAR_TEXTURE_FILTER)
         .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.").ComboVec(&textureFilteringOptions));
@@ -537,6 +597,7 @@ void BenMenu::AddSettings() {
         .Options(ButtonOptions().Tooltip("Enables the separate Bindings Window.").Size(Sizes::Inline));
 
     path.sidebarName = "Overlay";
+    path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Overlay", 2);
     AddWidget(path, "Notifications", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Position", WIDGET_CVAR_COMBOBOX)
@@ -545,7 +606,7 @@ void BenMenu::AddSettings() {
                      .Tooltip("Which corner of the screen notifications appear in.")
                      .ComboVec(&notificationPosition)
                      .DefaultIndex(3));
-    AddWidget(path, "Duration: %.0f seconds", WIDGET_CVAR_SLIDER_FLOAT)
+    AddWidget(path, "Duration: %.1f seconds", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gNotifications.Duration")
         .Options(FloatSliderOptions()
                      .Tooltip("How long notifications are displayed for.")
@@ -581,14 +642,21 @@ void BenMenu::AddSettings() {
         .Options(ButtonOptions().Tooltip("Displays a test notification."));
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "In-Game Timer", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Toggle Display Overlay", WIDGET_WINDOW_BUTTON)
+    AddWidget(path, "Display", WIDGET_CVAR_COMBOBOX)
         .CVar("gWindows.DisplayOverlay")
         .WindowName("Display Overlay")
-        .Options(ButtonOptions().Tooltip("Toggles the Display Overlay window for In-game Timers."));
+        .Options(
+            ComboboxOptions()
+                .Tooltip(
+                    "How the timer should be displayed in the overlay.\n\n"
+                    "- Off: Do not display a timer\n"
+                    "- Real-Time: Display the time that has elapsed since creating the save file, regardless of play.\n"
+                    "- In-Game Time: Display the time spent playing the save file")
+                .ComboVec(&timerDisplayOptions));
     AddWidget(path, "Hide Window Background", WIDGET_CVAR_CHECKBOX)
         .CVar("gDisplayOverlay.Background")
         .Options(CheckboxOptions().Tooltip("Hides the background of the Display Overlay window."));
-    AddWidget(path, "Scale: %.0fx", WIDGET_CVAR_SLIDER_FLOAT)
+    AddWidget(path, "Scale: %.1fx", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gDisplayOverlay.Scale")
         .Options(FloatSliderOptions()
                      .Tooltip("Adjust the Scale for the Display Overlay window.")
@@ -602,6 +670,22 @@ void BenMenu::AddSettings() {
     path.sidebarName = "Presets";
     AddSidebarEntry("Settings", "Presets", 1);
     AddWidget(path, "Presets", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { PresetManager_Draw(); });
+
+    // Input Viewer
+    path.sidebarName = "Input Viewer";
+    path.column = SECTION_COLUMN_1;
+    AddSidebarEntry("Settings", path.sidebarName, 2);
+    AddWidget(path, "Input Viewer", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Toggle Input Viewer", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.InputViewer")
+        .WindowName("Input Viewer")
+        .Options(ButtonOptions().Tooltip("Toggles the Input Viewer."));
+
+    AddWidget(path, "Input Viewer Settings", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Popout Input Viewer Settings", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.InputViewerSettings")
+        .WindowName("Input Viewer Settings")
+        .Options(ButtonOptions().Tooltip("Enables the separate Input Viewer Settings Window."));
 }
 int32_t motionBlurStrength;
 
@@ -824,7 +908,7 @@ void BenMenu::AddEnhancements() {
                      .Max(3.0f));
 
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", "Cheats", 3);
+    AddSidebarEntry("Enhancements", "Cheats", 2);
     AddWidget(path, "Infinite Health", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.InfiniteHealth")
         .Options(CheckboxOptions().Tooltip("Always have full Hearts."));
@@ -864,6 +948,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Elegy of Emptiness Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.ElegyAnywhere")
         .Options(CheckboxOptions().Tooltip("Allows Elegy of Emptiness outside of Ikana."));
+    AddWidget(path, "Climb Anywhere", WIDGET_CVAR_CHECKBOX)
+        .CVar("gCheats.ClimbAnywhere")
+        .Options(CheckboxOptions().Tooltip("Allows climbing on most walls regardless of vines."));
     AddWidget(path, "Stop Time in Dungeons", WIDGET_CVAR_COMBOBOX)
         .CVar("gCheats.TempleTimeStop")
         .Options(
@@ -874,6 +961,20 @@ void BenMenu::AddEnhancements() {
                          "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
                          "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.")
                 .ComboVec(&timeStopOptions));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "Speed Modifier", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Speed Modifier Mode", WIDGET_CVAR_COMBOBOX)
+        .CVar("gCheats.SpeedModifier.Mode")
+        .Options(ComboboxOptions().ComboVec(&speedModifierModeOptions).LabelPosition(LabelPosition::None));
+    AddWidget(path, "Multiplier:", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gCheats.SpeedModifier.Value")
+        .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gCheats.SpeedModifier.Mode", 0); })
+        .Options(FloatSliderOptions().Format("%.1fx").Min(0.0f).Max(6.0f).DefaultValue(1.0f));
+    AddWidget(path, "Button Combination:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gCheats.SpeedModifier.Btn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER1))
+        .PreFunc([](WidgetInfo& info) { info.isHidden = CVarGetInteger("gCheats.SpeedModifier.Mode", 0) < 2; });
 
     //// Gameplay Enhancements
     path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
@@ -906,12 +1007,19 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Prevent Diving Over Water", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.PreventDiveOverWater")
         .Options(CheckboxOptions().Tooltip("Prevents Link from automatically diving over bodies of water."));
+    AddWidget(path, "Underwater Ocarina", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.UnderwaterOcarina")
+        .Options(CheckboxOptions().Tooltip("Allows Zora to use the Ocarina of Time when grounded underwater."));
     AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.ManualJump")
         .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));
+    AddWidget(path, "Unequip Items", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Equipment.ItemUnequip")
+        .Options(CheckboxOptions().Tooltip("In the pause menu, press the same C-button or D-pad button an item is "
+                                           "equipped to in order to unequip it."));
     AddWidget(path, "Fast Magic Arrow Equip Animation", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.MagicArrowEquipSpeed")
         .Options(CheckboxOptions().Tooltip("Removes the animation for equipping Magic Arrows."));
@@ -931,6 +1039,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.PlayerActions.ArrowCycle")
         .Options(CheckboxOptions().Tooltip(
             "While aiming the bow, use R to cycle between Normal, Fire, Ice and Light arrows."));
+    AddWidget(path, "Remote Bombchu Control", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.PlayerActions.RemoteBombchu")
+        .Options(CheckboxOptions().Tooltip(
+            "Allows you to control the direction of the Bombchu while it is moving. Press B to detonate. Press A to "
+            "stop controlling the Bombchu."));
     AddWidget(path, "Bombchu Drops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.ChuDrops")
         .Options(
@@ -939,6 +1052,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Equipment.InvertShieldY")
         .Options(CheckboxOptions().Tooltip(
             "Invert the Y axis while holding the shield so that it moves up with the left stick."));
+    AddWidget(path, "Great Fairy Sword B-Button Attack", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Equipment.GreatFairySwordBButton")
+        .Options(CheckboxOptions().Tooltip(
+            "When the Great Fairy's Sword is held, pressing B attacks with it instead of drawing "
+            "your equipped sword. The sword can still be put away with A as normal."));
 
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
@@ -963,17 +1081,6 @@ void BenMenu::AddEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
-    AddWidget(path, "SFX", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Mute Low HP Alarm", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.LowHpAlarm")
-        .Options(CheckboxOptions().Tooltip("Mutes the beeping alarm when you are critically low on health."));
-    AddWidget(path, "Mute Carpenter Sounds", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.MuteCarpenterSfx")
-        .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
-                                           "from the tower in South Clock Town."));
-    AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Sfx.ChildGoronCry")
-        .Options(CheckboxOptions().Tooltip("Mutes the crying Goron child inside Goron Shrine."));
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
@@ -983,6 +1090,27 @@ void BenMenu::AddEnhancements() {
                               "-Hug: Get the hugging cutscene\n"
                               "-Rupee: Get the rupee reward")
                      .ComboVec(&cremiaRewardOptions));
+    AddWidget(path, "Ammo Buyback Options", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Items.AmmoBuyback")
+        .Options(ComboboxOptions()
+                     .Tooltip("Choose whether to allow selling ammo items (Arrows, Bombs, Bombchus, Deku Sticks, Deku "
+                              "Nuts, Magic Beans, Powder Keg) "
+                              "to the Curiosity Shop owner for Rupees.\n"
+                              "-Vanilla: Ammo items cannot be sold\n"
+                              "-Full Price: Sell at full value\n"
+                              "-Half Price: Sell at half value (rounded up)")
+                     .ComboVec(&ammoBuybackOptions));
+    AddWidget(path, "Accessibility", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Disable Screen Flash for Enemy Kills", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.A11y.NoScreenFlashForEnemyKill")
+        .Options(CheckboxOptions().Tooltip("Disables the white screen flash on enemy kill."));
+    AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Graphics.BowReticle")
+        .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
+    AddWidget(path, "Mark Shooting Gallery Octoroks", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.MarkShootingGalleryOctoroks")
+        .Options(CheckboxOptions().Tooltip("Places markers on the Town Shooting Gallery Octoroks, indicating whether "
+                                           "they should be hit."));
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Saving", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)
@@ -999,14 +1127,17 @@ void BenMenu::AddEnhancements() {
             "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
             "option to create a persistent Owl Save from your current location.\n\nWhen loading back "
             "into the game, you will be placed either at the entrance of the dungeon you saved in, or "
-            "in South Clock Town."));
+            "in South Clock Town, unless Remember Save Location is enabled."));
+    AddWidget(path, "Remember Save Location", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Saving.RememberSaveLocation")
+        .Options(CheckboxOptions().Tooltip("When loading a save, places Link at the last entrance he went through."));
     AddWidget(path, "Autosave", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.Autosave")
         .Callback([](WidgetInfo& info) { RegisterAutosave(); })
         .Options(CheckboxOptions().Tooltip(
             "Automatically create a persistent Owl Save on the chosen interval.\n\nWhen loading "
             "back into the game, you will be placed either at the entrance of the dungeon you "
-            "saved in, or in South Clock Town."));
+            "saved in, or in South Clock Town, unless Remember Save Location is enabled."));
     AddWidget(path, "Autosave Interval: %d minutes", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Saving.AutosaveInterval")
         .PreFunc([](WidgetInfo& info) {
@@ -1042,6 +1173,9 @@ void BenMenu::AddEnhancements() {
         .Options(
             CheckboxOptions().Tooltip("The Oceanside Spider House squatter will not move in until the player interacts "
                                       "with him. Forced on for randomizers."));
+    AddWidget(path, "Oceanside wallet any day", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cycle.OceansideWalletAnyDay")
+        .Options(CheckboxOptions().Tooltip("Allows the wallet reward to be collected on any day."));
     AddWidget(path, "Unstable", WIDGET_SEPARATOR_TEXT).Options(WidgetOptions().Color(Colors::Orange));
     AddWidget(path, "Disable Save Delay", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.DisableSaveDelay")
@@ -1113,9 +1247,6 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Graphics.AuthenticLogo")
         .Options(CheckboxOptions().Tooltip("Hide the game version and build details and display the authentic "
                                            "model and texture on the boot logo start screen."));
-    AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Graphics.BowReticle")
-        .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
     AddWidget(path, "Disable Black Bar Letterboxes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.DisableBlackBars")
         .Options(CheckboxOptions().Tooltip(
@@ -1154,12 +1285,19 @@ void BenMenu::AddEnhancements() {
     AddSidebarEntry("Enhancements", "Items/Songs", 3);
     // Mask Enhancements
     AddWidget(path, "Masks", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Equippable While Swimming", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Masks.EquipWhileSwimming")
+        .Options(CheckboxOptions().Tooltip("Human Link can equip any non-transformation mask while swimming."));
     AddWidget(path, "Blast Mask has Powder Keg Force", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.BlastMaskKeg")
         .Options(CheckboxOptions().Tooltip("Blast Mask can also destroy objects only the Powder Keg can."));
     AddWidget(path, "Fast Transformation", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.FastTransformation")
         .Options(CheckboxOptions().Tooltip("Removes the delay when using transformation masks."));
+    AddWidget(path, "3DS Style Mask Equipping", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Masks.3DSMaskEquip")
+        .Options(CheckboxOptions().Tooltip("Allows equipping masks while in other forms, returning you to human form "
+                                           "with the mask immediately equipped, like in MM3D."));
     AddWidget(path, "Fierce Deity's Mask Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.FierceDeitysAnywhere")
         .Options(CheckboxOptions().Tooltip("Allow using Fierce Deity's mask outside of boss rooms."));
@@ -1196,6 +1334,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "D-pad Ocarina", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Playback.DpadOcarina")
         .Options(CheckboxOptions().Tooltip("Enables using the D-pad for Ocarina playback."));
+    AddWidget(path, "Right Stick Ocarina", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Playback.RightStickOcarina")
+        .Options(CheckboxOptions().Tooltip("Enables using the Right Stick for Ocarina playback."));
     AddWidget(path, "Pause Owl Warp", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.PauseOwlWarp")
         .Options(CheckboxOptions().Tooltip(
@@ -1222,6 +1363,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Song of Time cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.SkipSoTCutscenes")
         .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs."));
+    AddWidget(path, "Skip Soaring cutscene", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Songs.SkipSoaringCutscene")
+        .Options(CheckboxOptions().Tooltip("Skips the cutscene when using the Song of Soaring to warp."));
 
     // Time Savers
     path = { "Enhancements", "Time Savers", SECTION_COLUMN_1 };
@@ -1262,6 +1406,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Misc Interactions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipMiscInteractions")
         .Options(CheckboxOptions().Tooltip("This skips many minor cutscenes and interactions."));
+    AddWidget(path, "Skip Enemy Cutscenes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cutscenes.SkipEnemyCutscenes")
+        .Options(CheckboxOptions().Tooltip("Skips cutscenes specific to enemies and boss battles."));
     AddWidget(path, "Skip Item Get Cutscene", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Cutscenes.SkipGetItemCutscenes")
         .Options(ComboboxOptions()
@@ -1300,6 +1447,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Dampe Flame Digging", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.DampeDiggingSkip")
         .Options(CheckboxOptions().Tooltip("Only requires digging up one flame to spawn the big poe."));
+    AddWidget(path, "Fast Chests", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FastChests")
+        .Options(CheckboxOptions().Tooltip("Uses the quick kick animation for all chests in vanilla gameplay."));
     AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
         .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
@@ -1311,6 +1461,12 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Timesavers.SkipBalladOfWindfish")
         .Options(CheckboxOptions().Tooltip(
             "Play the complete Ballad after playing in one form if you have all three transformation masks."));
+    AddWidget(path, "Auto Bank Deposit", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.AutoBankDeposit")
+        .Options(CheckboxOptions().Tooltip(
+            "Automatically deposits excess Rupees into your bank account when your wallet is full. "
+            "Deposits stop when the bank reaches maximum capacity. "
+            "Bank rewards are granted automatically. Notifications display deposit amount and new balance."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
@@ -1392,6 +1548,13 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Restores the appearance of Woodfall mountain to not look poisoned "
                                            "when viewed from Termina Field after clearing Woodfall Temple\n\n"
                                            "Requires a scene reload to take effect."));
+    AddWidget(path, "JP Deku Palace Grottos", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Restorations.JPGrottos")
+        .Options(CheckboxOptions().Tooltip("Restores the Deku Palace Grottos to their original Japanese layout."));
+    AddWidget(path, "Bonk Collision", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Restorations.BonkCollision")
+        .Options(
+            CheckboxOptions().Tooltip("Corrects rolls to allow bonking trees near the end of the roll, as in OoT."));
     AddWidget(path, "Simulated Input Lag", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_SIMULATED_INPUT_LAG)
         .Options(IntSliderOptions()
@@ -1484,6 +1647,10 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(50)
                      .DefaultValue(50));
+    AddWidget(path, "Randomize Shooting Gallery Octoroks", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.RandomizeShootingGalleryOctoroks")
+        .Options(CheckboxOptions().Tooltip("Randomizes the positions of Octoroks in the Town Shooting Gallery minigame "
+                                           "each time they appear."));
     AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.SwampArcheryScore")
         .Options(IntSliderOptions()
@@ -1522,6 +1689,47 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(20)
                      .DefaultValue(20));
+    AddWidget(path, "Skip Little Beaver Brother Races", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.SkipLittleBeaver")
+        .Options(CheckboxOptions().Tooltip("Only Race the Older Beaver."));
+    AddWidget(path, "Goron Race", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.GoronRace")
+        .Options(ComboboxOptions()
+                     .Tooltip("Set CPU behavior for the Goron Race:\n"
+                              "- Vanilla: Gorons ahead of Link slow down, and Gorons behind speed up.\n"
+                              "- Balanced: Gorons ahead of Link slow down, but Gorons behind do not speed up.\n"
+                              "- Skip: Instantly win the race.\n")
+                     .DefaultIndex(GoronRaceDifficultyOptions::GORON_RACE_DIFFICULTY_VANILLA)
+                     .ComboVec(&goronRaceDifficultyOptions));
+    AddWidget(path, "Swamp Boat Archery Target Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BoatArcheryScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the initial target score of the Swamp Boat Archery minigame. The target score "
+                              "gets set the first time you play the minigame in each cycle.")
+                     .Min(1)
+                     .Max(50)
+                     .DefaultValue(20));
+    AddWidget(path, "Koume's Health", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BoatArcheryHealth")
+        .PreFunc([](WidgetInfo& info) {
+            if (mBenMenu->disabledMap.at(DISABLE_FOR_KOUME_INVINCIBLE).active) {
+                info.activeDisables.push_back(DISABLE_FOR_KOUME_INVINCIBLE);
+            }
+        })
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets Koume's health in the Swamp Boat Archery minigame. If Koume is hit this many "
+                              "times, the minigame will end.")
+                     .Min(1)
+                     .Max(30)
+                     .DefaultValue(10));
+    AddWidget(path, "Invincible", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.BoatArcheryInvincible")
+        .Options(CheckboxOptions().Tooltip("Koume's health does not decrease when hit."));
+    AddWidget(path, "Treasure Chest Shop Show Full Maze", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.TreasureChestShopShowFullMaze")
+        .Options(CheckboxOptions().Tooltip("Shows the entire maze layout in the Treasure Chest Shop minigame "
+                                           "instead of only revealing tiles near Link."));
+
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
@@ -1596,12 +1804,12 @@ void BenMenu::AddEnhancements() {
                      .Tooltip("Enables the Cosmetic Editor window, allowing you to modify various colors in the game.")
                      .Size(Sizes::Inline));
 
-    // Item Tracker Settings
-    path = { "Enhancements", "Item Tracker", SECTION_COLUMN_1 };
-    AddSidebarEntry("Enhancements", "Item Tracker", 1);
-    AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.ItemTrackerSettings")
-        .WindowName("Item Tracker Settings");
+    // Timesplit Settings
+    path = { "Enhancements", "Time Splits", SECTION_COLUMN_1 };
+    AddSidebarEntry("Enhancements", "Time Splits", 1);
+    AddWidget(path, "Popout Timesplits Settings", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.Timesplits.Settings")
+        .WindowName("Time Splits Settings Window");
 
     // Audio Editor
     path = { "Enhancements", "Audio Editor", SECTION_COLUMN_1 };
@@ -1629,6 +1837,14 @@ void BenMenu::AddDevTools() {
         .CVar("gDeveloperTools.BetterMapSelect.Enabled")
         .Options(CheckboxOptions().Tooltip(
             "Overrides the original map select with a translated, more user-friendly version."))
+        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
+    AddWidget(path, "Map Select Button Combination:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gDeveloperTools.MapSelectBtn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_R | BTN_L | BTN_Z))
+        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
+    AddWidget(path, "No Clip Button Combination:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gDeveloperTools.NoClipBtn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_L | BTN_DRIGHT))
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Debug Save File Mode", WIDGET_CVAR_COMBOBOX)
         .CVar("gDeveloperTools.DebugSaveFileMode")
@@ -1660,10 +1876,11 @@ void BenMenu::AddDevTools() {
         .Options(ComboboxOptions()
                      .Tooltip("The log level determines which messages are printed to the "
                               "console. This does not affect the log file output.")
-                     .ComboVec(&logLevels))
+                     .ComboVec(&logLevels)
+                     .DefaultIndex(defaultLogLevel))
         .Callback([](WidgetInfo& info) {
             Ship::Context::GetInstance()->GetLogger()->set_level(
-                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", defaultLogLevel));
         })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Frame Advance", WIDGET_CHECKBOX)
@@ -1761,6 +1978,19 @@ void BenMenu::AddDevTools() {
         .CVar("gWindows.EventLog")
         .Options(ButtonOptions().Tooltip("Enables the Event Log window."))
         .WindowName("Event Log");
+
+    path = { "Dev Tools", "DL Viewer", SECTION_COLUMN_1 };
+    AddSidebarEntry("Dev Tools", "DL Viewer", 1);
+    AddWidget(path, "Popout DL Viewer", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.DLViewer")
+        .Options(ButtonOptions().Tooltip("Enables the DL Viewer window for inspecting and editing display lists."))
+        .WindowName("DL Viewer");
+    path = { "Dev Tools", "Message Viewer", SECTION_COLUMN_1 };
+    AddSidebarEntry("Dev Tools", "Message Viewer", 1);
+    AddWidget(path, "Popout Message Viewer", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.MessageViewer")
+        .Options(ButtonOptions().Tooltip("Enables the Message Viewer window for testing in-game messages."))
+        .WindowName("Message Viewer");
 }
 
 BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name)
@@ -1885,6 +2115,16 @@ void BenMenu::InitElement() {
                return !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0);
            },
             "Vertical Resolution Toggle is Off" } },
+        { DISABLE_FOR_LINKS_VOICE_PITCH_MULTIPLIER_OFF,
+          { [](disabledInfo& info) -> bool {
+               return !CVarGetInteger("gAudioEditor.LinkVoiceFreqMultiplier.Enable", 0);
+           },
+            "Enable Link's Voice Pitch Multiplier is Disabled" } },
+        { DISABLE_FOR_KOUME_INVINCIBLE,
+          { [](disabledInfo& info) -> bool {
+               return CVarGetInteger("gEnhancements.Minigames.BoatArcheryInvincible", 0);
+           },
+            "Koume is Invincible" } },
     };
 }
 

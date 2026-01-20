@@ -1,14 +1,13 @@
 #include "ShipUtils.h"
 #include "assets/2s2h_assets.h"
 #include <string>
+#include <bit>
 #include <random>
 #include <vector>
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/uniform_int_distribution.hpp>
-#include <boost_custom/container_hash/hash_32.hpp>
-#include "public/bridge/consolevariablebridge.h"
-#include "Context.h"
-#include "Window.h"
+#include <cassert>
+#include <libultraship/bridge/consolevariablebridge.h>
+#include <ship/Context.h>
+#include <ship/window/Window.h>
 // Image Icons
 #include "assets/interface/parameter_static/parameter_static.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
@@ -16,6 +15,7 @@
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/interface/icon_item_field_static/icon_item_field_static.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
+#include "assets/overlays/ovl_En_Syateki_Okuta/ovl_En_Syateki_Okuta.h"
 
 extern "C" {
 #include "z64.h"
@@ -44,8 +44,53 @@ std::unordered_map<s16, const char*> sceneNames = {
 #undef DEFINE_SCENE
 #undef DEFINE_SCENE_UNSET
 
+std::array<const char*, ACTORCAT_MAX> actorCategoryNames = { "Switch", "Background", "Player", "Explosive",
+                                                             "NPC",    "Enemy",      "Prop",   "Item/Action",
+                                                             "Misc.",  "Boss",       "Door",   "Chest" };
+
+#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _humanName },
+#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _humanName },
+#define DEFINE_ACTOR_UNSET(_enumValue) { _enumValue, "Unset" },
+
+std::unordered_map<s16, const char*> actorDescriptions = {
+#include "tables/actor_table.h"
+};
+
+#undef DEFINE_ACTOR
+#undef DEFINE_ACTOR_INTERNAL
+#undef DEFINE_ACTOR_UNSET
+
+#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _debugName },
+#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _debugName },
+#define DEFINE_ACTOR_UNSET(_enumValue) { _enumValue, "Unset" },
+
+std::unordered_map<s16, const char*> actorDebugNames = {
+#include "tables/actor_table.h"
+};
+
+#undef DEFINE_ACTOR
+#undef DEFINE_ACTOR_INTERNAL
+#undef DEFINE_ACTOR_UNSET
+
+/*
+ * This is identical to `sOwlWarpEntrances` in decomp code, which is a static variable defined in multiple places and
+ * cannot be externed. We redundantly define it here and extern it, for use in port enhancements.
+ */
+extern u16 sOwlWarpEntrancesForMods[OWL_WARP_MAX - 1] = {
+    ENTRANCE(GREAT_BAY_COAST, 11),         // OWL_WARP_GREAT_BAY_COAST
+    ENTRANCE(ZORA_CAPE, 6),                // OWL_WARP_ZORA_CAPE
+    ENTRANCE(SNOWHEAD, 3),                 // OWL_WARP_SNOWHEAD
+    ENTRANCE(MOUNTAIN_VILLAGE_WINTER, 8),  // OWL_WARP_MOUNTAIN_VILLAGE
+    ENTRANCE(SOUTH_CLOCK_TOWN, 9),         // OWL_WARP_CLOCK_TOWN
+    ENTRANCE(MILK_ROAD, 4),                // OWL_WARP_MILK_ROAD
+    ENTRANCE(WOODFALL, 4),                 // OWL_WARP_WOODFALL
+    ENTRANCE(SOUTHERN_SWAMP_POISONED, 10), // OWL_WARP_SOUTHERN_SWAMP
+    ENTRANCE(IKANA_CANYON, 4),             // OWL_WARP_IKANA_CANYON
+    ENTRANCE(STONE_TOWER, 3),              // OWL_WARP_STONE_TOWER
+};
+
 // These textures are not in existing lists that we iterate over.
-std::array<const char*, 19> miscellaneousTextures = {
+std::array<const char*, 32> miscellaneousTextures = {
     gArcheryScoreIconTex,
     gBarrelTrackerIcon,
     gChestTrackerIcon,
@@ -63,13 +108,82 @@ std::array<const char*, 19> miscellaneousTextures = {
     gStrayFairyStoneTowerIconTex,
     gStrayFairyWoodfallIconTex,
     gTimerClockIconTex,
+    gTriforcePieceTex,
     gWorldMapOwlFaceTex,
     gameplay_keep_Tex_053140,
+    gDungeonMapSkullTex,
+    gPauseUnusedCursorTex,
+    gWorldMapOwlFaceTex,
+    gItemIconTingleMapTex,
+    gThreeDayClockSunHourTex,
+    gThreeDayClockMoonHourTex,
+    gOcarinaATex,
+    gOcarinaCDownTex,
+    gOcarinaCLeftTex,
+    gOcarinaCRightTex,
+    gOcarinaCUpTex,
+    gShootingGalleryOctorokCrossTex,
 };
 
 std::array<const char*, 11> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
                                           gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
                                           gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
+
+std::map<uint32_t, ImVec4> itemColorMap = {
+    { ITEM_SONG_SONATA, ImVec4(0.588f, 1.0f, 0.392f, 1.0f) },
+    { ITEM_SONG_LULLABY, ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
+    { ITEM_SONG_NOVA, ImVec4(0.392f, 0.588f, 1.0f, 1.0f) },
+    { ITEM_SONG_ELEGY, ImVec4(1.0f, 0.627f, 0.0f, 1.0f) },
+    { ITEM_SONG_OATH, ImVec4(1.0f, 0.392f, 1.0f, 1.0f) },
+    { ITEM_SONG_LULLABY_INTRO, ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
+};
+
+ImVec4 Ship_GetItemColorTint(uint32_t itemId) {
+    auto findColor = itemColorMap.find(itemId);
+    if (findColor != itemColorMap.end()) {
+        return findColor->second;
+    } else {
+        return ImVec4(1, 1, 1, 1);
+    }
+}
+
+std::unordered_map<uint32_t, ImVec4> randoItemColorMap = {
+    { RI_OCARINA_BUTTON_A, ImVec4(0.085f, 0.494f, 0.796f, 1) },
+    { RI_OCARINA_BUTTON_C_DOWN, ImVec4(0.84f, 0.768f, 0.089f, 1) },
+    { RI_OCARINA_BUTTON_C_LEFT, ImVec4(0.84f, 0.768f, 0.089f, 1) },
+    { RI_OCARINA_BUTTON_C_RIGHT, ImVec4(0.84f, 0.768f, 0.089f, 1) },
+    { RI_OCARINA_BUTTON_C_UP, ImVec4(0.84f, 0.768f, 0.089f, 1) },
+    { RI_CLOCK_TOWN_STRAY_FAIRY, ImVec4(1.0f, 0.9f, 0.5f, 0.4f) },
+    { RI_WOODFALL_SMALL_KEY, ImVec4(0.9f, 0.33f, 0.56f, 0.4f) },
+    { RI_SNOWHEAD_SMALL_KEY, ImVec4(0.1f, 0.54f, 0.16f, 0.4f) },
+    { RI_GREAT_BAY_SMALL_KEY, ImVec4(0.61f, 0.04f, 0.86f, 0.4f) },
+    { RI_STONE_TOWER_SMALL_KEY, ImVec4(0.58f, 0.65f, 0.15f, 0.4f) },
+    { RI_WOODFALL_BOSS_KEY, ImVec4(0.9f, 0.33f, 0.56f, 0.4f) },
+    { RI_SNOWHEAD_BOSS_KEY, ImVec4(0.1f, 0.54f, 0.16f, 0.4f) },
+    { RI_GREAT_BAY_BOSS_KEY, ImVec4(0.61f, 0.04f, 0.86f, 0.4f) },
+    { RI_STONE_TOWER_BOSS_KEY, ImVec4(0.58f, 0.65f, 0.15f, 0.4f) },
+    { RI_TIME_DAY_1, ImVec4(1.0f, 0.9f, 0.3f, 1.0f) },
+    { RI_TIME_DAY_2, ImVec4(1.0f, 0.9f, 0.3f, 1.0f) },
+    { RI_TIME_DAY_3, ImVec4(1.0f, 0.9f, 0.3f, 1.0f) },
+    { RI_TIME_NIGHT_1, ImVec4(0.5f, 0.7f, 1.0f, 1.0f) },
+    { RI_TIME_NIGHT_2, ImVec4(0.5f, 0.7f, 1.0f, 1.0f) },
+    { RI_TIME_NIGHT_3, ImVec4(0.5f, 0.7f, 1.0f, 1.0f) },
+    { RI_SONG_SONATA, ImVec4(0.588f, 1.0f, 0.392f, 1.0f) },
+    { RI_SONG_LULLABY, ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
+    { RI_SONG_NOVA, ImVec4(0.392f, 0.588f, 1.0f, 1.0f) },
+    { RI_SONG_ELEGY, ImVec4(1.0f, 0.627f, 0.0f, 1.0f) },
+    { RI_SONG_OATH, ImVec4(1.0f, 0.392f, 1.0f, 1.0f) },
+    { RI_SONG_LULLABY_INTRO, ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
+};
+
+ImVec4 Ship_GetRandoItemColorTint(uint32_t randoItemId) {
+    auto findColor = randoItemColorMap.find(randoItemId);
+    if (findColor != randoItemColorMap.end()) {
+        return findColor->second;
+    } else {
+        return ImVec4(1, 1, 1, 1);
+    }
+}
 
 extern "C" const char* Ship_GetSceneName(s16 sceneId) {
     if (sceneNames.contains(sceneId)) {
@@ -77,6 +191,26 @@ extern "C" const char* Ship_GetSceneName(s16 sceneId) {
     }
 
     return "Unknown";
+}
+
+std::string Ship_FormatTimeDisplay(uint32_t value) {
+    uint32_t sec = value / 10;
+    uint32_t hh = sec / 3600;
+    uint32_t mm = (sec - hh * 3600) / 60;
+    uint32_t ss = sec - hh * 3600 - mm * 60;
+    uint32_t ds = value % 10;
+    return fmt::format("{}:{:0>2}:{:0>2}.{}", hh, mm, ss, ds);
+}
+
+std::string Ship_RemoveSpecialCharacters(const std::string& str) {
+    std::string result;
+    for (char ch : str) {
+        // Only keep alphanumeric characters (letters and digits)
+        if (std::isalnum(static_cast<unsigned char>(ch))) {
+            result += ch;
+        }
+    }
+    return result;
 }
 
 constexpr f32 fourByThree = 4.0f / 3.0f;
@@ -164,20 +298,50 @@ extern "C" TexturePtr Ship_GetCharFontTextureNES(u8 character) {
 }
 
 static bool seeded = false;
-static boost::random::mt19937 generator;
+static uint64_t state = 0;
+const uint64_t multiplier = 6364136223846793005ULL;
+const uint64_t increment = 11634580027462260723ULL;
 
-extern "C" void Ship_Random_Seed(u32 seed) {
+extern "C" void Ship_Random_Seed(u64 seed) {
     seeded = true;
-    generator = boost::random::mt19937{ seed };
+    state = seed;
+}
+
+uint32_t next32() {
+    if (!seeded) {
+        uint64_t seed = static_cast<uint64_t>(std::random_device{}());
+        Ship_Random_Seed(seed);
+    }
+    state = state * multiplier + increment;
+    uint32_t xorshifted = static_cast<uint32_t>(((state >> 18) ^ state) >> 27);
+    uint32_t rot = static_cast<int>(state >> 59);
+    return std::rotr(xorshifted, rot);
 }
 
 extern "C" s32 Ship_Random(s32 min, s32 max) {
-    if (!seeded) {
-        const auto seed = static_cast<uint32_t>(std::random_device{}());
-        Ship_Random_Seed(seed);
+    if (min == max) {
+        return min;
     }
-    boost::random::uniform_int_distribution<uint32_t> distribution(min, max - 1);
-    return distribution(generator);
+    assert(max > min);
+    uint32_t n = max - min;
+    uint32_t cutoff = UINT32_MAX - UINT32_MAX % static_cast<uint32_t>(n);
+    for (;;) {
+        uint32_t r = next32();
+        if (r <= cutoff) {
+            return min + r % n;
+        }
+    }
+}
+
+extern uint32_t Ship_Hash(std::string str) {
+    // FNV-1a
+    const size_t len = str.size();
+    uint32_t hval = 0x811c9dc5;
+    for (size_t pos = 0; pos < len; pos++) {
+        hval ^= (uint32_t)str[pos];
+        hval *= 0x01000193;
+    }
+    return hval;
 }
 
 void LoadGuiTextures() {
@@ -240,4 +404,19 @@ std::string convertEnumToReadableName(const std::string& input) {
     }
 
     return result;
+}
+
+std::string GetActorDescription(u16 actorNum) {
+    return actorDescriptions.contains(actorNum) ? actorDescriptions[actorNum] : "???";
+}
+
+std::string GetActorDebugName(u16 actorNum) {
+    return actorDebugNames.contains(actorNum) ? actorDebugNames[actorNum] : "???";
+}
+
+std::string GetActorCategoryName(u8 category) {
+    if (category < actorCategoryNames.size()) {
+        return actorCategoryNames[category];
+    }
+    return "Unknown";
 }

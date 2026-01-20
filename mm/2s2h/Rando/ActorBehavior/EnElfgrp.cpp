@@ -1,5 +1,5 @@
 #include "ActorBehavior.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/ShipUtils.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 
@@ -8,33 +8,30 @@ extern "C" {
 #include "functions.h"
 
 #include "overlays/actors/ovl_En_Elfgrp/z_en_elfgrp.h"
+extern void func_80A3A398(EnElfgrp* enElfgrp, PlayState* play);
 }
+
+std::map<u8, RandoCheckId> fairyCheckMap = {
+    { ENELFGRP_TYPE_POWER, RC_WOODFALL_GREAT_FAIRY },    { ENELFGRP_TYPE_WISDOM, RC_SNOWHEAD_GREAT_FAIRY },
+    { ENELFGRP_TYPE_COURAGE, RC_GREAT_BAY_GREAT_FAIRY }, { ENELFGRP_TYPE_KINDNESS, RC_IKANA_GREAT_FAIRY },
+    { ENELFGRP_TYPE_MAGIC, RC_CLOCK_TOWN_GREAT_FAIRY },
+};
 
 void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
     CustomMessage::Entry entry = {
-        .msg = "%wPlease, find the Stray Fairy who's lost! We will reward you with %g{{article1}}{{item1}}%w and maybe "
-               "even %g{{article2}}{{item2}}%w if you are worthy."
+        .msg = "%wPlease, find the Stray Fairy who's lost! We will reward you with %g{{item1}}%w and maybe "
+               "even %g{{item2}}%w if you are worthy."
     };
 
-    auto& randoStaticItem1 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY].randoItemId];
+    auto randoItem1Name = Rando::StaticData::GetItemName(RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY].randoItemId, true,
+                                                         RC_CLOCK_TOWN_GREAT_FAIRY);
 
-    if (!Ship_IsCStringEmpty(randoStaticItem1.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article1}}", std::string(randoStaticItem1.article) + " ");
-    } else {
-        CustomMessage::Replace(&entry.msg, "{{article1}}", "");
-    }
+    CustomMessage::Replace(&entry.msg, "{{item1}}", randoItem1Name);
 
-    CustomMessage::Replace(&entry.msg, "{{item1}}", randoStaticItem1.name);
+    auto randoItem2Name = Rando::StaticData::GetItemName(RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].randoItemId,
+                                                         true, RC_CLOCK_TOWN_GREAT_FAIRY_ALT);
 
-    auto& randoStaticItem2 = Rando::StaticData::Items[RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].randoItemId];
-
-    if (!Ship_IsCStringEmpty(randoStaticItem2.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article2}}", std::string(randoStaticItem2.article) + " ");
-    } else {
-        CustomMessage::Replace(&entry.msg, "{{article2}}", "");
-    }
-
-    CustomMessage::Replace(&entry.msg, "{{item2}}", randoStaticItem2.name);
+    CustomMessage::Replace(&entry.msg, "{{item2}}", randoItem2Name);
 
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
@@ -42,18 +39,11 @@ void ApplyClockTownGreatFairyHint(u16* textId, bool* loadFromMessageTable) {
 
 void ApplyGreatFairyHint(u16* textId, bool* loadFromMessageTable, RandoCheckId randoCheckId) {
     CustomMessage::Entry entry = {
-        .msg = "%wPlease, find the Stray Fairies who match our color! We will reward you with %g{{article}}{{item}}%w"
+        .msg = "%wPlease, find the Stray Fairies who match our color! We will reward you with %g{{itemName}}%w."
     };
-
-    auto& randoStaticItem = Rando::StaticData::Items[RANDO_SAVE_CHECKS[randoCheckId].randoItemId];
-
-    if (!Ship_IsCStringEmpty(randoStaticItem.article)) {
-        CustomMessage::Replace(&entry.msg, "{{article}}", std::string(randoStaticItem.article) + " ");
-    } else {
-        CustomMessage::Replace(&entry.msg, "{{article}}", "");
-    }
-
-    CustomMessage::Replace(&entry.msg, "{{item}}", randoStaticItem.name);
+    CustomMessage::Replace(
+        &entry.msg, "{{itemName}}",
+        Rando::StaticData::GetItemName(RANDO_SAVE_CHECKS[randoCheckId].randoItemId, true, randoCheckId));
 
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
@@ -66,39 +56,32 @@ void Rando::ActorBehavior::InitEnElfgrpBehavior() {
 
         EnElfgrp* elfgrp = va_arg(args, EnElfgrp*);
 
-        switch (elfgrp->type) {
-            case ENELFGRP_TYPE_POWER:
-                if (!RANDO_SAVE_CHECKS[RC_WOODFALL_GREAT_FAIRY].cycleObtained) {
-                    RANDO_SAVE_CHECKS[RC_WOODFALL_GREAT_FAIRY].eligible = true;
-                }
-                break;
-            case ENELFGRP_TYPE_WISDOM:
-                if (!RANDO_SAVE_CHECKS[RC_SNOWHEAD_GREAT_FAIRY].cycleObtained) {
-                    RANDO_SAVE_CHECKS[RC_SNOWHEAD_GREAT_FAIRY].eligible = true;
-                }
-                break;
-            case ENELFGRP_TYPE_COURAGE:
-                if (!RANDO_SAVE_CHECKS[RC_GREAT_BAY_GREAT_FAIRY].cycleObtained) {
-                    RANDO_SAVE_CHECKS[RC_GREAT_BAY_GREAT_FAIRY].eligible = true;
-                }
-                break;
-            case ENELFGRP_TYPE_KINDNESS:
-                if (!RANDO_SAVE_CHECKS[RC_IKANA_GREAT_FAIRY].cycleObtained) {
-                    RANDO_SAVE_CHECKS[RC_IKANA_GREAT_FAIRY].eligible = true;
-                }
-                break;
-            default: // ENELFGRP_TYPE_MAGIC
-                if (!RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY].cycleObtained) {
-                    RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY].eligible = true;
-                }
-                // In the game this uses an `else`, but in rando we are okay with both of these happening at the same
-                // time
-                if ((INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU || INV_CONTENT(ITEM_MASK_ZORA) == ITEM_MASK_ZORA ||
-                     INV_CONTENT(ITEM_MASK_GORON) == ITEM_MASK_GORON) &&
-                    !RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].cycleObtained) {
-                    RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].eligible = true;
-                }
-                break;
+        RandoCheckId randoCheckId = fairyCheckMap.at(elfgrp->type);
+
+        if (!RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
+            RANDO_SAVE_CHECKS[randoCheckId].eligible = true;
+        }
+
+        if (elfgrp->type == ENELFGRP_TYPE_MAGIC) {
+            // In the game this uses an `else`, but in rando we are okay with both of these happening at the same
+            // time
+            if ((INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU || INV_CONTENT(ITEM_MASK_ZORA) == ITEM_MASK_ZORA ||
+                 INV_CONTENT(ITEM_MASK_GORON) == ITEM_MASK_GORON) &&
+                !RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].cycleObtained) {
+                RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_GREAT_FAIRY_ALT].eligible = true;
+            }
+        }
+    });
+
+    // Use the RO Stray Fairy minimum threshold rather than the vanilla 15
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_ELFGRP, IS_RANDO, [](Actor* actor) {
+        EnElfgrp* enElfgrp = (EnElfgrp*)actor;
+        // Exclude the Clock Town fairy, and do not do more than once at a time
+        if (enElfgrp->type != ENELFGRP_TYPE_MAGIC &&
+            gSaveContext.save.saveInfo.inventory.strayFairies[enElfgrp->type - 1] >=
+                RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] &&
+            !RANDO_SAVE_CHECKS[fairyCheckMap.at(enElfgrp->type)].eligible) {
+            enElfgrp->actionFunc = func_80A3A398;
         }
     });
 

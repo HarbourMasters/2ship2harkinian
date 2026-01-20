@@ -8,9 +8,7 @@
 #include "objects/object_mag/object_mag.h"
 #include "BenPort.h"
 
-#define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
-
-#define THIS ((EnMag*)thisx)
+#define FLAGS (ACTOR_FLAG_UPDATE_CULLING_DISABLED | ACTOR_FLAG_DRAW_CULLING_DISABLED)
 
 void EnMag_Init(Actor* thisx, PlayState* play);
 void EnMag_Destroy(Actor* thisx, PlayState* play);
@@ -86,7 +84,7 @@ static s16 sZeldaEffectColorTargetIndex = 0;
 static s16 sTextAlphaTargetIndex = 0;
 static s16 sTextAlphaTimer = 20;
 
-ActorInit En_Mag_InitVars = {
+ActorProfile En_Mag_Profile = {
     /**/ ACTOR_EN_MAG,
     /**/ ACTORCAT_PROP,
     /**/ FLAGS,
@@ -99,7 +97,7 @@ ActorInit En_Mag_InitVars = {
 };
 
 void EnMag_Init(Actor* thisx, PlayState* play) {
-    EnMag* this = THIS;
+    EnMag* this = (EnMag*)thisx;
     u16 i;
 
     this->unk11F54 = 6;
@@ -194,7 +192,7 @@ void EnMag_UpdateDisplayEffectColors(Actor* thisx) {
     static s16 sDisplayEffectPrimBlueTargets[] = { 55, 255 };
     static s16 sDisplayEffectEnvRedTargets[] = { 255, 0 };
     static s16 sDisplayEffectEnvBlueTargets[] = { 255, 155 };
-    EnMag* this = THIS;
+    EnMag* this = (EnMag*)thisx;
     s16 colorStep;
 
     TIMED_STEP_TO(this->displayEffectPrimColor[0], sDisplayEffectPrimRedTargets[sZeldaEffectColorTargetIndex],
@@ -232,7 +230,7 @@ void EnMag_Update(Actor* thisx, PlayState* play) {
     static s16 sAppearEffectEnvBlueTargets[] = { 0, 155 };
     s16 step;
     s32 pad[2];
-    EnMag* this = THIS;
+    EnMag* this = (EnMag*)thisx;
 
     if (gSaveContext.fileNum != 0xFEDC) {
         if (this->state == MAG_STATE_INITIAL) {
@@ -424,6 +422,9 @@ void EnMag_Update(Actor* thisx, PlayState* play) {
                         this->state = MAG_STATE_POST_DISPLAY;
                     }
                     break;
+
+                default:
+                    break;
             }
 
             // Appear fully immediately if called during fade-in states.
@@ -453,15 +454,15 @@ void EnMag_Update(Actor* thisx, PlayState* play) {
 /**
  * Draws an i8 texture.
  *
- * @param[in,out] gfxp      Pointer to current displaylist.
+ * @param[in,out] gfxP      Pointer to current displaylist.
  * @param[in]     texture   Texture to draw.
  * @param[in]     texWidth  Width of the texture.
  * @param[in]     texHeight Height of the texture.
  * @param[in]     rectLeft  X coordinate of the top-left of the draw position.
  * @param[in]     rectTop   Y coordinate of the top-left of the draw position.
  */
-void EnMag_DrawTextureI8(Gfx** gfxp, TexturePtr texture, s16 texWidth, s16 texHeight, s16 rectLeft, s16 rectTop) {
-    Gfx* gfx = *gfxp;
+void EnMag_DrawTextureI8(Gfx** gfxP, TexturePtr texture, s16 texWidth, s16 texHeight, s16 rectLeft, s16 rectTop) {
+    Gfx* gfx = *gfxP;
 
     gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_I, G_IM_SIZ_8b, texWidth, texHeight, 0, G_TX_NOMIRROR | G_TX_WRAP,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -469,21 +470,21 @@ void EnMag_DrawTextureI8(Gfx** gfxp, TexturePtr texture, s16 texWidth, s16 texHe
     gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + texWidth) << 2, (rectTop + texHeight) << 2,
                         G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
-    *gfxp = gfx;
+    *gfxP = gfx;
 }
 
 /**
  * Draws an ia8 texture.
  *
- * @param[in,out] gfxp      Pointer to current displaylist.
+ * @param[in,out] gfxP      Pointer to current displaylist.
  * @param[in]     texture   Texture to draw.
  * @param[in]     texWidth  Width of the texture.
  * @param[in]     texHeight Height of the texture.
  * @param[in]     rectLeft  X coordinate of the top-left of the draw position.
  * @param[in]     rectTop   Y coordinate of the top-left of the draw position.
  */
-void EnMag_DrawTextureIA8(Gfx** gfxp, TexturePtr texture, s16 texWidth, s16 texHeight, s16 rectLeft, s16 rectTop) {
-    Gfx* gfx = *gfxp;
+void EnMag_DrawTextureIA8(Gfx** gfxP, TexturePtr texture, s16 texWidth, s16 texHeight, s16 rectLeft, s16 rectTop) {
+    Gfx* gfx = *gfxP;
 
     gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, texWidth, texHeight, 0, G_TX_NOMIRROR | G_TX_WRAP,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -491,13 +492,13 @@ void EnMag_DrawTextureIA8(Gfx** gfxp, TexturePtr texture, s16 texWidth, s16 texH
     gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + texWidth) << 2, (rectTop + texHeight) << 2,
                         G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
-    *gfxp = gfx;
+    *gfxP = gfx;
 }
 
 /**
  * Draws an i8 effect texture, masking it with an i4 mask, with shifting
  *
- * @param[in,out] gfxp         Pointer to current displaylist.
+ * @param[in,out] gfxP         Pointer to current displaylist.
  * @param[in]     maskTex      Texture with which to mask, i4.
  * @param[in]     effectTex    Effect texture to draw, i8.
  * @param[in]     maskWidth    Width of masking texture.
@@ -511,10 +512,10 @@ void EnMag_DrawTextureIA8(Gfx** gfxp, TexturePtr texture, s16 texWidth, s16 texH
  * @param[in]     index        Index into the scrolling arrays to use for gDPSetTileSize.
  * @param[in]     this         Pointer to EnMag instance.
  */
-void EnMag_DrawEffectTextures(Gfx** gfxp, TexturePtr maskTex, TexturePtr effectTex, s16 maskWidth, s16 maskHeight,
+void EnMag_DrawEffectTextures(Gfx** gfxP, TexturePtr maskTex, TexturePtr effectTex, s16 maskWidth, s16 maskHeight,
                               s16 effectWidth, s16 effectHeight, s16 rectLeft, s16 rectTop, u16 shifts, u16 shiftt,
                               u16 index, EnMag* this) {
-    Gfx* gfx = *gfxp;
+    Gfx* gfx = *gfxP;
 
     gDPLoadMultiBlock_4b(gfx++, maskTex, 0x0000, G_TX_RENDERTILE, G_IM_FMT_I, maskWidth, maskHeight, 0,
                          G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
@@ -529,7 +530,7 @@ void EnMag_DrawEffectTextures(Gfx** gfxp, TexturePtr maskTex, TexturePtr effectT
     gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + maskWidth) << 2, (rectTop + maskHeight) << 2,
                         G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
-    *gfxp = gfx;
+    *gfxP = gfx;
 }
 
 // 2S2H [HD Textures] The original function used pointer math and tiling to draw the full texture, this breaks support
@@ -560,18 +561,18 @@ void EnMag_DrawImageRGBA32HDSupport(Gfx** gfxp, s16 centerX, s16 centerY, Textur
  * Draws an rgba32 texture. Because these are so large, this will draw the texture in horizontal stripes, each narrow
  * enough that that part of the texture will fit into TMEM's 4kB.
  *
- * @param[in,out] gfxp    Pointer to current displaylist.
+ * @param[in,out] gfxP    Pointer to current displaylist.
  * @param[in]     centerX X coordinate of the center of the draw position.
  * @param[in]     centerY Y coordinate of the center of the draw position.
  * @param[in]     source  Texture to draw.
  * @param[in]     width   Width of the texture.
  * @param[in]     height  Height of the texture.
  */
-void EnMag_DrawImageRGBA32(Gfx** gfxp, s16 centerX, s16 centerY, TexturePtr source, u32 width, u32 height) {
+void EnMag_DrawImageRGBA32(Gfx** gfxP, s16 centerX, s16 centerY, TexturePtr source, u32 width, u32 height) {
     // 2S2H [HD Textures]
-    return EnMag_DrawImageRGBA32HDSupport(gfxp, centerX, centerY, source, width, height);
+    return EnMag_DrawImageRGBA32HDSupport(gfxP, centerX, centerY, source, width, height);
 
-    Gfx* gfx = *gfxp;
+    Gfx* gfx = *gfxP;
     uintptr_t curTexture;
     s32 textureCount;
     u32 rectLeft;
@@ -626,19 +627,19 @@ void EnMag_DrawImageRGBA32(Gfx** gfxp, s16 centerX, s16 centerY, TexturePtr sour
         }
     }
 
-    *gfxp = gfx;
+    *gfxP = gfx;
 }
 
 /**
  * Draws one character, expected to be a 16 by 16 i4 texture. It will draw shrunk to 10 by 10.
  *
- * @param[in,out] gfxp     Pointer to current displaylist.
+ * @param[in,out] gfxP     Pointer to current displaylist.
  * @param[in]     texture  Texture to draw.
  * @param[in]     rectLeft X coordinate of the top-left of the draw position.
  * @param[in]     rectTop  Y coordinate of the top-left of the draw position.
  */
-void EnMag_DrawCharTexture(Gfx** gfxp, TexturePtr texture, s32 rectLeft, s32 rectTop) {
-    Gfx* gfx = *gfxp;
+void EnMag_DrawCharTexture(Gfx** gfxP, TexturePtr texture, s32 rectLeft, s32 rectTop) {
+    Gfx* gfx = *gfxP;
 
     gDPLoadTextureBlock_4b(gfx++, texture, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_CLAMP,
                            G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -648,7 +649,7 @@ void EnMag_DrawCharTexture(Gfx** gfxp, TexturePtr texture, s32 rectLeft, s32 rec
     gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + 10) << 2, (rectTop + 10) << 2, G_TX_RENDERTILE,
                         0, 0, 1625, 1625);
 
-    *gfxp = gfx;
+    *gfxP = gfx;
 }
 
 #define EFFECT_MASK_TEX_WIDTH 64
@@ -717,19 +718,19 @@ typedef enum TitleDisplayLanguage {
 // #endregion
 
 /**
- * Loads title, PRESS START text, etc. graphics to gfxp, which is made to live on
+ * Loads title, PRESS START text, etc. graphics to gfxP, which is made to live on
  * POLY_OPA_DISP, but is used by OVERLAY_DISP.
  */
-void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
+void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxP) {
     // #region 2S2H [PAL] - add press start font indices and spacings for other languages
-    static u8 pressStartFontIndicesPAL[][15] = {
+    static u8 sPressStartFontIndicesPAL[][15] = {
         { 0x19, 0x1B, 0x0E, 0x1C, 0x1C, 0x1C, 0x1D, 0x0A, 0x1B, 0x1D, 0x3E },       // TITLE_LANGUAGE_ENG
         { 0x0D, 0x1B, 0x57, 0x0C, 0x14, 0x0E, 0x1C, 0x1D, 0x0A, 0x1B, 0x1D, 0x3E }, // TITLE_LANGUAGE_GER
         { 0x0A, 0x19, 0x19, 0x1E, 0x22, 0x0E, 0x23, 0x1C, 0x1E, 0x1B, 0x1C, 0x1D, 0x0A, 0x1B,
           0x1D },                                                             // TITLE_LANGUAGE_FRE
         { 0x19, 0x1E, 0x15, 0x1C, 0x0A, 0x1C, 0x1D, 0x0A, 0x1B, 0x1D, 0x3E }, // TITLE_LANGUAGE_SPA
     };                                                                        // Indices into this->font.fontBuf
-    static u8 pressStartFontWidthsPAL[][15] = {
+    static u8 sPressStartFontWidthsPAL[][15] = {
         { 6, 7, 5, 7, 12, 7, 6, 8, 7, 6, 5 },              // TITLE_LANGUAGE_ENG
         { 7, 7, 7, 7, 7, 10, 7, 6, 8, 7, 6, 5 },           // TITLE_LANGUAGE_GER
         { 8, 6, 6, 7, 7, 6, 12, 7, 7, 12, 7, 6, 8, 7, 6 }, // TITLE_LANGUAGE_FRE
@@ -774,9 +775,9 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
     uint32_t gameVersion = ResourceMgr_GetGameVersion(0);
     // #endregion
     s32 pad;
-    EnMag* this = THIS;
+    EnMag* this = (EnMag*)thisx;
     Font* font = &this->font;
-    Gfx* gfx = *gfxp;
+    Gfx* gfx = *gfxP;
     u16 i;
     u16 j;
     u16 k;
@@ -1016,15 +1017,15 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
                     break;
             }
 
-            for (i = 0; i < ARRAY_COUNT(pressStartFontIndicesPAL[0]); i++) {
-                if (pressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] == 0x3E) {
+            for (i = 0; i < ARRAY_COUNT(sPressStartFontIndicesPAL[0]); i++) {
+                if (sPressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] == 0x3E) {
                     break;
                 }
                 EnMag_DrawCharTexture(
-                    &gfx, font->fontBuf + pressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] * FONT_CHAR_TEX_SIZE,
+                    &gfx, font->fontBuf + sPressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] * FONT_CHAR_TEX_SIZE,
                     rectLeft, PRESS_START_TOP + 1);
 
-                rectLeft += pressStartFontWidthsPAL[GET_TITLE_DISPLAY_LANGUAGE][i];
+                rectLeft += sPressStartFontWidthsPAL[GET_TITLE_DISPLAY_LANGUAGE][i];
             }
 
             // Actual text
@@ -1046,14 +1047,14 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
                     break;
             }
 
-            for (i = 0; i < ARRAY_COUNT(pressStartFontIndicesPAL[0]); i++) {
-                if (pressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] == 0x3E) {
+            for (i = 0; i < ARRAY_COUNT(sPressStartFontIndicesPAL[0]); i++) {
+                if (sPressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] == 0x3E) {
                     break;
                 }
                 EnMag_DrawCharTexture(
-                    &gfx, font->fontBuf + pressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] * FONT_CHAR_TEX_SIZE,
+                    &gfx, font->fontBuf + sPressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] * FONT_CHAR_TEX_SIZE,
                     rectLeft, PRESS_START_TOP + 1);
-                rectLeft += pressStartFontWidthsPAL[GET_TITLE_DISPLAY_LANGUAGE][i];
+                rectLeft += sPressStartFontWidthsPAL[GET_TITLE_DISPLAY_LANGUAGE][i];
             }
 
             sTextAlphaTimer--;
@@ -1112,7 +1113,7 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
         }
     }
 
-    *gfxp = gfx;
+    *gfxP = gfx;
 }
 
 /**

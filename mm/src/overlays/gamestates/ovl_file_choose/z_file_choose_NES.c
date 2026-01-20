@@ -19,7 +19,7 @@
 #include <string.h>
 #include "BenPort.h"
 #include "2s2h/BenGui/CosmeticEditor.h"
-#include "public/bridge/consolevariablebridge.h"
+#include <libultraship/bridge/consolevariablebridge.h>
 
 s32 D_808144F10 = 100;
 f32 D_808144F14 = 8.0f;
@@ -422,7 +422,7 @@ void FileSelect_UpdateMainMenu(GameState* thisx) {
                     this->configMode = CM_ROTATE_TO_NAME_ENTRY;
                     this->kbdButton = FS_KBD_BTN_NONE;
                     this->charPage = FS_CHAR_PAGE_HIRA;
-                    if (gSaveContext.options.language != 0) {
+                    if (gSaveContext.options.language != LANGUAGE_JPN) {
                         this->charPage = FS_CHAR_PAGE_ENG;
                     }
                     this->kbdX = 0;
@@ -446,7 +446,7 @@ void FileSelect_UpdateMainMenu(GameState* thisx) {
                 this->configMode = CM_ROTATE_TO_NAME_ENTRY;
                 this->kbdButton = FS_KBD_BTN_NONE;
                 this->charPage = FS_CHAR_PAGE_HIRA;
-                if (gSaveContext.options.language != 0) {
+                if (gSaveContext.options.language != LANGUAGE_JPN) {
                     this->charPage = FS_CHAR_PAGE_ENG;
                 }
                 this->kbdX = 0;
@@ -1669,7 +1669,7 @@ void FileSelect_DrawFileInfo(GameState* thisx, s16 fileIndex) {
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80814654[fileIndex] + 0xCC], 4, 0);
 
         POLY_OPA_DISP = FileSelect_DrawTexQuadIA8(
-            POLY_OPA_DISP, sFileSelHeartPieceTextures[this->heartPieceCount[sp20C]], 0x18, 0x10, (s16)0);
+            POLY_OPA_DISP, sFileSelHeartPieceTextures[this->heartPieceCount[sp20C]], 0x18, 0x10, 0);
 
         if (this->defenseHearts[sp20C] == 0) {
             heartType = 0;
@@ -1940,8 +1940,6 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
     s16 quadVtxIndex;
     u32 gameRegion = ResourceMgr_GetGameRegion(0);
 
-    if (1) {}
-
     OPEN_DISPS(this->state.gfxCtx);
 
     // draw title label
@@ -2195,7 +2193,7 @@ void FileSelect_ConfigModeDraw(GameState* thisx) {
             Matrix_RotateXFApply(this->windowRot / 100.0f);
         }
 
-        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, this->state.gfxCtx);
 
         gSPVertex(POLY_OPA_DISP++, &this->windowVtx[0], 32, 0);
         gSPDisplayList(POLY_OPA_DISP++, gFileSelWindow1DL);
@@ -2223,7 +2221,7 @@ void FileSelect_ConfigModeDraw(GameState* thisx) {
         Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
         Matrix_RotateXFApply((this->windowRot - 314.0f) / 100.0f);
 
-        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, this->state.gfxCtx);
 
         gSPVertex(POLY_OPA_DISP++, &this->windowVtx[0], 32, 0);
         gSPDisplayList(POLY_OPA_DISP++, gFileSelWindow1DL);
@@ -2251,7 +2249,7 @@ void FileSelect_ConfigModeDraw(GameState* thisx) {
         Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
         Matrix_RotateXFApply((this->windowRot - 314.0f) / 100.0f);
 
-        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, this->state.gfxCtx);
 
         gSPVertex(POLY_OPA_DISP++, &this->windowVtx[0], 32, 0);
         gSPDisplayList(POLY_OPA_DISP++, gFileSelWindow1DL);
@@ -2586,7 +2584,7 @@ void FileSelect_SelectModeDraw(GameState* thisx) {
     Matrix_Translate(0.0f, 0.0f, -93.6f, MTXMODE_NEW);
     Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
     Matrix_RotateXFApply(this->windowRot / 100.0f);
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, this->state.gfxCtx);
 
     gSPVertex(POLY_OPA_DISP++, &this->windowVtx[0], 32, 0);
     gSPDisplayList(POLY_OPA_DISP++, gFileSelWindow1DL);
@@ -2854,7 +2852,7 @@ void FileSelect_InitContext(GameState* thisx) {
     envCtx->lightConfig = 0;
     envCtx->changeLightNextConfig = 0;
     envCtx->lightSetting = 0;
-    envCtx->skyboxConfig = 2;
+    envCtx->skyboxConfig = SKYBOX_CONFIG_2;
     envCtx->skyboxDisabled = 0;
     envCtx->skyboxBlend = 0;
     envCtx->glareAlpha = 0.0f;

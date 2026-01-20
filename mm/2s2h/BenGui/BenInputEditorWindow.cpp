@@ -1,14 +1,21 @@
 #include "BenInputEditorWindow.h"
-#include <Context.h>
-#include "public/bridge/consolevariablebridge.h"
-#include "controller/controldevice/controller/mapping/ControllerRumbleMapping.h"
-#include "controller/controldeck/ControlDeck.h"
-#include "utils/StringHelper.h"
+#include <ship/Context.h>
+#include <libultraship/bridge/consolevariablebridge.h>
+#include <ship/controller/controldevice/controller/mapping/ControllerRumbleMapping.h>
+#include <ship/controller/controldeck/ControlDeck.h>
+#include <ship/utils/StringHelper.h>
+#include "2s2h/BenPort.h"
+#include "2s2h/BenGui/UIWidgets.hpp"
+#include "2s2h/BenGui/BenGui.hpp"
 #ifndef __WIIU__
-#include "controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h"
+#include <ship/controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h>
 #endif
 
 #define SCALE_IMGUI_SIZE(value) ((value / 13.0f) * ImGui::GetFontSize())
+
+using namespace UIWidgets;
+
+static s32 heldInputs = 0;
 
 BenInputEditorWindow::~BenInputEditorWindow() {
 }
@@ -442,6 +449,9 @@ void BenInputEditorWindow::DrawButtonLine(const char* buttonName, uint8_t port, 
                                           ImVec4 color = CHIP_COLOR_N64_GREY) {
     ImGui::NewLine();
     ImGui::SameLine(SCALE_IMGUI_SIZE(32.0f));
+    if (heldInputs & bitmask) {
+        color.w = 0.5f;
+    }
     DrawInputChip(buttonName, color);
     ImGui::SameLine(SCALE_IMGUI_SIZE(86.0f));
     for (auto id : mBitmaskToMappingIds[port][bitmask]) {
@@ -1376,6 +1386,13 @@ void BenInputEditorWindow::DrawPortTabContents(uint8_t portIndex) {
         DrawButtonLine(StringHelper::Sprintf("%s##DPad", ICON_FA_ARROW_RIGHT).c_str(), portIndex, BTN_DRIGHT);
     }
 
+    if (ImGui::CollapsingHeader("Modifier Buttons", NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
+        ImGui::TextWrapped("These can be bound to physical buttons and be selected for use in various\nenhancements, "
+                           "but otherwise have no use on their own.");
+        DrawButtonLine("M1", portIndex, BTN_CUSTOM_MODIFIER1);
+        DrawButtonLine("M2", portIndex, BTN_CUSTOM_MODIFIER2);
+    }
+
     if (ImGui::CollapsingHeader("Analog Stick", NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
         DrawStickSection(portIndex, Ship::LEFT);
     }
@@ -1493,3 +1510,12 @@ void BenInputEditorWindow::OffsetMappingPopup() {
     pos.x += HORIZONTAL_OFFSET;
     ImGui::SetNextWindowPos(pos);
 }
+
+static RegisterShipInitFunc initFunc(
+    []() {
+        COND_HOOK(OnGameStateMainStart, true, []() {
+            Input* input = CONTROLLER1(gGameState);
+            heldInputs = input->cur.button;
+        });
+    },
+    {});
