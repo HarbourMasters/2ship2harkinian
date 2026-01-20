@@ -402,7 +402,6 @@ typedef struct ShipSaveInfo {
     RespawnData respawn[RESPAWN_MODE_MAX];
     char commitHash[8];
     RandoSaveInfo rando;
-    // u16 pictoPhotoRGBA[PICTO_PHOTO_SIZE];
 } ShipSaveInfo;
 // #endregion
 

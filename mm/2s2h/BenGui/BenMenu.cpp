@@ -1018,9 +1018,6 @@ void BenMenu::AddEnhancements() {
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Color Picto", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Items.ColorPictograph")
-        .Options(CheckboxOptions().Tooltip("Color Picto."));
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
         .Options(ComboboxOptions()
@@ -1298,6 +1295,13 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Soaring cutscene", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.SkipSoaringCutscene")
         .Options(CheckboxOptions().Tooltip("Skips the cutscene when using the Song of Soaring to warp."));
+
+    // Item Enhancements
+    path.column = SECTION_COLUMN_3;
+    AddWidget(path, "Items", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Color Pictograph", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Items.ColorPictograph")
+        .Options(CheckboxOptions().Tooltip("Will take and display pictographs in color."));
 
     // Time Savers
     path = { "Enhancements", "Time Savers", SECTION_COLUMN_1 };
