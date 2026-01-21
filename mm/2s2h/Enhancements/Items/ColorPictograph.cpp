@@ -4,6 +4,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include <fstream>
 #include <filesystem>
+#include <cstring>
 
 using json = nlohmann::json;
 
@@ -16,19 +17,35 @@ extern "C" {
 
 static s16 fileNumber = 0;
 
-void SavePictoToFile(nlohmann::json picto) {
-    // where to save and format
-    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("picto.json");
-    std::ofstream fileStream(filePath);
-    if (!fileStream.is_open()) {
-        throw std::runtime_error("Failed to open picto file");
+// currently saving in root
+std::string pictoFilePath = "picto.json";
+
+// convert to msgpack or .png or some other format?
+void SavePictoToFile(const nlohmann::json& image) {
+    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory(pictoFilePath);
+    nlohmann::json picto = nlohmann::json::object();
+
+    std::ifstream fileStream(filePath);
+    if (fileStream.is_open()) {
+        try {
+            fileStream >> picto;
+        } catch (nlohmann::json::exception& e) {
+            throw std::runtime_error("Failed to parse picto file: " + std::string(e.what()));
+        }
     }
 
-    fileStream << picto.dump(4);
+    std::string fileKey = "file" + std::to_string(fileNumber);
+    picto[fileKey]["image"] = image;
+
+    std::ofstream out(filePath);
+    if (!out) {
+        throw std::runtime_error("Failed to write picto file");
+    }
+    out << picto.dump(4);
 }
 
 void LoadPictoFromFile(s16 fileNum) {
-    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("picto.json");
+    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory(pictoFilePath);
     std::ifstream fileStream(filePath);
     if (!fileStream.is_open()) {
         throw std::runtime_error("Failed to open picto file");
@@ -55,6 +72,13 @@ void LoadPictoFromFile(s16 fileNum) {
         return;
     }
 
+    if (!picto[fileKey]["image"].is_array() ||
+        picto[fileKey]["image"].size() < std::size(gSaveContext.shipSaveContext.pictoPhotoRGBA)) {
+        std::memset(gSaveContext.shipSaveContext.pictoPhotoRGBA, 0,
+                    sizeof(gSaveContext.shipSaveContext.pictoPhotoRGBA));
+        return;
+    }
+
     for (auto i = 0; i < std::size(gSaveContext.shipSaveContext.pictoPhotoRGBA); i++) {
         gSaveContext.shipSaveContext.pictoPhotoRGBA[i] = picto[fileKey]["image"].at(i).get<uint16_t>();
     }
@@ -64,38 +88,22 @@ void ConvertImage(u16* destI, u16* srcRgba16, s32 rgba16Width, s32 pixelLeft, s3
                   s32 pixelBottom) {
 
     // not sure if best way to do this
-    // also not sure how endianness needs to be handled for cross-platform
+    // also not sure if/how endianness needs to be handled for cross-platform
     for (int i = pixelTop; i <= pixelBottom; i++) {
         for (int j = pixelLeft; j <= pixelRight; j++) {
             u16 px = srcRgba16[i * rgba16Width + j];
-            px |= 1;
             px = (px >> 8) | (px << 8);
             destI[(i - pixelTop) * PICTO_PHOTO_WIDTH + (j - pixelLeft)] = px;
         }
     }
 
-    // below should probably be moved to SavePictoToFile()
-    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory("picto.json");
-    std::ifstream fileStream(filePath);
-    if (!fileStream.is_open()) {
-        throw std::runtime_error("Failed to open picto file");
-    }
-
-    nlohmann::json picto;
-    try {
-        fileStream >> picto;
-    } catch (nlohmann::json::exception& e) {
-        throw std::runtime_error("Failed to parse picto file: " + std::string(e.what()));
-    }
-
-    std::string fileKey = "file" + std::to_string(fileNumber);
-
-    picto[fileKey]["image"] = nlohmann::json::array();
+    nlohmann::json image = nlohmann::json::array();
 
     for (auto i = 0; i < std::size(gSaveContext.shipSaveContext.pictoPhotoRGBA); i++) {
-        picto[fileKey]["image"].push_back(gSaveContext.shipSaveContext.pictoPhotoRGBA[i]);
+        image.push_back(gSaveContext.shipSaveContext.pictoPhotoRGBA[i]);
     }
-    SavePictoToFile(picto);
+
+    SavePictoToFile(image);
 }
 
 void DrawPicto(s16 sp2CC) {
@@ -116,21 +124,17 @@ void DrawPicto(s16 sp2CC) {
 }
 
 void RegisterColorPictograph() {
-    // where to put file?
-    // have file for each save file, or three objects in one file?
-    // convert to .png?
-    if (!std::filesystem::exists(Ship::Context::GetPathRelativeToAppDirectory("picto.json"))) {
+    if (!std::filesystem::exists(Ship::Context::GetPathRelativeToAppDirectory(pictoFilePath))) {
         json initFile;
-        std::ofstream file(Ship::Context::GetPathRelativeToAppDirectory("picto.json"));
+        std::ofstream file(Ship::Context::GetPathRelativeToAppDirectory(pictoFilePath));
         file << initFile.dump(4);
         file.close();
     }
 
     COND_VB_SHOULD(VB_PICTO_TAKE, true /*maybe cvar?*/, {
         PreRender* prerender = va_arg(args, PreRender*);
-        // 320 came from SCREEN_WIDTH which is undefined here
-        ConvertImage(gSaveContext.shipSaveContext.pictoPhotoRGBA, prerender->fbufSave, 320, PICTO_PHOTO_TOPLEFT_X,
-                     PICTO_PHOTO_TOPLEFT_Y, (PICTO_PHOTO_TOPLEFT_X + PICTO_PHOTO_WIDTH) - 1,
+        ConvertImage(gSaveContext.shipSaveContext.pictoPhotoRGBA, prerender->fbufSave, SCREEN_WIDTH,
+                     PICTO_PHOTO_TOPLEFT_X, PICTO_PHOTO_TOPLEFT_Y, (PICTO_PHOTO_TOPLEFT_X + PICTO_PHOTO_WIDTH) - 1,
                      (PICTO_PHOTO_TOPLEFT_Y + PICTO_PHOTO_HEIGHT) - 1);
     });
 
