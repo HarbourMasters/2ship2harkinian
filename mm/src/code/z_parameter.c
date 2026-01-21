@@ -846,11 +846,11 @@ f32 sBButtonDoActionTextureScales[] = {
     // 100 is 1:1 scale, > 100 magnifies
     100.0f, // LANGUAGE_JPN
     109.0f, // LANGUAGE_ENG
-// #region 2S2H [PAL]
+            // #region 2S2H [PAL]
     109.0f, // LANGUAGE_GER
     109.0f, // LANGUAGE_FRE
     109.0f, // LANGUAGE_SPA
-// #endregion
+    // #endregion
 };
 s16 sItemIconTextureScales[] = {
     (s16)(1.074219f * (1 << 10)) >> 1, // EQUIP_SLOT_B
@@ -861,29 +861,29 @@ s16 sItemIconTextureScales[] = {
 s16 sBButtonDoActionXPositions[] = {
     158, // LANGUAGE_JPN
     155, // LANGUAGE_ENG
-// #region 2S2H [PAL]
+         // #region 2S2H [PAL]
     155, // LANGUAGE_GER
     155, // LANGUAGE_FRE
     155, // LANGUAGE_SPA
-// #endregion
+    // #endregion
 };
 s16 sBButtonDoActionYPositions[] = {
     23, // LANGUAGE_JPN
     22, // LANGUAGE_ENG
-// #region 2S2H [PAL]
+        // #region 2S2H [PAL]
     22, // LANGUAGE_GER
     22, // LANGUAGE_FRE
     22, // LANGUAGE_SPA
-// #endregion
+    // #endregion
 };
 f32 sAButtonDoActionTexScales[] = {
     -380.0f, // LANGUAGE_JPN
     -350.0f, // LANGUAGE_ENG
-// #region 2S2H [PAL]
+             // #region 2S2H [PAL]
     -350.0f, // LANGUAGE_GER
     -350.0f, // LANGUAGE_FRE
     -350.0f, // LANGUAGE_SPA
-// #endregion
+    // #endregion
 };
 s16 sBCButtonXPositions[] = {
     167, // EQUIP_SLOT_B
@@ -9628,20 +9628,20 @@ void Interface_Update(PlayState* play) {
         s32 doActionStartMainIndex = -1;
         s32 i;
 
-        for (i = 0; i < ARRAY_COUNT(doActionTbl); i++) { 
-            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex) { 
+        for (i = 0; i < ARRAY_COUNT(doActionTbl); i++) {
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex) {
                 doActionAMainIndex = i;
             }
-            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex) { 
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex) {
                 doActionASubIndex = i;
             }
-            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex) { 
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex) {
                 doActionBMainIndex = i;
             }
-            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex) { 
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex) {
                 doActionBSubIndex = i;
             }
-            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex) { 
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex) {
                 doActionStartMainIndex = i;
             }
         }
@@ -9673,7 +9673,8 @@ void Interface_Update(PlayState* play) {
         if (interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex != gEmptyTexture && doActionBSubIndex >= 0) {
             interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex = doActionTblPtr[doActionBSubIndex];
         }
-        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex != gEmptyTexture && doActionStartMainIndex >= 0) {
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex != gEmptyTexture &&
+            doActionStartMainIndex >= 0) {
             interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex = doActionTblPtr[doActionStartMainIndex];
         }
     }

@@ -230,9 +230,9 @@ void FileSelect_SetNameEntryVtx(GameState* thisx) {
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
     gSPVertex(POLY_OPA_DISP++, this->keyboard2Vtx, 24, 0);
     if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
-        gDPLoadTextureBlock(POLY_OPA_DISP++, sNameTextures[gSaveContext.options.language - 1], G_IM_FMT_IA, G_IM_SIZ_8b, 56, 16, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                            G_TX_NOLOD);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, sNameTextures[gSaveContext.options.language - 1], G_IM_FMT_IA, G_IM_SIZ_8b,
+                            56, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                            G_TX_NOLOD, G_TX_NOLOD);
     } else {
         gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelNameENGTex, G_IM_FMT_IA, G_IM_SIZ_8b, 56, 16, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
