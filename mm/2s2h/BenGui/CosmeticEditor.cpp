@@ -49,6 +49,7 @@ CosmeticEditorElement cosmeticEditorElements[COSMETIC_ELEMENT_MAX] = {
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_ICE_ARROW_SECONDARY,       "Effects",          "Ice Arrow Secondary",        "Effects.IceArrowSec",          0,   0,   255, 128),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_LIGHT_ARROW_PRIMARY,       "Effects",          "Light Arrow Primary",        "Effects.LightArrowPrim",       255, 255, 170, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_LIGHT_ARROW_SECONDARY,     "Effects",          "Light Arrow Secondary",      "Effects.LightArrowSec",        255, 255, 0,   128),
+    COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_ZORA_BOOMERANG_TRAIL,      "Effects",          "Zora Boomerang Trail",       "Effects.ZoraBoomerangTrail",   255, 255, 100, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_B_BUTTON,                  "Buttons",          "B",                          "Buttons.B",                    100, 255, 120, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_A_BUTTON,                  "Buttons",          "A",                          "Buttons.A",                    100, 200, 255, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_C_LEFT_BUTTON,             "Buttons",          "C Left",                     "Buttons.CLeft",                255, 240, 0,   255),
