@@ -846,7 +846,11 @@ f32 sBButtonDoActionTextureScales[] = {
     // 100 is 1:1 scale, > 100 magnifies
     100.0f, // LANGUAGE_JPN
     109.0f, // LANGUAGE_ENG
-    // Data missing for other languages?
+// #region 2S2H [PAL]
+    109.0f, // LANGUAGE_GER
+    109.0f, // LANGUAGE_FRE
+    109.0f, // LANGUAGE_SPA
+// #endregion
 };
 s16 sItemIconTextureScales[] = {
     (s16)(1.074219f * (1 << 10)) >> 1, // EQUIP_SLOT_B
@@ -857,17 +861,29 @@ s16 sItemIconTextureScales[] = {
 s16 sBButtonDoActionXPositions[] = {
     158, // LANGUAGE_JPN
     155, // LANGUAGE_ENG
-    // Data missing for other languages?
+// #region 2S2H [PAL]
+    155, // LANGUAGE_GER
+    155, // LANGUAGE_FRE
+    155, // LANGUAGE_SPA
+// #endregion
 };
 s16 sBButtonDoActionYPositions[] = {
     23, // LANGUAGE_JPN
     22, // LANGUAGE_ENG
-    // Data missing for other languages?
+// #region 2S2H [PAL]
+    22, // LANGUAGE_GER
+    22, // LANGUAGE_FRE
+    22, // LANGUAGE_SPA
+// #endregion
 };
 f32 sAButtonDoActionTexScales[] = {
     -380.0f, // LANGUAGE_JPN
     -350.0f, // LANGUAGE_ENG
-    // Data missing for other languages?
+// #region 2S2H [PAL]
+    -350.0f, // LANGUAGE_GER
+    -350.0f, // LANGUAGE_FRE
+    -350.0f, // LANGUAGE_SPA
+// #endregion
 };
 s16 sBCButtonXPositions[] = {
     167, // EQUIP_SLOT_B
@@ -5059,24 +5075,6 @@ void Interface_LoadAButtonDoActionLabel(InterfaceContext* interfaceCtx, u16 doAc
         //                     SEGMENT_ROM_START(do_action_static) + doAction * DO_ACTION_TEX_SIZE, DO_ACTION_TEX_SIZE,
         //                     0, &interfaceCtx->loadQueue, NULL);
         // osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
-        // #region 2S2H [PAL]
-        if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
-            switch (gSaveContext.options.language) {
-                case LANGUAGE_GER:
-                    doActionTblPtr = doActionTblGER;
-                    break;
-                case LANGUAGE_FRE:
-                    doActionTblPtr = doActionTblFRA;
-                    break;
-                case LANGUAGE_SPA:
-                    doActionTblPtr = doActionTblESP;
-                    break;
-                default:
-                    doActionTblPtr = doActionTbl;
-                    break;
-            }
-        }
-        // #endregion
 
         if (slot) {
             interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex = doActionTblPtr[doAction];
@@ -9620,6 +9618,66 @@ void Interface_Update(PlayState* play) {
     s16 dimmingAlpha;
     s16 risingAlpha;
     u16 aButtonDoAction;
+
+    // #region 2S2H [PAL]
+    if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+        s32 doActionAMainIndex = -1;
+        s32 doActionASubIndex = -1;
+        s32 doActionBMainIndex = -1;
+        s32 doActionBSubIndex = -1;
+        s32 doActionStartMainIndex = -1;
+        s32 i;
+
+        for (i = 0; i < ARRAY_COUNT(doActionTbl); i++) { 
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex) { 
+                doActionAMainIndex = i;
+            }
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex) { 
+                doActionASubIndex = i;
+            }
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex) { 
+                doActionBMainIndex = i;
+            }
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex) { 
+                doActionBSubIndex = i;
+            }
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex) { 
+                doActionStartMainIndex = i;
+            }
+        }
+
+        switch (gSaveContext.options.language) {
+            case LANGUAGE_GER:
+                doActionTblPtr = doActionTblGER;
+                break;
+            case LANGUAGE_FRE:
+                doActionTblPtr = doActionTblFRA;
+                break;
+            case LANGUAGE_SPA:
+                doActionTblPtr = doActionTblESP;
+                break;
+            default:
+                doActionTblPtr = doActionTbl;
+                break;
+        }
+
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex != gEmptyTexture && doActionAMainIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex = doActionTblPtr[doActionAMainIndex];
+        }
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex != gEmptyTexture && doActionASubIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex = doActionTblPtr[doActionASubIndex];
+        }
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex != gEmptyTexture && doActionBMainIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex = doActionTblPtr[doActionBMainIndex];
+        }
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex != gEmptyTexture && doActionBSubIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex = doActionTblPtr[doActionBSubIndex];
+        }
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex != gEmptyTexture && doActionStartMainIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex = doActionTblPtr[doActionStartMainIndex];
+        }
+    }
+    // #endregion
 
     // Update buttons
     if (!IS_PAUSED(&play->pauseCtx)) {
