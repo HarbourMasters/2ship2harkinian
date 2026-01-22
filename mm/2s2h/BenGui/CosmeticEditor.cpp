@@ -54,6 +54,8 @@ CosmeticEditorElement cosmeticEditorElements[COSMETIC_ELEMENT_MAX] = {
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_GILDED_SWORD_TRAIL,        "Trails",           "Gilded Sword Trail",         "Trails.GildedSwordTrail",      255, 255, 255, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_GREAT_FAIRY_SWORD_TRAIL,   "Trails",           "Great Fairy Sword Trail",    "Trails.GreatFairySwordTrail",  255, 255, 255, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_FIERCE_DEITY_SWORD_TRAIL,  "Trails",           "Fierce Deity Sword Trail",   "Trails.FierceDeitySwordTrail", 255, 255, 255, 255),
+    COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_DEKU_STICK_TRAIL,          "Trails",           "Deku Stick Trail",           "Trails.DekuStickTrail",        255, 255, 255, 255),
+    COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_DEKU_SPIN_TRAIL,           "Trails",           "Deku Spin Trail",            "Trails.DekuSpinTrail",         255, 255, 255, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_ZORA_PUNCH_TRAIL,          "Trails",           "Zora Punch Trail",           "Trails.ZoraPunchTrail",        255, 255, 255, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_ZORA_KICK_TRAIL,           "Trails",           "Zora Kick Trail",            "Trails.ZoraKickTrail",         255, 255, 255, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_ZORA_BOOMERANG_TRAIL,      "Trails",           "Zora Boomerang Trail",       "Trails.ZoraBoomerangTrail",    255, 255, 100, 255),

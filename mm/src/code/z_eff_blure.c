@@ -332,6 +332,8 @@ void EffectBlure_GetComputedValues(EffectBlure* this, s32 index, f32 ratio, Vec3
                                      player->meleeWeaponAnimation == PLAYER_MWA_ZORA_JUMPKICK_FINISH)
                                         ? COSMETIC_ELEMENT_ZORA_KICK_TRAIL
                                         : COSMETIC_ELEMENT_ZORA_PUNCH_TRAIL;
+                    else if (player->transformation == PLAYER_FORM_DEKU)
+                        elementId = COSMETIC_ELEMENT_DEKU_SPIN_TRAIL;
                     else if (player->heldItemAction == PLAYER_IA_SWORD_KOKIRI)
                         elementId = COSMETIC_ELEMENT_KOKIRI_SWORD_TRAIL;
                     else if (player->heldItemAction == PLAYER_IA_SWORD_RAZOR)
@@ -340,6 +342,8 @@ void EffectBlure_GetComputedValues(EffectBlure* this, s32 index, f32 ratio, Vec3
                         elementId = COSMETIC_ELEMENT_GILDED_SWORD_TRAIL;
                     else if (player->heldItemAction == PLAYER_IA_SWORD_TWO_HANDED)
                         elementId = COSMETIC_ELEMENT_GREAT_FAIRY_SWORD_TRAIL;
+                    else if (player->heldItemAction == PLAYER_IA_DEKU_STICK)
+                        elementId = COSMETIC_ELEMENT_DEKU_STICK_TRAIL;
                     break;
                 }
             }
