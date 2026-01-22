@@ -223,8 +223,8 @@ endif()
 find_package(SDL2)
 set(SDL2-INCLUDE ${SDL2_INCLUDE_DIRS})
 
-if (BUILD_CROWD_CONTROL)
-    find_package(SDL2_net)
+if (BUILD_NETWORKING)
+    find_package(SDL2_net 2.2.0 REQUIRED)
     set(SDL2-NET-INCLUDE ${SDL_NET_INCLUDE_DIRS})
 endif()
 
@@ -253,9 +253,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		"$<$<CONFIG:Release>:"
 			"NDEBUG;"
 		">"
-           #"$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
+        "$<$<BOOL:${BUILD_NETWORKING}>:ENABLE_NETWORKING>"
 		"INCLUDE_GAME_PRINTF;"
-           #"ENABLE_CROWD_CONTROL;"
 		"F3DEX_GBI_2"
 		"UNICODE;"
 		"_UNICODE"
@@ -288,8 +287,8 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang|AppleClang")
 		"$<$<CONFIG:Release>:"
 			"NDEBUG;"
 		">"
-        "F3DEX_GBI_2;"
-		# "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
+		"F3DEX_GBI_2"
+		"$<$<BOOL:${BUILD_NETWORKING}>:ENABLE_NETWORKING>"
 		"_CONSOLE;"
 		"_CRT_SECURE_NO_WARNINGS;"
 		"ENABLE_OPENGL;"
@@ -539,7 +538,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		"glu32;"
 		"SDL2::SDL2;"
 		"SDL2::SDL2main;"
-        #"$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net-static>"
+        "$<$<BOOL:${BUILD_NETWORKING}>:SDL2_net::SDL2_net-static>"
 		"glfw;"
 		"winmm;"
 		"imm32;"
@@ -592,7 +591,7 @@ else()
         "Opus::opus"
         "Opusfile::Opusfile"
 		SDL2::SDL2
- #       "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
+        "$<$<BOOL:${BUILD_NETWORKING}>:SDL2_net::SDL2_net>"
 		${CMAKE_DL_LIBS}
 		Threads::Threads
 	)
