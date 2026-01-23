@@ -119,7 +119,9 @@ void LoadPictoPNG() {
         uint8_t b = buffer[i * 4 + 2] >> 3;
         uint8_t a = buffer[i * 4 + 3] ? 1 : 0;
 
-        gSaveContext.shipSaveContext.pictoPhotoRGBA[i] = (r << 11) | (g << 6) | (b << 1) | a;
+        // More endianness stuff to check
+        uint16_t px = (r << 11) | (g << 6) | (b << 1) | a;
+        gSaveContext.shipSaveContext.pictoPhotoRGBA[i] = (px >> 8) | (px << 8);
     }
 
     png_destroy_read_struct(&png, &info, nullptr);
