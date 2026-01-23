@@ -6080,31 +6080,39 @@ void Audio_PlaySfx_SurroundSoundTest(void) {
 
 void Audio_SetFileSelectSettings(s8 audioSetting) {
     s8 soundMode;
+    AudioChannelsSetting channelsSetting = audioStereo;
 
     switch (audioSetting) {
         case SAVE_AUDIO_STEREO:
             soundMode = SOUNDMODE_STEREO;
             sSoundMode = SOUNDMODE_STEREO;
+            channelsSetting = audioStereo;
             break;
 
         case SAVE_AUDIO_MONO:
             soundMode = SOUNDMODE_MONO;
             sSoundMode = SOUNDMODE_MONO;
+            channelsSetting = audioStereo;
             break;
 
         case SAVE_AUDIO_HEADSET:
             soundMode = SOUNDMODE_HEADSET;
             sSoundMode = SOUNDMODE_HEADSET;
+            channelsSetting = audioStereo;
             break;
 
         case SAVE_AUDIO_SURROUND:
             soundMode = SOUNDMODE_SURROUND;
             sSoundMode = SOUNDMODE_SURROUND_EXTERNAL;
+            channelsSetting = audioMatrix51;
             break;
 
         default:
             break;
     }
+
+    // Dynamically switch audio backend between stereo and 5.1 surround
+    SetAudioChannels(channelsSetting);
 
     SEQCMD_SET_SOUND_MODE(soundMode);
 }
