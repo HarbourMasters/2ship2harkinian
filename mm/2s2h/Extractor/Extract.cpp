@@ -58,11 +58,8 @@ static constexpr uint32_t MM_US_GC = 0xB443EB08;
 static constexpr uint32_t MM_PAL_GC = 0x6AECEC4F;
 
 static const std::unordered_map<uint32_t, const char*> verMap = {
-    { MM_US_10, "US 1.0" },
-    { MM_PAL_10, "PAL 1.0" },
-    { MM_PAL_11, "PAL 1.1" },
-    { MM_US_GC, "US GC" },
-    { MM_PAL_GC, "PAL GC" },
+    { MM_US_10, "US 1.0" }, { MM_PAL_10, "PAL 1.0" }, { MM_PAL_11, "PAL 1.1" },
+    { MM_US_GC, "US GC" },  { MM_PAL_GC, "PAL GC" },
 };
 
 // TODO only check the first 54MB of the rom.

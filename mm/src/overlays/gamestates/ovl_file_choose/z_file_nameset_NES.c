@@ -1155,23 +1155,24 @@ void FileSelect_DrawOptionsImpl_N64PAL(GameState* thisx) {
                 gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
             }
 
-            gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA, G_IM_SIZ_8b,
-                                gOptionsMenuHeadersPAL[i].width, gOptionsMenuHeadersPAL[i].height, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1],
+                                G_IM_FMT_IA, G_IM_SIZ_8b, gOptionsMenuHeadersPAL[i].width,
+                                gOptionsMenuHeadersPAL[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
-        } else if ((i == 2) && ((gSaveContext.options.language == LANGUAGE_GER) || (gSaveContext.options.language == LANGUAGE_SPA))) {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                                144, gOptionsMenuHeadersPAL[i].height, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+        } else if ((i == 2) && ((gSaveContext.options.language == LANGUAGE_GER) ||
+                                (gSaveContext.options.language == LANGUAGE_SPA))) {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++,
+                                   gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                                   144, gOptionsMenuHeadersPAL[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
             gSP1Quadrangle(POLY_OPA_DISP++, vtx + 16, vtx + 18, vtx + 19, vtx + 17, 0);
         } else {
-            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                                   gOptionsMenuHeadersPAL[i].width, gOptionsMenuHeadersPAL[i].height, 0,
-                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                   G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(
+                POLY_OPA_DISP++, gOptionsMenuHeadersPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
+                gOptionsMenuHeadersPAL[i].width, gOptionsMenuHeadersPAL[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
         }
     }
@@ -1200,8 +1201,8 @@ void FileSelect_DrawOptionsImpl_N64PAL(GameState* thisx) {
             gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
         }
 
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                               gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0,
+        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1],
+                               G_IM_FMT_IA, gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                G_TX_NOLOD, G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
@@ -1224,8 +1225,8 @@ void FileSelect_DrawOptionsImpl_N64PAL(GameState* thisx) {
             gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
         }
 
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1], G_IM_FMT_IA,
-                               gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0,
+        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettingsPAL[i].textures[gSaveContext.options.language - 1],
+                               G_IM_FMT_IA, gOptionsMenuSettingsPAL[i].width, gOptionsMenuSettingsPAL[i].height, 0,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                G_TX_NOLOD, G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
@@ -1233,7 +1234,7 @@ void FileSelect_DrawOptionsImpl_N64PAL(GameState* thisx) {
 
     vtx = 0;
     gDPPipeSync(POLY_OPA_DISP++);
-    
+
     // check brightness bars
     gSPVertex(POLY_OPA_DISP++, D_80813EB0_GC, 8, 0);
     gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelBrightnessCheckTex, G_IM_FMT_IA, 96, 16, 0,
@@ -1251,7 +1252,7 @@ void FileSelect_DrawOptionsImpl_N64PAL(GameState* thisx) {
     gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
 
     gSPVertex(POLY_OPA_DISP++, D_808158F0_np1, 16, 0);
-    
+
     for (i = 0, vtx = 0; i < 4; i++, vtx += 4) {
         gDPPipeSync(POLY_OPA_DISP++);
         if (gSaveContext.options.language - 1 == i) {
