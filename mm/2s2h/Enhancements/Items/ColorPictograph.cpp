@@ -5,6 +5,7 @@
 #include <fstream>
 #include <filesystem>
 #include <cstring>
+#include <png.h>
 
 using json = nlohmann::json;
 
@@ -15,73 +16,114 @@ extern "C" {
 #define CVAR_NAME "gEnhancements.Items.ColorPictograph"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-static s16 fileNumber = 0;
+static s16 fileNumber = 1;
 
-// currently saving in root
-std::string pictoFilePath = "picto.json";
+void SavePictoPng() {
+    const int width = PICTO_PHOTO_WIDTH;
+    const int height = PICTO_PHOTO_HEIGHT;
 
-// convert to msgpack or .png or some other format?
-void SavePictoToFile(const nlohmann::json& image) {
-    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory(pictoFilePath);
-    nlohmann::json picto = nlohmann::json::object();
+    std::string path =
+        Ship::Context::GetPathRelativeToAppDirectory("saves/picto" + std::to_string(fileNumber) + ".png");
 
-    std::ifstream fileStream(filePath);
-    if (fileStream.is_open()) {
-        try {
-            fileStream >> picto;
-        } catch (nlohmann::json::exception& e) {
-            throw std::runtime_error("Failed to parse picto file: " + std::string(e.what()));
-        }
+    FILE* fp = fopen(path.c_str(), "wb");
+    if (!fp)
+        throw std::runtime_error("Failed to open PNG file for write");
+
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    if (!png)
+        throw std::runtime_error("png_create_write_struct failed");
+
+    png_infop info = png_create_info_struct(png);
+    if (!info)
+        throw std::runtime_error("png_create_info_struct failed");
+
+    if (setjmp(png_jmpbuf(png)))
+        throw std::runtime_error("libpng write error");
+
+    png_init_io(png, fp);
+
+    png_set_IHDR(png, info, width, height, 8, PNG_COLOR_TYPE_RGBA, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
+                 PNG_FILTER_TYPE_BASE);
+
+    png_write_info(png, info);
+
+    // RGBA8 buffer
+    std::vector<uint8_t> buffer(width * height * 4);
+
+    for (int i = 0; i < width * height; ++i) {
+        uint16_t px = gSaveContext.shipSaveContext.pictoPhotoRGBA[i];
+
+        // fix endianness so png looks good
+        px = (px >> 8) | (px << 8);
+
+        buffer[i * 4 + 0] = ((px >> 11) & 0x1F) << 3; // R
+        buffer[i * 4 + 1] = ((px >> 6) & 0x1F) << 3;  // G
+        buffer[i * 4 + 2] = ((px >> 1) & 0x1F) << 3;  // B
+        buffer[i * 4 + 3] = (px & 1) ? 255 : 0;       // A
     }
 
-    std::string fileKey = "file" + std::to_string(fileNumber);
-    picto[fileKey]["image"] = image;
+    std::vector<png_bytep> rows(height);
+    for (int y = 0; y < height; ++y)
+        rows[y] = &buffer[y * width * 4];
 
-    std::ofstream out(filePath);
-    if (!out) {
-        throw std::runtime_error("Failed to write picto file");
-    }
-    out << picto.dump(4);
+    png_write_image(png, rows.data());
+    png_write_end(png, nullptr);
+
+    png_destroy_write_struct(&png, &info);
+    fclose(fp);
 }
 
-void LoadPictoFromFile(s16 fileNum) {
-    std::string filePath = Ship::Context::GetPathRelativeToAppDirectory(pictoFilePath);
-    std::ifstream fileStream(filePath);
-    if (!fileStream.is_open()) {
-        throw std::runtime_error("Failed to open picto file");
-    }
+void LoadPictoPNG() {
+    std::string path =
+        Ship::Context::GetPathRelativeToAppDirectory("saves/picto" + std::to_string(fileNumber) + ".png");
 
-    nlohmann::json picto;
-    try {
-        fileStream >> picto;
-    } catch (nlohmann::json::exception& e) {
-        throw std::runtime_error("Failed to parse picto file: " + std::string(e.what()));
-    }
-
-    std::string fileKey = "file" + std::to_string(fileNum);
-
-    if (!picto.contains(fileKey)) {
+    FILE* fp = fopen(path.c_str(), "rb");
+    if (!fp) {
         std::memset(gSaveContext.shipSaveContext.pictoPhotoRGBA, 0,
                     sizeof(gSaveContext.shipSaveContext.pictoPhotoRGBA));
         return;
     }
 
-    if (!picto[fileKey].contains("image")) {
-        std::memset(gSaveContext.shipSaveContext.pictoPhotoRGBA, 0,
-                    sizeof(gSaveContext.shipSaveContext.pictoPhotoRGBA));
-        return;
+    png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+    png_infop info = png_create_info_struct(png);
+
+    if (setjmp(png_jmpbuf(png)))
+        throw std::runtime_error("libpng read error");
+
+    png_init_io(png, fp);
+    png_read_info(png, info);
+
+    png_uint_32 width, height;
+    int depth, color;
+    png_get_IHDR(png, info, &width, &height, &depth, &color, nullptr, nullptr, nullptr);
+
+    if (width != PICTO_PHOTO_WIDTH || height != PICTO_PHOTO_HEIGHT)
+        throw std::runtime_error("PNG dimensions mismatch");
+
+    png_set_expand(png);
+    png_set_strip_16(png);
+    png_set_add_alpha(png, 0xFF, PNG_FILLER_AFTER);
+    png_read_update_info(png, info);
+
+    std::vector<uint8_t> buffer(width * height * 4);
+    std::vector<png_bytep> rows(height);
+
+    for (size_t y = 0; y < height; ++y)
+        rows[y] = &buffer[y * width * 4];
+
+    png_read_image(png, rows.data());
+
+    for (size_t i = 0; i < width * height; ++i) {
+        uint8_t r = buffer[i * 4 + 0] >> 3;
+        uint8_t g = buffer[i * 4 + 1] >> 3;
+        uint8_t b = buffer[i * 4 + 2] >> 3;
+        uint8_t a = buffer[i * 4 + 3] ? 1 : 0;
+
+        gSaveContext.shipSaveContext.pictoPhotoRGBA[i] = (r << 11) | (g << 6) | (b << 1) | a;
     }
 
-    if (!picto[fileKey]["image"].is_array() ||
-        picto[fileKey]["image"].size() < std::size(gSaveContext.shipSaveContext.pictoPhotoRGBA)) {
-        std::memset(gSaveContext.shipSaveContext.pictoPhotoRGBA, 0,
-                    sizeof(gSaveContext.shipSaveContext.pictoPhotoRGBA));
-        return;
-    }
-
-    for (auto i = 0; i < std::size(gSaveContext.shipSaveContext.pictoPhotoRGBA); i++) {
-        gSaveContext.shipSaveContext.pictoPhotoRGBA[i] = picto[fileKey]["image"].at(i).get<uint16_t>();
-    }
+    png_destroy_read_struct(&png, &info, nullptr);
+    fclose(fp);
 }
 
 void ConvertImage(u16* destI, u16* srcRgba16, s32 rgba16Width, s32 pixelLeft, s32 pixelTop, s32 pixelRight,
@@ -103,7 +145,8 @@ void ConvertImage(u16* destI, u16* srcRgba16, s32 rgba16Width, s32 pixelLeft, s3
         image.push_back(gSaveContext.shipSaveContext.pictoPhotoRGBA[i]);
     }
 
-    SavePictoToFile(image);
+    // Probably don't need to do this everytime, just on Save (specifically owl save)
+    SavePictoPng();
 }
 
 void DrawPicto(s16 sp2CC) {
@@ -124,13 +167,6 @@ void DrawPicto(s16 sp2CC) {
 }
 
 void RegisterColorPictograph() {
-    if (!std::filesystem::exists(Ship::Context::GetPathRelativeToAppDirectory(pictoFilePath))) {
-        json initFile;
-        std::ofstream file(Ship::Context::GetPathRelativeToAppDirectory(pictoFilePath));
-        file << initFile.dump(4);
-        file.close();
-    }
-
     COND_VB_SHOULD(VB_PICTO_TAKE, true /*maybe cvar?*/, {
         PreRender* prerender = va_arg(args, PreRender*);
         ConvertImage(gSaveContext.shipSaveContext.pictoPhotoRGBA, prerender->fbufSave, SCREEN_WIDTH,
@@ -149,8 +185,8 @@ void RegisterColorPictograph() {
     });
 
     COND_HOOK(OnSaveLoad, true, [](s16 fileNum) {
-        fileNumber = fileNum;
-        LoadPictoFromFile(fileNum);
+        fileNumber = fileNum + 1;
+        LoadPictoPNG();
     });
 }
 
