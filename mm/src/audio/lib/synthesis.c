@@ -1484,13 +1484,32 @@ Acmd* AudioSynth_ApplySurroundEffect(Acmd* cmd, NoteSampleState* sampleState, No
     } else {
         aLoadBuffer(cmd++, synthState->synthesisBuffers->surroundEffectState, dmem,
                     sizeof(synthState->synthesisBuffers->surroundEffectState));
-        aMix(cmd++, (numSamplesPerUpdate * (s32)SAMPLE_SIZE) >> 4, dryGain, dmem, DMEM_LEFT_CH);
-        aMix(cmd++, (numSamplesPerUpdate * (s32)SAMPLE_SIZE) >> 4, (dryGain ^ 0xFFFF), dmem, DMEM_RIGHT_CH);
+
+        // === Pro Logic II encoding: steer surround to RL or RR based on pan ===
+        // Calculate pan position: 0.0 = full left, 0.5 = center, 1.0 = full right
+        f32 sumVol = sampleState->targetVolLeft + sampleState->targetVolRight;
+        f32 panPosition = 0.5f; // default: center (mono surround)
+        if (sumVol > 0.0f) {
+            panPosition = (f32)sampleState->targetVolRight / sumVol;
+        }
+
+        // For PLII decoding, the L/R balance determines RL vs RR steering:
+        // - L dominant (leftGain > rightGain): surround goes more to Rear Left
+        // - R dominant (rightGain > leftGain): surround goes more to Rear Right
+        // - Equal: mono surround to both (like Pro Logic I)
+        s16 leftGain = (s16)(dryGain * (1.0f - panPosition));
+        s16 rightGain = (s16)(dryGain * panPosition);
+
+        aMix(cmd++, (numSamplesPerUpdate * (s32)SAMPLE_SIZE) >> 4, leftGain, dmem, DMEM_LEFT_CH);
+        aMix(cmd++, (numSamplesPerUpdate * (s32)SAMPLE_SIZE) >> 4, (rightGain ^ 0xFFFF), dmem, DMEM_RIGHT_CH);
 
         wetGain = (dryGain * synthState->curReverbVol) >> 7;
+        s16 wetLeftGain = (s16)(wetGain * (1.0f - panPosition));
+        s16 wetRightGain = (s16)(wetGain * panPosition);
 
-        aMix(cmd++, (numSamplesPerUpdate * (s32)SAMPLE_SIZE) >> 4, wetGain, dmem, DMEM_WET_LEFT_CH);
-        aMix(cmd++, (numSamplesPerUpdate * (s32)SAMPLE_SIZE) >> 4, (wetGain ^ 0xFFFF), dmem, DMEM_WET_RIGHT_CH);
+        aMix(cmd++, (numSamplesPerUpdate * (s32)SAMPLE_SIZE) >> 4, wetLeftGain, dmem, DMEM_WET_LEFT_CH);
+        aMix(cmd++, (numSamplesPerUpdate * (s32)SAMPLE_SIZE) >> 4, (wetRightGain ^ 0xFFFF), dmem, DMEM_WET_RIGHT_CH);
+        // === End Pro Logic II encoding ===
     }
 
     aSaveBuffer(cmd++, DMEM_SURROUND_TEMP + (numSamplesPerUpdate * SAMPLE_SIZE),
