@@ -1,0 +1,17 @@
+<Root>
+	<File Name="message_data_static">
+		<TextMM Name="message_data_static" SegmentName="nes_message_table_static"/>
+	</File>
+	<File Name="ger_message_data_static">
+		<TextMM Name="ger_message_data_static" SegmentName="ger_message_table_static"/>
+	</File>
+	<File Name="fra_message_data_static">
+		<TextMM Name="fra_message_data_static" SegmentName="fra_message_table_static"/>
+	</File>
+	<File Name="esp_message_data_static">
+		<TextMM Name="esp_message_data_static" SegmentName="esp_message_table_static"/>
+	</File>
+	<File Name="staff_message_data_static">
+		<TextMM Name="staff_message_data_static" CodeOffset="0x122078"/>
+	</File>
+</Root>
