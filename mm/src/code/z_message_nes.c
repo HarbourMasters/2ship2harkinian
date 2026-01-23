@@ -285,7 +285,7 @@ void Message_LoadRupeesNES(PlayState* play, s16* decodedBufPos, s32* offset, f32
             Font_LoadCharNES(play, 'n', o);
             o += FONT_CHAR_TEX_SIZE;
             msgCtx->decodedBuffer.schar[p] = 'n';
-        
+
             if (singular != 1) {
                 p++;
                 Font_LoadCharNES(play, 'e', o);
@@ -322,7 +322,7 @@ void Message_LoadRupeesNES(PlayState* play, s16* decodedBufPos, s32* offset, f32
             Font_LoadCharNES(play, 'a', o);
             o += FONT_CHAR_TEX_SIZE;
             msgCtx->decodedBuffer.schar[p] = 'a';
-        
+
             if (singular != 1) {
                 p++;
                 Font_LoadCharNES(play, 's', o);
@@ -345,7 +345,7 @@ void Message_LoadRupeesNES(PlayState* play, s16* decodedBufPos, s32* offset, f32
             Font_LoadCharNES(play, 'e', o);
             o += FONT_CHAR_TEX_SIZE;
             msgCtx->decodedBuffer.schar[p] = 'e';
-        
+
             if (singular != 1) {
                 p++;
                 Font_LoadCharNES(play, 's', o);
@@ -1615,25 +1615,28 @@ void Message_DecodeNES(PlayState* play) {
             }
 
             if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
-                Message_LoadOrdinalSuffix(play, &charTexIndex, &spA4, &decodedBufPos, ((void)0, gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex]));
+                Message_LoadOrdinalSuffix(
+                    play, &charTexIndex, &spA4, &decodedBufPos,
+                    ((void)0,
+                     gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex]));
             } else {
                 if ((gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] ==
-                    1) ||
+                     1) ||
                     (gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] ==
-                    21)) {
+                     21)) {
                     Message_LoadCharNES(play, 's', &charTexIndex, &spA4, decodedBufPos);
                     decodedBufPos++;
                     Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
                 } else if ((gSaveContext.save.saveInfo.inventory
                                 .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 2) ||
-                        (gSaveContext.save.saveInfo.inventory
+                           (gSaveContext.save.saveInfo.inventory
                                 .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 22)) {
                     Message_LoadCharNES(play, 'n', &charTexIndex, &spA4, decodedBufPos);
                     decodedBufPos++;
                     Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
                 } else if ((gSaveContext.save.saveInfo.inventory
                                 .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 3) ||
-                        (gSaveContext.save.saveInfo.inventory
+                           (gSaveContext.save.saveInfo.inventory
                                 .strayFairies[(void)0, gSaveContext.dungeonSceneSharedIndex] == 23)) {
                     Message_LoadCharNES(play, 'r', &charTexIndex, &spA4, decodedBufPos);
                     decodedBufPos++;
@@ -1669,7 +1672,8 @@ void Message_DecodeNES(PlayState* play) {
             }
 
             if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
-                Message_LoadOrdinalSuffix(play, &charTexIndex, &spA4, &decodedBufPos, Inventory_GetSkullTokenCount(play->sceneId));
+                Message_LoadOrdinalSuffix(play, &charTexIndex, &spA4, &decodedBufPos,
+                                          Inventory_GetSkullTokenCount(play->sceneId));
             } else {
                 if ((Inventory_GetSkullTokenCount(play->sceneId) == 1) ||
                     (Inventory_GetSkullTokenCount(play->sceneId) == 21)) {
@@ -1677,12 +1681,12 @@ void Message_DecodeNES(PlayState* play) {
                     decodedBufPos++;
                     Message_LoadCharNES(play, 't', &charTexIndex, &spA4, decodedBufPos);
                 } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 2) ||
-                        (Inventory_GetSkullTokenCount(play->sceneId) == 22)) {
+                           (Inventory_GetSkullTokenCount(play->sceneId) == 22)) {
                     Message_LoadCharNES(play, 'n', &charTexIndex, &spA4, decodedBufPos);
                     decodedBufPos++;
                     Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
                 } else if ((Inventory_GetSkullTokenCount(play->sceneId) == 3) ||
-                        (Inventory_GetSkullTokenCount(play->sceneId) == 23)) {
+                           (Inventory_GetSkullTokenCount(play->sceneId) == 23)) {
                     Message_LoadCharNES(play, 'r', &charTexIndex, &spA4, decodedBufPos);
                     decodedBufPos++;
                     Message_LoadCharNES(play, 'd', &charTexIndex, &spA4, decodedBufPos);
@@ -1957,58 +1961,62 @@ void Message_DecodeNES(PlayState* play) {
             // #region 2S2H [PAL]
             switch (gSaveContext.options.language) {
                 case LANGUAGE_GER:
-                    msgCtx->decodedBuffer.schar[decodedBufPos++] = sMaskCodeColorCmdENG[(
-                        (void)0,
-                        gSaveContext.save.saveInfo.spiderHouseMaskOrder[(s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
+                    msgCtx->decodedBuffer.schar[decodedBufPos++] =
+                        sMaskCodeColorCmdENG[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
+                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
                     index = sMaskCodeTextLengthGER[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
                                                                  s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
                     for (playerNameLen = 0; playerNameLen < index; playerNameLen++, decodedBufPos++) {
                         Message_LoadCharNES(
                             play,
                             sMaskCodeTextGER[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
-                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])][playerNameLen],
+                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])]
+                                            [playerNameLen],
                             &charTexIndex, &spA4, decodedBufPos);
                     }
                     break;
                 case LANGUAGE_FRE:
-                    msgCtx->decodedBuffer.schar[decodedBufPos++] = sMaskCodeColorCmdENG[(
-                        (void)0,
-                        gSaveContext.save.saveInfo.spiderHouseMaskOrder[(s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
+                    msgCtx->decodedBuffer.schar[decodedBufPos++] =
+                        sMaskCodeColorCmdENG[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
+                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
                     index = sMaskCodeTextLengthFRA[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
                                                                  s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
                     for (playerNameLen = 0; playerNameLen < index; playerNameLen++, decodedBufPos++) {
                         Message_LoadCharNES(
                             play,
                             sMaskCodeTextFRA[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
-                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])][playerNameLen],
+                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])]
+                                            [playerNameLen],
                             &charTexIndex, &spA4, decodedBufPos);
                     }
                     break;
                 case LANGUAGE_SPA:
-                    msgCtx->decodedBuffer.schar[decodedBufPos++] = sMaskCodeColorCmdENG[(
-                        (void)0,
-                        gSaveContext.save.saveInfo.spiderHouseMaskOrder[(s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
+                    msgCtx->decodedBuffer.schar[decodedBufPos++] =
+                        sMaskCodeColorCmdENG[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
+                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
                     index = sMaskCodeTextLengthESP[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
                                                                  s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
                     for (playerNameLen = 0; playerNameLen < index; playerNameLen++, decodedBufPos++) {
                         Message_LoadCharNES(
                             play,
                             sMaskCodeTextESP[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
-                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])][playerNameLen],
+                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])]
+                                            [playerNameLen],
                             &charTexIndex, &spA4, decodedBufPos);
                     }
                     break;
                 default:
-                    msgCtx->decodedBuffer.schar[decodedBufPos++] = sMaskCodeColorCmdENG[(
-                        (void)0,
-                        gSaveContext.save.saveInfo.spiderHouseMaskOrder[(s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
+                    msgCtx->decodedBuffer.schar[decodedBufPos++] =
+                        sMaskCodeColorCmdENG[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
+                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
                     index = sMaskCodeTextLengthENG[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
                                                                  s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])];
                     for (playerNameLen = 0; playerNameLen < index; playerNameLen++, decodedBufPos++) {
                         Message_LoadCharNES(
                             play,
                             sMaskCodeTextENG[((void)0, gSaveContext.save.saveInfo.spiderHouseMaskOrder[(
-                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])][playerNameLen],
+                                                           s16)(curChar - MESSAGE_SPIDER_HOUSE_MASK_CODE_1)])]
+                                            [playerNameLen],
                             &charTexIndex, &spA4, decodedBufPos);
                     }
                     break;
