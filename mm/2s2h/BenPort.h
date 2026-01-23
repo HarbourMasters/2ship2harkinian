@@ -14,7 +14,8 @@
 
 #define MM_NTSC_US_10 0x5354631C
 #define MM_NTSC_US_GC 0xB443EB08
-#define MM_NTSC_PAL_GC 0x6AECEC4F
+#define MM_PAL_11 0x0A5D8F83
+#define MM_PAL_GC 0x6AECEC4F
 
 #ifdef __cplusplus
 #include <ship/Context.h>

@@ -31,7 +31,9 @@ const char* GetGameVersionString() {
             return "MM-US 1.0";
         case MM_NTSC_US_GC:
             return "MM-US GC";
-        case MM_NTSC_PAL_GC:
+        case MM_PAL_11:
+            return "MM-PAL 1.1";
+        case MM_PAL_GC:
             return "MM-PAL GC";
         default:
             return "UNKNOWN";

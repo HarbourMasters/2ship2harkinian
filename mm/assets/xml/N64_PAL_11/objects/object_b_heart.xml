@@ -1,4 +1,4 @@
-﻿<Root>
+<Root>
     <!-- Unused Heart Container -->
     <File Name="object_b_heart" Segment="6">
         <DList Name="gUnusedHeartContainerDL" Offset="0x240" />

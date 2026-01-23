@@ -1,4 +1,4 @@
-<Root>
+﻿<Root>
     <!-- Assets for Barten, the Milk Bar Bartender -->
     <File Name="object_tab" Segment="6">
         <Animation Name="gBartenIdleAnim" Offset="0x758" /> <!-- Original name is "tab_wait01" -->
