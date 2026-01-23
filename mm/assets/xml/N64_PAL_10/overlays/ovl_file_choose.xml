@@ -1,19 +1,21 @@
 <Root>
-    <File Name="ovl_file_choose" BaseAddress="0x80804030" RangeStart="0x10FF0" RangeEnd="0x11470">
-        <Array Name="D_80814F70_cp0" Count="24" Offset="0x10FF0" Static="Off">
+    <File Name="ovl_file_choose" BaseAddress="0x80804030" RangeStart="0x11310" RangeEnd="0x11950">
+        <Array Name="D_808153B0_np1" Count="28" Offset="0x11310" Static="Off">
             <Vtx/>
         </Array>
-        <Array Name="D_80813F30_GC" Count="24" Offset="0x11170" Static="Off">
+        <Array Name="D_80813F30" Count="32" Offset="0x114D0" Static="Off">
             <Vtx/>
         </Array>
-        <Array Name="D_80813EB0_GC" Count="8" Offset="0x112F0" Static="Off">
+        <Array Name="D_80813EB0_GC" Count="8" Offset="0x116D0" Static="Off">
             <Vtx/>
         </Array>
-        <Array Name="gOptionsDividerVtx" Count="12" Offset="0x11370" Static="Off">
+        <Array Name="gOptionsDividerVtx" Count="12" Offset="0x11750" Static="Off">
             <Vtx/>
         </Array>
-        <!-- UB? This appears to be a separate array being used as a Vtx -->
-        <Array Name="D_808153B0_cp0" Count="4" Offset="0x11430" Static="Off">
+        <Array Name="D_808158B0_np1" Count="4" Offset="0x11810" Static="Off">
+            <Vtx/>
+        </Array>
+        <Array Name="D_808158F0_np1" Count="16" Offset="0x11850" Static="Off">
             <Vtx/>
         </Array>
     </File>

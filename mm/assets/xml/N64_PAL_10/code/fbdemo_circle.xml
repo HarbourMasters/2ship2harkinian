@@ -1,5 +1,5 @@
 <Root>
-    <File Name="code" OutName="fbdemo_circle" BaseAddress="0x800A5FE0" RangeStart="0x120AA0" RangeEnd="0x1212A0">
-        <Texture Name="gCircleTex" Format="i4" Width="64" Height="64" Offset="0x120AA0"/>
+    <File Name="code" OutName="fbdemo_circle" BaseAddress="0x800A5D60" RangeStart="0x120980" RangeEnd="0x121180">
+        <Texture Name="gCircleTex" Format="i4" Width="64" Height="64" Offset="0x120980"/>
     </File>
 </Root>

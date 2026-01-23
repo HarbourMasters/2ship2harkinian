@@ -41,6 +41,16 @@ static const ALIGN_ASSET(2) char D_808153B0_cp0[] = dD_808153B0_cp0;
 #define dD_80814F70_cp0 "__OTR__overlays/ovl_file_choose/D_80814F70_cp0"
 static const ALIGN_ASSET(2) char D_80814F70_cp0[] = dD_80814F70_cp0;
 
+// N64 PAL
+#define dD_808153B0_np1 "__OTR__overlays/ovl_file_choose/D_808153B0_np1"
+static const ALIGN_ASSET(2) char D_808153B0_np1[] = dD_808153B0_np1;
+
+#define dD_808158B0_np1 "__OTR__overlays/ovl_file_choose/D_808158B0_np1"
+static const ALIGN_ASSET(2) char D_808158B0_np1[] = dD_808158B0_np1;
+
+#define dD_808158F0_np1 "__OTR__overlays/ovl_file_choose/D_808158F0_np1"
+static const ALIGN_ASSET(2) char D_808158F0_np1[] = dD_808158F0_np1;
+
 // #endregion
 
 #endif // OVERLAYS_OVL_FILE_CHOOSE_H

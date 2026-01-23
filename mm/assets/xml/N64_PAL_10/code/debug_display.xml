@@ -1,29 +1,29 @@
 <Root>
-    <File Name="code" BaseAddress="0x800A5FE0" RangeStart="0x1150A0" RangeEnd="0x115B60" OutName="debug_display">
-        <Array Name="sDebugDisplay1Vtx" Count="36" Offset="0x1150A0">
+    <File Name="code" BaseAddress="0x800A5D60" RangeStart="0x114F80" RangeEnd="0x115A40" OutName="debug_display">
+        <Array Name="sDebugDisplay1Vtx" Count="36" Offset="0x114F80">
             <Vtx/>
         </Array>
-        <DList Name="sDebugDisplay1DL" Offset="0x1152E0"/>
+        <DList Name="sDebugDisplay1DL" Offset="0x1151C0"/>
 
-        <Array Name="sDebugDisplay2Vtx" Count="8" Offset="0x115340">
+        <Array Name="sDebugDisplay2Vtx" Count="8" Offset="0x115220">
             <Vtx/>
         </Array>
-        <DList Name="sDebugDisplay2DL" Offset="0x1153C0"/>
+        <DList Name="sDebugDisplay2DL" Offset="0x1152A0"/>
 
-        <Array Name="sDebugDisplay3Vtx" Count="40" Offset="0x115410">
+        <Array Name="sDebugDisplay3Vtx" Count="40" Offset="0x1152F0">
             <Vtx/>
         </Array>
-        <DList Name="sDebugDisplay3DL" Offset="0x115690"/>
+        <DList Name="sDebugDisplay3DL" Offset="0x115570"/>
 
-        <Texture Name="sDebugDisplayCircleTex" OutName="debug_circle" Format="i8" Width="16" Height="16" Offset="0x115708"/>
-        <Texture Name="sDebugDisplayBallTex" OutName="debug_ball" Format="i8" Width="16" Height="16" Offset="0x115808"/>
-        <Texture Name="sDebugDisplayCursorTex" OutName="debug_cursor" Format="i8" Width="16" Height="16" Offset="0x115908"/>
-        <Texture Name="sDebugDisplayCrossTex" OutName="debug_cross" Format="i8" Width="16" Height="16" Offset="0x115A08"/>
+        <Texture Name="sDebugDisplayCircleTex" OutName="debug_circle" Format="i8" Width="16" Height="16" Offset="0x1155E8"/>
+        <Texture Name="sDebugDisplayBallTex" OutName="debug_ball" Format="i8" Width="16" Height="16" Offset="0x1156E8"/>
+        <Texture Name="sDebugDisplayCursorTex" OutName="debug_cursor" Format="i8" Width="16" Height="16" Offset="0x1157E8"/>
+        <Texture Name="sDebugDisplayCrossTex" OutName="debug_cross" Format="i8" Width="16" Height="16" Offset="0x1158E8"/>
 
-        <Array Name="sDebugDisplaySpriteVtx" Count="4" Offset="0x115B08">
+        <Array Name="sDebugDisplaySpriteVtx" Count="4" Offset="0x1159E8">
             <Vtx/>
         </Array>
-        <DList Name="sDebugDisplaySpriteDL" Offset="0x115B48"/>
+        <DList Name="sDebugDisplaySpriteDL" Offset="0x115A28"/>
 
     </File>
 </Root>
