@@ -154,7 +154,6 @@ void DrawPicto(s16 sp2CC) {
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_DECALRGBA, G_CC_DECALRGBA);
 
     // Calling invalidate twice because I couldn't cast as a u16*
-    gSPInvalidateTexCache(OVERLAY_DISP++, (uintptr_t)(gSaveContext.shipSaveContext.pictoPhotoRGBA) + (0x500 * sp2CC));
     gSPInvalidateTexCache(OVERLAY_DISP++, (uintptr_t)(gSaveContext.shipSaveContext.pictoPhotoRGBA) + (0xA00 * sp2CC));
     gDPLoadTextureBlock(OVERLAY_DISP++, (u16*)(gSaveContext.shipSaveContext.pictoPhotoRGBA) + (0x500 * sp2CC),
                         G_IM_FMT_RGBA, G_IM_SIZ_16b, PICTO_PHOTO_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
