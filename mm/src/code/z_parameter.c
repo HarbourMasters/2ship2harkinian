@@ -3956,7 +3956,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
             // #endregion
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
-        } else if (play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON) {
+        } else if (GameInteractor_Should(VB_PICTO_ACTIVATE, play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON)) {
             // Related to pictograph
             if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
                 Interface_SetBButtonInterfaceDoAction(play, DO_ACTION_STOP);

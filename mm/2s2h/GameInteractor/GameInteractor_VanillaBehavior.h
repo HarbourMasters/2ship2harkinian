@@ -1421,6 +1421,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON
+    // ```
+    // #### `args`
+    // - None
+    VB_PICTO_ACTIVATE,
+
+    // #### `result`
+    // ```c
     // true
     // ```
     // #### `args`

@@ -170,9 +170,12 @@ void RegisterColorPictograph() {
         }
     });
 
-    COND_HOOK(OnSaveLoad, true, [](s16 fileNum) {
-        fileNumber = fileNum + 1;
-        LoadPictoPNG();
+    COND_HOOK(OnSaveLoad, true, [](s16 fileNum) { fileNumber = fileNum + 1; });
+
+    COND_VB_SHOULD(VB_PICTO_ACTIVATE, CVAR, {
+        if (*should) {
+            LoadPictoPNG();
+        }
     });
 }
 
