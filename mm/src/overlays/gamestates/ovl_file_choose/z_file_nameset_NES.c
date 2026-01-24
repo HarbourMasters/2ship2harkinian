@@ -11,6 +11,7 @@
 #include "overlays/ovl_file_choose/ovl_file_choose.h"
 #include "BenPort.h"
 #include "2s2h/BenGui/CosmeticEditor.h"
+#include "libultraship/bridge/consolevariablebridge.h"
 
 void FileSelect_DrawTexQuadI4(GraphicsContext* gfxCtx, TexturePtr texture, s16 point) {
     OPEN_DISPS(gfxCtx);
@@ -890,7 +891,20 @@ void FileSelect_UpdateOptionsMenu(GameState* thisx) {
                 gSaveContext.options.audioSetting = SAVE_AUDIO_SURROUND;
             }
         } else {
-            gSaveContext.options.zTargetSetting ^= 1;
+            if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL &&
+                ResourceMgr_GetGamePlatform(0) == GAME_PLATFORM_N64) {
+                if (sSelectedSetting == FS_SETTING_ZTARGET) {
+                    gSaveContext.options.zTargetSetting ^= 1;
+                } else {
+                    gSaveContext.options.language--;
+                    if (gSaveContext.options.language <= LANGUAGE_JPN) {
+                        gSaveContext.options.language = LANGUAGE_SPA;
+                    }
+                    CVarSetInteger("gSettings.Language", gSaveContext.options.language);
+                }
+            } else {
+                gSaveContext.options.zTargetSetting ^= 1;
+            }
         }
     } else if (this->stickAdjX > 30) {
         Audio_PlaySfx(NA_SE_SY_FSEL_CURSOR);
@@ -901,18 +915,57 @@ void FileSelect_UpdateOptionsMenu(GameState* thisx) {
                 gSaveContext.options.audioSetting = SAVE_AUDIO_STEREO;
             }
         } else {
-            gSaveContext.options.zTargetSetting ^= 1;
+            if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL &&
+                ResourceMgr_GetGamePlatform(0) == GAME_PLATFORM_N64) {
+                if (sSelectedSetting == FS_SETTING_ZTARGET) {
+                    gSaveContext.options.zTargetSetting ^= 1;
+                } else {
+                    gSaveContext.options.language++;
+                    if (gSaveContext.options.language > LANGUAGE_SPA) {
+                        gSaveContext.options.language = LANGUAGE_ENG;
+                    }
+                    CVarSetInteger("gSettings.Language", gSaveContext.options.language);
+                }
+            } else {
+                gSaveContext.options.zTargetSetting ^= 1;
+            }
         }
     }
 
-    if ((this->stickAdjY < -30) || (this->stickAdjY > 30)) {
-        Audio_PlaySfx(NA_SE_SY_FSEL_CURSOR);
-        sSelectedSetting ^= 1;
-        return;
-    }
-    if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
-        Audio_PlaySfx(NA_SE_SY_FSEL_DECIDE_L);
-        sSelectedSetting ^= 1;
+    if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL && ResourceMgr_GetGamePlatform(0) == GAME_PLATFORM_N64) {
+        if (this->stickAdjY < -30) {
+            Audio_PlaySfx(NA_SE_SY_FSEL_CURSOR);
+            sSelectedSetting++;
+            if (sSelectedSetting > FS_SETTING_LANGUAGE) {
+                sSelectedSetting = FS_SETTING_AUDIO;
+            }
+            return;
+        }
+        if (this->stickAdjY > 30) {
+            Audio_PlaySfx(NA_SE_SY_FSEL_CURSOR);
+            sSelectedSetting--;
+            if (sSelectedSetting > FS_SETTING_LANGUAGE) {
+                sSelectedSetting = FS_SETTING_LANGUAGE;
+            }
+            return;
+        }
+        if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
+            Audio_PlaySfx(NA_SE_SY_FSEL_DECIDE_L);
+            sSelectedSetting++;
+            if (sSelectedSetting > FS_SETTING_LANGUAGE) {
+                sSelectedSetting = FS_SETTING_AUDIO;
+            }
+        }
+    } else {
+        if ((this->stickAdjY < -30) || (this->stickAdjY > 30)) {
+            Audio_PlaySfx(NA_SE_SY_FSEL_CURSOR);
+            sSelectedSetting ^= 1;
+            return;
+        }
+        if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
+            Audio_PlaySfx(NA_SE_SY_FSEL_DECIDE_L);
+            sSelectedSetting ^= 1;
+        }
     }
 }
 
@@ -985,7 +1038,10 @@ OptionsMenuTextureInfoPAL gOptionsMenuHeadersGCPAL[] = {
 OptionsMenuTextureInfoPAL gOptionsMenuHeadersPAL[] = {
     { { gFileSelOptionsGCENGTex, gFileSelOptionsGCGERTex, gFileSelOptionsGCFRATex, gFileSelOptionsGCESPTex }, 128, 16 },
     { { gFileSelSoundGCENGTex, gFileSelSoundGCGERTex, gFileSelSoundGCFRATex, gFileSelSoundGCESPTex }, 64, 16 },
-    { { gFileSelTargetingGCPALENGTex, gFileSelTargetingGCGERTex, gFileSelTargetingGCFRATex, gFileSelTargetingGCESPTex },
+    { { gFileSelTargetingPALENGTex, gFileSelTargetingGERTex, gFileSelTargetingFRATex, gFileSelTargetingESPTex },
+      64,
+      16 },
+    { { gFileSelLanguageGCFRATex, gFileSelLanguageGCGERTex, gFileSelLanguageGCENGTex, gFileSelLanguageGCESPTex },
       64,
       16 },
     { { gFileSelCheckBrightnessGCPALENGTex, gFileSelCheckBrightnessGCGERTex, gFileSelCheckBrightnessGCFRATex,

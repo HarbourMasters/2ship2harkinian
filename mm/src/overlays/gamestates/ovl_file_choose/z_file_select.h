@@ -161,7 +161,8 @@ typedef enum {
 
 typedef enum {
     /* 0 */ FS_SETTING_AUDIO,
-    /* 1 */ FS_SETTING_ZTARGET
+    /* 1 */ FS_SETTING_ZTARGET,
+    /* 2 */ FS_SETTING_LANGUAGE
 } SettingIndex;
 
 typedef enum {

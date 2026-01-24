@@ -776,6 +776,19 @@ static const ALIGN_ASSET(2) char gFileSelMASKSESPTex[] = dgFileSelMASKSESPTex;
 #define dgFileSelLanguageHighlightTex "__OTR__misc/title_static/gFileSelLanguageHighlightTex"
 static const ALIGN_ASSET(2) char gFileSelLanguageHighlightTex[] = dgFileSelLanguageHighlightTex;
 
+// N64 PAL
+#define dgFileSelTargetingFRATex "__OTR__misc/title_static/gFileSelTargetingFRATex"
+static const ALIGN_ASSET(2) char gFileSelTargetingFRATex[] = dgFileSelTargetingFRATex;
+
+#define dgFileSelTargetingGERTex "__OTR__misc/title_static/gFileSelTargetingGERTex"
+static const ALIGN_ASSET(2) char gFileSelTargetingGERTex[] = dgFileSelTargetingGERTex;
+
+#define dgFileSelTargetingPALENGTex "__OTR__misc/title_static/gFileSelTargetingPALENGTex"
+static const ALIGN_ASSET(2) char gFileSelTargetingPALENGTex[] = dgFileSelTargetingPALENGTex;
+
+#define dgFileSelTargetingESPTex "__OTR__misc/title_static/gFileSelTargetingESPTex"
+static const ALIGN_ASSET(2) char gFileSelTargetingESPTex[] = dgFileSelTargetingESPTex;
+
 // #endregion
 
 #endif // MISC_TITLE_STATIC_H

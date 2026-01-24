@@ -168,11 +168,10 @@
         <Texture Name="gFileSelSwitchGCENGTex" OutName="switch_eng" Format="ia4" Width="48" Height="16" Offset="0x20AD0"/>
         <Texture Name="gFileSelSwitchGCESPTex" OutName="switch_esp" Format="ia4" Width="48" Height="16" Offset="0x20C50"/>
 
-        <!-- Note: Uses "L" Targeting -->
-        <Texture Name="gFileSelTargetingGCFRATex" OutName="targeting_gc_fra" Format="ia4" Width="64" Height="16" Offset="0x20DD0"/>
-        <Texture Name="gFileSelTargetingGCGERTex" OutName="targeting_gc_ger" Format="ia4" Width="144" Height="16" Offset="0x20FD0"/>
-        <Texture Name="gFileSelTargetingGCPALENGTex" OutName="targeting_gc_eng_pal" Format="ia4" Width="64" Height="16" Offset="0x21450"/>
-        <Texture Name="gFileSelTargetingGCESPTex" OutName="targeting_gc_esp" Format="ia4" Width="144" Height="16" Offset="0x21650"/>
+        <Texture Name="gFileSelTargetingFRATex" OutName="targeting_fra" Format="ia4" Width="64" Height="16" Offset="0x20DD0"/>
+        <Texture Name="gFileSelTargetingGERTex" OutName="targeting_ger" Format="ia4" Width="144" Height="16" Offset="0x20FD0"/>
+        <Texture Name="gFileSelTargetingPALENGTex" OutName="targeting_eng_pal" Format="ia4" Width="64" Height="16" Offset="0x21450"/>
+        <Texture Name="gFileSelTargetingESPTex" OutName="targeting_esp" Format="ia4" Width="144" Height="16" Offset="0x21650"/>
 
         <Texture Name="gFileSelOptionsDividerTex" OutName="options_divider" Format="ia4" Width="256" Height="2" Offset="0x21AD0"/>
         <Texture Name="gFileSelBrightnessCheckTex" OutName="brightness_check" Format="ia4" Width="96" Height="16" Offset="0x21BD0"/>
