@@ -141,11 +141,6 @@ void ConvertImage(u16* destI, u16* srcRgba16, s32 rgba16Width, s32 pixelLeft, s3
         }
     }
 
-    nlohmann::json image = nlohmann::json::array();
-
-    for (auto i = 0; i < std::size(gSaveContext.shipSaveContext.pictoPhotoRGBA); i++) {
-        image.push_back(gSaveContext.shipSaveContext.pictoPhotoRGBA[i]);
-    }
 
     // Probably don't need to do this everytime, just on Save (specifically owl save)
     SavePictoPng();
