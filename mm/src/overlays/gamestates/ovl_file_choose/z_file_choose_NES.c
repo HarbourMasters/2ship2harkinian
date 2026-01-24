@@ -1688,6 +1688,9 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
     s16 quadVtxIndex;
 
     OPEN_DISPS(this->state.gfxCtx);
+    if (GameInteractor_Should(VB_DRAW_HASH, false)) {
+        return;
+    }
 
     // draw title label
     gDPPipeSync(POLY_OPA_DISP++);
