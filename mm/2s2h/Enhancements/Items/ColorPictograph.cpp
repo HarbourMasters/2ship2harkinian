@@ -17,6 +17,7 @@ extern "C" {
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 static s16 fileNumber = 1;
+static u16 pictoPhotoRGBABuffer[PICTO_PHOTO_SIZE];
 
 void SavePictoPng() {
     const int width = PICTO_PHOTO_WIDTH;
@@ -51,11 +52,8 @@ void SavePictoPng() {
     std::vector<uint8_t> buffer(width * height * 4);
 
     for (int i = 0; i < width * height; ++i) {
-        uint16_t px = gSaveContext.shipSaveContext.pictoPhotoRGBA[i];
-
-        // fix endianness so png looks good
+        uint16_t px = pictoPhotoRGBABuffer[i];
         px = (px >> 8) | (px << 8);
-
         buffer[i * 4 + 0] = ((px >> 11) & 0x1F) << 3; // R
         buffer[i * 4 + 1] = ((px >> 6) & 0x1F) << 3;  // G
         buffer[i * 4 + 2] = ((px >> 1) & 0x1F) << 3;  // B
@@ -79,8 +77,7 @@ void LoadPictoPNG() {
 
     FILE* fp = fopen(path.c_str(), "rb");
     if (!fp) {
-        std::memset(gSaveContext.shipSaveContext.pictoPhotoRGBA, 0,
-                    sizeof(gSaveContext.shipSaveContext.pictoPhotoRGBA));
+        std::memset(pictoPhotoRGBABuffer, 0, sizeof(pictoPhotoRGBABuffer));
         return;
     }
 
@@ -118,10 +115,8 @@ void LoadPictoPNG() {
         uint8_t g = buffer[i * 4 + 1] >> 3;
         uint8_t b = buffer[i * 4 + 2] >> 3;
         uint8_t a = buffer[i * 4 + 3] ? 1 : 0;
-
-        // More endianness stuff to check
         uint16_t px = (r << 11) | (g << 6) | (b << 1) | a;
-        gSaveContext.shipSaveContext.pictoPhotoRGBA[i] = (px >> 8) | (px << 8);
+        pictoPhotoRGBABuffer[i] = (px >> 8) | (px << 8);
     }
 
     png_destroy_read_struct(&png, &info, nullptr);
@@ -130,9 +125,6 @@ void LoadPictoPNG() {
 
 void ConvertImage(u16* destI, u16* srcRgba16, s32 rgba16Width, s32 pixelLeft, s32 pixelTop, s32 pixelRight,
                   s32 pixelBottom) {
-
-    // not sure if best way to do this
-    // also not sure if/how endianness needs to be handled for cross-platform
     for (int i = pixelTop; i <= pixelBottom; i++) {
         for (int j = pixelLeft; j <= pixelRight; j++) {
             u16 px = srcRgba16[i * rgba16Width + j];
@@ -140,7 +132,6 @@ void ConvertImage(u16* destI, u16* srcRgba16, s32 rgba16Width, s32 pixelLeft, s3
             destI[(i - pixelTop) * PICTO_PHOTO_WIDTH + (j - pixelLeft)] = px;
         }
     }
-
 
     // Probably don't need to do this everytime, just on Save (specifically owl save)
     SavePictoPng();
@@ -153,11 +144,10 @@ void DrawPicto(s16 sp2CC) {
     // Get rid of Sepia tone from prior gDPSetPrimColor call
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_DECALRGBA, G_CC_DECALRGBA);
 
-    // Calling invalidate twice because I couldn't cast as a u16*
-    gSPInvalidateTexCache(OVERLAY_DISP++, (uintptr_t)(gSaveContext.shipSaveContext.pictoPhotoRGBA) + (0xA00 * sp2CC));
-    gDPLoadTextureBlock(OVERLAY_DISP++, (u16*)(gSaveContext.shipSaveContext.pictoPhotoRGBA) + (0x500 * sp2CC),
-                        G_IM_FMT_RGBA, G_IM_SIZ_16b, PICTO_PHOTO_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+    gSPInvalidateTexCache(OVERLAY_DISP++, (uintptr_t)(pictoPhotoRGBABuffer) + (0xA00 * sp2CC));
+    gDPLoadTextureBlock(OVERLAY_DISP++, (u16*)(pictoPhotoRGBABuffer) + (0x500 * sp2CC), G_IM_FMT_RGBA, G_IM_SIZ_16b,
+                        PICTO_PHOTO_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                        G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
@@ -165,8 +155,8 @@ void DrawPicto(s16 sp2CC) {
 void RegisterColorPictograph() {
     COND_VB_SHOULD(VB_PICTO_TAKE, true /*maybe cvar?*/, {
         PreRender* prerender = va_arg(args, PreRender*);
-        ConvertImage(gSaveContext.shipSaveContext.pictoPhotoRGBA, prerender->fbufSave, SCREEN_WIDTH,
-                     PICTO_PHOTO_TOPLEFT_X, PICTO_PHOTO_TOPLEFT_Y, (PICTO_PHOTO_TOPLEFT_X + PICTO_PHOTO_WIDTH) - 1,
+        ConvertImage(pictoPhotoRGBABuffer, prerender->fbufSave, SCREEN_WIDTH, PICTO_PHOTO_TOPLEFT_X,
+                     PICTO_PHOTO_TOPLEFT_Y, (PICTO_PHOTO_TOPLEFT_X + PICTO_PHOTO_WIDTH) - 1,
                      (PICTO_PHOTO_TOPLEFT_Y + PICTO_PHOTO_HEIGHT) - 1);
     });
 
@@ -174,7 +164,7 @@ void RegisterColorPictograph() {
         s16 sp2CC = va_arg(args, s16);
 
         // might need something better to check for existance
-        if (gSaveContext.shipSaveContext.pictoPhotoRGBA[0] != 0) {
+        if (pictoPhotoRGBABuffer[0] != 0) {
             DrawPicto(sp2CC);
             *should = false;
         }
