@@ -3,6 +3,7 @@
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/BenGui/HudEditor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/ObjectExtension/ObjectExtension.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
@@ -10,7 +11,6 @@ extern "C" {
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "assets/objects/object_gi_bomb_1/object_gi_bomb_1.h"
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
-void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction);
 }
 
 #define CVAR_NAME "gEnhancements.Equipment.BombArrows"
@@ -20,61 +20,34 @@ void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int ind
 #define BOMB_ARROW_IS_SET(arrow) (((arrow)->actor.home.rot.x & BOMB_ARROW_FLAG) != 0)
 #define BOMB_ARROW_SET(arrow) ((arrow)->actor.home.rot.x |= BOMB_ARROW_FLAG)
 
-struct BombGiFlashDl {
+struct BombArrowData {
+    std::vector<Gfx> clonedGfx;
     s32 primIdx = -1;
     s32 envIdx = -1;
-    bool indicesFound = false;
+    f32 flashBrightness = 0.0f;
 };
 
-static BombGiFlashDl sBombGiFlash;
-static f32 sBombArrowFlashBrightness = 0.0f;
+static ObjectExtension::Register<BombArrowData> BombArrowDataRegister;
 
-static void UpdateBombGiFlashColors(PlayState* play) {
-    if (!sBombGiFlash.indicesFound) {
-        Gfx* dl = ResourceMgr_LoadGfxByName(gGiBombDL);
-        if (dl != nullptr) {
-            // Scan for SetPrimColor and SetEnvColor with the bomb's base colors
-            for (s32 i = 0; i < 256; i++) {
-                if ((dl[i].words.w0 >> 24) == G_ENDDL) {
-                    break;
-                }
-
-                u8 opcode = (u8)(dl[i].words.w0 >> 24);
-                u32 rgba = dl[i].words.w1;
-                u8 r = (rgba >> 24) & 0xFF;
-                u8 g = (rgba >> 16) & 0xFF;
-
-                if (opcode == G_SETPRIMCOLOR && sBombGiFlash.primIdx < 0) {
-                    if (r == 0x00 && g == 0x3C) {
-                        sBombGiFlash.primIdx = i;
-                    }
-                } else if (opcode == G_SETENVCOLOR && sBombGiFlash.envIdx < 0) {
-                    if (r == 0x00 && g == 0x14) {
-                        sBombGiFlash.envIdx = i;
-                    }
-                }
-            }
-        }
-        sBombGiFlash.indicesFound = true;
+static void UpdateBombArrowFlash(PlayState* play, BombArrowData* data) {
+    if (data == nullptr) {
+        return;
     }
 
     bool blink = (play->gameplayFrames & 8) != 0;
     if (blink) {
-        Math_ApproachF(&sBombArrowFlashBrightness, 140.0f, 1.0f, 20.0f);
+        Math_ApproachF(&data->flashBrightness, 140.0f, 1.0f, 20.0f);
     } else {
-        Math_ApproachZeroF(&sBombArrowFlashBrightness, 1.0f, 20.0f);
+        Math_ApproachZeroF(&data->flashBrightness, 1.0f, 20.0f);
     }
 
-    u8 colorIdx = (u8)sBombArrowFlashBrightness;
+    u8 colorIdx = (u8)data->flashBrightness;
 
-    // Patch the display list colors
-    if (sBombGiFlash.primIdx >= 0) {
-        Gfx primColorGfx = gsDPSetPrimColor(0, 0, colorIdx, 0, 40, 255);
-        ResourceMgr_PatchGfxByName(gGiBombDL, "bombArrowPrimColor", sBombGiFlash.primIdx, primColorGfx);
+    if (data->primIdx >= 0) {
+        data->clonedGfx[data->primIdx] = gsDPSetPrimColor(0, 0, colorIdx, 0, 40, 255);
     }
-    if (sBombGiFlash.envIdx >= 0) {
-        Gfx envColorGfx = gsDPSetEnvColor(colorIdx, 0, 40, 255);
-        ResourceMgr_PatchGfxByName(gGiBombDL, "bombArrowEnvColor", sBombGiFlash.envIdx, envColorGfx);
+    if (data->envIdx >= 0) {
+        data->clonedGfx[data->envIdx] = gsDPSetEnvColor(colorIdx, 0, 40, 255);
     }
 }
 
@@ -309,7 +282,36 @@ static void BombArrow_OnInit(Actor* actor) {
     BOMB_ARROW_SET(arrow);
     Inventory_ChangeAmmo(ITEM_BOMB, -1);
 
-    actor->category = ACTORCAT_EXPLOSIVES;
+    // Initialise extra data for this actor
+    BombArrowData data;
+
+    Gfx* originalDl = ResourceMgr_LoadGfxByName(gGiBombDL);
+    if (originalDl != nullptr) {
+        // Clone the display list
+        for (s32 i = 0; i < 256; i++) {
+            data.clonedGfx.push_back(originalDl[i]);
+            if ((originalDl[i].words.w0 >> 24) == G_ENDDL) {
+                break;
+            }
+
+            u8 opcode = (u8)(originalDl[i].words.w0 >> 24);
+            u32 rgba = originalDl[i].words.w1;
+            u8 r = (rgba >> 24) & 0xFF;
+            u8 g = (rgba >> 16) & 0xFF;
+
+            if (opcode == G_SETPRIMCOLOR && data.primIdx < 0) {
+                if (r == 0x00 && g == 0x3C) {
+                    data.primIdx = i;
+                }
+            } else if (opcode == G_SETENVCOLOR && data.envIdx < 0) {
+                if (r == 0x00 && g == 0x14) {
+                    data.envIdx = i;
+                }
+            }
+        }
+    }
+
+    ObjectExtension::GetInstance().Set<BombArrowData>(actor, std::move(data));
 }
 
 static void BombArrow_OnUpdate(Actor* actor) {
@@ -384,7 +386,12 @@ static void BombArrow_OnDraw(Actor* actor) {
         return;
     }
 
-    UpdateBombGiFlashColors(gPlayState);
+    auto data = ObjectExtension::GetInstance().Get<BombArrowData>(actor);
+    if (data == nullptr) {
+        return;
+    }
+
+    UpdateBombArrowFlash(gPlayState, data);
 
     OPEN_DISPS(gPlayState->state.gfxCtx);
 
@@ -401,7 +408,7 @@ static void BombArrow_OnDraw(Actor* actor) {
 
     MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
 
-    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gGiBombDL);
+    gSPDisplayList(POLY_OPA_DISP++, data->clonedGfx.data());
 
     Matrix_Pop();
 
