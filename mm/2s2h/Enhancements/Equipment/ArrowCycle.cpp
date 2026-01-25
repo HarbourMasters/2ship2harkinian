@@ -15,6 +15,7 @@ s32 Player_UpperAction_8(Player* thisx, PlayState* play);
 
 #define CVAR_NAME "gEnhancements.PlayerActions.ArrowCycle"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
+#define BOMB_ARROW_CVAR_NAME "gEnhancements.Equipment.BombArrows"
 
 // Magic arrow costs based on z_player.c
 static const s16 sMagicArrowCosts[] = { 4, 4, 8 };
@@ -54,6 +55,33 @@ static bool IsHoldingMagicBow(Player* player) {
 static bool IsAimingBow(Player* player) {
     return IsHoldingBow(player) && ((player->unk_AA5 == PLAYER_UNKAA5_3) || /* Aiming box in first person */
                                     (player->upperActionFunc == Player_UpperAction_7) /* Arrow pulled back on bow */);
+}
+
+static bool IsBombArrowEnhancementEnabled() {
+    return CVarGetInteger(BOMB_ARROW_CVAR_NAME, 0);
+}
+
+static bool HasBombArrows() {
+    return IsBombArrowEnhancementEnabled() && (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB);
+}
+
+static bool IsBombArrowButton(const Player* player) {
+    if (!IsBombArrowEnhancementEnabled() || player->heldItemButton < 0) {
+        return false;
+    }
+
+    if (IS_HELD_DPAD(player->heldItemButton)) {
+        s32 dpadSlot = HELD_ITEM_TO_DPAD(player->heldItemButton);
+
+        return (DPAD_BUTTON_ITEM_EQUIP(0, dpadSlot) == ITEM_BOW) && (DPAD_SLOT_EQUIP(0, dpadSlot) == SLOT_BOMB);
+    }
+
+    if (player->heldItemButton == EQUIP_SLOT_B) {
+        return false;
+    }
+
+    EquipSlot slot = (EquipSlot)player->heldItemButton;
+    return (BUTTON_ITEM_EQUIP(0, slot) == ITEM_BOW) && (C_SLOT_EQUIP(0, slot) == SLOT_BOMB);
 }
 
 static bool HasArrowType(PlayerItemAction arrowType) {
@@ -97,7 +125,7 @@ static bool CanCycleArrows() {
 
     return !gHorseIsMounted && player->rideActor == NULL && INV_CONTENT(SLOT_BOW) == ITEM_BOW &&
            (INV_CONTENT(ITEM_ARROW_FIRE) == ITEM_ARROW_FIRE || INV_CONTENT(ITEM_ARROW_ICE) == ITEM_ARROW_ICE ||
-            INV_CONTENT(ITEM_ARROW_LIGHT) == ITEM_ARROW_LIGHT);
+            INV_CONTENT(ITEM_ARROW_LIGHT) == ITEM_ARROW_LIGHT || HasBombArrows());
 }
 
 // Arrow Cycling Logic
@@ -118,6 +146,25 @@ static s8 GetNextArrowType(s8 currentArrowType) {
     }
 
     return ARROW_NORMAL;
+}
+
+static s8 GetNextArrowTypeWithBomb(Player* player, bool* nextIsBombArrow) {
+    *nextIsBombArrow = false;
+
+    if (!HasBombArrows()) {
+        return GetNextArrowType(player->heldItemAction);
+    }
+
+    if (IsBombArrowButton(player)) {
+        return ARROW_NORMAL;
+    }
+
+    s8 nextArrowType = GetNextArrowType(player->heldItemAction);
+    if (nextArrowType == ARROW_NORMAL) {
+        *nextIsBombArrow = true;
+    }
+
+    return nextArrowType;
 }
 
 // UI Update Functions
@@ -220,9 +267,45 @@ static void UpdateEquippedBow(PlayState* play, s8 arrowType) {
     UpdateFlashEffect(play);
 }
 
+static void UpdateEquippedBowWithBomb(PlayState* play, s8 arrowType, bool isBombArrow) {
+    if (!isBombArrow) {
+        UpdateEquippedBow(play, arrowType);
+        return;
+    }
+
+    s32 bowItem = ITEM_BOW;
+
+    for (s32 i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
+        if ((BUTTON_ITEM_EQUIP(0, i) == ITEM_BOW) ||
+            (BUTTON_ITEM_EQUIP(0, i) >= ITEM_BOW_FIRE && BUTTON_ITEM_EQUIP(0, i) <= ITEM_BOW_LIGHT)) {
+            BUTTON_ITEM_EQUIP(0, i) = bowItem;
+            C_SLOT_EQUIP(0, i) = SLOT_BOMB;
+            Interface_LoadItemIcon(play, i);
+            gSaveContext.buttonStatus[i] = BTN_ENABLED;
+            sButtonFlashTimer = BUTTON_FLASH_DURATION;
+            sButtonFlashCount = 0;
+        }
+    }
+
+    for (s32 i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++) {
+        if ((DPAD_BUTTON_ITEM_EQUIP(0, i) == ITEM_BOW) ||
+            (DPAD_BUTTON_ITEM_EQUIP(0, i) >= ITEM_BOW_FIRE && DPAD_BUTTON_ITEM_EQUIP(0, i) <= ITEM_BOW_LIGHT)) {
+            DPAD_BUTTON_ITEM_EQUIP(0, i) = bowItem;
+            DPAD_SLOT_EQUIP(0, i) = SLOT_BOMB;
+            Interface_Dpad_LoadItemIcon(play, i);
+            gSaveContext.shipSaveContext.dpad.status[i] = BTN_ENABLED;
+            sButtonFlashTimer = BUTTON_FLASH_DURATION;
+            sButtonFlashCount = 0;
+        }
+    }
+
+    UpdateFlashEffect(play);
+}
+
 // Core Arrow Cycling Function
 static void CycleToNextArrow(PlayState* play, Player* player) {
-    s8 nextArrow = GetNextArrowType(player->heldItemAction);
+    bool nextIsBombArrow = false;
+    s8 nextArrow = GetNextArrowTypeWithBomb(player, &nextIsBombArrow);
 
     if (player->heldActor != NULL && player->heldActor->id == ACTOR_EN_ARROW) {
         EnArrow* arrow = (EnArrow*)player->heldActor;
@@ -235,7 +318,7 @@ static void CycleToNextArrow(PlayState* play, Player* player) {
     }
 
     Player_InitItemAction(play, player, static_cast<PlayerItemAction>(nextArrow));
-    UpdateEquippedBow(play, nextArrow);
+    UpdateEquippedBowWithBomb(play, nextArrow, nextIsBombArrow);
     Audio_PlaySfx(NA_SE_PL_CHANGE_ARMS);
 }
 
