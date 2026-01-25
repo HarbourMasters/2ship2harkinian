@@ -778,7 +778,8 @@ void func_801491DC(PlayState* play) {
         if (msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] <= 0) {
             msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] = 5;
         }
-        msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] = msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + '0';
+        msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] =
+            msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + '0';
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX],
                          MSGCTX_UNK120C4 + (MSGCTX_INPUT_DIGIT_INDEX << 7));
         if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
@@ -789,7 +790,8 @@ void func_801491DC(PlayState* play) {
         if (msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] > 5) {
             msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] = 1;
         }
-        msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] = msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + '0';
+        msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] =
+            msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + '0';
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX],
                          MSGCTX_UNK120C4 + (MSGCTX_INPUT_DIGIT_INDEX << 7));
         if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
@@ -825,7 +827,8 @@ void func_80149454(PlayState* play) {
         if (msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] < 0) {
             msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] = 9;
         }
-        msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] = msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + '0';
+        msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] =
+            msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + '0';
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX],
                          MSGCTX_UNK120C4 + (MSGCTX_INPUT_DIGIT_INDEX << 7));
         if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
@@ -836,7 +839,8 @@ void func_80149454(PlayState* play) {
         if (msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] > 9) {
             msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] = 0;
         }
-        msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] = msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + '0';
+        msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] =
+            msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + '0';
         Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX],
                          MSGCTX_UNK120C4 + (MSGCTX_INPUT_DIGIT_INDEX << 7));
         if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
@@ -872,7 +876,8 @@ void func_801496C8(PlayState* play) {
         if (msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] < 0) {
             msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] = 3;
         }
-        msgCtx->decodedBuffer.wchar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] = msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + 0x824F;
+        msgCtx->decodedBuffer.wchar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] =
+            msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + 0x824F;
         Font_LoadChar(play, msgCtx->decodedBuffer.wchar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX],
                       MSGCTX_UNK120C4 + (MSGCTX_INPUT_DIGIT_INDEX << 7));
         if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
@@ -883,7 +888,8 @@ void func_801496C8(PlayState* play) {
         if (msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] >= 4) {
             msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] = 0;
         }
-        msgCtx->decodedBuffer.wchar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] = msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + 0x824F;
+        msgCtx->decodedBuffer.wchar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX] =
+            msgCtx->codeGuessDigits[MSGCTX_INPUT_DIGIT_INDEX] + 0x824F;
         Font_LoadChar(play, msgCtx->decodedBuffer.wchar[MSGCTX_CODE_BUFFER_OFFSET + MSGCTX_INPUT_DIGIT_INDEX],
                       MSGCTX_UNK120C4 + (MSGCTX_INPUT_DIGIT_INDEX << 7));
         if (GameInteractor_Should(VB_MSG_PLAY_INPUT_COUNT_SOUND, true)) {
