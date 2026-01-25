@@ -1040,7 +1040,7 @@ void EnFz_DrawEffects(EnFz* this, PlayState* play) {
 
     for (i = 0; i < ARRAY_COUNT(this->effects); i++, effect++) {
         if (effect->type > FZ_EFFECT_DISABLED) {
-            FrameInterpolation_RecordOpenChild(ptr, i);
+            FrameInterpolation_RecordOpenChild(effect, i);
             gDPPipeSync(POLY_XLU_DISP++);
 
             if (materialLoaded == false) {
@@ -1053,7 +1053,8 @@ void EnFz_DrawEffects(EnFz* this, PlayState* play) {
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 195, 225, 235, effect->primAlpha);
             gSPSegment(POLY_XLU_DISP++, 0x08,
                        Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, (effect->timer + (i * 3)) * 3,
-                                        (effect->timer + (i * 3)) * 15, 0x20, 0x40, 1, 0, 0, 0x20, 0x20, 3, 15, 0, 0));
+                                          (effect->timer + (i * 3)) * 15, 0x20, 0x40, 1, 0, 0, 0x20, 0x20, 3, 15, 0,
+                                          0));
 
             Matrix_Translate(effect->pos.x, effect->pos.y, effect->pos.z, MTXMODE_NEW);
             Matrix_ReplaceRotation(&play->billboardMtxF);

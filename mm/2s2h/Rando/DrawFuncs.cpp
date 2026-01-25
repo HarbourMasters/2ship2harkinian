@@ -580,7 +580,7 @@ extern void DrawFreezard() {
                       PRIMITIVE, ENVIRONMENT, COMBINED, ENVIRONMENT, COMBINED, 0, ENVIRONMENT, 0);
     gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x80, 155, 255, 255, 255);
     gDPSetEnvColor(POLY_XLU_DISP++, 200, 200, 200, 255);
-    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)object_fz_DL_001130);
+    gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gFreezardBodyIntactDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
     DrawEnLight({ 155, 155, 155 }, { 20.0f, 20.0f, 20.0f });

@@ -25,8 +25,8 @@ typedef struct {
 } DListPatchInfo;
 
 static DListPatchInfo freezardBodyDListPatchInfos[] = {
-    { object_fz_DL_001130, 5 }, { object_fz_DL_0021A0, 5 }, { object_fz_DL_002CA0, 5 },
-    { object_fz_DL_003260, 5 }, { object_fz_DL_0033F0, 5 },
+    { gFreezardBodyIntactDL, 5 }, { gFreezardBodyHornBrokenDL, 5 }, { gFreezardBodyHeadBrokenDL, 5 },
+    { gFreezardIceSpikeDL, 5 },   { gFreezardIceChunkDL, 5 },
 };
 
 static DListPatchInfo ironKnuckleDListPatchInfos[] = {
