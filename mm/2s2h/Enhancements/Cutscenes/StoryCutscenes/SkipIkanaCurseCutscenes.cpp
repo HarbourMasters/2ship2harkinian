@@ -111,7 +111,7 @@ void RegisterSkipIkanaCurseCutscenes() {
             enPoComposer->visible = true;
             enPoComposer->lightColor.a = 255;
             EnPoComposer_SetupPlayCurse(enPoComposer);
-            SET_WEEKEVENTREG(WEEKEVENTREG_14_02); // Have encountered Sharp
+            SET_WEEKEVENTREG(WEEKEVENTREG_SHARP_HOSTILE_CONVERSATION);
         }
     });
 
@@ -126,7 +126,7 @@ void RegisterSkipIkanaCurseCutscenes() {
                 .transitionTrigger = TRANS_TRIGGER_START,
                 .transitionType = TRANS_TYPE_INSTANT,
             });
-            SET_WEEKEVENTREG(WEEKEVENTREG_14_04); // Healed Sharp
+            SET_WEEKEVENTREG(WEEKEVENTREG_IKANA_SPRING_RESTORED);
             *should = false;
         }
     });
