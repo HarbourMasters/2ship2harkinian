@@ -637,7 +637,7 @@ const std::vector<FlagTable> flagTables = {
           { SCENE_RESET, WEEKEVENTREG_73_10, "Bombers Hide & Seek in Progress (Deku Link)" },
           { CYCLE_RESET, WEEKEVENTREG_73_20, "Completed Bombers Hide & Seek?" },
           { CYCLE_RESET, WEEKEVENTREG_73_40, "" },
-          { CYCLE_RESET, WEEKEVENTREG_73_80, "Entered Bomber's Code" },
+          { CYCLE_RESET, WEEKEVENTREG_ENTERED_BOMBERS_CODE, "Entered Bomber's Code" },
           { CYCLE_RESET, WEEKEVENTREG_74_01, "Spoke to Bomber #2 As Deku Once" },
           { CYCLE_RESET, WEEKEVENTREG_74_02, "Spoke to Bomber #3 As Deku Once" },
           { CYCLE_RESET, WEEKEVENTREG_74_04, "Spoke to Bomber #4 As Deku Once" },

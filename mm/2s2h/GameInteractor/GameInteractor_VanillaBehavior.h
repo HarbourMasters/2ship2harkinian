@@ -122,7 +122,7 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // CHECK_WEEKEVENTREG(WEEKEVENTREG_73_80) && !CHECK_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK)
+    // CHECK_WEEKEVENTREG(WEEKEVENTREG_ENTERED_BOMBERS_CODE) && !CHECK_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK)
     // ```
     // #### `args`
     // - `*EnBomBowlMan` (unused)

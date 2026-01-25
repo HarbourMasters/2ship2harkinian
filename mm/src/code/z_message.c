@@ -3259,7 +3259,8 @@ void Message_SetTextboxColor(PlayState* play) {
     if (gTextBoxBackgroundTypes[textBoxType] != TEXTBOX_BG_NONE) {
         // #region 2S2H [Port]
         // DmaMgr_SendRequest0(msgCtx->textboxSegment,
-        //                    SEGMENT_ROM_START(message_static) + gTextBoxBackgroundTypes[textBoxType] * 0x1000, 0x1000);
+        //                    SEGMENT_ROM_START(message_static) + gTextBoxBackgroundTypes[textBoxType] * 0x1000,
+        //                    0x1000);
         msgCtx->textboxSegment[TEXTBOX_SEG_TYPE] = gMessageBackgrounds[gTextBoxBackgroundTypes[textBoxType]];
         // #endregion
 
@@ -3528,8 +3529,8 @@ void Message_PauseMenu_ShowDescription(PlayState* play, u16 textId, u8 textBoxPo
     msgCtx->unk11F0C = msgCtx->unk11F08 & 0xF;
     msgCtx->textUnskippable = true;
     // #region 2S2H [Port]
-    // DmaMgr_SendRequest0(msgCtx->textboxSegment, SEGMENT_ROM_START(message_static) + (gTextBoxBackgroundTypes[0] * 0x1000),
-    // 0x1000);
+    // DmaMgr_SendRequest0(msgCtx->textboxSegment, SEGMENT_ROM_START(message_static) + (gTextBoxBackgroundTypes[0] *
+    // 0x1000), 0x1000);
     msgCtx->textboxSegment[TEXTBOX_SEG_TYPE] = gMessageBackgrounds[gTextBoxBackgroundTypes[0]];
     // #endregion
     msgCtx->textboxColorRed = 0;
