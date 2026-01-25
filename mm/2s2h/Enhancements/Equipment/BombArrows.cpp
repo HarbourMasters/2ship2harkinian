@@ -1,9 +1,4 @@
 #include <libultraship/bridge/consolevariablebridge.h>
-#include <algorithm>
-#include <cmath>
-#include <cstdint>
-#include <cstdlib>
-#include <cstring>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/BenGui/HudEditor.h"
@@ -13,9 +8,10 @@ extern "C" {
 #include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
 #include "overlays/actors/ovl_En_Bom/z_en_bom.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
-}
-
 #include "assets/objects/object_gi_bomb_1/object_gi_bomb_1.h"
+Gfx* ResourceMgr_LoadGfxByName(const char* path);
+void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction);
+}
 
 #define CVAR_NAME "gEnhancements.Equipment.BombArrows"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
@@ -24,113 +20,61 @@ extern "C" {
 #define BOMB_ARROW_IS_SET(arrow) (((arrow)->actor.home.rot.x & BOMB_ARROW_FLAG) != 0)
 #define BOMB_ARROW_SET(arrow) ((arrow)->actor.home.rot.x |= BOMB_ARROW_FLAG)
 
-extern "C" Gfx* ResourceMgr_LoadGfxByName(const char* path);
-
 struct BombGiFlashDl {
-    Gfx* dl = nullptr;
-    size_t length = 0;
-    size_t primIdx[8]{};
-    size_t primCount = 0;
-    size_t envIdx[8]{};
-    size_t envCount = 0;
+    s32 primIdx = -1;
+    s32 envIdx = -1;
+    bool indicesFound = false;
 };
 
 static BombGiFlashDl sBombGiFlash;
-
-static size_t FindDlLength(const Gfx* dl) {
-    for (size_t i = 0; i < 4096; i++) {
-        u8 opcode = (u8)(dl[i].words.w0 >> 24);
-        if (opcode == 0xDF) { // G_ENDDL
-            return i + 1;
-        }
-    }
-    return 0;
-}
-
-static u8 GetR(u32 rgba) {
-    return (u8)(rgba >> 24);
-}
-static u8 GetG(u32 rgba) {
-    return (u8)(rgba >> 16);
-}
-static u8 GetB(u32 rgba) {
-    return (u8)(rgba >> 8);
-}
-static u32 PackRGBA(u8 r, u8 g, u8 b, u8 a = 255) {
-    return ((u32)r << 24) | ((u32)g << 16) | ((u32)b << 8) | (u32)a;
-}
-
-static Gfx* GetBombGiFlashDl() {
-    if (sBombGiFlash.dl != nullptr) {
-        return sBombGiFlash.dl;
-    }
-
-    Gfx* original = ResourceMgr_LoadGfxByName(gGiBombDL);
-    if (original == nullptr) {
-        return nullptr;
-    }
-
-    size_t length = FindDlLength(original);
-    if (length == 0) {
-        return nullptr;
-    }
-
-    Gfx* copy = (Gfx*)std::malloc(sizeof(Gfx) * length);
-    if (copy == nullptr) {
-        return nullptr;
-    }
-
-    std::memcpy(copy, original, sizeof(Gfx) * length);
-
-    constexpr u8 kBasePrimR = 0x00, kBasePrimG = 0x3C, kBasePrimB = 0x50;
-    constexpr u8 kBaseEnvR = 0x00, kBaseEnvG = 0x14, kBaseEnvB = 0x28;
-
-    for (size_t i = 0; i < length; i++) {
-        u8 opcode = (u8)(copy[i].words.w0 >> 24);
-        if (opcode == 0xFA) { // gDPSetPrimColor
-            u32 rgba = copy[i].words.w1;
-            if (GetR(rgba) == kBasePrimR && GetG(rgba) == kBasePrimG && GetB(rgba) == kBasePrimB &&
-                sBombGiFlash.primCount < (sizeof(sBombGiFlash.primIdx) / sizeof(sBombGiFlash.primIdx[0]))) {
-                sBombGiFlash.primIdx[sBombGiFlash.primCount++] = i;
-            }
-        } else if (opcode == 0xFB) { // gDPSetEnvColor
-            u32 rgba = copy[i].words.w1;
-            if (GetR(rgba) == kBaseEnvR && GetG(rgba) == kBaseEnvG && GetB(rgba) == kBaseEnvB &&
-                sBombGiFlash.envCount < (sizeof(sBombGiFlash.envIdx) / sizeof(sBombGiFlash.envIdx[0]))) {
-                sBombGiFlash.envIdx[sBombGiFlash.envCount++] = i;
-            }
-        }
-    }
-
-    sBombGiFlash.dl = copy;
-    sBombGiFlash.length = length;
-    return sBombGiFlash.dl;
-}
+static f32 sBombArrowFlashBrightness = 0.0f;
 
 static void UpdateBombGiFlashColors(PlayState* play) {
-    if (sBombGiFlash.dl == nullptr) {
-        return;
+    if (!sBombGiFlash.indicesFound) {
+        Gfx* dl = ResourceMgr_LoadGfxByName(gGiBombDL);
+        if (dl != nullptr) {
+            // Scan for SetPrimColor and SetEnvColor with the bomb's base colors
+            for (s32 i = 0; i < 256; i++) {
+                if ((dl[i].words.w0 >> 24) == G_ENDDL) {
+                    break;
+                }
+
+                u8 opcode = (u8)(dl[i].words.w0 >> 24);
+                u32 rgba = dl[i].words.w1;
+                u8 r = (rgba >> 24) & 0xFF;
+                u8 g = (rgba >> 16) & 0xFF;
+
+                if (opcode == G_SETPRIMCOLOR && sBombGiFlash.primIdx < 0) {
+                    if (r == 0x00 && g == 0x3C) {
+                        sBombGiFlash.primIdx = i;
+                    }
+                } else if (opcode == G_SETENVCOLOR && sBombGiFlash.envIdx < 0) {
+                    if (r == 0x00 && g == 0x14) {
+                        sBombGiFlash.envIdx = i;
+                    }
+                }
+            }
+        }
+        sBombGiFlash.indicesFound = true;
     }
 
-    const float t = 0.5f + 0.5f * Math_SinS(play->gameplayFrames * 7000);
-    auto lerp8 = [&](int a, int b) -> u8 { return (u8)std::clamp((int)std::lround(a + (b - a) * t), 0, 255); };
-
-    const u8 primR = lerp8(0x00, 0xFF);
-    const u8 primG = lerp8(0x3C, 0x28);
-    const u8 primB = lerp8(0x50, 0x00);
-
-    const u8 envR = lerp8(0x00, 0x7F);
-    const u8 envG = 0x14;
-    const u8 envB = lerp8(0x28, 0x00);
-
-    const u32 primRGBA = PackRGBA(primR, primG, primB);
-    const u32 envRGBA = PackRGBA(envR, envG, envB);
-
-    for (size_t i = 0; i < sBombGiFlash.primCount; i++) {
-        sBombGiFlash.dl[sBombGiFlash.primIdx[i]].words.w1 = primRGBA;
+    bool blink = (play->gameplayFrames & 8) != 0;
+    if (blink) {
+        Math_ApproachF(&sBombArrowFlashBrightness, 140.0f, 1.0f, 20.0f);
+    } else {
+        Math_ApproachZeroF(&sBombArrowFlashBrightness, 1.0f, 20.0f);
     }
-    for (size_t i = 0; i < sBombGiFlash.envCount; i++) {
-        sBombGiFlash.dl[sBombGiFlash.envIdx[i]].words.w1 = envRGBA;
+
+    u8 colorIdx = (u8)sBombArrowFlashBrightness;
+
+    // Patch the display list colors
+    if (sBombGiFlash.primIdx >= 0) {
+        Gfx primColorGfx = gsDPSetPrimColor(0, 0, colorIdx, 0, 40, 255);
+        ResourceMgr_PatchGfxByName(gGiBombDL, "bombArrowPrimColor", sBombGiFlash.primIdx, primColorGfx);
+    }
+    if (sBombGiFlash.envIdx >= 0) {
+        Gfx envColorGfx = gsDPSetEnvColor(colorIdx, 0, 40, 255);
+        ResourceMgr_PatchGfxByName(gGiBombDL, "bombArrowEnvColor", sBombGiFlash.envIdx, envColorGfx);
     }
 }
 
@@ -341,7 +285,6 @@ static void RegisterBombArrowPauseEquip() {
     });
 }
 
-// Hook helpers for bomb arrows
 static void BombArrow_OnInit(Actor* actor) {
     if (gPlayState == nullptr) {
         return;
@@ -365,6 +308,8 @@ static void BombArrow_OnInit(Actor* actor) {
 
     BOMB_ARROW_SET(arrow);
     Inventory_ChangeAmmo(ITEM_BOMB, -1);
+
+    actor->category = ACTORCAT_EXPLOSIVES;
 }
 
 static void BombArrow_OnUpdate(Actor* actor) {
@@ -381,27 +326,38 @@ static void BombArrow_OnUpdate(Actor* actor) {
     // Keep fuse loop playing while drawn/in flight
     Actor_PlaySfx(actor, NA_SE_IT_BOMB_IGNIT - SFX_FLAG);
 
-    Vec3f fusePos;
-    Vec3f fuseVel = { 0.001f, 0.001f, 0.001f }; // fuse spread
-    Vec3f fuseAccel = { 0.1f, 0.1f, 0.1f };
-
+    Vec3f effectPos;
     Matrix_Push();
     Matrix_SetTranslateRotateYXZ(actor->world.pos.x, actor->world.pos.y + (actor->shape.yOffset * actor->scale.y),
                                  actor->world.pos.z, &actor->shape.rot);
     Matrix_Scale(actor->scale.x, actor->scale.y, actor->scale.z, MTXMODE_APPLY);
     Matrix_Translate(0.0f, 0.0f, 1000.0f, MTXMODE_APPLY);
-    Vec3f fuseLocal = { 50.0f, 300.0f, 0.0f }; // fuse position
-    Matrix_MultVec3f(&fuseLocal, &fusePos);
+    Matrix_Scale(10.0f, 10.0f, 10.0f, MTXMODE_APPLY);
+    Vec3f effectLocal = { 0.0f, 31.0f, 0.0f }; // fuse position
+    Matrix_MultVec3f(&effectLocal, &effectPos);
     Matrix_Pop();
 
-    Color_RGBA8 fusePrim = { 255, 255, 150, 255 };
-    Color_RGBA8 fuseEnv = { 255, 0, 0, 0 };
-    EffectSsGSpk_SpawnAccel(gPlayState, actor, &fusePos, &fuseVel, &fuseAccel, &fusePrim, &fuseEnv, 30,
-                            1); // spark size
+    // Spawn fuse spark on even frames
+    if ((gPlayState->gameplayFrames % 2) == 0) {
+        Vec3f velocity = { 0.0f, 0.0f, 0.0f };
+        Vec3f accel = { 0.0f, 0.0f, 0.0f };
+        Color_RGBA8 prim = { 255, 255, 150, 255 };
+        Color_RGBA8 env = { 255, 0, 0, 0 };
+        EffectSsGSpk_SpawnNoAccel(gPlayState, actor, &effectPos, &velocity, &accel, &prim, &env, 30, 5);
+    }
+
+    // Spawn dust cloud
+    {
+        Vec3f velocity = { 0.0f, 0.0f, 0.0f };
+        Vec3f accel = { 0.0f, 0.2f, 0.0f };
+        Color_RGBA8 color = { 255, 255, 255, 255 };
+        func_800B0DE0(gPlayState, &effectPos, &velocity, &accel, &color, &color, 22, 3);
+    }
 
     bool hit = (arrow->collider.base.atFlags & AT_HIT) || (arrow->unk_262 != 0);
 
-    if (!hit) {
+    // Only explode on valid hits when fired
+    if (!hit || (actor->parent != NULL)) {
         return;
     }
 
@@ -428,29 +384,24 @@ static void BombArrow_OnDraw(Actor* actor) {
         return;
     }
 
+    UpdateBombGiFlashColors(gPlayState);
+
     OPEN_DISPS(gPlayState->state.gfxCtx);
 
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
 
     Matrix_Push();
 
+    // Position bomb at arrow tip
     Matrix_SetTranslateRotateYXZ(actor->world.pos.x, actor->world.pos.y + (actor->shape.yOffset * actor->scale.y),
                                  actor->world.pos.z, &actor->shape.rot);
     Matrix_Scale(actor->scale.x, actor->scale.y, actor->scale.z, MTXMODE_APPLY);
-    // bomb position relative to arrow
     Matrix_Translate(0.0f, 0.0f, 1000.0f, MTXMODE_APPLY);
-
-    // bomb scale
     Matrix_Scale(10.0f, 10.0f, 10.0f, MTXMODE_APPLY);
 
     MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
-    Gfx* dl = GetBombGiFlashDl();
-    if (dl != nullptr) {
-        UpdateBombGiFlashColors(gPlayState);
-        gSPDisplayList(POLY_OPA_DISP++, dl);
-    } else {
-        gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gGiBombDL);
-    }
+
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gGiBombDL);
 
     Matrix_Pop();
 
@@ -458,13 +409,8 @@ static void BombArrow_OnDraw(Actor* actor) {
 }
 
 static void RegisterBombArrowBehavior() {
-    // Mark arrows as bomb arrows on init and consume ammo
     COND_ID_HOOK(OnActorInit, ACTOR_EN_ARROW, CVAR, BombArrow_OnInit);
-
-    // Single update hook: spawn fuse spark and detonate on hit
     COND_ID_HOOK(OnActorUpdate, ACTOR_EN_ARROW, CVAR, BombArrow_OnUpdate);
-
-    // Draw hook: attach bomb model
     COND_ID_HOOK(OnActorDraw, ACTOR_EN_ARROW, CVAR, BombArrow_OnDraw);
 }
 
@@ -508,7 +454,6 @@ static void DrawBombArrowOverlayDpad(PlayState* play, DpadEquipSlot slot, s16 al
     s16 overlaySize = 8;
     s16 rectWidth = overlaySize;
     s16 rectHeight = overlaySize;
-    // 2S2H [Enhancement] Offset to match Fire Arrow magic position
     s16 overlayLeft = rectLeft + (baseSize - overlaySize) / 2 + 2;
     s16 overlayTop = rectTop + (baseSize - overlaySize) / 2 - 2;
     s16 dsdx = ((ICON_ITEM_TEX_WIDTH << 10) / rectWidth) >> 1;
