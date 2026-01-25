@@ -1940,7 +1940,7 @@ typedef enum {
     // true
     // ```
     // #### `args`
-    // - `*s32` (which boss remains to return, see `func_808B849C`)
+    // - `*s32` (which boss remains to return, see `DoorWarp1_GetRemains`)
     VB_SPAWN_BOSS_REMAINS,
 
     // #### `result`
