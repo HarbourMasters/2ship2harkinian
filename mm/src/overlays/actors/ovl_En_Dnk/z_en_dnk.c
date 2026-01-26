@@ -517,5 +517,5 @@ void EnDnk_UpdateCutscene(EnDnk* this, PlayState* play) {
 }
 
 void EnDnk_Reset(void) {
-    D_80A521A0 = 0;
+    sScrubCount = 0;
 }
