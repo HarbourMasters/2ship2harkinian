@@ -7,6 +7,7 @@
 #include <libultraship/bridge/consolevariablebridge.h>
 
 static MouseCoords current;
+static MouseCaptureGameState gameState;
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,36 +36,58 @@ bool Mouse_IsCaptured() {
     return Ship::Context::GetInstance()->GetWindow()->IsMouseCaptured();
 }
 
-void Mouse_UpdateCaptureByState() {
-    // checks:
-    // - forced via F2
-    // - game start (forced)
-    // - in pause (kaleido)
-    // - in menu
-    // - fullscreen mode
+void Mouse_ForceToggleCapture() {
+    if (gameState.isCaptureForced) {
+        gameState.isCaptureForced = false;
+    } else {
+        gameState.isCaptureForced = true;
+        gameState.forcedCaptureState = !Ship::Context::GetInstance()->GetWindow()->IsMouseCaptured();
+    }
+    Mouse_UpdateCaptureByState();
 }
 
-void HandlePauseCapture(PauseContext* pauseCtx) {
-    static bool buf = false;
-    static bool paused = false;
+void Mouse_UpdateCaptureByState() {
+    // checks:
+    // - [x] forced via F2
+    // - [ ] game start
+    // - [x] in pause (kaleido)
+    // - [x] in menu
+    // - [ ] fullscreen
+    // - [ ] forced on app start
+    bool capture;
+    bool inBenMenu = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible();
 
+    // FIXME: stub
+    gameState.gameStarted = true;
+
+    if (gameState.isCaptureForced) {
+        capture = gameState.forcedCaptureState;
+    } else if (Ship::Context::GetInstance()->GetWindow()->IsFullscreen()) {
+        capture = !inBenMenu;
+    } else if (inBenMenu || gameState.inKaleido) {
+        capture = false;
+    } else if (!gameState.gameStarted) {
+        capture = false;
+    } else {
+        capture = true;
+    }
+    Ship::Context::GetInstance()->GetWindow()->SetMouseCapture(capture);
+}
+
+void HandleKaleidoCapture(PauseContext* pauseCtx) {
+    bool prev = gameState.inKaleido;
     switch (pauseCtx->state) {
         case PAUSE_STATE_MAIN: {
-            if (paused) { return; }
-            paused = true;
-
-            std::shared_ptr<Ship::Window> window = Ship::Context::GetInstance()->GetWindow();
-            bool current = window->IsMouseCaptured();
-            buf = current;
-            if (current) {
-                window->SetMouseCapture(false);
-            }
-            return;
+            gameState.inKaleido = true;
+            break;
         }
-        case PAUSE_STATE_UNPAUSE_SETUP:
-            Ship::Context::GetInstance()->GetWindow()->SetMouseCapture(buf);
-            paused = false;
-            return;
+        case PAUSE_STATE_UNPAUSE_SETUP: {
+            gameState.inKaleido = false;
+            break;
+        }
+    }
+    if (prev != gameState.inKaleido) {
+        Mouse_UpdateCaptureByState();
     }
 }
 
@@ -72,7 +95,7 @@ void RegisterMouseRelatedHooks() {
     COND_HOOK(
         OnKaleidoUpdate,
         true,
-        HandlePauseCapture
+        HandleKaleidoCapture
     );
 }
 
