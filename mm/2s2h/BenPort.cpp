@@ -115,6 +115,7 @@ CrowdControl* CrowdControl::Instance;
 #include <ship/window/gui/resource/FontFactory.h>
 #include "2s2h/Enhancements/Audio/AudioCollection.h"
 #include "BenGui/BenInputEditorWindow.h"
+#include "2s2h/Enhancements/Controls/Mouse/LocalMouseCaptureManager.h"
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
@@ -173,7 +174,10 @@ OTRGlobals::OTRGlobals() {
 
     auto benInputEditorWindow = std::make_shared<BenInputEditorWindow>("gWindows.BenInputEditor", "2S2H Input Editor");
     benFast3dWindow =
-        std::make_shared<Fast::Fast3dWindow>(std::vector<std::shared_ptr<Ship::GuiWindow>>({ benInputEditorWindow }));
+        std::make_shared<Fast::Fast3dWindow>(
+            std::make_shared<Ship::Gui>(std::vector<std::shared_ptr<Ship::GuiWindow>>({ benInputEditorWindow })),
+            std::make_shared<LocalMouseCaptureManager>()
+        );
     context->InitWindow(benFast3dWindow);
 
     BenGui::SetupMenu();
