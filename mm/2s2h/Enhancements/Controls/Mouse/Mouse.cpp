@@ -118,6 +118,7 @@ void RegisterMouseRelatedHooks() {
         []() {
             if (gameState.gameStarted) {
                 gameState.gameStarted = false;
+                gameState.inKaleido = false;
                 Mouse_UpdateCaptureByState();
             }
         }
