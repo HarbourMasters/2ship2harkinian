@@ -216,6 +216,10 @@ OTRGlobals::OTRGlobals() {
             std::make_shared<LocalMouseCaptureManager>()
         );
     context->InitWindow(benFast3dWindow);
+    benFast3dWindow->SetAutoCaptureMouse(
+        CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)
+        && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1)
+    );
 
     // Override LUS defaults
     auto overlay = context->GetInstance()->GetWindow()->GetGui()->GetGameOverlay();
