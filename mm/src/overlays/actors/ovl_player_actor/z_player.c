@@ -14151,6 +14151,10 @@ s32 Player_UpperAction_ChangeHeldItem(Player* this, PlayState* play) {
         ((Player_ItemToItemAction(this, this->heldItemId) == this->heldItemAction) &&
          (sPlayerUseHeldItem = (sPlayerUseHeldItem || ((this->modelAnimType != PLAYER_ANIMTYPE_3) &&
                                                        (this->heldItemAction != PLAYER_IA_DEKU_STICK) &&
+                                                       (!CVarGetInteger("gEnhancements.Player.UnsheathWithoutSlashing", 0) ||
+                                                       (this->heldItemAction != PLAYER_IA_SWORD_KOKIRI) &&
+                                                       (this->heldItemAction != PLAYER_IA_SWORD_RAZOR) &&
+                                                       (this->heldItemAction != PLAYER_IA_SWORD_GILDED)) &&
                                                        (play->bButtonAmmoPlusOne == 0)))))) {
         Player_SetUpperAction(play, this, sItemActionUpdateFuncs[this->heldItemAction]);
         this->unk_ACC = 0;
@@ -14169,6 +14173,7 @@ s32 Player_UpperAction_ChangeHeldItem(Player* this, PlayState* play) {
 
     return true;
 }
+
 
 s32 Player_UpperAction_3(Player* this, PlayState* play) {
     PlayerAnimation_Update(play, &this->skelAnimeUpper);
