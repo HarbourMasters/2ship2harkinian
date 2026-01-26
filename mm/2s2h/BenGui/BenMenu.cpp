@@ -988,7 +988,26 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Mouse", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.Enabled")
-        .Options(CheckboxOptions().DefaultValue(false));
+        .Options(CheckboxOptions().DefaultValue(false))
+        .Callback(
+            [](WidgetInfo& info) {
+                bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
+                Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
+            }
+        );
+    AddWidget(path, "Auto Capture Mouse Input", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Camera.Mouse.AutoCapture")
+        .Callback(
+            [](WidgetInfo& info) {
+                bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
+                Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
+            }
+        ).Options(
+            CheckboxOptions().Tooltip(
+                "When Mouse Controls are enabled, this toggles whether the program will automatically "
+                "hide the cursor and capture mouse input when closing the menu."
+            )
+        );
     AddWidget(path, "Mouse Shielding Enabled", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Mouse.Shielding.Enabled")
         .Options(CheckboxOptions().DefaultValue(false))

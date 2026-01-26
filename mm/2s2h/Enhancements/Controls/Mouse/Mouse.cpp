@@ -36,9 +36,32 @@ bool Mouse_IsCaptured() {
     return Ship::Context::GetInstance()->GetWindow()->IsMouseCaptured();
 }
 
+bool InferCaptureFromState(MouseCaptureGameState state) {
+    // TODO: forced on app start?
+    bool capture;
+    bool inBenMenu = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible();
+
+    if (state.isCaptureForced) {
+        capture = state.forcedCaptureState;
+    } else if (inBenMenu || state.inKaleido) {
+        capture = false;
+    } else if (!state.gameStarted) {
+        capture = false;
+    } else {
+        capture = true;
+    }
+    return capture;
+}
+
 void Mouse_ForceToggleCapture() {
     if (gameState.isCaptureForced) {
-        gameState.isCaptureForced = false;
+        MouseCaptureGameState unforcedState = gameState;
+        unforcedState.isCaptureForced = false;
+        if (gameState.forcedCaptureState == InferCaptureFromState(unforcedState)) {
+            gameState.forcedCaptureState = !gameState.forcedCaptureState;
+        } else {
+            gameState.isCaptureForced = false;
+        }
     } else {
         gameState.isCaptureForced = true;
         gameState.forcedCaptureState = !Ship::Context::GetInstance()->GetWindow()->IsMouseCaptured();
@@ -47,31 +70,15 @@ void Mouse_ForceToggleCapture() {
 }
 
 void Mouse_UpdateCaptureByState() {
-    // checks:
-    // - [x] forced via F2
-    // - [ ] game start
-    // - [x] in pause (kaleido)
-    // - [x] in menu
-    // - [ ] fullscreen
-    // - [ ] forced on app start
-    bool capture;
-    bool inBenMenu = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible();
+    bool capture = InferCaptureFromState(gameState);
 
-    // FIXME: stub
-    gameState.gameStarted = true;
-
-    if (gameState.isCaptureForced) {
-        capture = gameState.forcedCaptureState;
-    } else if (Ship::Context::GetInstance()->GetWindow()->IsFullscreen()) {
-        capture = !inBenMenu;
-    } else if (inBenMenu || gameState.inKaleido) {
-        capture = false;
-    } else if (!gameState.gameStarted) {
-        capture = false;
-    } else {
-        capture = true;
+    if (
+        gameState.isCaptureForced
+        || !capture
+        || Ship::Context::GetInstance()->GetWindow()->GetMouseCaptureManager()->ShouldAutoCaptureMouse()
+    ) {
+        Ship::Context::GetInstance()->GetWindow()->SetMouseCapture(capture);
     }
-    Ship::Context::GetInstance()->GetWindow()->SetMouseCapture(capture);
 }
 
 void HandleKaleidoCapture(PauseContext* pauseCtx) {
@@ -96,6 +103,22 @@ void RegisterMouseRelatedHooks() {
         OnKaleidoUpdate,
         true,
         HandleKaleidoCapture
+    );
+    COND_HOOK(
+        OnSaveLoad,
+        true,
+        [](s16 fileNum) {
+            gameState.gameStarted = true;
+            Mouse_UpdateCaptureByState();
+        }
+    );
+    COND_HOOK(
+        OnConsoleLogoUpdate,
+        true,
+        []() {
+            gameState.gameStarted = false;
+            Mouse_UpdateCaptureByState();
+        }
     );
 }
 
