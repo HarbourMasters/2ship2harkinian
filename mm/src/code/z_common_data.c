@@ -6,6 +6,7 @@
 #include "z64environment.h"
 #include "z64transition.h"
 #include <string.h>
+#include <libultraship/bridge/audiobridge.h>
 
 SaveContext gSaveContext ALIGNED(16);
 
@@ -26,6 +27,6 @@ void SaveContext_Init(void) {
     gSaveContext.prevHudVisibility = HUD_VISIBILITY_ALL;
 
     gSaveContext.options.language = LANGUAGE_ENG;
-    gSaveContext.options.audioSetting = SAVE_AUDIO_STEREO;
+    gSaveContext.options.audioSetting = (GetAudioChannels() == audioMatrix51) ? SAVE_AUDIO_SURROUND : SAVE_AUDIO_STEREO;
     gSaveContext.options.zTargetSetting = 0;
 }

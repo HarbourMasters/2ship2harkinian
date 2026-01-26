@@ -6115,6 +6115,10 @@ void Audio_SetFileSelectSettings(s8 audioSetting) {
     // Dynamically switch audio backend between stereo and 5.1 surround
     SetAudioChannels(channelsSetting);
 
+    // Save audio channel setting so it persists across game launches
+    CVarSetInteger("gAudioChannelsSetting", channelsSetting);
+    CVarSave();
+
     SEQCMD_SET_SOUND_MODE(soundMode);
 }
 

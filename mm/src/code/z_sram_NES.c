@@ -8,6 +8,7 @@
 #include "2s2h/Enhancements/Saving/SavingEnhancements.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include <libultraship/bridge/audiobridge.h>
 
 void Sram_SyncWriteToFlash(SramContext* sramCtx, s32 curPage, s32 numPages);
 void func_80147414(SramContext* sramCtx, s32 fileNum, s32 arg2);
@@ -1774,10 +1775,13 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                                           gFlashSaveNumPages[sp64 + FLASH_SAVE_BACKUP_OFFSET]);
                 }
             } else {
+                // Get default audio setting from config
+                s8 defaultAudioSetting = (GetAudioChannels() == audioMatrix51) ? SAVE_AUDIO_SURROUND : SAVE_AUDIO_STEREO;
+
                 if (phi_s2) {
                     gSaveContext.options.optionId = 0xA51D;
                     gSaveContext.options.language = LANGUAGE_ENG;
-                    gSaveContext.options.audioSetting = SAVE_AUDIO_STEREO;
+                    gSaveContext.options.audioSetting = defaultAudioSetting;
                     gSaveContext.options.languageSetting = 0;
                     gSaveContext.options.zTargetSetting = 0;
                 } else {
@@ -1785,7 +1789,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                     if (gSaveContext.options.optionId != 0xA51D) {
                         gSaveContext.options.optionId = 0xA51D;
                         gSaveContext.options.language = LANGUAGE_ENG;
-                        gSaveContext.options.audioSetting = SAVE_AUDIO_STEREO;
+                        gSaveContext.options.audioSetting = defaultAudioSetting;
                         gSaveContext.options.languageSetting = 0;
                         gSaveContext.options.zTargetSetting = 0;
                     }
