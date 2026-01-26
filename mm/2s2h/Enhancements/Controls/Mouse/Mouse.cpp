@@ -116,8 +116,10 @@ void RegisterMouseRelatedHooks() {
         OnConsoleLogoUpdate,
         true,
         []() {
-            gameState.gameStarted = false;
-            Mouse_UpdateCaptureByState();
+            if (gameState.gameStarted) {
+                gameState.gameStarted = false;
+                Mouse_UpdateCaptureByState();
+            }
         }
     );
 }
