@@ -9354,28 +9354,6 @@ void func_8083C6E8(Player* this, PlayState* play) {
         }
         this->actor.focus.rot.y = this->actor.shape.rot.y;
         Math_SmoothStepToS(&this->actor.focus.rot.x, sp46, 14, 0xFA0, 30);
-
-        // wth am i doin here?
-        // FIXME: FIXMEEEEE
-        // FIXME: additional cvar check for settings
-        //if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
-        //    MouseCoords mouseDelta = Mouse_GetDelta();
-        //
-        //    if (mouseDelta.y != 0) {
-        //        this->actor.focus.rot.x += mouseDelta.y * 8;
-        //        this->actor.focus.rot.x = CLAMP(
-        //            this->actor.focus.rot.x - (
-        //                mouseDelta.y * 12.0f
-        //                * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f)
-        //                * -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y)
-        //            ),
-        //            -60 * 240,
-        //            60 * 240
-        //        );
-        //    }
-        //} else {
-        //    Math_SmoothStepToS(&this->actor.focus.rot.x, sp46, 14, 4000, 30);
-        //}
     }
 
     func_80832754(this, func_800B7128(this) || func_8082EF20(this));
@@ -10088,7 +10066,25 @@ s32 func_8083E514(Player* this, f32* arg2, s16* arg3, PlayState* play) {
         if (this->focusActor != NULL) {
             func_8083C62C(this, true);
         } else {
-            Math_SmoothStepToS(&this->actor.focus.rot.x, (sPlayerControlInput->rel.stick_y * 240.0f), 0xE, 0xFA0, 0x1E);
+            // FIXME: additional cvar check for settings
+            if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+                MouseCoords mouseDelta = Mouse_GetDelta();
+
+                if (mouseDelta.y != 0) {
+                    this->actor.focus.rot.x += mouseDelta.y * 8;
+                    this->actor.focus.rot.x = CLAMP(
+                        this->actor.focus.rot.x - (
+                            mouseDelta.y * 12.0f
+                            * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f)
+                            * -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y)
+                        ),
+                        -60 * 240,
+                        60 * 240
+                    );
+                }
+            } else {
+                Math_SmoothStepToS(&this->actor.focus.rot.x, (sPlayerControlInput->rel.stick_y * 240.0f), 0xE, 0xFA0, 0x1E);
+            }
             func_80832754(this, true);
         }
     } else {

@@ -125,8 +125,6 @@ void RegisterMouseRelatedHooks() {
     );
 }
 
-// OnGameStateMainStart (capture toggle on start?)
-
 static RegisterShipInitFunc initFunc(RegisterMouseRelatedHooks, {});
 
 #ifdef __cplusplus
