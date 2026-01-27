@@ -109,7 +109,7 @@ void RegisterSkipIkanaCurseCutscenes() {
         if (!(actor->params & 0x8000)) { // Is Sharp
             EnPoComposer* enPoComposer = (EnPoComposer*)actor;
             enPoComposer->visible = true;
-            enPoComposer->lightColor.a = 255;
+            enPoComposer->mainAlpha.a = 255;
             EnPoComposer_SetupPlayCurse(enPoComposer);
             SET_WEEKEVENTREG(WEEKEVENTREG_SHARP_HOSTILE_CONVERSATION);
         }
