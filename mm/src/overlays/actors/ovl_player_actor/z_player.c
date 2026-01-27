@@ -14152,7 +14152,7 @@ s32 Player_UpperAction_ChangeHeldItem(Player* this, PlayState* play) {
          (sPlayerUseHeldItem =
               (sPlayerUseHeldItem ||
                ((this->modelAnimType != PLAYER_ANIMTYPE_3) && (this->heldItemAction != PLAYER_IA_DEKU_STICK) &&
-                (!CVarGetInteger("gEnhancements.Player.UnsheathWithoutSlashing", 0) ||
+                (!CVarGetInteger("gEnhancements.Player.UnsheatheWithoutSlashing", 0) ||
                  (this->heldItemAction != PLAYER_IA_SWORD_KOKIRI) && (this->heldItemAction != PLAYER_IA_SWORD_RAZOR) &&
                      (this->heldItemAction != PLAYER_IA_SWORD_GILDED)) &&
                 (play->bButtonAmmoPlusOne == 0)))))) {
