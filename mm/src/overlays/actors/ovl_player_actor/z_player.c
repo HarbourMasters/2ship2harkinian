@@ -104,13 +104,13 @@ typedef enum AnimSfxType {
 #define ANIMSFX_STOP (0)
 
 #define ANIMSFX_FLAGS(type, frame, cont) \
-    (((ANIMSFX_##cont) == ANIMSFX_STOP ? -1 : 1) * (ANIMSFX_SHIFT_TYPE(type) | ((frame)&0x7FF)))
+    (((ANIMSFX_##cont) == ANIMSFX_STOP ? -1 : 1) * (ANIMSFX_SHIFT_TYPE(type) | ((frame) & 0x7FF)))
 
 #define ANIMSFX(type, frame, sfxId, cont) \
     { (sfxId), ANIMSFX_FLAGS(type, frame, cont) }
 
-#define ANIMSFX_GET_TYPE(data) ((data)&0x7800)
-#define ANIMSFX_GET_FRAME(data) ((data)&0x7FF)
+#define ANIMSFX_GET_TYPE(data) ((data) & 0x7800)
+#define ANIMSFX_GET_FRAME(data) ((data) & 0x7FF)
 
 typedef struct AnimSfxEntry {
     /* 0x0 */ u16 sfxId;
@@ -2064,7 +2064,7 @@ s32 Player_IsUsingZoraBoomerang(Player* this) {
 #define GET_ITEM(itemId, objectId, drawId, textId, field, chestAnim) \
     { itemId, field, (chestAnim != CHEST_ANIM_SHORT ? 1 : -1) * (drawId + 1), textId, objectId }
 
-#define GIFIELD_GET_DROP_TYPE(field) ((field)&0x1F)
+#define GIFIELD_GET_DROP_TYPE(field) ((field) & 0x1F)
 #define GIFIELD_20 (1 << 5)
 #define GIFIELD_40 (1 << 6)
 #define GIFIELD_NO_COLLECTIBLE (1 << 7)
@@ -14149,13 +14149,13 @@ s32 Player_UpperAction_1(Player* this, PlayState* play) {
 s32 Player_UpperAction_ChangeHeldItem(Player* this, PlayState* play) {
     if (PlayerAnimation_Update(play, &this->skelAnimeUpper) ||
         ((Player_ItemToItemAction(this, this->heldItemId) == this->heldItemAction) &&
-         (sPlayerUseHeldItem = (sPlayerUseHeldItem || ((this->modelAnimType != PLAYER_ANIMTYPE_3) &&
-                                                       (this->heldItemAction != PLAYER_IA_DEKU_STICK) &&
-                                                       (!CVarGetInteger("gEnhancements.Player.UnsheathWithoutSlashing", 0) ||
-                                                       (this->heldItemAction != PLAYER_IA_SWORD_KOKIRI) &&
-                                                       (this->heldItemAction != PLAYER_IA_SWORD_RAZOR) &&
-                                                       (this->heldItemAction != PLAYER_IA_SWORD_GILDED)) &&
-                                                       (play->bButtonAmmoPlusOne == 0)))))) {
+         (sPlayerUseHeldItem =
+              (sPlayerUseHeldItem ||
+               ((this->modelAnimType != PLAYER_ANIMTYPE_3) && (this->heldItemAction != PLAYER_IA_DEKU_STICK) &&
+                (!CVarGetInteger("gEnhancements.Player.UnsheathWithoutSlashing", 0) ||
+                 (this->heldItemAction != PLAYER_IA_SWORD_KOKIRI) && (this->heldItemAction != PLAYER_IA_SWORD_RAZOR) &&
+                     (this->heldItemAction != PLAYER_IA_SWORD_GILDED)) &&
+                (play->bButtonAmmoPlusOne == 0)))))) {
         Player_SetUpperAction(play, this, sItemActionUpdateFuncs[this->heldItemAction]);
         this->unk_ACC = 0;
         this->idleType = PLAYER_IDLE_DEFAULT;
@@ -14173,7 +14173,6 @@ s32 Player_UpperAction_ChangeHeldItem(Player* this, PlayState* play) {
 
     return true;
 }
-
 
 s32 Player_UpperAction_3(Player* this, PlayState* play) {
     PlayerAnimation_Update(play, &this->skelAnimeUpper);
