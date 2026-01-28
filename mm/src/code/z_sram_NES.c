@@ -1776,7 +1776,8 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                 }
             } else {
                 // Get default audio setting from config
-                s8 defaultAudioSetting = (GetAudioChannels() == audioMatrix51) ? SAVE_AUDIO_SURROUND : SAVE_AUDIO_STEREO;
+                s8 defaultAudioSetting =
+                    (GetAudioChannels() == audioMatrix51) ? SAVE_AUDIO_SURROUND : SAVE_AUDIO_STEREO;
 
                 if (phi_s2) {
                     gSaveContext.options.optionId = 0xA51D;

@@ -37,7 +37,7 @@
 #endif
 #include "Extractor/Extract.h"
 // OTRTODO
-//#include <functions.h>
+// #include <functions.h>
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #ifdef ENABLE_CROWD_CONTROL
@@ -211,10 +211,10 @@ OTRGlobals::OTRGlobals() {
     overlay->LoadFont("Fipps", 32.0f, "fonts/Fipps-Regular.otf");
     overlay->SetCurrentFont(CVarGetString(CVAR_GAME_OVERLAY_FONT, "Press Start 2P"));
 
-    // Read audio channel setting from CVar (audioMatrix51 = 1)
-    AudioChannelsSetting channelSetting = 
+    AudioChannelsSetting channelSetting =
         static_cast<AudioChannelsSetting>(CVarGetInteger("gAudioChannelsSetting", audioStereo));
-    context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 1680, .ChannelSetting = channelSetting });
+    context->InitAudio(
+        { .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 1680, .ChannelSetting = channelSetting });
 
     SPDLOG_INFO("Starting 2 Ship 2 Harkinian version {} (Branch: {} | Commit: {})", (char*)gBuildVersion,
                 (char*)gGitBranch, (char*)gGitCommitHash);
