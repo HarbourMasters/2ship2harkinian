@@ -56,17 +56,30 @@ static const RefillItem* GetRefillItem(s16 shopId) {
     return &sRefillItems[shopId];
 }
 
-static bool HasAnyBottle() {
-    for (int i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
-        if (gSaveContext.save.saveInfo.inventory.items[i] != ITEM_NONE) {
+static bool HasAccessToGreatBay() {
+    if (gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] == ITEM_NONE) {
+        return false;
+    }
+
+    if (CHECK_QUEST_ITEM(QUEST_SONG_EPONA)) {
+        return true;
+    }
+
+    if (CHECK_QUEST_ITEM(QUEST_SONG_SOARING)) {
+        if (GET_OWL_STATUE_ACTIVATED(OWL_WARP_GREAT_BAY_COAST)) {
+            return true;
+        }
+
+        if (GET_OWL_STATUE_ACTIVATED(OWL_WARP_ZORA_CAPE)) {
             return true;
         }
     }
     return false;
 }
 
+// Note: IsRefillAvailable checks for bottle availibility. We don't need to do that here.
 static bool HasSeahorseRequirements() {
-    if (!HasAnyBottle()) {
+    if (!HasAccessToGreatBay()) {
         return false;
     }
 
