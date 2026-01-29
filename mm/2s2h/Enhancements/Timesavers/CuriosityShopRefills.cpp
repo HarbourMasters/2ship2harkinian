@@ -56,19 +56,49 @@ static const RefillItem* GetRefillItem(s16 shopId) {
     return &sRefillItems[shopId];
 }
 
+static bool HasAnyBottle() {
+    for (int i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
+        if (gSaveContext.save.saveInfo.inventory.items[i] != ITEM_NONE) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static bool HasSeahorseRequirements() {
+    if (!HasAnyBottle()) {
+        return false;
+    }
+
+    if (gSaveContext.save.saveInfo.inventory.items[SLOT_MASK_ZORA] == ITEM_NONE) {
+        return false;
+    }
+
+    if (gSaveContext.save.saveInfo.inventory.items[SLOT_PICTOGRAPH_BOX] == ITEM_NONE) {
+        return false;
+    }
+
+    if (IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] && !Flags_GetRandoInf(RANDO_INF_OBTAINED_SWIM)) {
+        return false;
+    }
+
+    return true;
+}
+
 static bool IsRefillAvailable(const RefillItem& item) {
     // If they got it in their inventory don't even offer the thing for sale
     if (Inventory_HasItemInBottle(item.itemId)) {
         return false;
     }
 
+    if (item.itemId == ITEM_SEAHORSE) {
+        return HasSeahorseRequirements();
+    }
+
     if (IS_RANDO) {
         if (item.randoItem != RI_NONE) {
             RandoCheckId itemPlacement = Rando::FindItemPlacement(item.randoItem);
             return itemPlacement != RC_UNKNOWN && RANDO_SAVE_CHECKS[itemPlacement].obtained;
-        } else if (item.itemId == ITEM_SEAHORSE) {
-            // Seahorse doesn't have a rando item, check week event flag directly
-            return CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_SEAHORSE_HEART_PIECE);
         }
     }
 
