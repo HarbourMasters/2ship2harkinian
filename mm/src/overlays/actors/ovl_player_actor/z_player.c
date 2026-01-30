@@ -14149,13 +14149,9 @@ s32 Player_UpperAction_1(Player* this, PlayState* play) {
 s32 Player_UpperAction_ChangeHeldItem(Player* this, PlayState* play) {
     if (PlayerAnimation_Update(play, &this->skelAnimeUpper) ||
         ((Player_ItemToItemAction(this, this->heldItemId) == this->heldItemAction) &&
-         (sPlayerUseHeldItem =
-              (sPlayerUseHeldItem ||
-               ((this->modelAnimType != PLAYER_ANIMTYPE_3) && (this->heldItemAction != PLAYER_IA_DEKU_STICK) &&
-                (!CVarGetInteger("gEnhancements.Player.UnsheatheWithoutSlashing", 0) ||
-                 (this->heldItemAction != PLAYER_IA_SWORD_KOKIRI) && (this->heldItemAction != PLAYER_IA_SWORD_RAZOR) &&
-                     (this->heldItemAction != PLAYER_IA_SWORD_GILDED)) &&
-                (play->bButtonAmmoPlusOne == 0)))))) {
+         (sPlayerUseHeldItem = (sPlayerUseHeldItem ||  GameInteractor_Should(VB_USE_HELD_ITEM_AFTER_CHANGE, (this->modelAnimType != PLAYER_ANIMTYPE_3) &&
+                                                       (this->heldItemAction != PLAYER_IA_DEKU_STICK) &&
+                                                       (play->bButtonAmmoPlusOne == 0), this))))) {
         Player_SetUpperAction(play, this, sItemActionUpdateFuncs[this->heldItemAction]);
         this->unk_ACC = 0;
         this->idleType = PLAYER_IDLE_DEFAULT;
