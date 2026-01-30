@@ -8,8 +8,9 @@
 void RegisterUnsheatheWithoutSlashing() {
     COND_VB_SHOULD(VB_USE_HELD_ITEM_AFTER_CHANGE, CVAR, {
         Player* player = va_arg(args, Player*);
-        if ((player->heldItemAction == PLAYER_IA_SWORD_KOKIRI) || (player->heldItemAction == PLAYER_IA_SWORD_RAZOR) ||
-            (player->heldItemAction == PLAYER_IA_SWORD_GILDED)) {
+        ItemId heldItemId = static_cast<ItemId>(player->heldItemId);
+        if ((heldItemId == ITEM_SWORD_KOKIRI) || (heldItemId == ITEM_SWORD_RAZOR) ||
+            (heldItemId == ITEM_SWORD_GILDED)) {
             *should = false;
         }
     });
