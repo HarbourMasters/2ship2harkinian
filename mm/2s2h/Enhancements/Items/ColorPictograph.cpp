@@ -132,9 +132,6 @@ void ConvertImage(u16* destI, u16* srcRgba16, s32 rgba16Width, s32 pixelLeft, s3
             destI[(i - pixelTop) * PICTO_PHOTO_WIDTH + (j - pixelLeft)] = px;
         }
     }
-
-    // Probably don't need to do this everytime, just on Save (specifically owl save)
-    SavePictoPng();
 }
 
 void DrawPicto(s16 sp2CC) {
@@ -153,11 +150,14 @@ void DrawPicto(s16 sp2CC) {
 }
 
 void RegisterColorPictograph() {
-    COND_VB_SHOULD(VB_PICTO_TAKE, true /*maybe cvar?*/, {
+    COND_VB_SHOULD(VB_PICTO_TAKE, true, {
         PreRender* prerender = va_arg(args, PreRender*);
         ConvertImage(pictoPhotoRGBABuffer, prerender->fbufSave, SCREEN_WIDTH, PICTO_PHOTO_TOPLEFT_X,
                      PICTO_PHOTO_TOPLEFT_Y, (PICTO_PHOTO_TOPLEFT_X + PICTO_PHOTO_WIDTH) - 1,
                      (PICTO_PHOTO_TOPLEFT_Y + PICTO_PHOTO_HEIGHT) - 1);
+        
+        // Probably don't need to do this everytime, just on Save (specifically owl save)
+        SavePictoPng();
     });
 
     COND_VB_SHOULD(VB_PICTO_DISPLAY, CVAR, {
@@ -172,7 +172,7 @@ void RegisterColorPictograph() {
 
     COND_HOOK(OnSaveLoad, true, [](s16 fileNum) { fileNumber = fileNum + 1; });
 
-    COND_VB_SHOULD(VB_PICTO_ACTIVATE, CVAR, {
+    COND_VB_SHOULD(VB_PICTO_ACTIVATE, true, {
         if (*should) {
             LoadPictoPNG();
         }
