@@ -167,8 +167,8 @@ static RegisterShipInitFunc initFunc([]() {
             EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX) && IS_DAY()),
             // Refer to z_en_suttari's damage table for more info. Damage effect 0xF stops him nonlethally, while 0xE kills.
             // FD sword beams can also kill him, but currently FD is not logically considered.
-            EVENT(RE_SAVE_BOMB_SHOP_LADY, (CAN_USE_SWORD || CAN_BE_ZORA || CAN_BE_GORON) && AT(TIME_NIGHT1_AM_12_00)),
-            EVENT(RE_KILL_SAKON, (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA || CAN_USE_EXPLOSIVE) && AT(TIME_NIGHT1_AM_12_00)),
+            EVENT(RE_SAVE_BOMB_SHOP_LADY, (CAN_USE_SWORD || CAN_BE_ZORA || CAN_BE_GORON) && CLOCK_NIGHT1() && AT(TIME_NIGHT1_AM_12_00)),
+            EVENT(RE_KILL_SAKON, (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA || CAN_USE_EXPLOSIVE) && CLOCK_NIGHT1() && AT(TIME_NIGHT1_AM_12_00)),
             // Hide and seek events
             EVENT(RE_HIDE_SEEK_DAY1, CAN_USE_PROJECTILE && FIRST_DAY()),
             EVENT(RE_HIDE_SEEK_DAY2, CAN_USE_PROJECTILE && SECOND_DAY()),
