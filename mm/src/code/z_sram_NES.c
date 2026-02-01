@@ -2029,7 +2029,6 @@ void Sram_LoadGlobalOptions(void) {
         return;
     }
 
-    gSaveContext.options.language = LANGUAGE_ENG;
     Audio_SetFileSelectSettings(gSaveContext.options.audioSetting);
 }
 
