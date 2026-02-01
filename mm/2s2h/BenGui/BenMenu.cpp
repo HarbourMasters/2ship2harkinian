@@ -1399,6 +1399,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Enemy Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipEnemyCutscenes")
         .Options(CheckboxOptions().Tooltip("Skips cutscenes specific to enemies and boss battles."));
+    AddWidget(path, "Skip Bottle Pickup Messages", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.SkipBottlePickupMessages")
+        .Options(CheckboxOptions().Tooltip("Skip pickup messages for bottle swipes."));
     AddWidget(path, "Skip Item Get Cutscene", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Cutscenes.SkipGetItemCutscenes")
         .Options(ComboboxOptions()
@@ -1457,6 +1460,9 @@ void BenMenu::AddEnhancements() {
             "Automatically deposits excess Rupees into your bank account when your wallet is full. "
             "Deposits stop when the bank reaches maximum capacity. "
             "Bank rewards are granted automatically. Notifications display deposit amount and new balance."));
+    AddWidget(path, "Empty Bottles Faster", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterBottleEmpty")
+        .Options(CheckboxOptions().Tooltip("Speeds up emptying animation when dumping out the contents of a bottle."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };

@@ -648,6 +648,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - Player*
+    VB_EMPTYING_BOTTLE,
+
+    // #### `result`
+    // ```c
     // false
     // ```
     // #### `args`

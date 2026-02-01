@@ -18210,6 +18210,12 @@ void Player_Action_68(Player* this, PlayState* play) {
 
     if (PlayerAnimation_Update(play, &this->skelAnime)) {
         if (this->av1.actionVar1 != 0) {
+            if (CVarGetInteger("gEnhancements.Timesavers.SkipBottlePickupMessages", 0)) {
+                this->av1.actionVar1 = 0;
+                Camera_SetFinishedFlag(Play_GetCamera(play, CAM_ID_MAIN));
+                Audio_PlayFanfare(NA_BGM_GET_ITEM);
+                return;
+            }
             func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_ITEM_SHOW]);
 
             if (this->av2.actionVar2 == 0) {
@@ -18260,10 +18266,14 @@ void Player_Action_68(Player* this, PlayState* play) {
                         if (i < ARRAY_COUNT(D_8085D798)) {
                             this->av1.actionVar1 = i + 1;
                             this->av2.actionVar2 = 0;
-                            this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                            if (!CVarGetInteger("gEnhancements.Timesavers.SkipBottlePickupMessages", 0)) {
+                                this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                            }
                             interactRangeActor->parent = &this->actor;
                             Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
-                            Player_Anim_PlayOnceAdjusted(play, this, sp24->unk_4);
+                            if (!CVarGetInteger("gEnhancements.Timesavers.SkipBottlePickupMessages", 0)) {
+                                Player_Anim_PlayOnceAdjusted(play, this, sp24->unk_4);
+                            }
                         }
                     }
                 }
@@ -18380,6 +18390,9 @@ void Player_Action_70(Player* this, PlayState* play) {
     }
 
     Player_DecelerateToZero(this);
+
+    GameInteractor_Should(VB_EMPTYING_BOTTLE, true, this);
+
     func_8083249C(this);
 
     if (PlayerAnimation_Update(play, &this->skelAnime)) {
