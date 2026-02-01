@@ -153,7 +153,7 @@ static RegisterShipInitFunc initFunc([]() {
                 Must NOT have helped the Bomb Shop old lady on this cycle(Kafei does not show up if you do, as Sakon never visits the shop to be followed.)
                 Must have delivered the Letter to Kafei and met Kafei.(Sakon just does not show up otherwise, as odd as that may sound.)
             */
-            EXIT(ENTRANCE(SAKONS_HIDEOUT, 0),               ENTRANCE(IKANA_CANYON, 6), RANDO_EVENTS[RE_MEET_KAFEI] && AT(TIME_NIGHT3_PM_06_00)),
+            EXIT(ENTRANCE(SAKONS_HIDEOUT, 0),               ENTRANCE(IKANA_CANYON, 6), RANDO_EVENTS[RE_MEET_KAFEI] && CLOCK_NIGHT3() && AT(TIME_NIGHT3_PM_06_00)),
             EXIT(ENTRANCE(SECRET_SHRINE, 0),                ENTRANCE(IKANA_CANYON, 12), CAN_USE_ABILITY(SWIM)),
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 9),               ONE_WAY_EXIT, CAN_USE_ABILITY(SWIM)),
         },
