@@ -18299,10 +18299,14 @@ void Player_Action_68(Player* this, PlayState* play) {
                             if (i < ARRAY_COUNT(D_8085D798)) {
                                 this->av1.actionVar1 = i + 1;
                                 this->av2.actionVar2 = 0;
-                                this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                                if (!CVarGetInteger("gEnhancements.Timesavers.SkipBottlePickupMessages", 0)) {
+                                    this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                                }
                                 interactRangeActor->parent = &this->actor;
                                 Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
-                                Player_Anim_PlayOnceAdjusted(play, this, sp24->unk_4);
+                                if (!CVarGetInteger("gEnhancements.Timesavers.SkipBottlePickupMessages", 0)) {
+                                    Player_Anim_PlayOnceAdjusted(play, this, sp24->unk_4);
+                                }
                             }
                         }
                     }
