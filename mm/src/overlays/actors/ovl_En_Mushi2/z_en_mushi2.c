@@ -722,6 +722,12 @@ s32 func_80A6A094(EnMushi2* this) {
         ObjBean* bean = this->unk_34C;
 
         if ((bean->unk_1E4 == 2) || (bean->unk_1E4 == 1)) {
+            if (CVarGetInteger("gEnhancements.Restorations.OneBugSoftSoil", 0)) {
+                if (bean->unk_1E4 == 2 && bean->unk_1E0 < 2) {
+                    bean->unk_1E0 = 2;
+                }
+                return false;
+            }
             bean->unk_1E4 = 4;
             return true;
         }

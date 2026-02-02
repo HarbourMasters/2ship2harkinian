@@ -1545,6 +1545,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Restorations.BonkCollision")
         .Options(
             CheckboxOptions().Tooltip("Corrects rolls to allow bonking trees near the end of the roll, as in OoT."));
+    AddWidget(path, "Soft Soil Skulltulas only require one bug", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Restorations.OneBugSoftSoil")
+        .Options(CheckboxOptions().Tooltip(
+            "Soft Soil Golden Skulltulas only require one bug to spawn, matching OoT behavior.\n\n"
+            "This allows rebottling one of the bugs while still spawning the Skulltula."));
     AddWidget(path, "Simulated Input Lag", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_SIMULATED_INPUT_LAG)
         .Options(IntSliderOptions()
