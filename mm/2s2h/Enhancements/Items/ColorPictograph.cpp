@@ -155,7 +155,7 @@ void RegisterColorPictograph() {
         ConvertImage(pictoPhotoRGBABuffer, prerender->fbufSave, SCREEN_WIDTH, PICTO_PHOTO_TOPLEFT_X,
                      PICTO_PHOTO_TOPLEFT_Y, (PICTO_PHOTO_TOPLEFT_X + PICTO_PHOTO_WIDTH) - 1,
                      (PICTO_PHOTO_TOPLEFT_Y + PICTO_PHOTO_HEIGHT) - 1);
-        
+
         // Probably don't need to do this everytime, just on Save (specifically owl save)
         SavePictoPng();
     });
