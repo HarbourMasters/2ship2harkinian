@@ -350,6 +350,8 @@ void RegisterShoulds() {
             return;
         }
 
+        DrawSeedHashSprites();
+
         SetRandSaveTypeVtxData();
 
         OPEN_DISPS(gFileSelectState->state.gfxCtx);
@@ -399,8 +401,6 @@ void RegisterShoulds() {
             *should = false;
         }
     });
-
-    REGISTER_VB_SHOULD(VB_DRAW_FILE_SELECT_HASH, { DrawSeedHashSprites(); });
 }
 
 // Doesn't really look great yet, but the start to how we will augment the file select screen for rando saves

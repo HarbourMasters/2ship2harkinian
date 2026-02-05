@@ -476,14 +476,6 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // false
-    // ```
-    // #### `args`
-    // - None
-    VB_DRAW_FILE_SELECT_HASH,
-
-    // #### `result`
-    // ```c
     // true
     // ```
     // #### `args`
