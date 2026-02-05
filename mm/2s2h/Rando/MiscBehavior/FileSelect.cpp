@@ -1,7 +1,6 @@
 #include "MiscBehavior.h"
 #include "Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h_assets.h"
-#include <spdlog/spdlog.h>
 
 extern "C" {
 #include "z64save.h"
