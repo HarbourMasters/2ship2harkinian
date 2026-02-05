@@ -253,7 +253,7 @@ s16 gOcarinaSongItemMap[] = {
 #include "prevent_bss_reordering.h"
 s32 sCharTexSize;
 s32 sCharTexScale;
-s32 D_801F6B08;
+s32 sItemIconTexScale;
 
 s16 sOcarinaButtonAPrimR;
 s16 sOcarinaButtonAPrimB;
@@ -946,18 +946,18 @@ s16 sTextboxHeight = 64;
 s16 sTextboxTexWidth = 1024;
 s16 sTextboxTexHeight = 1024;
 
-f32 D_801CFDA4[] = { 0.6f, 0.75f, 0.9f, 1.0f, 1.05f, 1.1f, 1.05f, 1.0f, 1.0f };
-f32 D_801CFDC8[] = { 0.6f, 0.75f, 0.9f, 1.0f, 1.05f, 1.1f, 1.05f, 1.0f, 1.0f };
+f32 sTextboxGrowingWidthScale[] = { 0.6f, 0.75f, 0.9f, 1.0f, 1.05f, 1.1f, 1.05f, 1.0f, 1.0f };
+f32 sTextboxGrowingHeightScale[] = { 0.6f, 0.75f, 0.9f, 1.0f, 1.05f, 1.1f, 1.05f, 1.0f, 1.0f };
 
 // resizes textboxes when opening them
 void Message_GrowTextbox(PlayState* play) {
     MessageContext* msgCtx = &play->msgCtx;
 
     if (!play->pauseCtx.bombersNotebookOpen) {
-        sTextboxWidth = D_801CFDA4[msgCtx->stateTimer] * 256.0f;
-        sTextboxTexWidth = 1024.0f / D_801CFDA4[msgCtx->stateTimer];
-        sTextboxHeight = D_801CFDC8[msgCtx->stateTimer] * 64.0f;
-        sTextboxTexHeight = 1024.0f / D_801CFDC8[msgCtx->stateTimer];
+        sTextboxWidth = sTextboxGrowingWidthScale[msgCtx->stateTimer] * 256.0f;
+        sTextboxTexWidth = 1024.0f / sTextboxGrowingWidthScale[msgCtx->stateTimer];
+        sTextboxHeight = sTextboxGrowingHeightScale[msgCtx->stateTimer] * 64.0f;
+        sTextboxTexHeight = 1024.0f / sTextboxGrowingHeightScale[msgCtx->stateTimer];
         msgCtx->textboxY = msgCtx->textboxYTarget + ((64 - sTextboxHeight) / 2);
         msgCtx->textboxColorAlphaCurrent += msgCtx->textboxColorAlphaTarget / 8;
         msgCtx->stateTimer++;
@@ -1162,7 +1162,8 @@ void Message_DrawItemIcon(PlayState* play, Gfx** gfxP) {
     }
 
     gSPTextureRectangle(gfx++, msgCtx->unk12010 << 2, msgCtx->unk12012 << 2, (msgCtx->unk12010 + msgCtx->unk12014) << 2,
-                        (msgCtx->unk12012 + msgCtx->unk12016) << 2, G_TX_RENDERTILE, 0, 0, D_801F6B08, D_801F6B08);
+                        (msgCtx->unk12012 + msgCtx->unk12016) << 2, G_TX_RENDERTILE, 0, 0, sItemIconTexScale,
+                        sItemIconTexScale);
     gDPPipeSync(gfx++);
     gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
 
@@ -3329,7 +3330,7 @@ void Message_OpenText(PlayState* play, u16 textId) {
     MessageContext* msgCtx = &play->msgCtx;
     Font* font = &msgCtx->font;
     Player* player = GET_PLAYER(play);
-    f32 var_fv0;
+    f32 itemIconScale;
 
     bool loadFromMessageTable = true;
     GameInteractor_ExecuteOnOpenText(&textId, &loadFromMessageTable);
@@ -3377,19 +3378,19 @@ void Message_OpenText(PlayState* play, u16 textId) {
     sMessageStartFrameCount = 0;
     msgCtx->textboxSkipped = false;
     msgCtx->textIsCredits = false;
-    var_fv0 = 1.0f;
+    itemIconScale = 1.0f;
 
     if (play->pauseCtx.bombersNotebookOpen) {
         if (gSaveContext.options.language == LANGUAGE_JPN) {
             msgCtx->textCharScale = 1.4f;
             msgCtx->lineHeight = 0x1E;
             msgCtx->textPosXTarget = 0x32;
-            var_fv0 = 1.4;
+            itemIconScale = 1.4;
         } else {
             msgCtx->textCharScale = 1.4f;
             msgCtx->lineHeight = 0x16;
             msgCtx->textPosXTarget = 0x32;
-            var_fv0 = 1.4;
+            itemIconScale = 1.4;
         }
     } else if (textId >= 0x4E20) {
         msgCtx->textIsCredits = true;
@@ -3408,7 +3409,7 @@ void Message_OpenText(PlayState* play, u16 textId) {
 
     sCharTexSize = msgCtx->textCharScale * 16.0f;
     sCharTexScale = 1024.0f / msgCtx->textCharScale;
-    D_801F6B08 = 1024.0f / var_fv0;
+    sItemIconTexScale = 1024.0f / itemIconScale;
     // BENTODO all of these
     if (!loadFromMessageTable) {
         // no-op
@@ -3484,7 +3485,7 @@ void Message_PauseMenu_ShowDescription(PlayState* play, u16 textId, u8 textBoxPo
     MessageContext* msgCtx = &play->msgCtx;
     Font* font = &msgCtx->font;
     Player* player = GET_PLAYER(play);
-    f32 temp = 1024.0f;
+    f32 scale = 1024.0f;
     // BENTODO do this somewhere else
     gSaveContext.options.language = LANGUAGE_ENG;
 
@@ -3509,8 +3510,8 @@ void Message_PauseMenu_ShowDescription(PlayState* play, u16 textId, u8 textBoxPo
     }
 
     sCharTexSize = msgCtx->textCharScale * 16.0f;
-    sCharTexScale = temp / msgCtx->textCharScale;
-    D_801F6B08 = temp / 1;
+    sCharTexScale = scale / msgCtx->textCharScale;
+    sItemIconTexScale = scale / 1;
 
     if ((textId == 0x1709) && (player->transformation == PLAYER_FORM_DEKU)) {
         textId = 0x1705;
