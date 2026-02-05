@@ -127,8 +127,8 @@ inline std::array<Sprite, 100> gSeedTextures = { {
     { dgItemIconGyorgsRemainsTex, 32, 32, G_IM_FMT_RGBA, G_IM_SIZ_32b, 95 },
     { dgItemIconTwinmoldsRemainsTex, 32, 32, G_IM_FMT_RGBA, G_IM_SIZ_32b, 96 },
     { dgItemIconBombersNotebookTex, 32, 32, G_IM_FMT_RGBA, G_IM_SIZ_32b, 97 },
-    { dgQuestIconGoldSkulltulaTex, 32, 32, G_IM_FMT_RGBA, G_IM_SIZ_32b, 98 }, // this one is broken
-    { dgItemIconTwinmoldsRemainsTex, 32, 32, G_IM_FMT_RGBA, G_IM_SIZ_32b, 99 }, // and this is broken
+    { dgQuestIconBossKeyTex, 24, 24, G_IM_FMT_RGBA, G_IM_SIZ_32b, 98 },
+    { dgQuestIconSmallKeyTex, 24, 24, G_IM_FMT_RGBA, G_IM_SIZ_32b, 99 },
 } };
 
 Sprite* GetSeedTexture(const uint8_t index) {
@@ -286,69 +286,30 @@ void SpriteDraw(Sprite* sprite, int left, int top, int width, int height) {
     CLOSE_DISPS(gFileSelectState->state.gfxCtx);
 }
 
-static int timer = 0;
-static int set = 17;
-
 void DrawSeedHashSprites() {
     OPEN_DISPS(gFileSelectState->state.gfxCtx);
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
-    // Draw icons on the main menu, when a rando file is selected, and on name entry when quest selection is set to
-    // rando
-    if (gFileSelectState->configMode == CM_MAIN_MENU // &&
-        // (gFileSelectState->selectMode != SM_CONFIRM_FILE || Save_GetSaveMetaInfo(gFileSelectState->selectedFileIndex)->randoSave == 1)
-        ) {
-
+    // Draw icons on the main menu, when a rando file is selected
+    if (gFileSelectState->configMode == CM_MAIN_MENU) {
         if (gFileSelectState->fileInfoAlpha[gFileSelectState->selectedFileIndex] > 0 &&
             isRando[gFileSelectState->selectedFileIndex]) {
             // Use file info alpha to match fading
-            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0xFF, 0xFF, 0xFF, gFileSelectState->fileInfoAlpha[gFileSelectState->selectedFileIndex]);
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0xFF, 0xFF, 0xFF,
+                            gFileSelectState->fileInfoAlpha[gFileSelectState->selectedFileIndex]);
 
             u16 xStart = 64;
             // Draw Seed Icons for specific file
-
-            // gSaveContext.save.shipSaveInfo.saveType
-            // gSaveContext.save.shipSaveInfo.rando.finalSeed
-            u32 hash = seedHashes[gFileSelectState->selectedFileIndex];
-            timer += 1;
-            if (timer >= 60) {
-                timer = 0;
-                set += 1;
-            }
-            if (set > 19) {
-                set = 17;
-            }
-            for (unsigned int i = 0; i < 5; i++) {
-                u8 hashPart = hash % 100;
-                hash /= 100;
-                SpriteLoad(GetSeedTexture(set*5 + i));
-                SpriteDraw(GetSeedTexture(set*5 + i),
-                           xStart + (40 * i), 10, 24, 24);
-                // SpriteLoad(GetSeedTexture(Save_GetSaveMetaInfo(gFileSelectState->selectedFileIndex)->seedHash[i]));
-                // SpriteDraw(GetSeedTexture(Save_GetSaveMetaInfo(gFileSelectState->selectedFileIndex)->seedHash[i]),
-                //            xStart + (40 * i), 10, 24, 24);
+            u32 fileHash = seedHashes[gFileSelectState->selectedFileIndex];
+            for (int i = 0; i < 5; i++) {
+                u8 hashPart = fileHash % 100;
+                fileHash /= 100;
+                SpriteLoad(GetSeedTexture(hashPart));
+                SpriteDraw(GetSeedTexture(hashPart), xStart + (40 * i), 10, 24, 24);
             }
         }
     }
-
-    // Draw Seed Icons for spoiler log:
-    // 1. On Name Entry if a rando seed has been generated
-    // 2. On Quest Menu if a spoiler has been dropped and the Randomizer quest option is currently hovered.
-    // if ((Randomizer_IsSeedGenerated() || Randomizer_IsSpoilerLoaded()) &&
-    //     (((gFileSelectState->configMode == CM_NAME_ENTRY || gFileSelectState->configMode == CM_ROTATE_TO_NAME_ENTRY ||
-    //        gFileSelectState->configMode == CM_NAME_ENTRY_TO_RANDOMIZER_SETTINGS_MENU || gFileSelectState->configMode == CM_START_NAME_ENTRY ||
-    //        gFileSelectState->configMode == CM_START_RANDOMIZER_SETTINGS_MENU) ||
-    //       gFileSelectState->configMode == CM_RANDOMIZER_SETTINGS_MENU) &&
-    //      gSaveContext.ship.quest.id == QUEST_RANDOMIZER)) {
-
-    //     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0xFF, 0xFF, 0xFF, 0xFF);
-    //     u16 xStart = 64;
-    //     for (unsigned int i = 0; i < 5; i++) {
-    //         SpriteLoad(GetSeedTexture(GetSeedIconIndex(i)));
-    //         SpriteDraw(GetSeedTexture(GetSeedIconIndex(i)), xStart + (40 * i), 10, 24, 24);
-    //     }
-    // }
 
     gDPPipeSync(POLY_OPA_DISP++);
 
@@ -440,9 +401,7 @@ void RegisterShoulds() {
         }
     });
 
-    REGISTER_VB_SHOULD(VB_DRAW_HASH, {
-        DrawSeedHashSprites();
-    });
+    REGISTER_VB_SHOULD(VB_DRAW_FILE_SELECT_HASH, { DrawSeedHashSprites(); });
 }
 
 // Doesn't really look great yet, but the start to how we will augment the file select screen for rando saves
@@ -456,7 +415,8 @@ void Rando::MiscBehavior::InitFileSelect() {
             isRando[fileNum + (isOwlSave ? FILE_NUM_OWL_SAVE_OFFSET : 0)] =
                 saveContext->save.shipSaveInfo.saveType == SAVETYPE_RANDO;
             if (isRando[fileNum + (isOwlSave ? FILE_NUM_OWL_SAVE_OFFSET : 0)]) {
-                seedHashes[fileNum + (isOwlSave ? FILE_NUM_OWL_SAVE_OFFSET : 0)] = gSaveContext.save.shipSaveInfo.rando.finalSeed;
+                seedHashes[fileNum + (isOwlSave ? FILE_NUM_OWL_SAVE_OFFSET : 0)] =
+                    gSaveContext.save.shipSaveInfo.rando.finalSeed;
             }
         });
 }
