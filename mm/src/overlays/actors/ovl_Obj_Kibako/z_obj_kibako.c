@@ -89,7 +89,7 @@ void ObjKibako_SpawnCollectible(ObjKibako* this, PlayState* play) {
 
     if (this->isDropCollected == 0) {
         dropItem00Id = func_800A8150(KIBAKO_COLLECTIBLE_ID(&this->actor));
-        if (dropItem00Id > ITEM00_NO_DROP) {
+        if (dropItem00Id > ITEM00_NO_DROP && GameInteractor_Should(VB_DROP_HEALING, true, dropItem00Id)) {
             Item_DropCollectible(play, &this->actor.world.pos,
                                  dropItem00Id | KIBAKO_COLLECTIBLE_FLAG(&this->actor) << 8);
             this->isDropCollected = 1;

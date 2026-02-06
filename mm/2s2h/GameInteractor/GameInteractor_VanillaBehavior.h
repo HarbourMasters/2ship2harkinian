@@ -558,6 +558,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (Item00Type)
+    VB_DROP_HEALING,
+
+    // #### `result`
+    // ```c
     // (play->sceneId == SCENE_F40) || (play->sceneId == SCENE_F41) ||
     // (play->sceneId == SCENE_IKANAMAE) || (play->sceneId == SCENE_CASTLE) ||
     // (play->sceneId == SCENE_IKNINSIDE) || (play->sceneId == SCENE_IKANA) ||
