@@ -7,6 +7,12 @@
 
 extern "C" {
 #include "overlays/actors/ovl_En_Test4/z_en_test4.h"
+#include "overlays/actors/ovl_Obj_Tokei_Step/z_obj_tokei_step.h"
+void EnTest4_GetBellTimeOnDay3(EnTest4* thisx);
+void EnTest4_GetBellTimeAndShrinkScreenBeforeDay3(EnTest4* thisx, PlayState* play);
+void ObjTokeiStep_SetupOpen(ObjTokeiStep* thisx);
+void ObjTokeiStep_DrawOpen(Actor* thisx, PlayState* play);
+void ObjTokeiStep_DoNothing(ObjTokeiStep* thisx, PlayState* play);
 }
 
 static constexpr u16 DAWN_TIME = CLOCK_TIME(6, 0);
@@ -160,44 +166,8 @@ void Rando::ClockShuffle::SetTimeToHalfDayStart(int halfDayIndex) {
     gSaveContext.save.time = startTime;
 }
 
-// Vanilla reloads scenes at 6 o'clock transitions when there are day/night specific actors.
-// Terminal state bypasses that boundary, so we match that behavior when skipping from day to terminal.
-// Only triggers for scenes with day-only actors (e.g. Termina Field), not dungeons/grottos.
-static bool SceneHasDayOnlyActors() {
-    if (gPlayState == nullptr || gPlayState->setupActorList == nullptr) {
-        return false;
-    }
-
-    s32 numActors = ABS(gPlayState->numSetupActors);
-    ActorEntry* actorList = gPlayState->setupActorList;
-
-    for (s32 i = 0; i < numActors; i++) {
-        s32 actorHalfDayBit = ((actorList[i].rot.x & 7) << 7) | (actorList[i].rot.z & 0x7F);
-
-        if (actorHalfDayBit == 0) {
-            continue;
-        }
-
-        bool hasDawnBits = (actorHalfDayBit & HALFDAYBIT_DAWNS) != 0;
-        bool hasNightBits = (actorHalfDayBit & HALFDAYBIT_NIGHTS) != 0;
-        if (hasDawnBits && !hasNightBits) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-static bool SceneNeedsReloadForTimeSkip(s16 sceneId, int currentHalfDay, bool enteringTerminalState, bool wasDay) {
-    if (sceneId == SCENE_BOWLING) {
-        return true;
-    }
-
-    if (enteringTerminalState && wasDay && SceneHasDayOnlyActors()) {
-        return true;
-    }
-
-    return false;
+static bool SceneNeedsReloadForTimeSkip(s16 sceneId) {
+    return sceneId == SCENE_BOWLING;
 }
 
 static void ForceSceneReload() {
@@ -254,24 +224,21 @@ static bool CheckAndSkipUnownedTime(Actor* timeActor) {
     u8 day = gSaveContext.save.day;
     u16 time = gSaveContext.save.time + CLOCK_TIME(0, 1);
 
-    bool wasDay = !IsNight(gSaveContext.save.time);
-
     if (IsNight(enTest4->prevTime) && !IsNight(time)) {
         day++;
     }
-
-    int currentHalfDay = (day < 1) ? 0 : ((day - 1) * 2 + (IsNight(time) ? 1 : 0));
 
     if (day < 4 && CheckSkippedTime(&day, &time)) {
         gSaveContext.save.day = day;
         gSaveContext.save.time = time;
 
-        // Detect if we're entering terminal state
-        bool enteringTerminalState = (day == 3 && time == GetConfiguredTerminalTime());
-
-        if (SceneNeedsReloadForTimeSkip(gPlayState->sceneId, currentHalfDay, enteringTerminalState, wasDay)) {
+        if (SceneNeedsReloadForTimeSkip(gPlayState->sceneId)) {
             ForceSceneReload();
+            return true;
         }
+
+        gWeatherMode = WEATHER_MODE_CLEAR;
+        gPlayState->envCtx.lightningState = LIGHTNING_OFF;
 
         if (time == DAWN_TIME) {
             // Set to NIGHT and decrement day so vanilla's dawn transition runs on the next frame.
@@ -282,14 +249,38 @@ static bool CheckAndSkipUnownedTime(Actor* timeActor) {
             enTest4->daytimeIndex = 1;
             Interface_NewDay(gPlayState, gSaveContext.save.day);
             Environment_NewDay(&gPlayState->envCtx);
+
+            // Flip numSetupActors to trigger actor kill/respawn for the new half-day.
+            gPlayState->numSetupActors = -gPlayState->numSetupActors;
+
+            enTest4->prevBellTime = time;
+            if (gSaveContext.save.day == 3) {
+                EnTest4_GetBellTimeOnDay3(enTest4);
+            } else {
+                EnTest4_GetBellTimeAndShrinkScreenBeforeDay3(enTest4, gPlayState);
+            }
         }
 
-        // Reset audio state to match the new time period
-        Environment_PlaySceneSequence(gPlayState);
+        if (gPlayState->sceneSequences.ambienceId != AMBIENCE_ID_13) {
+            SEQCMD_STOP_SEQUENCE(SEQ_PLAYER_AMBIENCE, 0);
+            SEQCMD_STOP_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 240);
+            gSaveContext.seqId = NA_BGM_DISABLED;
+            gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
+            Environment_PlaySceneSequence(gPlayState);
+        }
 
         // Reset screen scale to prevent lingering shrink effect from bell tolling
         gSaveContext.screenScaleFlag = false;
         gSaveContext.screenScale = 1000.0f;
+
+        if (gSaveContext.save.day == 3 && IsNight(time)) {
+            ObjTokeiStep* objTokeiStep = (ObjTokeiStep*)Actor_FindNearby(gPlayState, &GET_PLAYER(gPlayState)->actor,
+                                                                         ACTOR_OBJ_TOKEI_STEP, ACTORCAT_BG, 99999.9f);
+            if (objTokeiStep != NULL && objTokeiStep->actionFunc == ObjTokeiStep_DoNothing) {
+                objTokeiStep->dyna.actor.draw = ObjTokeiStep_DrawOpen;
+                ObjTokeiStep_SetupOpen(objTokeiStep);
+            }
+        }
 
         enTest4->prevTime = time - CLOCK_TIME(0, 1);
         return true;
