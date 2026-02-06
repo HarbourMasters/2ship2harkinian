@@ -2214,6 +2214,7 @@ void Play_FillScreen(PlayState* this, s16 fillScreenOn, u8 red, u8 green, u8 blu
 }
 
 void Play_Init(GameState* thisx) {
+    GameInteractor_ExecuteBeforePlayInit();
     PlayState* this = (PlayState*)thisx;
     GraphicsContext* gfxCtx = this->state.gfxCtx;
     s32 pad;
