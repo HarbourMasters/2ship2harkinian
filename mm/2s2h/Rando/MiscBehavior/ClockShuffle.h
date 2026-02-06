@@ -41,7 +41,6 @@ void OnFileLoad();
 void SetTimeToHalfDayStart(int halfDayIndex);
 
 bool IsTimeOwnedForClockShuffle(s32 day, u16 time);
-int GetHalfDayIndexFromTime(s32 day, u16 time);
 std::string GetTimeDescriptionForMessage(s32 day, u16 time);
 
 } // namespace ClockShuffle
