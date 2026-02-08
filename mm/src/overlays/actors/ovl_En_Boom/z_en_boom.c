@@ -118,7 +118,7 @@ void EnBoom_Init(Actor* thisx, PlayState* play) {
     this->actor.room = -1;
     Actor_ProcessInitChain(&this->actor, sInitChain);
 
-    Color_RGBA8 trailColor = CosmeticEditor_GetChangedColor(255, 255, 100, 255, COSMETIC_ELEMENT_ZORA_BOOMERANG_TRAIL);
+    Color_RGBA8 trailColor = CosmeticEditor_GetChangedColor(255, 255, 100, 255, COSMETIC_ELEMENT_TRAIL_ZORA_BOOMERANG);
 
     for (i = 0; i < 4; i++) {
         sp30.p1StartColor[i] = (i < 3) ? ((i == 0)   ? trailColor.r

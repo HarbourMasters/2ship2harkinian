@@ -310,6 +310,7 @@ void EffectBlure_GetComputedValues(EffectBlure* this, s32 index, f32 ratio, Vec3
     EffectBlureElement* elem = &this->elements[index];
     Vec3s* unusedPtr = &sp30; // Optimized out but seems necessary to match stack usage
 
+    // #region 2S2H [Cosmetic] Trail Colors
     Color_RGBA8 p1Start = { this->p1StartColor[0], this->p1StartColor[1], this->p1StartColor[2],
                             this->p1StartColor[3] };
     Color_RGBA8 p1End = { this->p1EndColor[0], this->p1EndColor[1], this->p1EndColor[2], this->p1EndColor[3] };
@@ -325,25 +326,25 @@ void EffectBlure_GetComputedValues(EffectBlure* this, s32 index, f32 ratio, Vec3
                 if (player->meleeWeaponEffectIndex[i] != -1 &&
                     this == (EffectBlure*)Effect_GetByIndex(player->meleeWeaponEffectIndex[i])) {
                     if (player->transformation == PLAYER_FORM_FIERCE_DEITY)
-                        elementId = COSMETIC_ELEMENT_FIERCE_DEITY_SWORD_TRAIL;
+                        elementId = COSMETIC_ELEMENT_TRAIL_SWORD_FIERCE_DEITY;
                     else if (player->transformation == PLAYER_FORM_ZORA)
                         elementId = (player->meleeWeaponAnimation == PLAYER_MWA_ZORA_PUNCH_KICK ||
                                      player->meleeWeaponAnimation == PLAYER_MWA_ZORA_JUMPKICK_START ||
                                      player->meleeWeaponAnimation == PLAYER_MWA_ZORA_JUMPKICK_FINISH)
-                                        ? COSMETIC_ELEMENT_ZORA_KICK_TRAIL
-                                        : COSMETIC_ELEMENT_ZORA_PUNCH_TRAIL;
+                                        ? COSMETIC_ELEMENT_TRAIL_ZORA_KICK
+                                        : COSMETIC_ELEMENT_TRAIL_ZORA_PUNCH;
                     else if (player->transformation == PLAYER_FORM_DEKU)
-                        elementId = COSMETIC_ELEMENT_DEKU_SPIN_TRAIL;
+                        elementId = COSMETIC_ELEMENT_TRAIL_DEKU_SPIN;
                     else if (player->heldItemAction == PLAYER_IA_SWORD_KOKIRI)
-                        elementId = COSMETIC_ELEMENT_KOKIRI_SWORD_TRAIL;
+                        elementId = COSMETIC_ELEMENT_TRAIL_SWORD_KOKIRI;
                     else if (player->heldItemAction == PLAYER_IA_SWORD_RAZOR)
-                        elementId = COSMETIC_ELEMENT_RAZOR_SWORD_TRAIL;
+                        elementId = COSMETIC_ELEMENT_TRAIL_SWORD_RAZOR;
                     else if (player->heldItemAction == PLAYER_IA_SWORD_GILDED)
-                        elementId = COSMETIC_ELEMENT_GILDED_SWORD_TRAIL;
+                        elementId = COSMETIC_ELEMENT_TRAIL_SWORD_GILDED;
                     else if (player->heldItemAction == PLAYER_IA_SWORD_TWO_HANDED)
-                        elementId = COSMETIC_ELEMENT_GREAT_FAIRY_SWORD_TRAIL;
+                        elementId = COSMETIC_ELEMENT_TRAIL_SWORD_GREAT_FAIRY;
                     else if (player->heldItemAction == PLAYER_IA_DEKU_STICK)
-                        elementId = COSMETIC_ELEMENT_DEKU_STICK_TRAIL;
+                        elementId = COSMETIC_ELEMENT_TRAIL_DEKU_STICK;
                     break;
                 }
             }
@@ -364,6 +365,7 @@ void EffectBlure_GetComputedValues(EffectBlure* this, s32 index, f32 ratio, Vec3
             }
         }
     }
+    // #endregion
 
     switch (this->calcMode) {
         case 1:
