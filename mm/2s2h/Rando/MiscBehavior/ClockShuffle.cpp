@@ -64,8 +64,8 @@ u8 Rando::ClockItems::GetAllOwnedHalfDaysMask() {
     return ownedMask;
 }
 
-int Rando::ClockItems::FindEarliestOwnedHalfDay(bool searchFromEnd) {
-    if (searchFromEnd) {
+int Rando::ClockItems::FindOwnedHalfDay(bool fromEnd) {
+    if (fromEnd) {
         for (int i = HALF_COUNT - 1; i >= 0; --i) {
             if (Rando::Logic::OwnsClockHalfDay(i)) {
                 return i;
@@ -219,6 +219,10 @@ static bool CheckSkippedTime(u8* day, u16* time) {
     return true;
 }
 
+// Validates current time during EnTest4 update. If player is in an unowned half-day,
+// skips ahead to the next owned half-day (or terminal state). Handles all necessary
+// game state updates (weather, actors, music, etc.).
+// Returns true if time was skipped.
 static bool CheckAndSkipUnownedTime(Actor* timeActor) {
     EnTest4* enTest4 = (EnTest4*)timeActor;
     u8 day = gSaveContext.save.day;
@@ -330,7 +334,7 @@ static void ProcessClockShuffleMessage(u16* textId, bool* loadFromMessageTable, 
     int targetHalfDay;
 
     if (isSongOfTime) {
-        targetHalfDay = Rando::ClockItems::FindEarliestOwnedHalfDay(false);
+        targetHalfDay = Rando::ClockItems::FindOwnedHalfDay(false);
     } else {
         int currentHalfDay = GetCurrentHalfDayIndex();
         u8 ownedHalfDaysMask = Rando::ClockItems::GetAllOwnedHalfDaysMask();
@@ -343,7 +347,7 @@ static void ProcessClockShuffleMessage(u16* textId, bool* loadFromMessageTable, 
     } else {
         int targetDay = (targetHalfDay / 2) + 1;
         bool isNight = (targetHalfDay & 1);
-        destinationText = isNight ? "%rNight of " : "%rDawn of the ";
+        destinationText = isNight ? "%rNight of the " : "%rDawn of the ";
         if (targetDay == 1) {
             destinationText += "First";
         } else if (targetDay == 2) {
@@ -364,6 +368,8 @@ static void ProcessClockShuffleMessage(u16* textId, bool* loadFromMessageTable, 
     *loadFromMessageTable = false;
 }
 
+// Called at BeforePlayInit. Validates time at cycle start or when a day telop
+// transition is pending (respawnFlag -4). Jumps to first owned half-day if needed.
 static void EnforceOwnedTime() {
     bool isCycleStart =
         (gSaveContext.save.day == 0 || (gSaveContext.save.day == 1 && gSaveContext.save.time == CLOCK_TIME(6, 0)));
@@ -427,7 +433,7 @@ void Rando::ClockShuffle::OnFileLoad() {
 
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_TEST4, shouldRegister, [](Actor* actor, bool* should) {
         // Skip time checks if a transition cutscene is in progress
-        if (!CHECK_FLAG_ALL(gSaveContext.eventInf[1], 1 << 7)) {
+        if (!CHECK_EVENTINF(EVENTINF_17)) {
             if (CheckAndSkipUnownedTime(actor)) {
                 *should = false;
                 return;
