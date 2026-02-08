@@ -290,7 +290,7 @@ std::vector<std::string> contributors = {
     "MegaMech",
     "Louis",
     "Kenix3",
-    "Jordyn Hardyman",
+    "Jameriquiah", // "Jordyn Hardyman", manual replacement
     "Jacob Erly",
     "Hoeloe",
     "Ghunzor",
@@ -802,7 +802,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Camera Transition Speed: %d", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Camera.FreeLook.TransitionSpeed")
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; })
-        .Options(IntSliderOptions().Tooltip("Can someone help me?").Min(1).Max(900).DefaultValue(25));
+        .Options(IntSliderOptions().Min(1).Max(900).DefaultValue(25));
     AddWidget(path, "Max Camera Height Angle: %.0f\xC2\xB0", WIDGET_CVAR_SLIDER_FLOAT)
         .Callback([](WidgetInfo& info) { FreeLookPitchMinMax(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; })
@@ -1092,9 +1092,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Curiosity Shop Refills", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Shops.CuriosityShopRefills")
         .Options(CheckboxOptions().Tooltip(
-            "Adds refillable bottles to the Curiosity Shop after completing certain prerequisites:\\n"
-            "- Seahorse: After reuniting the seahorses at Pinnacle Rock\\n"
-            "- Gold Dust: After obtaining the Gold Dust bottle\\n"
+            "Adds refillable bottles to the Curiosity Shop after completing certain prerequisites:\n"
+            "- Seahorse: After obtaining a Bottle, Zora Mask, Pictograph Box & (Rando Only) Swim Ability\n"
+            "- Gold Dust: After obtaining the Gold Dust bottle\n"
             "- Chateau Romani: After obtaining Chateau Romani"));
     AddWidget(path, "Accessibility", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Disable Screen Flash for Enemy Kills", WIDGET_CVAR_CHECKBOX)
@@ -1129,7 +1129,6 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("When loading a save, places Link at the last entrance he went through."));
     AddWidget(path, "Autosave", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.Autosave")
-        .Callback([](WidgetInfo& info) { RegisterAutosave(); })
         .Options(CheckboxOptions().Tooltip(
             "Automatically create a persistent Owl Save on the chosen interval.\n\nWhen loading "
             "back into the game, you will be placed either at the entrance of the dungeon you "
@@ -1177,12 +1176,6 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Oceanside wallet any day", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.OceansideWalletAnyDay")
         .Options(CheckboxOptions().Tooltip("Allows the wallet reward to be collected on any day."));
-    AddWidget(path, "Unstable", WIDGET_SEPARATOR_TEXT).Options(WidgetOptions().Color(Colors::Orange));
-    AddWidget(path, "Disable Save Delay", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Saving.DisableSaveDelay")
-        .Options(CheckboxOptions().Tooltip(
-            "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
-            "cause issues when attempting the 0th Day Glitch."));
 
     //// Graphics Enhancements
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };

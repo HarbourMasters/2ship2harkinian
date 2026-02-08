@@ -230,6 +230,44 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
         }
     }
 
+    // Remove extra stray fairies/gold skulltulas from the pool
+    std::map<RandoItemId, int> removeAbleItemsInPool = {
+        { RI_STONE_TOWER_STRAY_FAIRY, 0 }, { RI_GREAT_BAY_STRAY_FAIRY, 0 }, { RI_SNOWHEAD_STRAY_FAIRY, 0 },
+        { RI_WOODFALL_STRAY_FAIRY, 0 },    { RI_GS_TOKEN_SWAMP, 0 },        { RI_GS_TOKEN_OCEAN, 0 },
+    };
+    for (RandoItemId itemId : itemPool) {
+        if (removeAbleItemsInPool.find(itemId) != removeAbleItemsInPool.end()) {
+            removeAbleItemsInPool[itemId]++;
+        }
+    }
+    for (auto& [itemId, count] : removeAbleItemsInPool) {
+        int max = 0;
+        switch (itemId) {
+            case RI_STONE_TOWER_STRAY_FAIRY:
+            case RI_GREAT_BAY_STRAY_FAIRY:
+            case RI_SNOWHEAD_STRAY_FAIRY:
+            case RI_WOODFALL_STRAY_FAIRY:
+                max = saveInfo.randoSaveOptions[RO_STRAY_FAIRIES_MAX];
+                break;
+            case RI_GS_TOKEN_SWAMP:
+            case RI_GS_TOKEN_OCEAN:
+                max = saveInfo.randoSaveOptions[RO_SKULLTULA_TOKENS_MAX];
+                break;
+            default:
+                break;
+        }
+
+        while (count > max) {
+            auto it = std::find(itemPool.begin(), itemPool.end(), itemId);
+            if (it != itemPool.end()) {
+                itemPool.erase(it);
+                count--;
+            } else {
+                break;
+            }
+        }
+    }
+
     // Remove starting items from the pool (but only one per entry in startingItems)
     for (RandoItemId startingItem : startingItems) {
         auto it = std::find(itemPool.begin(), itemPool.end(), startingItem);
@@ -240,9 +278,7 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
 
     // Plentiful
     if (saveInfo.randoSaveOptions[RO_PLENTIFUL_ITEMS] == RO_GENERIC_YES) {
-        int replaceableItems = 0;
         std::vector<RandoItemId> plentifulItems;
-        std::vector<RandoItemId> potentialPlentifulItems;
         for (size_t i = 0; i < itemPool.size(); i++) {
             // The user can specify exactly how many pieces they want to shuffle, so skip those
             if (itemPool[i] == RI_TRIFORCE_PIECE) {
@@ -257,31 +293,21 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
                     plentifulItems.push_back(itemPool[i]);
                     break;
                 case RITYPE_LESSER:
-                case RITYPE_SKULLTULA_TOKEN:
-                case RITYPE_STRAY_FAIRY:
-                    if (Ship_Random(0, 2) == 1) {
-                        potentialPlentifulItems.push_back(itemPool[i]);
+                    if (Rando::StaticData::Items[itemPool[i]].itemId != ITEM_TINGLE_MAP &&
+                        Rando::StaticData::Items[itemPool[i]].itemId != ITEM_DUNGEON_MAP &&
+                        Rando::StaticData::Items[itemPool[i]].itemId != ITEM_COMPASS) {
+                        plentifulItems.push_back(itemPool[i]);
                     }
                     break;
                 case RITYPE_HEALTH:
                 case RITYPE_JUNK:
                 default:
-                    replaceableItems++;
                     break;
             }
         }
 
-        if (replaceableItems > plentifulItems.size()) {
-            for (RandoItemId plentifulItem : plentifulItems) {
-                itemPool.push_back(plentifulItem);
-            }
-        }
-
-        // Only add potentialPlentifulItems if we think we have enough room (this might not be perfect)
-        if ((replaceableItems - plentifulItems.size() - 10) > potentialPlentifulItems.size()) {
-            for (RandoItemId plentifulItem : potentialPlentifulItems) {
-                itemPool.push_back(plentifulItem);
-            }
+        for (RandoItemId plentifulItem : plentifulItems) {
+            itemPool.push_back(plentifulItem);
         }
     }
 
