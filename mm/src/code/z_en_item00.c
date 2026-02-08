@@ -1008,10 +1008,6 @@ Actor* Item_DropCollectible2(PlayState* play, Vec3f* spawnPos, s32 params) {
 
     params &= 0xFF;
 
-    if (!GameInteractor_Should(VB_DROP_HEALING, true, (params & 0xFF))) {
-        return NULL;
-    }
-
     if ((params & 0xFF) == ITEM00_3_HEARTS) {
         return NULL;
     }
