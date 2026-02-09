@@ -12,6 +12,7 @@ static bool IsTransformationMask(PlayerMask mask) {
 }
 
 static bool IsMask(ItemId itemId) {
+    // Non-transformation masks
     if ((itemId >= ITEM_MASK_TRUTH) && (itemId <= ITEM_MASK_SCENTS)) {
         return true;
     }
