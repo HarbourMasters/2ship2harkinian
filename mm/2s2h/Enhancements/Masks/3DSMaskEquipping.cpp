@@ -17,7 +17,7 @@ static bool IsMask(ItemId itemId) {
     }
     Player* player = GET_PLAYER(gPlayState);
     if ((player != NULL) && (player->transformation == PLAYER_FORM_FIERCE_DEITY)) {
-        return (itemId == ITEM_MASK_GORON) || (itemId == ITEM_MASK_ZORA) || (itemId == ITEM_MASK_DEKU);
+        return itemId >= ITEM_MASK_DEKU && itemId <= ITEM_MASK_ZORA;
     }
     return false;
 }
