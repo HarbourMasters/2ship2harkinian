@@ -8,8 +8,7 @@ static PlayerMask sPendingMask = PLAYER_MASK_NONE;
 static HOOK_ID sPlayerUpdateHookId = 0;
 
 static bool IsTransformationMask(PlayerMask mask) {
-    return mask == PLAYER_MASK_DEKU || mask == PLAYER_MASK_GORON || mask == PLAYER_MASK_ZORA ||
-           mask == PLAYER_MASK_FIERCE_DEITY;
+    return mask <= PLAYER_MASK_DEKU && mask >= PLAYER_MASK_FIERCE_DEITY;
 }
 
 static bool IsMask(ItemId itemId) {
