@@ -9,7 +9,6 @@ namespace Logic {
 
 std::map<RandoRegionId, RandoRegion> Regions = {};
 
-// Thread-local storage for current region time during check evaluation
 uint64_t gCurrentRegionTime = 0;
 
 RandoRegionId GetRegionIdFromEntrance(s32 entrance) {
