@@ -100,7 +100,6 @@ struct RegionTimeState {
     bool canStayOverTime;
 };
 
-// Thread-local current region time for check evaluation
 extern uint64_t gCurrentRegionTime;
 
 // Helper: Convert runtime game time to TimeSlice enum
