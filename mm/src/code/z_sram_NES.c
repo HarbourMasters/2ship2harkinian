@@ -2000,6 +2000,7 @@ void Sram_WriteSaveOptionsToBuffer(SramContext* sramCtx) {
     }
 }
 
+// #region 2S2H [Port] Surround Sound
 /**
  * Load global options (SaveOptions) from flash early during initialization.
  * This ensures audio settings are applied before the intro cutscene plays.
@@ -2031,6 +2032,7 @@ void Sram_LoadGlobalOptions(void) {
 
     Audio_SetFileSelectSettings(gSaveContext.options.audioSetting);
 }
+// #endregion
 
 void Sram_InitSram(GameState* gameState, SramContext* sramCtx) {
     if (gSaveContext.save.entrance) {} // Required to match
