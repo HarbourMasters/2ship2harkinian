@@ -13,6 +13,9 @@ s32 Player_UpperAction_7(Player* thisx, PlayState* play);
 s32 Player_UpperAction_8(Player* thisx, PlayState* play);
 }
 
+extern bool IsBombArrowButton(s32 slot, bool isDpad);
+extern void SetBombArrowButton(s32 slot, bool state, bool isDpad);
+
 #define CVAR_NAME "gEnhancements.PlayerActions.ArrowCycle"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 #define BOMB_ARROW_CVAR_NAME "gEnhancements.Equipment.BombArrows"
@@ -70,22 +73,20 @@ static bool HasBombArrows() {
 }
 
 static bool IsBombArrowButton(const Player* player) {
-    if (!IsBombArrowEnhancementEnabled() || player->heldItemButton < 0) {
+    if (player->heldItemButton < 0) {
         return false;
     }
 
     if (IS_HELD_DPAD(player->heldItemButton)) {
         s32 dpadSlot = HELD_ITEM_TO_DPAD(player->heldItemButton);
-
-        return (DPAD_BUTTON_ITEM_EQUIP(0, dpadSlot) == ITEM_BOW) && (DPAD_SLOT_EQUIP(0, dpadSlot) == SLOT_BOMB);
+        return IsBombArrowButton(dpadSlot, true);
     }
 
     if (player->heldItemButton == EQUIP_SLOT_B) {
         return false;
     }
 
-    EquipSlot slot = (EquipSlot)player->heldItemButton;
-    return (BUTTON_ITEM_EQUIP(0, slot) == ITEM_BOW) && (C_SLOT_EQUIP(0, slot) == SLOT_BOMB);
+    return IsBombArrowButton(player->heldItemButton, false);
 }
 
 static bool HasArrowType(ArrowCycleType cycleType) {
@@ -250,6 +251,8 @@ static void UpdateEquippedBow(PlayState* play, ArrowCycleType cycleType) {
             gSaveContext.buttonStatus[i] = BTN_ENABLED;
             sButtonFlashTimer = BUTTON_FLASH_DURATION;
             sButtonFlashCount = 0;
+
+            SetBombArrowButton(i, cycleType == ARROW_CYCLE_BOMB, false);
         }
     }
 
@@ -263,6 +266,8 @@ static void UpdateEquippedBow(PlayState* play, ArrowCycleType cycleType) {
             gSaveContext.shipSaveContext.dpad.status[i] = BTN_ENABLED;
             sButtonFlashTimer = BUTTON_FLASH_DURATION;
             sButtonFlashCount = 0;
+
+            SetBombArrowButton(i, cycleType == ARROW_CYCLE_BOMB, true);
         }
     }
 

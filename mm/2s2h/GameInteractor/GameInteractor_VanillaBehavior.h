@@ -454,6 +454,16 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - `s16` (button)
+    // - `s16` (alpha)
+    // - `bool` (isDpad)
+    VB_DRAW_HUD_AMMO_COUNT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*Actor`
     VB_DRAW_LOCK_ON_ARROW,
 
@@ -496,6 +506,9 @@ typedef enum {
     // ```
     // #### `args`
     // - `*ItemId`
+    // - `s32` (slot)
+    // - `s32` (isDpad)
+    // - `s32` (pageIndex)
     VB_DRAW_ITEM_EQUIPPED_OUTLINE,
 
     // #### `result`
@@ -1125,6 +1138,25 @@ typedef enum {
     // #### `args`
     // - `u16` (item under cursor)
     VB_KALEIDO_DISPLAY_ITEM_TEXT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `PauseContext*`
+    // - `GraphicsContext*`
+    // - `s16` (item)
+    // - `u16` (ammoIndex)
+    VB_KALEIDO_DRAW_AMMO_COUNT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `ItemId*` (draw item, mutable)
+    VB_KALEIDO_DRAW_EQUIP_ANIM_ICON,
 
     // #### `result`
     // ```c
