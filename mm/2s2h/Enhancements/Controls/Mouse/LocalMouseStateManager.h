@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ship/window/MouseStateManager.h>
+#include <fast/FastMouseStateManager.h>
 
-class LocalMouseStateManager : public Ship::MouseStateManager {
+class LocalMouseStateManager : public Fast::FastMouseStateManager {
     void ToggleMouseCaptureOverride() override;
     void UpdateMouseCapture() override;
 };
