@@ -75,7 +75,7 @@ void Mouse_UpdateCaptureByState() {
     if (
         gameState.isCaptureForced
         || !capture
-        || Ship::Context::GetInstance()->GetWindow()->GetMouseCaptureManager()->ShouldAutoCaptureMouse()
+        || Ship::Context::GetInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()
     ) {
         Ship::Context::GetInstance()->GetWindow()->SetMouseCapture(capture);
     }
