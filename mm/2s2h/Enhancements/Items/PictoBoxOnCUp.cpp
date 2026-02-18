@@ -14,7 +14,7 @@ s32 func_80831814(Player* player, PlayState* play, PlayerUnkAA5 arg2);
 
 /**
  * Enhancement: Opens the Pictograph Box with C-Up once acquired
- * 
+ *
  * This enhancement makes C-Up open the Pictograph Box instead of entering
  * normal first-person camera mode when the player has acquired the Picto Box
  */
@@ -30,7 +30,7 @@ void RegisterPictoBoxOnCUp() {
             !CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
             firstPersonMode = PLAYER_UNKAA5_2;
         }
-            
+
         if (player->tatlTextId == 0 && !Player_CheckHostileLockOn(player) &&
             CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP) &&
             !func_80831814(player, gPlayState, firstPersonMode)) {
