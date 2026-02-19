@@ -360,7 +360,7 @@ static void ProcessClockShuffleMessage(u16* textId, bool* loadFromMessageTable, 
 
     if (isSongOfTime) {
         entry.msg = "Save and return to " + destinationText + "?\n%gYes\nNo\xC2";
-    } else {
+    } else { // Song of Double Time
         entry.msg = "Time moves strangely...\nProceed to " + destinationText + "?\n%gYes\nNo\xC2";
     }
 
