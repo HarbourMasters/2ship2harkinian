@@ -318,23 +318,15 @@ static void HandleBombArrowEquip(u16 cursorItem, bool* should, PauseContext* pau
     bool equippedIsBombArrow = IsBombArrowButton(targetBtn, isDpad);
 
     if (equippedItem == cursorItem || (equippedItem == ITEM_BOW && cursorItem == ITEM_BOMB && equippedIsBombArrow)) {
-        if (cursorItem == ITEM_BOMB) {
-            if (equippedIsBombArrow == sBombSlotIsBombArrowMode) {
-                return;
-            }
-        } else {
-            if (equippedIsBombArrow) {
-                if (cursorItem == ITEM_BOW) {
-                    *should = false;
-                    sPendingEquip = { targetBtn, isDpad, SLOT_BOW, ITEM_BOW, true, false };
-                    sHasPendingEquip = true;
-                    InitiateEquipAnimation(pauseCtx, ITEM_BOW, SLOT_BOW);
-                    Audio_PlaySfx(NA_SE_SY_DECIDE);
-                } else {
-                    *should = false;
-                }
-                return;
-            }
+        if (cursorItem == ITEM_BOW && equippedIsBombArrow) {
+            *should = false;
+            sPendingEquip = { targetBtn, isDpad, SLOT_BOW, ITEM_BOW, true, false };
+            sHasPendingEquip = true;
+            InitiateEquipAnimation(pauseCtx, ITEM_BOW, SLOT_BOW);
+            Audio_PlaySfx(NA_SE_SY_DECIDE);
+            return;
+        } else if (cursorItem != ITEM_BOMB && equippedIsBombArrow) {
+            *should = false;
             return;
         }
     }
@@ -636,6 +628,8 @@ static void DrawBombArrowOverlayCButton(PlayState* play, EquipSlot slot, s16 alp
 
     OPEN_DISPS(play->state.gfxCtx);
 
+    Gfx_SetupDL39_Overlay(play->state.gfxCtx);
+
     gDPPipeSync(OVERLAY_DISP++);
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, alpha);
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -668,6 +662,8 @@ static void DrawBombArrowOverlayDpad(PlayState* play, DpadEquipSlot slot, s16 al
     }
 
     OPEN_DISPS(play->state.gfxCtx);
+
+    Gfx_SetupDL39_Overlay(play->state.gfxCtx);
 
     gDPPipeSync(OVERLAY_DISP++);
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, alpha);
@@ -1010,6 +1006,13 @@ static void OnDrawHudAmmoCount(bool* should, va_list args) {
     if (IsBombArrowButton(button, isDpad)) {
         *should = false;
         DrawBombArrowAmmoCount(gPlayState, button, alpha, isDpad);
+
+        // Draw the bomb overlay here so it shares the same render order as the C/D-button icons.
+        if (isDpad) {
+            DrawBombArrowOverlayDpad(gPlayState, (DpadEquipSlot)button, alpha);
+        } else {
+            DrawBombArrowOverlayCButton(gPlayState, (EquipSlot)button, alpha);
+        }
     }
 }
 
@@ -1094,63 +1097,24 @@ static void OnKaleidoDrawAmmoCount(bool* should, va_list args) {
     }
 }
 
-static void OnGameStateDrawFinish() {
-    if (gPlayState == nullptr) {
-        return;
-    }
-
-    // Suppress overlay for the slot currently being animated.
-    PauseContext* pauseCtx = &gPlayState->pauseCtx;
-    s32 animTargetBtn = -1;
-    bool animTargetIsDpad = false;
-    if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_EQUIP_ITEM)) {
-        ResolvePauseEquipTarget(pauseCtx, &animTargetBtn, &animTargetIsDpad);
-    }
-
-    InterfaceContext* interfaceCtx = &gPlayState->interfaceCtx;
-    DpadInterface* dpadInterface = &gPlayState->interfaceCtx.shipInterface.dpad;
-
-    for (s32 slot = EQUIP_SLOT_C_LEFT; slot <= EQUIP_SLOT_C_RIGHT; slot++) {
-        if (IsBombArrowButton(slot, false)) {
-            if (!animTargetIsDpad && animTargetBtn == slot) {
-                continue;
-            }
-            s16 alpha = (slot == EQUIP_SLOT_C_LEFT)   ? interfaceCtx->cLeftAlpha
-                        : (slot == EQUIP_SLOT_C_DOWN) ? interfaceCtx->cDownAlpha
-                                                      : interfaceCtx->cRightAlpha;
-            DrawBombArrowOverlayCButton(gPlayState, (EquipSlot)slot, alpha);
-        }
-    }
-
-    for (s32 slot = EQUIP_SLOT_D_RIGHT; slot <= EQUIP_SLOT_D_UP; slot++) {
-        if (IsBombArrowButton(slot, true)) {
-            if (animTargetIsDpad && animTargetBtn == slot) {
-                continue;
-            }
-            s16 alpha = (slot == EQUIP_SLOT_D_RIGHT)  ? dpadInterface->dRightAlpha
-                        : (slot == EQUIP_SLOT_D_LEFT) ? dpadInterface->dLeftAlpha
-                        : (slot == EQUIP_SLOT_D_DOWN) ? dpadInterface->dDownAlpha
-                                                      : dpadInterface->dUpAlpha;
-            DrawBombArrowOverlayDpad(gPlayState, (DpadEquipSlot)slot, alpha);
-        }
-    }
-}
-
 static void OnKaleidoUpdate(PauseContext* pauseCtx) {
     HandleEquipCleanup(pauseCtx);
     HandleSlotCycling(pauseCtx);
 
-    if (sHasPendingEquip && (sEquipState == EQUIP_STATE_MOVE_TO_C_BTN) && (sEquipAnimTimer == 1)) {
-        HandleSmartSwap(sPendingEquip.targetBtn, sPendingEquip.isDpad, sPendingEquip.newEquipSlot,
-                        sPendingEquip.isBowGroup);
-        SetSlotItem(sPendingEquip.targetBtn, sPendingEquip.isDpad, sPendingEquip.newItem, sPendingEquip.newEquipSlot);
-        SetBombArrowButton(sPendingEquip.targetBtn, sPendingEquip.isBombArrow, sPendingEquip.isDpad);
-        sHasPendingEquip = false;
+    if (sHasPendingEquip) {
+        if (((sEquipState == EQUIP_STATE_MOVE_TO_C_BTN) && (sEquipAnimTimer == 1)) ||
+            (pauseCtx->state != PAUSE_STATE_MAIN)) {
+            HandleSmartSwap(sPendingEquip.targetBtn, sPendingEquip.isDpad, sPendingEquip.newEquipSlot,
+                            sPendingEquip.isBowGroup);
+            SetSlotItem(sPendingEquip.targetBtn, sPendingEquip.isDpad, sPendingEquip.newItem,
+                        sPendingEquip.newEquipSlot);
+            SetBombArrowButton(sPendingEquip.targetBtn, sPendingEquip.isBombArrow, sPendingEquip.isDpad);
+            sHasPendingEquip = false;
+        }
     }
 }
 
 static void RegisterBombArrows() {
-    COND_HOOK(OnGameStateDrawFinish, CVAR, OnGameStateDrawFinish);
     COND_HOOK(OnKaleidoUpdate, CVAR, OnKaleidoUpdate);
 
     COND_ID_HOOK(AfterKaleidoDrawPage, PAUSE_ITEM, CVAR, OnAfterKaleidoDrawPage);

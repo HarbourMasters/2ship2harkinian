@@ -185,11 +185,11 @@ void KaleidoScope_DrawAmmoCount(PauseContext* pauseCtx, GraphicsContext* gfxCtx,
     s16 ammoUpperDigit;
     s16 ammo;
 
-    OPEN_DISPS(gfxCtx);
-
     if (!GameInteractor_Should(VB_KALEIDO_DRAW_AMMO_COUNT, true, pauseCtx, gfxCtx, item, ammoIndex)) {
         return;
     }
+
+    OPEN_DISPS(gfxCtx);
 
     if (item == ITEM_PICTOGRAPH_BOX) {
         if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
