@@ -1337,9 +1337,6 @@ u8 sDropTableAmounts[DROP_TABLE_SIZE * DROP_TABLE_NUMBER] = {
 };
 
 void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnPos, s16 params) {
-    if (!(GameInteractor_Should(VB_DROP_COLLECTIBLE, true, *spawnPos, params))) {
-        return;
-    }
 
     EnItem00* spawnedActor;
     u8 dropId;
@@ -1353,6 +1350,9 @@ void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnP
     if (params < 0x101) {
         dropId = sDropTable[params + dropTableIndex];
         dropQuantity = sDropTableAmounts[params + dropTableIndex];
+        if (!(GameInteractor_Should(VB_DROP_COLLECTIBLE, true, *spawnPos, dropId))) {
+            return;
+        }
 
         if (dropId == ITEM00_MASK) {
             switch (GET_PLAYER_FORM) {
@@ -1395,8 +1395,7 @@ void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnP
         }
 
         if (dropId == ITEM00_FLEXIBLE) {
-            if (gSaveContext.save.saveInfo.playerData.health <= 0x10 &&
-                GameInteractor_Should(VB_DROP_COLLECTIBLE, true, dropId)) {
+            if (gSaveContext.save.saveInfo.playerData.health <= 0x10) {
                 Actor_Spawn(&play->actorCtx, play, ACTOR_EN_ELF, spawnPos->x, spawnPos->y + 40.0f, spawnPos->z, 0, 0, 0,
                             FAIRY_PARAMS(FAIRY_TYPE_2, false, 0));
                 SoundSource_PlaySfxAtFixedWorldPos(play, spawnPos, 40, NA_SE_EV_BUTTERFRY_TO_FAIRY);
@@ -1437,10 +1436,6 @@ void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnP
             } else {
                 return;
             }
-        }
-
-        if (!GameInteractor_Should(VB_DROP_COLLECTIBLE, true, dropId)) {
-            return;
         }
 
         if (dropId != (u8)ITEM00_NO_DROP) {
