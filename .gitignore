@@ -3,7 +3,6 @@
 *.o2r
 .DS_Store
 .vscode
-.idea
 *.swp
 logs
 *.nix
