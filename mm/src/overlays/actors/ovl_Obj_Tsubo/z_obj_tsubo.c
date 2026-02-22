@@ -126,7 +126,7 @@ void func_80927690(ObjTsubo* this, PlayState* play) {
 
     if (GameInteractor_Should(VB_POT_DROP_COLLECTIBLE, !this->unk_197 && (OBJ_TSUBO_ZROT(&this->actor) != 2), this)) {
         itemDrop = func_800A8150(OBJ_TSUBO_P003F(&this->actor));
-        if (itemDrop > ITEM00_NO_DROP && GameInteractor_Should(VB_DROP_HEALING, true, itemDrop)) {
+        if (itemDrop > ITEM00_NO_DROP) {
             Item_DropCollectible(play, &this->actor.world.pos, (OBJ_TSUBO_PFE00(&this->actor) << 8) | itemDrop);
             this->unk_197 = true;
         }

@@ -7,8 +7,9 @@
 
 void RegisterNoHeartDrops() {
     // Disable spawning of hearts and fairies
-    COND_VB_SHOULD(VB_DROP_HEALING, CVAR, {
-        s32 item = va_arg(args, s32);
+    COND_VB_SHOULD(VB_DROP_COLLECTIBLE, CVAR, {
+        Vec3f unused = va_arg(args, Vec3f);
+        u32 item = va_arg(args, u32) & 0xFF;
         if (item == ITEM00_RECOVERY_HEART || item == ITEM00_3_HEARTS || item == ITEM00_FLEXIBLE) {
             *should = false;
         }

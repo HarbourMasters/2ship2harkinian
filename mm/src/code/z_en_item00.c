@@ -933,11 +933,6 @@ Actor* Item_DropCollectible(PlayState* play, Vec3f* spawnPos, u32 params) {
         params &= 0x7FFF;
         newParamFF = params & 0xFF;
 
-        if (!GameInteractor_Should(VB_DROP_HEALING, true, paramFF) ||
-            !GameInteractor_Should(VB_DROP_HEALING, true, newParamFF)) {
-            return NULL;
-        }
-
         if (paramFF == ITEM00_3_HEARTS) {
             for (i = 0; i < 3; i++) {
                 spawnedActor = Item_DropCollectible(play, spawnPos, param7F00 | ITEM00_RECOVERY_HEART | param8000);
@@ -1401,7 +1396,7 @@ void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnP
 
         if (dropId == ITEM00_FLEXIBLE) {
             if (gSaveContext.save.saveInfo.playerData.health <= 0x10 &&
-                GameInteractor_Should(VB_DROP_HEALING, true, dropId)) {
+                GameInteractor_Should(VB_DROP_COLLECTIBLE, true, dropId)) {
                 Actor_Spawn(&play->actorCtx, play, ACTOR_EN_ELF, spawnPos->x, spawnPos->y + 40.0f, spawnPos->z, 0, 0, 0,
                             FAIRY_PARAMS(FAIRY_TYPE_2, false, 0));
                 SoundSource_PlaySfxAtFixedWorldPos(play, spawnPos, 40, NA_SE_EV_BUTTERFRY_TO_FAIRY);
@@ -1444,7 +1439,7 @@ void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnP
             }
         }
 
-        if (!GameInteractor_Should(VB_DROP_HEALING, true, dropId)) {
+        if (!GameInteractor_Should(VB_DROP_COLLECTIBLE, true, dropId)) {
             return;
         }
 
