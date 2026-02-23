@@ -11,12 +11,34 @@
 #include "interface/icon_item_jpn_static/icon_item_jpn_static.h"
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
 
+#include "BenPort.h"
+
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Songs/Songs.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 // 2S2H [Port] (and line 26) don't do pointer math and access the list of digits directly.
 extern const char* sCounterTextures[];
+
+// 2S2H [Port] The cursor updating logic for owl warping can get stuck in an infinite loop
+// when there are no world map points registered. This can happen when using index warping and moving the cursor
+// on the menu. We want to completely avoid an infinite loop on the port, so we check to see that there are no points
+// and break out of the loop or soft reset as needed.
+// Defined as a macro for re-use and to be able to "break" out of the parent while loop.
+#define SHIP_HANDLE_OWL_CURSOR_INF_LOOP()                 \
+    {                                                     \
+        bool hasPoint = false;                            \
+        for (int i = 0; i <= OWL_WARP_STONE_TOWER; i++) { \
+            if (pauseCtx->worldMapPoints[i]) {            \
+                hasPoint = true;                          \
+                break;                                    \
+            }                                             \
+        }                                                 \
+        if (!hasPoint) {                                  \
+            Ship_HandleConsoleCrashAsReset();             \
+            break;                                        \
+        }                                                 \
+    }
 
 void KaleidoScope_DrawDungeonStrayFairyCount(PlayState* play) {
     s16 counterDigits[2];
