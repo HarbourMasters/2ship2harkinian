@@ -14,6 +14,7 @@ extern u16 sOwlWarpPauseItems[];
 extern s16 sInDungeonScene;
 extern s32 gHorseIsMounted;
 
+extern bool BetterOwlWarp_IsCutoffOnSide(s16 cursorPoint, PauseContext* pauseCtx);
 extern bool BetterOwlWarp_NextCursorPoint(s16* cursorPoint, PauseContext* pauseCtx);
 }
 
@@ -28,7 +29,7 @@ extern "C" bool PauseOwlWarp_IsOwlWarpEnabled() {
            (!IS_RANDO || Rando::Logic::canPlaySong(OCARINA_SONG_SOARING));
 }
 
-void HandleConfirmingState(PauseContext* pauseCtx, Input* input) {
+static void HandleConfirmingState(PauseContext* pauseCtx, Input* input) {
     if (Message_ShouldAdvance(gPlayState)) {
         if (gPlayState->msgCtx.choiceIndex == 0) { // Yes
             Player* player = GET_PLAYER(gPlayState);
@@ -79,7 +80,7 @@ void HandleConfirmingState(PauseContext* pauseCtx, Input* input) {
 
 // This is a variation of KaleidoScope_UpdateWorldMapCursor that deals with the warp points instead of region points
 // and supports mirror mode
-void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
+static void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
     if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
         (pauseCtx->pageIndex == PAUSE_MAP)) {
         InterfaceContext* interfaceCtx = &gPlayState->interfaceCtx;
@@ -147,23 +148,31 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
         }
 
         // Actually move the cursor
-        if (pauseCtx->cursorPoint[PAUSE_WORLD_MAP] == OWL_WARP_STONE_TOWER && goingRight) {
+        if (pauseCtx->cursorSpecialPos == 0 && BetterOwlWarp_IsCutoffOnSide(pauseCtx->cursorPoint[PAUSE_WORLD_MAP], pauseCtx)) {
             KaleidoScope_MoveCursorToSpecialPos(gPlayState,
-                                                mirrorWorldActive ? PAUSE_CURSOR_PAGE_LEFT : PAUSE_CURSOR_PAGE_RIGHT);
-            pauseCtx->cursorItem[PAUSE_MAP] = PAUSE_ITEM_NONE;
-        } else if (pauseCtx->cursorPoint[PAUSE_WORLD_MAP] == OWL_WARP_GREAT_BAY_COAST && goingLeft) {
-            KaleidoScope_MoveCursorToSpecialPos(gPlayState,
-                                                mirrorWorldActive ? PAUSE_CURSOR_PAGE_RIGHT : PAUSE_CURSOR_PAGE_LEFT);
+                                                (mirrorWorldActive == goingRight) ? PAUSE_CURSOR_PAGE_LEFT : PAUSE_CURSOR_PAGE_RIGHT);
             pauseCtx->cursorItem[PAUSE_MAP] = PAUSE_ITEM_NONE;
         } else if (oldCursorPoint != nextCursorPoint) {
             pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = nextCursorPoint;
         } else if (goingRight) {
             do {
                 pauseCtx->cursorPoint[PAUSE_WORLD_MAP]++;
+                if (pauseCtx->cursorPoint[PAUSE_WORLD_MAP] > OWL_WARP_STONE_TOWER) {
+                    KaleidoScope_MoveCursorToSpecialPos(gPlayState, mirrorWorldActive ? PAUSE_CURSOR_PAGE_LEFT
+                        : PAUSE_CURSOR_PAGE_RIGHT);
+                    pauseCtx->cursorItem[PAUSE_MAP] = PAUSE_ITEM_NONE;
+                    break;
+                }
             } while (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]);
         } else if (goingLeft) {
             do {
                 pauseCtx->cursorPoint[PAUSE_WORLD_MAP]--;
+                if (pauseCtx->cursorPoint[PAUSE_WORLD_MAP] <= REGION_NONE) {
+                    KaleidoScope_MoveCursorToSpecialPos(gPlayState, mirrorWorldActive ? PAUSE_CURSOR_PAGE_RIGHT
+                        : PAUSE_CURSOR_PAGE_LEFT);
+                    pauseCtx->cursorItem[PAUSE_MAP] = PAUSE_ITEM_NONE;
+                    break;
+                }
             } while (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]);
         }
 
@@ -185,7 +194,7 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
     }
 }
 
-void HandlePauseOwlWarp(PauseContext* pauseCtx) {
+static void HandlePauseOwlWarp(PauseContext* pauseCtx) {
     // Initialize worldMapPoints based on owl activation flags
     for (int i = OWL_WARP_STONE_TOWER; i >= OWL_WARP_GREAT_BAY_COAST; i--) {
         pauseCtx->worldMapPoints[i] = (gSaveContext.save.saveInfo.playerData.owlActivationFlags >> i) & 1;
@@ -235,7 +244,7 @@ void HandlePauseOwlWarp(PauseContext* pauseCtx) {
     }
 }
 
-void RegisterPauseOwlWarp() {
+static void RegisterPauseOwlWarp() {
     COND_HOOK(OnKaleidoUpdate, CVAR, [](PauseContext* pauseCtx) {
         if (!sInDungeonScene && PauseOwlWarp_IsOwlWarpEnabled() && CHECK_QUEST_ITEM(QUEST_SONG_SOARING)) {
             HandlePauseOwlWarp(pauseCtx);
