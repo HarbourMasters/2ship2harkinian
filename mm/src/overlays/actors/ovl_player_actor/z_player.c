@@ -17450,6 +17450,7 @@ void Player_Action_56(Player* this, PlayState* play) {
         Player_PlaySfx(this, NA_SE_PL_BODY_BOUND);
     }
 
+    GameInteractor_Should(VB_ZORA_LINK_SWIM_SLOWLY, false, &this->unk_B48, &speedTarget);
     func_80850BF8(this, speedTarget);
     func_80850BA8(this);
 }

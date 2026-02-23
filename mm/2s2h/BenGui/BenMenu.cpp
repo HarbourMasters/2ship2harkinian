@@ -63,6 +63,12 @@ static const std::vector<const char*> ammoBuybackOptions = {
     "Half Price", // AMMO_BUYBACK_HALF_PRICE
 };
 
+static const std::vector<const char*> slowZoraSwimOptions = {
+    "Off",              // SLOW_ZORA_SWIM_OFF
+    "Hold to slow",     // SLOW_ZORA_SWIM_HOLD_SLOW
+    "Hold to speed up", // SLOW_ZORA_SWIM_HOLD_FAST
+};
+
 static const std::vector<const char*> gibdoTradeSequenceOptions = {
     "Vanilla",  // GIBDO_TRADE_SEQUENCE_VANILLA
     "MM3D",     // GIBDO_TRADE_SEQUENCE_MM3D
@@ -965,6 +971,14 @@ void BenMenu::AddEnhancements() {
     path = { "Enhancements", "Gameplay", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Gameplay", 3);
     AddWidget(path, "Player", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Zora Swims Slowly By Holding Z", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Player.SlowZoraSwim")
+        .Options(ComboboxOptions()
+                     .Tooltip("Allows slowing down Zora Link's swimming speed by holding down the Z button.\n"
+                              "-Off: disabled\n"
+                              "-Hold to slow: speed is normal by default\n"
+                              "-Hold to speed up: speed is slow by default")
+                     .ComboVec(&slowZoraSwimOptions));
     AddWidget(path, "Fast Deku Flower Launch", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.FastFlowerLaunch")
         .Options(CheckboxOptions().Tooltip("Speeds up the time it takes to be able to get maximum height from"

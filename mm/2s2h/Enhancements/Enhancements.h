@@ -31,6 +31,12 @@ enum AmmoBuybackOptions {
     AMMO_BUYBACK_HALF_PRICE,
 };
 
+enum SlowZoraSwimOptions {
+    SLOW_ZORA_SWIM_OFF,
+    SLOW_ZORA_SWIM_HOLD_SLOW,
+    SLOW_ZORA_SWIM_HOLD_FAST,
+};
+
 enum GibdoTradeSequenceOptions {
     GIBDO_TRADE_SEQUENCE_VANILLA,
     GIBDO_TRADE_SEQUENCE_MM3D,

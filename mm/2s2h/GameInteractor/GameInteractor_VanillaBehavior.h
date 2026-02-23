@@ -2211,6 +2211,15 @@ typedef enum {
     // ```
     // #### `args`
     // - `*f32` (speed)
+    // - `*f32` (target speed)
+    VB_ZORA_LINK_SWIM_SLOWLY,
+
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `*f32` (speed)
     VB_ZTARGET_SPEED_CHECK,
 } GIVanillaBehavior;
 
