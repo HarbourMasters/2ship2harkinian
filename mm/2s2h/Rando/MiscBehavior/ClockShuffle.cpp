@@ -368,7 +368,7 @@ static void ProcessClockShuffleMessage(u16* textId, bool* loadFromMessageTable, 
     *loadFromMessageTable = false;
 }
 
-// Called at BeforePlayInit. Validates time at cycle start or when a day telop
+// Called at OnFileLoad and OnPlayDestroy. Validates time at cycle start or when a day telop
 // transition is pending (respawnFlag -4). Jumps to first owned half-day if needed.
 static void EnforceOwnedTime() {
     bool isCycleStart =
@@ -429,7 +429,11 @@ static void EnforceOwnedTime() {
 void Rando::ClockShuffle::OnFileLoad() {
     bool shouldRegister = IS_RANDO && RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE];
 
-    COND_HOOK(BeforePlayInit, shouldRegister, []() { EnforceOwnedTime(); });
+    if (shouldRegister) {
+        EnforceOwnedTime();
+    }
+
+    COND_HOOK(OnPlayDestroy, shouldRegister, []() { EnforceOwnedTime(); });
 
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_TEST4, shouldRegister, [](Actor* actor, bool* should) {
         // Skip time checks if a transition cutscene is in progress

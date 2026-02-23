@@ -93,10 +93,6 @@ void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnSceneInit>(sceneId, spawnNum);
 }
 
-void GameInteractor_ExecuteBeforePlayInit() {
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforePlayInit>();
-}
-
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum) {
     SPDLOG_DEBUG("OnRoomInit: sceneId: {}, roomNum: {}", sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRoomInit>(sceneId, roomNum);
