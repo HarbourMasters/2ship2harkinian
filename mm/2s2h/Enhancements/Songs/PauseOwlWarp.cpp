@@ -148,9 +148,10 @@ static void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
         }
 
         // Actually move the cursor
-        if (pauseCtx->cursorSpecialPos == 0 && BetterOwlWarp_IsCutoffOnSide(pauseCtx->cursorPoint[PAUSE_WORLD_MAP], pauseCtx)) {
-            KaleidoScope_MoveCursorToSpecialPos(gPlayState,
-                                                (mirrorWorldActive == goingRight) ? PAUSE_CURSOR_PAGE_LEFT : PAUSE_CURSOR_PAGE_RIGHT);
+        if (pauseCtx->cursorSpecialPos == 0 &&
+            BetterOwlWarp_IsCutoffOnSide(pauseCtx->cursorPoint[PAUSE_WORLD_MAP], pauseCtx)) {
+            KaleidoScope_MoveCursorToSpecialPos(
+                gPlayState, (mirrorWorldActive == goingRight) ? PAUSE_CURSOR_PAGE_LEFT : PAUSE_CURSOR_PAGE_RIGHT);
             pauseCtx->cursorItem[PAUSE_MAP] = PAUSE_ITEM_NONE;
         } else if (oldCursorPoint != nextCursorPoint) {
             pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = nextCursorPoint;
@@ -159,7 +160,7 @@ static void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
                 pauseCtx->cursorPoint[PAUSE_WORLD_MAP]++;
                 if (pauseCtx->cursorPoint[PAUSE_WORLD_MAP] > OWL_WARP_STONE_TOWER) {
                     KaleidoScope_MoveCursorToSpecialPos(gPlayState, mirrorWorldActive ? PAUSE_CURSOR_PAGE_LEFT
-                        : PAUSE_CURSOR_PAGE_RIGHT);
+                                                                                      : PAUSE_CURSOR_PAGE_RIGHT);
                     pauseCtx->cursorItem[PAUSE_MAP] = PAUSE_ITEM_NONE;
                     break;
                 }
@@ -169,7 +170,7 @@ static void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
                 pauseCtx->cursorPoint[PAUSE_WORLD_MAP]--;
                 if (pauseCtx->cursorPoint[PAUSE_WORLD_MAP] <= REGION_NONE) {
                     KaleidoScope_MoveCursorToSpecialPos(gPlayState, mirrorWorldActive ? PAUSE_CURSOR_PAGE_RIGHT
-                        : PAUSE_CURSOR_PAGE_LEFT);
+                                                                                      : PAUSE_CURSOR_PAGE_LEFT);
                     pauseCtx->cursorItem[PAUSE_MAP] = PAUSE_ITEM_NONE;
                     break;
                 }

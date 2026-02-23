@@ -509,7 +509,7 @@ extern "C" bool BetterOwlWarp_IsCutoffOnSide(s16 cursorPoint, PauseContext* paus
         goingLeft = !goingLeft;
         goingRight = !goingRight;
     }
-    
+
     s16* navPoints;
     s16 navCutoff;
 
