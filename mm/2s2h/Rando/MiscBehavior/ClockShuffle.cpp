@@ -250,7 +250,7 @@ static bool CheckAndSkipUnownedTime(Actor* timeActor) {
             enTest4->daytimeIndex = 0;
             gSaveContext.save.day--;
         } else {
-            enTest4->daytimeIndex = 1;
+            enTest4->daytimeIndex = IsNight(time) ? 0 : 1;
             Interface_NewDay(gPlayState, gSaveContext.save.day);
             Environment_NewDay(&gPlayState->envCtx);
 
