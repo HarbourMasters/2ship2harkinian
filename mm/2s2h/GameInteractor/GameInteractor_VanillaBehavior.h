@@ -651,6 +651,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - None
+    VB_FIRST_PERSON_CAMERA,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*EnFish2`
     VB_FISH2_SPAWN_HEART_PIECE,
 
@@ -2212,14 +2220,6 @@ typedef enum {
     // #### `args`
     // - `*f32` (speed)
     VB_ZTARGET_SPEED_CHECK,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - None
-    VB_FIRST_PERSON_CAMERA,
 } GIVanillaBehavior;
 
 #endif
