@@ -13,7 +13,7 @@ extern u16 sOwlWarpPauseItems[];
 #define CVAR_NAME "gEnhancements.Songs.BetterOwlWarpMenu"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-static constexpr s16 NAV_BLOCK_SIZE = OWL_WARP_MAX - 2;
+static constexpr s16 NAV_BLOCK_SIZE = OWL_WARP_STONE_TOWER - OWL_WARP_GREAT_BAY_COAST;
 
 // Arrays indicating the order of navigation from each owl warp point on the menu. There is one array for each compass
 // direction. Each array is broken up into segments relating to each warp point where the cursor is currently. The
