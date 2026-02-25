@@ -532,6 +532,10 @@ extern "C" bool BetterOwlWarp_IsCutoffOnSide(s16 cursorPoint, PauseContext* paus
 }
 
 extern "C" bool BetterOwlWarp_NextCursorPoint(s16* cursorPoint, PauseContext* pauseCtx) {
+    if (*cursorPoint < OWL_WARP_GREAT_BAY_COAST || *cursorPoint > OWL_WARP_STONE_TOWER) {
+        return false;
+    }
+
     bool goingLeft = pauseCtx->stickAdjX < -30;
     bool goingRight = pauseCtx->stickAdjX > 30;
     bool goingUp = pauseCtx->stickAdjY > 30;
