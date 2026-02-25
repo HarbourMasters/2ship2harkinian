@@ -8,8 +8,6 @@ extern "C" {
 
 extern PlayState* gPlayState;
 extern u16 sOwlWarpPauseItems[];
-
-extern bool Ship_HandleConsoleCrashAsReset();
 }
 
 #define CVAR_NAME "gEnhancements.Songs.BetterOwlWarpMenu"
