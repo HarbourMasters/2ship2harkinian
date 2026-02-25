@@ -992,7 +992,7 @@ void Ship_UpdateWorldMapCursorMirrorWorld(PlayState* play) {
         if (oldCursorPoint != pauseCtx->cursorPoint[PAUSE_WORLD_MAP]) {
             Audio_PlaySfx(NA_SE_SY_CURSOR);
         }
-    } else if (GameInteractor_Should(VB_OWL_WARP_MENU_BE_INTUITIVE, pauseCtx->state == PAUSE_STATE_OWL_WARP_SELECT)) {
+    } else if (GameInteractor_Should(VB_OWL_WARP_MENU_USE_LINEAR_CURSOR, pauseCtx->state == PAUSE_STATE_OWL_WARP_SELECT)) {
         pauseCtx->cursorColorSet = PAUSE_CURSOR_COLOR_SET_BLUE;
         oldCursorPoint = pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
 
@@ -1154,7 +1154,7 @@ void KaleidoScope_UpdateWorldMapCursor(PlayState* play) {
         if (oldCursorPoint != pauseCtx->cursorPoint[PAUSE_WORLD_MAP]) {
             Audio_PlaySfx(NA_SE_SY_CURSOR);
         }
-    } else if (GameInteractor_Should(VB_OWL_WARP_MENU_BE_INTUITIVE, pauseCtx->state == PAUSE_STATE_OWL_WARP_SELECT)) {
+    } else if (GameInteractor_Should(VB_OWL_WARP_MENU_USE_LINEAR_CURSOR, pauseCtx->state == PAUSE_STATE_OWL_WARP_SELECT)) {
         pauseCtx->cursorColorSet = PAUSE_CURSOR_COLOR_SET_BLUE;
         oldCursorPoint = pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
 

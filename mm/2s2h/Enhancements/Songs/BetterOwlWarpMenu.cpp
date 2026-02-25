@@ -589,7 +589,7 @@ static void HandleBetterOwlWarpMenuNavigation() {
 }
 
 static void RegisterBetterOwlWarpMenu() {
-    COND_VB_SHOULD(VB_OWL_WARP_MENU_BE_INTUITIVE, CVAR, {
+    COND_VB_SHOULD(VB_OWL_WARP_MENU_USE_LINEAR_CURSOR, CVAR, {
         if (*should) {
             HandleBetterOwlWarpMenuNavigation();
             *should = false;

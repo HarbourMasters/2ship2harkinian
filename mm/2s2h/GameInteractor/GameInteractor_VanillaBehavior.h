@@ -1466,7 +1466,7 @@ typedef enum {
     // ```
     // #### `args`
     // - None
-    VB_OWL_WARP_MENU_BE_INTUITIVE,
+    VB_OWL_WARP_MENU_USE_LINEAR_CURSOR,
 
     // #### `result`
     // ```c
