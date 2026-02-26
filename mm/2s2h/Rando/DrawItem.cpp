@@ -2,6 +2,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/DrawFuncs.h"
+#include "2s2h/Network/Archipelago/ArchipelagoBridge.h"
 #include "2s2h_assets.h"
 
 extern "C" {
@@ -373,6 +374,47 @@ void DrawOcarinaButtonItem(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+void DrawArchipelagoItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* actor) {
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Push();
+
+    Matrix_Scale(0.05f, 0.05f, 0.05f, MTXMODE_APPLY);
+
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    switch (randoItemId) {
+        case RI_ARCHIPELAGO_PROGRESSIVE:
+            gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gArchipelagoProgressiveDL);
+            break;
+        case RI_ARCHIPELAGO_USEFUL:
+            gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gArchipelagoItemDL);
+            break;
+        case RI_ARCHIPELAGO_JUNK:
+            gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gArchipelagoJunkDL);
+            break;
+        default:
+            break;
+    }
+    Matrix_Pop();
+
+    if (CVarGetInteger("gArchipelago.ShowExternal2ShipItem", 0) == 0) {
+        // If item name matches a local game item, also draw it (smaller and offset)
+        RandoItemId localItemId = ArchipelagoBridge::GetLocalItemFromArchipelagoCheck(randoCheckId);
+        if (localItemId != RI_NONE && localItemId != RI_UNKNOWN && localItemId != RI_ARCHIPELAGO_JUNK &&
+            localItemId != RI_ARCHIPELAGO_PROGRESSIVE && localItemId != RI_ARCHIPELAGO_USEFUL) {
+            Matrix_Push();
+            Matrix_Scale(0.4f, 0.4f, 0.4f, MTXMODE_APPLY);
+
+            // Recursively draw the local item
+            Rando::DrawItem(localItemId, randoCheckId, actor);
+
+            Matrix_Pop();
+        }
+    }
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
 // clang-format off
 std::unordered_map<RandoItemId, std::function<void()>> soulDrawMap = {
     { RI_SOUL_ENEMY_ALIEN,          DrawAlien },
@@ -463,6 +505,12 @@ void DrawSparkles(RandoItemId randoItemId, Actor* actor) {
 }
 
 void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* actor) {
+    // Validate item ID
+    if (randoItemId < 0 || randoItemId >= RI_MAX) {
+        SPDLOG_ERROR("[DrawItem] Invalid randoItemId: {} (must be 0-{})", (int)randoItemId, RI_MAX - 1);
+        return;
+    }
+
     // Apply hilites with actor world pos before drawing
     if (actor != NULL) {
         func_800B8118(actor, gPlayState, 0);
@@ -545,9 +593,14 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_PROGRESSIVE_BOW:
         case RI_PROGRESSIVE_BOMB_BAG:
         case RI_PROGRESSIVE_SWORD:
-        case RI_PROGRESSIVE_WALLET:
-            Rando::DrawItem(Rando::ConvertItem(randoItemId, randoCheckId), randoCheckId, actor);
+        case RI_PROGRESSIVE_WALLET: {
+            RandoItemId convertedItemId = Rando::ConvertItem(randoItemId, randoCheckId);
+            if (convertedItemId == RI_JUNK) {
+                convertedItemId = Rando::CurrentJunkItem(randoCheckId);
+            }
+            Rando::DrawItem(convertedItemId, randoCheckId, actor);
             break;
+        }
         case RI_SOUL_ENEMY_ALIEN:
         case RI_SOUL_ENEMY_ARMOS:
         case RI_SOUL_ENEMY_BAD_BAT:
@@ -638,11 +691,19 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_OCARINA_BUTTON_C_UP:
             DrawOcarinaButtonItem(randoItemId, actor);
             break;
+        case RI_ARCHIPELAGO_JUNK:
+        case RI_ARCHIPELAGO_PROGRESSIVE:
+        case RI_ARCHIPELAGO_USEFUL:
+            DrawArchipelagoItem(randoItemId, randoCheckId, actor);
+            break;
         case RI_NONE:
         case RI_UNKNOWN:
             break;
         default:
-            GetItem_Draw(gPlayState, Rando::StaticData::Items[randoItemId].drawId);
+            // Bounds check to prevent crashes from invalid item IDs
+            if (randoItemId >= 0 && randoItemId < RI_MAX) {
+                GetItem_Draw(gPlayState, Rando::StaticData::Items[randoItemId].drawId);
+            }
             break;
     }
 

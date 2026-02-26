@@ -1,5 +1,6 @@
 #include "ActorBehavior.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/Network/Archipelago/Archipelago.h"
 
 extern "C" {
 #include "variables.h"
@@ -15,9 +16,17 @@ void ObjMoonstone_DrawCustom(Actor* thisx, PlayState* play) {
 
     RandoItemId randoItemId = randoSaveCheck.randoItemId;
 
+    // For Archipelago saves, if the item data hasn't loaded yet (randoItemId == 0),
+    // use the vanilla Moon's Tear as a placeholder
+    if (IS_ARCHI && randoItemId == RI_UNKNOWN) {
+        randoItemId = RI_MOONS_TEAR;
+    }
+
     // When not in Astral Observatory, allow the item to convert and render with particles
     if (play->sceneId != SCENE_TENMON_DAI) {
-        randoItemId = Rando::ConvertItem(randoSaveCheck.randoItemId, RC_ASTRAL_OBSERVATORY_MOON_TEAR);
+        randoItemId =
+            Rando::ConvertItem(randoSaveCheck.randoItemId != RI_UNKNOWN ? randoSaveCheck.randoItemId : RI_MOONS_TEAR,
+                               RC_ASTRAL_OBSERVATORY_MOON_TEAR);
         Rando::DrawItem(randoItemId, RC_ASTRAL_OBSERVATORY_MOON_TEAR, thisx);
     } else {
         Rando::DrawItem(randoItemId, RC_ASTRAL_OBSERVATORY_MOON_TEAR, thisx);

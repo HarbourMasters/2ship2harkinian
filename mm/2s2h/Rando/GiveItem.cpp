@@ -9,6 +9,12 @@ extern "C" {
 }
 
 void Rando::GiveItem(RandoItemId randoItemId) {
+    // Never let placeholder Archipelago items touch real inventory/equipment.
+    if (randoItemId == RI_ARCHIPELAGO_PROGRESSIVE || randoItemId == RI_ARCHIPELAGO_USEFUL ||
+        randoItemId == RI_ARCHIPELAGO_JUNK || randoItemId == RI_NONE) {
+        return;
+    }
+
     switch (randoItemId) {
         case RI_CLOCK_TOWN_STRAY_FAIRY:
             SET_WEEKEVENTREG(WEEKEVENTREG_08_80);

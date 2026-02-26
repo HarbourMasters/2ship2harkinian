@@ -1,6 +1,8 @@
 #include "MiscBehavior.h"
 #include "Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h_assets.h"
+#include "Network/Archipelago/Archipelago.h"
+#include "BenGui/Notification.h"
 
 extern "C" {
 #include "z64save.h"
@@ -135,7 +137,9 @@ Sprite* GetSeedTexture(const uint8_t index) {
 }
 
 u8 isRando[FILE_NUM_MAX_WITH_OWL_SAVE];
+u8 isArchi[FILE_NUM_MAX_WITH_OWL_SAVE];
 u32 seedHashes[FILE_NUM_MAX_WITH_OWL_SAVE];
+char fileSlotNames[FILE_NUM_MAX_WITH_OWL_SAVE][32]; // Store slot names for each file
 
 // 5 rectangles per save file:
 // Rand Left Aligned
@@ -144,6 +148,9 @@ u32 seedHashes[FILE_NUM_MAX_WITH_OWL_SAVE];
 // Rand Center Aligned (shadow offset)
 // Owl
 Vtx sRandVtxData[20 * FILE_NUM_MAX];
+
+// Same structure for Archipelago icons
+Vtx sArchiVtxData[20 * FILE_NUM_MAX];
 
 constexpr s16 RAND_ICON_HEIGHT = 16;
 constexpr s16 RAND_ICON_WIDTH = 32;
@@ -183,6 +190,44 @@ void CreateRandSaveTypeVtxData() {
                         sRandVtxData[vtxId + 3].v.cn[2] = sRandVtxData[vtxId + 0].v.cn[3] =
                             sRandVtxData[vtxId + 1].v.cn[3] = sRandVtxData[vtxId + 2].v.cn[3] =
                                 sRandVtxData[vtxId + 3].v.cn[3] = 255;
+    }
+}
+
+// Initialize Archipelago vtx data (same structure as Rando)
+void CreateArchiSaveTypeVtxData() {
+    for (int vtxId = 0; vtxId < ARRAY_COUNT(sArchiVtxData); vtxId += 4) {
+        // x-coord (left)
+        sArchiVtxData[vtxId + 0].v.ob[0] = sArchiVtxData[vtxId + 2].v.ob[0] = 0;
+        // x-coord (right)
+        sArchiVtxData[vtxId + 1].v.ob[0] = sArchiVtxData[vtxId + 3].v.ob[0] = 0;
+
+        // y-coord (top)
+        sArchiVtxData[vtxId + 0].v.ob[1] = sArchiVtxData[vtxId + 1].v.ob[1] = 0;
+        // y-coord (bottom)
+        sArchiVtxData[vtxId + 2].v.ob[1] = sArchiVtxData[vtxId + 3].v.ob[1] = 0;
+
+        // z-coordinate
+        sArchiVtxData[vtxId + 0].v.ob[2] = sArchiVtxData[vtxId + 1].v.ob[2] = sArchiVtxData[vtxId + 2].v.ob[2] =
+            sArchiVtxData[vtxId + 3].v.ob[2] = 0;
+
+        // flag
+        sArchiVtxData[vtxId + 0].v.flag = sArchiVtxData[vtxId + 1].v.flag = sArchiVtxData[vtxId + 2].v.flag =
+            sArchiVtxData[vtxId + 3].v.flag = 0;
+
+        // texture coordinates
+        sArchiVtxData[vtxId + 0].v.tc[0] = sArchiVtxData[vtxId + 0].v.tc[1] = sArchiVtxData[vtxId + 1].v.tc[1] =
+            sArchiVtxData[vtxId + 2].v.tc[0] = 0;
+        sArchiVtxData[vtxId + 1].v.tc[0] = sArchiVtxData[vtxId + 2].v.tc[1] = sArchiVtxData[vtxId + 3].v.tc[0] =
+            sArchiVtxData[vtxId + 3].v.tc[1] = 0;
+
+        // alpha
+        sArchiVtxData[vtxId + 0].v.cn[0] = sArchiVtxData[vtxId + 1].v.cn[0] = sArchiVtxData[vtxId + 2].v.cn[0] =
+            sArchiVtxData[vtxId + 3].v.cn[0] = sArchiVtxData[vtxId + 0].v.cn[1] = sArchiVtxData[vtxId + 1].v.cn[1] =
+                sArchiVtxData[vtxId + 2].v.cn[1] = sArchiVtxData[vtxId + 3].v.cn[1] = sArchiVtxData[vtxId + 0].v.cn[2] =
+                    sArchiVtxData[vtxId + 1].v.cn[2] = sArchiVtxData[vtxId + 2].v.cn[2] =
+                        sArchiVtxData[vtxId + 3].v.cn[2] = sArchiVtxData[vtxId + 0].v.cn[3] =
+                            sArchiVtxData[vtxId + 1].v.cn[3] = sArchiVtxData[vtxId + 2].v.cn[3] =
+                                sArchiVtxData[vtxId + 3].v.cn[3] = 255;
     }
 }
 
@@ -315,15 +360,77 @@ void DrawSeedHashSprites() {
     CLOSE_DISPS(gFileSelectState->state.gfxCtx);
 }
 
+// Updates the Archipelago icon vtx values on every draw to account for file info moving up/down
+void SetArchiSaveTypeVtxData() {
+    int startY = 44;
+    int vtxId = 0;
+
+    for (int i = 0; i < FILE_NUM_MAX; i++, startY -= 16, vtxId += 4) {
+        int posY;
+        int posX = gFileSelectState->windowPosX + 163;
+
+        // Compute real Y position based on current file select state
+        if ((gFileSelectState->configMode == 0x10) && (i == gFileSelectState->copyDestFileIndex)) {
+            posY = gFileSelectState->fileNamesY[i] + 0x2C;
+        } else if (((gFileSelectState->configMode == 0x11) || (gFileSelectState->configMode == 0x12)) &&
+                   (i == gFileSelectState->copyDestFileIndex)) {
+            posY = gFileSelectState->buttonYOffsets[i] + startY;
+        } else {
+            posY = startY + gFileSelectState->buttonYOffsets[i] + gFileSelectState->fileNamesY[i];
+        }
+
+        /* Archi Icons */
+        // 4 sets: Left aligned, Left aligned (shadow), Center aligned, Center aligned (shadow)
+        for (int j = 0; j < 4; j++, vtxId += 4) {
+            // x-coord (left)
+            sArchiVtxData[vtxId + 0].v.ob[0] = sArchiVtxData[vtxId + 2].v.ob[0] =
+                posX + (j % 2 ? 1 : 0) + ((j > 1) ? 10 : 0);
+            // x-coord (right)
+            sArchiVtxData[vtxId + 1].v.ob[0] = sArchiVtxData[vtxId + 3].v.ob[0] =
+                sArchiVtxData[vtxId + 0].v.ob[0] + RAND_ICON_WIDTH;
+
+            // y-coord (top)
+            sArchiVtxData[vtxId + 0].v.ob[1] = sArchiVtxData[vtxId + 1].v.ob[1] = posY - (j % 2 ? 1 : 0);
+            // y-coord (bottom)
+            sArchiVtxData[vtxId + 2].v.ob[1] = sArchiVtxData[vtxId + 3].v.ob[1] =
+                sArchiVtxData[vtxId + 0].v.ob[1] - RAND_ICON_HEIGHT;
+
+            // texture coordinates
+            sArchiVtxData[vtxId + 0].v.tc[0] = sArchiVtxData[vtxId + 0].v.tc[1] = sArchiVtxData[vtxId + 1].v.tc[1] =
+                sArchiVtxData[vtxId + 2].v.tc[0] = 0;
+            sArchiVtxData[vtxId + 1].v.tc[0] = sArchiVtxData[vtxId + 3].v.tc[0] = RAND_ICON_WIDTH << 5;
+            sArchiVtxData[vtxId + 2].v.tc[1] = sArchiVtxData[vtxId + 3].v.tc[1] = RAND_ICON_HEIGHT << 5;
+        }
+
+        /* Owl Icon */
+        // x-coord (left)
+        sArchiVtxData[vtxId + 0].v.ob[0] = sArchiVtxData[vtxId + 2].v.ob[0] = posX + 28;
+        // x-coord (right)
+        sArchiVtxData[vtxId + 1].v.ob[0] = sArchiVtxData[vtxId + 3].v.ob[0] = sArchiVtxData[vtxId + 0].v.ob[0] + 24;
+
+        // y-coord (top)
+        sArchiVtxData[vtxId + 0].v.ob[1] = sArchiVtxData[vtxId + 1].v.ob[1] = posY - 2;
+        // y-coord (bottom)
+        sArchiVtxData[vtxId + 2].v.ob[1] = sArchiVtxData[vtxId + 3].v.ob[1] = sArchiVtxData[vtxId + 0].v.ob[1] - 12;
+
+        // texture coordinates
+        sArchiVtxData[vtxId + 0].v.tc[0] = sArchiVtxData[vtxId + 0].v.tc[1] = sArchiVtxData[vtxId + 1].v.tc[1] =
+            sArchiVtxData[vtxId + 2].v.tc[0] = 0;
+        sArchiVtxData[vtxId + 1].v.tc[0] = sArchiVtxData[vtxId + 3].v.tc[0] = 24 << 5;
+        sArchiVtxData[vtxId + 2].v.tc[1] = sArchiVtxData[vtxId + 3].v.tc[1] = 12 << 5;
+    }
+}
+
 void RegisterShoulds() {
 
     // Renders the small blank info box next to the file info
     REGISTER_VB_SHOULD(VB_DRAW_FILE_SELECT_SMALL_EXTRA_INFO_BOX, {
         int fileIndex = va_arg(args, int);
 
-        // Bail out if not a rando save, or if the save is also an owl save
+        // Bail out if not a rando/archi save, or if the save is also an owl save
         // because owl saves already render the small box and large box
-        if (!isRando[fileIndex] || gFileSelectState->isOwlSave[fileIndex + FILE_NUM_OWL_SAVE_OFFSET]) {
+        if ((!isRando[fileIndex] && !isArchi[fileIndex]) ||
+            gFileSelectState->isOwlSave[fileIndex + FILE_NUM_OWL_SAVE_OFFSET]) {
             return;
         }
 
@@ -343,28 +450,41 @@ void RegisterShoulds() {
         CLOSE_DISPS(gFileSelectState->state.gfxCtx);
     });
 
+    // Draw Rando/Archi icon and owl icon for special saves
     REGISTER_VB_SHOULD(VB_DRAW_FILE_SELECT_EXTRA_INFO_DETAILS, {
         int fileIndex = va_arg(args, int);
 
-        if (!isRando[fileIndex]) {
+        if (!isRando[fileIndex] && !isArchi[fileIndex]) {
             return;
         }
 
         DrawSeedHashSprites();
 
-        SetRandSaveTypeVtxData();
+        // Update vertex data for the appropriate save type
+        if (isRando[fileIndex]) {
+            SetRandSaveTypeVtxData();
+        } else {
+            SetArchiSaveTypeVtxData();
+        }
 
         OPEN_DISPS(gFileSelectState->state.gfxCtx);
 
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
-        gSPVertex(POLY_OPA_DISP++, (uintptr_t)&sRandVtxData[20 * fileIndex], 20, 0);
+        // Use appropriate vertex data and texture based on save type
+        if (isRando[fileIndex]) {
+            gSPVertex(POLY_OPA_DISP++, (uintptr_t)&sRandVtxData[20 * fileIndex], 20, 0);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelRandIconTex, G_IM_FMT_I, RAND_ICON_WIDTH, RAND_ICON_HEIGHT,
+                                   0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gSPVertex(POLY_OPA_DISP++, (uintptr_t)&sArchiVtxData[20 * fileIndex], 20, 0);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelArchiIconTex, G_IM_FMT_I, RAND_ICON_WIDTH, RAND_ICON_HEIGHT,
+                                   0, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
+        }
 
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelRandIconTex, G_IM_FMT_I, RAND_ICON_WIDTH, RAND_ICON_HEIGHT, 0,
-                               G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
-
-        // Rand Icon (shadow)
+        // Icon (shadow)
         gDPSetPrimColor(POLY_OPA_DISP++, 0x00, 0x00, 0, 0, 0, gFileSelectState->nameAlpha[fileIndex]);
 
         if (gFileSelectState->isOwlSave[fileIndex + FILE_NUM_OWL_SAVE_OFFSET]) {
@@ -373,7 +493,7 @@ void RegisterShoulds() {
             gSP1Quadrangle(POLY_OPA_DISP++, 12, 14, 15, 13, 0); // Centered
         }
 
-        // Rand Icon
+        // Icon
         gDPSetPrimColor(POLY_OPA_DISP++, 0x00, 0x00, 255, 255, 255, gFileSelectState->nameAlpha[fileIndex]);
 
         if (gFileSelectState->isOwlSave[fileIndex + FILE_NUM_OWL_SAVE_OFFSET]) {
@@ -397,8 +517,124 @@ void RegisterShoulds() {
     REGISTER_VB_SHOULD(VB_DRAW_FILE_SELECT_OWL_SAVE_ICON, {
         int fileIndex = va_arg(args, int);
 
-        if (isRando[fileIndex]) {
+        if (isRando[fileIndex] || isArchi[fileIndex]) {
             *should = false;
+        }
+    });
+
+    // Check if Archi file can be loaded (must be connected to slot)
+    // Also handles empty slots when Archi is enabled
+    REGISTER_VB_SHOULD(VB_FILE_SELECT_CONFIRM_FILE, {
+        int fileIndex = va_arg(args, int);
+        bool isArchiFile = isArchi[fileIndex];
+        bool archiEnabled = CVarGetInteger("gArchipelago.Enabled", 0);
+
+        // Check if this is an empty slot (no existing save)
+        bool isEmptySlot = !isArchiFile && !isRando[fileIndex];
+
+        // If Archi is enabled and clicking on empty slot, treat it as Archi file creation
+        if (archiEnabled && isEmptySlot) {
+            // Check connection status
+            int connectionStatus = CVarGetInteger("gArchipelago.ConnectionStatus", 0);
+            bool isConnected = Archipelago::IsConnected();
+
+            // If not connected, trigger connection
+            if (connectionStatus == 0 && !isConnected) {
+                Archipelago::ConnectFromCvars();
+                connectionStatus = CVarGetInteger("gArchipelago.ConnectionStatus", 0);
+            }
+
+            // Block if not fully connected yet
+            if (connectionStatus != 4) {
+                *should = false;
+
+                // Play error sound
+                // Audio_PlaySfx(NA_SE_SY_ERROR);
+
+                // Show appropriate message
+                const char* message = connectionStatus == 1 || connectionStatus == 2 || connectionStatus == 3
+                                          ? "Connecting to Archipelago... Please wait."
+                                          : "Connecting to Archipelago...";
+
+                Notification::Emit(
+                    { .message = message, .messageColor = ImVec4(1.0f, 0.5f, 0.5f, 1.0f), .remainingTime = 5.0f });
+                return;
+            }
+
+            // Allow file creation to proceed - OnFileCreate will set it as SAVETYPE_ARCHI
+            return;
+        }
+
+        // Block if Archi file but Archi not enabled
+        if (isArchiFile && !archiEnabled) {
+            *should = false;
+
+            // Play error sound
+            Audio_PlaySfx(NA_SE_SY_ERROR);
+
+            // Show notification
+            Notification::Emit({ .message = "You must enable Archipelago to access this save file",
+                                 .messageColor = ImVec4(1.0f, 0.5f, 0.5f, 1.0f),
+                                 .remainingTime = 5.0f });
+            return;
+        }
+
+        // If it's an Archi file and Archi is enabled, handle connection
+        if (isArchiFile && archiEnabled) {
+            // Check connection status (4 = fully connected and scouted)
+            int connectionStatus = CVarGetInteger("gArchipelago.ConnectionStatus", 0);
+            bool isConnected = Archipelago::IsConnected();
+
+            // If not connected, trigger connection
+            if (connectionStatus == 0 && !isConnected) {
+                Archipelago::ConnectFromCvars();
+                connectionStatus = CVarGetInteger("gArchipelago.ConnectionStatus", 0);
+            }
+
+            // Block if not fully connected yet
+            if (connectionStatus != 4) {
+                *should = false;
+
+                // Play error sound
+                // Audio_PlaySfx(NA_SE_SY_ERROR);
+
+                // Show appropriate message based on status
+                const char* message = connectionStatus == 1 || connectionStatus == 2 || connectionStatus == 3
+                                          ? "Connecting to Archipelago... Please wait."
+                                          : "Connecting to Archipelago...";
+
+                Notification::Emit(
+                    { .message = message, .messageColor = ImVec4(1.0f, 0.5f, 0.5f, 1.0f), .remainingTime = 5.0f });
+                return;
+            }
+
+            // Get slot names
+            const char* savedSlotName = fileSlotNames[fileIndex];
+            const char* currentSlotName = CVarGetString("gArchipelago.Slot", "");
+
+            // If file has no slot name yet, save the current one
+            if (savedSlotName[0] == '\0' && currentSlotName[0] != '\0') {
+                // This will be updated in the save file when it's next saved
+                // For now, just update the in-memory copy
+                strncpy(fileSlotNames[fileIndex], currentSlotName, 31);
+                fileSlotNames[fileIndex][31] = '\0';
+                savedSlotName = fileSlotNames[fileIndex];
+            }
+
+            // Check if slot names match (only if both are set)
+            if (savedSlotName[0] != '\0' && currentSlotName[0] != '\0' && strcmp(savedSlotName, currentSlotName) != 0) {
+                *should = false;
+
+                // Play error sound
+                Audio_PlaySfx(NA_SE_SY_ERROR);
+
+                // Show notification with the required slot name
+                char errorMsg[128];
+                snprintf(errorMsg, sizeof(errorMsg), "You must connect to this file with slot: %s", savedSlotName);
+                Notification::Emit(
+                    { .message = errorMsg, .messageColor = ImVec4(1.0f, 0.5f, 0.5f, 1.0f), .remainingTime = 5.0f });
+                return;
+            }
         }
     });
 }
@@ -408,14 +644,37 @@ void Rando::MiscBehavior::InitFileSelect() {
     RegisterShoulds();
 
     CreateRandSaveTypeVtxData();
+    CreateArchiSaveTypeVtxData();
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileSelectSaveLoad>(
         [](s16 fileNum, bool isOwlSave, SaveContext* saveContext) {
-            isRando[fileNum + (isOwlSave ? FILE_NUM_OWL_SAVE_OFFSET : 0)] =
-                saveContext->save.shipSaveInfo.saveType == SAVETYPE_RANDO;
-            if (isRando[fileNum + (isOwlSave ? FILE_NUM_OWL_SAVE_OFFSET : 0)]) {
-                seedHashes[fileNum + (isOwlSave ? FILE_NUM_OWL_SAVE_OFFSET : 0)] =
-                    gSaveContext.save.shipSaveInfo.rando.finalSeed;
+            int fileIndex = fileNum + (isOwlSave ? FILE_NUM_OWL_SAVE_OFFSET : 0);
+            isRando[fileIndex] = saveContext->save.shipSaveInfo.saveType == SAVETYPE_RANDO &&
+                                 !saveContext->save.shipSaveInfo.rando.isArchiSave;
+            isArchi[fileIndex] = saveContext->save.shipSaveInfo.saveType == SAVETYPE_RANDO &&
+                                 saveContext->save.shipSaveInfo.rando.isArchiSave;
+
+            if (isRando[fileIndex]) {
+                seedHashes[fileIndex] = gSaveContext.save.shipSaveInfo.rando.finalSeed;
+            }
+
+            // Store the slot name for Archi saves
+            if (isArchi[fileIndex]) {
+                const char* savedSlotName = saveContext->save.shipSaveInfo.rando.archipelago.slotName;
+                const char* currentSlotName = CVarGetString("gArchipelago.Slot", "");
+
+                // If save has no slot name but we're connected, save the current slot name
+                if (savedSlotName[0] == '\0' && currentSlotName[0] != '\0') {
+                    strncpy(saveContext->save.shipSaveInfo.rando.archipelago.slotName, currentSlotName, 31);
+                    saveContext->save.shipSaveInfo.rando.archipelago.slotName[31] = '\0';
+                    // Note: This will be persisted when the save is next saved
+                }
+
+                // Store in our tracking array
+                strncpy(fileSlotNames[fileIndex], saveContext->save.shipSaveInfo.rando.archipelago.slotName, 31);
+                fileSlotNames[fileIndex][31] = '\0'; // Ensure null termination
+            } else {
+                fileSlotNames[fileIndex][0] = '\0';
             }
         });
 }

@@ -1,5 +1,7 @@
 #include "MiscBehavior.h"
 #include "2s2h/Rando/Logic/Logic.h"
+#include "2s2h/Network/Archipelago/Archipelago.h"
+#include "2s2h/Network/Archipelago/ArchipelagoBridge.h"
 
 extern "C" {
 #include "variables.h"
@@ -17,6 +19,70 @@ void Rando::MiscBehavior::OnFileLoad() {
     Rando::MiscBehavior::InitKaleidoItemPage();
     Rando::MiscBehavior::InitOfferGetItemBehavior();
     Rando::MiscBehavior::SariasSongHint();
+
+    // For Archipelago saves, repopulate location data from server
+    if (IS_ARCHI) {
+        // Clear session-only item dedupe to allow items to be received again
+        // when loading an older save (e.g., soft reset without saving)
+        ArchipelagoBridge::OnFileLoad();
+
+        // NOTE: We do NOT mark all checks as shuffled here.
+        // The shuffled status is loaded from the save file and properly set by
+        // RepopulateLocationRewardsFromCache when location_info is available.
+
+        // Try to reapply cached slot_data from AP server (if user connected before creating save)
+        // This will apply the actual server options instead of defaults
+        bool appliedCachedSlotData = ArchipelagoBridge::ReapplySlotOptionsFromCache();
+
+        // If no cached slot_data was available (i.e., fresh save, not connected yet),
+        // DON'T override options that are already in the save file
+        // Only set defaults if options are all 0 (uninitialized)
+        if (!appliedCachedSlotData) {
+            // Check if options look uninitialized (all values are 0)
+            bool needsInit =
+                (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] == 0 && RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] == 0 &&
+                 RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == 0 && RANDO_SAVE_OPTIONS[RO_LOGIC] == 0);
+
+            if (needsInit) {
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_COWS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_TINGLE_SHOPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_TREE_DROPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_DROPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_SWIM] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_ENEMY_SOULS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_GRASS_DROPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_POT_DROPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_BARREL_DROPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_CRATE_DROPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_SNOWBALL_DROPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_FREESTANDING_ITEMS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_SHOPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_GOLD_SKULLTULAS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_OWL_STATUES] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_REMAINS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_SONG_SUN] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_SONG_DOUBLE_TIME] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_SONG_INVERTED_TIME] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_SONG_SARIA] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_OCARINA_BUTTONS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRAPS] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_CLOCK_SHUFFLE] = RO_GENERIC_NO;
+                RANDO_SAVE_OPTIONS[RO_LOGIC] = RO_LOGIC_GLITCHLESS;
+                RANDO_SAVE_OPTIONS[RO_STARTING_MAPS_AND_COMPASSES] = RO_GENERIC_NO;
+            }
+        }
+
+        // Repopulate location rewards from cached AP server data
+        ArchipelagoBridge::RepopulateLocationRewardsFromCache();
+
+        // Apply cached checked locations from server
+        // This marks locations as obtained BEFORE scenes load, preventing items from spawning
+        // This is crucial for new save files connecting to existing AP slots
+        ArchipelagoBridge::ApplyCachedCheckedLocations();
+    }
 
     COND_HOOK(OnFlagSet, IS_RANDO, Rando::MiscBehavior::OnFlagSet);
     COND_HOOK(OnSceneFlagSet, IS_RANDO, Rando::MiscBehavior::OnSceneFlagSet);

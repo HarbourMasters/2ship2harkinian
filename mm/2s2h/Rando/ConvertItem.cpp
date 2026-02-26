@@ -160,6 +160,11 @@ static RegisterShipInitFunc refreshInitFunc(
     { "IS_RANDO" });
 
 RandoItemId Rando::CurrentJunkItem(RandoCheckId randoCheckId) {
+    // Safety check: if no junk items are obtainable, return green rupee as fallback
+    if (obtainableJunkItems.empty()) {
+        return RI_RUPEE_GREEN;
+    }
+
     if (CVarGetInteger("gRando.JunkItems", 0) == 0) {
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId +
                          (gPlayState->gameplayFrames / 30));
@@ -596,6 +601,8 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
                 return false;
             }
             return true;
+        case RI_OCARINA:
+            return INV_CONTENT(ITEM_OCARINA_OF_TIME) != ITEM_OCARINA_OF_TIME;
         case RI_OCARINA_BUTTON_A:
         case RI_OCARINA_BUTTON_C_DOWN:
         case RI_OCARINA_BUTTON_C_LEFT:
@@ -644,6 +651,12 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
 }
 
 RandoItemId Rando::ConvertItem(RandoItemId randoItemId, RandoCheckId randoCheckId) {
+    // Archipelago placeholders must never be converted or treated as real items.
+    if (randoItemId == RI_ARCHIPELAGO_PROGRESSIVE || randoItemId == RI_ARCHIPELAGO_USEFUL ||
+        randoItemId == RI_ARCHIPELAGO_JUNK) {
+        return randoItemId;
+    }
+
     if (IsItemObtainable(randoItemId, randoCheckId)) {
         switch (randoItemId) {
             case RI_TIME_PROGRESSIVE: {
