@@ -137,6 +137,9 @@ static const ALIGN_ASSET(2) char gFileSelCheatingDayTex[] = dgFileSelCheatingDay
 #define dgFileSelRandIconTex "__OTR__misc/title_static/gFileSelRandIconTex"
 static const ALIGN_ASSET(2) char gFileSelRandIconTex[] = dgFileSelRandIconTex;
 
+#define dgFileSelArchiIconTex "__OTR__misc/title_static/gFileSelArchiIconTex"
+static const ALIGN_ASSET(2) char gFileSelArchiIconTex[] = dgFileSelArchiIconTex;
+
 #define dgBoxChestCornerHealthTex "__OTR__objects/object_box/gBoxChestCornerHealthTex"
 static const ALIGN_ASSET(2) char gBoxChestCornerHealthTex[] = dgBoxChestCornerHealthTex;
 
@@ -403,3 +406,22 @@ static const ALIGN_ASSET(2) char gOcarinaCRightButtonDL[] = dgOcarinaCRightButto
 
 #define dgOcarinaCUpButtonDL "__OTR__objects/object_ocarina_c_up_button/gOcarinaCUpButtonDL"
 static const ALIGN_ASSET(2) char gOcarinaCUpButtonDL[] = dgOcarinaCUpButtonDL;
+
+// Archipelago Icons
+#define dgArchipelagoProgressiveIconTex "__OTR__textures/parameter_static/gArchipelagoProgressive"
+static const ALIGN_ASSET(2) char gArchipelagoProgressiveIconTex[] = dgArchipelagoProgressiveIconTex;
+
+#define dgArchipelagoUsefulIconTex "__OTR__textures/parameter_static/gArchipelagoUseful"
+static const ALIGN_ASSET(2) char gArchipelagoUsefulIconTex[] = dgArchipelagoUsefulIconTex;
+
+#define dgArchipelagoJunkIconTex "__OTR__textures/parameter_static/gArchipelagoJunk"
+static const ALIGN_ASSET(2) char gArchipelagoJunkIconTex[] = dgArchipelagoJunkIconTex;
+
+#define dgArchipelagoProgressiveDL "__OTR__objects/object_archipelago_item/gArchipelagoProgressiveDL"
+static const ALIGN_ASSET(2) char gArchipelagoProgressiveDL[] = dgArchipelagoProgressiveDL;
+
+#define dgArchipelagoItemDL "__OTR__objects/object_archipelago_item/gArchipelagoItemDL"
+static const ALIGN_ASSET(2) char gArchipelagoItemDL[] = dgArchipelagoItemDL;
+
+#define dgArchipelagoJunkDL "__OTR__objects/object_archipelago_item/gArchipelagoJunkDL"
+static const ALIGN_ASSET(2) char gArchipelagoJunkDL[] = dgArchipelagoJunkDL;
