@@ -1,4 +1,5 @@
 #include "MiscBehavior.h"
+#include <Network/Archipelago/Archipelago.h>
 
 extern "C" {
 #include <variables.h>
@@ -31,6 +32,8 @@ void Rando::MiscBehavior::BeforeEndOfCycleSave() {
 }
 
 void Rando::MiscBehavior::AfterEndOfCycleSave() {
+    bool isArchiSave = IS_ARCHI;
+
     for (int i = 0; i < 8; i++) {
         gSaveContext.save.saveInfo.inventory.dungeonItems[i] = saveContextCopy.save.saveInfo.inventory.dungeonItems[i];
         gSaveContext.save.saveInfo.inventory.dungeonKeys[i] =
@@ -71,14 +74,36 @@ void Rando::MiscBehavior::AfterEndOfCycleSave() {
     gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_COUPLE] =
         saveContextCopy.save.saveInfo.inventory.items[SLOT_TRADE_COUPLE];
 
+    // For Archipelago saves, preserve ArchiSaveInfo data across cycle resets
+    // This includes receivedItemCount, checkedLocations, and connection info
+    if (isArchiSave) {
+        gSaveContext.save.shipSaveInfo.rando.archipelago = saveContextCopy.save.shipSaveInfo.rando.archipelago;
+    }
+
     // Unset any flags used for checks, whether or not they get the item or junk is determined on our end instead.
     for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
-        RANDO_SAVE_CHECKS[randoCheckId].cycleObtained = false;
+        // For Archipelago saves, reset cycleObtained but preserve obtained status
+        // For regular rando saves, always reset cycleObtained
+        if (!isArchiSave) {
+            RANDO_SAVE_CHECKS[randoCheckId].cycleObtained = false;
+        } else {
+            // In AP mode, only reset cycleObtained if the item hasn't been permanently obtained
+            if (!RANDO_SAVE_CHECKS[randoCheckId].obtained) {
+                RANDO_SAVE_CHECKS[randoCheckId].cycleObtained = false;
+            }
+        }
 
         if (randoCheckId == RC_CLOCK_TOWN_WEST_BANK_ADULTS_WALLET || randoCheckId == RC_CLOCK_TOWN_WEST_BANK_INTEREST ||
             randoCheckId == RC_CLOCK_TOWN_WEST_BANK_PIECE_OF_HEART) {
             continue;
         }
+
+        // For Archipelago saves, don't clear flags for items that have been obtained
+        // This prevents items from respawning after being sent to the AP server
+        if (isArchiSave && RANDO_SAVE_CHECKS[randoCheckId].obtained) {
+            continue;
+        }
+
         switch (randoStaticCheck.flagType) {
             case FLAG_WEEK_EVENT_REG:
                 // Clear the flag without triggering hook

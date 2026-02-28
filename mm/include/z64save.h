@@ -369,6 +369,43 @@ typedef enum {
     SAVETYPE_RANDO,
 } SaveType;
 
+// #region 2S2H [Archipelago]
+#define ARCHI_SAVE_MAGIC 0x41524348u /* 'ARCH' */
+#define ARCHI_SAVE_VERSION 1
+
+typedef struct ArchiSaveInfo {
+    u32 magic;   // ARCHI_SAVE_MAGIC
+    u16 version; // ARCHI_SAVE_VERSION
+    u16 flags;   // bitfield for cheap toggles
+
+    // Connection-ish state (store as IDs/strings; never pointers)
+    char serverHost[64]; // "archipelago.gg:38281" etc (null-terminated)
+    char slotName[32];   // player/slot name
+    u32 team;
+    u32 slot;
+
+    // Session identifiers
+    u64 sessionId;  // whatever you define (or 0)
+    u32 seed;       // if you mirror AP seed here
+    u32 lastSyncMs; // optional, or remove
+
+    // Tracking
+    u32 receivedItemCount;
+    u32 checkedLocationCount;
+
+    // Persisted checked locations bitset.
+    // For now, locationId is treated as 0..RC_MAX-1 (RandoCheckId).
+    u8 checkedLocations[(RC_MAX + 7) / 8];
+
+    // Room for future without breaking layout again
+    u8 reserved[128];
+
+    uint8_t startingItemsGranted;
+
+} ArchiSaveInfo;
+// #endregion
+
+
 typedef struct RandoSaveCheck {
     RandoItemId randoItemId;
     bool shuffled;
@@ -388,6 +425,8 @@ typedef struct RandoSaveInfo {
     u16 randoStartingItems[256]; // Max 256 starting items, using u16 in case we add more than 255 items
     s8 foundDungeonKeys[9]; // Tracks the number of dungeon keys found, opposed to the number of keys in the inventory
     u16 foundTriforcePieces;
+    bool isArchiSave;
+    ArchiSaveInfo archipelago;
 } RandoSaveInfo;
 
 // These are values added by 2S2H that we need to be persisted to the save file

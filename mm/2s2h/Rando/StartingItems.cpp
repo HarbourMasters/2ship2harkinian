@@ -3,6 +3,7 @@
 #include "2s2h/ShipUtils.h"
 #include <libultraship/libultraship.h>
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/Network/Archipelago/Archipelago.h"
 
 // Starting items is a dynamically sized list of strings, so we can't store it with the other options because it can't
 // fit in a CVar. We have to store it in various places
@@ -50,6 +51,25 @@ std::vector<RandoItemId> GetComputedStartingItems(RandoSaveInfo& randoSaveInfo) 
     }
     if (randoSaveInfo.randoSaveOptions[RO_SHUFFLE_SONG_INVERTED_TIME] != RO_GENERIC_YES) {
         startingItems.push_back(RI_SONG_INVERTED_TIME);
+    }
+
+    // Grant starting equipment if not shuffled
+    if (IS_ARCHI) {
+        if (randoSaveInfo.randoSaveOptions[RO_SHUFFLE_SONG_TIME] != RO_GENERIC_YES) {
+            startingItems.push_back(RI_SONG_TIME);
+        }
+        if (randoSaveInfo.randoSaveOptions[RO_SHUFFLE_SWORD] != RO_GENERIC_YES) {
+            startingItems.push_back(RI_PROGRESSIVE_SWORD);
+        }
+        if (randoSaveInfo.randoSaveOptions[RO_SHUFFLE_SHIELD] != RO_GENERIC_YES) {
+            startingItems.push_back(RI_SHIELD_HERO);
+        }
+        if (randoSaveInfo.randoSaveOptions[RO_SHUFFLE_OCARINA] != RO_GENERIC_YES) {
+            startingItems.push_back(RI_OCARINA);
+        }
+        if (randoSaveInfo.randoSaveOptions[RO_STARTING_BUNNY_HOOD]) {
+            startingItems.push_back(RI_MASK_BUNNY);
+        }
     }
 
     // When shuffling time, if the player did not choose any starting time items, we need to give them at least one.

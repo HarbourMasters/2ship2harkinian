@@ -1,4 +1,6 @@
 #include "ActorBehavior.h"
+#include "2s2h/Network/Archipelago/Archipelago.h"
+#include "2s2h/Network/Archipelago/ArchipelagoBridge.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/Rando/MiscBehavior/Traps.h"
@@ -43,6 +45,15 @@ void EnGirlA_RandoBought(PlayState* play, EnGirlA* enGirlA) {
 void EnGirlA_RandoRestock(PlayState* play, EnGirlA* enGirlA) {
     auto randoSaveCheck = RANDO_SAVE_CHECKS[enGirlA->actor.world.rot.z];
 
+    // For AP saves, don't restock if the location has been checked
+    if (IS_ARCHI) {
+        auto apLocationId = ArchipelagoBridge::GetLocationIdFromRandoCheck((RandoCheckId)enGirlA->actor.world.rot.z);
+        if (apLocationId != 0 && ArchipelagoBridge::IsLocationChecked(apLocationId)) {
+            // Location was already checked, keep it out of stock
+            return;
+        }
+    }
+
     if (Rando::IsItemObtainable(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z)) {
         enGirlA->isOutOfStock = false;
         enGirlA->actor.draw = EnGirlA_RandoDrawFunc;
@@ -66,12 +77,24 @@ s32 EnGirlA_RandoCanBuyFunc(PlayState* play, EnGirlA* enGirlA) {
 void EnGirlA_RandoBuyFunc(PlayState* play, EnGirlA* enGirlA) {
     auto& randoSaveCheck = RANDO_SAVE_CHECKS[enGirlA->actor.world.rot.z];
     RandoItemId randoItemId = Rando::ConvertItem(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z);
-    randoSaveCheck.obtained = true;
+
+    // Mark check as eligible to queue it for processing
+    randoSaveCheck.eligible = true;
+
+    // Deduct rupees
     Rupees_ChangeBy(-play->msgCtx.unk1206C);
+
     if (randoItemId == RI_TRAP) {
         RollTrapType();
     }
-    Rando::GiveItem(randoItemId);
+
+    // For rando saves, give item immediately
+    // For AP saves, the check will be queued and item received from server
+    if (IS_RANDO) {
+        randoSaveCheck.obtained = true;
+        Rando::GiveItem(randoItemId);
+    }
+    // For AP saves, obtained will be set when the item comes back from the server
 }
 
 void EnGirlA_RandoBuyFanfareFunc(PlayState* play, EnGirlA* enGirlA) {
@@ -104,8 +127,25 @@ void EnGirlA_RandoInit(EnGirlA* enGirlA, PlayState* play) {
 
     auto randoSaveCheck = RANDO_SAVE_CHECKS[enGirlA->actor.world.rot.z];
 
-    if (!Rando::IsItemObtainable(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z) &&
+    // Check if the item should be out of stock
+    bool shouldBeOutOfStock = false;
+
+    // For AP saves, check if the location has been checked (marked when eligible is set)
+    if (IS_ARCHI) {
+        auto apLocationId = ArchipelagoBridge::GetLocationIdFromRandoCheck((RandoCheckId)enGirlA->actor.world.rot.z);
+        if (apLocationId != 0 && ArchipelagoBridge::IsLocationChecked(apLocationId)) {
+            shouldBeOutOfStock = true;
+        }
+    }
+
+    // For rando saves or if not already checked via AP, use the traditional check
+    if (!shouldBeOutOfStock &&
+        !Rando::IsItemObtainable(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z) &&
         randoSaveCheck.obtained) {
+        shouldBeOutOfStock = true;
+    }
+
+    if (shouldBeOutOfStock) {
         enGirlA->isOutOfStock = true;
         enGirlA->actor.draw = NULL;
     } else {
