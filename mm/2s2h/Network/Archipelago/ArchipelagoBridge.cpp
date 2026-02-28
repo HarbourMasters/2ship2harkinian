@@ -120,11 +120,13 @@ RandoItemId GetRandoItemIdFromAPItemId(uint64_t apItemId, const std::string& ite
 
 // Shared implementation used by both PopulateLocationRewards and RepopulateLocationRewardsFromCache.
 static void PopulateLocationRewardsImpl(const nlohmann::json& locationInfo) {
-    // Clear all shuffled flags first, so only checks in this seed are marked as shuffled.
-    // This prevents issues with old save files that have excluded locations marked as shuffled.
+    // Clear all shuffled flags and reset items to vanilla first, so only checks in this seed are
+    // marked as shuffled. Unshuffled checks (e.g. boss remains when shuffle_boss_remains is off)
+    // will keep their vanilla item rather than defaulting to junk.
     for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
         if (randoCheckId != RC_UNKNOWN) {
             RANDO_SAVE_CHECKS[randoCheckId].shuffled = false;
+            RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoStaticCheck.randoItemId;
         }
     }
 
