@@ -15,7 +15,7 @@
 #undef DEFINE_ACTOR_UNSET
 
 //// Actor Overlay Table definition
-//#define DEFINE_ACTOR(name, _enumValue, allocType, _debugName) \
+// #def in e DEFINE_ACTOR(name, _enumValue, allocType, _debugName) \
 //    { SEGMENT_ROM_START(ovl_##name),                          \
 //      SEGMENT_ROM_END(ovl_##name),                            \
 //      SEGMENT_START(ovl_##name),                              \
