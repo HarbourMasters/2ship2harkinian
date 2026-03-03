@@ -1441,6 +1441,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - `*EnOwl`
+    VB_OWL_SPAWN_FEATHER,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `u8`
     VB_OWL_STATUE_ACTIVATE,
 
