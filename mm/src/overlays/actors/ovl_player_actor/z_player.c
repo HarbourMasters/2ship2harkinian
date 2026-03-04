@@ -15356,34 +15356,40 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
     }
 
     if (this->av2.actionVar2 != 0) {
-        f32 xStick = sPlayerControlInput->rel.stick_x * -120;
-        f32 yStick = sPlayerControlInput->rel.stick_y * 180;
+        static bool lastInputIsMouse = false;
+        f32 xInput = 0, yInput = 0;
 
         bool mouseControl = (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0));
         if (mouseControl) {
-            MouseCoords mousePos = Mouse_GetPos();
-            u32 width = OTRGetCurrentWidth();
-            u32 height = OTRGetCurrentHeight();
-            f32 centerX, centerY;
-            centerX = (f32)width / 2;
-            centerY = (f32)height / 2;
-            xStick += ((f32)mousePos.x - centerX) * (60 * -120) / centerX;
-            yStick -= ((f32)mousePos.y - centerY) * (60 * 180) / centerY;
+            MouseCoords mouseDelta = Mouse_GetDelta();
+            if (mouseDelta.x != 0 || mouseDelta.y != 0) {
+                lastInputIsMouse = true;
+                xInput += ((f32)mouseDelta.x) * 60 * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
+                yInput -= ((f32)mouseDelta.y) * 60 * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+            }
         }
 
-        xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
-        yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
+        f32 xStick = sPlayerControlInput->rel.stick_x * -120;
+        f32 yStick = sPlayerControlInput->rel.stick_y * 180;
+        if (xStick != 0 || yStick != 0) {
+            lastInputIsMouse = false;
+            xInput += xStick;
+            yInput += yStick;
+        }
+
+        xInput *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
+        yInput *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
 
         s16 rotYTarget, rotXTarget;
-        if (mouseControl) {
+        if (lastInputIsMouse) {
             // Plain shield movement instead of camera-relative one
             // TODO: control via cvar?
-            rotYTarget = xStick;
-            rotXTarget = yStick;
+            rotYTarget = this->upperLimbRot.y + xInput;
+            rotXTarget = this->actor.focus.rot.x + yInput;
         } else {
             s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
-            rotYTarget = (xStick * Math_CosS(camRelativeCurrentYRot)) - (yStick * Math_SinS(camRelativeCurrentYRot));
-            rotXTarget = (yStick * Math_CosS(camRelativeCurrentYRot)) + (xStick * Math_SinS(camRelativeCurrentYRot));
+            rotYTarget = (xInput * Math_CosS(camRelativeCurrentYRot)) - (yInput * Math_SinS(camRelativeCurrentYRot));
+            rotXTarget = (yInput * Math_CosS(camRelativeCurrentYRot)) + (xInput * Math_SinS(camRelativeCurrentYRot));
         }
 
         rotYTarget = CLAMP(rotYTarget, -60 * 120, 60 * 120);
