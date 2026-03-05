@@ -184,7 +184,7 @@ OTRGlobals::OTRGlobals() {
 #endif
     auto logLevel = (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", defaultLogLevel);
     context->InitLogging(logLevel, logLevel);
-    Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
+    Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%^%l%$] %v");
 
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context->InitResourceManager(archiveFiles, {}, 3);
@@ -329,6 +329,11 @@ uint32_t OTRGlobals::GetInterpolationFPS() {
 
 extern "C" uint32_t Ship_GetInterpolationFPS() {
     return OTRGlobals::Instance->GetInterpolationFPS();
+}
+
+// Number of interpolated frames
+extern "C" uint32_t Ship_GetInterpolationFrameCount() {
+    return ceil((float)Ship_GetInterpolationFPS() / 20.0f);
 }
 
 struct ExtensionEntry {
@@ -708,7 +713,6 @@ extern "C" void InitOTR() {
     LoadGuiTextures();
     BenGui::SetupGuiElements();
     ShipInit::InitAll();
-    InitEnhancements();
     Rando::Init();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
     DebugConsole_Init();
@@ -911,8 +915,12 @@ void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>
     // Process window events for resize, mouse, keyboard events
     wnd->HandleEvents();
 
+    auto intp = wnd->GetInterpreterWeak().lock().get();
+    intp->mInterpolationIndex = 0;
+
     for (const auto& m : mtx_replacements) {
         wnd->DrawAndRunGraphicsCommands(Commands, m);
+        intp->mInterpolationIndex++;
     }
 }
 

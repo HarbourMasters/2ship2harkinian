@@ -33,8 +33,8 @@ typedef enum RespawnMode {
     /* 8 */ RESPAWN_MODE_MAX
 } RespawnMode;
 
-// 2S2H [Port] Quadruple the size of the Save Buffer to support more data, eg rando
-#define SAVE_BUFFER_SIZE 0x4000 * 4
+// 2S2H [Port] Increase the size of the Save Buffer to support more data, eg rando
+#define SAVE_BUFFER_SIZE 0x4000 * 8
 #define SAVE_BUFFER_SIZE_HALF (SAVE_BUFFER_SIZE / 2)
 
 // 2S2H [Enhancement] Extended for file 3 support
@@ -385,7 +385,7 @@ typedef struct RandoSaveInfo {
     RandoSaveCheck randoSaveChecks[RC_MAX];
     u32 finalSeed;
     u32 randoSaveOptions[RO_MAX]; // Type here may change in the future
-    char randoStartingItems[512];
+    u16 randoStartingItems[256]; // Max 256 starting items, using u16 in case we add more than 255 items
     s8 foundDungeonKeys[9]; // Tracks the number of dungeon keys found, opposed to the number of keys in the inventory
     u16 foundTriforcePieces;
 } RandoSaveInfo;

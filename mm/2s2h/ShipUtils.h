@@ -21,20 +21,16 @@
 #include "Rando/Rando.h"
 void LoadGuiTextures();
 std::string convertEnumToReadableName(const std::string& input);
-std::vector<RandoItemId> convertStartingItemsToRandoItemId(const std::string& input, const std::string& delimiter);
-std::string CreateStartingItemsToCvar(std::vector<RandoItemId> startingItemList);
 std::string Ship_RemoveSpecialCharacters(const std::string& str);
 extern u16 sOwlWarpEntrancesForMods[];
 extern std::array<const char*, 11> digitList;
-extern const char* fairyIconTextures[];
 extern std::string Ship_FormatTimeDisplay(uint32_t value);
-extern std::vector<std::pair<int16_t, std::string>> itemIdToItemNameMap;
-extern std::string Ship_GetItemNameById(int16_t itemId);
-extern std::map<uint32_t, ImVec4> itemColorMap;
 extern ImVec4 Ship_GetItemColorTint(uint32_t itemId);
-uint32_t Ship_ConvertQuestIdToItem(uint32_t itemId);
-uint32_t Ship_ConvertItemIdToQuest(uint32_t itemId);
+extern ImVec4 Ship_GetRandoItemColorTint(uint32_t randoItemId);
 extern uint32_t Ship_Hash(std::string str);
+extern std::string GetActorDescription(u16 actorNum);
+extern std::string GetActorDebugName(u16 actorNum);
+extern std::string GetActorCategoryName(u8 category);
 
 extern "C" {
 #endif

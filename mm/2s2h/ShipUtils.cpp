@@ -15,6 +15,7 @@
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/interface/icon_item_field_static/icon_item_field_static.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
+#include "assets/overlays/ovl_En_Syateki_Okuta/ovl_En_Syateki_Okuta.h"
 
 extern "C" {
 #include "z64.h"
@@ -43,6 +44,34 @@ std::unordered_map<s16, const char*> sceneNames = {
 #undef DEFINE_SCENE
 #undef DEFINE_SCENE_UNSET
 
+std::array<const char*, ACTORCAT_MAX> actorCategoryNames = { "Switch", "Background", "Player", "Explosive",
+                                                             "NPC",    "Enemy",      "Prop",   "Item/Action",
+                                                             "Misc.",  "Boss",       "Door",   "Chest" };
+
+#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _humanName },
+#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _humanName },
+#define DEFINE_ACTOR_UNSET(_enumValue) { _enumValue, "Unset" },
+
+std::unordered_map<s16, const char*> actorDescriptions = {
+#include "tables/actor_table.h"
+};
+
+#undef DEFINE_ACTOR
+#undef DEFINE_ACTOR_INTERNAL
+#undef DEFINE_ACTOR_UNSET
+
+#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _debugName },
+#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _debugName },
+#define DEFINE_ACTOR_UNSET(_enumValue) { _enumValue, "Unset" },
+
+std::unordered_map<s16, const char*> actorDebugNames = {
+#include "tables/actor_table.h"
+};
+
+#undef DEFINE_ACTOR
+#undef DEFINE_ACTOR_INTERNAL
+#undef DEFINE_ACTOR_UNSET
+
 /*
  * This is identical to `sOwlWarpEntrances` in decomp code, which is a static variable defined in multiple places and
  * cannot be externed. We redundantly define it here and extern it, for use in port enhancements.
@@ -61,7 +90,7 @@ extern u16 sOwlWarpEntrancesForMods[OWL_WARP_MAX - 1] = {
 };
 
 // These textures are not in existing lists that we iterate over.
-std::array<const char*, 26> miscellaneousTextures = {
+std::array<const char*, 32> miscellaneousTextures = {
     gArcheryScoreIconTex,
     gBarrelTrackerIcon,
     gChestTrackerIcon,
@@ -88,110 +117,17 @@ std::array<const char*, 26> miscellaneousTextures = {
     gItemIconTingleMapTex,
     gThreeDayClockSunHourTex,
     gThreeDayClockMoonHourTex,
+    gOcarinaATex,
+    gOcarinaCDownTex,
+    gOcarinaCLeftTex,
+    gOcarinaCRightTex,
+    gOcarinaCUpTex,
+    gShootingGalleryOctorokCrossTex,
 };
 
 std::array<const char*, 11> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
                                           gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
                                           gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
-
-const char* fairyIconTextures[] = { gDungeonStrayFairyWoodfallIconTex, gDungeonStrayFairySnowheadIconTex,
-                                    gDungeonStrayFairyGreatBayIconTex, gDungeonStrayFairyStoneTowerIconTex };
-
-std::vector<std::pair<int16_t, std::string>> itemIdToItemNameMap = {
-    // Inventory
-    { ITEM_OCARINA_OF_TIME, "Ocarina of Time" },
-    { ITEM_BOW, "Bow" },
-    { ITEM_ARROW_FIRE, "Fire Arrow" },
-    { ITEM_ARROW_ICE, "Ice Arrow" },
-    { ITEM_ARROW_LIGHT, "Light Arrow" },
-    { ITEM_MOONS_TEAR, "Moon's Tear" },
-    { ITEM_BOMB, "Bomb" },
-    { ITEM_BOMBCHU, "Bombchu" },
-    { ITEM_DEKU_STICK, "Deku Stick" },
-    { ITEM_DEKU_NUT, "Deku Nut" },
-    { ITEM_MAGIC_BEANS, "Magic Bean" },
-    { ITEM_ROOM_KEY, "Room Key" },
-    { ITEM_POWDER_KEG, "Powder Keg" },
-    { ITEM_PICTOGRAPH_BOX, "Pictograph" },
-    { ITEM_LENS_OF_TRUTH, "Lens of Truth" },
-    { ITEM_HOOKSHOT, "Hookshot" },
-    { ITEM_SWORD_GREAT_FAIRY, "Great Fairy Sword" },
-    { ITEM_LETTER_TO_KAFEI, "Letter to Kafei" },
-    { ITEM_BOTTLE, "Empty Bottle" },
-
-    // Masks
-    { ITEM_MASK_POSTMAN, "Postman's Hat" },
-    { ITEM_MASK_ALL_NIGHT, "All-Night Mask" },
-    { ITEM_MASK_BLAST, "Blast Mask" },
-    { ITEM_MASK_STONE, "Stone Mask" },
-    { ITEM_MASK_GREAT_FAIRY, "Great Fairy's Mask" },
-    { ITEM_MASK_DEKU, "Deku Mask" },
-    { ITEM_MASK_KEATON, "Keaton Mask" },
-    { ITEM_MASK_BREMEN, "Bremen Mask" },
-    { ITEM_MASK_BUNNY, "Bunny Hood" },
-    { ITEM_MASK_DON_GERO, "Don Gero's Mask" },
-    { ITEM_MASK_SCENTS, "Mask of Scents" },
-    { ITEM_MASK_GORON, "Goron Mask" },
-    { ITEM_MASK_ROMANI, "Romani's Mask" },
-    { ITEM_MASK_CIRCUS_LEADER, "Circus Leader's Mask" },
-    { ITEM_MASK_KAFEIS_MASK, "Kafei's Mask" },
-    { ITEM_MASK_COUPLE, "Couple's Mask" },
-    { ITEM_MASK_TRUTH, "Mask of Truth" },
-    { ITEM_MASK_ZORA, "Zora Mask" },
-    { ITEM_MASK_KAMARO, "Kamaro's Mask" },
-    { ITEM_MASK_GIBDO, "Gibdo Mask" },
-    { ITEM_MASK_GARO, "Garo's Mask" },
-    { ITEM_MASK_CAPTAIN, "Captain's Hat" },
-    { ITEM_MASK_GIANT, "Giant's Mask" },
-    { ITEM_MASK_FIERCE_DEITY, "Fierce Deity's Mask" },
-
-    // Songs
-    { ITEM_SONG_TIME, "Song of Time" },
-    { ITEM_SONG_HEALING, "Song of Healing" },
-    { ITEM_SONG_EPONA, "Epona's Song" },
-    { ITEM_SONG_SOARING, "Song of Soaring" },
-    { ITEM_SONG_STORMS, "Song of Storms" },
-    { ITEM_SONG_SONATA, "Sonata of Awakening" },
-    { ITEM_SONG_LULLABY, "Goron Lullaby" },
-    { ITEM_SONG_NOVA, "New Wave Bossa Nova" },
-    { ITEM_SONG_ELEGY, "Elegy of Emptiness" },
-    { ITEM_SONG_OATH, "Oath to Order" },
-
-    // Quest
-    { ITEM_REMAINS_ODOLWA, "Odolwa's Remains" },
-    { ITEM_REMAINS_GOHT, "Goht's Remains" },
-    { ITEM_REMAINS_GYORG, "Gyorg's Remains" },
-    { ITEM_REMAINS_TWINMOLD, "Twinmold's Remains" },
-    { ITEM_SWORD_KOKIRI, "Kokiri Sword" },
-    { ITEM_SHIELD_HERO, "Hero's Shield" },
-    { ITEM_WALLET_ADULT, "Adult Wallet" },
-    { ITEM_BOMBERS_NOTEBOOK, "Bombers' Notebook" },
-
-    // Upgrade Items
-    { ITEM_SWORD_RAZOR, "Razor Sword" },
-    { ITEM_SWORD_GILDED, "Gilded Sword" },
-    { ITEM_SHIELD_MIRROR, "Mirror Shield" },
-    { ITEM_WALLET_GIANT, "Giant Wallet" },
-
-    // Trade Items
-    { ITEM_DEED_LAND, "Land Title Deed" },
-    { ITEM_DEED_SWAMP, "Swamp Title Deed" },
-    { ITEM_DEED_MOUNTAIN, "Mountain Title Deed" },
-    { ITEM_DEED_OCEAN, "Ocean Title Deed" },
-    { ITEM_LETTER_MAMA, "Letter to Mama" },
-    { ITEM_PENDANT_OF_MEMORIES, "Pendant of Memories" },
-};
-
-std::string Ship_GetItemNameById(int16_t itemId) {
-    std::string itemName = "";
-    for (auto& [id, name] : itemIdToItemNameMap) {
-        if (id == itemId) {
-            itemName = name;
-            break;
-        }
-    }
-    return itemName;
-};
 
 std::map<uint32_t, ImVec4> itemColorMap = {
     { ITEM_SONG_SONATA, ImVec4(0.588f, 1.0f, 0.392f, 1.0f) },
@@ -211,38 +147,41 @@ ImVec4 Ship_GetItemColorTint(uint32_t itemId) {
     }
 }
 
-std::map<QuestItem, ItemId> questIdToItemMap = {
-    { QUEST_REMAINS_ODOLWA, ITEM_REMAINS_ODOLWA },
-    { QUEST_REMAINS_GOHT, ITEM_REMAINS_GOHT },
-    { QUEST_REMAINS_GYORG, ITEM_REMAINS_GYORG },
-    { QUEST_REMAINS_TWINMOLD, ITEM_REMAINS_TWINMOLD },
-    { QUEST_SONG_SONATA, ITEM_SONG_SONATA },
-    { QUEST_SONG_LULLABY, ITEM_SONG_LULLABY },
-    { QUEST_SONG_BOSSA_NOVA, ITEM_SONG_NOVA },
-    { QUEST_SONG_ELEGY, ITEM_SONG_ELEGY },
-    { QUEST_SONG_OATH, ITEM_SONG_OATH },
-    { QUEST_SONG_SARIA, ITEM_SONG_SARIA },
-    { QUEST_SONG_TIME, ITEM_SONG_TIME },
-    { QUEST_SONG_HEALING, ITEM_SONG_HEALING },
-    { QUEST_SONG_EPONA, ITEM_SONG_EPONA },
-    { QUEST_SONG_SOARING, ITEM_SONG_SOARING },
-    { QUEST_SONG_STORMS, ITEM_SONG_STORMS },
-    { QUEST_SONG_SUN, ITEM_SONG_SUN },
-    { QUEST_BOMBERS_NOTEBOOK, ITEM_BOMBERS_NOTEBOOK },
+std::unordered_map<uint32_t, ImVec4> randoItemColorMap = {
+    { RI_OCARINA_BUTTON_A, ImVec4(0.085f, 0.494f, 0.796f, 1) },
+    { RI_OCARINA_BUTTON_C_DOWN, ImVec4(0.84f, 0.768f, 0.089f, 1) },
+    { RI_OCARINA_BUTTON_C_LEFT, ImVec4(0.84f, 0.768f, 0.089f, 1) },
+    { RI_OCARINA_BUTTON_C_RIGHT, ImVec4(0.84f, 0.768f, 0.089f, 1) },
+    { RI_OCARINA_BUTTON_C_UP, ImVec4(0.84f, 0.768f, 0.089f, 1) },
+    { RI_CLOCK_TOWN_STRAY_FAIRY, ImVec4(1.0f, 0.9f, 0.5f, 0.4f) },
+    { RI_WOODFALL_SMALL_KEY, ImVec4(0.9f, 0.33f, 0.56f, 0.4f) },
+    { RI_SNOWHEAD_SMALL_KEY, ImVec4(0.1f, 0.54f, 0.16f, 0.4f) },
+    { RI_GREAT_BAY_SMALL_KEY, ImVec4(0.61f, 0.04f, 0.86f, 0.4f) },
+    { RI_STONE_TOWER_SMALL_KEY, ImVec4(0.58f, 0.65f, 0.15f, 0.4f) },
+    { RI_WOODFALL_BOSS_KEY, ImVec4(0.9f, 0.33f, 0.56f, 0.4f) },
+    { RI_SNOWHEAD_BOSS_KEY, ImVec4(0.1f, 0.54f, 0.16f, 0.4f) },
+    { RI_GREAT_BAY_BOSS_KEY, ImVec4(0.61f, 0.04f, 0.86f, 0.4f) },
+    { RI_STONE_TOWER_BOSS_KEY, ImVec4(0.58f, 0.65f, 0.15f, 0.4f) },
+    { RI_TIME_DAY_1, ImVec4(1.0f, 0.9f, 0.3f, 1.0f) },
+    { RI_TIME_DAY_2, ImVec4(1.0f, 0.9f, 0.3f, 1.0f) },
+    { RI_TIME_DAY_3, ImVec4(1.0f, 0.9f, 0.3f, 1.0f) },
+    { RI_TIME_NIGHT_1, ImVec4(0.5f, 0.7f, 1.0f, 1.0f) },
+    { RI_TIME_NIGHT_2, ImVec4(0.5f, 0.7f, 1.0f, 1.0f) },
+    { RI_TIME_NIGHT_3, ImVec4(0.5f, 0.7f, 1.0f, 1.0f) },
+    { RI_SONG_SONATA, ImVec4(0.588f, 1.0f, 0.392f, 1.0f) },
+    { RI_SONG_LULLABY, ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
+    { RI_SONG_NOVA, ImVec4(0.392f, 0.588f, 1.0f, 1.0f) },
+    { RI_SONG_ELEGY, ImVec4(1.0f, 0.627f, 0.0f, 1.0f) },
+    { RI_SONG_OATH, ImVec4(1.0f, 0.392f, 1.0f, 1.0f) },
+    { RI_SONG_LULLABY_INTRO, ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
 };
 
-uint32_t Ship_ConvertQuestIdToItem(uint32_t itemId) {
-    auto findQuest = questIdToItemMap.find((QuestItem)itemId);
-    if (findQuest != questIdToItemMap.end()) {
-        return findQuest->second;
-    }
-}
-
-uint32_t Ship_ConvertItemIdToQuest(uint32_t itemId) {
-    for (auto& quest : questIdToItemMap) {
-        if (quest.second == itemId) {
-            return quest.first;
-        }
+ImVec4 Ship_GetRandoItemColorTint(uint32_t randoItemId) {
+    auto findColor = randoItemColorMap.find(randoItemId);
+    if (findColor != randoItemColorMap.end()) {
+        return findColor->second;
+    } else {
+        return ImVec4(1, 1, 1, 1);
     }
 }
 
@@ -426,39 +365,6 @@ void LoadGuiTextures() {
     }
 }
 
-std::string CreateStartingItemsToCvar(std::vector<RandoItemId> startingItemList) {
-    std::string startingItemsStr = "";
-    for (auto& item : startingItemList) {
-        if (startingItemsStr != "") {
-            startingItemsStr += ",";
-        }
-        startingItemsStr += std::to_string(item).c_str();
-    }
-
-    return startingItemsStr;
-}
-
-std::vector<RandoItemId> convertStartingItemsToRandoItemId(const std::string& input, const std::string& delimiter) {
-    std::vector<RandoItemId> result;
-    size_t start = 0;
-    size_t end = input.find(delimiter);
-
-    while (end != std::string::npos) {
-        std::string item = input.substr(start, end - start);
-        if (!item.empty()) {
-            result.push_back(static_cast<RandoItemId>(std::stoul(item)));
-        }
-        start = end + delimiter.length();
-        end = input.find(delimiter, start);
-    }
-
-    if (!input.substr(start).empty()) {
-        result.push_back(static_cast<RandoItemId>(std::stoul(input.substr(start))));
-    }
-
-    return result;
-}
-
 std::string convertEnumToReadableName(const std::string& input) {
     std::string result;
     std::string content = input;
@@ -498,4 +404,19 @@ std::string convertEnumToReadableName(const std::string& input) {
     }
 
     return result;
+}
+
+std::string GetActorDescription(u16 actorNum) {
+    return actorDescriptions.contains(actorNum) ? actorDescriptions[actorNum] : "???";
+}
+
+std::string GetActorDebugName(u16 actorNum) {
+    return actorDebugNames.contains(actorNum) ? actorDebugNames[actorNum] : "???";
+}
+
+std::string GetActorCategoryName(u8 category) {
+    if (category < actorCategoryNames.size()) {
+        return actorCategoryNames[category];
+    }
+    return "Unknown";
 }

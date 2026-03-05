@@ -92,11 +92,11 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_70, true),
             CHECK(RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_71, true),
             CHECK(RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_72, true),
-            CHECK(RC_ENEMY_DROP_GIANT_BEE, CAN_USE_PROJECTILE), // In a beehive
+            CHECK(RC_ENEMY_DROP_GIANT_BEE, CAN_USE_PROJECTILE && CanKillEnemy(ACTOR_EN_BEE)), // In a beehive
         },
-        .connections = {
-            CONNECTION(RR_GREAT_BAY_COAST_CLIFFSIDE, true), // TODO: Grotto mapping
-        },
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(GREAT_BAY_COAST, 0),              ENTRANCE(GROTTOS, 27), true),
+        }
     };
     Regions[RR_GREAT_BAY_COAST_FISHERMAN_GROTTO] = RandoRegion{ .name = "Great Bay Coast Fisherman Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
@@ -117,13 +117,12 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_COAST_FISHERMAN_GROTTO_GRASS_14, true),
             CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
-        .connections = {
-            CONNECTION(RR_GREAT_BAY_COAST, true), // TODO: Grotto mapping
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(GREAT_BAY_COAST, 0),              ENTRANCE(GROTTOS, 26), true),
         },
     };
     Regions[RR_GREAT_BAY_COAST] = RandoRegion{ .sceneId = SCENE_30GYOSON,
         .checks = {
-            CHECK(RC_GREAT_BAY_COAST_FISHERMAN_MINIGAME, RANDO_EVENTS[RE_CLEARED_GREAT_BAY_TEMPLE] && (HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_MAGIC_ARROW(ICE)) && (BETWEEN(TIME_DAY1_AM_07_00, TIME_NIGHT1_AM_04_00) || BETWEEN(TIME_DAY2_AM_07_00, TIME_NIGHT2_AM_04_00) || BETWEEN(TIME_DAY3_AM_07_00, TIME_NIGHT3_AM_04_00))),
             CHECK(RC_GREAT_BAY_COAST_MIKAU, CAN_USE_ABILITY(SWIM) && CAN_PLAY_SONG(HEALING)),
             CHECK(RC_GREAT_BAY_COAST_POT_03, true),
             CHECK(RC_GREAT_BAY_COAST_POT_04, true),
@@ -132,6 +131,9 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_COAST_GRASS_03, true),
             CHECK(RC_GREAT_BAY_COAST_GRASS_04, true),
             CHECK(RC_GREAT_BAY_COAST_GRASS_05, true),
+            CHECK(RC_GREAT_BAY_COAST_TREE_02, true),
+            CHECK(RC_GREAT_BAY_COAST_TREE_03, true),
+            CHECK(RC_GREAT_BAY_COAST_TREE_04, true),
             CHECK(RC_ENEMY_DROP_LEEVER, CanKillEnemy(ACTOR_EN_NEO_REEBA)),
             CHECK(RC_ENEMY_DROP_LIKE_LIKE, CanKillEnemy(ACTOR_EN_RR)),
         },
@@ -142,10 +144,10 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(FISHERMANS_HUT, 0),               ENTRANCE(GREAT_BAY_COAST, 4), true),
             EXIT(ENTRANCE(PIRATES_FORTRESS_EXTERIOR, 0),    ENTRANCE(GREAT_BAY_COAST, 5), CAN_BE_ZORA && CAN_USE_ABILITY(SWIM)),
             EXIT(ENTRANCE(OCEANSIDE_SPIDER_HOUSE, 0),       ENTRANCE(GREAT_BAY_COAST, 8), true),
+            EXIT(ENTRANCE(GROTTOS, 26),                     ENTRANCE(GREAT_BAY_COAST, 0), true),
         },
         .connections = {
-            CONNECTION(RR_GREAT_BAY_COAST_CLIFFSIDE, CAN_USE_ABILITY(SWIM)), // TODO: Grotto mapping
-            CONNECTION(RR_GREAT_BAY_COAST_FISHERMAN_GROTTO, true), // TODO: Grotto mapping
+            CONNECTION(RR_GREAT_BAY_COAST_CLIFFSIDE, CAN_USE_ABILITY(SWIM)),
             CONNECTION(RR_GREAT_BAY_COAST_MARINE_LAB_EXTERIOR, CAN_USE_ABILITY(SWIM)),
             CONNECTION(RR_GREAT_BAY_COAST_PIRATE_LEDGE, CAN_USE_ABILITY(SWIM)),
         },
@@ -173,6 +175,15 @@ static RegisterShipInitFunc initFunc([]() {
             ENTRANCE(GREAT_BAY_COAST, 11), // From Song of Soaring
         },
     };
+    Regions[RR_GREAT_BAY_COAST_MINIGAME_PLATFORMS] = RandoRegion{ .sceneId = SCENE_30GYOSON,
+        .checks = {
+            CHECK(RC_GREAT_BAY_COAST_FISHERMAN_MINIGAME, RANDO_EVENTS[RE_CLEARED_GREAT_BAY_TEMPLE] && (HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_MAGIC_ARROW(ICE)) && (BETWEEN(TIME_DAY1_AM_07_00, TIME_NIGHT1_AM_04_00) || BETWEEN(TIME_DAY2_AM_07_00, TIME_NIGHT2_AM_04_00) || BETWEEN(TIME_DAY3_AM_07_00, TIME_NIGHT3_AM_04_00))),
+            CHECK(RC_GREAT_BAY_COAST_TREE_01, true),
+        },
+        .connections = {
+            CONNECTION(RR_GREAT_BAY_COAST_CLIFFSIDE, CAN_USE_ABILITY(SWIM)),
+        },
+    };
     Regions[RR_GREAT_BAY_COAST_CLIFFSIDE] = RandoRegion{ .sceneId = SCENE_30GYOSON,
         .checks = {
             CHECK(RC_GREAT_BAY_COAST_PIECE_OF_HEART, CAN_HOOK_SCARECROW && CAN_GROW_BEAN_PLANT),
@@ -184,9 +195,12 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_COAST_LEDGE_POT_02, HAS_ITEM(ITEM_HOOKSHOT)),
             CHECK(RC_GREAT_BAY_COAST_LEDGE_POT_03, HAS_ITEM(ITEM_HOOKSHOT)),
         },
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(GROTTOS, 27),                     ENTRANCE(GREAT_BAY_COAST, 0), CAN_HOOK_SCARECROW && CAN_GROW_BEAN_PLANT),
+        },
         .connections = {
-            CONNECTION(RR_GREAT_BAY_COAST_COW_GROTTO, CAN_HOOK_SCARECROW && CAN_GROW_BEAN_PLANT), // TODO: Grotto mapping
             CONNECTION(RR_GREAT_BAY_COAST, CAN_USE_ABILITY(SWIM)),
+            CONNECTION(RR_GREAT_BAY_COAST_MINIGAME_PLATFORMS, RANDO_EVENTS[RE_CLEARED_GREAT_BAY_TEMPLE] && (HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_MAGIC_ARROW(ICE))),
         },
     };
     Regions[RR_GREAT_BAY_GREAT_FAIRY_FOUNTAIN] = RandoRegion{ .sceneId = SCENE_YOUSEI_IZUMI,
@@ -302,8 +316,8 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ZORA_CAPE_GROTTO_GRASS_14, true),
             CHECK(RC_ENEMY_DROP_MINI_BABA, CanKillEnemy(ACTOR_EN_KAREBABA)),
         },
-        .connections = {
-            CONNECTION(RR_ZORA_CAPE, true), // TODO: Grotto mapping
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(ZORA_CAPE, 0),                    ENTRANCE(GROTTOS, 28), true),
         },
     };
     Regions[RR_ZORA_CAPE_OUTSIDE_FAIRY_FOUNTAIN] = RandoRegion{ .sceneId = SCENE_31MISAKI,
@@ -325,23 +339,28 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_ZORA_CAPE_WATERFALL_PIECE_OF_HEART,   CAN_BE_ZORA && CAN_USE_ABILITY(SWIM)),
             CHECK(RC_ZORA_CAPE_NEAR_BEAVERS_POT_01,        true),
             CHECK(RC_ZORA_CAPE_NEAR_BEAVERS_POT_02,        true),
+            CHECK(RC_ZORA_CAPE_TREE_01,                    true),
+            CHECK(RC_ZORA_CAPE_TREE_02,                    true),
+            CHECK(RC_ZORA_CAPE_TREE_03,                    HAS_ITEM(ITEM_HOOKSHOT)),
+            CHECK(RC_ZORA_CAPE_TREE_04,                    HAS_ITEM(ITEM_HOOKSHOT)),
+            CHECK(RC_ZORA_CAPE_TREE_05,                    HAS_ITEM(ITEM_HOOKSHOT)),
             CHECK(RC_ENEMY_DROP_LEEVER,                    CanKillEnemy(ACTOR_EN_NEO_REEBA)),
             CHECK(RC_ENEMY_DROP_LIKE_LIKE,                 CanKillEnemy(ACTOR_EN_RR)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(GREAT_BAY_COAST, 1),              ENTRANCE(ZORA_CAPE, 0), true),
+            EXIT(ENTRANCE(GROTTOS, 28),                     ENTRANCE(ZORA_CAPE, 0), CAN_USE_EXPLOSIVE || CAN_BE_GORON),
             EXIT(ENTRANCE(ZORA_HALL, 0),                    ENTRANCE(ZORA_CAPE, 1), CAN_BE_ZORA && CAN_USE_ABILITY(SWIM)),
             EXIT(ENTRANCE(WATERFALL_RAPIDS, 0),             ENTRANCE(ZORA_CAPE, 4), HAS_ITEM(ITEM_HOOKSHOT)),
         },
         .connections = {
             CONNECTION(RR_ZORA_CAPE_BEFORE_GREAT_BAY_TEMPLE, CAN_BE_ZORA),
-            CONNECTION(RR_ZORA_CAPE_GROTTO, CAN_USE_EXPLOSIVE || CAN_BE_GORON), // TODO: Grotto mapping
             CONNECTION(RR_ZORA_CAPE_OUTSIDE_FAIRY_FOUNTAIN, HAS_ITEM(ITEM_HOOKSHOT)),
         }
     };
     Regions[RR_ZORA_HALL_EVANS_ROOM] = RandoRegion{ .name = "Evan's Room", .sceneId = SCENE_BANDROOM,
         .checks = {
-            CHECK(RC_ZORA_HALL_EVANS_PIECE_OF_HEART,           HAS_ITEM(ITEM_OCARINA_OF_TIME)),
+            CHECK(RC_ZORA_HALL_EVANS_PIECE_OF_HEART,           HAS_ITEM(ITEM_OCARINA_OF_TIME) && (canPlaySong(OCARINA_SONG_EVAN_PART1) && canPlaySong(OCARINA_SONG_EVAN_PART2))),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ZORA_HALL, 4),                    ENTRANCE(ZORA_HALL_ROOMS, 3), true),

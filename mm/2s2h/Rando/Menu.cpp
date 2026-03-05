@@ -36,11 +36,22 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
     { RO_ACCESS_TRIALS_OPEN, "Open" },
 };
 
+std::unordered_map<int32_t, const char*> junkItemsOptions = {
+    { 0, "Default (Cycle)" },
+    { 1, "Static" },
+};
+
+std::unordered_map<int32_t, const char*> trapItemsOptions = {
+    { 0, "Default (Dynamic)" },
+    { 1, "Static" },
+};
+
 // clang-format off
 std::vector<int32_t> incompatibleWithVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
     RO_SHUFFLE_SWIM,
     RO_SHUFFLE_ENEMY_SOULS,
+    RO_SHUFFLE_OCARINA_BUTTONS,
     RO_PLENTIFUL_ITEMS,
     RO_CLOCK_SHUFFLE,
 };
@@ -86,7 +97,7 @@ static void ApplyClockItemRendering(RandoItemId item, ImVec4& tintColor, std::st
     }
 
     // Grey out and add tooltip if progressive mode is active
-    if (isProgressiveMode) {
+    if (item != RI_TIME_PROGRESSIVE && isProgressiveMode) {
         tintColor.w *= DISABLED_ITEM_ALPHA;
         tooltipText += CLOCK_PROGRESSIVE_TOOLTIP;
     }
@@ -137,6 +148,8 @@ void SaveExcludedChecks() {
         excludedString += ",";
     }
     CVarSetString("gRando.ExcludedChecks", excludedString.c_str());
+    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    ShipInit::Init("gRando.ExcludedChecks");
 }
 
 void LoadExcludedChecks() {
@@ -155,19 +168,21 @@ void LoadExcludedChecks() {
 static int checksInPool = 0;
 static int itemsInPool = 0;
 static int junkInPool = 0;
-static bool ableToBalance = true;
+static int balanceStatus = 0; // 0 = Able to balance, 1 = Unlikely to balance, 2 = Unable to balance
+static std::set<RandoItemId> setOfItemsInPool;
 void RefreshMetrics() {
+    setOfItemsInPool.clear();
     RandoSaveInfo randoSaveInfo;
     std::vector<RandoCheckId> checkPool;
     std::vector<RandoItemId> itemPool;
 
-    // Load options into CVars
+    // Load options from CVars
     for (auto& [randoOptionId, randoStaticOption] : Rando::StaticData::Options) {
         randoSaveInfo.randoSaveOptions[randoOptionId] =
             (uint32_t)CVarGetInteger(randoStaticOption.cvar, randoStaticOption.defaultValue);
     }
-    std::string startingItemsString = CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT);
-    strncpy(randoSaveInfo.randoStartingItems, startingItemsString.c_str(), startingItemsString.size() + 1);
+    auto startingItems = Rando::GetStartingItemsFromConfig();
+    Rando::SetStartingItemsInSave(randoSaveInfo, startingItems);
 
     Rando::Logic::GeneratePools(randoSaveInfo, checkPool, itemPool);
 
@@ -175,15 +190,38 @@ void RefreshMetrics() {
     itemsInPool = itemPool.size();
     junkInPool = 0;
     for (auto& item : itemPool) {
+        setOfItemsInPool.insert(item);
         if (Rando::StaticData::Items[item].randoItemType == RITYPE_JUNK) {
             junkInPool++;
         }
     }
-    ableToBalance = checksInPool >= (itemsInPool - junkInPool);
+    for (auto& item : startingItems) {
+        setOfItemsInPool.insert(item);
+    }
+    // Handle weird edge case with Random shuffle time option missing one time because it's computed given
+    if (randoSaveInfo.randoSaveOptions[RO_CLOCK_SHUFFLE] &&
+        randoSaveInfo.randoSaveOptions[RO_CLOCK_SHUFFLE_PROGRESSIVE] == RO_CLOCK_SHUFFLE_RANDOM) {
+        setOfItemsInPool.insert(RI_TIME_DAY_1);
+        setOfItemsInPool.insert(RI_TIME_NIGHT_1);
+        setOfItemsInPool.insert(RI_TIME_DAY_2);
+        setOfItemsInPool.insert(RI_TIME_NIGHT_2);
+        setOfItemsInPool.insert(RI_TIME_DAY_3);
+        setOfItemsInPool.insert(RI_TIME_NIGHT_3);
+    }
+    // If there are less checks than non-junk items, we can't balance
+    if (checksInPool * 0.9f < itemsInPool - junkInPool) {
+        balanceStatus = 2;
+        // If there are only slightly more checks than non-junk items, balancing is unlikely
+    } else if (checksInPool * 0.85f < itemsInPool - junkInPool) {
+        balanceStatus = 1;
+    } else {
+        balanceStatus = 0;
+    }
 }
 
 static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
                                                                    // I Don't love this, but it works...
+                                                                   "gRando.ExcludedChecks",
                                                                    "gRando.Options.RO_ACCESS_DUNGEONS",
                                                                    "gRando.Options.RO_ACCESS_MAJORA_MASKS_COUNT",
                                                                    "gRando.Options.RO_ACCESS_MAJORA_REMAINS_COUNT",
@@ -191,6 +229,7 @@ static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
                                                                    "gRando.Options.RO_ACCESS_MOON_REMAINS_COUNT",
                                                                    "gRando.Options.RO_ACCESS_TRIALS",
                                                                    "gRando.Options.RO_CLOCK_SHUFFLE",
+                                                                   "gRando.Options.RO_CLOCK_SHUFFLE_PROGRESSIVE",
                                                                    "gRando.Options.RO_HINTS_BOSS_REMAINS",
                                                                    "gRando.Options.RO_HINTS_GOSSIP_STONES",
                                                                    "gRando.Options.RO_HINTS_HOOKSHOT",
@@ -199,8 +238,6 @@ static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
                                                                    "gRando.Options.RO_HINTS_SPIDER_HOUSES",
                                                                    "gRando.Options.RO_TRAP_AMOUNT",
                                                                    "gRando.Options.RO_LOGIC",
-                                                                   "gRando.Options.RO_MINIMUM_SKULLTULA_TOKENS",
-                                                                   "gRando.Options.RO_MINIMUM_STRAY_FAIRIES",
                                                                    "gRando.Options.RO_PLENTIFUL_ITEMS",
                                                                    "gRando.Options.RO_SHUFFLE_BARREL_DROPS",
                                                                    "gRando.Options.RO_SHUFFLE_BOSS_REMAINS",
@@ -214,17 +251,26 @@ static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
                                                                    "gRando.Options.RO_SHUFFLE_GOLD_SKULLTULAS",
                                                                    "gRando.Options.RO_SHUFFLE_GRASS_DROPS",
                                                                    "gRando.Options.RO_SHUFFLE_TRAPS",
+                                                                   "gRando.Options.RO_SHUFFLE_OCARINA_BUTTONS",
                                                                    "gRando.Options.RO_SHUFFLE_OWL_STATUES",
                                                                    "gRando.Options.RO_SHUFFLE_POT_DROPS",
                                                                    "gRando.Options.RO_SHUFFLE_SHOPS",
                                                                    "gRando.Options.RO_SHUFFLE_SNOWBALL_DROPS",
+                                                                   "gRando.Options.RO_SHUFFLE_SONG_DOUBLE_TIME",
+                                                                   "gRando.Options.RO_SHUFFLE_SONG_INVERTED_TIME",
+                                                                   "gRando.Options.RO_SHUFFLE_SONG_SARIA",
+                                                                   "gRando.Options.RO_SHUFFLE_SONG_SUN",
                                                                    "gRando.Options.RO_SHUFFLE_SWIM",
                                                                    "gRando.Options.RO_SHUFFLE_TINGLE_SHOPS",
                                                                    "gRando.Options.RO_SHUFFLE_TRIFORCE_PIECES",
+                                                                   "gRando.Options.RO_SKULLTULA_TOKENS_MAX",
+                                                                   "gRando.Options.RO_SKULLTULA_TOKENS_REQUIRED",
                                                                    "gRando.Options.RO_STARTING_CONSUMABLES",
                                                                    "gRando.Options.RO_STARTING_HEALTH",
                                                                    "gRando.Options.RO_STARTING_MAPS_AND_COMPASSES",
                                                                    "gRando.Options.RO_STARTING_RUPEES",
+                                                                   "gRando.Options.RO_STRAY_FAIRIES_MAX",
+                                                                   "gRando.Options.RO_STRAY_FAIRIES_REQUIRED",
                                                                    "gRando.Options.RO_TRIFORCE_PIECES_MAX",
                                                                    "gRando.Options.RO_TRIFORCE_PIECES_REQUIRED",
                                                                });
@@ -273,36 +319,53 @@ static void DrawGeneralTab() {
     float junkProgress = static_cast<float>(junkInPool) / static_cast<float>(itemsInPool);
 
     ImGui::SeparatorText("Current Settings Metrics");
+    ImGui::TextWrapped("To ensure proper balancing, aim for the item pool to be at least 10%% smaller than the check "
+                       "pool. (Not including junk items)");
+    ImGui::Text("Status:");
+    ImGui::SameLine();
+    if (balanceStatus == 0) {
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Able to Balance Pools");
+    } else if (balanceStatus == 1) {
+        ImGui::TextColored(ImVec4(1.0f, 0.65f, 0.0f, 1.0f), "May not be able to Balance Pools");
+    } else {
+        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Unable to Balance Pools");
+    }
     ImGui::Text("Checks in pool: %d", checksInPool);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 4.0f);
     ImGui::PushStyleColor(ImGuiCol_PlotHistogram, UIWidgets::ColorValues.at(THEME_COLOR));
     ImGui::PushStyleColor(ImGuiCol_FrameBg, UIWidgets::ColorValues.at(UIWidgets::Colors::DarkGray));
     ImGui::ProgressBar(1.0f, ImVec2(mainWidth, 0.0f), "");
-    ImGui::Text("Items in Pool: %d", itemsInPool);
+    ImGui::Text("Items in Pool: %d", itemsInPool - junkInPool);
     ImGui::SameLine();
-    ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "(%d Junk Items)", junkInPool);
+    ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.5f), "(+ %d Junk Items)", junkInPool);
 
     ImGui::ProgressBar(1.0f - junkProgress, ImVec2(itemProgress, 0.0f), "");
     ImGui::PopStyleColor(2);
     ImGui::PopStyleVar();
-    ImGui::Text("Able to Balance:");
-    ImGui::SameLine();
-    if (ableToBalance) {
-        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Yes");
-    } else {
-        ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "No");
-    }
 
     ImGui::SeparatorText("Enhancements");
-    UIWidgets::CVarCheckbox("Container Style Matches Contents", "gRando.CSMC");
-    UIWidgets::Tooltip("This will make the contents of a container match the container itself. This currently only "
-                       "applies to chests and pots.");
-    UIWidgets::WindowButton("Check Tracker", "gWindows.CheckTracker", BenGui::mRandoCheckTrackerWindow,
-                            { .size = ImVec2((ImGui::GetContentRegionAvail().x - 48.0f), 40.0f) });
-    ImGui::SameLine();
-    if (UIWidgets::Button(ICON_FA_COG, { .size = ImVec2(40.0f, 40.0f) })) {
-        BenGui::mRandoCheckTrackerSettingsWindow->ToggleVisibility();
-    }
+    ImGui::TextWrapped("These options can be changed on the fly, and are not tied to the seed generation.");
+    UIWidgets::CVarCheckbox(
+        "Container Style Matches Contents", "gRando.CSMC",
+        UIWidgets::CheckboxOptions().Tooltip("This will make the contents of a container match the container itself. "
+                                             "Eg chests, pots, crates, grass, etc."));
+    UIWidgets::CVarCombobox(
+        "Junk Items", "gRando.JunkItems", &junkItemsOptions,
+        UIWidgets::ComboboxOptions()
+            .ComponentAlignment(UIWidgets::ComponentAlignment::Right)
+            .LabelPosition(UIWidgets::LabelPosition::Near)
+            .Tooltip(
+                "Note: For both Options, junk items will be randomly rolled from a pool of obtainable "
+                "items.\n\nDefault (Cycle): Junk items will cycle every few seconds, allowing you to choose which item "
+                "to pick up\n\nStatic: Junk items will be static, only changing when obtainability status changes."));
+    UIWidgets::CVarCombobox(
+        "Trap Items", "gRando.TrapItems", &trapItemsOptions,
+        UIWidgets::ComboboxOptions()
+            .ComponentAlignment(UIWidgets::ComponentAlignment::Right)
+            .LabelPosition(UIWidgets::LabelPosition::Near)
+            .Tooltip("Default (Dynamic): Trap items will change dynamically as you progress, ensuring they are an item "
+                     "you have not obtained yet for maximum trickery.\n\nStatic: Trap items will be static, according "
+                     "to the randomizer seed."));
     ImGui::EndChild();
     ImGui::SameLine();
 }
@@ -315,7 +378,7 @@ static void DrawLogicConditionsTab() {
     }
     UIWidgets::Tooltip(
         "Glitchless - The items are shuffled in a way that guarantees the seed is beatable without "
-        "glitches.\n\n"
+        "glitches. With this setting, \"Save Game on Moon Crash\" is automatically enabled.\n\n"
         "No Logic - The items are shuffled completely randomly, this can result in unbeatable seeds, and "
         "will require heavy use of glitches.\n\n"
         "Nearly No Logic - The items are shuffled completely randomly, with the following exceptions:\n"
@@ -352,7 +415,7 @@ static void DrawLogicConditionsTab() {
 }
 
 static void DrawShufflesTab() {
-    f32 columnWidth = ImGui::GetContentRegionAvail().x / 2 - (ImGui::GetStyle().ItemSpacing.x * 2);
+    f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = 0;
     ImGui::SeparatorText("Shuffle Options");
     ImGui::BeginChild("randoShufflesColumn1", ImVec2(columnWidth, halfHeight));
@@ -364,22 +427,88 @@ static void DrawShufflesTab() {
     CVarCheckbox("Shuffle Boss Remains", Rando::StaticData::Options[RO_SHUFFLE_BOSS_REMAINS].cvar);
     CVarCheckbox("Shuffle Cows", Rando::StaticData::Options[RO_SHUFFLE_COWS].cvar);
     CVarCheckbox("Shuffle Gold Skulltula Tokens", Rando::StaticData::Options[RO_SHUFFLE_GOLD_SKULLTULAS].cvar);
-    CVarSliderInt("Minimum Required Gold Skulltula Tokens",
-                  Rando::StaticData::Options[RO_MINIMUM_SKULLTULA_TOKENS].cvar,
-                  IntSliderOptions(
-                      { { .tooltip = "Minimum Gold Skulltula tokens needed to obtain the Spider House checks.",
-                          .disabled = !CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_GOLD_SKULLTULAS].cvar, 0),
-                          .disabledTooltip = "Only takes effect if Gold Skulltula Tokens are shuffled." } })
-                      .Min(1)
-                      .Max(SPIDER_HOUSE_TOKENS_REQUIRED)
-                      .DefaultValue(SPIDER_HOUSE_TOKENS_REQUIRED));
+    ImGui::BeginDisabled(!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_GOLD_SKULLTULAS].cvar, RO_GENERIC_OFF));
     CVarSliderInt(
-        "Minimum Required Stray Fairies", Rando::StaticData::Options[RO_MINIMUM_STRAY_FAIRIES].cvar,
-        IntSliderOptions({ { .tooltip = "Minimum Stray Fairies needed to obtain the corresponding Great Fairy check.\n"
-                                        "Does not affect the Clock Town fairy." } })
+        "Required Gold Skulltula Tokens", Rando::StaticData::Options[RO_SKULLTULA_TOKENS_REQUIRED].cvar,
+        IntSliderOptions()
+            .Tooltip("Minimum Gold Skulltula tokens needed to obtain the Spider House checks.")
+            .LabelPosition(UIWidgets::LabelPosition::None)
             .Min(1)
-            .Max(STRAY_FAIRY_SCATTERED_TOTAL)
+            .Format("%d Tokens Required")
+            .Max(CVarGetInteger(Rando::StaticData::Options[RO_SKULLTULA_TOKENS_MAX].cvar, SPIDER_HOUSE_TOKENS_REQUIRED))
+            .DefaultValue(SPIDER_HOUSE_TOKENS_REQUIRED));
+    if (CVarSliderInt("Gold Skulltula Tokens in Pool", Rando::StaticData::Options[RO_SKULLTULA_TOKENS_MAX].cvar,
+                      IntSliderOptions()
+                          .Tooltip("Maximum Gold Skulltula tokens that can appear in the item pool.")
+                          .LabelPosition(UIWidgets::LabelPosition::None)
+                          .Min(1)
+                          .Format("%d Tokens in Pool")
+                          .Max(SPIDER_HOUSE_TOKENS_REQUIRED)
+                          .DefaultValue(SPIDER_HOUSE_TOKENS_REQUIRED))) {
+        if (CVarGetInteger(Rando::StaticData::Options[RO_SKULLTULA_TOKENS_REQUIRED].cvar,
+                           SPIDER_HOUSE_TOKENS_REQUIRED) >
+            CVarGetInteger(Rando::StaticData::Options[RO_SKULLTULA_TOKENS_MAX].cvar, SPIDER_HOUSE_TOKENS_REQUIRED)) {
+            CVarSetInteger(
+                Rando::StaticData::Options[RO_SKULLTULA_TOKENS_REQUIRED].cvar,
+                CVarGetInteger(Rando::StaticData::Options[RO_SKULLTULA_TOKENS_MAX].cvar, SPIDER_HOUSE_TOKENS_REQUIRED));
+        }
+    }
+    ImGui::EndDisabled();
+    ImGui::Text("Stray Fairies");
+    CVarSliderInt(
+        "Required Stray Fairies", Rando::StaticData::Options[RO_STRAY_FAIRIES_REQUIRED].cvar,
+        IntSliderOptions()
+            .Tooltip("Minimum Stray Fairies needed to obtain the corresponding Great Fairy check.\n"
+                     "Does not affect the Clock Town fairy.")
+            .LabelPosition(UIWidgets::LabelPosition::None)
+            .Min(1)
+            .Format("%d Fairies Required")
+            .Max(CVarGetInteger(Rando::StaticData::Options[RO_STRAY_FAIRIES_MAX].cvar, STRAY_FAIRY_SCATTERED_TOTAL))
             .DefaultValue(STRAY_FAIRY_SCATTERED_TOTAL));
+    if (CVarSliderInt("Stray Fairies in Pool", Rando::StaticData::Options[RO_STRAY_FAIRIES_MAX].cvar,
+                      IntSliderOptions()
+                          .Tooltip("Maximum Stray Fairies that can appear in the item pool.")
+                          .LabelPosition(UIWidgets::LabelPosition::None)
+                          .Min(1)
+                          .Format("%d Fairies in Pool")
+                          .Max(STRAY_FAIRY_SCATTERED_TOTAL)
+                          .DefaultValue(STRAY_FAIRY_SCATTERED_TOTAL))) {
+        if (CVarGetInteger(Rando::StaticData::Options[RO_STRAY_FAIRIES_REQUIRED].cvar, STRAY_FAIRY_SCATTERED_TOTAL) >
+            CVarGetInteger(Rando::StaticData::Options[RO_STRAY_FAIRIES_MAX].cvar, STRAY_FAIRY_SCATTERED_TOTAL)) {
+            CVarSetInteger(
+                Rando::StaticData::Options[RO_STRAY_FAIRIES_REQUIRED].cvar,
+                CVarGetInteger(Rando::StaticData::Options[RO_STRAY_FAIRIES_MAX].cvar, STRAY_FAIRY_SCATTERED_TOTAL));
+        }
+    }
+    CVarCheckbox("Triforce Hunt", Rando::StaticData::Options[RO_SHUFFLE_TRIFORCE_PIECES].cvar);
+    ImGui::BeginDisabled(!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRIFORCE_PIECES].cvar, RO_GENERIC_OFF));
+    CVarSliderInt(
+        "Required Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
+        IntSliderOptions()
+            .Format("%d Pieces Required")
+            .LabelPosition(UIWidgets::LabelPosition::None)
+            .Min(1)
+            .Max(CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX))
+            .DefaultValue(DEFAULT_TRIFORCE_PIECES_MAX));
+    if (CVarSliderInt(
+            "Shuffled Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar,
+            IntSliderOptions()
+                .Format("%d Pieces in Pool")
+                .LabelPosition(UIWidgets::LabelPosition::None)
+                .Min(1)
+                .Max(1000)
+                .DefaultValue(DEFAULT_TRIFORCE_PIECES_MAX)
+                .Tooltip("If the maximum amount of placeable pieces exceeds what will allow the seed to generate, the "
+                         "amount will be adjusted automatically."))) {
+        if (CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar, DEFAULT_TRIFORCE_PIECES_MAX) >
+            CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX)) {
+            CVarSetInteger(
+                Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
+                CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX));
+        }
+    }
+
+    ImGui::EndDisabled();
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoShufflesColumn2", ImVec2(columnWidth, halfHeight));
@@ -388,6 +517,7 @@ static void DrawShufflesTab() {
     CVarCheckbox("Shuffle Barrel Drops", Rando::StaticData::Options[RO_SHUFFLE_BARREL_DROPS].cvar);
     CVarCheckbox("Shuffle Snowball Drops", Rando::StaticData::Options[RO_SHUFFLE_SNOWBALL_DROPS].cvar);
     CVarCheckbox("Shuffle Grass Drops", Rando::StaticData::Options[RO_SHUFFLE_GRASS_DROPS].cvar);
+    CVarCheckbox("Shuffle Tree Drops", Rando::StaticData::Options[RO_SHUFFLE_TREE_DROPS].cvar);
     CVarCheckbox("Shuffle Frogs", Rando::StaticData::Options[RO_SHUFFLE_FROGS].cvar);
     CVarCheckbox("Shuffle Hive Drops", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
@@ -408,6 +538,21 @@ static void DrawItemsTab() {
                                                 "into deep water will respawn Link.",
                                      .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_SWIM),
                                      .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox("Shuffle Ocarina Buttons", Rando::StaticData::Options[RO_SHUFFLE_OCARINA_BUTTONS].cvar,
+                 CheckboxOptions({ { .tooltip = "Shuffles the Buttons used to play Ocarina Notes.\n"
+                                                "You will be unable to play a song until you find all\n"
+                                                "notes for the given melody.",
+                                     .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_OCARINA_BUTTONS),
+                                     .disabledTooltip = "Incompatible with current Logic Setting" } }));
+    CVarCheckbox("Song of Double Time", Rando::StaticData::Options[RO_SHUFFLE_SONG_DOUBLE_TIME].cvar);
+    CVarCheckbox("Inverted Song of Time", Rando::StaticData::Options[RO_SHUFFLE_SONG_INVERTED_TIME].cvar);
+    CVarCheckbox("Sun's Song", Rando::StaticData::Options[RO_SHUFFLE_SONG_SUN].cvar);
+    CVarCheckbox(
+        "Saria's Song", Rando::StaticData::Options[RO_SHUFFLE_SONG_SARIA].cvar,
+        CheckboxOptions(
+            { { .tooltip = "Adds Saria's Song to the item pool, playing it will give you a hint to a progressive item "
+                           "that is reachable in logic, weighted towards things like bow, bomb, and transformation "
+                           "masks. The song is one time use, you will lose it after using it." } }));
     CVarCheckbox("Deku Stick Bag", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Deku Nut Bag", "gPlaceholderBool",
@@ -417,14 +562,6 @@ static void DrawItemsTab() {
     CVarCheckbox("Child Wallet", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Infinite Upgrades", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Song of Double Time", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Inverted Song of Time", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Saria's Song", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Sun's Song", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
     ImGui::SameLine();
@@ -446,8 +583,8 @@ static void DrawItemsTab() {
                  CheckboxOptions({ { .tooltip = "Shuffles the first drop from a non Boss Enemy." } }));
     CVarCheckbox(
         "Enemy Souls", Rando::StaticData::Options[RO_SHUFFLE_ENEMY_SOULS].cvar,
-        CheckboxOptions({ { .tooltip = "Adds the \"souls\" of regular enemies to the item pool. Enemy Souls are items "
-                                       "that must be found in order for their corresponding enemy to spawn.",
+        CheckboxOptions({ { .tooltip = "Adds the \"souls\" of regular enemies to the item pool. An enemy will be "
+                                       "immune to damage until its corresponding soul has been obtained.",
                             .disabled = IncompatibleWithLogicSetting(RO_SHUFFLE_ENEMY_SOULS),
                             .disabledTooltip = "Incompatible with current Logic Setting" } }));
     CVarCheckbox("Shuffle Time", Rando::StaticData::Options[RO_CLOCK_SHUFFLE].cvar,
@@ -465,15 +602,13 @@ static void DrawItemsTab() {
             { RO_CLOCK_SHUFFLE_DESCENDING, "Progressive: Descending" },
         };
         {
-            int32_t value =
-                CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, RO_CLOCK_SHUFFLE_RANDOM);
-            if (UIWidgets::Combobox<int32_t>("Time Progression Mode", &value, &clockModeOptions)) {
-                CVarSetInteger(Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar, value);
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-            }
-            UIWidgets::Tooltip("Random: All 6 half-days shuffled randomly. Player starts with one random half-day.\n\n"
-                               "Progressive Ascending: Unlocks half-days in order (D1, N1, D2, N2, D3, N3).\n\n"
-                               "Progressive Descending: Unlocks half-days in reverse order (N3, D3, N2, D2, N1, D1).");
+            UIWidgets::CVarCombobox(
+                "Time Progression Mode", Rando::StaticData::Options[RO_CLOCK_SHUFFLE_PROGRESSIVE].cvar,
+                &clockModeOptions,
+                UIWidgets::ComboboxOptions().Tooltip(
+                    "Random: All 6 half-days shuffled randomly. Player starts with one random half-day.\n\n"
+                    "Progressive Ascending: Unlocks half-days in order (D1, N1, D2, N2, D3, N3).\n\n"
+                    "Progressive Descending: Unlocks half-days in reverse order (N3, D3, N2, D2, N1, D1)."));
         }
         // Terminal time slider (Final Hours start time)
         {
@@ -484,48 +619,24 @@ static void DrawItemsTab() {
             ImGui::Spacing();
             ImGui::Text("Final Hours Start Time: %02d:%02d", hours, minutes);
             ImGui::Spacing();
-            UIWidgets::CVarSliderInt("Final Hours Start Time", Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar,
-                                     UIWidgets::IntSliderOptions().Min(0).Max(359).DefaultValue(0).LabelPosition(
-                                         UIWidgets::LabelPosition::None));
-            ImGui::Spacing();
-
-            UIWidgets::Tooltip("Controls when the final hours countdown begins (00:00 to 05:59). "
-                               "When you run out of owned half-days, this allows the player control over how much "
-                               "time is left before the moon crash.\n\n"
-                               "This setting is baked into the seed and cannot be changed after generation.");
+            UIWidgets::CVarSliderInt(
+                "Final Hours Start Time", Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar,
+                UIWidgets::IntSliderOptions()
+                    .Min(0)
+                    .Max(359)
+                    .DefaultValue(0)
+                    .LabelPosition(UIWidgets::LabelPosition::None)
+                    .Tooltip("Controls when the final hours countdown begins (00:00 to 05:59). "
+                             "When you run out of owned half-days, this allows the player control over how much "
+                             "time is left before the moon crash.\n\n"
+                             "This setting is baked into the seed and cannot be changed after generation."));
         }
     }
-
-    CVarCheckbox("Triforce Hunt", Rando::StaticData::Options[RO_SHUFFLE_TRIFORCE_PIECES].cvar);
-    ImGui::BeginDisabled(!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRIFORCE_PIECES].cvar, RO_GENERIC_OFF));
-    CVarSliderInt(
-        "Required Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
-        IntSliderOptions({})
-            .Min(1)
-            .Max(CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX))
-            .DefaultValue(DEFAULT_TRIFORCE_PIECES_MAX));
-    if (CVarSliderInt(
-            "Shuffled Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar,
-            IntSliderOptions({})
-                .Min(1)
-                .Max(1000)
-                .DefaultValue(DEFAULT_TRIFORCE_PIECES_MAX)
-                .Tooltip("If the maximum amount of placeable pieces exceeds what will allow the seed to generate, the "
-                         "amount will be adjusted automatically."))) {
-        if (CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar, DEFAULT_TRIFORCE_PIECES_MAX) >
-            CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX)) {
-            CVarSetInteger(
-                Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
-                CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, DEFAULT_TRIFORCE_PIECES_MAX));
-        }
-    }
-
-    ImGui::EndDisabled();
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn3", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
     CVarCheckbox("Shuffle Traps", Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar,
-                 CheckboxOptions({ { .tooltip = "Ice Trap time!" } }));
+                 CheckboxOptions({ { .tooltip = "Add trapped items to the pool." } }));
     CVarSliderInt(
         "##trapcount", Rando::StaticData::Options[RO_TRAP_AMOUNT].cvar,
         IntSliderOptions({ { .tooltip = "How many Traps are shuffled into the Item Pool.",
@@ -537,6 +648,7 @@ static void DrawItemsTab() {
             .Min(1)
             .Max(100)
             .DefaultValue(5));
+    ImGui::TextWrapped("Trap's fake item behavior can be altered at Rando > General > Near the bottom of the page");
     ImGui::SeparatorText("Toggle Trap Types");
     CVarCheckbox(
         "Freeze Traps", "gRando.Traps.Freeze",
@@ -574,6 +686,16 @@ static void DrawItemsTab() {
         CheckboxOptions({ { .tooltip = "Advances Time 90 Minutes (Game Time).",
                             .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
                             .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Fire Traps", "gRando.Traps.Fire",
+        CheckboxOptions({ { .tooltip = "Deals Fire to Link.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
+    CVarCheckbox(
+        "Knockback Traps", "gRando.Traps.Knockback",
+        CheckboxOptions({ { .tooltip = "Knocks Link back.",
+                            .disabled = (bool)!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRAPS].cvar, 0),
+                            .disabledTooltip = "Shuffle Traps is disabled." } }));
     ImGui::EndChild();
 }
 
@@ -581,7 +703,7 @@ static void DrawStartingItemsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 2 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 quarterHeight = ImGui::GetContentRegionAvail().y / 4 - (ImGui::GetStyle().ItemSpacing.y * 4);
     int tableColumns = 0;
-    ImGui::BeginChild("randoStartingOptions", ImVec2(0, quarterHeight));
+    ImGui::BeginChild("randoStartingOptions", ImVec2(0, 120.0f));
     ImGui::SeparatorText("Starting Options");
     if (ImGui::BeginTable("Starting Options", 3)) {
         ImGui::TableNextColumn();
@@ -623,13 +745,14 @@ static void DrawStartingItemsTab() {
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
 
-    std::vector<RandoItemId> setStartingItemsList =
-        convertStartingItemsToRandoItemId(CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT), ",");
+    auto setStartingItemsList = Rando::GetStartingItemsFromConfig();
+
     uint32_t listIndex = 0;
     for (auto& startingItem : setStartingItemsList) {
         ImGui::PushID(listIndex);
         ImVec2 imageSize = ImVec2(42.0f, 42.0f);
-        if ((startingItem >= RI_SONG_ELEGY && startingItem <= RI_SONG_TIME) || startingItem == RI_PROGRESSIVE_LULLABY) {
+        if ((startingItem >= RI_SONG_DOUBLE_TIME && startingItem <= RI_SONG_TIME) ||
+            startingItem == RI_PROGRESSIVE_LULLABY) {
             imageSize.x /= 1.5f;
         }
 
@@ -646,14 +769,9 @@ static void DrawStartingItemsTab() {
 
         if (ImGui::ImageButton(std::to_string(listIndex).c_str(), textureId, imageSize, ImVec2(0, 0), ImVec2(1, 1),
                                ImVec4(0, 0, 0, 0), tintColor)) {
-            for (size_t i = 0; i < setStartingItemsList.size(); i++) {
-                if (setStartingItemsList[i] == startingItem) {
-                    setStartingItemsList.erase(setStartingItemsList.begin() + i);
-                    break;
-                }
-            }
-            CVarSetString("gRando.StartingItems", CreateStartingItemsToCvar(setStartingItemsList).c_str());
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+            setStartingItemsList.erase(setStartingItemsList.begin() + listIndex);
+            Rando::SetStartingItemsInConfig(setStartingItemsList);
+            RefreshMetrics();
         }
         UIWidgets::Tooltip(tooltipText.c_str());
         listIndex++;
@@ -693,8 +811,13 @@ static void DrawStartingItemsTab() {
                     ImGui::TableSetupColumn("item", ImGuiTableColumnFlags_WidthFixed, 50.0f);
                 }
                 for (auto& item : category.second) {
+                    if (setOfItemsInPool.count(item) == 0) {
+                        // Skip items that are not in the item pool
+                        continue;
+                    }
+
                     ImVec2 imageSize = ImVec2(42.0f, 42.0f);
-                    if ((item >= RI_SONG_ELEGY && item <= RI_SONG_TIME) || item == RI_PROGRESSIVE_LULLABY) {
+                    if ((item >= RI_SONG_DOUBLE_TIME && item <= RI_SONG_TIME) || item == RI_PROGRESSIVE_LULLABY) {
                         imageSize.x /= 1.5f;
                     }
 
@@ -719,14 +842,15 @@ static void DrawStartingItemsTab() {
 
                     if (ImGui::ImageButton(std::to_string(item).c_str(), textureId, imageSize, ImVec2(0, 0),
                                            ImVec2(1, 1), ImVec4(0, 0, 0, 0), tintColor)) {
-                        std::string currentStartingItems =
-                            CVarGetString("gRando.StartingItems", RANDO_STARTING_ITEMS_DEFAULT);
-                        if (currentStartingItems.length() != 0) {
-                            currentStartingItems += ",";
+                        if (std::count(setStartingItemsList.begin(), setStartingItemsList.end(), item) <
+                            (Rando::StaticData::MaxStartingItemsMap.count(item)
+                                 ? Rando::StaticData::MaxStartingItemsMap[item]
+                                 : 1)) {
+
+                            setStartingItemsList.push_back(item);
+                            Rando::SetStartingItemsInConfig(setStartingItemsList);
+                            RefreshMetrics();
                         }
-                        currentStartingItems += std::to_string(item);
-                        CVarSetString("gRando.StartingItems", currentStartingItems.c_str());
-                        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
                     }
                     UIWidgets::Tooltip(tooltipText.c_str());
                 }
@@ -933,7 +1057,7 @@ static void DrawCheckFilterTab() {
 static void DrawHintsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 2 - (ImGui::GetStyle().ItemSpacing.y * 2);
-    ImGui::BeginChild("randoHintsColumn1", ImVec2(columnWidth, halfHeight));
+    ImGui::BeginChild("randoHintsColumn1", ImVec2(columnWidth, 0));
     CVarCheckbox(
         "Spider House", Rando::StaticData::Options[RO_HINTS_SPIDER_HOUSES].cvar,
         CheckboxOptions(
@@ -963,10 +1087,9 @@ static void DrawHintsTab() {
                             .disabledTooltip = "Soon you will be able to disable these. Currently hinted:\n- Bomb Shop "
                                                "4th Item\n- Lottery\n- Great Fairy Fountains\n- Mountain Smithy" } })
             .DefaultValue(true));
-    CVarCheckbox("Saria's Song", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Song of Soaring", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox(
+        "Song of Soaring", Rando::StaticData::Options[RO_HINTS_SONG_OF_SOARING].cvar,
+        CheckboxOptions({ { .tooltip = "Hints the location of the Song of Soaring at it's vanilla location" } }));
     CVarCheckbox(
         "Hookshot Location", Rando::StaticData::Options[RO_HINTS_HOOKSHOT].cvar,
         CheckboxOptions(
@@ -1006,6 +1129,18 @@ void Rando::RegisterMenu() {
     mBenMenu->AddSidebarEntry("Rando", "Hints", 1);
     path.sidebarName = "Hints";
     mBenMenu->AddWidget(path, "Hints", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawHintsTab(); });
+
+    mBenMenu->AddSidebarEntry("Rando", "Item Tracker", 1);
+    path.sidebarName = "Item Tracker";
+    mBenMenu->AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.ItemTrackerSettings")
+        .WindowName("Item Tracker Settings");
+
+    mBenMenu->AddSidebarEntry("Rando", "Check Tracker", 1);
+    path.sidebarName = "Check Tracker";
+    mBenMenu->AddWidget(path, "Popout Settings", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.CheckTrackerSettings")
+        .WindowName("Check Tracker Settings");
 }
 
 static RegisterMenuInitFunc initFunc(Rando::RegisterMenu);

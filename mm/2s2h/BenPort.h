@@ -146,6 +146,7 @@ void Controller_UnblockGameInput();
 void Overlay_DisplayText(float duration, const char* text);
 void Overlay_DisplayText_Seconds(int seconds, const char* text);
 uint32_t Ship_GetInterpolationFPS();
+uint32_t Ship_GetInterpolationFrameCount();
 
 void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement);
 void Gfx_UnregisterBlendedTexture(const char* name);
@@ -162,6 +163,7 @@ int32_t GetGIID(uint32_t itemID);
 extern "C" {
 #endif
 uint64_t GetUnixTimestamp();
+void CrashHandler_PrintExt(char* buffer, size_t* pos);
 #ifdef __cplusplus
 };
 #endif

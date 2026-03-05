@@ -90,6 +90,8 @@ void DrawSong(RandoItemId randoItemId) {
         case RI_SONG_SUN:
             gDPSetEnvColor(POLY_XLU_DISP++, 237, 231, 62, 255);
             break;
+        case RI_SONG_DOUBLE_TIME:
+        case RI_SONG_INVERTED_TIME:
         case RI_SONG_TIME:
             gDPSetEnvColor(POLY_XLU_DISP++, 98, 177, 211, 255);
             break;
@@ -99,6 +101,7 @@ void DrawSong(RandoItemId randoItemId) {
         case RI_SONG_STORMS:
             gDPSetEnvColor(POLY_XLU_DISP++, 146, 146, 146, 255);
             break;
+        case RI_SONG_SARIA:
         case RI_SONG_SONATA:
             gDPSetEnvColor(POLY_XLU_DISP++, 98, 255, 98, 255);
             break;
@@ -154,9 +157,9 @@ void DrawMilkRefill() {
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
 
     gSPSegment(POLY_OPA_DISP++, 0x08,
-               (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, G_TX_RENDERTILE, -gPlayState->state.frames,
-                                           gPlayState->state.frames, 32, 32, 1, -gPlayState->state.frames,
-                                           gPlayState->state.frames, 32, 32));
+               (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, G_TX_RENDERTILE, -gPlayState->state.frames,
+                                             gPlayState->state.frames, 32, 32, 1, -gPlayState->state.frames,
+                                             gPlayState->state.frames, 32, 32, -1, 1, -1, 1));
     MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     // Container Color
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
@@ -290,9 +293,9 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     }
 
     gSPSegment(POLY_XLU_DISP++, 0x08,
-               (uintptr_t)Gfx_TwoTexScroll(gPlayState->state.gfxCtx, G_TX_RENDERTILE, gPlayState->state.frames * 0,
-                                           -(gPlayState->state.frames * 5), 32, 32, 1, gPlayState->state.frames * 0,
-                                           gPlayState->state.frames * 0, 32, 64));
+               (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, G_TX_RENDERTILE, gPlayState->state.frames * 0,
+                                             -(gPlayState->state.frames * 5), 32, 32, 1, gPlayState->state.frames * 0,
+                                             gPlayState->state.frames * 0, 32, 64, 0, -5, 0, 0));
     MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gSkulltulaTokenFlameCopyDL);
 
@@ -309,52 +312,6 @@ void DrawTrapModel() {
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gTrapDL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
-}
-
-void DrawRandomTrapModel(RandoItemId randoItemId, Actor* actor) {
-    uint32_t seed = gSaveContext.save.shipSaveInfo.rando.finalSeed / 100000;
-    int actorData = (int)gPlayState->sceneId + seed;
-
-    if (actor != NULL) {
-        actorData += abs(actor->home.pos.x + actor->home.pos.y + actor->params);
-    }
-
-    int drawRandoItemId = actorData % ((int)RI_MAX - 3);
-
-    if (drawRandoItemId == RI_UNKNOWN || drawRandoItemId >= RI_TRAP) {
-        drawRandoItemId++;
-    }
-
-    // Handle Progressive Items
-    switch (drawRandoItemId) {
-        case RI_BOMB_BAG_20:
-        case RI_BOMB_BAG_30:
-        case RI_BOMB_BAG_40:
-            drawRandoItemId = RI_PROGRESSIVE_BOMB_BAG;
-            break;
-        case RI_BOW:
-        case RI_QUIVER_40:
-        case RI_QUIVER_50:
-            drawRandoItemId = RI_PROGRESSIVE_BOW;
-            break;
-        case RI_SINGLE_MAGIC:
-        case RI_DOUBLE_MAGIC:
-            drawRandoItemId = RI_PROGRESSIVE_MAGIC;
-            break;
-        case RI_SWORD_GILDED:
-        case RI_SWORD_KOKIRI:
-        case RI_SWORD_RAZOR:
-            drawRandoItemId = RI_PROGRESSIVE_SWORD;
-            break;
-        case RI_WALLET_ADULT:
-        case RI_WALLET_GIANT:
-            drawRandoItemId = RI_PROGRESSIVE_WALLET;
-            break;
-        default:
-            break;
-    }
-
-    Rando::DrawItem((RandoItemId)drawRandoItemId, actor);
 }
 
 void DrawTriforcePiece(RandoItemId randoItemId) {
@@ -397,6 +354,21 @@ void DrawAbilityItem(RandoItemId randoItemId, Actor* actor) {
 
     MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_XLU_DISP++, (Gfx*)abilityItemModel[randoItemId - RI_ABILITY_SWIM]);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void DrawOcarinaButtonItem(RandoItemId randoItemId, Actor* actor) {
+    Gfx* ocarinaButtonModel[5] = {
+        (Gfx*)gOcarinaAButtonDL,     (Gfx*)gOcarinaCDownButtonDL, (Gfx*)gOcarinaCRightButtonDL,
+        (Gfx*)gOcarinaCLeftButtonDL, (Gfx*)gOcarinaCUpButtonDL,
+    };
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_OPA_DISP++, (Gfx*)ocarinaButtonModel[randoItemId - RI_OCARINA_BUTTON_A]);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
@@ -490,7 +462,7 @@ void DrawSparkles(RandoItemId randoItemId, Actor* actor) {
     EffectSsKirakira_SpawnDispersed(gPlayState, &newPos, &sVelocity, &sAccel, &sPrimColor, &sEnvColor, 2000, 16);
 }
 
-void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
+void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* actor) {
     // Apply hilites with actor world pos before drawing
     if (actor != NULL) {
         func_800B8118(actor, gPlayState, 0);
@@ -499,7 +471,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
 
     switch (randoItemId) {
         case RI_JUNK:
-            Rando::DrawItem(Rando::CurrentJunkItem(), actor);
+            Rando::DrawItem(Rando::CurrentJunkItem(randoCheckId), randoCheckId, actor);
             break;
         case RI_GREAT_BAY_SMALL_KEY:
         case RI_SNOWHEAD_SMALL_KEY:
@@ -517,6 +489,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SONG_STORMS:
         case RI_SONG_SUN:
         case RI_SONG_HEALING:
+        case RI_SONG_SARIA:
         case RI_SONG_SOARING:
         case RI_SONG_SONATA:
         case RI_SONG_ELEGY:
@@ -525,6 +498,8 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SONG_OATH:
         case RI_SONG_EPONA:
         case RI_SONG_NOVA:
+        case RI_SONG_DOUBLE_TIME:
+        case RI_SONG_INVERTED_TIME:
             DrawSong(randoItemId);
             break;
         case RI_CLOCK_TOWN_STRAY_FAIRY:
@@ -571,7 +546,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_PROGRESSIVE_BOMB_BAG:
         case RI_PROGRESSIVE_SWORD:
         case RI_PROGRESSIVE_WALLET:
-            Rando::DrawItem(Rando::ConvertItem(randoItemId), actor);
+            Rando::DrawItem(Rando::ConvertItem(randoItemId, randoCheckId), randoCheckId, actor);
             break;
         case RI_SOUL_ENEMY_ALIEN:
         case RI_SOUL_ENEMY_ARMOS:
@@ -651,10 +626,17 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             DrawTriforcePiece(randoItemId);
             break;
         case RI_TRAP:
-            DrawRandomTrapModel(randoItemId, actor);
+            Rando::DrawItem(Rando::CurrentTrapItem(randoCheckId), randoCheckId, actor);
             break;
         case RI_MAX_TRAP:
             DrawTrapModel();
+            break;
+        case RI_OCARINA_BUTTON_A:
+        case RI_OCARINA_BUTTON_C_DOWN:
+        case RI_OCARINA_BUTTON_C_LEFT:
+        case RI_OCARINA_BUTTON_C_RIGHT:
+        case RI_OCARINA_BUTTON_C_UP:
+            DrawOcarinaButtonItem(randoItemId, actor);
             break;
         case RI_NONE:
         case RI_UNKNOWN:
