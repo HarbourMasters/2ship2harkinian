@@ -12,7 +12,7 @@ extern "C" {
 #define EN_DNO_ANIM_SHOCK_LOOP 18
 
 void RegisterDekuButlerFixShockLoopAnimation() {
-    COND_VB_SHOULD(VB_DEKU_BUTLER_FIX_SHOCK_ANIM, CVAR, {
+    COND_VB_SHOULD(VB_DEKU_BUTLER_CHANGE_SHOCK_ANIMATION, CVAR, {
         EnDno* dno = va_arg(args, EnDno*);
         u8* changeAnim = va_arg(args, u8*);
         if (dno->animIndex == EN_DNO_ANIM_SHOCK_LOOP) {

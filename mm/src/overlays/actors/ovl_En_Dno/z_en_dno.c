@@ -962,7 +962,7 @@ void func_80A73408(EnDno* this, PlayState* play) {
                     break;
 
                 case 2:
-                    GameInteractor_Should(VB_DEKU_BUTLER_FIX_SHOCK_ANIM, true, this, &changeAnim);
+                    GameInteractor_Should(VB_DEKU_BUTLER_CHANGE_SHOCK_ANIMATION, true, this, &changeAnim);
                     nextAnimIndex = EN_DNO_ANIM_SHOCK_START;
                     break;
 
