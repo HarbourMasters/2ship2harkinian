@@ -591,7 +591,9 @@ void CosmeticEditorDrawColorTab() {
     }
     UIWidgets::Tooltip("Randomizes All Elements");
     ImGui::SameLine();
-    UIWidgets::CVarCheckbox("Randomize all Cosmetics on Randomizer Generation", "gCosmetics.RandomizeOnSeedGen", UIWidgets::CheckboxOptions().Tooltip("Randomize all elements when a new randomizer seed is generated."));
+    UIWidgets::CVarCheckbox(
+        "Randomize all Cosmetics on Randomizer Generation", "gCosmetics.RandomizeOnSeedGen",
+        UIWidgets::CheckboxOptions().Tooltip("Randomize all elements when a new randomizer seed is generated."));
     for (auto& parent : cosmeticEditorParentElements) {
         ImGui::SeparatorText(parent);
         ImGui::BeginTable(parent, 2);
