@@ -18,7 +18,7 @@ void Message_ResetOcarinaButtonAlphas(void);
 static u8 sPendingAutoPlaySong = 0xFF;
 static bool sHideOcarinaStaff = false;
 static bool sOcarinaErrorPlayed = false;
-static u32 sSongIconsRGBA32[12][32 * 32];
+static u32 sSongIconsRGBA32[13][32 * 32];
 
 static struct {
     s32 btn;
@@ -37,7 +37,7 @@ static u8 SongItemToOcarinaId(ItemId item) {
 
 static TexturePtr GetSongIconTexture(ItemId item) {
     if (item == ITEM_SONG_LULLABY_INTRO) {
-        return (TexturePtr)sSongIconsRGBA32[ITEM_SONG_LULLABY - ITEM_SONG_SONATA];
+        return (TexturePtr)sSongIconsRGBA32[12];
     }
     return (TexturePtr)sSongIconsRGBA32[item - ITEM_SONG_SONATA];
 }
@@ -83,11 +83,99 @@ static void SetButtonItem(PlayState* play, s32 btn, bool isDpad, ItemId item, s3
     }
 }
 
+// 4x5 pixel font for song acronym text on icons.
+// Each glyph is 4 pixels wide x 5 pixels tall. Each byte = one row, bit 3 = leftmost pixel.
+// clang-format off
+static const u8 sFont4x5[][5] = {
+    { 0b0110, 0b1001, 0b1111, 0b1001, 0b1001 }, // A
+    { 0b1110, 0b1001, 0b1110, 0b1001, 0b1110 }, // B
+    { 0b1111, 0b1000, 0b1110, 0b1000, 0b1111 }, // E
+    { 0b0111, 0b1000, 0b1011, 0b1001, 0b0110 }, // G
+    { 0b1001, 0b1001, 0b1111, 0b1001, 0b1001 }, // H
+    { 0b1110, 0b0100, 0b0100, 0b0100, 0b1110 }, // I
+    { 0b1000, 0b1000, 0b1000, 0b1000, 0b1111 }, // L
+    { 0b1001, 0b1111, 0b1111, 0b1001, 0b1001 }, // M
+    { 0b1001, 0b1101, 0b1111, 0b1011, 0b1001 }, // N
+    { 0b0110, 0b1001, 0b1001, 0b1001, 0b0110 }, // O
+    { 0b1110, 0b1001, 0b1110, 0b1000, 0b1000 }, // P
+    { 0b1110, 0b1001, 0b1110, 0b1010, 0b1001 }, // R
+    { 0b0111, 0b1000, 0b0110, 0b0001, 0b1110 }, // S
+    { 0b1110, 0b0100, 0b0100, 0b0100, 0b0100 }, // T
+    { 0b1001, 0b1001, 0b1001, 0b1001, 0b0110 }, // U
+};
+// clang-format on
+static const char sFontChars[] = "ABEGHILMNOPRSTU";
+
+static const char* sSongAcronyms[13] = {
+    "SOA", "GL", "BN", "EOE", "OTO", "SS", "SOT", "SOH", "ES", "SOAR", "STORM", "SUS", "GLI",
+};
+
+static int CharToFontIndex(char c) {
+    for (int i = 0; sFontChars[i]; i++) {
+        if (sFontChars[i] == c)
+            return i;
+    }
+    return -1;
+}
+
+static void RenderTextOnIcon(u32* iconBuf, const char* text) {
+    int len = (int)strlen(text);
+    int textWidth = len * 5 - 1;
+    int startX = (32 - textWidth) / 2;
+    int startY = 26;
+
+    // Pass 1: dark outline around each glyph pixel.
+    // Writes unconditionally so the outline is visible against both transparent areas and bright
+    // note pixels (important for white songs). The foreground pass overwrites glyph positions after.
+    for (int ci = 0; ci < len; ci++) {
+        int fi = CharToFontIndex(text[ci]);
+        if (fi < 0)
+            continue;
+        for (int gy = 0; gy < 5; gy++) {
+            u8 row = sFont4x5[fi][gy];
+            for (int gx = 0; gx < 4; gx++) {
+                if (!(row & (1 << (3 - gx))))
+                    continue;
+                for (int dy = -1; dy <= 1; dy++) {
+                    for (int dx = -1; dx <= 1; dx++) {
+                        if (dx == 0 && dy == 0)
+                            continue;
+                        int px = startX + ci * 5 + gx + dx;
+                        int py = startY + gy + dy;
+                        if (px >= 0 && px < 32 && py >= 0 && py < 32) {
+                            iconBuf[py * 32 + px] = 0xC0000000;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Pass 2: white foreground pixels
+    for (int ci = 0; ci < len; ci++) {
+        int fi = CharToFontIndex(text[ci]);
+        if (fi < 0)
+            continue;
+        for (int gy = 0; gy < 5; gy++) {
+            u8 row = sFont4x5[fi][gy];
+            for (int gx = 0; gx < 4; gx++) {
+                if (row & (1 << (3 - gx))) {
+                    int px = startX + ci * 5 + gx;
+                    int py = startY + gy;
+                    if (px >= 0 && px < 32 && py >= 0 && py < 32) {
+                        iconBuf[py * 32 + px] = 0xFFFFFFFF;
+                    }
+                }
+            }
+        }
+    }
+}
+
 static void InitSongIcons() {
     static const Color_RGB8 sColors[] = {
-        { 150, 255, 100 }, { 255, 80, 40 },   { 100, 150, 255 }, { 255, 160, 0 },
-        { 255, 100, 255 }, { 255, 240, 100 }, { 255, 255, 255 }, { 255, 255, 255 },
-        { 255, 255, 255 }, { 255, 255, 255 }, { 255, 255, 255 }, { 255, 255, 255 },
+        { 150, 255, 100 }, { 255, 80, 40 },   { 100, 150, 255 }, { 255, 160, 0 },   { 255, 100, 255 },
+        { 255, 240, 100 }, { 255, 255, 255 }, { 255, 255, 255 }, { 255, 255, 255 }, { 255, 255, 255 },
+        { 255, 255, 255 }, { 255, 255, 255 }, { 255, 80, 40 },
     };
 
     memset(sSongIconsRGBA32, 0, sizeof(sSongIconsRGBA32));
@@ -97,7 +185,7 @@ static void InitSongIcons() {
         return;
     }
 
-    for (int s = 0; s < 12; s++) {
+    for (int s = 0; s < 13; s++) {
         Color_RGB8 c = sColors[s];
         for (int y = 0; y < 24; y++) {
             for (int x = 0; x < 16; x++) {
@@ -108,6 +196,7 @@ static void InitSongIcons() {
                                                               ((intensity * c.g / 255) << 8) | (intensity * c.r / 255);
             }
         }
+        RenderTextOnIcon(sSongIconsRGBA32[s], sSongAcronyms[s]);
     }
 }
 
@@ -128,7 +217,8 @@ static void HandleSongEquip(PauseContext* pauseCtx) {
 
     if ((cursorPoint >= QUEST_SONG_SONATA && cursorPoint <= QUEST_SONG_SUN) ||
         cursorPoint == QUEST_SONG_LULLABY_INTRO) {
-        if (CHECK_QUEST_ITEM(cursorPoint)) {
+        if (CHECK_QUEST_ITEM(cursorPoint) ||
+            (cursorPoint == QUEST_SONG_LULLABY && CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO))) {
             isHoveringSong = true;
         }
     }
@@ -152,7 +242,16 @@ static void HandleSongEquip(PauseContext* pauseCtx) {
         return;
     }
 
-    ItemId songItem = (ItemId)(ITEM_WALLET_GIANT + cursorPoint);
+    // Convert the QuestItem cursor index to an ItemId.
+    // ITEM_WALLET_GIANT is the base offset such that (ITEM_WALLET_GIANT + QUEST_SONG_*) == ITEM_SONG_*
+    // due to the enum layout. Lullaby Intro is non-contiguous and must be handled separately.
+    ItemId songItem;
+    if (cursorPoint == QUEST_SONG_LULLABY && !CHECK_QUEST_ITEM(QUEST_SONG_LULLABY) &&
+        CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) {
+        songItem = ITEM_SONG_LULLABY_INTRO;
+    } else {
+        songItem = (ItemId)(ITEM_WALLET_GIANT + cursorPoint);
+    }
     s32 targetBtn = -1;
     bool isDpad = false;
 
@@ -251,7 +350,7 @@ static void RegisterSongItems() {
         auto drawBorder = [&](ItemId item) {
             if (!IsSongItem(item))
                 return;
-            s32 questIndex = item - ITEM_WALLET_GIANT;
+            s32 questIndex = (item == ITEM_SONG_LULLABY_INTRO) ? QUEST_SONG_LULLABY : (s32)(item - ITEM_WALLET_GIANT);
             s32 vtxIndex = questIndex * 4;
 
             Vtx* nvtx = (Vtx*)GRAPH_ALLOC(play->state.gfxCtx, 4 * sizeof(Vtx));
@@ -331,6 +430,13 @@ static void RegisterSongItems() {
         }
     });
 
+    COND_VB_SHOULD(VB_ITEM_BE_RESTRICTED, CVAR, {
+        ItemId* itemId = va_arg(args, ItemId*);
+        if (IsSongItem(*itemId)) {
+            *should = false;
+        }
+    });
+
     COND_VB_SHOULD(VB_GET_ITEM_ON_BUTTON, CVAR, {
         EquipSlot slot = (EquipSlot)va_arg(args, int);
         ItemId* item = va_arg(args, ItemId*);
@@ -388,9 +494,17 @@ static void RegisterSongItems() {
         // Maintain colored song icons on HUD buttons across scene transitions / form changes
         ForEachEquipSlot([&](s32 i, bool isDpadBtn) {
             ItemId item = GetButtonItem(i, isDpadBtn);
-            if (IsSongItem(item)) {
-                SetIconItemSegment(gPlayState, i, isDpadBtn, GetSongIconTexture(item));
+            if (!IsSongItem(item)) {
+                return;
             }
+
+            // Auto-upgrade Lullaby Intro to full Lullaby when the player learns it
+            if (item == ITEM_SONG_LULLABY_INTRO && CHECK_QUEST_ITEM(QUEST_SONG_LULLABY)) {
+                item = ITEM_SONG_LULLABY;
+                SetButtonItem(gPlayState, i, isDpadBtn, item, GetButtonSlot(i, isDpadBtn));
+            }
+
+            SetIconItemSegment(gPlayState, i, isDpadBtn, GetSongIconTexture(item));
         });
 
         // Hide ocarina staff during auto-play
