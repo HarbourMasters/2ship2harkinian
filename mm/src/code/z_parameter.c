@@ -8832,20 +8832,25 @@ void Interface_DrawMinigameIcons(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-s16 sRupeeDigitsFirst[] = { 1, 0, 0, 0 };
+// 2S2H [Randomizer] Adjusted digit start positions for 4-digit rupee counter support, added index 3 for Tycoon's Wallet
+// Original: { 1, 0, 0, 0 }
+s16 sRupeeDigitsFirst[] = { 2, 1, 1, 0 };
 
-s16 sRupeeDigitsCount[] = { 2, 3, 3, 0 };
+// 2S2H [Randomizer] Added index 3 digit count for Tycoon's Wallet (4-digit display, max 5000)
+// Original: { 2, 3, 3, 0 }
+s16 sRupeeDigitsCount[] = { 2, 3, 3, 4 };
 
 Color_RGB16 sRupeeCounterIconPrimColors[] = {
-    { 200, 255, 100 },
-    { 170, 170, 255 },
-    { 255, 105, 105 },
+    { 200, 255, 100 }, // Child's Wallet
+    { 170, 170, 255 }, // Adult's Wallet
+    { 255, 105, 105 }, // Giant's Wallet
+    { 220, 120, 255 }, // 2S2H [Randomizer] Tycoon's Wallet
 };
-
 Color_RGB16 sRupeeCounterIconEnvColors[] = {
-    { 0, 80, 0 },
-    { 10, 10, 80 },
-    { 40, 10, 0 },
+    { 0, 80, 0 },   // Child's Wallet
+    { 10, 10, 80 }, // Adult's Wallet
+    { 40, 10, 0 },  // Giant's Wallet
+    { 50, 0, 80 },  // 2S2H [Randomizer] Tycoon's Wallet
 };
 
 TexturePtr sMinigameCountdownTextures[] = {
@@ -9196,21 +9201,28 @@ void Interface_Draw(PlayState* play) {
         gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0,
                           PRIMITIVE, 0);
 
-        counterDigits[0] = counterDigits[1] = 0;
-        counterDigits[2] = gSaveContext.save.saveInfo.playerData.rupees;
+        // 2S2H [Randomizer] Extended from 3-digit to 4-digit extraction for Tycoon's Wallet (max 5000)
+        // Original: counterDigits[0] = counterDigits[1] = 0; counterDigits[2] = rupees;
+        counterDigits[0] = counterDigits[1] = counterDigits[2] = 0;
+        counterDigits[3] = gSaveContext.save.saveInfo.playerData.rupees;
 
-        if ((counterDigits[2] > 9999) || (counterDigits[2] < 0)) {
-            counterDigits[2] &= 0xDDD;
+        if ((counterDigits[3] > 9999) || (counterDigits[3] < 0)) {
+            counterDigits[3] &= 0xDDD;
         }
 
-        while (counterDigits[2] >= 100) {
+        while (counterDigits[3] >= 1000) {
             counterDigits[0]++;
-            counterDigits[2] -= 100;
+            counterDigits[3] -= 1000;
         }
 
-        while (counterDigits[2] >= 10) {
+        while (counterDigits[3] >= 100) {
             counterDigits[1]++;
-            counterDigits[2] -= 10;
+            counterDigits[3] -= 100;
+        }
+
+        while (counterDigits[3] >= 10) {
+            counterDigits[2]++;
+            counterDigits[3] -= 10;
         }
 
         sp2CC = sRupeeDigitsFirst[CUR_UPG_VALUE(UPG_WALLET)];

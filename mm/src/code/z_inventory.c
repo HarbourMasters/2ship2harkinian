@@ -72,14 +72,14 @@ u8 gUpgradeShifts[] = {
 };
 
 u16 gUpgradeCapacities[][4] = {
-    { 0, 30, 40, 50 },     // UPG_QUIVER
-    { 0, 20, 30, 40 },     // UPG_BOMB_BAG
-    { 0, 0, 0, 0 },        // UPG_STRENGTH
-    { 0, 0, 0, 0 },        // UPG_SCALE
-    { 99, 200, 500, 500 }, // UPG_WALLET
-    { 0, 30, 40, 50 },     // UPG_BULLET_BAG
-    { 0, 10, 20, 30 },     // UPG_DEKU_STICKS
-    { 0, 20, 30, 40 },     // UPG_DEKU_NUTS
+    { 0, 30, 40, 50 },      // UPG_QUIVER
+    { 0, 20, 30, 40 },      // UPG_BOMB_BAG
+    { 0, 0, 0, 0 },         // UPG_STRENGTH
+    { 0, 0, 0, 0 },         // UPG_SCALE
+    { 99, 200, 500, 5000 }, // UPG_WALLET // 2S2H [Randomizer] Changed index 3 from 500 to 5000 for Tycoon's Wallet
+    { 0, 30, 40, 50 },      // UPG_BULLET_BAG
+    { 0, 10, 20, 30 },      // UPG_DEKU_STICKS
+    { 0, 20, 30, 40 },      // UPG_DEKU_NUTS
 };
 
 // eight-bit masks

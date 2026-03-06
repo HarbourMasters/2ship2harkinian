@@ -59,8 +59,8 @@ constexpr u8 REG_PAGES_MAX = REG_PAGES;
 constexpr u8 REG_GROUPS_MAX = REG_GROUPS - 1;
 const char* MAGIC_LEVEL_NAMES[3] = { "No Magic", "Single Magic", "Double Magic" };
 constexpr int8_t MAGIC_LEVEL_MAX = 2;
-const char* WALLET_LEVEL_NAMES[3] = { "Child Wallet", "Adult Wallet", "Giant Wallet" };
-constexpr u8 WALLET_LEVEL_MAX = 2;
+const char* WALLET_LEVEL_NAMES[4] = { "Child Wallet", "Adult Wallet", "Giant Wallet", "Tycoon Wallet" };
+constexpr u8 WALLET_LEVEL_MAX = 3;
 ImVec4 colorTint;
 const char* songTooltip;
 const char* curForm;
@@ -478,7 +478,7 @@ void DrawGeneralTab() {
     // Card 3: Currency
     UIWidgets::BeginCard("currencyCard");
     if (UIWidgets::Button("Max Rupees", { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::Green })) {
-        Inventory_ChangeUpgrade(UPG_WALLET, 2);
+        Inventory_ChangeUpgrade(UPG_WALLET, WALLET_LEVEL_MAX);
         gSaveContext.save.saveInfo.playerData.rupees = CUR_CAPACITY(UPG_WALLET);
     }
     ImGui::SameLine();
