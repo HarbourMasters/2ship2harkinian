@@ -536,6 +536,22 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - None
+    VB_DRAW_RUPEE_COUNTER,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_DRAW_RUPEE_ICON,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*EnSlime`
     VB_DRAW_SLIME_BODY_ITEM,
 
