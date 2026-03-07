@@ -2091,7 +2091,7 @@ void AudioOcarina_ReadControllerInput(void) {
 
     // 2S2H [Enhancement] Apply right stick ocarina input via GameInteractor
     sOcarinaInputButtonCur |= GameInteractor_RightStickOcarina(input);
-    
+
     // 2S2H [Enhancement] Apply custom ocarina controls via GameInteractor
     sOcarinaInputButtonCur |= GameInteractor_CustomOcarinaControls(input);
 }
