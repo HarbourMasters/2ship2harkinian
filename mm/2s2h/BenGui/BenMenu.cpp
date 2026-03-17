@@ -1023,6 +1023,10 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Equipment.BetterPictoMessage")
         .Options(
             CheckboxOptions().Tooltip("Inform the player what target if any is being captured in the pictograph."));
+    AddWidget(path, "Picto Box on C-Up", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Items.PictoBoxOnCUp")
+        .Options(CheckboxOptions().Tooltip(
+            "Press C-Up to activate the Pictograph Box once acquired, without needing to equip it to a C-button."));
     AddWidget(path, "Arrow Type Cycling", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.PlayerActions.ArrowCycle")
         .Options(CheckboxOptions().Tooltip(
@@ -1356,6 +1360,10 @@ void BenMenu::AddEnhancements() {
             "Requires that you can play Song of Soaring normally.\n\n"
             "Accounts for Index-Warp being active, by presenting all valid warps for the registered "
             "map points. Great Bay Coast warp is always given for index 0 warp as a convenience."));
+    AddWidget(path, "Better Owl Warp Menu", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Songs.BetterOwlWarpMenu")
+        .Options(CheckboxOptions().Tooltip(
+            "Makes cursor movement conform more to Control Stick direction when choosing an Owl Statue to warp to."));
     AddWidget(path, "Zora Eggs For Bossa Nova", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Songs.ZoraEggCount")
         .Options(IntSliderOptions()
@@ -1459,6 +1467,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Dampe Flame Digging", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.DampeDiggingSkip")
         .Options(CheckboxOptions().Tooltip("Only requires digging up one flame to spawn the big poe."));
+    AddWidget(path, "Always Show Shrine of Truth Feathers", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.AlwaysShowShrineFeathers")
+        .Options(CheckboxOptions().Tooltip("Always reveals the feather-marked path to the Shrine of Truth."));
     AddWidget(path, "Fast Chests", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FastChests")
         .Options(CheckboxOptions().Tooltip("Uses the quick kick animation for all chests in vanilla gameplay."));

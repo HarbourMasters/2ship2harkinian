@@ -667,6 +667,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - None
+    VB_FIRST_PERSON_CAMERA,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*EnFish2`
     VB_FISH2_SPAWN_HEART_PIECE,
 
@@ -1457,6 +1465,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - `*EnOwl`
+    VB_OWL_SPAWN_FEATHER,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `u8`
     VB_OWL_STATUE_ACTIVATE,
 
@@ -1475,6 +1491,14 @@ typedef enum {
     // #### `args`
     // - `*EnOwl`
     VB_OWL_TELL_ABOUT_SHRINE,
+
+    // #### `result`
+    // ```c
+    // pauseCtx->state == PAUSE_STATE_OWL_WARP_SELECT
+    // ```
+    // #### `args`
+    // - None
+    VB_OWL_WARP_MENU_USE_LINEAR_CURSOR,
 
     // #### `result`
     // ```c
