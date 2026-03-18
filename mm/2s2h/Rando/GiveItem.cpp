@@ -147,7 +147,7 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             break;
         case RI_WALLET_TYCOON:
             Inventory_ChangeUpgrade(UPG_WALLET, 3);
-            gSaveContext.rupeeAccumulator = CUR_CAPACITY(UPG_WALLET);
+            gSaveContext.rupeeAccumulator = CUR_CAPACITY(UPG_WALLET) - gSaveContext.save.saveInfo.playerData.rupees;
             break;
         case RI_GS_TOKEN_SWAMP:
             // Set QUEST_QUIVER to match bug mentioned in z_parameter.c
