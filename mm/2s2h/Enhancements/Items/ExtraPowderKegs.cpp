@@ -40,41 +40,43 @@ void RegisterExtraPowderKegs() {
         entry.autoFormat = false;
         entry.msg = "\x1e:\xbb\x01Powder Kegs";
         entry.msg += '\x00';
-        entry.msg += " are very\x11volatile, so you can carry only \x01";
+        entry.msg += " are\x11highly unstable! Carry only \x01";
         entry.msg += std::to_string(MAX_POWDER_KEGS);
         entry.msg += '\x11';
         entry.msg += '\x00';
-        entry.msg += "at a time.\x11\x12If you shoot them with an \x01"
+        entry.msg += "at a time.\x11\x12Strike one with an \x01"
                      "arrow";
         entry.msg += '\x00';
-        entry.msg += ",\x11they'll \x01"
-                     "explode ";
+        entry.msg += " and it'll\x11"
+                     "detonate \x01"
+                     "on impact";
         entry.msg += '\x00';
-        entry.msg += "as soon as they're\x11hit, so be careful.\xbf";
+        entry.msg += ". Watch out!\xbf";
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
     COND_ID_HOOK(OnOpenText, 0x0C8B, CVAR, [](u16*, bool* loadFromMessageTable) {
         CustomMessage::Entry entry;
         entry.autoFormat = false;
-        entry.msg = "You can carry only \x01";
+        entry.msg = "Your limit is \x01";
         entry.msg += std::to_string(MAX_POWDER_KEGS);
         entry.msg += " Powder\x11Kegs";
         entry.msg += '\x00';
-        entry.msg += " at a time. Once you've used\x11them, come back.\xbf";
+        entry.msg += " at a time. Use some up\x11"
+                     "and then come back.\xbf";
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
     COND_ID_HOOK(OnOpenText, 0x0673, CVAR, [](u16*, bool* loadFromMessageTable) {
         CustomMessage::Entry entry;
         entry.autoFormat = false;
-        entry.msg = "\x1e\x38\xfc\x17Oh, but you already have \x01";
+        entry.msg = "\x1e\x38\xfc\x17Whoa, you're already\x11"
+                    "carrying \x01";
         entry.msg += std::to_string(MAX_POWDER_KEGS);
         entry.msg += '\x00';
-        entry.msg += ".\x18\x11\x13\x13\x12\x01Powder Kegs";
+        entry.msg += "!\x18\x11\x13\x13\x12\x01Powder Kegs";
         entry.msg += '\x00';
-        entry.msg += " are dangerous\x11"
-                     "explosives, so you can carry only\x11\x01";
+        entry.msg += " are serious\x11hazards. The limit is \x01";
         entry.msg += std::to_string(MAX_POWDER_KEGS);
         entry.msg += '\x00';
         entry.msg += " at a time!\xbf";
