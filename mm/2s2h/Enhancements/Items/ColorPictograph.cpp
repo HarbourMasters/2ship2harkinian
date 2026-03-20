@@ -161,11 +161,11 @@ void RegisterColorPictograph() {
     });
 
     COND_VB_SHOULD(VB_PICTO_DISPLAY, CVAR, {
-        s16 sp2CC = va_arg(args, s16);
+        s16* sp2CC = va_arg(args, s16*);
 
         // might need something better to check for existance
         if (pictoPhotoRGBABuffer[0] != 0) {
-            DrawPicto(sp2CC);
+            DrawPicto(*sp2CC);
             *should = false;
         }
     });
