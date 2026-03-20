@@ -16,7 +16,7 @@ static RegisterShipInitFunc initFunc([]() {
         .connections = {
             CONNECTION(RR_SNOWHEAD_TEMPLE_CENTRAL_ROOM_FIRST_FLOOR,  true),
             CONNECTION(RR_SNOWHEAD_TEMPLE_COMPASS_ROOM,  HAS_ITEM(ITEM_HOOKSHOT)),
-            CONNECTION(RR_SNOWHEAD_TEMPLE_BLOCK_ROOM_UPPER, HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA),
+            CONNECTION(RR_SNOWHEAD_TEMPLE_BLOCK_ROOM_UPPER, HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA), // TODO : Should using Zora for this be considered a trick?
         },
     };
     Regions[RR_SNOWHEAD_TEMPLE_BLOCK_ROOM_UPPER] = RandoRegion { .sceneId = SCENE_HAKUGIN, 
