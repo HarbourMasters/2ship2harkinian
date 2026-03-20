@@ -9429,7 +9429,7 @@ void Interface_Draw(PlayState* play) {
             for (sp2CC = 0; sp2CC < (PICTO_PHOTO_HEIGHT / 8); sp2CC++, pictoRectTop += 8) {
                 pictoRectLeft = PICTO_PHOTO_TOPLEFT_X;
 
-                if (GameInteractor_Should(VB_PICTO_DISPLAY, true, sp2CC)) {
+                if (GameInteractor_Should(VB_PICTO_DISPLAY, true, &sp2CC)) {
                     // 2S2H [Port] Invalidate each section. This could probably be optimized to only be done once each
                     // pic
                     gSPInvalidateTexCache(OVERLAY_DISP++,
