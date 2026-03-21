@@ -21,4 +21,4 @@ void RegisterSkipMagicArrowEquip() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipMagicArrowEquip, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipMagicArrowEquip, { CVAR_NAME });

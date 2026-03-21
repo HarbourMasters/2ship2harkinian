@@ -45,4 +45,4 @@ void RegisterSkipLearningSongOfStorms() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipLearningSongOfStorms, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipLearningSongOfStorms, { CVAR_NAME, "IS_RANDO" });

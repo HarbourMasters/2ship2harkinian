@@ -15,4 +15,4 @@ void RegisterPowerCrouchStab() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPowerCrouchStab, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterPowerCrouchStab, { CVAR_NAME });

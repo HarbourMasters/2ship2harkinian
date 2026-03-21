@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_MOON_DEKU_TRIAL] = RandoRegion{ .sceneId = SCENE_LAST_DEKU,
         .checks = {
             CHECK(RC_MOON_TRIAL_DEKU_PIECE_OF_HEART, CAN_BE_DEKU),

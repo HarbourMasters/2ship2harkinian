@@ -32,4 +32,4 @@ void RegisterSwordsmanSchool() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSwordsmanSchool, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSwordsmanSchool, { CVAR_NAME });

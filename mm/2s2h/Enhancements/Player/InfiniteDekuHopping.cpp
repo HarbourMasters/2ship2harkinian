@@ -30,4 +30,4 @@ void RegisterInfiniteDekuHopping() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterInfiniteDekuHopping, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterInfiniteDekuHopping, { CVAR_NAME });

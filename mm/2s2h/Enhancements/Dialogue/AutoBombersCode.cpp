@@ -22,4 +22,4 @@ void RegisterAutoBombersCode() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterAutoBombersCode, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterAutoBombersCode, { CVAR_NAME });

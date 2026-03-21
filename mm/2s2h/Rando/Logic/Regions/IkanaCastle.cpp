@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_IKANA_CASTLE_BEFORE_THRONE] = RandoRegion{ .name = "Before Throne Room", .sceneId = SCENE_CASTLE,
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(IGOS_DU_IKANAS_LAIR, 0),          ENTRANCE(IKANA_CASTLE, 6), true)

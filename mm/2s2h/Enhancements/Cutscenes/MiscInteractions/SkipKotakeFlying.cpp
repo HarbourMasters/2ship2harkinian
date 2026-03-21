@@ -29,4 +29,4 @@ void RegisterSkipKotakeFlying() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipKotakeFlying, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipKotakeFlying, { CVAR_NAME });

@@ -236,4 +236,4 @@ void RegisterDebugCam() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDebugCam, { "gEnhancements.Camera.DebugCam.Enable" });
+REGISTER_SHIP_INIT_FUNC(RegisterDebugCam, { "gEnhancements.Camera.DebugCam.Enable" });

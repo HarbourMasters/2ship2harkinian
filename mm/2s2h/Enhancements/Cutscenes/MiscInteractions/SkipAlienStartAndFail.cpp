@@ -30,4 +30,4 @@ void RegisterSkipAlienStartAndFail() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipAlienStartAndFail, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipAlienStartAndFail, { CVAR_NAME });

@@ -31,4 +31,4 @@ void RegisterHyperEnemies() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterHyperEnemies, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterHyperEnemies, { CVAR_NAME });

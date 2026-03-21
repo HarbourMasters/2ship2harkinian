@@ -24,4 +24,4 @@ void RegisterEnableSunsSong() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterEnableSunsSong, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterEnableSunsSong, { CVAR_NAME });

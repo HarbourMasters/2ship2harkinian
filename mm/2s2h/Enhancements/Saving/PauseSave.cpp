@@ -14,4 +14,4 @@ void RegisterPauseSave() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPauseSave, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterPauseSave, { CVAR_NAME });

@@ -31,4 +31,4 @@ void RegisterKeepExpressMail() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterKeepExpressMail, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterKeepExpressMail, { CVAR_NAME });

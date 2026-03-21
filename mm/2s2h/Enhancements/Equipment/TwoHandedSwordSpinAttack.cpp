@@ -53,4 +53,4 @@ void RegisterTwoHandedSwordSpinAttack() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterTwoHandedSwordSpinAttack, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterTwoHandedSwordSpinAttack, { CVAR_NAME });

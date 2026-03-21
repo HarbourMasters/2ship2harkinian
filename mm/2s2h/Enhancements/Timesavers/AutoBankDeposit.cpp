@@ -161,4 +161,4 @@ static void RegisterAutoBankDeposit() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterAutoBankDeposit, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterAutoBankDeposit, { CVAR_NAME });

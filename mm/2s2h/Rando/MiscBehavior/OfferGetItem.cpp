@@ -16,7 +16,7 @@ void Rando::MiscBehavior::InitOfferGetItemBehavior() {
         u32 cmdId = va_arg(args, u32);
         Actor* actor = va_arg(args, Actor*);
         Player* player = GET_PLAYER(gPlayState);
-        static std::vector<u8> skipCmds = {};
+        static std::vector<u8> sSkipCmdsOfferGetItem = {};
 
         // SPDLOG_INFO("VB_EXEC_MSG_EVENT {}", cmdId);
 
@@ -30,12 +30,12 @@ void Rando::MiscBehavior::InitOfferGetItemBehavior() {
             }
         }
 
-        if (skipCmds.empty()) {
+        if (sSkipCmdsOfferGetItem.empty()) {
             return;
         }
 
-        if (cmdId == skipCmds[0]) {
-            skipCmds.erase(skipCmds.begin());
+        if (cmdId == sSkipCmdsOfferGetItem[0]) {
+            sSkipCmdsOfferGetItem.erase(sSkipCmdsOfferGetItem.begin());
             *should = false;
         }
     });

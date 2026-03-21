@@ -197,7 +197,7 @@ void Rando::ActorBehavior::InitEnBoxBehavior() {
     });
 }
 
-static RegisterShipInitFunc initFunc(
+REGISTER_SHIP_INIT_FUNC(
     []() {
         if (gPlayState == NULL) {
             return;

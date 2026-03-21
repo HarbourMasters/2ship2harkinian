@@ -56,4 +56,4 @@ void RegisterHyruleWarriorsStyledLink() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterHyruleWarriorsStyledLink, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterHyruleWarriorsStyledLink, { CVAR_NAME });

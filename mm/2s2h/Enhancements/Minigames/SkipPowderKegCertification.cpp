@@ -37,4 +37,4 @@ void RegisterPowderKegCertification() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPowderKegCertification, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterPowderKegCertification, { CVAR_NAME, "IS_RANDO" });

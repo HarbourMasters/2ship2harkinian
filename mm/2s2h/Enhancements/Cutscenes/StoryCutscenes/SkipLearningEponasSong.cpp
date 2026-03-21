@@ -59,4 +59,4 @@ void RegisterSkipLearningEponasSong() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipLearningEponasSong, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipLearningEponasSong, { CVAR_NAME, "IS_RANDO" });

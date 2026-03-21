@@ -14,4 +14,4 @@ void RegisterSkipTingleTime() {
                  [](Actor* actor, bool* should) { SET_WEEKEVENTREG(WEEKEVENTREG_TALKED_TINGLE); });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipTingleTime, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipTingleTime, { CVAR_NAME });

@@ -9,4 +9,4 @@ void RegisterUnrestrictedItems() {
     COND_VB_SHOULD(VB_ITEM_BE_RESTRICTED, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterUnrestrictedItems, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterUnrestrictedItems, { CVAR_NAME });

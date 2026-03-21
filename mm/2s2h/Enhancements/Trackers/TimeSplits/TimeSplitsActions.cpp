@@ -401,4 +401,4 @@ void RegisterTimesplits() {
     COND_HOOK(OnSceneInit, CVAR, [](s8 sceneId, s8 spawnNum) { UpdateSplitStatusBySceneId(sceneId); });
 }
 
-static RegisterShipInitFunc initFunc(RegisterTimesplits, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterTimesplits, { CVAR_NAME });

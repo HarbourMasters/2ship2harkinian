@@ -38,4 +38,4 @@ void RegisterSkipBiggoronSnowheadLullabyCutscene() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipBiggoronSnowheadLullabyCutscene, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipBiggoronSnowheadLullabyCutscene, { CVAR_NAME });

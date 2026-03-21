@@ -14,4 +14,4 @@ void RegisterSkipBossWarpPrompt() {
                  [](Actor* actor, bool* should) { SET_WEEKEVENTREG(WEEKEVENTREG_86_80); });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipBossWarpPrompt, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipBossWarpPrompt, { CVAR_NAME });

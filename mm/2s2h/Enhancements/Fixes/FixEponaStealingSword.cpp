@@ -16,4 +16,4 @@ void RegisterFixEponaStealingSword() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFixEponaStealingSword, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFixEponaStealingSword, { CVAR_NAME });

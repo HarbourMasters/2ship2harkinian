@@ -52,4 +52,4 @@ void RegisterFasterSongPlayback() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFasterSongPlayback, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFasterSongPlayback, { CVAR_NAME });

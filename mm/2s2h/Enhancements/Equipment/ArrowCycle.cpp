@@ -308,4 +308,4 @@ void RegisterArrowCycle() {
     COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVAR, [](Actor* actor) { ArrowCycleMain(); });
 }
 
-static RegisterShipInitFunc initFunc(RegisterArrowCycle, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterArrowCycle, { CVAR_NAME });

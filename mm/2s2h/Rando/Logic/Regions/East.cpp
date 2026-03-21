@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_BENEATH_THE_GRAVEYARD_DAMPE] = RandoRegion{ .sceneId = SCENE_DANPEI2TEST,
         .checks = {
             CHECK(RC_BENEATH_THE_GRAVEYARD_DAMPE_CHEST, CanKillEnemy(ACTOR_EN_BIGPO)),

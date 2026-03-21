@@ -20,4 +20,4 @@ void RegisterRomaniTargetPractice() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterRomaniTargetPractice, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterRomaniTargetPractice, { CVAR_NAME });

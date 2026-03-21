@@ -45,4 +45,4 @@ void RegisterSkipDekuSalesman() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipDekuSalesman, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipDekuSalesman, { CVAR_NAME });

@@ -38,4 +38,4 @@ void RegisterSkipScarecrowSong() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipScarecrowSong, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipScarecrowSong, { CVAR_NAME });

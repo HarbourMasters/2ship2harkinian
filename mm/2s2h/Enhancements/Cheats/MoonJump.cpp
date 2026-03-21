@@ -19,4 +19,4 @@ void RegisterMoonJump() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterMoonJump, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterMoonJump, { CVAR_NAME });

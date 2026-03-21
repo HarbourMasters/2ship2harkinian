@@ -26,4 +26,4 @@ void RegisterSkipKamaroTeachDance() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipKamaroTeachDance, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipKamaroTeachDance, { CVAR_NAME });

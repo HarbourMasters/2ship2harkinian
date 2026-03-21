@@ -92,4 +92,4 @@ void RegisterPlayAsKafei() {
 }
 
 // We only want this running at boot, we don't want this running when the cvar is changed, only on scene destroy
-static RegisterShipInitFunc initFunc(RegisterPlayAsKafei, {});
+REGISTER_SHIP_INIT_FUNC(RegisterPlayAsKafei, {});

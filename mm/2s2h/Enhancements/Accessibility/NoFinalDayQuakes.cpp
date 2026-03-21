@@ -9,4 +9,4 @@ static void RegisterDisableFinalDayQuakes() {
     COND_VB_SHOULD(VB_EARTHQUAKE_ON_DAY_3, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDisableFinalDayQuakes, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDisableFinalDayQuakes, { CVAR_NAME });

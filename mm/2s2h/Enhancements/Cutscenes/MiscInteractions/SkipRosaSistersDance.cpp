@@ -61,4 +61,4 @@ void RegisterSkipRosaSistersDance() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipRosaSistersDance, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipRosaSistersDance, { CVAR_NAME });

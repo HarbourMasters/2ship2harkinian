@@ -39,6 +39,13 @@ struct RegisterShipInitFunc {
     }
 };
 
+// Macro to declare a self-registering init function with a unique variable name,
+// safe to use in unity builds where multiple TUs share the same scope.
+#define SHIP_INIT_CONCAT_(a, b) a##b
+#define SHIP_INIT_CONCAT(a, b) SHIP_INIT_CONCAT_(a, b)
+#define REGISTER_SHIP_INIT_FUNC(...) \
+    static RegisterShipInitFunc SHIP_INIT_CONCAT(sShipInit_, __COUNTER__)(__VA_ARGS__)
+
 #endif // __cplusplus
 
 #endif // SHIP_INIT_HPP

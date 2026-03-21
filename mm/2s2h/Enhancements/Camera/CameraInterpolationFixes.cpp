@@ -106,4 +106,4 @@ void RegisterCameraInterpolationFixes() {
               [](Camera* camera) { FrameInterpolation_ShouldInterpolateFrame(Camera_ShouldInterpolateDist(camera)); });
 }
 
-static RegisterShipInitFunc initFunc(RegisterCameraInterpolationFixes, {});
+REGISTER_SHIP_INIT_FUNC(RegisterCameraInterpolationFixes, {});

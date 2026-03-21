@@ -13,4 +13,4 @@ static void RegisterSkipHungryGoronDialogue() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipHungryGoronDialogue, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipHungryGoronDialogue, { CVAR_NAME });

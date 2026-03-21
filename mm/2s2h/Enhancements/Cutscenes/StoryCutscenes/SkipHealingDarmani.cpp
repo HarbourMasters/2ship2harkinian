@@ -49,4 +49,4 @@ void RegisterSkipHealingDarmani() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipHealingDarmani, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipHealingDarmani, { CVAR_NAME });

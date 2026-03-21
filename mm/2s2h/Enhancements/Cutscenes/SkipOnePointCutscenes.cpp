@@ -110,4 +110,4 @@ void RegisterSkipOnePointCutscenes() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipOnePointCutscenes, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipOnePointCutscenes, { CVAR_NAME });

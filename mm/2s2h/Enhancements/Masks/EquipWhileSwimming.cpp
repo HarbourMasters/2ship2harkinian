@@ -22,4 +22,4 @@ static void RegisterEquipWhileSwimming() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterEquipWhileSwimming, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterEquipWhileSwimming, { CVAR_NAME });

@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     // Ocean Spider House
     Regions[RR_OCEAN_SPIDER_HOUSE_CENTRAL_ROOM] = RandoRegion{ .name = "Central Room", .sceneId = SCENE_KINDAN2,
         .checks = {

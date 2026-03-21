@@ -243,4 +243,4 @@ void Register3DItemDrops() {
     });
 }
 
-static RegisterShipInitFunc initFunc(Register3DItemDrops, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(Register3DItemDrops, { CVAR_NAME });

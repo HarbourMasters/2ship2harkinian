@@ -30,4 +30,4 @@ void RegisterBombersHideAndSeek() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterBombersHideAndSeek, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterBombersHideAndSeek, { CVAR_NAME });

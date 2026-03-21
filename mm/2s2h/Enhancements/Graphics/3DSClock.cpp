@@ -346,4 +346,4 @@ void Register3DSClock() {
     });
 }
 
-static RegisterShipInitFunc initFunc(Register3DSClock, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(Register3DSClock, { CVAR_NAME });

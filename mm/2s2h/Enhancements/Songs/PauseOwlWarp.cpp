@@ -253,4 +253,4 @@ static void RegisterPauseOwlWarp() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPauseOwlWarp, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterPauseOwlWarp, { CVAR_NAME });

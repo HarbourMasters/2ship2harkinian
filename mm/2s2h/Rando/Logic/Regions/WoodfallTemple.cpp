@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_WOODFALL_TEMPLE_BOSS_KEY_ROOM] = RandoRegion{ .name = "Boss Key Room", .sceneId = SCENE_MITURIN,
         .checks = {
             CHECK(RC_WOODFALL_TEMPLE_BOSS_KEY_CHEST, CanKillEnemy(ACTOR_EN_PAMETFROG)),

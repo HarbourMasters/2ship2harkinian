@@ -230,4 +230,4 @@ void RegisterPersistentMasks() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPersistentMasks, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterPersistentMasks, { CVAR_NAME });

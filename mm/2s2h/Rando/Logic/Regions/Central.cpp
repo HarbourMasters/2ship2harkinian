@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_ASTRAL_OBSERVATORY_OUTSIDE] = RandoRegion{ .name = "Outside Astral Observatory", .sceneId = SCENE_00KEIKOKU,
         .checks = {
             CHECK(RC_ASTRAL_OBSERVATORY_MOON_TEAR, true),

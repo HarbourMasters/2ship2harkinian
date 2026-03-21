@@ -9,4 +9,4 @@ void RegisterDisableEnemyProximityMusic() {
     COND_VB_SHOULD(VB_PLAY_ENEMY_PROXIMITY_MUSIC, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDisableEnemyProximityMusic, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDisableEnemyProximityMusic, { CVAR_NAME });

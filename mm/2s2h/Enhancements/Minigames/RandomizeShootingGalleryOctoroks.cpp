@@ -220,4 +220,4 @@ void RegisterRandomizeShootingGalleryOctoroks() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterRandomizeShootingGalleryOctoroks, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterRandomizeShootingGalleryOctoroks, { CVAR_NAME });

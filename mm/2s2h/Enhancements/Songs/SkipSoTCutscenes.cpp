@@ -91,4 +91,4 @@ void RegisterSkipSoTCutscenes() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipSoTCutscenes, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipSoTCutscenes, { CVAR_NAME });

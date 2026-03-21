@@ -68,4 +68,4 @@ void RegisterGibdoTradeSequenceOptions() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterGibdoTradeSequenceOptions, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterGibdoTradeSequenceOptions, { CVAR_NAME });

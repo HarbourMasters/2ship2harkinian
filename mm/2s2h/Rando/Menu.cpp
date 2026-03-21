@@ -1189,4 +1189,4 @@ void Rando::RegisterMenu() {
         .WindowName("Check Tracker Settings");
 }
 
-static RegisterMenuInitFunc initFunc(Rando::RegisterMenu);
+REGISTER_MENU_INIT_FUNC(Rando::RegisterMenu);

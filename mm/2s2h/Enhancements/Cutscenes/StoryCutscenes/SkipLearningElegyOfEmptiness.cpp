@@ -38,4 +38,4 @@ void RegisterSkipLearningElegyOfEmptiness() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipLearningElegyOfEmptiness, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipLearningElegyOfEmptiness, { CVAR_NAME, "IS_RANDO" });

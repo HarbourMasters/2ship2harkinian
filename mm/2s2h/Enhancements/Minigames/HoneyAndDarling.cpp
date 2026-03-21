@@ -23,4 +23,4 @@ void RegisterHoneyAndDarling() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterHoneyAndDarling, { DAY1_CVAR_NAME, DAY2_CVAR_NAME, DAY3_CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterHoneyAndDarling, { DAY1_CVAR_NAME, DAY2_CVAR_NAME, DAY3_CVAR_NAME });

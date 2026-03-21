@@ -27,4 +27,4 @@ void RegisterInstantRecall() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterInstantRecall, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterInstantRecall, { CVAR_NAME });

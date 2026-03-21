@@ -20,4 +20,4 @@ void RegisterUnderwaterOcarina() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterUnderwaterOcarina, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterUnderwaterOcarina, { CVAR_NAME });

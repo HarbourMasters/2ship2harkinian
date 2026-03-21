@@ -566,6 +566,6 @@ bool IsDroppingFrames() {
 }
 
 static RegisterMenuUpdateFunc updateFunc(UpdateResolutionVars, "Settings", "Graphics");
-static RegisterMenuInitFunc initFunc(RegisterResolutionWidgets);
+REGISTER_MENU_INIT_FUNC(RegisterResolutionWidgets);
 
 } // namespace BenGui

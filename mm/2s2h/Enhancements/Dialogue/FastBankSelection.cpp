@@ -63,4 +63,4 @@ void RegisterFastBankSelection() {
     COND_ID_HOOK(OnActorUpdate, ACTOR_EN_GINKO_MAN, CVAR, OnEnGinkoManUpdate);
 }
 
-static RegisterShipInitFunc initFunc(RegisterFastBankSelection, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFastBankSelection, { CVAR_NAME });

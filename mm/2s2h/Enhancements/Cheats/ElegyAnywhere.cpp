@@ -9,4 +9,4 @@ void RegisterElegyAnywhere() {
     COND_VB_SHOULD(VB_ELEGY_CHECK_SCENE, CVAR, { *should = true; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterElegyAnywhere, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterElegyAnywhere, { CVAR_NAME });

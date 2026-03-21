@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_GORON_GRAVEYARD] = RandoRegion{ .sceneId = SCENE_GORON_HAKA,
         .checks = {
             CHECK(RC_GORON_GRAVEYARD_DARMANI, CAN_PLAY_SONG(HEALING) && HAS_MAGIC && HAS_ITEM(ITEM_LENS_OF_TRUTH))

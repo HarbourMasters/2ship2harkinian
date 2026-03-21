@@ -89,4 +89,4 @@ void RegisterRemoteBombchu() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterRemoteBombchu, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterRemoteBombchu, { CVAR_NAME });

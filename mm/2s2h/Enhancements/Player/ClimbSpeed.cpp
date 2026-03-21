@@ -12,4 +12,4 @@ void RegisterClimbSpeed() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterClimbSpeed, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterClimbSpeed, { CVAR_NAME });

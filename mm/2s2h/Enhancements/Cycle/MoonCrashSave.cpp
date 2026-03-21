@@ -27,4 +27,4 @@ void RegisterMoonCrashSave() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterMoonCrashSave, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterMoonCrashSave, { CVAR_NAME, "IS_RANDO" });

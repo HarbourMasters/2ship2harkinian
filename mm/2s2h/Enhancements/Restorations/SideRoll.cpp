@@ -9,4 +9,4 @@ void RegisterSideRoll() {
     COND_VB_SHOULD(VB_PATCH_SIDEROLL, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSideRoll, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSideRoll, { CVAR_NAME });

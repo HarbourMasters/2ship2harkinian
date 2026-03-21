@@ -42,4 +42,4 @@ void RegisterSkipLearningSongOfTime() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipLearningSongOfTime, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipLearningSongOfTime, { CVAR_NAME });

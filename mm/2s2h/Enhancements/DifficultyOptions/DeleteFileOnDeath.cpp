@@ -52,4 +52,4 @@ void RegisterDeleteFileOnDeath() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDeleteFileOnDeath, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDeleteFileOnDeath, { CVAR_NAME });

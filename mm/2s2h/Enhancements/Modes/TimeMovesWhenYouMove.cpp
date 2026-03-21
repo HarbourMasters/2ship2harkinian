@@ -77,4 +77,4 @@ void RegisterTimeMovesWhenYouMove() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterTimeMovesWhenYouMove, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterTimeMovesWhenYouMove, { CVAR_NAME });

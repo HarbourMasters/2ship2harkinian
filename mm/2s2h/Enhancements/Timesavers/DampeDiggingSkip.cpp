@@ -53,4 +53,4 @@ void RegisterDampeDiggingSkip() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDampeDiggingSkip, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDampeDiggingSkip, { CVAR_NAME });

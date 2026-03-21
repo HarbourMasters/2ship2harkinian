@@ -12,11 +12,11 @@ void Player_SetupTalk(PlayState* play, Player* player);
 s32 Player_SetupWaitForPutAway(PlayState* play, Player* player, AfterPutAwayFunc afterPutAwayFunc);
 }
 
-static std::vector<u8> skipCmds = {};
+static std::vector<u8> sSkipCmdsEnGo = {};
 static bool freePowderKegGrantActive = false;
 
 void Rando::ActorBehavior::InitEnGoBehavior() {
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_GO, IS_RANDO, [](Actor* actor) { skipCmds.clear(); });
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_GO, IS_RANDO, [](Actor* actor) { sSkipCmdsEnGo.clear(); });
 
     // Medigoron - Scripted Actors
     COND_VB_SHOULD(VB_EXEC_MSG_EVENT, IS_RANDO, {
@@ -27,8 +27,8 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
             return;
         }
 
-        if (!skipCmds.empty() && cmdId == skipCmds.at(0)) {
-            skipCmds.erase(skipCmds.begin());
+        if (!sSkipCmdsEnGo.empty() && cmdId == sSkipCmdsEnGo.at(0)) {
+            sSkipCmdsEnGo.erase(sSkipCmdsEnGo.begin());
             *should = false;
 
             return;
@@ -68,8 +68,8 @@ void Rando::ActorBehavior::InitEnGoBehavior() {
             *should = false;
             gPlayState->msgCtx.choiceIndex = 0;
 
-            skipCmds.clear();
-            skipCmds.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT);
+            sSkipCmdsEnGo.clear();
+            sSkipCmdsEnGo.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT);
 
             return;
         }

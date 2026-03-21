@@ -24,4 +24,4 @@ void RegisterGoronRollingFastSpikes() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterGoronRollingFastSpikes, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterGoronRollingFastSpikes, { CVAR_NAME });

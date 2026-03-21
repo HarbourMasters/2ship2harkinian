@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_PIRATES_FORTRESS_CAPTAIN_ROOM_UPPER] = RandoRegion{ .name = "Captain Room Upper", .sceneId = SCENE_PIRATE,
         // TODO : If NTSC JP 1.0 support is added we should add a connection here to RR_PIRATES_FORTRESS_CAPTAIN_ROOM and a unique flag to check for it...or ignore it and let the player go the long way around
         .checks = {

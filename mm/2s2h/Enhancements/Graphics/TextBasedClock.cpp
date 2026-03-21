@@ -108,4 +108,4 @@ void RegisterTextBasedClock() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterTextBasedClock, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterTextBasedClock, { CVAR_NAME });

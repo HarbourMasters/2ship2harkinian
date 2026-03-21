@@ -50,4 +50,4 @@ void RegisterSkipWakingAndRidingTurtle() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipWakingAndRidingTurtle, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipWakingAndRidingTurtle, { CVAR_NAME });

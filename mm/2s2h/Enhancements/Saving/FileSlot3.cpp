@@ -18,4 +18,4 @@ void RegisterFileSlot3() {
     }
 }
 
-static RegisterShipInitFunc initFunc(RegisterFileSlot3, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFileSlot3, { CVAR_NAME });

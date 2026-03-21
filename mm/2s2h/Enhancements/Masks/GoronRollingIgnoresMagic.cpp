@@ -31,4 +31,4 @@ void RegisterGoronRollingIgnoresMagic() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterGoronRollingIgnoresMagic, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterGoronRollingIgnoresMagic, { CVAR_NAME });

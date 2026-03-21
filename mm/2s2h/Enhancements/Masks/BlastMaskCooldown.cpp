@@ -18,4 +18,4 @@ void RegisterBlastMaskCooldown() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterBlastMaskCooldown, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterBlastMaskCooldown, { CVAR_NAME });

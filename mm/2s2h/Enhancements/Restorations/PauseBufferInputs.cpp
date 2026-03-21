@@ -51,4 +51,4 @@ void RegisterPauseBufferInputs() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPauseBufferInputs, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterPauseBufferInputs, { CVAR_NAME });

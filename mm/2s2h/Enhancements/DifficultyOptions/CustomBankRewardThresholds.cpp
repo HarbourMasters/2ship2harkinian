@@ -77,4 +77,4 @@ void RegisterCustomBankRewardThresholds() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterCustomBankRewardThresholds, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterCustomBankRewardThresholds, { CVAR_NAME });

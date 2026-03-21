@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_BENEATH_THE_WELL_BABA_AND_POTS_ROOM] = RandoRegion{ .name = "Babas and Pots Room", .sceneId = SCENE_REDEAD,
         .checks = {
             CHECK(RC_BENEATH_THE_WELL_MIDDLE_POT_01, true),

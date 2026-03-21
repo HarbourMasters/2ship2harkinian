@@ -9,4 +9,4 @@ void RegisterDisableBombBillboarding() {
     COND_VB_SHOULD(VB_APPLY_BOMB_BILLBOARDING, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDisableBombBillboarding, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDisableBombBillboarding, { CVAR_NAME });

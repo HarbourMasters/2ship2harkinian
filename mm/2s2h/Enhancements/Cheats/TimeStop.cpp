@@ -66,4 +66,4 @@ void RegisterTimeStopInTemples() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterTimeStopInTemples, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterTimeStopInTemples, { CVAR_NAME });

@@ -37,4 +37,4 @@ static void RegisterTreasureChestShopFullMaze() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterTreasureChestShopFullMaze, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterTreasureChestShopFullMaze, { CVAR_NAME });

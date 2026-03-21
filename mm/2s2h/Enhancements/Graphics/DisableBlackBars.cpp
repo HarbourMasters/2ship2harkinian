@@ -9,4 +9,4 @@ void RegisterDisableBlackBars() {
     COND_VB_SHOULD(VB_DISABLE_LETTERBOX, CVAR, { *should = true; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDisableBlackBars, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDisableBlackBars, { CVAR_NAME });

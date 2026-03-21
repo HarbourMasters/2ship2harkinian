@@ -92,4 +92,4 @@ void RegisterChuDrops() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterChuDrops, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterChuDrops, { CVAR_NAME });

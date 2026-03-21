@@ -28,4 +28,4 @@ void RegisterSkipMoonCrash() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipMoonCrash, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipMoonCrash, { CVAR_NAME });

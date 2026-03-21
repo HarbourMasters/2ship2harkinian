@@ -16,4 +16,4 @@ void RegisterCremiaHugs() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterCremiaHugs, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterCremiaHugs, { CVAR_NAME });

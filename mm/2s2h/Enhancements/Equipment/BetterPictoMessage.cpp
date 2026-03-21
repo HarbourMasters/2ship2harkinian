@@ -54,4 +54,4 @@ void RegisterBetterPictoMessage() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterBetterPictoMessage, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterBetterPictoMessage, { CVAR_NAME });

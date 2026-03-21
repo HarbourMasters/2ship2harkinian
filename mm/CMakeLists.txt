@@ -178,6 +178,20 @@ set(ALL_FILES
 ################################################################################
 add_executable(${PROJECT_NAME} ${ALL_FILES})
 
+################################################################################
+# Unity Build
+################################################################################
+if (2S2H_UNITY_BUILD)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        UNITY_BUILD ON
+        UNITY_BUILD_BATCH_SIZE ${CMAKE_UNITY_BUILD_BATCH_SIZE}
+    )
+    # Decomp C files in src/ use static symbols with identical names across
+    # translation units (e.g. static s32 sPad; in every actor). Including them
+    # in a unity build causes redefinition errors, so exclude them entirely.
+    set_source_files_properties(${src__} PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+endif()
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
 endif()

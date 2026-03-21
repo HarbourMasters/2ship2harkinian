@@ -48,4 +48,4 @@ void RegisterSkipBombBagTheftCutscene() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipBombBagTheftCutscene, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipBombBagTheftCutscene, { CVAR_NAME });

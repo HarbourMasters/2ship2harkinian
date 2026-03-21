@@ -25,4 +25,4 @@ void RegisterMuteCarpenterSfx() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterMuteCarpenterSfx, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterMuteCarpenterSfx, { CVAR_NAME });

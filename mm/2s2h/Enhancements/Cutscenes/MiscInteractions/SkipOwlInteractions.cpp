@@ -48,4 +48,4 @@ void RegisterSkipOwlInteractions() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipOwlInteractions, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipOwlInteractions, { CVAR_NAME });

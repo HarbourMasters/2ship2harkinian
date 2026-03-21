@@ -32,4 +32,4 @@ void RegisterCuccoShackCuccoCount() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterCuccoShackCuccoCount, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterCuccoShackCuccoCount, { CVAR_NAME });

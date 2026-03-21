@@ -98,4 +98,4 @@ void RegisterJPGrottos() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterJPGrottos, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterJPGrottos, { CVAR_NAME });

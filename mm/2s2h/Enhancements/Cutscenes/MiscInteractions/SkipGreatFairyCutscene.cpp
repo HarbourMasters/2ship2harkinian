@@ -155,4 +155,4 @@ void RegisterSkipGreatFairyCutscene() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipGreatFairyCutscene, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipGreatFairyCutscene, { CVAR_NAME });

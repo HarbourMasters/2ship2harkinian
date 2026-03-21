@@ -326,6 +326,14 @@ struct RegisterMenuInitFunc {
     }
 };
 
+// Macro to declare a self-registering menu init function with a unique variable name,
+// safe to use in unity builds where multiple TUs share the same scope.
+#ifndef SHIP_INIT_CONCAT_
+#define SHIP_INIT_CONCAT_(a, b) a##b
+#define SHIP_INIT_CONCAT(a, b) SHIP_INIT_CONCAT_(a, b)
+#endif
+#define REGISTER_MENU_INIT_FUNC(...) static RegisterMenuInitFunc SHIP_INIT_CONCAT(sMenuInit_, __COUNTER__)(__VA_ARGS__)
+
 struct RegisterMenuUpdateFunc {
     RegisterMenuUpdateFunc(std::function<void()> updateFunc, std::string sectionName, std::string sidebarName) {
         auto& menuUpdateFuncs = MenuInit::GetUpdateFuncs();

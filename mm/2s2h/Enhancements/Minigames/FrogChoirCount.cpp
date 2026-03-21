@@ -67,4 +67,4 @@ void RegisterFrogChoirCount() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFrogChoirCount, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFrogChoirCount, { CVAR_NAME });

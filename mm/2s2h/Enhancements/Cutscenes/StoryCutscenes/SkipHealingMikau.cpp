@@ -54,4 +54,4 @@ void RegisterSkipHealingMikau() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipHealingMikau, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipHealingMikau, { CVAR_NAME });

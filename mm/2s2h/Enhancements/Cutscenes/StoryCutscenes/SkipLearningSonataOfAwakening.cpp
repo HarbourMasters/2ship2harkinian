@@ -58,4 +58,4 @@ void RegisterSkipLearningSonataOfAwakening() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipLearningSonataOfAwakening, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipLearningSonataOfAwakening, { CVAR_NAME, "IS_RANDO" });

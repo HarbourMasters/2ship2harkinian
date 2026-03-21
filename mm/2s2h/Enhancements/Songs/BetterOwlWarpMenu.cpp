@@ -601,4 +601,4 @@ static void RegisterBetterOwlWarpMenu() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterBetterOwlWarpMenu, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterBetterOwlWarpMenu, { CVAR_NAME });

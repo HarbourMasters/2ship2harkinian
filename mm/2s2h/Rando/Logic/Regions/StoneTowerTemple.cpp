@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     // Rightside Temple.
     Regions[RR_STONE_TOWER_TEMPLE_ENTRANCE] = RandoRegion{ .name = "Entrace", .sceneId = SCENE_INISIE_N,
         .checks = {

@@ -272,4 +272,4 @@ static void RegisterCuriosityShopRefills() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterCuriosityShopRefills, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterCuriosityShopRefills, { CVAR_NAME });

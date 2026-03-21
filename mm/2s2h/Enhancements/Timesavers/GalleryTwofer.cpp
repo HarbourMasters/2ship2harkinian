@@ -56,4 +56,4 @@ void RegisterGalleryTwofer() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterGalleryTwofer, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterGalleryTwofer, { CVAR_NAME });

@@ -65,4 +65,4 @@ void RegisterSkipIntroSequence() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipIntroSequence, { INTRO_CVAR_NAME, FIRST_CYCLE_CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipIntroSequence, { INTRO_CVAR_NAME, FIRST_CYCLE_CVAR_NAME });

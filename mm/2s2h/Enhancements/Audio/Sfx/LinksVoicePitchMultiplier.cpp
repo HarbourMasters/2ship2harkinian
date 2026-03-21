@@ -31,4 +31,4 @@ void RegisterLinksVoicePitchMultiplier() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterLinksVoicePitchMultiplier, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterLinksVoicePitchMultiplier, { CVAR_NAME });

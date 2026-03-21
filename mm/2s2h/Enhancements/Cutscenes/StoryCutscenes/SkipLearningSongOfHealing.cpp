@@ -113,4 +113,4 @@ void RegisterSkipLearningSongOfHealing() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipLearningSongOfHealing, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipLearningSongOfHealing, { CVAR_NAME, "IS_RANDO" });

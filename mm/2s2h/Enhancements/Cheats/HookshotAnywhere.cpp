@@ -9,4 +9,4 @@ void RegisterHookshotAnywhere() {
     COND_VB_SHOULD(VB_BE_HOOKSHOT_SURFACE, CVAR, { *should = true; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterHookshotAnywhere, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterHookshotAnywhere, { CVAR_NAME });

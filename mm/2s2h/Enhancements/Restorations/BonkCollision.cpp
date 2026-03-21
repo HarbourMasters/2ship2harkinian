@@ -17,4 +17,4 @@ void RegisterBonkCollision() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterBonkCollision, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterBonkCollision, { CVAR_NAME });

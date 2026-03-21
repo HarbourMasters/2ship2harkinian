@@ -33,4 +33,4 @@ void RegisterSkipEponaReveal() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipEponaReveal, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipEponaReveal, { CVAR_NAME });

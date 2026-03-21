@@ -22,4 +22,4 @@ void RegisterZoraEggCount() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterZoraEggCount, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterZoraEggCount, { CVAR_NAME });

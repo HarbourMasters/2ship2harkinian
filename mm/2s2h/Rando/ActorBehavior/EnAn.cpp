@@ -7,11 +7,11 @@ void Player_SetupTalk(PlayState* play, Player* player);
 s32 Player_SetupWaitForPutAway(PlayState* play, Player* player, AfterPutAwayFunc afterPutAwayFunc);
 }
 
-static std::vector<u8> skipCmds = {};
+static std::vector<u8> sSkipCmdsEnAn = {};
 
 void Rando::ActorBehavior::InitEnAnBehavior() {
 
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_AN, IS_RANDO, [](Actor* actor) { skipCmds.clear(); });
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_AN, IS_RANDO, [](Actor* actor) { sSkipCmdsEnAn.clear(); });
 
     COND_VB_SHOULD(VB_EXEC_MSG_EVENT, IS_RANDO, {
         u32 cmdId = va_arg(args, u32);
@@ -23,9 +23,10 @@ void Rando::ActorBehavior::InitEnAnBehavior() {
             if (cmdId == MSCRIPT_CMD_ID_OFFER_ITEM) { // MSCRIPT_OFFER_ITEM
                 Player_SetupWaitForPutAway(gPlayState, player, Player_SetupTalk);
                 *should = false;
-                skipCmds.clear();
-                skipCmds.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT); // Have to skip this to prevent a crash
-                skipCmds.push_back(MSCRIPT_CMD_ID_AUTOTALK);   // And have to skip this to prevent a softlock on repeats
+                sSkipCmdsEnAn.clear();
+                sSkipCmdsEnAn.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT); // Have to skip this to prevent a crash
+                sSkipCmdsEnAn.push_back(
+                    MSCRIPT_CMD_ID_AUTOTALK); // And have to skip this to prevent a softlock on repeats
                 MsgScriptCmdOfferItem* cmd = va_arg(args, MsgScriptCmdOfferItem*);
                 GetItemId getItemId = (GetItemId)SCRIPT_PACK_16(cmd->itemIdH, cmd->itemIdL);
                 /*
@@ -41,12 +42,12 @@ void Rando::ActorBehavior::InitEnAnBehavior() {
                 return;
             }
 
-            if (skipCmds.empty()) {
+            if (sSkipCmdsEnAn.empty()) {
                 return;
             }
 
-            if (cmdId == skipCmds[0]) {
-                skipCmds.erase(skipCmds.begin());
+            if (cmdId == sSkipCmdsEnAn[0]) {
+                sSkipCmdsEnAn.erase(sSkipCmdsEnAn.begin());
                 *should = false;
             }
         }

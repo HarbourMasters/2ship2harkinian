@@ -39,4 +39,4 @@ void RegisterMarkShootingGalleryOctoroks() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterMarkShootingGalleryOctoroks, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterMarkShootingGalleryOctoroks, { CVAR_NAME });

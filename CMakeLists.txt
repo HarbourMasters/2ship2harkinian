@@ -161,6 +161,18 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 add_compile_definitions(CONTROLLERBUTTONS_T=uint32_t)
 
 ################################################################################
+# Unity Build
+# Speeds up compilation by merging source files into batched translation units.
+# Decomp C files (src/) are automatically excluded due to static symbol conflicts.
+# Files with per-file COMPILE_FLAGS (mixer.c, .mm files) are auto-excluded by CMake.
+################################################################################
+option(2S2H_UNITY_BUILD "Enable unity builds for faster compilation" ON)
+if (2S2H_UNITY_BUILD)
+    set(CMAKE_UNITY_BUILD_BATCH_SIZE 16 CACHE STRING "Number of source files per unity batch")
+    message(STATUS "Unity build enabled (batch size: ${CMAKE_UNITY_BUILD_BATCH_SIZE})")
+endif()
+
+################################################################################
 # Sub-projects
 ################################################################################
 add_subdirectory(libultraship ${CMAKE_BINARY_DIR}/libultraship)

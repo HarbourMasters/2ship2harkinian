@@ -9,11 +9,11 @@ void func_80848250(PlayState* play, Player* player);
 void Player_StartTalking(PlayState* play, Actor* actor);
 }
 
-static std::vector<u8> skipCmds = {};
+static std::vector<u8> sSkipCmdsEnAl = {};
 
 void Rando::ActorBehavior::InitEnAlBehavior() {
 
-    COND_ID_HOOK(OnActorInit, ACTOR_EN_AL, IS_RANDO, [](Actor* actor) { skipCmds.clear(); });
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_AL, IS_RANDO, [](Actor* actor) { sSkipCmdsEnAl.clear(); });
 
     COND_VB_SHOULD(VB_MADAME_AROMA_ASK_FOR_HELP, IS_RANDO,
                    { *should = !RANDO_SAVE_CHECKS[RC_MAYORS_OFFICE_KAFEIS_MASK].cycleObtained; });
@@ -34,7 +34,7 @@ void Rando::ActorBehavior::InitEnAlBehavior() {
                 *should = false;
                 MsgScriptCmdOfferItem* cmd = va_arg(args, MsgScriptCmdOfferItem*);
                 GetItemId getItemId = (GetItemId)SCRIPT_PACK_16(cmd->itemIdH, cmd->itemIdL);
-                skipCmds.clear();
+                sSkipCmdsEnAl.clear();
                 if (getItemId == GI_MASK_KAFEIS_MASK) { // Mayor's Residence
                     // There is no usable flag for this check, so grant it manually
                     RANDO_SAVE_CHECKS[RC_MAYORS_OFFICE_KAFEIS_MASK].eligible = true;
@@ -50,18 +50,18 @@ void Rando::ActorBehavior::InitEnAlBehavior() {
                     Message_StartTextbox(gPlayState, 0x2B20, actor);
                     Player_StartTalking(gPlayState, actor);
                     func_80848250(gPlayState, player); // End the giveItem animation, or the Express Mail will persist
-                    skipCmds.push_back(MSCRIPT_CMD_ID_BEGIN_TEXT); // The scripted text at textId 0x2B20
-                    skipCmds.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT);
+                    sSkipCmdsEnAl.push_back(MSCRIPT_CMD_ID_BEGIN_TEXT); // The scripted text at textId 0x2B20
+                    sSkipCmdsEnAl.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT);
                 }
                 return;
             }
 
-            if (skipCmds.empty()) {
+            if (sSkipCmdsEnAl.empty()) {
                 return;
             }
 
-            if (cmdId == skipCmds[0]) {
-                skipCmds.erase(skipCmds.begin());
+            if (cmdId == sSkipCmdsEnAl[0]) {
+                sSkipCmdsEnAl.erase(sSkipCmdsEnAl.begin());
                 *should = false;
             }
         }

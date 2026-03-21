@@ -46,5 +46,5 @@ void RegisterFixBgmReplay() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFixBgmReplay, { CVAR_NAME_FASTER_SCENE_TRANSITIONS, CVAR_NAME_PAUSE_SAVE,
-                                                             CVAR_NAME_DEBUG_MODE });
+REGISTER_SHIP_INIT_FUNC(RegisterFixBgmReplay,
+                        { CVAR_NAME_FASTER_SCENE_TRANSITIONS, CVAR_NAME_PAUSE_SAVE, CVAR_NAME_DEBUG_MODE });

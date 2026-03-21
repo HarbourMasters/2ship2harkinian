@@ -9,4 +9,4 @@ static void RegisterDisableScreenFlash() {
     COND_VB_SHOULD(VB_FLASH_SCREEN_FOR_ENEMY_KILL, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDisableScreenFlash, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDisableScreenFlash, { CVAR_NAME });

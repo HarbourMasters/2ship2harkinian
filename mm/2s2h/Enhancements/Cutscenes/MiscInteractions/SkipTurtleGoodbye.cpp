@@ -24,4 +24,4 @@ void RegisterSkipTurtleGoodbye() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipTurtleGoodbye, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipTurtleGoodbye, { CVAR_NAME });

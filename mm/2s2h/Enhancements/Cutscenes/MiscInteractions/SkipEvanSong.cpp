@@ -19,4 +19,4 @@ void RegisterSkipEvansSong() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipEvansSong, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipEvansSong, { CVAR_NAME });

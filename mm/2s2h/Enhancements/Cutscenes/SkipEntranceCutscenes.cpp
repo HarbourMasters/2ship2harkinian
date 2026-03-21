@@ -37,4 +37,4 @@ void RegisterSkipEntranceCutscenes() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipEntranceCutscenes, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipEntranceCutscenes, { CVAR_NAME });

@@ -38,4 +38,4 @@ static void RegisterSkipSoaringCutscene() {
     COND_ID_HOOK(ShouldActorInit, ACTOR_EN_TEST7, CVAR, SkipSoaringCutscene);
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipSoaringCutscene, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipSoaringCutscene, { CVAR_NAME });

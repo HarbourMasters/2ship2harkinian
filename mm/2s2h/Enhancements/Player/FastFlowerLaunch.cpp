@@ -37,4 +37,4 @@ void RegisterFastFlowerLaunch() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFastFlowerLaunch, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFastFlowerLaunch, { CVAR_NAME });

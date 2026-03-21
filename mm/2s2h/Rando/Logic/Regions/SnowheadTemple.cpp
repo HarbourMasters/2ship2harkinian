@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_SNOWHEAD_TEMPLE_BLOCK_ROOM] = RandoRegion{ .sceneId = SCENE_HAKUGIN,
         .checks = {
             CHECK(RC_SNOWHEAD_TEMPLE_BLOCK_ROOM_HIDDEN_CHEST, true),

@@ -23,4 +23,4 @@ void RegisterSkipFirstSongOfTimeFlashbacks() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipFirstSongOfTimeFlashbacks, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipFirstSongOfTimeFlashbacks, { CVAR_NAME });

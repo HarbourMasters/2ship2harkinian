@@ -116,6 +116,5 @@ void RegisterEndOfCycleSaveHooks() {
     COND_HOOK(AfterEndOfCycleSave, CVAR_TIME, []() { gSaveContext.save.timeSpeedOffset = timeSpeedOffsetCopy; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterEndOfCycleSaveHooks,
-                                     { CVAR_NAME_RUPEES, CVAR_NAME_CONSUME, CVAR_NAME_BOTTLE, CVAR_NAME_SWORD,
-                                       CVAR_NAME_TIME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterEndOfCycleSaveHooks, { CVAR_NAME_RUPEES, CVAR_NAME_CONSUME, CVAR_NAME_BOTTLE,
+                                                       CVAR_NAME_SWORD, CVAR_NAME_TIME, "IS_RANDO" });

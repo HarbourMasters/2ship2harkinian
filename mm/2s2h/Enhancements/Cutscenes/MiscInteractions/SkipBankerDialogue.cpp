@@ -51,4 +51,4 @@ void RegisterSkipBankerDialogue() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipBankerDialogue, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipBankerDialogue, { CVAR_NAME });

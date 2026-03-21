@@ -10,4 +10,4 @@ void RegisterUnbreakableRazorSword() {
     COND_VB_SHOULD(VB_LOWER_RAZOR_SWORD_DURABILITY, CVAR || IS_RANDO, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterUnbreakableRazorSword, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterUnbreakableRazorSword, { CVAR_NAME, "IS_RANDO" });

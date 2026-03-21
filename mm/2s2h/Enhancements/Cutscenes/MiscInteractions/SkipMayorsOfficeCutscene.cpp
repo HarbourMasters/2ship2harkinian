@@ -49,4 +49,4 @@ static void RegisterSkipMayorsOfficeCutscene() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipMayorsOfficeCutscene, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipMayorsOfficeCutscene, { CVAR_NAME });

@@ -21,4 +21,4 @@ void RegisterMarineLabHP() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterMarineLabHP, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterMarineLabHP, { CVAR_NAME });

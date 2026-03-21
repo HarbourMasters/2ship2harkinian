@@ -137,5 +137,5 @@ void RegisterItemUnequip() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterItemUnequip, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterItemUnequip, { CVAR_NAME });
 static RegisterShipInitFunc initDpadPageSwitch(RegisterDpadPageSwitchPrevention, { CVAR_DPAD_NAME });

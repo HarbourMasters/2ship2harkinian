@@ -46,4 +46,4 @@ void RegisterFastTransformation() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFastTransformation, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFastTransformation, { CVAR_NAME });

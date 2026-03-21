@@ -109,4 +109,4 @@ void RegisterSkipTatlInterrupts() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipTatlInterrupts, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipTatlInterrupts, { CVAR_NAME });

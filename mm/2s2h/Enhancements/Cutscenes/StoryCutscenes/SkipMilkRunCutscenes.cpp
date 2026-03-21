@@ -25,4 +25,4 @@ void RegisterSkipMilkRunCutscenes() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipMilkRunCutscenes, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipMilkRunCutscenes, { CVAR_NAME });

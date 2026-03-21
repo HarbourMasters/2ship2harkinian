@@ -30,4 +30,4 @@ void RegisterBlastMaskKeg() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterBlastMaskKeg, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterBlastMaskKeg, { CVAR_NAME });

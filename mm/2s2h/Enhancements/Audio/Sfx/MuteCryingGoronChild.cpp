@@ -9,4 +9,4 @@ void RegisterMuteCryingGoronChild() {
     COND_VB_SHOULD(VB_PLAY_GORON_CHILD_CRY, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterMuteCryingGoronChild, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterMuteCryingGoronChild, { CVAR_NAME });

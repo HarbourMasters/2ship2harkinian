@@ -68,4 +68,4 @@ void RegisterLinkSpeedModifier() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterLinkSpeedModifier, { CVAR_SPEED_MODIFIER_MODE_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterLinkSpeedModifier, { CVAR_SPEED_MODIFIER_MODE_NAME });

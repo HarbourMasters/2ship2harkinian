@@ -9,4 +9,4 @@ void RegisterHideTitleCards() {
     COND_VB_SHOULD(VB_SHOW_TITLE_CARD, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterHideTitleCards, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterHideTitleCards, { CVAR_NAME });

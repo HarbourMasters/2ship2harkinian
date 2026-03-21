@@ -13,4 +13,4 @@ void RegisterObjectDependency() {
     COND_VB_SHOULD(VB_ENABLE_OBJECT_DEPENDENCY, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterObjectDependency, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterObjectDependency, { CVAR_NAME });

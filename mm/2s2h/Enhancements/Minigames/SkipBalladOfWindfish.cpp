@@ -25,4 +25,4 @@ void RegisterSkipBalladOfWindfish() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipBalladOfWindfish, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipBalladOfWindfish, { CVAR_NAME });

@@ -39,4 +39,4 @@ void RegisterSkipClockTowerOpen() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipClockTowerOpen, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipClockTowerOpen, { CVAR_NAME });

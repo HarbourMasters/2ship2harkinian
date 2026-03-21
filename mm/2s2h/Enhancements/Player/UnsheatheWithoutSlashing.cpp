@@ -16,4 +16,4 @@ void RegisterUnsheatheWithoutSlashing() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterUnsheatheWithoutSlashing, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterUnsheatheWithoutSlashing, { CVAR_NAME });

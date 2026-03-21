@@ -714,7 +714,7 @@ void Init() {
     trackerScale = CVAR_TRACKER_SCALE;
 }
 
-static RegisterShipInitFunc initFunc(
+REGISTER_SHIP_INIT_FUNC(
     []() {
         COND_HOOK(OnGameStateMainStart, CVAR_VISIBILITY_MODE >= CHECK_TRACKER_VISIBILITY_MODE_BUTTON_TOGGLE, []() {
             Input* input = CONTROLLER1(gGameState);

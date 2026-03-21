@@ -83,4 +83,4 @@ void RegisterMaskSwapHooks() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterMaskSwapHooks, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterMaskSwapHooks, { CVAR_NAME });

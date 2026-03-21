@@ -9,4 +9,4 @@ void RegisterDisableTakkuriSteal() {
     COND_VB_SHOULD(VB_THIEF_BIRD_STEAL, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDisableTakkuriSteal, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDisableTakkuriSteal, { CVAR_NAME });

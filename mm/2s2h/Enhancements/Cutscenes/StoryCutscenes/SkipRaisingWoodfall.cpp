@@ -41,4 +41,4 @@ void RegisterSkipRaisingWoodfall() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipRaisingWoodfall, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipRaisingWoodfall, { CVAR_NAME });

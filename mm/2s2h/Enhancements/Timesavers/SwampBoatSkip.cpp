@@ -49,4 +49,4 @@ void RegisterSwampBoatSpeed() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSwampBoatSpeed, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSwampBoatSpeed, { CVAR_NAME });

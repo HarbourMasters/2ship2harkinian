@@ -23,4 +23,4 @@ void RegisterWoodfallMountainAppearance() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterWoodfallMountainAppearance, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterWoodfallMountainAppearance, { CVAR_NAME });

@@ -114,4 +114,4 @@ void RegisterSkipDekuTelescope() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipDekuTelescope, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipDekuTelescope, { CVAR_NAME });

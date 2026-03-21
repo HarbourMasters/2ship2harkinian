@@ -20,4 +20,4 @@ void RegisterSkipAlienWarning() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipAlienWarning, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipAlienWarning, { CVAR_NAME });

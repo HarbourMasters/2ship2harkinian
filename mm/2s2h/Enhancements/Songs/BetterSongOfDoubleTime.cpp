@@ -410,4 +410,4 @@ void RegisterBetterSongOfDoubleTime() {
     COND_VB_SHOULD(VB_ALLOW_SONG_DOUBLE_TIME_ON_FINAL_NIGHT, CVAR, { *should = true; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterBetterSongOfDoubleTime, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterBetterSongOfDoubleTime, { CVAR_NAME });

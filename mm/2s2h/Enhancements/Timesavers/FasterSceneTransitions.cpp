@@ -58,4 +58,4 @@ void RegisterFasterSceneTransitions() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFasterSceneTransitions, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFasterSceneTransitions, { CVAR_NAME });

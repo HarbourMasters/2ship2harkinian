@@ -136,4 +136,4 @@ void RegisterSkipIkanaCurseCutscenes() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipIkanaCurseCutscenes, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipIkanaCurseCutscenes, { CVAR_NAME });

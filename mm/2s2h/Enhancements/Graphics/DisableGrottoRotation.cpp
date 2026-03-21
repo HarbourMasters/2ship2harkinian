@@ -9,4 +9,4 @@ void RegisterDisableGrottoRotation() {
     COND_VB_SHOULD(VB_ROTATE_GROTTO_ENTRANCE, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDisableGrottoRotation, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDisableGrottoRotation, { CVAR_NAME });

@@ -9,4 +9,4 @@ void RegisterTatlISG() {
     COND_VB_SHOULD(VB_TATL_CONVERSATION_AVAILABLE, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterTatlISG, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterTatlISG, { CVAR_NAME });

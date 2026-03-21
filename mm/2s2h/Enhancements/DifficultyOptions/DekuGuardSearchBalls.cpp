@@ -19,4 +19,4 @@ void RegisterShowDekuGuardSearchBalls() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterShowDekuGuardSearchBalls, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterShowDekuGuardSearchBalls, { CVAR_NAME });

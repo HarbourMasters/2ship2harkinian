@@ -1556,7 +1556,7 @@ void BenInputEditorWindow::OffsetMappingPopup() {
     ImGui::SetNextWindowPos(pos);
 }
 
-static RegisterShipInitFunc initFunc(
+REGISTER_SHIP_INIT_FUNC(
     []() {
         COND_HOOK(OnGameStateMainStart, true, []() {
             Input* input = CONTROLLER1(gGameState);

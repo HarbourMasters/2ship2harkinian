@@ -23,4 +23,4 @@ void RegisterGreatFairySwordBButton() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterGreatFairySwordBButton, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterGreatFairySwordBButton, { CVAR_NAME });

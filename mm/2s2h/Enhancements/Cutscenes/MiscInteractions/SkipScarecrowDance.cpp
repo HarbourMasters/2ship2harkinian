@@ -19,4 +19,4 @@ void RegisterSkipScarecrowDance() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipScarecrowDance, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipScarecrowDance, { CVAR_NAME });

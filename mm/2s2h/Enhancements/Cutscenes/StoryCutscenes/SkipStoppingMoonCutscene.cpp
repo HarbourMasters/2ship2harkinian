@@ -37,4 +37,4 @@ void RegisterSkipStoppingMoon() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipStoppingMoon, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipStoppingMoon, { CVAR_NAME });

@@ -35,4 +35,4 @@ void RegisterSkipBothersomeMonkey() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipBothersomeMonkey, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipBothersomeMonkey, { CVAR_NAME });

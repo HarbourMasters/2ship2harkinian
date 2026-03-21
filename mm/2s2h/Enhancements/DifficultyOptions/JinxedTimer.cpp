@@ -18,4 +18,4 @@ void RegisterJinxedTimer() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterJinxedTimer, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterJinxedTimer, { CVAR_NAME });

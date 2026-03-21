@@ -37,4 +37,4 @@ void RegisterOceansideWalletAnyDay() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterOceansideWalletAnyDay, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterOceansideWalletAnyDay, { CVAR_NAME, "IS_RANDO" });

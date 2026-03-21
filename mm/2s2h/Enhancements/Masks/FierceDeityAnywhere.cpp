@@ -220,4 +220,4 @@ void RegisterFierceDeityAnywhere() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFierceDeityAnywhere, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFierceDeityAnywhere, { CVAR_NAME });

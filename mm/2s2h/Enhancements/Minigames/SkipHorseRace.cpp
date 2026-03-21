@@ -25,4 +25,4 @@ void RegisterSkipHorseRace() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipHorseRace, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipHorseRace, { CVAR_NAME });

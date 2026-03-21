@@ -22,4 +22,4 @@ void RegisterVariableFlipHop() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterVariableFlipHop, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterVariableFlipHop, { CVAR_NAME });

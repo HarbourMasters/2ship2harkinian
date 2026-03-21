@@ -56,4 +56,4 @@ void RegisterFasterPushAndPull() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFasterPushAndPull, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFasterPushAndPull, { CVAR_NAME });

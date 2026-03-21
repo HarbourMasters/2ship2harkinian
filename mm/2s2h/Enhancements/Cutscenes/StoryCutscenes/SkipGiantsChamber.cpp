@@ -165,4 +165,4 @@ void RegisterSkipGiantsChamber() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipGiantsChamber, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipGiantsChamber, { CVAR_NAME, "IS_RANDO" });

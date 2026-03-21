@@ -39,4 +39,4 @@ void RegisterPictoBoxOnCUp() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPictoBoxOnCUp, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterPictoBoxOnCUp, { CVAR_NAME });

@@ -12,4 +12,4 @@ void RegisterDamageMultiplier() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDamageMultiplier, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDamageMultiplier, { CVAR_NAME });

@@ -30,4 +30,4 @@ void RegisterSkipPrincessDelivery() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipPrincessDelivery, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipPrincessDelivery, { CVAR_NAME });

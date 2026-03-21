@@ -67,4 +67,4 @@ void RegisterSkipClockTowerSkullKidEncounter() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipClockTowerSkullKidEncounter, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipClockTowerSkullKidEncounter, { CVAR_NAME });

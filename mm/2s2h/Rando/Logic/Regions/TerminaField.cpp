@@ -6,7 +6,7 @@
 using namespace Rando::Logic;
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_TERMINA_FIELD_BEFORE_GREAT_BAY_COAST] = RandoRegion{ .name = "Before Great Bay Coast", .sceneId = SCENE_00KEIKOKU,
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(GREAT_BAY_COAST, 0),              ENTRANCE(TERMINA_FIELD, 2), true),

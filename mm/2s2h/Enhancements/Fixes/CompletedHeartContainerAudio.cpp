@@ -18,4 +18,4 @@ void RegisterCompletedHeartContainerAudio() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterCompletedHeartContainerAudio, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterCompletedHeartContainerAudio, { CVAR_NAME });

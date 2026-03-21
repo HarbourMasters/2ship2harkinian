@@ -1,3 +1,4 @@
+#pragma once
 extern "C" {
 #include "z64actor.h"
 }

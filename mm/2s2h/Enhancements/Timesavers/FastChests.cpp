@@ -10,4 +10,4 @@ void RegisterFastChests() {
     COND_VB_SHOULD(VB_PLAY_SLOW_CHEST_CS, CVAR && !IS_RANDO, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFastChests, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterFastChests, { CVAR_NAME, "IS_RANDO" });

@@ -233,7 +233,7 @@ void FindReachableRegions(RandoRegionId currentRegion, std::set<RandoRegionId>& 
 }
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_MAX] = RandoRegion{ .sceneId = SCENE_MAX,
         .checks = {
             CHECK(RC_STARTING_ITEM_DEKU_MASK, true),

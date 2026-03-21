@@ -20,4 +20,4 @@ void RegisterFierceDeityPutaway() {
     COND_VB_SHOULD(VB_FD_ALWAYS_WIELD_SWORD, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFierceDeityPutaway, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFierceDeityPutaway, { CVAR_NAME });

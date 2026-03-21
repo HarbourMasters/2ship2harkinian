@@ -91,4 +91,4 @@ void RegisterSkipLearningGoronLullaby() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipLearningGoronLullaby, { CVAR_NAME, "IS_RANDO" });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipLearningGoronLullaby, { CVAR_NAME, "IS_RANDO" });

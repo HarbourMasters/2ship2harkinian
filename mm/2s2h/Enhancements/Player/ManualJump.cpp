@@ -34,4 +34,4 @@ void RegisterManualJump() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterManualJump, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterManualJump, { CVAR_NAME });

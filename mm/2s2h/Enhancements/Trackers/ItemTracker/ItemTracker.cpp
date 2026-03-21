@@ -480,7 +480,7 @@ void ItemTrackerWindow::InitElement() {
 void ItemTrackerWindow::DrawElement() {
 }
 
-static RegisterShipInitFunc initFunc(
+REGISTER_SHIP_INIT_FUNC(
     []() {
         COND_HOOK(OnGameStateMainStart, CVAR_VISIBILITY_MODE >= ITEM_TRACKER_VISIBILITY_MODE_BUTTON_TOGGLE, []() {
             Input* input = CONTROLLER1(gGameState);

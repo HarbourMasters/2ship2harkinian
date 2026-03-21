@@ -199,4 +199,4 @@ void RegisterCameraFreeLook() {
               [](Camera* camera) { UpdateFreeLookState(camera); });
 }
 
-static RegisterShipInitFunc initFunc(RegisterCameraFreeLook, { "gEnhancements.Camera.FreeLook.Enable" });
+REGISTER_SHIP_INIT_FUNC(RegisterCameraFreeLook, { "gEnhancements.Camera.FreeLook.Enable" });

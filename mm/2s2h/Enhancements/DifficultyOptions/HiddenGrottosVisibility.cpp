@@ -48,4 +48,4 @@ void RegisterHiddenGrottosVisibility() {
                  [](Actor* actor) { drawHiddenGrottoMarker(actor); });
 }
 
-static RegisterShipInitFunc initFunc(RegisterHiddenGrottosVisibility, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterHiddenGrottosVisibility, { CVAR_NAME });

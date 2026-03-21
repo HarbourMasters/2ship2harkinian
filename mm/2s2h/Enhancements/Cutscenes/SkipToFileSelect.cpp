@@ -48,4 +48,4 @@ void RegisterSkipToFileSelect() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipToFileSelect, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipToFileSelect, { CVAR_NAME });

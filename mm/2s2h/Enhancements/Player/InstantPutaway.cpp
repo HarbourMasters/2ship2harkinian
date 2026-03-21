@@ -9,4 +9,4 @@ void RegisterInstantPutaway() {
     COND_VB_SHOULD(VB_RESET_PUTAWAY_TIMER, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterInstantPutaway, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterInstantPutaway, { CVAR_NAME });

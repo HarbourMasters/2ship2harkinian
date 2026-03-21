@@ -24,4 +24,4 @@ void RegisterOoTFasterSwim() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterOoTFasterSwim, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterOoTFasterSwim, { CVAR_NAME });

@@ -49,4 +49,4 @@ void RegisterSkipKafeiReveal() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipKafeiReveal, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipKafeiReveal, { CVAR_NAME });

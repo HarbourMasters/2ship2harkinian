@@ -28,4 +28,4 @@ void RegisterGoronRaceDifficulty() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterGoronRaceDifficulty, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterGoronRaceDifficulty, { CVAR_NAME });

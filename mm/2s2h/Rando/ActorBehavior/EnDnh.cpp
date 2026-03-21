@@ -17,7 +17,7 @@ void Rando::ActorBehavior::InitEnDnhBehavior() {
         Actor* actor = va_arg(args, Actor*);
         MsgScript* script = va_arg(args, MsgScript*);
         Player* player = GET_PLAYER(gPlayState);
-        static std::vector<u8> skipCmds = {};
+        static std::vector<u8> sSkipCmdsEnDnh = {};
 
         if (actor->id != ACTOR_EN_DNH) {
             return;
@@ -28,28 +28,28 @@ void Rando::ActorBehavior::InitEnDnhBehavior() {
             if (!RANDO_SAVE_CHECKS[RC_TOURIST_INFORMATION_PICTOBOX].cycleObtained) {
                 return;
             } else {
-                skipCmds.clear();
-                skipCmds.push_back(MSCRIPT_CMD_ID_OFFER_ITEM);
-                skipCmds.push_back(MSCRIPT_CMD_ID_AUTOTALK);
-                skipCmds.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT);
+                sSkipCmdsEnDnh.clear();
+                sSkipCmdsEnDnh.push_back(MSCRIPT_CMD_ID_OFFER_ITEM);
+                sSkipCmdsEnDnh.push_back(MSCRIPT_CMD_ID_AUTOTALK);
+                sSkipCmdsEnDnh.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT);
             }
         }
 
         if (cmdId == MSCRIPT_CMD_ID_OFFER_ITEM) {
             Player_SetupWaitForPutAway(gPlayState, player, Player_SetupTalk);
             *should = false;
-            skipCmds.clear();
-            skipCmds.push_back(MSCRIPT_CMD_ID_AUTOTALK);
-            skipCmds.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT);
+            sSkipCmdsEnDnh.clear();
+            sSkipCmdsEnDnh.push_back(MSCRIPT_CMD_ID_AUTOTALK);
+            sSkipCmdsEnDnh.push_back(MSCRIPT_CMD_ID_AWAIT_TEXT);
             return;
         }
 
-        if (skipCmds.empty()) {
+        if (sSkipCmdsEnDnh.empty()) {
             return;
         }
 
-        if (cmdId == skipCmds[0]) {
-            skipCmds.erase(skipCmds.begin());
+        if (cmdId == sSkipCmdsEnDnh[0]) {
+            sSkipCmdsEnDnh.erase(sSkipCmdsEnDnh.begin());
             *should = false;
         }
     });

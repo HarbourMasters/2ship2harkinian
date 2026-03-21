@@ -9,4 +9,4 @@ void RegisterClimbAnywhere() {
     COND_VB_SHOULD(VB_BE_CLIMBABLE_SURFACE, CVAR, { *should = true; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterClimbAnywhere, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterClimbAnywhere, { CVAR_NAME });

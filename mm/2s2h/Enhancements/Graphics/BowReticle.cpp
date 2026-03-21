@@ -72,4 +72,4 @@ void RegisterBowReticle() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterBowReticle, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterBowReticle, { CVAR_NAME });

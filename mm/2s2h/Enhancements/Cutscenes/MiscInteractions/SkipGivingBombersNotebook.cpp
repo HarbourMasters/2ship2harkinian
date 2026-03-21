@@ -94,4 +94,4 @@ void RegisterSkipGivingBombersNotebook() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipGivingBombersNotebook, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipGivingBombersNotebook, { CVAR_NAME });

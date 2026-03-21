@@ -185,7 +185,7 @@ void Interface_DrawEnemyHealthBar(Attention* attention, PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-static RegisterShipInitFunc initFunc(
+REGISTER_SHIP_INIT_FUNC(
     []() {
         // Register actor extension health data and actor init hook once
         GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>([](Actor* actor) {

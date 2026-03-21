@@ -23,4 +23,4 @@ void RegisterSkipPushingMikau() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipPushingMikau, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipPushingMikau, { CVAR_NAME });

@@ -519,4 +519,4 @@ static void RegisterSongItems() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSongItems, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSongItems, { CVAR_NAME });

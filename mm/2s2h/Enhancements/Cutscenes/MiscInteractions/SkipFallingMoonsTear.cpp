@@ -48,4 +48,4 @@ void RegisterSkipFallingMoonsTear() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterSkipFallingMoonsTear, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterSkipFallingMoonsTear, { CVAR_NAME });

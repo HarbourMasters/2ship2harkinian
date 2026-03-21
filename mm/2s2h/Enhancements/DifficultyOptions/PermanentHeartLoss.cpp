@@ -20,4 +20,4 @@ void RegisterPermanentHeartLoss() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPermanentHeartLoss, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterPermanentHeartLoss, { CVAR_NAME });

@@ -52,4 +52,4 @@ void RegisterHealingMikauAudioFix() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterHealingMikauAudioFix, {});
+REGISTER_SHIP_INIT_FUNC(RegisterHealingMikauAudioFix, {});

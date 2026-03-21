@@ -23,4 +23,4 @@ void RegisterFierceDeityZTargetMovement() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterFierceDeityZTargetMovement, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterFierceDeityZTargetMovement, { CVAR_NAME });

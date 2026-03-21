@@ -9,4 +9,4 @@ void RegisterDisableTatlCallAudio() {
     COND_VB_SHOULD(VB_PLAY_TATL_CALL_AUDIO, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDisableTatlCallAudio, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDisableTatlCallAudio, { CVAR_NAME });

@@ -15,7 +15,7 @@ using namespace Rando::Logic;
      RANDO_EVENTS[RE_COWS_FROM_ALIENS])
 
 // clang-format off
-static RegisterShipInitFunc initFunc([]() {
+REGISTER_SHIP_INIT_FUNC([]() {
     Regions[RR_CUCCO_SHACK] = RandoRegion{ .sceneId = SCENE_F01C,
         .checks = {
             CHECK(RC_ROMANI_RANCH_GROG, HAS_ITEM(ITEM_MASK_BREMEN)),

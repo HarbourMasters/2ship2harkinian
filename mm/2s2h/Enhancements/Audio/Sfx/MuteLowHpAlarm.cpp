@@ -9,4 +9,4 @@ void RegisterMuteLowHpAlarm() {
     COND_VB_SHOULD(VB_PLAY_LOW_HP_ALARM, CVAR, { *should = false; });
 }
 
-static RegisterShipInitFunc initFunc(RegisterMuteLowHpAlarm, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterMuteLowHpAlarm, { CVAR_NAME });

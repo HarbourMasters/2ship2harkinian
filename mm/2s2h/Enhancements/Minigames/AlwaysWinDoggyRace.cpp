@@ -19,4 +19,4 @@ void RegisterAlwaysWinDoggyRace() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterAlwaysWinDoggyRace, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterAlwaysWinDoggyRace, { CVAR_NAME });

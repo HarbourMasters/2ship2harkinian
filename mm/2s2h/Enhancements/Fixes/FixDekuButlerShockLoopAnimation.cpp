@@ -21,4 +21,4 @@ void RegisterDekuButlerFixShockLoopAnimation() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterDekuButlerFixShockLoopAnimation, { CVAR_NAME });
+REGISTER_SHIP_INIT_FUNC(RegisterDekuButlerFixShockLoopAnimation, { CVAR_NAME });
