@@ -105,7 +105,7 @@ jobs:
       env:
         SCCACHE_CACHE_MULTIARCH: 1
       run: |
-        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
+        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" -DCMAKE_DISABLE_PRECOMPILE_HEADERS=ON
         cmake --build build-cmake -j
         (cd build-cmake && cpack)
 
