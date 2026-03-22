@@ -4527,8 +4527,8 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
             case MSGMODE_TEXT_AWAIT_NEXT:
                 Message_DrawText(play, &gfx);
                 if (GameInteractor_Should(VB_DRAW_OCARINA_STAFF, true)) {
-                    Message_DrawTextboxIcon(play, &gfx, 158,
-                                            (s16)(gTextBoxNextIconYOffsets[msgCtx->textBoxType] + msgCtx->textboxYTarget));
+                    Message_DrawTextboxIcon(
+                        play, &gfx, 158, (s16)(gTextBoxNextIconYOffsets[msgCtx->textBoxType] + msgCtx->textboxYTarget));
                 }
                 break;
 
