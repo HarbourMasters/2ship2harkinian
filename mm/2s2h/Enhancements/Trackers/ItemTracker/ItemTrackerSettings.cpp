@@ -74,6 +74,9 @@ std::string GetItemTrackerItemName(TrackerItemType itemType, u32 itemId) {
             return "Shield (None)";
         } break;
         case TRACKER_ITEM_WALLET: {
+            if (CUR_UPG_VALUE(UPG_WALLET) >= 3) {
+                return Rando::StaticData::Items[RI_WALLET_TYCOON].name;
+            }
             if (CUR_UPG_VALUE(UPG_WALLET) >= 2) {
                 return Rando::StaticData::Items[RI_WALLET_GIANT].name;
             }
@@ -518,6 +521,8 @@ void DrawTrackerOptions() {
         UIWidgets::CVarCheckbox("Split Window Groups", "gSettings.ItemTracker.WindowGroup");
         UIWidgets::CVarCheckbox("Show Item Counts", "gSettings.ItemTracker.ItemCounts",
                                 UIWidgets::CheckboxOptions().DefaultValue(true));
+        ImGui::TextWrapped(
+            "Click or drag & drop individual items, or use the corner buttons to add/remove entire groups.");
         ImGui::TableNextColumn();
 
         UIWidgets::CVarCombobox("Window Type", "gSettings.ItemTracker.WindowType", windowTypes,

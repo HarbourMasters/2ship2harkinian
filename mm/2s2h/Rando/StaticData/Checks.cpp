@@ -1,6 +1,9 @@
 #include "StaticData.h"
 #include "ShipUtils.h"
 
+#include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/Rando/Logic/Logic.h"
+
 extern "C" {
 s16 Play_GetOriginalSceneId(s16 sceneId);
 }
@@ -2294,31 +2297,6 @@ std::map<RandoCheckId, RandoStaticCheck> Checks = {
     RC(RC_BENEATH_THE_WELL_TREE,                                         RCTYPE_TREE,             SCENE_REDEAD,                   FLAG_NONE,                   0x0,                                                                 RI_NONE),
     RC(RC_CLOCK_TOWN_NORTH_TREE_01,                                      RCTYPE_TREE,             SCENE_BACKTOWN,                 FLAG_NONE,                   0x0,                                                                 RI_NONE),
     RC(RC_CUCCO_SHACK_TREE,                                              RCTYPE_TREE,             SCENE_F01C,                     FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_01,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_02,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_03,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_04,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_05,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_06,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_07,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_08,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_09,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_10,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_11,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_12,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_13,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_14,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_15,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_16,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_17,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_18,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_19,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_20,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_21,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_22,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_23,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_24,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
-    RC(RC_GORMAN_TRACK_TREE_25,                                          RCTYPE_TREE,             SCENE_KOEPONARACE,              FLAG_NONE,                   0x0,                                                                 RI_NONE),
     RC(RC_GORON_RACETRACK_TREE_01,                                       RCTYPE_TREE,             SCENE_GORONRACE,                FLAG_NONE,                   0x0,                                                                 RI_NONE),
     RC(RC_GORON_RACETRACK_TREE_01,                                       RCTYPE_TREE,             SCENE_GORONRACE,                FLAG_NONE,                   0x0,                                                                 RI_NONE),
     RC(RC_GORON_RACETRACK_TREE_02,                                       RCTYPE_TREE,             SCENE_GORONRACE,                FLAG_NONE,                   0x0,                                                                 RI_NONE),
@@ -2409,6 +2387,71 @@ void PopulateCheckNames() {
     for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
         CheckNames[randoCheckId] = convertEnumToReadableName(randoStaticCheck.name);
     }
+}
+
+static std::set<SceneId> scenesToCheckParent = {
+    SCENE_KAKUSIANA, SCENE_TAKARAYA,    SCENE_BOWLING,      SCENE_SONCHONOIE, SCENE_SYATEKI_MIZU, SCENE_YADOYA,
+    SCENE_MILK_BAR,  SCENE_AYASHIISHOP, SCENE_YOUSEI_IZUMI, SCENE_DOUJOU,     SCENE_8ITEMSHOP,    SCENE_BOMYA,
+    SCENE_POSTHOUSE, SCENE_TAKARAKUJI,  SCENE_SYATEKI_MORI, SCENE_MAP_SHOP,   SCENE_WITCH_SHOP,   SCENE_F01C,
+    SCENE_F01_B,     SCENE_OMOYA,       SCENE_GORONSHOP,    SCENE_KAJIYA,     SCENE_FISHERMAN,    SCENE_LABO,
+    SCENE_BANDROOM,  SCENE_TOUGITES,    SCENE_MUSICHOUSE,
+};
+static std::unordered_map<RandoCheckId, std::string> checkLocationHints;
+
+std::string GetLocationNameForHint(RandoCheckId randoCheckId, bool exact) {
+    if (checkLocationHints.empty()) {
+        for (auto& [regionId, staticRegion] : Rando::Logic::Regions) {
+            SceneId sceneId = (SceneId)Play_GetOriginalSceneId(staticRegion.sceneId);
+
+            // Handle grottos separately, their checks are assigned to the connected region
+            if (scenesToCheckParent.contains(sceneId)) {
+                RandoRegionId connectedRegionId = RR_MAX;
+                if (regionId == RR_LONE_PEAK_SHRINE) {
+                    connectedRegionId = RR_LONE_PEAK_SHRINE;
+                } else {
+                    for (auto& [entrance, _] : staticRegion.exits) {
+                        connectedRegionId = Rando::Logic::GetRegionIdFromEntrance(entrance);
+                    }
+                    for (auto& [regionId, _] : staticRegion.connections) {
+                        connectedRegionId = regionId;
+                    }
+                    if (connectedRegionId == RR_MAX) {
+                        continue;
+                    }
+                }
+                sceneId = Rando::Logic::Regions[connectedRegionId].sceneId;
+            }
+            for (auto& [regionRandoCheckId, _] : staticRegion.checks) {
+                checkLocationHints[regionRandoCheckId] = Ship_GetSceneName(sceneId);
+                // Remove some redundant info from the scene names to make hints cleaner
+                CustomMessage::Replace(&checkLocationHints[regionRandoCheckId], " (spring)", "");
+                CustomMessage::Replace(&checkLocationHints[regionRandoCheckId], " (poison)", "");
+                CustomMessage::Replace(&checkLocationHints[regionRandoCheckId], " (winter)", "");
+                CustomMessage::Replace(&checkLocationHints[regionRandoCheckId], " (Clear)", "");
+                CustomMessage::Replace(&checkLocationHints[regionRandoCheckId], " & Grottos", "");
+            }
+        }
+    }
+
+    if (randoCheckId == RC_UNKNOWN) {
+        return "in an Unknown Location";
+    }
+
+    auto& check = Checks[randoCheckId];
+
+    if (exact) {
+        return "at " + CheckNames[randoCheckId];
+    }
+
+    if (check.randoCheckType == RCTYPE_ENEMY_DROP) {
+        return "within a fomidable foe";
+    }
+
+    if (checkLocationHints.contains(randoCheckId)) {
+        return "in " + checkLocationHints[randoCheckId];
+    }
+
+    return "in an Unknown Location";
 }
 
 } // namespace StaticData

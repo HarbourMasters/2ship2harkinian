@@ -79,6 +79,9 @@ TrackerImageObject GetImageObject(TrackerItemType itemType, u32 itemId) {
                     itemObtained =
                         gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE] > 0;
                 } break;
+                case RI_TRIFORCE_PIECE: {
+                    itemObtained = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces > 0;
+                } break;
                 default: {
                     itemObtained = !Rando::IsItemObtainable(randoItemId);
                 } break;
@@ -173,36 +176,38 @@ std::string GetItemCounts(TrackerItemType itemType, u32 itemId) {
         case TRACKER_ITEM_RANDO: {
             switch (itemId) {
                 case RI_TRIFORCE_PIECE: {
-                    auto max = RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED];
-                    countStr = fmt::format(FORMAT_COUNT, gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces,
-                                           max > 999 ? "1k" : std::to_string(max));
+                    if (IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES]) {
+                        auto max = RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED];
+                        countStr = fmt::format(FORMAT_COUNT, gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces,
+                                               max > 999 ? "1k" : std::to_string(max));
+                    }
                 } break;
                 case RI_GS_TOKEN_OCEAN:
                 case RI_GS_TOKEN_SWAMP: {
                     auto max =
-                        IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_SKULLTULA_TOKENS] : SPIDER_HOUSE_TOKENS_REQUIRED;
+                        IS_RANDO ? RANDO_SAVE_OPTIONS[RO_SKULLTULA_TOKENS_REQUIRED] : SPIDER_HOUSE_TOKENS_REQUIRED;
                     auto count =
                         Inventory_GetSkullTokenCount(itemId == RI_GS_TOKEN_SWAMP ? SCENE_KINSTA1 : SCENE_KINDAN2);
                     countStr = fmt::format(FORMAT_COUNT, count, max);
                 } break;
                 case RI_WOODFALL_STRAY_FAIRY: {
-                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL;
+                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_STRAY_FAIRIES_REQUIRED] : STRAY_FAIRY_SCATTERED_TOTAL;
                     auto count = gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE];
                     countStr = fmt::format(FORMAT_COUNT, count, max);
                 } break;
                 case RI_SNOWHEAD_STRAY_FAIRY: {
-                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL;
+                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_STRAY_FAIRIES_REQUIRED] : STRAY_FAIRY_SCATTERED_TOTAL;
                     auto count = gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE];
                     countStr = fmt::format(FORMAT_COUNT, count, max);
                 } break;
                 case RI_GREAT_BAY_STRAY_FAIRY: {
-                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL;
+                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_STRAY_FAIRIES_REQUIRED] : STRAY_FAIRY_SCATTERED_TOTAL;
                     auto count =
                         gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE];
                     countStr = fmt::format(FORMAT_COUNT, count, max);
                 } break;
                 case RI_STONE_TOWER_STRAY_FAIRY: {
-                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_MINIMUM_STRAY_FAIRIES] : STRAY_FAIRY_SCATTERED_TOTAL;
+                    auto max = IS_RANDO ? RANDO_SAVE_OPTIONS[RO_STRAY_FAIRIES_REQUIRED] : STRAY_FAIRY_SCATTERED_TOTAL;
                     auto count =
                         gSaveContext.save.saveInfo.inventory.strayFairies[DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE];
                     countStr = fmt::format(FORMAT_COUNT, count, max);

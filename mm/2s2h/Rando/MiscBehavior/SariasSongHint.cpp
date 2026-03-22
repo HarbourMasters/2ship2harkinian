@@ -120,11 +120,13 @@ void Rando::MiscBehavior::SariasSongHint() {
                             "... You need my help?\x10 Alright but just this once. Search %y{{location}}%g, you will "
                             "find what you need. Hurry now!";
                 CustomMessage::Replace(&entry.msg, "{{location}}",
-                                       Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
+                                       Rando::StaticData::GetLocationNameForHint(randoCheckId, true));
                 Rando::RemoveItem(RI_SONG_SARIA);
             }
 
             playedSariasSongState = 0;
+        } else if (playedSariasSongState == 0) {
+            return;
         }
 
         CustomMessage::LoadCustomMessageIntoFont(entry);

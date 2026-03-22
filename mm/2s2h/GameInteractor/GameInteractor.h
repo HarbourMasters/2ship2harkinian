@@ -496,7 +496,7 @@ void GameInteractor_ExecuteOnSaveLoad(s16 fileNum);
 void GameInteractor_ExecuteOnFileSelectSaveLoad(s16 fileNum, bool isOwlSave, SaveContext* saveContext);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
-void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
+void GameInteractor_ExecuteBeforeMoonCrash();
 void GameInteractor_ExecuteOnInterfaceDrawStart();
 void GameInteractor_ExecuteAfterInterfaceClockDraw();
 void GameInteractor_ExecuteBeforeInterfaceClockDraw();
@@ -579,6 +579,7 @@ bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
 int GameInteractor_InvertControl(GIInvertType type);
 uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);
 uint32_t GameInteractor_RightStickOcarina(Input* input);
+uint32_t GameInteractor_CustomOcarinaControls(Input* input);
 
 #ifdef __cplusplus
 }

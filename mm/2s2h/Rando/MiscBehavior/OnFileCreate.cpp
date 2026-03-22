@@ -53,6 +53,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     hadInputSeed = false;
                 }
 
+                SPDLOG_INFO("Generating new randomizer with seed: {}", inputSeed);
                 uint32_t finalSeed = Ship_Hash(inputSeed);
                 Ship_Random_Seed(finalSeed);
 
@@ -65,7 +66,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 // If Skulltula tokens are not shuffled, use the vanilla requirement
                 if (!RANDO_SAVE_OPTIONS[RO_SHUFFLE_GOLD_SKULLTULAS]) {
-                    RANDO_SAVE_OPTIONS[RO_MINIMUM_SKULLTULA_TOKENS] = SPIDER_HOUSE_TOKENS_REQUIRED;
+                    RANDO_SAVE_OPTIONS[RO_SKULLTULA_TOKENS_REQUIRED] = SPIDER_HOUSE_TOKENS_REQUIRED;
                 }
 
                 // Persist StartingItems to the save

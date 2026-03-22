@@ -1258,7 +1258,6 @@ void Sram_InitDebugSave(void) {
 }
 
 void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
-    GameInteractor_ExecuteBeforeMoonCrashSaveReset();
     s32 i;
     s32 cutsceneIndex = gSaveContext.save.cutsceneIndex;
 
@@ -1999,6 +1998,40 @@ void Sram_WriteSaveOptionsToBuffer(SramContext* sramCtx) {
         memcpy(sramCtx->saveBuf, &gSaveContext.options, sizeof(SaveOptions));
     }
 }
+
+// #region 2S2H [Port] Surround Sound
+/**
+ * Load global options (SaveOptions) from flash early during initialization.
+ * This ensures audio settings are applied before the intro cutscene plays.
+ * Note: Does not check flashSaveAvailable since SysFlashrom_ReadData is redirected
+ * to SaveManager which reads from JSON files and works independently.
+ */
+void Sram_LoadGlobalOptions(void) {
+    // Use a local buffer since sramCtx->saveBuf isn't allocated yet
+    u8 buffer[sizeof(SaveOptions)];
+    s32 readFailed = SysFlashrom_ReadData(buffer, gFlashSaveStartPages[FLASH_SAVE_SRAM_HEADER],
+                                          gFlashSaveNumPages[FLASH_SAVE_SRAM_HEADER]);
+
+    if (readFailed) {
+        // Try backup
+        readFailed = SysFlashrom_ReadData(buffer, gFlashSaveStartPages[FLASH_SAVE_SRAM_HEADER_BACKUP],
+                                          gFlashSaveNumPages[FLASH_SAVE_SRAM_HEADER_BACKUP]);
+    }
+
+    if (readFailed) {
+        // No valid save, use defaults (already set by SaveContext_Init)
+        return;
+    }
+
+    memcpy(&gSaveContext.options, buffer, sizeof(SaveOptions));
+    if (gSaveContext.options.optionId != 0xA51D) {
+        // Invalid options, keep defaults (already set by SaveContext_Init)
+        return;
+    }
+
+    Audio_SetFileSelectSettings(gSaveContext.options.audioSetting);
+}
+// #endregion
 
 void Sram_InitSram(GameState* gameState, SramContext* sramCtx) {
     if (gSaveContext.save.entrance) {} // Required to match
