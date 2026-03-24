@@ -35,51 +35,33 @@ void RegisterExtraPowderKegs() {
     COND_VB_SHOULD(VB_POWDER_KEG_AMMO_AT_CAPACITY, CVAR, { *should = (AMMO(ITEM_POWDER_KEG) >= MAX_POWDER_KEGS); });
 
     // Update Goron dialogue to reflect the higher max carry count
+    // '\x1e\x3a\xbb' Goron (Oh) (Mono) SFX
+    // '\x1e\x38\xfc' Goron (Oh?) (Pitched) SFX
+    // '\x12' Box Break II
     COND_ID_HOOK(OnOpenText, 0x0C87, CVAR, [](u16*, bool* loadFromMessageTable) {
         CustomMessage::Entry entry;
-        entry.autoFormat = false;
-        entry.msg = "\x1e:\xbb\x01Powder Kegs";
-        entry.msg += '\x00';
-        entry.msg += " are\x11highly unstable! Carry only \x01";
-        entry.msg += std::to_string(MAX_POWDER_KEGS);
-        entry.msg += '\x11';
-        entry.msg += '\x00';
-        entry.msg += "at a time.\x11\x12Strike one with an \x01"
-                     "arrow";
-        entry.msg += '\x00';
-        entry.msg += " and it'll\x11"
-                     "detonate \x01"
-                     "on impact";
-        entry.msg += '\x00';
-        entry.msg += ". Watch out!\xbf";
+        entry.msg = "\x1e\x3a\xbb%rPowder Kegs%w are extremely\n"
+                    "dangerous. You are limited to carrying\n"
+                    "%rthree%w at any given time.\n"
+                    "\x12If an %rarrow%w hits one, it will %rexplode%w\n"
+                    "on the spot, so use caution.";
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
     COND_ID_HOOK(OnOpenText, 0x0C8B, CVAR, [](u16*, bool* loadFromMessageTable) {
         CustomMessage::Entry entry;
-        entry.autoFormat = false;
-        entry.msg = "Your limit is \x01";
-        entry.msg += std::to_string(MAX_POWDER_KEGS);
-        entry.msg += " Powder\x11Kegs";
-        entry.msg += '\x00';
-        entry.msg += " at a time. Use some up\x11"
-                     "and then come back.\xbf";
+        entry.msg = "You are only allowed to take %rthree\n"
+                    "Powder Kegs%w with you. After they've\n"
+                    "been used, come back and get more.";
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
     COND_ID_HOOK(OnOpenText, 0x0673, CVAR, [](u16*, bool* loadFromMessageTable) {
         CustomMessage::Entry entry;
-        entry.autoFormat = false;
-        entry.msg = "\x1e\x38\xfc\x17Whoa, you're already\x11"
-                    "carrying \x01";
-        entry.msg += std::to_string(MAX_POWDER_KEGS);
-        entry.msg += '\x00';
-        entry.msg += "!\x18\x11\x13\x13\x12\x01Powder Kegs";
-        entry.msg += '\x00';
-        entry.msg += " are serious\x11hazards. The limit is \x01";
-        entry.msg += std::to_string(MAX_POWDER_KEGS);
-        entry.msg += '\x00';
-        entry.msg += " at a time!\xbf";
+        entry.msg = "\x1e\x38\xfcHold on, you already got %rthree%w!\n"
+                    "\x12%rPowder Kegs%w are hazardous\n"
+                    "explosives, so you may carry only\n"
+                    "%rthree%w at a time!";
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });
