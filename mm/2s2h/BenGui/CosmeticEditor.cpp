@@ -70,7 +70,8 @@ bool IsCustomModelArchive(const std::shared_ptr<Ship::Archive>& archive) {
     }
 
     const auto& archivePath = archive->GetPath();
-    return archivePath.find("\\mods\\") != std::string::npos;
+    return archivePath.find("\\mods\\") != std::string::npos ||
+           archivePath.find("/mods/") != std::string::npos;
 }
 
 bool IsSkeletonOverriddenByCustomArchive(Ship::ArchiveManager* archiveManager, const char* path) {
