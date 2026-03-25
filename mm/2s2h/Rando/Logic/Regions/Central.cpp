@@ -94,7 +94,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_CLOCK_TOWN_STRAY_FAIRY,         CAN_BE_DEKU && IS_NIGHT()),
             CHECK(RC_CLOCK_TOWN_EAST_UPPER_CHEST,    true),
             CHECK(RC_CLOCK_TOWN_BOMBERS_NOTEBOOK,    RANDO_EVENTS[RE_BOMBER_CODE]),
-            CHECK(RC_CLOCK_TOWN_POSTBOX, HAS_ITEM(ITEM_MASK_POSTMAN)),
+            CHECK(RC_CLOCK_TOWN_POSTBOX,             HAS_ITEM(ITEM_MASK_POSTMAN)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 7),                ENTRANCE(EAST_CLOCK_TOWN, 0), true),
