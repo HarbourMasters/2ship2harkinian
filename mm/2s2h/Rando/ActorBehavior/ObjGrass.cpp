@@ -45,11 +45,17 @@ std::map<s8, std::tuple<s16, RandoCheckId>> cowGrottoMap = {
 
 // For lone grass actors spawned directly by the scene
 std::map<std::tuple<s16, s16, s16>, RandoCheckId> enKusaMap = {
+    // Great Bay Coast (pre-temple clear)
     { { SCENE_30GYOSON, 0, 110 }, RC_GREAT_BAY_COAST_GRASS_01 },
     { { SCENE_30GYOSON, 0, 111 }, RC_GREAT_BAY_COAST_GRASS_02 },
     { { SCENE_30GYOSON, 0, 112 }, RC_GREAT_BAY_COAST_GRASS_03 },
     { { SCENE_30GYOSON, 0, 113 }, RC_GREAT_BAY_COAST_GRASS_04 },
-    { { SCENE_30GYOSON, 0, 114 }, RC_GREAT_BAY_COAST_GRASS_05 },
+    // Great Bay Coast (post-temple clear)
+    { { SCENE_30GYOSON, 0, 117 }, RC_GREAT_BAY_COAST_GRASS_01 },
+    { { SCENE_30GYOSON, 0, 115 }, RC_GREAT_BAY_COAST_GRASS_02 },
+    { { SCENE_30GYOSON, 0, 118 }, RC_GREAT_BAY_COAST_GRASS_03 },
+    { { SCENE_30GYOSON, 0, 116 }, RC_GREAT_BAY_COAST_GRASS_04 },
+    { { SCENE_30GYOSON, 0, 114 }, RC_GREAT_BAY_COAST_GRASS_05 }, // Exists in both states
     // Laundry Pool
     { { SCENE_ALLEY, 0, 13 }, RC_CLOCK_TOWN_LAUNDRY_POOL_GRASS_01 },
     { { SCENE_ALLEY, 0, 14 }, RC_CLOCK_TOWN_LAUNDRY_POOL_GRASS_02 },
