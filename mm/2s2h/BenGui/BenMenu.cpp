@@ -10,6 +10,12 @@
 #include "Notification.h"
 #include <variant>
 #include <ship/utils/StringHelper.h>
+#include <ship/Context.h>
+#ifdef __APPLE__
+#include <SDL.h>
+#else
+#include <SDL2/SDL.h>
+#endif
 #include <spdlog/fmt/fmt.h>
 #include "variables.h"
 #include <variant>
@@ -166,6 +172,7 @@ static const std::vector<const char*> timerDisplayOptions = {
 static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
     { 0, "1x" }, { 1, "2x" }, { 2, "4x" }, { 3, "8x" }, { 4, "16x" }, { 10, "1 Hit KO" },
 };
+
 
 namespace BenGui {
 extern std::shared_ptr<BenMenu> mBenMenu;
@@ -1000,7 +1007,29 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Allows Zora to use the Ocarina of Time when grounded underwater."));
     AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.ManualJump")
-        .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack."));
+        .Options(CheckboxOptions().Tooltip("Z + A to perform a jump attack. "
+                                           "Jump height scales with your current movement speed."));
+    AddWidget(path, "Chain Jump (SM64 Style)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.ChainJump")
+        .Options(CheckboxOptions().Tooltip(
+            "Press A while moving to jump. Land and press A again within a few frames to chain "
+            "into a double jump (1.25x height) and triple jump (1.75x height, roll jump animation). "
+            "Z + A still does a normal roll. Requires some movement speed to activate."));
+    AddWidget(path, "Wall Kick (SM64 Style)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.WallKick")
+        .Options(CheckboxOptions().Tooltip(
+            "While airborne, hitting a wall at speed lets you press A to kick off it. "
+            "Link bounces off at the reflected angle. Faster reaction gives more speed "
+            "(1.25x, 1.1x, 1.0x over a 3 frame window). Wall kicks can be chained. "
+            "Disabled while Z is held."));
+    AddWidget(path, "Aerial Spin Lift", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.AerialSpinLift")
+        .Options(CheckboxOptions().Tooltip(
+            "Press B while airborne (without Z) to perform a spin attack that lifts Link upward. "
+            "Height scales with equipped sword: Kokiri < Razor < Gilded < Great Fairy's Sword. "
+            "Includes magic visual effect and active hitbox. Once per airtime. "
+            "Z + B still does a normal jump slash. Human and Fierce Deity forms only."));
+
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));
@@ -1107,6 +1136,80 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Disable Final Day Quakes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.A11y.NoFinalDayQuakes")
         .Options(CheckboxOptions().Tooltip("Earthquakes will not occur on the final day."));
+    AddWidget(path, "ESS Position Modifier", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.EssPosition.Enable")
+        .Options(CheckboxOptions().Tooltip(
+            "Hold a button to set the analog stick to ESS position (17/127). "
+            "Useful for ESS turns, HESS, and position setups. "
+            "Bind the modifier to a key or gamepad button in the Input Editor (M1/M2)."));
+    AddWidget(path, "ESS Position Button:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gEnhancements.Player.EssPosition.Btn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER2))
+        .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.EssPosition.Enable", 0); });
+    AddWidget(path, "Instant Quick Spin", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.InstantQuickSpin.Enable")
+        .Options(CheckboxOptions().Tooltip(
+            "Hold a button and press B to instantly perform a spin attack without needing to rotate the analog stick. "
+            "Also works for jump slash cancels and charged spins."));
+    AddWidget(path, "Quick Spin Button:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gEnhancements.Player.InstantQuickSpin.Btn")
+        .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER2))
+        .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.InstantQuickSpin.Enable", 0); });
+    AddWidget(path, "Half Stick Inputs (Keyboard)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.HalfStickEnable")
+        .Options(CheckboxOptions().Tooltip(
+            "Adds keyboard keys for half-magnitude stick inputs (~35/127). "
+            "Useful for angles like up-up-left or down-down-right that are impossible with digital WASD. "
+            "These are additive with your normal stick input."));
+    AddWidget(path, "Half Stick Keys", WIDGET_CUSTOM)
+        .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.HalfStickEnable", 0); })
+        .CustomFunction([](WidgetInfo& info) {
+            struct KeyBinding {
+                const char* label;
+                const char* cvar;
+            };
+            static const KeyBinding bindings[] = {
+                { "Half Left",  "gEnhancements.Player.HalfStickLeftKey" },
+                { "Half Right", "gEnhancements.Player.HalfStickRightKey" },
+                { "Half Up",    "gEnhancements.Player.HalfStickUpKey" },
+                { "Half Down",  "gEnhancements.Player.HalfStickDownKey" },
+            };
+            static int pendingBindIndex = -1;
+
+            for (int i = 0; i < 4; i++) {
+                int32_t scancode = CVarGetInteger(bindings[i].cvar, 0);
+                const char* keyName = scancode > 0 ? SDL_GetKeyName(SDL_GetKeyFromScancode((SDL_Scancode)scancode)) : "None";
+
+                ImGui::Text("%s:", bindings[i].label);
+                ImGui::SameLine();
+
+                auto popupId = StringHelper::Sprintf("##halfStickBind%d", i);
+                if (pendingBindIndex == i) {
+                    ImGui::Button(StringHelper::Sprintf("Press a key...%s", popupId.c_str()).c_str());
+                    int numkeys;
+                    const Uint8* keys = SDL_GetKeyboardState(&numkeys);
+                    for (int k = 4; k < numkeys; k++) {
+                        if (keys[k]) {
+                            CVarSetInteger(bindings[i].cvar, k);
+                            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+                            pendingBindIndex = -1;
+                            break;
+                        }
+                    }
+                } else {
+                    if (ImGui::Button(StringHelper::Sprintf("%s%s", keyName, popupId.c_str()).c_str())) {
+                        pendingBindIndex = i;
+                    }
+                    if (scancode > 0) {
+                        ImGui::SameLine();
+                        if (ImGui::Button(StringHelper::Sprintf("X##halfStickClear%d", i).c_str())) {
+                            CVarSetInteger(bindings[i].cvar, 0);
+                            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+                        }
+                    }
+                }
+            }
+        });
     AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.BowReticle")
         .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
