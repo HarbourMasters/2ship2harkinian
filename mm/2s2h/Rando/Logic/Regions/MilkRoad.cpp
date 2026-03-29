@@ -170,7 +170,7 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_ROMANI_RANCH] = RandoRegion{ .sceneId = SCENE_F01,
         .checks = {
             // TODO: Time logic is wrong for entrance rando
-            CHECK(RC_ROMANI_RANCH_ALIENS, CanKillEnemy(ACTOR_EN_INVADEPOH) && CAN_BE_GORON && HAS_ITEM(ITEM_POWDER_KEG)),
+            CHECK(RC_ROMANI_RANCH_ALIENS, CanKillEnemy(ACTOR_EN_INVADEPOH) && IS_NIGHT1() && CAN_BE_GORON && HAS_ITEM(ITEM_POWDER_KEG)),
             // TODO: Time logic is wrong for entrance rando
             CHECK(RC_ROMANI_RANCH_EPONAS_SONG, BEFORE(TIME_NIGHT1_PM_06_00) && CAN_BE_GORON && HAS_ITEM(ITEM_POWDER_KEG)),
             CHECK(RC_ROMANI_RANCH_FIELD_COW_ENTRANCE, CAN_PLAY_SONG(EPONA) && BREAK_BOULDER_BEFORE_OR_BEAT_ALIENS_DAY),
