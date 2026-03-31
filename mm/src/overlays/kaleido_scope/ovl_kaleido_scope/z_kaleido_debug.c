@@ -1094,7 +1094,7 @@ void KaleidoScope_UpdateInventoryEditor(PlayState* play) {
     // The editor is opened with `debugEditor` set to DEBUG_EDITOR_INVENTORY_INIT,
     // and becomes closable after a frame once `debugEditor` is set to DEBUG_EDITOR_INVENTORY
     s16 Debug_BTN = BTN_L;
-    if (CVar_GetS32("gNGCKaleidoSwitcher", 0) != 0) {
+    if (CVar_GetS32("gEnhancements.Restorations.NGCKaleidoSwitcher", 0) != 0) {
         Debug_BTN = BTN_Z;
     }
     if (pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY_INIT) {
