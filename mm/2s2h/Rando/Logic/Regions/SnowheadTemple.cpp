@@ -10,15 +10,23 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_SNOWHEAD_TEMPLE_BLOCK_ROOM] = RandoRegion{ .sceneId = SCENE_HAKUGIN,
         .checks = {
             CHECK(RC_SNOWHEAD_TEMPLE_BLOCK_ROOM_HIDDEN_CHEST, true),
-            CHECK(RC_SNOWHEAD_TEMPLE_BLOCK_ROOM_LEDGE_CHEST, HAS_ITEM(ITEM_HOOKSHOT)),
             CHECK(RC_SNOWHEAD_TEMPLE_BLOCK_ROOM_POT_01, true),
             CHECK(RC_SNOWHEAD_TEMPLE_BLOCK_ROOM_POT_02, true),
-            CHECK(RC_ENEMY_DROP_FLYING_POT, CanKillEnemy(ACTOR_EN_TUBO_TRAP)),
         },
         .connections = {
             CONNECTION(RR_SNOWHEAD_TEMPLE_CENTRAL_ROOM_FIRST_FLOOR,  true),
-            CONNECTION(RR_SNOWHEAD_TEMPLE_COMPASS_ROOM,  HAS_ITEM(ITEM_HOOKSHOT)),
+            CONNECTION(RR_SNOWHEAD_TEMPLE_BLOCK_ROOM_UPPER, HAS_ITEM(ITEM_HOOKSHOT) || CAN_BE_ZORA), // TODO : Should using Zora for this be considered a trick?
         },
+    };
+    Regions[RR_SNOWHEAD_TEMPLE_BLOCK_ROOM_UPPER] = RandoRegion { .sceneId = SCENE_HAKUGIN, 
+        .checks = {
+            CHECK(RC_SNOWHEAD_TEMPLE_BLOCK_ROOM_LEDGE_CHEST, true),
+            CHECK(RC_ENEMY_DROP_FLYING_POT, CanKillEnemy(ACTOR_EN_TUBO_TRAP)),
+        },
+        .connections = {
+            CONNECTION(RR_SNOWHEAD_TEMPLE_BLOCK_ROOM, true),
+            CONNECTION(RR_SNOWHEAD_TEMPLE_COMPASS_ROOM, true),
+        }
     };
     Regions[RR_SNOWHEAD_TEMPLE_BOSS_ROOM] = RandoRegion{ .sceneId = SCENE_HAKUGIN_BS,
         .checks = {
@@ -189,7 +197,7 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .connections = {
             CONNECTION(RR_SNOWHEAD_TEMPLE_ENTRANCE_AFTER_BLOCK,     KEY_COUNT(SNOWHEAD_TEMPLE) >= 1),
-            CONNECTION(RR_SNOWHEAD_TEMPLE_BLOCK_ROOM,   CAN_BE_ZORA || HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_MAGIC_ARROW(FIRE)), // TODO : Should using Zora for this be considered a trick?
+            CONNECTION(RR_SNOWHEAD_TEMPLE_BLOCK_ROOM_UPPER,   CAN_BE_ZORA || HAS_ITEM(ITEM_HOOKSHOT) || CAN_USE_MAGIC_ARROW(FIRE)), // TODO : Should using Zora for this be considered a trick?
             CONNECTION(RR_SNOWHEAD_TEMPLE_ICICLE_ROOM,  CAN_USE_EXPLOSIVE),
         },
     };
