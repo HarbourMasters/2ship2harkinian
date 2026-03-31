@@ -532,7 +532,7 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
 
     s16 Debug_BTN = BTN_L;
     s16 PageLeft_BTN = BTN_Z;
-    if (CVarGetInteger("gEnhancements.NGCKaleidoSwitcher", 0) != 0) {
+    if (CVarGetInteger("gEnhancements.Restorations.NGCKaleidoSwitcher", 0) != 0) {
         Debug_BTN = BTN_Z;
         PageLeft_BTN = BTN_L;
     }
