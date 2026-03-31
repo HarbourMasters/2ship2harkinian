@@ -1093,9 +1093,13 @@ void KaleidoScope_UpdateInventoryEditor(PlayState* play) {
     // Handles exiting the inventory editor with the L button
     // The editor is opened with `debugEditor` set to DEBUG_EDITOR_INVENTORY_INIT,
     // and becomes closable after a frame once `debugEditor` is set to DEBUG_EDITOR_INVENTORY
+    s16 Debug_BTN = BTN_L;
+    if (CVar_GetS32("gNGCKaleidoSwitcher", 0) != 0) {
+        Debug_BTN = BTN_Z;
+    }
     if (pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY_INIT) {
         pauseCtx->debugEditor = DEBUG_EDITOR_INVENTORY;
-    } else if ((pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
+    } else if ((pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY) && CHECK_BTN_ALL(input->press.button, Debug_BTN)) {
         pauseCtx->debugEditor = DEBUG_EDITOR_NONE;
     }
 }
