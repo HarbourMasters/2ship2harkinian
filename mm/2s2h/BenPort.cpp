@@ -1529,6 +1529,7 @@ extern "C" AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path) {
                 AnimationHeader* normalAnim = (AnimationHeader*)animHeader;
                 PlayerAnimationHeader* playerAnim = (PlayerAnimationHeader*)animHeader;
 
+                // Valid if Normal animation has frameData OR Link animation has segment
                 if (normalAnim->frameData != NULL || playerAnim->segmentVoid != NULL) {
                     return animHeader;
                 }
