@@ -1595,6 +1595,10 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Restorations.BonkCollision")
         .Options(
             CheckboxOptions().Tooltip("Corrects rolls to allow bonking trees near the end of the roll, as in OoT."));
+    AddWidget(path, "Fix L&Z Page Switch in Pause Menu", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Restorations.NGCKaleidoSwitcher")
+        .Options(
+            CheckboxOptions().Tooltip("Makes L and R switch pages like on the GameCube. Z opens the debug menu instead."));
     AddWidget(path, "Simulated Input Lag", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_SIMULATED_INPUT_LAG)
         .Options(IntSliderOptions()
