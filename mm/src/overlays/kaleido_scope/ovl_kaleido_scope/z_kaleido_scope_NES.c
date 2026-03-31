@@ -530,9 +530,16 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
     PauseContext* pauseCtx = &play->pauseCtx;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
+    s16 Debug_BTN = BTN_L;
+    s16 PageLeft_BTN = BTN_Z;
+    if (CVarGetInteger("gEnhancements.NGCKaleidoSwitcher", 0) != 0) {
+        Debug_BTN = BTN_Z;
+        PageLeft_BTN = BTN_L;
+    }
+
     // 2S2H [Debug] Restoring input check for debug inventory editor based on OOT debug
     if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0) && (pauseCtx->debugEditor == DEBUG_EDITOR_NONE) &&
-        CHECK_BTN_ALL(input->press.button, BTN_L)) {
+        CHECK_BTN_ALL(input->press.button, Debug_BTN)) {
         pauseCtx->debugEditor = DEBUG_EDITOR_INVENTORY_INIT;
         return;
     }
@@ -556,7 +563,7 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
         return;
     }
 
-    if (CHECK_BTN_ALL(input->cur.button, BTN_DLEFT) || CHECK_BTN_ALL(input->press.button, BTN_Z)) {
+    if (CHECK_BTN_ALL(input->cur.button, BTN_DLEFT) || CHECK_BTN_ALL(input->press.button, PageLeft_BTN)) {
         if (!GameInteractor_Should(VB_KALEIDO_SWITCH_PAGE_WITH_DPAD, true, BTN_DLEFT)) {
             return;
         }
