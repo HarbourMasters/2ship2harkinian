@@ -2,10 +2,6 @@
 #include "CosmeticEditor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/GameInteractor/GameInteractor.h"
-#include "ship/resource/archive/Archive.h"
-#include "fast/resource/type/DisplayList.h"
-#include <tinyxml2.h>
-#include <cctype>
 
 std::vector<const char*> cosmeticEditorParentElements;
 
@@ -28,424 +24,6 @@ Gfx* Gfx_DrawTexRectIA8_DropShadowOffset(Gfx* gfx, TexturePtr texture, s16 textu
                                          s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rects);
 void gfx_texture_cache_clear();
 }
-
-namespace {
-constexpr const char* CUSTOM_PLAYER_COSMETIC_GROUP = "Custom Player";
-constexpr const char* CUSTOM_PLAYER_CVAR_PREFIX = "gCosmetic.CustomPlayer.";
-
-struct CustomPlayerCosmeticBinding {
-    std::string materialPath;
-    size_t commandIndex = 0;
-    bool isPrimColor = true;
-    uint8_t defaultA = 255;
-    uint8_t primM = 0;
-    uint8_t primL = 0;
-};
-
-struct CustomPlayerCosmeticEntry {
-    std::string displayName;
-    std::string colorCvar;
-    std::string changedCvar;
-    Color_RGBA8 defaultColor = { 255, 255, 255, 255 };
-    std::vector<CustomPlayerCosmeticBinding> bindings;
-};
-
-std::vector<CustomPlayerCosmeticEntry> customPlayerCosmeticEntries;
-bool customHumanModelActive = false;
-bool customDekuModelActive = false;
-bool customGoronModelActive = false;
-bool customZoraModelActive = false;
-bool customFierceDeityModelActive = false;
-bool customKafeiModelActive = false;
-bool customHumanCosmeticsAvailable = false;
-bool customDekuCosmeticsAvailable = false;
-bool customGoronCosmeticsAvailable = false;
-bool customZoraCosmeticsAvailable = false;
-bool customFierceDeityCosmeticsAvailable = false;
-bool customKafeiCosmeticsAvailable = false;
-
-bool IsCustomModelArchive(const std::shared_ptr<Ship::Archive>& archive) {
-    if (archive == nullptr) {
-        return false;
-    }
-
-    const auto& archivePath = archive->GetPath();
-    return archivePath.find("\\mods\\") != std::string::npos || archivePath.find("/mods/") != std::string::npos;
-}
-
-bool IsSkeletonOverriddenByCustomArchive(Ship::ArchiveManager* archiveManager, const char* path) {
-    if (archiveManager == nullptr) {
-        return false;
-    }
-
-    return IsCustomModelArchive(archiveManager->GetArchiveFromFile(path));
-}
-
-void RefreshCustomPlayerModelActiveFlags(Ship::ArchiveManager* archiveManager) {
-    customHumanModelActive =
-        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_child/gLinkHumanSkel");
-    customDekuModelActive =
-        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_nuts/gLinkDekuSkel");
-    customGoronModelActive =
-        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_goron/gLinkGoronSkel");
-    customZoraModelActive =
-        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_zora/gLinkZoraSkel");
-    customFierceDeityModelActive =
-        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_boy/gLinkFierceDeitySkel");
-    customKafeiModelActive = IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_test3/gKafeiSkel");
-}
-
-bool IsCustomModelActiveForCosmeticElement(const CosmeticEditorElement& element) {
-    switch (element.id) {
-        case COSMETIC_ELEMENT_HUMAN_TUNIC:
-        case COSMETIC_ELEMENT_HUMAN_HAIR:
-            return customHumanModelActive && customHumanCosmeticsAvailable;
-        case COSMETIC_ELEMENT_DEKU_TUNIC:
-        case COSMETIC_ELEMENT_DEKU_HAIR:
-            return customDekuModelActive && customDekuCosmeticsAvailable;
-        case COSMETIC_ELEMENT_GORON_TUNIC:
-            return customGoronModelActive && customGoronCosmeticsAvailable;
-        case COSMETIC_ELEMENT_ZORA_TUNIC:
-            return customZoraModelActive && customZoraCosmeticsAvailable;
-        case COSMETIC_ELEMENT_KAFEI_HAIR:
-            return customKafeiModelActive && customKafeiCosmeticsAvailable;
-        default:
-            return false;
-    }
-}
-
-int GetCustomPlayerMaterialFormSortOrder(const std::string& materialPath) {
-    if (materialPath.starts_with("objects/object_link_child/")) {
-        return 0;
-    }
-    if (materialPath.starts_with("objects/object_link_nuts/")) {
-        return 1;
-    }
-    if (materialPath.starts_with("objects/object_link_goron/")) {
-        return 2;
-    }
-    if (materialPath.starts_with("objects/object_link_zora/")) {
-        return 3;
-    }
-    if (materialPath.starts_with("objects/object_link_boy/")) {
-        return 4;
-    }
-    if (materialPath.starts_with("objects/object_test3/")) {
-        return 5;
-    }
-
-    return 6;
-}
-
-void MarkCustomPlayerCosmeticsAvailable(const std::string& materialPath) {
-    switch (GetCustomPlayerMaterialFormSortOrder(materialPath)) {
-        case 0:
-            customHumanCosmeticsAvailable = true;
-            break;
-        case 1:
-            customDekuCosmeticsAvailable = true;
-            break;
-        case 2:
-            customGoronCosmeticsAvailable = true;
-            break;
-        case 3:
-            customZoraCosmeticsAvailable = true;
-            break;
-        case 4:
-            customFierceDeityCosmeticsAvailable = true;
-            break;
-        case 5:
-            customKafeiCosmeticsAvailable = true;
-            break;
-    }
-}
-
-int GetCustomPlayerEntrySortOrder(const CustomPlayerCosmeticEntry& entry) {
-    int order = 6;
-
-    for (const auto& binding : entry.bindings) {
-        int bindingOrder = GetCustomPlayerMaterialFormSortOrder(binding.materialPath);
-        if (bindingOrder < order) {
-            order = bindingOrder;
-        }
-    }
-
-    return order;
-}
-
-std::string SanitizeCustomPlayerKey(const std::string& value) {
-    std::string sanitized;
-    sanitized.reserve(value.size());
-
-    for (unsigned char ch : value) {
-        if (std::isalnum(ch)) {
-            sanitized.push_back(static_cast<char>(ch));
-        } else if (!sanitized.empty() && sanitized.back() != '_') {
-            sanitized.push_back('_');
-        }
-    }
-
-    while (!sanitized.empty() && sanitized.back() == '_') {
-        sanitized.pop_back();
-    }
-
-    return sanitized.empty() ? "Entry" : sanitized;
-}
-
-bool TryLoadCustomDisplayListXml(Ship::ArchiveManager* archiveManager, Ship::ResourceManager* resourceManager,
-                                 const std::string& materialPath, tinyxml2::XMLDocument& document,
-                                 std::shared_ptr<Fast::DisplayList>& material, tinyxml2::XMLElement*& root) {
-    auto file = archiveManager->LoadFile(materialPath);
-    if (file == nullptr || !file->IsLoaded || file->Buffer == nullptr) {
-        return false;
-    }
-
-    document.Parse(file->Buffer->data(), file->Buffer->size());
-    if (document.Error()) {
-        return false;
-    }
-
-    root = document.FirstChildElement();
-    if (root == nullptr || std::string(root->Name()) != "DisplayList") {
-        return false;
-    }
-
-    material = std::dynamic_pointer_cast<Fast::DisplayList>(resourceManager->LoadResource(materialPath));
-    return material != nullptr;
-}
-
-size_t FindDisplayListInstructionIndex(const Fast::DisplayList& displayList, const Gfx& expected, size_t searchStart) {
-    for (size_t i = searchStart; i < displayList.Instructions.size(); i++) {
-        const Gfx& current = displayList.Instructions[i];
-        if (current.words.w0 == expected.words.w0 && current.words.w1 == expected.words.w1) {
-            return i;
-        }
-    }
-
-    return SIZE_MAX;
-}
-
-Color_RGBA8 GetCustomPlayerCosmeticColor(const CustomPlayerCosmeticEntry& entry) {
-    if (CVarGetInteger(entry.changedCvar.c_str(), false)) {
-        return CVarGetColor(entry.colorCvar.c_str(), {});
-    }
-
-    return entry.defaultColor;
-}
-
-void ApplyCustomPlayerCosmetics() {
-    auto resourceManager = Ship::Context::GetInstance()->GetResourceManager();
-    auto archiveManager = resourceManager->GetArchiveManager();
-
-    for (auto& entry : customPlayerCosmeticEntries) {
-        Color_RGBA8 color = GetCustomPlayerCosmeticColor(entry);
-
-        for (const auto& binding : entry.bindings) {
-            if (!IsCustomModelArchive(archiveManager->GetArchiveFromFile(binding.materialPath))) {
-                continue;
-            }
-
-            auto material =
-                std::dynamic_pointer_cast<Fast::DisplayList>(resourceManager->LoadResource(binding.materialPath));
-            if (material == nullptr || binding.commandIndex >= material->Instructions.size()) {
-                continue;
-            }
-
-            if (binding.isPrimColor) {
-                material->Instructions[binding.commandIndex] =
-                    gsDPSetPrimColor(binding.primM, binding.primL, color.r, color.g, color.b, binding.defaultA);
-            } else {
-                material->Instructions[binding.commandIndex] =
-                    gsDPSetEnvColor(color.r, color.g, color.b, binding.defaultA);
-            }
-        }
-    }
-}
-
-void SetCustomPlayerCosmeticColor(const CustomPlayerCosmeticEntry& entry, Color_RGBA8 color) {
-    CVarSetColor(entry.colorCvar.c_str(), color);
-    CVarSetInteger(entry.changedCvar.c_str(), true);
-    ShipInit::Init(entry.colorCvar.c_str());
-    ShipInit::Init(entry.changedCvar.c_str());
-    ApplyCustomPlayerCosmetics();
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-}
-
-void ResetCustomPlayerCosmeticColor(const CustomPlayerCosmeticEntry& entry) {
-    CVarClear(entry.colorCvar.c_str());
-    CVarClear(entry.changedCvar.c_str());
-    ShipInit::Init(entry.colorCvar.c_str());
-    ShipInit::Init(entry.changedCvar.c_str());
-    ApplyCustomPlayerCosmetics();
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-}
-
-void RandomizeCustomPlayerCosmeticColor(const CustomPlayerCosmeticEntry& entry) {
-    Color_RGBA8 color = { static_cast<uint8_t>(rand() % 256), static_cast<uint8_t>(rand() % 256),
-                          static_cast<uint8_t>(rand() % 256), 255 };
-    SetCustomPlayerCosmeticColor(entry, color);
-}
-
-void CopyCustomPlayerColor(const CustomPlayerCosmeticEntry& entry, float currentColor[4]) {
-    Color_RGBA8 color = GetCustomPlayerCosmeticColor(entry);
-    currentColor[0] = color.r / 255.0f;
-    currentColor[1] = color.g / 255.0f;
-    currentColor[2] = color.b / 255.0f;
-    currentColor[3] = color.a / 255.0f;
-}
-
-void ScanCustomPlayerCosmetics() {
-    customPlayerCosmeticEntries.clear();
-    customHumanCosmeticsAvailable = false;
-    customDekuCosmeticsAvailable = false;
-    customGoronCosmeticsAvailable = false;
-    customZoraCosmeticsAvailable = false;
-    customFierceDeityCosmeticsAvailable = false;
-    customKafeiCosmeticsAvailable = false;
-
-    auto resourceManager = Ship::Context::GetInstance()->GetResourceManager();
-    auto archiveManager = resourceManager->GetArchiveManager();
-    RefreshCustomPlayerModelActiveFlags(archiveManager.get());
-
-    auto materialPaths = archiveManager->ListFiles("*");
-    std::unordered_map<std::string, size_t> entryIndicesByKey;
-
-    for (const auto& materialPath : *materialPaths) {
-        if (!IsCustomModelArchive(archiveManager->GetArchiveFromFile(materialPath))) {
-            continue;
-        }
-
-        tinyxml2::XMLDocument document;
-        std::shared_ptr<Fast::DisplayList> material;
-        tinyxml2::XMLElement* root = nullptr;
-        if (!TryLoadCustomDisplayListXml(archiveManager.get(), resourceManager.get(), materialPath, document, material,
-                                         root)) {
-            continue;
-        }
-
-        size_t searchStart = 0;
-        for (auto* child = root->FirstChildElement(); child != nullptr; child = child->NextSiblingElement()) {
-            std::string childName = child->Name();
-            bool isPrimColor = childName == "SetPrimColor";
-            if (!isPrimColor && childName != "SetEnvColor") {
-                continue;
-            }
-
-            const char* cosmeticEntry = child->Attribute("CosmeticEntry");
-            if (cosmeticEntry == nullptr || cosmeticEntry[0] == '\0') {
-                continue;
-            }
-
-            std::string key = SanitizeCustomPlayerKey(cosmeticEntry);
-            Gfx expectedInstruction;
-            if (isPrimColor) {
-                expectedInstruction =
-                    gsDPSetPrimColor(child->IntAttribute("M"), child->IntAttribute("L"), child->IntAttribute("R"),
-                                     child->IntAttribute("G"), child->IntAttribute("B"), child->IntAttribute("A"));
-            } else {
-                expectedInstruction = gsDPSetEnvColor(child->IntAttribute("R"), child->IntAttribute("G"),
-                                                      child->IntAttribute("B"), child->IntAttribute("A"));
-            }
-
-            size_t commandIndex = FindDisplayListInstructionIndex(*material, expectedInstruction, searchStart);
-            if (commandIndex == SIZE_MAX) {
-                continue;
-            }
-            searchStart = commandIndex + 1;
-
-            MarkCustomPlayerCosmeticsAvailable(materialPath);
-
-            size_t entryIndex = 0;
-            if (auto it = entryIndicesByKey.find(key); it != entryIndicesByKey.end()) {
-                entryIndex = it->second;
-            } else {
-                entryIndex = customPlayerCosmeticEntries.size();
-                entryIndicesByKey[key] = entryIndex;
-
-                CustomPlayerCosmeticEntry entry;
-                entry.displayName = cosmeticEntry;
-                entry.colorCvar = std::string(CUSTOM_PLAYER_CVAR_PREFIX) + key + ".Color";
-                entry.changedCvar = std::string(CUSTOM_PLAYER_CVAR_PREFIX) + key + ".Changed";
-                entry.defaultColor = { static_cast<uint8_t>(child->IntAttribute("R")),
-                                       static_cast<uint8_t>(child->IntAttribute("G")),
-                                       static_cast<uint8_t>(child->IntAttribute("B")),
-                                       static_cast<uint8_t>(child->IntAttribute("A")) };
-                customPlayerCosmeticEntries.push_back(std::move(entry));
-            }
-
-            CustomPlayerCosmeticBinding binding;
-            binding.materialPath = materialPath;
-            binding.commandIndex = commandIndex;
-            binding.isPrimColor = isPrimColor;
-            binding.defaultA = static_cast<uint8_t>(child->IntAttribute("A"));
-            binding.primM = static_cast<uint8_t>(child->IntAttribute("M"));
-            binding.primL = static_cast<uint8_t>(child->IntAttribute("L"));
-            customPlayerCosmeticEntries[entryIndex].bindings.push_back(std::move(binding));
-        }
-    }
-
-    std::stable_sort(customPlayerCosmeticEntries.begin(), customPlayerCosmeticEntries.end(),
-                     [](const CustomPlayerCosmeticEntry& lhs, const CustomPlayerCosmeticEntry& rhs) {
-                         int lhsOrder = GetCustomPlayerEntrySortOrder(lhs);
-                         int rhsOrder = GetCustomPlayerEntrySortOrder(rhs);
-                         if (lhsOrder != rhsOrder) {
-                             return lhsOrder < rhsOrder;
-                         }
-
-                         return lhs.displayName < rhs.displayName;
-                     });
-
-    ApplyCustomPlayerCosmetics();
-}
-
-void DrawCustomPlayerCosmetics() {
-    if (customPlayerCosmeticEntries.empty()) {
-        return;
-    }
-
-    ImGui::SeparatorText(CUSTOM_PLAYER_COSMETIC_GROUP);
-    ImGui::BeginTable("Custom Player Materials", 2);
-    ImGui::TableSetupColumn("Element Name", ImGuiTableColumnFlags_WidthStretch, 1.4f);
-    ImGui::TableSetupColumn("Options", ImGuiTableColumnFlags_WidthStretch, 2.0f);
-
-    for (auto& entry : customPlayerCosmeticEntries) {
-        float currentColor[4];
-        CopyCustomPlayerColor(entry, currentColor);
-
-        ImGui::PushID(entry.colorCvar.c_str());
-        ImGui::TableNextColumn();
-        ImGui::SetCursorPosY(ImGui::GetCursorPosY() +
-                             ((ImGui::GetFrameHeight() - (ImGui::CalcTextSize(entry.displayName.c_str()).y)) / 2.0f));
-        ImGui::Text("%s", entry.displayName.c_str());
-        ImGui::TableNextColumn();
-
-        bool colorChanged =
-            ImGui::ColorEdit3("Color", currentColor, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-        if (colorChanged) {
-            Color_RGBA8 color = { static_cast<uint8_t>(currentColor[0] * 255.0f),
-                                  static_cast<uint8_t>(currentColor[1] * 255.0f),
-                                  static_cast<uint8_t>(currentColor[2] * 255.0f), 255 };
-            SetCustomPlayerCosmeticColor(entry, color);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button(ICON_FA_UNDO, ImVec2(27.0f, 27.0f))) {
-            ResetCustomPlayerCosmeticColor(entry);
-        }
-        ImGui::SameLine();
-        if (ImGui::Button(ICON_FA_RECYCLE, ImVec2(27.0f, 27.0f))) {
-            RandomizeCustomPlayerCosmeticColor(entry);
-        }
-        ImGui::SameLine();
-        ImGui::TextColored(CVarGetInteger(entry.changedCvar.c_str(), 0)
-                               ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)
-                               : UIWidgets::ColorValues.at(UIWidgets::Colors::Gray),
-                           CVarGetInteger(entry.changedCvar.c_str(), 0) ? "Modified" : "Default");
-        ImGui::PopID();
-    }
-
-    ImGui::EndTable();
-}
-} // namespace
 
 // clang-format off
 CosmeticEditorElement cosmeticEditorElements[COSMETIC_ELEMENT_MAX] = {
@@ -996,6 +574,8 @@ void CosmeticEditorRandomizeAllElements() {
     for (auto& element : cosmeticEditorElements) {
         CosmeticEditorRandomizeElement(element);
     }
+
+    RandomizeAllDynamicCosmetics();
 }
 
 void CosmeticEditorResetAllElements() {
@@ -1009,6 +589,8 @@ void CosmeticEditorResetAllElements() {
         ShipInit::Init(element.colorCvar);
         ShipInit::Init(element.colorChangedCvar);
     }
+
+    ResetAllDynamicCosmetics();
 }
 
 void CosmeticEditorDrawColorTab() {
@@ -1089,7 +671,7 @@ void CosmeticEditorDrawColorTab() {
         }
         ImGui::EndTable();
     }
-    DrawCustomPlayerCosmetics();
+    DrawDynamicCosmetics();
     ImGui::PopStyleColor(3);
 }
 
@@ -1117,12 +699,18 @@ void CosmeticEditorWindow::InitElement() {
         cosmeticEditorParentElements.push_back(element.parentName);
     }
 
-    ScanCustomPlayerCosmetics();
+    ScanDynamicCosmetics();
+    ApplyDynamicCosmetics();
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnRandoSeedGeneration>([]() {
         if (CVarGetInteger("gCosmetics.RandomizeOnSeedGen", 0)) {
             CosmeticEditorRandomizeAllElements();
         }
+    });
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileSelectSaveLoad>([](s16 fileNum, bool isOwlSave,
+                                                                                         SaveContext* saveContext) {
+        ApplyDynamicCosmetics();
     });
 }
 
@@ -1136,7 +724,7 @@ Gfx humanTunic[] = {
 
 static RegisterShipInitFunc humanTunicPatch(
     []() {
-        if (!customHumanModelActive &&
+        if (!IsCustomHumanModelActive() &&
             CVarGetInteger(cosmeticEditorElements[COSMETIC_ELEMENT_HUMAN_TUNIC].colorChangedCvar, 0)) {
             ResourceMgr_PatchGfxByName("objects/object_link_child/gLinkHumanWaistDL", "setPrim", 5,
                                        gsSPDisplayList(humanTunic));
@@ -1193,7 +781,7 @@ Gfx humanHair[] = {
 
 static RegisterShipInitFunc humanHairPatch(
     []() {
-        if (!customHumanModelActive &&
+        if (!IsCustomHumanModelActive() &&
             CVarGetInteger(cosmeticEditorElements[COSMETIC_ELEMENT_HUMAN_HAIR].colorChangedCvar, 0)) {
             ResourceMgr_PatchGfxByName("objects/object_link_child/gLinkHumanHeadDL", "setPrim1", 162,
                                        gsSPDisplayList(humanHair));
@@ -1228,7 +816,7 @@ Gfx dekuTunic[] = {
 
 static RegisterShipInitFunc dekuTunicPatch(
     []() {
-        if (!customDekuModelActive &&
+        if (!IsCustomDekuModelActive() &&
             CVarGetInteger(cosmeticEditorElements[COSMETIC_ELEMENT_DEKU_TUNIC].colorChangedCvar, 0)) {
             ResourceMgr_PatchGfxByName("objects/object_link_nuts/gLinkDekuWaistDL", "setPrim", 22,
                                        gsSPDisplayList(dekuTunic));
@@ -1269,7 +857,7 @@ Gfx dekuHair[] = {
 
 static RegisterShipInitFunc dekuHairPatch(
     []() {
-        if (!customDekuModelActive &&
+        if (!IsCustomDekuModelActive() &&
             CVarGetInteger(cosmeticEditorElements[COSMETIC_ELEMENT_DEKU_HAIR].colorChangedCvar, 0)) {
             ResourceMgr_PatchGfxByName("objects/object_link_nuts/gLinkDekuHeadDL", "setPrim3", 22,
                                        gsSPDisplayList(dekuHair));
@@ -1309,7 +897,7 @@ Gfx kafeiHair[] = {
 
 static RegisterShipInitFunc kafeiHairPatch(
     []() {
-        if (!customKafeiModelActive &&
+        if (!IsCustomKafeiModelActive() &&
             CVarGetInteger(cosmeticEditorElements[COSMETIC_ELEMENT_KAFEI_HAIR].colorChangedCvar, 0)) {
             ResourceMgr_PatchGfxByName("objects/object_test3/gKafeiHeadDL", "setPrim1", 101,
                                        gsSPDisplayList(kafeiHair));
@@ -1352,7 +940,7 @@ Gfx goronTunic[] = {
 
 static RegisterShipInitFunc goronTunicPatch(
     []() {
-        if (!customGoronModelActive &&
+        if (!IsCustomGoronModelActive() &&
             CVarGetInteger(cosmeticEditorElements[COSMETIC_ELEMENT_GORON_TUNIC].colorChangedCvar, 0)) {
             ResourceMgr_PatchGfxByName("objects/object_link_goron/gLinkGoronWaistDL", "setPrim", 16,
                                        gsSPDisplayList(goronTunic));
@@ -1392,7 +980,7 @@ static const Color_RGBA8 zoraTunicBaseColor = { 0, 74, 16, 255 };
 
 static RegisterShipInitFunc zoraTunicPatch(
     []() {
-        if (!customZoraModelActive &&
+        if (!IsCustomZoraModelActive() &&
             CVarGetInteger(cosmeticEditorElements[COSMETIC_ELEMENT_ZORA_TUNIC].colorChangedCvar, 0)) {
             /*
              * Zora works differently from the other color changes. Other forms apply a grayscale to the green tunic

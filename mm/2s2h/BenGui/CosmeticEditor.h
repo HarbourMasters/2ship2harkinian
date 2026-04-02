@@ -110,6 +110,18 @@ extern CosmeticEditorElement cosmeticEditorElements[COSMETIC_ELEMENT_MAX];
 
 #ifdef __cplusplus
 }
+
+bool IsCustomModelActiveForCosmeticElement(const CosmeticEditorElement& element);
+bool IsCustomHumanModelActive();
+bool IsCustomDekuModelActive();
+bool IsCustomGoronModelActive();
+bool IsCustomZoraModelActive();
+bool IsCustomKafeiModelActive();
+void ScanDynamicCosmetics();
+void DrawDynamicCosmetics();
+void ApplyDynamicCosmetics();
+void RandomizeAllDynamicCosmetics();
+void ResetAllDynamicCosmetics();
 #endif //__cplusplus
 
 #endif
