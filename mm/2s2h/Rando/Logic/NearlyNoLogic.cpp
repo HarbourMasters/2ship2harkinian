@@ -42,6 +42,15 @@ void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::
           { SCENE_LAST_DEKU, SCENE_LAST_GORON, SCENE_LAST_ZORA, SCENE_LAST_LINK, SCENE_SOUGEN, SCENE_LAST_BS } },
     };
 
+    std::map<RandoItemId, std::vector<RandoCheckId>> itemToCheckBlacklist = {
+        { RI_SONG_EPONA,
+          { RC_BENEATH_THE_WELL_COW, RC_ROMANI_RANCH_BARN_COW_LEFT, RC_ROMANI_RANCH_BARN_COW_MIDDLE,
+            RC_ROMANI_RANCH_BARN_COW_RIGHT, RC_ROMANI_RANCH_FIELD_COW_ENTRANCE,
+            RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_BACK, RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_FRONT,
+            RC_TERMINA_FIELD_COW_BACK, RC_TERMINA_FIELD_COW_FRONT, RC_GREAT_BAY_COAST_COW_BACK,
+            RC_GREAT_BAY_COAST_COW_FRONT } }
+    };
+
     for (auto& randoCheckId : checkPool) {
         if (randoCheckId == RC_UNKNOWN) {
             continue;
@@ -55,7 +64,8 @@ void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::
 
         auto randoStaticCheck = Rando::StaticData::Checks[randoCheckId];
 
-        if (itemToSceneBlacklist.find(randoItemId) != itemToSceneBlacklist.end()) {
+        if (itemToSceneBlacklist.find(randoItemId) != itemToSceneBlacklist.end() ||
+            itemToCheckBlacklist.find(randoItemId) != itemToCheckBlacklist.end()) {
             importantItems[randoItemId] = randoCheckId;
         } else if (randoStaticCheck.sceneId != SCENE_MITURIN &&    // Woodfall Temple
                    randoStaticCheck.sceneId != SCENE_MITURIN_BS && // Woodfall Temple Boss
@@ -72,17 +82,32 @@ void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::
         }
     }
 
+    auto PerformBlacklistReplacement = [&](RandoItemId randoItemId) {
+        auto otherCheckIndex = Ship_Random(0, safeChecks.size() - 1);
+        RANDO_SAVE_CHECKS[importantItems[randoItemId]].randoItemId =
+            RANDO_SAVE_CHECKS[safeChecks[otherCheckIndex]].randoItemId;
+        RANDO_SAVE_CHECKS[safeChecks[otherCheckIndex]].randoItemId = randoItemId;
+        safeChecks.erase(safeChecks.begin() + otherCheckIndex);
+    };
+
     for (auto& [randoItemId, blacklistedScenes] : itemToSceneBlacklist) {
         if (importantItems.find(randoItemId) != importantItems.end()) {
             auto randoStaticCheck = Rando::StaticData::Checks[importantItems.at(randoItemId)];
             const auto& blacklist = itemToSceneBlacklist.at(randoItemId);
-
+            // This item is blacklisted from this scene, so replace it
             if (std::find(blacklist.begin(), blacklist.end(), randoStaticCheck.sceneId) != blacklist.end()) {
-                auto otherCheckIndex = Ship_Random(0, safeChecks.size() - 1);
-                RANDO_SAVE_CHECKS[importantItems[randoItemId]].randoItemId =
-                    RANDO_SAVE_CHECKS[safeChecks[otherCheckIndex]].randoItemId;
-                RANDO_SAVE_CHECKS[safeChecks[otherCheckIndex]].randoItemId = randoItemId;
-                safeChecks.erase(safeChecks.begin() + otherCheckIndex);
+                PerformBlacklistReplacement(randoItemId);
+            }
+        }
+    }
+
+    for (auto& [randoItemId, blackListedChecks] : itemToCheckBlacklist) {
+        if (importantItems.find(randoItemId) != importantItems.end()) {
+            auto randoStaticCheck = Rando::StaticData::Checks[importantItems.at(randoItemId)];
+            const auto& blacklist = itemToCheckBlacklist.at(randoItemId);
+            // This item is blacklisted from this check, so replace it
+            if (std::find(blacklist.begin(), blacklist.end(), randoStaticCheck.randoCheckId) != blacklist.end()) {
+                PerformBlacklistReplacement(randoItemId);
             }
         }
     }
