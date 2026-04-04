@@ -1001,6 +1001,17 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.ManualJump")
         .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack."));
+    AddWidget(path, "Platformer Mode", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.PlatformerMode")
+        .Options(CheckboxOptions().Tooltip(
+            "SM64-style platforming: Chain jumps (A to jump, chain on landing for double/triple), "
+            "wall kicks (A off walls while airborne), and spin lift (B in air for sword helicopter). "
+            "Z + A/B still do normal attacks. Sword type scales spin lift height."));
+    AddWidget(path, "  Deku Chain Jump", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.PlatformerMode.DekuJump")
+        .Options(CheckboxOptions().Tooltip(
+            "Allows Deku Link to chain jump and wall kick in Platformer Mode. "
+            "Off by default since Deku jumps are weak."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));
