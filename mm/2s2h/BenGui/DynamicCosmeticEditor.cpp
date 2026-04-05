@@ -38,6 +38,8 @@ struct DynamicCosmeticEntry {
 };
 
 static std::vector<DynamicCosmeticEntry> dynamicCosmeticEntries;
+
+void ApplyDynamicCosmetics();
 static bool customHumanModelActive = false;
 static bool customDekuModelActive = false;
 static bool customGoronModelActive = false;
@@ -79,56 +81,77 @@ static bool IsSkeletonOverriddenByCustomArchive(Ship::ArchiveManager* archiveMan
 }
 
 static void RefreshCustomModelActiveFlags(Ship::ArchiveManager* archiveManager) {
-    customHumanModelActive = IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_child/gLinkHumanSkel");
-    customDekuModelActive = IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_nuts/gLinkDekuSkel");
-    customGoronModelActive = IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_goron/gLinkGoronSkel");
-    customZoraModelActive = IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_zora/gLinkZoraSkel");
-    customFierceDeityModelActive = IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_boy/gLinkFierceDeitySkel");
+    customHumanModelActive =
+        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_child/gLinkHumanSkel");
+    customDekuModelActive =
+        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_nuts/gLinkDekuSkel");
+    customGoronModelActive =
+        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_goron/gLinkGoronSkel");
+    customZoraModelActive =
+        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_zora/gLinkZoraSkel");
+    customFierceDeityModelActive =
+        IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_link_boy/gLinkFierceDeitySkel");
     customKafeiModelActive = IsSkeletonOverriddenByCustomArchive(archiveManager, "objects/object_test3/gKafeiSkel");
 }
 
-static int GetDynamicMaterialFormSortOrder(const std::string& materialPath) {
+enum class DynamicCosmeticForm {
+    Human = 0,
+    Deku,
+    Goron,
+    Zora,
+    FierceDeity,
+    Kafei,
+    Other,
+};
+
+static DynamicCosmeticForm GetDynamicMaterialForm(const std::string& materialPath) {
     if (materialPath.starts_with("objects/object_link_child/")) {
-        return 0;
+        return DynamicCosmeticForm::Human;
     }
     if (materialPath.starts_with("objects/object_link_nuts/")) {
-        return 1;
+        return DynamicCosmeticForm::Deku;
     }
     if (materialPath.starts_with("objects/object_link_goron/")) {
-        return 2;
+        return DynamicCosmeticForm::Goron;
     }
     if (materialPath.starts_with("objects/object_link_zora/")) {
-        return 3;
+        return DynamicCosmeticForm::Zora;
     }
     if (materialPath.starts_with("objects/object_link_boy/")) {
-        return 4;
+        return DynamicCosmeticForm::FierceDeity;
     }
     if (materialPath.starts_with("objects/object_test3/")) {
-        return 5;
+        return DynamicCosmeticForm::Kafei;
     }
 
-    return 6;
+    return DynamicCosmeticForm::Other;
 }
 
-static void MarkDynamicCosmeticsAvailable(const std::string& materialPath) {
-    switch (GetDynamicMaterialFormSortOrder(materialPath)) {
-        case 0:
+static int GetDynamicMaterialFormSortOrder(DynamicCosmeticForm form) {
+    return static_cast<int>(form);
+}
+
+static void MarkDynamicCosmeticsAvailable(DynamicCosmeticForm form) {
+    switch (form) {
+        case DynamicCosmeticForm::Human:
             customHumanCosmeticsAvailable = true;
             break;
-        case 1:
+        case DynamicCosmeticForm::Deku:
             customDekuCosmeticsAvailable = true;
             break;
-        case 2:
+        case DynamicCosmeticForm::Goron:
             customGoronCosmeticsAvailable = true;
             break;
-        case 3:
+        case DynamicCosmeticForm::Zora:
             customZoraCosmeticsAvailable = true;
             break;
-        case 4:
+        case DynamicCosmeticForm::FierceDeity:
             customFierceDeityCosmeticsAvailable = true;
             break;
-        case 5:
+        case DynamicCosmeticForm::Kafei:
             customKafeiCosmeticsAvailable = true;
+            break;
+        case DynamicCosmeticForm::Other:
             break;
     }
 }
@@ -242,6 +265,50 @@ static void RandomizeDynamicCosmetic(const DynamicCosmeticEntry& entry) {
     SetDynamicCosmeticChanged(entry, color);
 }
 
+static void CommitDynamicCosmeticChanges(bool save) {
+    ApplyDynamicCosmetics();
+    if (save) {
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    }
+}
+
+static void SetDynamicCosmeticColorFromEditor(const DynamicCosmeticEntry& entry, const float currentColor[4]) {
+    Color_RGBA8 colorSelected = { static_cast<uint8_t>(currentColor[0] * 255.0f),
+                                  static_cast<uint8_t>(currentColor[1] * 255.0f),
+                                  static_cast<uint8_t>(currentColor[2] * 255.0f), 255 };
+    SetDynamicCosmeticChanged(entry, colorSelected);
+}
+
+static void DrawDynamicCosmeticEntryOptions(const DynamicCosmeticEntry& entry) {
+    float currentColor[4];
+    CopyDynamicColorArray(entry, currentColor);
+
+    bool colorChanged =
+        ImGui::ColorEdit3("Color", currentColor, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+    if (colorChanged) {
+        SetDynamicCosmeticColorFromEditor(entry, currentColor);
+        CommitDynamicCosmeticChanges(true);
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_FA_UNDO, ImVec2(27.0f, 27.0f))) {
+        ResetDynamicCosmeticChanged(entry);
+        CommitDynamicCosmeticChanges(true);
+    }
+
+    ImGui::SameLine();
+    if (ImGui::Button(ICON_FA_RECYCLE, ImVec2(27.0f, 27.0f))) {
+        RandomizeDynamicCosmetic(entry);
+        CommitDynamicCosmeticChanges(true);
+    }
+
+    ImGui::SameLine();
+    ImGui::TextColored(CVarGetInteger(entry.changedCvar.c_str(), 0)
+                           ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)
+                           : UIWidgets::ColorValues.at(UIWidgets::Colors::Gray),
+                       CVarGetInteger(entry.changedCvar.c_str(), 0) ? "Modified" : "Default");
+}
+
 void ApplyDynamicCosmetics() {
     auto resourceManager = Ship::Context::GetInstance()->GetResourceManager();
     auto archiveManager = resourceManager->GetArchiveManager();
@@ -276,8 +343,7 @@ void RandomizeAllDynamicCosmetics() {
         RandomizeDynamicCosmetic(entry);
     }
 
-    ApplyDynamicCosmetics();
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    CommitDynamicCosmeticChanges(true);
 }
 
 void ResetAllDynamicCosmetics() {
@@ -285,7 +351,7 @@ void ResetAllDynamicCosmetics() {
         ResetDynamicCosmeticChanged(entry);
     }
 
-    ApplyDynamicCosmetics();
+    CommitDynamicCosmeticChanges(false);
 }
 
 void ScanDynamicCosmetics() {
@@ -311,8 +377,8 @@ void ScanDynamicCosmetics() {
         tinyxml2::XMLDocument document;
         std::shared_ptr<Fast::DisplayList> material;
         tinyxml2::XMLElement* root = nullptr;
-        if (!TryLoadDynamicDisplayListXml(archiveManager.get(), resourceManager.get(), materialPath, document,
-                                          material, root)) {
+        if (!TryLoadDynamicDisplayListXml(archiveManager.get(), resourceManager.get(), materialPath, document, material,
+                                          root)) {
             continue;
         }
 
@@ -352,7 +418,7 @@ void ScanDynamicCosmetics() {
             }
             searchStart = commandIndex + 1;
 
-            MarkDynamicCosmeticsAvailable(materialPath);
+            MarkDynamicCosmeticsAvailable(GetDynamicMaterialForm(materialPath));
 
             size_t entryIndex = 0;
             if (auto it = entryIndicesByKey.find(key); it != entryIndicesByKey.end()) {
@@ -384,32 +450,35 @@ void ScanDynamicCosmetics() {
         }
     }
 
-    std::stable_sort(dynamicCosmeticEntries.begin(), dynamicCosmeticEntries.end(),
-                     [](const DynamicCosmeticEntry& lhs, const DynamicCosmeticEntry& rhs) {
-                         int lhsOrder = 6;
-                         int rhsOrder = 6;
+    std::stable_sort(
+        dynamicCosmeticEntries.begin(), dynamicCosmeticEntries.end(),
+        [](const DynamicCosmeticEntry& lhs, const DynamicCosmeticEntry& rhs) {
+            int lhsOrder = 6;
+            int rhsOrder = 6;
 
-                         for (const auto& binding : lhs.bindings) {
-                             lhsOrder = std::min(lhsOrder, GetDynamicMaterialFormSortOrder(binding.materialPath));
-                         }
-                         for (const auto& binding : rhs.bindings) {
-                             rhsOrder = std::min(rhsOrder, GetDynamicMaterialFormSortOrder(binding.materialPath));
-                         }
+            for (const auto& binding : lhs.bindings) {
+                lhsOrder =
+                    std::min(lhsOrder, GetDynamicMaterialFormSortOrder(GetDynamicMaterialForm(binding.materialPath)));
+            }
+            for (const auto& binding : rhs.bindings) {
+                rhsOrder =
+                    std::min(rhsOrder, GetDynamicMaterialFormSortOrder(GetDynamicMaterialForm(binding.materialPath)));
+            }
 
-                         if (lhsOrder != rhsOrder) {
-                             return lhsOrder < rhsOrder;
-                         }
+            if (lhsOrder != rhsOrder) {
+                return lhsOrder < rhsOrder;
+            }
 
-                         if (lhs.category.empty() != rhs.category.empty()) {
-                             return !lhs.category.empty();
-                         }
+            if (lhs.category.empty() != rhs.category.empty()) {
+                return !lhs.category.empty();
+            }
 
-                         if (lhs.category != rhs.category) {
-                             return lhs.category < rhs.category;
-                         }
+            if (lhs.category != rhs.category) {
+                return lhs.category < rhs.category;
+            }
 
-                         return lhs.displayName < rhs.displayName;
-                     });
+            return lhs.displayName < rhs.displayName;
+        });
 
     ApplyDynamicCosmetics();
 }
@@ -424,8 +493,6 @@ static void DrawDynamicCosmeticEntriesTable(const char* tableId,
     ImGui::TableSetupColumn("Options", ImGuiTableColumnFlags_WidthStretch, 2.0f);
 
     for (const auto* entry : entries) {
-        float currentColor[4];
-
         ImGui::PushID(entry->colorCvar.c_str());
         ImGui::TableNextColumn();
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() +
@@ -433,37 +500,7 @@ static void DrawDynamicCosmeticEntriesTable(const char* tableId,
         ImGui::Text("%s", entry->displayName.c_str());
         ImGui::TableNextColumn();
 
-        CopyDynamicColorArray(*entry, currentColor);
-        bool colorChanged =
-            ImGui::ColorEdit3("Color", currentColor, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-        if (colorChanged) {
-            Color_RGBA8 colorSelected = { static_cast<uint8_t>(currentColor[0] * 255.0f),
-                                          static_cast<uint8_t>(currentColor[1] * 255.0f),
-                                          static_cast<uint8_t>(currentColor[2] * 255.0f), 255 };
-            SetDynamicCosmeticChanged(*entry, colorSelected);
-            ApplyDynamicCosmetics();
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        }
-
-        ImGui::SameLine();
-        if (ImGui::Button(ICON_FA_UNDO, ImVec2(27.0f, 27.0f))) {
-            ResetDynamicCosmeticChanged(*entry);
-            ApplyDynamicCosmetics();
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        }
-
-        ImGui::SameLine();
-        if (ImGui::Button(ICON_FA_RECYCLE, ImVec2(27.0f, 27.0f))) {
-            RandomizeDynamicCosmetic(*entry);
-            ApplyDynamicCosmetics();
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        }
-
-        ImGui::SameLine();
-        ImGui::TextColored(CVarGetInteger(entry->changedCvar.c_str(), 0)
-                               ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)
-                               : UIWidgets::ColorValues.at(UIWidgets::Colors::Gray),
-                           CVarGetInteger(entry->changedCvar.c_str(), 0) ? "Modified" : "Default");
+        DrawDynamicCosmeticEntryOptions(*entry);
         ImGui::PopID();
     }
 
@@ -502,4 +539,3 @@ void DrawDynamicCosmetics() {
 
     flushTable();
 }
-

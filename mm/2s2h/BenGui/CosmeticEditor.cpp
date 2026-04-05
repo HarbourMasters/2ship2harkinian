@@ -708,10 +708,8 @@ void CosmeticEditorWindow::InitElement() {
         }
     });
 
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileSelectSaveLoad>([](s16 fileNum, bool isOwlSave,
-                                                                                         SaveContext* saveContext) {
-        ApplyDynamicCosmetics();
-    });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileSelectSaveLoad>(
+        [](s16 fileNum, bool isOwlSave, SaveContext* saveContext) { ApplyDynamicCosmetics(); });
 }
 
 // COSMETIC_ELEMENT_HUMAN_TUNIC
