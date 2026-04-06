@@ -1008,12 +1008,14 @@ void BenMenu::AddEnhancements() {
             "wall kicks (A off walls while airborne), and spin lift (B in air for sword helicopter). "
             "Z + A/B still do normal attacks. Sword type scales spin lift height."));
     AddWidget(path, "  Deku Chain Jump", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.PlatformerMode.DekuJump")
+        .CVar("gEnhancements.Player.PlatformerModeDekuJump")
+        .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.PlatformerMode", 0); })
         .Options(CheckboxOptions().Tooltip(
             "Allows Deku Link to chain jump and wall kick in Platformer Mode. "
             "Off by default since Deku jumps are weak."));
     AddWidget(path, "  Goron Chain Jump", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.PlatformerMode.GoronJump")
+        .CVar("gEnhancements.Player.PlatformerModeGoronJump")
+        .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.PlatformerMode", 0); })
         .Options(CheckboxOptions().Tooltip(
             "Allows Goron Link to chain jump and wall kick in Platformer Mode. "
             "Off by default since Goron movement is roll-based."));

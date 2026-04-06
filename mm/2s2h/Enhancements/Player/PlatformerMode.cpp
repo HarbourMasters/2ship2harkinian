@@ -20,9 +20,9 @@ void Player_Action_29(Player* player, PlayState* play);
 
 #define CVAR_NAME "gEnhancements.Player.PlatformerMode"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
-#define CVAR_DEKU_JUMP_NAME "gEnhancements.Player.PlatformerMode.DekuJump"
+#define CVAR_DEKU_JUMP_NAME "gEnhancements.Player.PlatformerModeDekuJump"
 #define CVAR_DEKU_JUMP CVarGetInteger(CVAR_DEKU_JUMP_NAME, 0)
-#define CVAR_GORON_JUMP_NAME "gEnhancements.Player.PlatformerMode.GoronJump"
+#define CVAR_GORON_JUMP_NAME "gEnhancements.Player.PlatformerModeGoronJump"
 #define CVAR_GORON_JUMP CVarGetInteger(CVAR_GORON_JUMP_NAME, 0)
 
 // ===== Helpers =====
