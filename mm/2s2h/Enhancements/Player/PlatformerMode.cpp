@@ -22,6 +22,8 @@ void Player_Action_29(Player* player, PlayState* play);
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 #define CVAR_DEKU_JUMP_NAME "gEnhancements.Player.PlatformerMode.DekuJump"
 #define CVAR_DEKU_JUMP CVarGetInteger(CVAR_DEKU_JUMP_NAME, 0)
+#define CVAR_GORON_JUMP_NAME "gEnhancements.Player.PlatformerMode.GoronJump"
+#define CVAR_GORON_JUMP CVarGetInteger(CVAR_GORON_JUMP_NAME, 0)
 
 // ===== Helpers =====
 
@@ -59,8 +61,11 @@ static bool IsSpinLiftEligible(Player* player) {
 #define JUMP3_MULTIPLIER 1.75f
 
 static bool CanJump(Player* player, PlayState* play, bool skipSpeedCheck = false) {
-    // Deku can only chain jump if the sub-option is enabled
+    // Deku and Goron can only chain jump if their sub-options are enabled
     if (player->transformation == PLAYER_FORM_DEKU && !CVAR_DEKU_JUMP) {
+        return false;
+    }
+    if (player->transformation == PLAYER_FORM_GORON && !CVAR_GORON_JUMP) {
         return false;
     }
     // No jumping while talking to people or things, otherwise you get free WWT
@@ -386,7 +391,7 @@ void RegisterPlatformerMode() {
     });
 }
 
-static RegisterShipInitFunc initFunc(RegisterPlatformerMode, { CVAR_NAME, CVAR_DEKU_JUMP_NAME });
+static RegisterShipInitFunc initFunc(RegisterPlatformerMode, { CVAR_NAME, CVAR_DEKU_JUMP_NAME, CVAR_GORON_JUMP_NAME });
 
 // Known "bugs" that are staying because they are cool
 

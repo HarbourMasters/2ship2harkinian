@@ -1012,6 +1012,11 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Allows Deku Link to chain jump and wall kick in Platformer Mode. "
             "Off by default since Deku jumps are weak."));
+    AddWidget(path, "  Goron Chain Jump", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.PlatformerMode.GoronJump")
+        .Options(CheckboxOptions().Tooltip(
+            "Allows Goron Link to chain jump and wall kick in Platformer Mode. "
+            "Off by default since Goron movement is roll-based."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));
