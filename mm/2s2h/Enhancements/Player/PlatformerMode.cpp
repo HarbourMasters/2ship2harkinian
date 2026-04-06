@@ -9,11 +9,11 @@ extern "C" {
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 void func_80834D50(PlayState* play, Player* player, PlayerAnimationHeader* anim, f32 speed, u16 sfxId);
 s32 func_808373F8(PlayState* play, Player* player, u16 sfxId);
-void Player_Anim_PlayOnceAdjusted(PlayState* play, Player* player, PlayerAnimationHeader* anim);
-void Player_AnimSfx_PlayVoice(Player* player, u16 sfxId);
 bool Player_IsHoldingHookshot(Player* player);
-void func_808395F0(PlayState* play, Player* player, PlayerMeleeWeaponAnimation meleeWeaponAnim, f32 linearVelocity, f32 yVelocity);
-s32 Player_GetMovementSpeedAndYaw(Player* player, f32* outSpeedTarget, s16* outYawTarget, f32 speedMode, PlayState* play);
+void func_808395F0(PlayState* play, Player* player, PlayerMeleeWeaponAnimation meleeWeaponAnim, f32 linearVelocity,
+                   f32 yVelocity);
+s32 Player_GetMovementSpeedAndYaw(Player* player, f32* outSpeedTarget, s16* outYawTarget, f32 speedMode,
+                                  PlayState* play);
 s32 func_8083CBC4(Player* player, f32 arg1, s16 arg2, f32 arg3, f32 arg4, f32 arg5, s16 arg6);
 void Player_Action_29(Player* player, PlayState* play);
 }
@@ -26,9 +26,8 @@ void Player_Action_29(Player* player, PlayState* play);
 // ===== Helpers =====
 
 static PlayerAnimationHeader* GetSpinAnim(Player* player) {
-    return Player_IsHoldingTwoHandedWeapon(player)
-               ? (PlayerAnimationHeader*)&gPlayerAnim_link_fighter_Lrolling_kiru
-               : (PlayerAnimationHeader*)&gPlayerAnim_link_fighter_rolling_kiru;
+    return Player_IsHoldingTwoHandedWeapon(player) ? (PlayerAnimationHeader*)&gPlayerAnim_link_fighter_Lrolling_kiru
+                                                   : (PlayerAnimationHeader*)&gPlayerAnim_link_fighter_rolling_kiru;
 }
 
 static void ClearLiftState(Player* player) {
@@ -54,7 +53,7 @@ static bool IsSpinLiftEligible(Player* player) {
 
 // ===== Chain Jump =====
 
-// 3 window to jump again (does allow a cool 1 frame turn for jumps 2 & 3)
+// 3 frame window to jump again (does allow a cool 1 frame turn for jumps 2 & 3)
 #define CHAIN_JUMP_WINDOW 3
 #define JUMP2_MULTIPLIER 1.25f
 #define JUMP3_MULTIPLIER 1.75f
@@ -68,18 +67,17 @@ static bool CanJump(Player* player, PlayState* play, bool skipSpeedCheck = false
     if (player->talkActor != NULL || player->interactRangeActor != NULL) {
         return false;
     }
-    if (player->stateFlags1 &
-        (PLAYER_STATE1_1 |                      // Scene/door transition
-         PLAYER_STATE1_4 |                      // Climbing ledge
-         PLAYER_STATE1_200 |                    // Blocking cutscene (pictograph/scene transition)
-         PLAYER_STATE1_400 |                    // Getting item (pickup animation)
-         PLAYER_STATE1_4000 |                   // Climbing (hold transition)
-         PLAYER_STATE1_40000 |                  // Jumping/airborne
-         PLAYER_STATE1_100000 |                 // Unknown blocking state
-         PLAYER_STATE1_8000000 |                // Swimming
-         PLAYER_STATE1_20000000 |               // Time stopped, animations continue
-         PLAYER_STATE1_CHARGING_SPIN_ATTACK |   // Charging spin attack (holding B)
-         PLAYER_STATE1_FRIENDLY_ACTOR_FOCUS)) { // Focusing on a friendly actor
+    if (player->stateFlags1 & (PLAYER_STATE1_1 |                      // Scene/door transition
+                               PLAYER_STATE1_4 |                      // Climbing ledge
+                               PLAYER_STATE1_200 |                    // Blocking cutscene (pictograph/scene transition)
+                               PLAYER_STATE1_400 |                    // Getting item (pickup animation)
+                               PLAYER_STATE1_4000 |                   // Climbing (hold transition)
+                               PLAYER_STATE1_40000 |                  // Jumping/airborne
+                               PLAYER_STATE1_100000 |                 // Unknown blocking state
+                               PLAYER_STATE1_8000000 |                // Swimming
+                               PLAYER_STATE1_20000000 |               // Time stopped, animations continue
+                               PLAYER_STATE1_CHARGING_SPIN_ATTACK |   // Charging spin attack (holding B)
+                               PLAYER_STATE1_FRIENDLY_ACTOR_FOCUS)) { // Focusing on a friendly actor
         return false;
     }
     // Can't jump while carrying things, but hookshot in hand is fine
@@ -94,6 +92,10 @@ static bool CanJump(Player* player, PlayState* play, bool skipSpeedCheck = false
     }
     // Link must be on the ground to jump (Crazy I know)
     if (!(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND)) {
+        return false;
+    }
+    // Block jumping while slashing — prevents ISG from jump-canceling a landing jump slash
+    if (player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0) {
         return false;
     }
     // Block jumping at low speed or backwalking (but not HESS or Superslide-to-ESS)
@@ -133,7 +135,7 @@ static s16 sWallKickBounceYaw = 0;
 static s32 sAirborneTimer = 0;
 
 // Spin lift
-// Active animation frames before Link locks into the held pose
+// Counter for timing the initial velocity boost (first 3 frames)
 #define LIFT_DURATION 24
 
 static bool sLiftUsedThisAirtime = false;
@@ -146,13 +148,16 @@ static bool sBPressedWhileAirborne = false; // set by input hook, consumed by up
 // Better sword = more lift. GFS/Helix gives the most, Kokiri the least.
 static f32 GetLiftVelocity(Player* player) {
     switch (player->heldItemAction) {
-        case PLAYER_IA_SWORD_TWO_HANDED: return 4.4f;
-        case PLAYER_IA_SWORD_GILDED:     return 4.0f;
-        case PLAYER_IA_SWORD_RAZOR:      return 3.5f;
-        default:                         return 2.8f;
+        case PLAYER_IA_SWORD_TWO_HANDED:
+            return 4.4f;
+        case PLAYER_IA_SWORD_GILDED:
+            return 4.0f;
+        case PLAYER_IA_SWORD_RAZOR:
+            return 3.5f;
+        default:
+            return 2.8f;
     }
 }
-
 
 // ===== Registration =====
 
@@ -228,8 +233,8 @@ void RegisterPlatformerMode() {
         // ---- Chain Jump execution ----
 
         // Jump 1:  holding Z preserves vanilla A actions like roll, backflip, sidehop, etc
-        if (sChainJumpTimer <= 0 && CanJump(player, gPlayState) &&
-            !CHECK_BTN_ALL(input->cur.button, BTN_Z) && CHECK_BTN_ALL(input->press.button, BTN_A)) {
+        if (sChainJumpTimer <= 0 && CanJump(player, gPlayState) && !CHECK_BTN_ALL(input->cur.button, BTN_Z) &&
+            CHECK_BTN_ALL(input->press.button, BTN_A)) {
             func_808373F8(gPlayState, player, NA_SE_VO_LI_AUTO_JUMP);
             sChainJumpCount = 1;
             sPlatformerLaunch = true;
@@ -242,8 +247,8 @@ void RegisterPlatformerMode() {
                 sChainJumpCount++;
                 f32 mult = (sChainJumpCount >= 3) ? JUMP3_MULTIPLIER : JUMP2_MULTIPLIER;
                 PlayerAnimationHeader* anim = (sChainJumpCount >= 3)
-                    ? (PlayerAnimationHeader*)&gPlayerAnim_link_normal_newroll_jump_20f
-                    : (PlayerAnimationHeader*)&gPlayerAnim_link_normal_jump;
+                                                  ? (PlayerAnimationHeader*)&gPlayerAnim_link_normal_newroll_jump_20f
+                                                  : (PlayerAnimationHeader*)&gPlayerAnim_link_normal_jump;
                 player->speedXZ = sLandingSpeedXZ;
                 func_80834D50(gPlayState, player, anim, fabsf(sLaunchVelocityY) * mult, NA_SE_VO_LI_AUTO_JUMP);
                 sChainJumpTimer = 0;
@@ -301,7 +306,9 @@ void RegisterPlatformerMode() {
 
         // Reset everything on landing
         if (onGround) {
-            ClearLiftState(player);
+            if (sLiftActive) {
+                ClearLiftState(player);
+            }
             sLiftUsedThisAirtime = false;
             sLiftActive = false;
             sLiftFramesLeft = 0;
@@ -321,8 +328,7 @@ void RegisterPlatformerMode() {
             f32 savedSpeed = player->speedXZ;
             // Use the engine's jump slash setup — puts Link into Player_Action_29
             // which locks out items, ledge grabs, and all state transitions.
-            func_808395F0(gPlayState, player, PLAYER_MWA_JUMPSLASH_START,
-                          savedSpeed, GetLiftVelocity(player));
+            func_808395F0(gPlayState, player, PLAYER_MWA_JUMPSLASH_START, savedSpeed, GetLiftVelocity(player));
             // Restore momentum so Link continues in his original direction
             player->yaw = savedYaw;
             player->speedXZ = savedSpeed;
@@ -358,10 +364,18 @@ void RegisterPlatformerMode() {
                 PlayerAnimation_Change(gPlayState, &player->skelAnime, spinAnim, 1.0f, sSpinFrame, lastFrame,
                                        ANIMMODE_ONCE, 0.0f);
                 sSpinFrame += 1.0f;
+
+                // Keep the weapon hitbox alive during the spin — our custom animation
+                // doesn't trigger the engine's per-frame weapon activation events.
+                player->meleeWeaponState = PLAYER_MELEE_WEAPON_STATE_1;
+                player->meleeWeaponInfo[0].active = true;
+                player->meleeWeaponInfo[1].active = true;
+                player->meleeWeaponInfo[2].active = true;
             } else {
-                // Spin finished — hold the last frame until landing
+                // Spin finished — hold the last frame, deactivate hitbox
                 PlayerAnimation_Change(gPlayState, &player->skelAnime, spinAnim, 0.0f, lastFrame, lastFrame,
                                        ANIMMODE_ONCE, 0.0f);
+                ClearLiftState(player);
                 sLiftUsedThisAirtime = true;
             }
 
@@ -377,7 +391,7 @@ static RegisterShipInitFunc initFunc(RegisterPlatformerMode, { CVAR_NAME, CVAR_D
 // Known "bugs" that are staying because they are cool
 
 // You can wall kick out of side hops, normal sidehops don't do much
-// untargeted sidehops (release Z on the frame you press A) 
+// untargeted sidehops (release Z on the frame you press A)
 // does more or less a mega sidehop which can be extended with a spin lift
 
 // you can spin lift out of megaflips, mega sidehops and recoil flips by releasing Z
