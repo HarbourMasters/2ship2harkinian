@@ -378,26 +378,26 @@ extern "C" Color_RGBA8 CosmeticEditor_GetChangedColorEx(u8 r, u8 g, u8 b, u8 a, 
             case COSMETIC_COLOR_MODE_DEFAULT:
                 break;
             case COSMETIC_COLOR_MODE_MULTIPLY:
-                returnedColor.r = MAX(MIN(static_cast<uint8_t>(returnedColor.r * modifier), 255), 0);
-                returnedColor.g = MAX(MIN(static_cast<uint8_t>(returnedColor.g * modifier), 255), 0);
-                returnedColor.b = MAX(MIN(static_cast<uint8_t>(returnedColor.b * modifier), 255), 0);
+                returnedColor.r = CLAMP_MAX(returnedColor.r * modifier, 255);
+                returnedColor.g = CLAMP_MAX(returnedColor.g * modifier, 255);
+                returnedColor.b = CLAMP_MAX(returnedColor.b * modifier, 255);
                 break;
             case COSMETIC_COLOR_MODE_DIVIDE:
                 if (modifier != 0) {
-                    returnedColor.r = MAX(MIN(static_cast<uint8_t>(returnedColor.r / modifier), 255), 0);
-                    returnedColor.g = MAX(MIN(static_cast<uint8_t>(returnedColor.g / modifier), 255), 0);
-                    returnedColor.b = MAX(MIN(static_cast<uint8_t>(returnedColor.b / modifier), 255), 0);
+                    returnedColor.r = CLAMP(returnedColor.r / modifier, 0, 255);
+                    returnedColor.g = CLAMP(returnedColor.g / modifier, 0, 255);
+                    returnedColor.b = CLAMP(returnedColor.b / modifier, 0, 255);
                 }
                 break;
             case COSMETIC_COLOR_MODE_ADD:
-                returnedColor.r = MAX(MIN(static_cast<uint8_t>(returnedColor.r + modifier), 255), 0);
-                returnedColor.g = MAX(MIN(static_cast<uint8_t>(returnedColor.g + modifier), 255), 0);
-                returnedColor.b = MAX(MIN(static_cast<uint8_t>(returnedColor.b + modifier), 255), 0);
+                returnedColor.r = CLAMP(returnedColor.r + modifier, 0, 255);
+                returnedColor.g = CLAMP(returnedColor.g + modifier, 0, 255);
+                returnedColor.b = CLAMP(returnedColor.b + modifier, 0, 255);
                 break;
             case COSMETIC_COLOR_MODE_SUBTRACT:
-                returnedColor.r = MAX(MIN(static_cast<uint8_t>(returnedColor.r - modifier), 255), 0);
-                returnedColor.g = MAX(MIN(static_cast<uint8_t>(returnedColor.g - modifier), 255), 0);
-                returnedColor.b = MAX(MIN(static_cast<uint8_t>(returnedColor.b - modifier), 255), 0);
+                returnedColor.r = CLAMP(returnedColor.r - modifier, 0, 255);
+                returnedColor.g = CLAMP(returnedColor.g - modifier, 0, 255);
+                returnedColor.b = CLAMP(returnedColor.b - modifier, 0, 255);
                 break;
             case COSMETIC_COLOR_MODE_ROTATE: {
                 // Rotate hue by modifier degrees (0-360). Example: green (0,200,0) + 120 => blue (0,0,200)
