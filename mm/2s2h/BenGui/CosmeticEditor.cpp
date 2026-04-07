@@ -531,8 +531,7 @@ extern "C" Gfx* Gfx_DrawTexRectIA8_DropShadowOffsetOverride(Gfx* pkt, TexturePtr
 const char* kCosmeticRainbowSyncCvar = "gCosmetics.RainbowSync";
 const char* kCosmeticRainbowSpeedCvar = "gCosmetics.RainbowSpeed";
 const char* kCosmeticRandomizeOnSeedGenCvar = "gCosmetics.RandomizeOnSeedGen";
-constexpr float kCosmeticTau = 6.28318530717958647692f;
-float sCosmeticRainbowHue = 0.0f;
+int sCosmeticRainbowHue = 0;
 
 void CosmeticEditorSave() {
     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
@@ -637,11 +636,39 @@ void CosmeticEditorResetGroup(const char* groupName) {
 }
 
 void CosmeticEditorUpdateTick() {
+    int index = 0;
+    float rainbowSpeed = CVarGetFloat(kCosmeticRainbowSpeedCvar, 0.6f);
+    if (rainbowSpeed <= 0.0f) {
+        rainbowSpeed = 0.6f;
+    }
+
     bool hasRainbowEntries = false;
+    bool syncRainbow = CVarGetInteger(kCosmeticRainbowSyncCvar, 0);
+
     for (const auto& entry : cosmeticEditorElements) {
-        if (CVarGetInteger(entry.rainbowCvar, 0)) {
-            hasRainbowEntries = true;
-            break;
+        if (!CVarGetInteger(entry.rainbowCvar, 0)) {
+            if (!syncRainbow) {
+                index += static_cast<int>(60 * rainbowSpeed);
+            }
+            continue;
+        }
+
+        hasRainbowEntries = true;
+
+        double frequency = 2 * M_PI / (360 * rainbowSpeed);
+        Color_RGBA8 color = {
+            static_cast<uint8_t>(sin(frequency * (sCosmeticRainbowHue + index) + 0) * 127) + 128,
+            static_cast<uint8_t>(sin(frequency * (sCosmeticRainbowHue + index) + (2 * M_PI / 3)) * 127) + 128,
+            static_cast<uint8_t>(sin(frequency * (sCosmeticRainbowHue + index) + (4 * M_PI / 3)) * 127) + 128,
+            255,
+        };
+
+        CVarSetColor(entry.colorCvar, color);
+        CVarSetInteger(entry.colorChangedCvar, 1);
+        CosmeticEditorRefreshElement(entry);
+
+        if (!syncRainbow) {
+            index += static_cast<int>(60 * rainbowSpeed);
         }
     }
 
@@ -649,33 +676,9 @@ void CosmeticEditorUpdateTick() {
         return;
     }
 
-    float speed = CVarGetFloat(kCosmeticRainbowSpeedCvar, 0.6f);
-    if (speed <= 0.0f) {
-        speed = 0.6f;
-    }
-
-    sCosmeticRainbowHue = fmodf(sCosmeticRainbowHue + speed, 360.0f);
-    float syncedHue = sCosmeticRainbowHue;
-    bool syncRainbow = CVarGetInteger(kCosmeticRainbowSyncCvar, 0);
-    float step = 360.0f / static_cast<float>(COSMETIC_ELEMENT_MAX);
-
-    for (const auto& entry : cosmeticEditorElements) {
-        if (!CVarGetInteger(entry.rainbowCvar, 0)) {
-            continue;
-        }
-
-        float hue = syncRainbow ? syncedHue : fmodf(sCosmeticRainbowHue + (entry.id * step), 360.0f);
-        float radians = hue * (kCosmeticTau / 360.0f);
-        Color_RGBA8 color = {
-            static_cast<uint8_t>((sinf(radians) * 0.5f + 0.5f) * 255.0f),
-            static_cast<uint8_t>((sinf(radians + (kCosmeticTau / 3.0f)) * 0.5f + 0.5f) * 255.0f),
-            static_cast<uint8_t>((sinf(radians + ((2.0f * kCosmeticTau) / 3.0f)) * 0.5f + 0.5f) * 255.0f),
-            255,
-        };
-
-        CVarSetColor(entry.colorCvar, color);
-        CVarSetInteger(entry.colorChangedCvar, 1);
-        CosmeticEditorRefreshElement(entry);
+    sCosmeticRainbowHue++;
+    if (sCosmeticRainbowHue >= (360 * rainbowSpeed)) {
+        sCosmeticRainbowHue = 0;
     }
 }
 
