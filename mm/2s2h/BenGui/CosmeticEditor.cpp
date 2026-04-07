@@ -1,9 +1,8 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include "2s2h/BenGui/BenGui.hpp"
 #include "CosmeticEditor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/GameInteractor/GameInteractor.h"
-
-std::vector<const char*> cosmeticEditorParentElements;
 
 extern "C" {
 #include "macros.h"
@@ -363,21 +362,6 @@ void ShadeRGBA16Revert(const char* path, uint32_t begin, uint32_t end) {
     ShadeRGBA16NewBase(path, begin, end, whiteBase, MODE_REVERT);
 }
 
-void CopyFloatArray(CosmeticEditorElementID id, float currentColor[4], bool isChanged) {
-    if (isChanged) {
-        Color_RGBA8 changedColor = CVarGetColor(cosmeticEditorElements[id].colorCvar, {});
-        currentColor[0] = changedColor.r / 255.0f;
-        currentColor[1] = changedColor.g / 255.0f;
-        currentColor[2] = changedColor.b / 255.0f;
-        currentColor[3] = 1.0f;
-    } else {
-        currentColor[0] = cosmeticEditorElements[id].defaultR / 255.0f;
-        currentColor[1] = cosmeticEditorElements[id].defaultG / 255.0f;
-        currentColor[2] = cosmeticEditorElements[id].defaultB / 255.0f;
-        currentColor[3] = cosmeticEditorElements[id].defaultA / 255.0f;
-    }
-};
-
 extern "C" Color_RGBA8 CosmeticEditor_GetChangedColorEx(u8 r, u8 g, u8 b, u8 a, u8 elementId, u8 mode, f32 modifier) {
     CosmeticEditorElement element = cosmeticEditorElements[elementId];
 
@@ -544,142 +528,314 @@ extern "C" Gfx* Gfx_DrawTexRectIA8_DropShadowOffsetOverride(Gfx* pkt, TexturePtr
                                                rects);
 }
 
-void CosmeticEditorRandomizeElement(CosmeticEditorElement element) {
-    Color_RGBA8 colorSelected;
-    colorSelected.r = static_cast<uint8_t>((rand() % 256) * 255.0f);
-    colorSelected.g = static_cast<uint8_t>((rand() % 256) * 255.0f);
-    colorSelected.b = static_cast<uint8_t>((rand() % 256) * 255.0f);
-    colorSelected.a = static_cast<uint8_t>(255);
+const char* kCosmeticRainbowSyncCvar = "gCosmetics.RainbowSync";
+const char* kCosmeticRainbowSpeedCvar = "gCosmetics.RainbowSpeed";
+const char* kCosmeticRandomizeOnSeedGenCvar = "gCosmetics.RandomizeOnSeedGen";
+constexpr float kCosmeticTau = 6.28318530717958647692f;
+float sCosmeticRainbowHue = 0.0f;
 
-    CVarSetColor(element.colorCvar, colorSelected);
-    CVarSetInteger(element.colorChangedCvar, true);
-    ShipInit::Init(element.colorCvar);
-    ShipInit::Init(element.colorChangedCvar);
+void CosmeticEditorSave() {
     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 }
 
+Color_RGBA8 CosmeticEditorGetDefaultColor(const CosmeticEditorElement& entry) {
+    return { static_cast<uint8_t>(entry.defaultR), static_cast<uint8_t>(entry.defaultG),
+             static_cast<uint8_t>(entry.defaultB), static_cast<uint8_t>(entry.defaultA) };
+}
+
+void CosmeticEditorRefreshElement(const CosmeticEditorElement& entry) {
+    ShipInit::Init(entry.colorCvar);
+    ShipInit::Init(entry.colorChangedCvar);
+}
+
+void CosmeticEditorSetRainbowEnabled(const CosmeticEditorElement& entry, bool enabled) {
+    CVarSetInteger(entry.rainbowCvar, enabled);
+    if (enabled) {
+        CVarSetInteger(entry.colorChangedCvar, 1);
+    }
+    CosmeticEditorRefreshElement(entry);
+    CosmeticEditorSave();
+}
+
+void CosmeticEditorSetLocked(const CosmeticEditorElement& entry, bool locked) {
+    CVarSetInteger(entry.lockedCvar, locked);
+    CosmeticEditorSave();
+}
+
+void CosmeticEditorResetElement(const CosmeticEditorElement& entry) {
+    if (CVarGetInteger(entry.lockedCvar, 0)) {
+        return;
+    }
+    CVarClear(entry.colorCvar);
+    CVarClear(entry.colorChangedCvar);
+    CVarClear(entry.rainbowCvar);
+    CosmeticEditorRefreshElement(entry);
+    ShipInit::Init(entry.rainbowCvar);
+    CosmeticEditorSave();
+}
+
+void CosmeticEditorRandomizeElement(const CosmeticEditorElement& entry) {
+    if (CVarGetInteger(entry.lockedCvar, 0)) {
+        return;
+    }
+    ImVec4 colorVec = GetRandomValue();
+    Color_RGBA8 color = { static_cast<uint8_t>(colorVec.x * 255.0f), static_cast<uint8_t>(colorVec.y * 255.0f),
+                          static_cast<uint8_t>(colorVec.z * 255.0f), 255 };
+    CVarSetColor(entry.colorCvar, color);
+    CVarSetInteger(entry.colorChangedCvar, 1);
+    CVarSetInteger(entry.rainbowCvar, 0);
+    CosmeticEditorRefreshElement(entry);
+    ShipInit::Init(entry.rainbowCvar);
+    CosmeticEditorSave();
+}
+
 void CosmeticEditorRandomizeAllElements() {
-    for (auto& element : cosmeticEditorElements) {
+    for (const auto& element : cosmeticEditorElements) {
         CosmeticEditorRandomizeElement(element);
     }
 }
 
 void CosmeticEditorResetAllElements() {
-    for (auto& element : cosmeticEditorElements) {
-        CVarClear(element.colorCvar);
-        CVarClear(element.colorChangedCvar);
-        ShipInit::Init(element.colorCvar);
-        ShipInit::Init(element.colorChangedCvar);
+    for (const auto& element : cosmeticEditorElements) {
+        CosmeticEditorResetElement(element);
     }
 }
 
-void CosmeticEditorDrawColorTab() {
-    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
-    ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-    std::string resetAllText = ICON_FA_UNDO;
-    resetAllText += " All";
-    std::string randomAllText = ICON_FA_RECYCLE;
-    randomAllText += " All";
-    if (ImGui::Button(resetAllText.c_str())) {
-        CosmeticEditorResetAllElements();
+void CosmeticEditorSetAllLocked(bool locked) {
+    for (const auto& element : cosmeticEditorElements) {
+        CosmeticEditorSetLocked(element, locked);
     }
-    UIWidgets::Tooltip("Resets All Elements to their Defaults");
-    ImGui::SameLine();
-    if (ImGui::Button(randomAllText.c_str())) {
-        CosmeticEditorRandomizeAllElements();
-    }
-    UIWidgets::Tooltip("Randomizes All Elements");
-    ImGui::SameLine();
-    UIWidgets::CVarCheckbox(
-        "Randomize all Cosmetics on Randomizer Generation", "gCosmetics.RandomizeOnSeedGen",
-        UIWidgets::CheckboxOptions().Tooltip("Randomize all elements when a new randomizer seed is generated."));
-    for (auto& parent : cosmeticEditorParentElements) {
-        ImGui::SeparatorText(parent);
-        ImGui::BeginTable(parent, 2);
-        ImGui::TableSetupColumn("Element Name", ImGuiTableColumnFlags_WidthStretch, 1.4f);
-        ImGui::TableSetupColumn("Options", ImGuiTableColumnFlags_WidthStretch, 2.0f);
-        for (auto& entry : cosmeticEditorElements) {
-            if (parent != entry.parentName) {
-                continue;
-            }
-            float currentColor[4];
+}
 
-            ImGui::PushID(entry.id);
-            ImGui::TableNextColumn();
-            ImGui::SetCursorPosY(ImGui::GetCursorPosY() +
-                                 ((ImGui::GetFrameHeight() - (ImGui::CalcTextSize(entry.name).y)) / 2.0f));
-            ImGui::Text("%s", entry.name);
-            ImGui::TableNextColumn();
-            CopyFloatArray(entry.id, currentColor, CVarGetInteger(entry.colorChangedCvar, false));
-            bool colorChanged =
-                ImGui::ColorEdit3("Color", currentColor, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-            if (colorChanged) {
-                Color_RGBA8 colorSelected;
-                colorSelected.r = static_cast<uint8_t>(currentColor[0] * 255.0f);
-                colorSelected.g = static_cast<uint8_t>(currentColor[1] * 255.0f);
-                colorSelected.b = static_cast<uint8_t>(currentColor[2] * 255.0f);
-                colorSelected.a = static_cast<uint8_t>(255);
-
-                CVarSetColor(entry.colorCvar, colorSelected);
-                CVarSetInteger(entry.colorChangedCvar, true);
-                ShipInit::Init(entry.colorCvar);
-                ShipInit::Init(entry.colorChangedCvar);
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_UNDO, ImVec2(27.0f, 27.0f))) {
-                CVarClear(entry.colorCvar);
-                CVarClear(entry.colorChangedCvar);
-                ShipInit::Init(entry.colorCvar);
-                ShipInit::Init(entry.colorChangedCvar);
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-            }
-            ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_RECYCLE, ImVec2(27.0f, 27.0f))) {
-                CosmeticEditorRandomizeElement(entry);
-            }
-            ImGui::SameLine();
-            ImGui::TextColored(CVarGetInteger(entry.colorChangedCvar, 0)
-                                   ? UIWidgets::ColorValues.at(UIWidgets::Colors::Green)
-                                   : UIWidgets::ColorValues.at(UIWidgets::Colors::Gray),
-                               CVarGetInteger(entry.colorChangedCvar, 0) ? "Modified" : "Default");
-            ImGui::PopID();
+void CosmeticEditorSetAllRainbow(bool enabled) {
+    for (const auto& element : cosmeticEditorElements) {
+        if (CVarGetInteger(element.lockedCvar, 0)) {
+            continue;
         }
-        ImGui::EndTable();
+        CosmeticEditorSetRainbowEnabled(element, enabled);
     }
-    ImGui::PopStyleColor(3);
 }
 
-// Tab Bar is unused until other options are available.
-void CosmeticEditorDrawTabBar() {
-    ImGui::BeginTabBar("Cosmetic Tab Bar");
-    if (ImGui::BeginTabItem("Colors")) {
-        CosmeticEditorDrawColorTab();
-        ImGui::EndTabItem();
+bool CosmeticEditorMatchesGroup(const CosmeticEditorElement& entry, const char* groupName) {
+    return strcmp(entry.parentName, groupName) == 0;
+}
+
+void CosmeticEditorRandomizeGroup(const char* groupName) {
+    for (const auto& entry : cosmeticEditorElements) {
+        if (CosmeticEditorMatchesGroup(entry, groupName)) {
+            CosmeticEditorRandomizeElement(entry);
+        }
     }
-    ImGui::EndTabBar();
+}
+
+void CosmeticEditorResetGroup(const char* groupName) {
+    for (const auto& entry : cosmeticEditorElements) {
+        if (CosmeticEditorMatchesGroup(entry, groupName)) {
+            CosmeticEditorResetElement(entry);
+        }
+    }
+}
+
+void CosmeticEditorUpdateTick() {
+    bool hasRainbowEntries = false;
+    for (const auto& entry : cosmeticEditorElements) {
+        if (CVarGetInteger(entry.rainbowCvar, 0)) {
+            hasRainbowEntries = true;
+            break;
+        }
+    }
+
+    if (!hasRainbowEntries) {
+        return;
+    }
+
+    float speed = CVarGetFloat(kCosmeticRainbowSpeedCvar, 0.6f);
+    if (speed <= 0.0f) {
+        speed = 0.6f;
+    }
+
+    sCosmeticRainbowHue = fmodf(sCosmeticRainbowHue + speed, 360.0f);
+    float syncedHue = sCosmeticRainbowHue;
+    bool syncRainbow = CVarGetInteger(kCosmeticRainbowSyncCvar, 0);
+    float step = 360.0f / static_cast<float>(COSMETIC_ELEMENT_MAX);
+
+    for (const auto& entry : cosmeticEditorElements) {
+        if (!CVarGetInteger(entry.rainbowCvar, 0)) {
+            continue;
+        }
+
+        float hue = syncRainbow ? syncedHue : fmodf(sCosmeticRainbowHue + (entry.id * step), 360.0f);
+        float radians = hue * (kCosmeticTau / 360.0f);
+        Color_RGBA8 color = {
+            static_cast<uint8_t>((sinf(radians) * 0.5f + 0.5f) * 255.0f),
+            static_cast<uint8_t>((sinf(radians + (kCosmeticTau / 3.0f)) * 0.5f + 0.5f) * 255.0f),
+            static_cast<uint8_t>((sinf(radians + ((2.0f * kCosmeticTau) / 3.0f)) * 0.5f + 0.5f) * 255.0f),
+            255,
+        };
+
+        CVarSetColor(entry.colorCvar, color);
+        CVarSetInteger(entry.colorChangedCvar, 1);
+        CosmeticEditorRefreshElement(entry);
+    }
+}
+
+void CosmeticEditorDrawRow(const CosmeticEditorElement& entry) {
+    Color_RGBA8 defaultColor = CosmeticEditorGetDefaultColor(entry);
+
+    if (UIWidgets::CVarColorPicker(entry.name, entry.colorCvar, defaultColor, false, entry.lockedCvar, THEME_COLOR)) {
+        CVarSetInteger(entry.colorChangedCvar, 1);
+        CosmeticEditorRefreshElement(entry);
+        CosmeticEditorSave();
+    }
+
+    ImGui::SameLine((ImGui::CalcTextSize("Message Light Blue (None No Shadow)").x * 1.0f) + 60.0f);
+    if (UIWidgets::Button(
+            ("Random##" + std::string(entry.name)).c_str(),
+            UIWidgets::ButtonOptions().Size(ImVec2(80, 31)).Padding(ImVec2(2.0f, 0.0f)).Color(THEME_COLOR))) {
+        CosmeticEditorRandomizeElement(entry);
+    }
+
+    ImGui::SameLine();
+    bool rainbowEnabled = CVarGetInteger(entry.rainbowCvar, 0);
+    if (UIWidgets::Checkbox(("Rainbow##" + std::string(entry.name)).c_str(), &rainbowEnabled,
+                            UIWidgets::CheckboxOptions().Color(THEME_COLOR))) {
+        CosmeticEditorSetRainbowEnabled(entry, rainbowEnabled);
+    }
+
+    ImGui::SameLine();
+    bool locked = CVarGetInteger(entry.lockedCvar, 0);
+    if (UIWidgets::Checkbox(("Locked##" + std::string(entry.name)).c_str(), &locked,
+                            UIWidgets::CheckboxOptions().Color(THEME_COLOR))) {
+        CosmeticEditorSetLocked(entry, locked);
+    }
+
+    if (CVarGetInteger(entry.colorChangedCvar, 0)) {
+        ImGui::SameLine();
+        if (UIWidgets::Button(("Reset##" + std::string(entry.name)).c_str(),
+                              UIWidgets::ButtonOptions().Size(ImVec2(80, 31)).Padding(ImVec2(2.0f, 0.0f)))) {
+            CosmeticEditorResetElement(entry);
+        }
+    }
+}
+
+void CosmeticEditorDrawGroup(const char* groupName, const char* displayName = nullptr) {
+    std::string label = displayName != nullptr ? displayName : groupName;
+    ImGui::Text("%s", label.c_str());
+    ImGui::SameLine((ImGui::CalcTextSize("Message Light Blue (None No Shadow)").x * 1.0f) + 60.0f);
+    if (UIWidgets::Button(
+            ("Random##" + label).c_str(),
+            UIWidgets::ButtonOptions().Size(ImVec2(80, 31)).Padding(ImVec2(2.0f, 0.0f)).Color(THEME_COLOR))) {
+        CosmeticEditorRandomizeGroup(groupName);
+    }
+    ImGui::SameLine();
+    if (UIWidgets::Button(("Reset##" + label).c_str(),
+                          UIWidgets::ButtonOptions().Size(ImVec2(80, 31)).Padding(ImVec2(2.0f, 0.0f)))) {
+        CosmeticEditorResetGroup(groupName);
+    }
+    UIWidgets::Spacer();
+
+    for (const auto& entry : cosmeticEditorElements) {
+        if (CosmeticEditorMatchesGroup(entry, groupName)) {
+            CosmeticEditorDrawRow(entry);
+        }
+    }
+
+    UIWidgets::Separator(true, true, 2.0f, 2.0f);
 }
 
 void CosmeticEditorWindow::DrawElement() {
-    CosmeticEditorDrawColorTab();
+    UIWidgets::CVarCheckbox("Sync Rainbow colors", kCosmeticRainbowSyncCvar,
+                            UIWidgets::CheckboxOptions()
+                                .Color(THEME_COLOR)
+                                .Tooltip("Keeps all rainbow-enabled cosmetics on the same hue cycle."));
+    UIWidgets::CVarSliderFloat("Rainbow Speed", kCosmeticRainbowSpeedCvar,
+                               UIWidgets::FloatSliderOptions()
+                                   .Format("%.2f")
+                                   .Min(0.01f)
+                                   .Max(1.0f)
+                                   .DefaultValue(0.6f)
+                                   .Step(0.01f)
+                                   .Size(ImVec2(300.0f, 0.0f))
+                                   .Color(THEME_COLOR));
+    UIWidgets::CVarCheckbox(
+        "Randomize all Cosmetics on Randomizer Generation", kCosmeticRandomizeOnSeedGenCvar,
+        UIWidgets::CheckboxOptions()
+            .Color(THEME_COLOR)
+            .Tooltip("Randomizes every unlocked cosmetic entry when a new randomizer seed is generated."));
+
+    if (UIWidgets::Button("Randomize All", UIWidgets::ButtonOptions().Size(ImVec2(250.0f, 0.0f)).Color(THEME_COLOR))) {
+        CosmeticEditorRandomizeAllElements();
+    }
+    ImGui::SameLine();
+    if (UIWidgets::Button("Reset All", UIWidgets::ButtonOptions().Size(ImVec2(250.0f, 0.0f)).Color(THEME_COLOR))) {
+        CosmeticEditorResetAllElements();
+    }
+
+    if (UIWidgets::Button("Lock All", UIWidgets::ButtonOptions().Size(ImVec2(250.0f, 0.0f)).Color(THEME_COLOR))) {
+        CosmeticEditorSetAllLocked(true);
+    }
+    ImGui::SameLine();
+    if (UIWidgets::Button("Unlock All", UIWidgets::ButtonOptions().Size(ImVec2(250.0f, 0.0f)).Color(THEME_COLOR))) {
+        CosmeticEditorSetAllLocked(false);
+    }
+
+    if (UIWidgets::Button("Rainbow All", UIWidgets::ButtonOptions().Size(ImVec2(250.0f, 0.0f)).Color(THEME_COLOR))) {
+        CosmeticEditorSetAllRainbow(true);
+    }
+    ImGui::SameLine();
+    if (UIWidgets::Button("Un-Rainbow All", UIWidgets::ButtonOptions().Size(ImVec2(250.0f, 0.0f)).Color(THEME_COLOR))) {
+        CosmeticEditorSetAllRainbow(false);
+    }
+
+    UIWidgets::Spacer(3.0f);
+
+    UIWidgets::PushStyleTabs(THEME_COLOR);
+    if (ImGui::BeginTabBar("CosmeticsContextTabBar", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
+        if (ImGui::BeginTabItem("Link & Items")) {
+            UIWidgets::Separator(true, true, 2.0f, 2.0f);
+            CosmeticEditorDrawGroup("Player", "Link");
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Effects")) {
+            UIWidgets::Separator(true, true, 2.0f, 2.0f);
+            CosmeticEditorDrawGroup("Effects");
+            CosmeticEditorDrawGroup("Trails");
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("HUD")) {
+            UIWidgets::Separator(true, true, 2.0f, 2.0f);
+            CosmeticEditorDrawGroup("HUD");
+            CosmeticEditorDrawGroup("Buttons");
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Pause Menu")) {
+            UIWidgets::Separator(true, true, 2.0f, 2.0f);
+            CosmeticEditorDrawGroup("Menus");
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
+    UIWidgets::PopStyleTabs();
 }
 
 void CosmeticEditorWindow::InitElement() {
-    cosmeticEditorParentElements.clear();
-    for (auto& element : cosmeticEditorElements) {
-        if (std::find(cosmeticEditorParentElements.begin(), cosmeticEditorParentElements.end(), element.parentName) !=
-            cosmeticEditorParentElements.end()) {
-            continue;
-        }
-        cosmeticEditorParentElements.push_back(element.parentName);
+    static bool sHooksRegistered = false;
+    if (sHooksRegistered) {
+        return;
     }
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnRandoSeedGeneration>([]() {
-        if (CVarGetInteger("gCosmetics.RandomizeOnSeedGen", 0)) {
+        if (CVarGetInteger(kCosmeticRandomizeOnSeedGenCvar, 0)) {
             CosmeticEditorRandomizeAllElements();
         }
     });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() { CosmeticEditorUpdateTick(); });
+
+    sHooksRegistered = true;
 }
 
 // COSMETIC_ELEMENT_HUMAN_TUNIC

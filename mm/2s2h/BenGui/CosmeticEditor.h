@@ -98,12 +98,14 @@ typedef struct {
     int32_t defaultA;
     const char* colorCvar;
     const char* colorChangedCvar;
+    const char* rainbowCvar;
+    const char* lockedCvar;
 } CosmeticEditorElement;
 
 #define COSMETIC_EDITOR_ELEMENT(id, parentName, name, cvar, defaultR, defaultG, defaultB, defaultA) \
     {                                                                                               \
         id, parentName, name, defaultR, defaultG, defaultB, defaultA, "gCosmetic." cvar ".Color",   \
-            "gCosmetic." cvar ".Changed"                                                            \
+            "gCosmetic." cvar ".Changed", "gCosmetic." cvar ".Rainbow", "gCosmetic." cvar ".Locked" \
     }
 
 extern CosmeticEditorElement cosmeticEditorElements[COSMETIC_ELEMENT_MAX];
