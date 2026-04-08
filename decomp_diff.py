@@ -35,12 +35,6 @@ def fetch_url(url):
             text = data.decode("utf-8", errors="surrogateescape")
             return text.splitlines(keepends=False)
 
-def to_display_path(fullpath, repo_root):
-    """Return path for patch header (relative to repo root) or basename fallback."""
-    if repo_root and os.path.commonpath([os.path.abspath(fullpath), repo_root]) == repo_root:
-        return os.path.relpath(fullpath, repo_root).replace("\\", "/")
-    return os.path.basename(fullpath).replace("\\", "/")
-
 def main():
     if len(sys.argv) < 2:
         print("Usage: python decomp_diff.py <local_file> [decomp_relative_path]", file=sys.stderr)
