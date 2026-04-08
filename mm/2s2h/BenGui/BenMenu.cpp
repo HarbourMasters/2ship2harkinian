@@ -1007,18 +1007,20 @@ void BenMenu::AddEnhancements() {
             "SM64-style platforming: Chain jumps (A to jump, chain on landing for double/triple), "
             "wall kicks (A off walls while airborne), and spin lift (B in air for sword helicopter). "
             "Z + A/B still do normal attacks. Sword type scales spin lift height."));
-    AddWidget(path, "  Deku Chain Jump", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.PlatformerModeDekuJump")
+    AddWidget(path, "Platformer Mode Sub-Options", WIDGET_CUSTOM)
         .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.PlatformerMode", 0); })
-        .Options(CheckboxOptions().Tooltip(
-            "Allows Deku Link to chain jump and wall kick in Platformer Mode. "
-            "Off by default since Deku jumps are weak."));
-    AddWidget(path, "  Goron Chain Jump", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Player.PlatformerModeGoronJump")
-        .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.PlatformerMode", 0); })
-        .Options(CheckboxOptions().Tooltip(
-            "Allows Goron Link to chain jump and wall kick in Platformer Mode. "
-            "Off by default since Goron movement is roll-based."));
+        .CustomFunction([](WidgetInfo& info) {
+            ImGui::Indent();
+            UIWidgets::CVarCheckbox(
+                "Deku Chain Jump", "gEnhancements.Player.PlatformerModeDekuJump",
+                UIWidgets::CheckboxOptions().Tooltip("Allows Deku Link to chain jump and wall kick in Platformer Mode. "
+                                                     "Off by default since Deku jumps are weak."));
+            UIWidgets::CVarCheckbox("Goron Chain Jump", "gEnhancements.Player.PlatformerModeGoronJump",
+                                    UIWidgets::CheckboxOptions().Tooltip(
+                                        "Allows Goron Link to chain jump and wall kick in Platformer Mode. "
+                                        "Off by default since Goron movement is roll-based."));
+            ImGui::Unindent();
+        });
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));
