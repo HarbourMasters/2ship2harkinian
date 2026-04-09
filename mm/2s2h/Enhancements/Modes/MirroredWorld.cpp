@@ -40,7 +40,8 @@ static bool MirroredWorld_IsInSpiderHouse(int32_t sceneId) {
 }
 
 static void MirroredWorld_InitRandomSeed(int32_t sceneId) {
-    uint32_t seed = sceneId + (gSaveContext.save.shipSaveInfo.fileCreatedAt);
+    uint32_t seed = sceneId + (IS_RANDO ? gSaveContext.save.shipSaveInfo.rando.finalSeed
+                                        : gSaveContext.save.shipSaveInfo.fileCreatedAt);
     Ship_Random_Seed(seed);
 }
 
