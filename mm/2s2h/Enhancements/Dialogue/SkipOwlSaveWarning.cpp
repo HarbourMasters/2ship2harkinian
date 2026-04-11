@@ -9,6 +9,10 @@
 // "You can save your progress and quit here."
 static constexpr u16 TEXT_ID_OWL_SAVE = 0xC01;
 
+// "Warning: If you reopen this Owl File, then reset without saving..."
+static constexpr size_t TEXT_WARNING_BEGIN_NTSC = 258;
+static constexpr size_t TEXT_WARNING_LENGTH_NTSC = 261;
+
 static void ModifySaveExplanation(u16* textId, bool* loadFromMessageTable) {
     size_t warningStart;
     size_t warningLength;
@@ -17,9 +21,8 @@ static void ModifySaveExplanation(u16* textId, bool* loadFromMessageTable) {
     switch (ResourceMgr_GetGameVersion(0)) {
         case MM_NTSC_US_10:
         case MM_NTSC_US_GC:
-            // "Warning: If you reopen this Owl File, then reset without saving..."
-            warningStart = 258;
-            warningLength = 261;
+            warningStart = TEXT_WARNING_BEGIN_NTSC;
+            warningLength = TEXT_WARNING_LENGTH_NTSC;
             break;
         default:
             // Unknown region, don't modify the message
