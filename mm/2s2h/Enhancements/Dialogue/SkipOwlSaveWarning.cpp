@@ -9,14 +9,25 @@
 // "You can save your progress and quit here."
 static constexpr u16 TEXT_ID_OWL_SAVE = 0xC01;
 
-// "Warning: If you reopen this Owl File, then reset without saving..."
-static constexpr size_t TEXT_WARNING_BEGIN = 258;
-static constexpr size_t TEXT_WARNING_LENGTH = 261;
-
 static void ModifySaveExplanation(u16* textId, bool* loadFromMessageTable) {
-    // Get original message
+    size_t warningStart;
+    size_t warningLength;
+
+    // TODO: Add different cases when other versions are supported
+    switch (ResourceMgr_GetGameVersion(0)) {
+        case MM_NTSC_US_10:
+        case MM_NTSC_US_GC:
+            // "Warning: If you reopen this Owl File, then reset without saving..."
+            warningStart = 258;
+            warningLength = 261;
+            break;
+        default:
+            // Unknown region, don't modify the message
+            return;
+    }
+
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-    entry.msg.erase(TEXT_WARNING_BEGIN, TEXT_WARNING_LENGTH);
+    entry.msg.erase(warningStart, warningLength);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }
