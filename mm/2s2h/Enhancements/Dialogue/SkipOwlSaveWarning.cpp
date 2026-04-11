@@ -4,7 +4,8 @@
 #include "2s2h/ShipInit.hpp"
 
 extern "C" {
-#include "2s2h/BenPort.h"
+#include "BenPort.h"
+uint32_t ResourceMgr_GetGameVersion(int index);
 }
 
 #define CVAR_NAME "gEnhancements.Saving.PersistentOwlSaves"
