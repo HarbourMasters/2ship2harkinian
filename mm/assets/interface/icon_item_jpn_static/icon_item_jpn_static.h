@@ -62,4 +62,19 @@ static const ALIGN_ASSET(2) char gPauseQuestStatus10ENGTex[] = dgPauseQuestStatu
 
 #define dgPauseQuestStatus20ENGTex "__OTR__icon_item_jpn_static/gPauseQuestStatus20ENGTex"
 static const ALIGN_ASSET(2) char gPauseQuestStatus20ENGTex[] = dgPauseQuestStatus20ENGTex;
+
+// #region 2S2H [GC]
+#define dgPauseWoodfallTitleGCENGTex "__OTR__icon_item_jpn_static/gPauseWoodfallTitleGCENGTex"
+static const ALIGN_ASSET(2) char gPauseWoodfallTitleGCENGTex[] = dgPauseWoodfallTitleGCENGTex;
+
+#define dgPauseSnowheadTitleGCENGTex "__OTR__icon_item_jpn_static/gPauseSnowheadTitleGCENGTex"
+static const ALIGN_ASSET(2) char gPauseSnowheadTitleGCENGTex[] = dgPauseSnowheadTitleGCENGTex;
+
+#define dgPauseGreatBayTitleGCENGTex "__OTR__icon_item_jpn_static/gPauseGreatBayTitleGCENGTex"
+static const ALIGN_ASSET(2) char gPauseGreatBayTitleGCENGTex[] = dgPauseGreatBayTitleGCENGTex;
+
+#define dgPauseStoneTowerTitleGCENGTex "__OTR__icon_item_jpn_static/gPauseStoneTowerTitleGCENGTex"
+static const ALIGN_ASSET(2) char gPauseStoneTowerTitleGCENGTex[] = dgPauseStoneTowerTitleGCENGTex;
+// #endregion
+
 #endif // INTERFACE_ICON_ITEM_JPN_STATIC_H

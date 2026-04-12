@@ -703,12 +703,41 @@ void EnMag_DrawCharTexture(Gfx** gfxP, TexturePtr texture, s32 rectLeft, s32 rec
 #define PRESS_START_CHAR_SPACING 7 // Amount of rightward shift before printing next char
 #define PRESS_START_SPACE 5        // Extra space between the words
 
+// #region 2S2H [PAL] - additional defines
+#define GET_TITLE_DISPLAY_LANGUAGE (((void)0, gSaveContext.unk_3CA6) & 3)
+typedef enum TitleDisplayLanguage {
+    /* 0 */ TITLE_LANGUAGE_ENG,
+    /* 1 */ TITLE_LANGUAGE_GER,
+    /* 2 */ TITLE_LANGUAGE_FRE,
+    /* 3 */ TITLE_LANGUAGE_SPA,
+} TitleDisplayLanguage;
+
+#define PRESS_START_LEFT_GER 116
+#define PRESS_START_LEFT_FRE 110
+#define PRESS_START_LEFT_SPA 119
+// #endregion
+
 /**
  * Loads title, PRESS START text, etc. graphics to gfxP, which is made to live on
  * POLY_OPA_DISP, but is used by OVERLAY_DISP.
  */
 void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxP) {
-    static u8 sPressStartFontIndices[] = {
+    // #region 2S2H [PAL] - add press start font indices and spacings for other languages
+    static u8 sPressStartFontIndicesPAL[][15] = {
+        { 0x19, 0x1B, 0x0E, 0x1C, 0x1C, 0x1C, 0x1D, 0x0A, 0x1B, 0x1D, 0x3E },       // TITLE_LANGUAGE_ENG
+        { 0x0D, 0x1B, 0x57, 0x0C, 0x14, 0x0E, 0x1C, 0x1D, 0x0A, 0x1B, 0x1D, 0x3E }, // TITLE_LANGUAGE_GER
+        { 0x0A, 0x19, 0x19, 0x1E, 0x22, 0x0E, 0x23, 0x1C, 0x1E, 0x1B, 0x1C, 0x1D, 0x0A, 0x1B,
+          0x1D },                                                             // TITLE_LANGUAGE_FRE
+        { 0x19, 0x1E, 0x15, 0x1C, 0x0A, 0x1C, 0x1D, 0x0A, 0x1B, 0x1D, 0x3E }, // TITLE_LANGUAGE_SPA
+    };                                                                        // Indices into this->font.fontBuf
+    static u8 sPressStartFontWidthsPAL[][15] = {
+        { 6, 7, 5, 7, 12, 7, 6, 8, 7, 6, 5 },              // TITLE_LANGUAGE_ENG
+        { 7, 7, 7, 7, 7, 10, 7, 6, 8, 7, 6, 5 },           // TITLE_LANGUAGE_GER
+        { 8, 6, 6, 7, 7, 6, 12, 7, 7, 12, 7, 6, 8, 7, 6 }, // TITLE_LANGUAGE_FRE
+        { 6, 7, 5, 7, 13, 7, 6, 8, 7, 6, 5 },              // TITLE_LANGUAGE_SPA
+    };
+    // #endregion
+    static u8 pressStartFontIndices[] = {
         0x19, 0x1B, 0x0E, 0x1C, 0x1C, 0x1C, 0x1D, 0x0A, 0x1B, 0x1D,
     }; // Indices into this->font.fontBuf
     static TexturePtr sAppearEffectMaskTextures[] = {
@@ -727,6 +756,24 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxP) {
     static s16 sEffectScrollVelocityTs[] = { -2, -2, -2, 2, 2, 2 };
     static s16 sTextAlpha = 0; // For drawing both the No Controller message and "PRESS START"
     static s16 sTextAlphaTargets[] = { 255, 0 };
+    // #region 2S2H [PAL] - add translated textures and declare variables for version and platform
+    // TODO: Figure out matching function
+    static TexturePtr sControllerNotConnectedTextures[] = {
+        gTitleScreenControllerNotConnectedTextENGTex,
+        gTitleScreenControllerNotConnectedTextGERTex,
+        gTitleScreenControllerNotConnectedTextFRATex,
+        gTitleScreenControllerNotConnectedTextESPTex,
+    };
+    static TexturePtr sInsertControllerTextures[] = {
+        gTitleScreenInsertControllerTextENGTex,
+        gTitleScreenInsertControllerTextGERTex,
+        gTitleScreenInsertControllerTextFRATex,
+        gTitleScreenInsertControllerTextESPTex,
+    };
+    uint32_t gamePlatform = ResourceMgr_GetGamePlatform(0);
+    uint32_t gameRegion = ResourceMgr_GetGameRegion(0);
+    uint32_t gameVersion = ResourceMgr_GetGameVersion(0);
+    // #endregion
     s32 pad;
     EnMag* this = (EnMag*)thisx;
     Font* font = &this->font;
@@ -873,9 +920,7 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxP) {
         gDPSetPrimColor(gfx++, 0, 0, this->copyrightAlpha, this->copyrightAlpha, this->copyrightAlpha,
                         this->copyrightAlpha);
 
-        uint32_t gameVersion = ResourceMgr_GetGameVersion(0);
-
-        if (gameVersion == MM_NTSC_US_GC) {
+        if (gamePlatform == GAME_PLATFORM_GC) {
             EnMag_DrawTextureIA8(&gfx, gTitleScreenCopyright2000NintendoTex, COPYRIGHT_TEX_WIDTH_GC,
                                  COPYRIGHT_TEX_HEIGHT, COPYRIGHT_TEX_LEFT_GC, COPYRIGHT_TEX_TOP);
         } else { // Default: MM_NTSC_US_10
@@ -936,52 +981,135 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxP) {
                 sTextAlphaTimer = 20;
             }
             sTextAlphaTargetIndex ^= 1;
+            // #region 2S2H [PAL]
+            if (gameRegion == GAME_REGION_PAL) {
+                if (sTextAlphaTargetIndex == 0) {
+                    gSaveContext.unk_3CA6 = (gSaveContext.unk_3CA6 + 1) & 3;
+                }
+            }
+            // #endregion
         }
     } else if (this->copyrightAlpha != 0) {
         // Draw "PRESS START" characters
 
         TIMED_STEP_TO(sTextAlpha, sTextAlphaTargets[sTextAlphaTargetIndex], sTextAlphaTimer, step);
 
-        // Text shadow
-        gDPPipeSync(gfx++);
-        gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE,
-                          0);
-        gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, sTextAlpha);
+        if (gameRegion == GAME_REGION_PAL) {
+            // #region 2S2H [PAL] - Draw PRESS START in all languages
+            // Text shadow
+            gDPPipeSync(gfx++);
+            gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0,
+                              PRIMITIVE, 0);
+            gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, sTextAlpha);
 
-        rectLeft = PRESS_START_LEFT + 1;
-        for (i = 0; i < ARRAY_COUNT(sPressStartFontIndices); i++) {
-            EnMag_DrawCharTexture(&gfx, font->fontBuf + sPressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft,
-                                  PRESS_START_TOP + 1);
-
-            rectLeft += PRESS_START_CHAR_SPACING;
-            if (i == 4) {
-                rectLeft += PRESS_START_SPACE;
+            switch (GET_TITLE_DISPLAY_LANGUAGE) {
+                case TITLE_LANGUAGE_GER:
+                    rectLeft = PRESS_START_LEFT_GER + 1;
+                    break;
+                case TITLE_LANGUAGE_FRE:
+                    rectLeft = PRESS_START_LEFT_FRE + 1;
+                    break;
+                case TITLE_LANGUAGE_SPA:
+                    rectLeft = PRESS_START_LEFT_SPA + 1;
+                    break;
+                default:
+                    rectLeft = PRESS_START_LEFT + 1;
+                    break;
             }
-        }
 
-        // Actual text
-        gDPPipeSync(gfx++);
-        gDPSetPrimColor(gfx++, 0, 0, 255, 30, 30, sTextAlpha);
+            for (i = 0; i < ARRAY_COUNT(sPressStartFontIndicesPAL[0]); i++) {
+                if (sPressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] == 0x3E) {
+                    break;
+                }
+                EnMag_DrawCharTexture(
+                    &gfx, font->fontBuf + sPressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] * FONT_CHAR_TEX_SIZE,
+                    rectLeft, PRESS_START_TOP + 1);
 
-        rectLeft = PRESS_START_LEFT;
-        for (i = 0; i < ARRAY_COUNT(sPressStartFontIndices); i++) {
-            EnMag_DrawCharTexture(&gfx, font->fontBuf + sPressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft,
-                                  PRESS_START_TOP);
-            rectLeft += PRESS_START_CHAR_SPACING;
-            if (i == 4) {
-                rectLeft += PRESS_START_SPACE;
+                rectLeft += sPressStartFontWidthsPAL[GET_TITLE_DISPLAY_LANGUAGE][i];
             }
-        }
 
-        sTextAlphaTimer--;
-        if (sTextAlphaTimer == 0) {
-            sTextAlpha = sTextAlphaTargets[sTextAlphaTargetIndex];
-            if (gSaveContext.fileNum == 0xFEDC) {
-                sTextAlphaTimer = 40;
-            } else {
+            // Actual text
+            gDPPipeSync(gfx++);
+            gDPSetPrimColor(gfx++, 0, 0, 255, 30, 30, sTextAlpha);
+
+            switch (GET_TITLE_DISPLAY_LANGUAGE) {
+                case TITLE_LANGUAGE_GER:
+                    rectLeft = PRESS_START_LEFT_GER;
+                    break;
+                case TITLE_LANGUAGE_FRE:
+                    rectLeft = PRESS_START_LEFT_FRE;
+                    break;
+                case TITLE_LANGUAGE_SPA:
+                    rectLeft = PRESS_START_LEFT_SPA;
+                    break;
+                default:
+                    rectLeft = PRESS_START_LEFT;
+                    break;
+            }
+
+            for (i = 0; i < ARRAY_COUNT(sPressStartFontIndicesPAL[0]); i++) {
+                if (sPressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] == 0x3E) {
+                    break;
+                }
+                EnMag_DrawCharTexture(
+                    &gfx, font->fontBuf + sPressStartFontIndicesPAL[GET_TITLE_DISPLAY_LANGUAGE][i] * FONT_CHAR_TEX_SIZE,
+                    rectLeft, PRESS_START_TOP + 1);
+                rectLeft += sPressStartFontWidthsPAL[GET_TITLE_DISPLAY_LANGUAGE][i];
+            }
+
+            sTextAlphaTimer--;
+            if (sTextAlphaTimer == 0) {
+                sTextAlpha = sTextAlphaTargets[sTextAlphaTargetIndex];
                 sTextAlphaTimer = 20;
+                sTextAlphaTargetIndex ^= 1;
+                if (sTextAlphaTargetIndex == 0) {
+                    gSaveContext.unk_3CA6 = (gSaveContext.unk_3CA6 + 1) & 3;
+                }
             }
-            sTextAlphaTargetIndex ^= 1;
+            // #endregion
+        } else {
+
+            // Text shadow
+            gDPPipeSync(gfx++);
+            gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0,
+                              PRIMITIVE, 0);
+            gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, sTextAlpha);
+
+            rectLeft = PRESS_START_LEFT + 1;
+            for (i = 0; i < ARRAY_COUNT(pressStartFontIndices); i++) {
+                EnMag_DrawCharTexture(&gfx, font->fontBuf + pressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft,
+                                      PRESS_START_TOP + 1);
+
+                rectLeft += PRESS_START_CHAR_SPACING;
+                if (i == 4) {
+                    rectLeft += PRESS_START_SPACE;
+                }
+            }
+
+            // Actual text
+            gDPPipeSync(gfx++);
+            gDPSetPrimColor(gfx++, 0, 0, 255, 30, 30, sTextAlpha);
+
+            rectLeft = PRESS_START_LEFT;
+            for (i = 0; i < ARRAY_COUNT(pressStartFontIndices); i++) {
+                EnMag_DrawCharTexture(&gfx, font->fontBuf + pressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft,
+                                      PRESS_START_TOP);
+                rectLeft += PRESS_START_CHAR_SPACING;
+                if (i == 4) {
+                    rectLeft += PRESS_START_SPACE;
+                }
+            }
+
+            sTextAlphaTimer--;
+            if (sTextAlphaTimer == 0) {
+                sTextAlpha = sTextAlphaTargets[sTextAlphaTargetIndex];
+                if (gSaveContext.fileNum == 0xFEDC) {
+                    sTextAlphaTimer = 40;
+                } else {
+                    sTextAlphaTimer = 20;
+                }
+                sTextAlphaTargetIndex ^= 1;
+            }
         }
     }
 

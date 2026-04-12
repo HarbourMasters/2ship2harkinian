@@ -45,6 +45,11 @@ static const std::unordered_map<int32_t, const char*> menuThemeOptions = {
     { UIWidgets::Colors::DarkGray, "Dark Gray" },
 };
 
+static const std::unordered_map<int32_t, const char*> languageOptions = {
+    { LANGUAGE_JPN, "Japanese" }, { LANGUAGE_ENG, "English" }, { LANGUAGE_GER, "German" },
+    { LANGUAGE_FRE, "French" },   { LANGUAGE_SPA, "Spanish" },
+};
+
 static const std::vector<const char*> alwaysWinDoggyraceOptions = {
     "Off",                       // ALWAYS_WIN_DOGGY_RACE_OFF
     "When owning Mask of Truth", // ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH
@@ -417,6 +422,16 @@ void BenMenu::AddSettings() {
 
         ImGui::EndChild();
     });
+
+    // Language Settings
+    path.sidebarName = "Language";
+    AddSidebarEntry("Settings", "Language", 1);
+    AddWidget(path, "Language Select", WIDGET_CVAR_COMBOBOX)
+        .CVar("gSettings.Language")
+        .Options(ComboboxOptions()
+                     .Tooltip("Sets the language for the game.")
+                     .ComboMap(&languageOptions)
+                     .DefaultIndex(LANGUAGE_ENG));
 
     // Audio Settings
     path.sidebarName = "Audio";

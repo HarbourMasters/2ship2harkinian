@@ -6,6 +6,9 @@
 #include <message_data_static.h>
 
 extern "C" MessageTableEntry* sMessageTableNES;
+extern "C" MessageTableEntry* sMessageTableGER;
+extern "C" MessageTableEntry* sMessageTableFRA;
+extern "C" MessageTableEntry* sMessageTableESP;
 extern "C" MessageTableEntry* sMessageTableCredits;
 
 MessageTableEntry* OTRMessage_LoadTable(const char* filePath, bool isNES) {
@@ -52,6 +55,9 @@ MessageTableEntry* OTRMessage_LoadTable(const char* filePath, bool isNES) {
 
 extern "C" void OTRMessage_Init() {
     sMessageTableNES = OTRMessage_LoadTable("text/message_data_static/message_data_static", true);
+    sMessageTableGER = OTRMessage_LoadTable("text/ger_message_data_static/ger_message_data_static", true);
+    sMessageTableFRA = OTRMessage_LoadTable("text/fra_message_data_static/fra_message_data_static", true);
+    sMessageTableESP = OTRMessage_LoadTable("text/esp_message_data_static/esp_message_data_static", true);
 
     auto file2 = std::static_pointer_cast<SOH::TextMM>(Ship::Context::GetInstance()->GetResourceManager()->LoadResource(
         "text/staff_message_data_static/staff_message_data_static"));

@@ -161,7 +161,8 @@ typedef enum {
 
 typedef enum {
     /* 0 */ FS_SETTING_AUDIO,
-    /* 1 */ FS_SETTING_ZTARGET
+    /* 1 */ FS_SETTING_ZTARGET,
+    /* 2 */ FS_SETTING_LANGUAGE
 } SettingIndex;
 
 typedef enum {
@@ -328,5 +329,9 @@ void FileSelect_OptionsWaitForFlashSave(GameState* thisx);
 
 extern u8 D_808141F0[];
 extern s16 D_80814280[];
+
+// #region 2S2H [PAL]
+extern u8 gKeyboardCharactersPAL[];
+// #endregion
 
 #endif

@@ -8,7 +8,14 @@
 
 #include "archives/icon_item_static/icon_item_static_yar.h"
 #include "interface/parameter_static/parameter_static.h"
+#include "interface/nes_parameter_static/nes_parameter_static.h"
+#include "interface/ger_parameter_static/ger_parameter_static.h"
+#include "interface/fra_parameter_static/fra_parameter_static.h"
+#include "interface/esp_parameter_static/esp_parameter_static.h"
 #include "interface/do_action_static/do_action_static.h"
+#include "interface/ger_do_action_static/ger_do_action_static.h"
+#include "interface/fra_do_action_static/fra_do_action_static.h"
+#include "interface/esp_do_action_static/esp_do_action_static.h"
 #include "misc/story_static/story_static.h"
 
 #include "2s2h_assets.h"
@@ -56,6 +63,44 @@ static const char* doActionTbl[] = {
     gDoActionCurlENGTex,   gDoActionSurfaceENGTex, gDoActionSwimENGTex,  gDoActionPunchENGTex,  gDoActionPoundENGTex,
     gDoActionHookENGTex,   gDoActionShootENGTex,
 };
+
+static const char* doActionTblGER[] = {
+    gDoActionAttackGERTex, gDoActionCheckGERTex,   gDoActionEnterGERTex, gDoActionReturnGERTex, gDoActionOpenGERTex,
+    gDoActionJumpGERTex,   gDoActionDecideGERTex,  gDoActionDiveGERTex,  gDoActionFasterGERTex, gDoActionThrowGERTex,
+    gDoActionNaviGERTex,   gDoActionClimbGERTex,   gDoActionDropGERTex,  gDoActionDownGERTex,   gDoActionQuitGERTex,
+    gDoActionSpeakGERTex,  gDoActionNextGERTex,    gDoActionGrabGERTex,  gDoActionStopGERTex,   gDoActionPutAwayGERTex,
+    gDoActionReelGERTex,   gDoActionInfoGERTex,    gDoActionWarpGERTex,  gDoActionSnapGERTex,   gDoActionExplodeGERTex,
+    gDoActionDanceGERTex,  gDoActionMarchGERTex,   gDoActionNum1GERTex,  gDoActionNum2GERTex,   gDoActionNum3GERTex,
+    gDoActionNum4GERTex,   gDoActionNum5GERTex,    gDoActionNum6GERTex,  gDoActionNum7GERTex,   gDoActionNum8GERTex,
+    gDoActionCurlGERTex,   gDoActionSurfaceGERTex, gDoActionSwimGERTex,  gDoActionPunchGERTex,  gDoActionPoundGERTex,
+    gDoActionHookGERTex,   gDoActionShootGERTex,
+};
+
+static const char* doActionTblFRA[] = {
+    gDoActionAttackFRATex, gDoActionCheckFRATex,   gDoActionEnterFRATex, gDoActionReturnFRATex, gDoActionOpenFRATex,
+    gDoActionJumpFRATex,   gDoActionDecideFRATex,  gDoActionDiveFRATex,  gDoActionFasterFRATex, gDoActionThrowFRATex,
+    gDoActionNaviFRATex,   gDoActionClimbFRATex,   gDoActionDropFRATex,  gDoActionDownFRATex,   gDoActionQuitFRATex,
+    gDoActionSpeakFRATex,  gDoActionNextFRATex,    gDoActionGrabFRATex,  gDoActionStopFRATex,   gDoActionPutAwayFRATex,
+    gDoActionReelFRATex,   gDoActionInfoFRATex,    gDoActionWarpFRATex,  gDoActionSnapFRATex,   gDoActionExplodeFRATex,
+    gDoActionDanceFRATex,  gDoActionMarchFRATex,   gDoActionNum1FRATex,  gDoActionNum2FRATex,   gDoActionNum3FRATex,
+    gDoActionNum4FRATex,   gDoActionNum5FRATex,    gDoActionNum6FRATex,  gDoActionNum7FRATex,   gDoActionNum8FRATex,
+    gDoActionCurlFRATex,   gDoActionSurfaceFRATex, gDoActionSwimFRATex,  gDoActionPunchFRATex,  gDoActionPoundFRATex,
+    gDoActionHookFRATex,   gDoActionShootFRATex,
+};
+
+static const char* doActionTblESP[] = {
+    gDoActionAttackESPTex, gDoActionCheckESPTex,   gDoActionEnterESPTex, gDoActionReturnESPTex, gDoActionOpenESPTex,
+    gDoActionJumpESPTex,   gDoActionDecideESPTex,  gDoActionDiveESPTex,  gDoActionFasterESPTex, gDoActionThrowESPTex,
+    gDoActionNaviESPTex,   gDoActionClimbESPTex,   gDoActionDropESPTex,  gDoActionDownESPTex,   gDoActionQuitESPTex,
+    gDoActionSpeakESPTex,  gDoActionNextESPTex,    gDoActionGrabESPTex,  gDoActionStopESPTex,   gDoActionPutAwayESPTex,
+    gDoActionReelESPTex,   gDoActionInfoESPTex,    gDoActionWarpESPTex,  gDoActionSnapESPTex,   gDoActionExplodeESPTex,
+    gDoActionDanceESPTex,  gDoActionMarchESPTex,   gDoActionNum1ESPTex,  gDoActionNum2ESPTex,   gDoActionNum3ESPTex,
+    gDoActionNum4ESPTex,   gDoActionNum5ESPTex,    gDoActionNum6ESPTex,  gDoActionNum7ESPTex,   gDoActionNum8ESPTex,
+    gDoActionCurlESPTex,   gDoActionSurfaceESPTex, gDoActionSwimESPTex,  gDoActionPunchESPTex,  gDoActionPoundESPTex,
+    gDoActionHookESPTex,   gDoActionShootESPTex,
+};
+
+static const char** doActionTblPtr = doActionTbl;
 
 static const char* emptyCButtonArrows[] = {
     gEmptyCLeftArrowTex,
@@ -801,7 +846,11 @@ f32 sBButtonDoActionTextureScales[] = {
     // 100 is 1:1 scale, > 100 magnifies
     100.0f, // LANGUAGE_JPN
     109.0f, // LANGUAGE_ENG
-    // Data missing for other languages?
+            // #region 2S2H [PAL]
+    109.0f, // LANGUAGE_GER
+    109.0f, // LANGUAGE_FRE
+    109.0f, // LANGUAGE_SPA
+    // #endregion
 };
 s16 sItemIconTextureScales[] = {
     (s16)(1.074219f * (1 << 10)) >> 1, // EQUIP_SLOT_B
@@ -812,17 +861,29 @@ s16 sItemIconTextureScales[] = {
 s16 sBButtonDoActionXPositions[] = {
     158, // LANGUAGE_JPN
     155, // LANGUAGE_ENG
-    // Data missing for other languages?
+         // #region 2S2H [PAL]
+    155, // LANGUAGE_GER
+    155, // LANGUAGE_FRE
+    155, // LANGUAGE_SPA
+    // #endregion
 };
 s16 sBButtonDoActionYPositions[] = {
     23, // LANGUAGE_JPN
     22, // LANGUAGE_ENG
-    // Data missing for other languages?
+        // #region 2S2H [PAL]
+    22, // LANGUAGE_GER
+    22, // LANGUAGE_FRE
+    22, // LANGUAGE_SPA
+    // #endregion
 };
 f32 sAButtonDoActionTexScales[] = {
     -380.0f, // LANGUAGE_JPN
     -350.0f, // LANGUAGE_ENG
-    // Data missing for other languages?
+             // #region 2S2H [PAL]
+    -350.0f, // LANGUAGE_GER
+    -350.0f, // LANGUAGE_FRE
+    -350.0f, // LANGUAGE_SPA
+    // #endregion
 };
 s16 sBCButtonXPositions[] = {
     167, // EQUIP_SLOT_B
@@ -5024,10 +5085,11 @@ void Interface_LoadAButtonDoActionLabel(InterfaceContext* interfaceCtx, u16 doAc
         //                     SEGMENT_ROM_START(do_action_static) + doAction * DO_ACTION_TEX_SIZE, DO_ACTION_TEX_SIZE,
         //                     0, &interfaceCtx->loadQueue, NULL);
         // osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+
         if (slot) {
-            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex = doActionTbl[doAction];
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex = doActionTblPtr[doAction];
         } else {
-            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex = doActionTbl[doAction];
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex = doActionTblPtr[doAction];
         }
     } else {
         // gSegments[0x09] = OS_K0_TO_PHYSICAL(interfaceCtx->doActionSegment);
@@ -5084,7 +5146,7 @@ void Interface_SetBButtonPlayerDoAction(PlayState* play, s16 bButtonDoAction) {
                 //                     SEGMENT_ROM_START(do_action_static) + bButtonDoAction * DO_ACTION_TEX_SIZE,
                 //                     DO_ACTION_TEX_SIZE, 0, &interfaceCtx->loadQueue, NULL);
                 // osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
-                interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex = doActionTbl[bButtonDoAction];
+                interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex = doActionTblPtr[bButtonDoAction];
                 // #endregion
             }
 
@@ -5134,7 +5196,7 @@ void Interface_SetBButtonInterfaceDoAction(PlayState* play, s16 bButtonDoAction)
     //                     SEGMENT_ROM_START(do_action_static) + bButtonDoAction * DO_ACTION_TEX_SIZE,
     //                     DO_ACTION_TEX_SIZE, 0, &interfaceCtx->loadQueue, NULL);
     // osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
-    interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex = doActionTbl[bButtonDoAction];
+    interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex = doActionTblPtr[bButtonDoAction];
     // #endregion
 
     interfaceCtx->bButtonInterfaceDoActionActive = true;
@@ -5881,6 +5943,12 @@ void Interface_DrawItemButtons(PlayState* play) {
         gTatlCUpFRATex, // LANGUAGE_FRE
         gTatlCUpESPTex, // LANGUAGE_SPA
     };
+    static TexturePtr sCUpLabelTexturesPAL[] = {
+        gTatlCUpPALENGTex,
+        gTatlCUpPALGERTex,
+        gTatlCUpPALFRATex,
+        gTatlCUpPALESPTex,
+    };
     static s16 sStartButtonLeftPos[LANGUAGE_MAX] = {
         // Remnant of OoT
         130, // LANGUAGE_JPN
@@ -6021,9 +6089,15 @@ void Interface_DrawItemButtons(PlayState* play) {
             gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
             gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                               PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-            gDPLoadTextureBlock_4b(OVERLAY_DISP++, sCUpLabelTextures[gSaveContext.options.language], G_IM_FMT_IA, 32,
-                                   12, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
-                                   G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+                gDPLoadTextureBlock_4b(OVERLAY_DISP++, sCUpLabelTexturesPAL[gSaveContext.options.language - 1],
+                                       G_IM_FMT_IA, 32, 12, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                       G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            } else {
+                gDPLoadTextureBlock_4b(OVERLAY_DISP++, sCUpLabelTextures[gSaveContext.options.language], G_IM_FMT_IA,
+                                       32, 12, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                       G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            }
 
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_UP);
@@ -7965,6 +8039,19 @@ TexturePtr sPerfectLettersTextures[PERFECT_LETTERS_NUM_LETTERS] = {
     gPerfectLetterETex, gPerfectLetterCTex, gPerfectLetterTTex, gPerfectLetterExclamationTex,
 };
 
+// #region 2S2H [PAL]
+TexturePtr sPerfectLettersTexturesPAL[][PERFECT_LETTERS_NUM_LETTERS] = {
+    gPerfectLetterPTex,       gPerfectLetterETex,       gPerfectLetterRTex, gPerfectLetterFTex,
+    gPerfectLetterETex,       gPerfectLetterCPALENGTex, gPerfectLetterTTex, gPerfectLetterExclamationPALENGTex,
+    gPerfectLetterPTex,       gPerfectLetterETex,       gPerfectLetterRTex, gPerfectLetterFTex,
+    gPerfectLetterETex,       gPerfectLetterKPALGERTex, gPerfectLetterTTex, gPerfectLetterExclamationPALGERTex,
+    gPerfectLetterPTex,       gPerfectLetterAPALFRATex, gPerfectLetterRTex, gPerfectLetterFTex,
+    gPerfectLetterAPALFRATex, gPerfectLetterIPALFRATex, gPerfectLetterTTex, gPerfectLetterExclamationPALFRATex,
+    gPerfectLetterPTex,       gPerfectLetterETex,       gPerfectLetterRTex, gPerfectLetterFTex,
+    gPerfectLetterETex,       gPerfectLetterCPALESPTex, gPerfectLetterTTex, gPerfectLetterOPALESPTex,
+};
+// #endregion
+
 void Interface_DrawPerfectLetters(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     f32 letterX;
@@ -7997,7 +8084,13 @@ void Interface_DrawPerfectLetters(PlayState* play) {
             MATRIX_FINALIZE_AND_LOAD(OVERLAY_DISP++, play->state.gfxCtx);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[44 + vtxOffset], 4, 0);
 
-            OVERLAY_DISP = Gfx_DrawTexQuad4b(OVERLAY_DISP, sPerfectLettersTextures[i], G_IM_FMT_I, 32, 33, 0);
+            if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+                OVERLAY_DISP =
+                    Gfx_DrawTexQuad4b(OVERLAY_DISP, sPerfectLettersTexturesPAL[gSaveContext.options.language - 1][i],
+                                      G_IM_FMT_I, 32, 33, 0);
+            } else {
+                OVERLAY_DISP = Gfx_DrawTexQuad4b(OVERLAY_DISP, sPerfectLettersTextures[i], G_IM_FMT_I, 32, 33, 0);
+            }
 
             // Draw Minigame Perfect Colored Letters
             gDPPipeSync(OVERLAY_DISP++);
@@ -8011,7 +8104,13 @@ void Interface_DrawPerfectLetters(PlayState* play) {
             MATRIX_FINALIZE_AND_LOAD(OVERLAY_DISP++, play->state.gfxCtx);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[76 + vtxOffset], 4, 0);
 
-            OVERLAY_DISP = Gfx_DrawTexQuad4b(OVERLAY_DISP, sPerfectLettersTextures[i], G_IM_FMT_I, 32, 33, 0);
+            if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+                OVERLAY_DISP =
+                    Gfx_DrawTexQuad4b(OVERLAY_DISP, sPerfectLettersTexturesPAL[gSaveContext.options.language - 1][i],
+                                      G_IM_FMT_I, 32, 33, 0);
+            } else {
+                OVERLAY_DISP = Gfx_DrawTexQuad4b(OVERLAY_DISP, sPerfectLettersTextures[i], G_IM_FMT_I, 32, 33, 0);
+            }
         }
     }
 
@@ -8899,6 +8998,15 @@ TexturePtr sStoryTLUTs[] = {
     gStoryGiantsLeavingTLUT,
 };
 
+// #region 2S2H [PAL]
+TexturePtr sMinigameCountdownTexturesPAL[][4] = {
+    { gMinigameCountdown3Tex, gMinigameCountdown2Tex, gMinigameCountdown1Tex, gMinigameCountdownGoPALENGTex },
+    { gMinigameCountdown3Tex, gMinigameCountdown2Tex, gMinigameCountdown1Tex, gMinigameCountdownGoPALGERTex },
+    { gMinigameCountdown3Tex, gMinigameCountdown2Tex, gMinigameCountdown1Tex, gMinigameCountdownGoPALFRATex },
+    { gMinigameCountdown3Tex, gMinigameCountdown2Tex, gMinigameCountdown1Tex, gMinigameCountdownGoPALESPTex },
+};
+// #endregion
+
 void Interface_Draw(PlayState* play) {
     s32 pad;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
@@ -9365,8 +9473,14 @@ void Interface_Draw(PlayState* play) {
                     MATRIX_FINALIZE_AND_LOAD(OVERLAY_DISP++, play->state.gfxCtx);
                     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[40], 4, 0);
 
-                    OVERLAY_DISP = Gfx_DrawTexQuadIA8(OVERLAY_DISP, sMinigameCountdownTextures[sp2CE],
-                                                      sMinigameCountdownTexWidths[sp2CE], 32, 0);
+                    if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+                        OVERLAY_DISP = Gfx_DrawTexQuadIA8(
+                            OVERLAY_DISP, sMinigameCountdownTexturesPAL[gSaveContext.options.language - 1][sp2CE],
+                            sMinigameCountdownTexWidths[sp2CE], 32, 0);
+                    } else {
+                        OVERLAY_DISP = Gfx_DrawTexQuadIA8(OVERLAY_DISP, sMinigameCountdownTextures[sp2CE],
+                                                          sMinigameCountdownTexWidths[sp2CE], 32, 0);
+                    }
                 }
             } else {
                 Interface_DrawClock(play);
@@ -9538,6 +9652,67 @@ void Interface_Update(PlayState* play) {
     s16 dimmingAlpha;
     s16 risingAlpha;
     u16 aButtonDoAction;
+
+    // #region 2S2H [PAL]
+    if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+        s32 doActionAMainIndex = -1;
+        s32 doActionASubIndex = -1;
+        s32 doActionBMainIndex = -1;
+        s32 doActionBSubIndex = -1;
+        s32 doActionStartMainIndex = -1;
+        s32 i;
+
+        for (i = 0; i < ARRAY_COUNT(doActionTbl); i++) {
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex) {
+                doActionAMainIndex = i;
+            }
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex) {
+                doActionASubIndex = i;
+            }
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex) {
+                doActionBMainIndex = i;
+            }
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex) {
+                doActionBSubIndex = i;
+            }
+            if (doActionTblPtr[i] == interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex) {
+                doActionStartMainIndex = i;
+            }
+        }
+
+        switch (gSaveContext.options.language) {
+            case LANGUAGE_GER:
+                doActionTblPtr = doActionTblGER;
+                break;
+            case LANGUAGE_FRE:
+                doActionTblPtr = doActionTblFRA;
+                break;
+            case LANGUAGE_SPA:
+                doActionTblPtr = doActionTblESP;
+                break;
+            default:
+                doActionTblPtr = doActionTbl;
+                break;
+        }
+
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex != gEmptyTexture && doActionAMainIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex = doActionTblPtr[doActionAMainIndex];
+        }
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex != gEmptyTexture && doActionASubIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex = doActionTblPtr[doActionASubIndex];
+        }
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex != gEmptyTexture && doActionBMainIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_B].mainTex = doActionTblPtr[doActionBMainIndex];
+        }
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex != gEmptyTexture && doActionBSubIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_B].subTex = doActionTblPtr[doActionBSubIndex];
+        }
+        if (interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex != gEmptyTexture &&
+            doActionStartMainIndex >= 0) {
+            interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex = doActionTblPtr[doActionStartMainIndex];
+        }
+    }
+    // #endregion
 
     // Update buttons
     if (!IS_PAUSED(&play->pauseCtx)) {
@@ -10061,12 +10236,12 @@ void Interface_Init(PlayState* play) {
     // DmaMgr_RequestSync(interfaceCtx->doActionSegment + DO_ACTION_OFFSET_A_ACTIVE,
     //                   SEGMENT_ROM_START(do_action_static) + DO_ACTION_ATTACK * DO_ACTION_TEX_SIZE,
     //                   2 * DO_ACTION_TEX_SIZE);
-    interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex = doActionTbl[0];
-    interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex = doActionTbl[1];
+    interfaceCtx->doActionSegment[DO_ACTION_SEG_A].mainTex = doActionTblPtr[0];
+    interfaceCtx->doActionSegment[DO_ACTION_SEG_A].subTex = doActionTblPtr[1];
     // DmaMgr_RequestSync(interfaceCtx->doActionSegment + DO_ACTION_OFFSET_START,
     //                    SEGMENT_ROM_START_OFFSET(do_action_static, DO_ACTION_RETURN * DO_ACTION_TEX_SIZE),
     //                    1 * DO_ACTION_TEX_SIZE);
-    interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex = doActionTbl[3];
+    interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex = doActionTblPtr[3];
 
     Interface_NewDay(play, CURRENT_DAY);
 

@@ -207,6 +207,10 @@ u16 gBombersNotebookWeekEventFlags[BOMBERS_NOTEBOOK_EVENT_MAX] = {
 #undef DEFINE_EVENT
 
 MessageTableEntry* sMessageTableNES;
+MessageTableEntry* sMessageTableJPN;
+MessageTableEntry* sMessageTableGER;
+MessageTableEntry* sMessageTableFRA;
+MessageTableEntry* sMessageTableESP;
 MessageTableEntry* sMessageTableCredits;
 
 s16 D_801CFC78[TEXTBOX_TYPE_MAX] = {
@@ -2372,9 +2376,6 @@ void Message_Decode(PlayState* play) {
     u16 curChar;
     u8 index2 = 0;
 
-    // BENTODO do this somewhere else
-    gSaveContext.options.language = LANGUAGE_ENG;
-
     msgCtx->textDelayTimer = 0;
     msgCtx->textDelay = msgCtx->textDelayTimer;
     msgCtx->textFade = 0;
@@ -3310,9 +3311,6 @@ void Message_OpenText(PlayState* play, u16 textId) {
     bool loadFromMessageTable = true;
     GameInteractor_ExecuteOnOpenText(&textId, &loadFromMessageTable);
 
-    // BENTODO do this somewhere else
-    gSaveContext.options.language = LANGUAGE_ENG;
-
     if (play->msgCtx.msgMode == MSGMODE_NONE) {
         gSaveContext.prevHudVisibility = gSaveContext.hudVisibility;
     }
@@ -3461,8 +3459,6 @@ void func_801514B0(PlayState* play, u16 arg1, u8 arg2) {
     Font* font = &msgCtx->font;
     Player* player = GET_PLAYER(play);
     f32 temp = 1024.0f;
-    // BENTODO do this somewhere else
-    gSaveContext.options.language = LANGUAGE_ENG;
 
     msgCtx->ocarinaAction = 0xFFFF;
 
@@ -6293,7 +6289,24 @@ void Message_Update(PlayState* play) {
 }
 
 void Message_SetTables(PlayState* play) {
-    play->msgCtx.messageTableNES = sMessageTableNES;
+    if (ResourceMgr_GetGameRegion(0) == GAME_REGION_PAL) {
+        switch (gSaveContext.options.language) {
+            case LANGUAGE_GER:
+                play->msgCtx.messageTableNES = sMessageTableGER;
+                break;
+            case LANGUAGE_FRE:
+                play->msgCtx.messageTableNES = sMessageTableFRA;
+                break;
+            case LANGUAGE_SPA:
+                play->msgCtx.messageTableNES = sMessageTableESP;
+                break;
+            default:
+                play->msgCtx.messageTableNES = sMessageTableNES;
+                break;
+        }
+    } else {
+        play->msgCtx.messageTableNES = sMessageTableNES;
+    }
     play->msgCtx.messageTableCredits = sMessageTableCredits;
 }
 

@@ -132,15 +132,15 @@ static const ALIGN_ASSET(2) char gBombersNotebookDayFinalFRATex[] = dgBombersNot
 #define dgBombersNotebookTimeOfDayFRATex "__OTR__schedule_static/gBombersNotebookTimeOfDayFRATex"
 static const ALIGN_ASSET(2) char gBombersNotebookTimeOfDayFRATex[] = dgBombersNotebookTimeOfDayFRATex;
 
-#define dgBombersNotebookDay1stSPATex "__OTR__schedule_static/gBombersNotebookDay1stSPATex"
-static const ALIGN_ASSET(2) char gBombersNotebookDay1stSPATex[] = dgBombersNotebookDay1stSPATex;
+#define dgBombersNotebookDay1stESPTex "__OTR__schedule_static/gBombersNotebookDay1stESPTex"
+static const ALIGN_ASSET(2) char gBombersNotebookDay1stESPTex[] = dgBombersNotebookDay1stESPTex;
 
-#define dgBombersNotebookDay2ndSPATex "__OTR__schedule_static/gBombersNotebookDay2ndSPATex"
-static const ALIGN_ASSET(2) char gBombersNotebookDay2ndSPATex[] = dgBombersNotebookDay2ndSPATex;
+#define dgBombersNotebookDay2ndESPTex "__OTR__schedule_static/gBombersNotebookDay2ndESPTex"
+static const ALIGN_ASSET(2) char gBombersNotebookDay2ndESPTex[] = dgBombersNotebookDay2ndESPTex;
 
-#define dgBombersNotebookDayFinalSPATex "__OTR__schedule_static/gBombersNotebookDayFinalSPATex"
-static const ALIGN_ASSET(2) char gBombersNotebookDayFinalSPATex[] = dgBombersNotebookDayFinalSPATex;
+#define dgBombersNotebookDayFinalESPTex "__OTR__schedule_static/gBombersNotebookDayFinalESPTex"
+static const ALIGN_ASSET(2) char gBombersNotebookDayFinalESPTex[] = dgBombersNotebookDayFinalESPTex;
 
-#define dgBombersNotebookTimeOfDaySPATex "__OTR__schedule_static/gBombersNotebookTimeOfDaySPATex"
-static const ALIGN_ASSET(2) char gBombersNotebookTimeOfDaySPATex[] = dgBombersNotebookTimeOfDaySPATex;
+#define dgBombersNotebookTimeOfDayESPTex "__OTR__schedule_static/gBombersNotebookTimeOfDayESPTex"
+static const ALIGN_ASSET(2) char gBombersNotebookTimeOfDayESPTex[] = dgBombersNotebookTimeOfDayESPTex;
 #endif // INTERFACE_SCHEDULE_STATIC_H

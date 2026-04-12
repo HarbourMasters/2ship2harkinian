@@ -1,0 +1,157 @@
+<Root>
+    <!-- Item Names. Must be ia4 128x16 and ordered following `ItemId` -->
+    <File Name="fra_item_name_static">
+        <!-- Main items -->
+        <Texture Name="gItemNameOcarinaOfTimeFRATex" OutName="item_name_ocarina_of_time_fra" Format="ia4" Width="128" Height="16" Offset="0x0" /> <!-- ITEM_OCARINA_OF_TIME -->
+        <Texture Name="gItemNameHerosBowFRATex" OutName="item_name_heros_bow_fra" Format="ia4" Width="128" Height="16" Offset="0x400" /> <!-- ITEM_BOW -->
+        <Texture Name="gItemNameFireArrowFRATex" OutName="item_name_fire_arrow_fra" Format="ia4" Width="128" Height="16" Offset="0x800" /> <!-- ITEM_ARROW_FIRE -->
+        <Texture Name="gItemNameIceArrowFRATex" OutName="item_name_ice_arrow_fra" Format="ia4" Width="128" Height="16" Offset="0xC00" /> <!-- ITEM_ARROW_ICE -->
+        <Texture Name="gItemNameLightArrowFRATex" OutName="item_name_light_arrow_fra" Format="ia4" Width="128" Height="16" Offset="0x1000" /> <!-- ITEM_ARROW_LIGHT -->
+        <Texture Name="gItemNameFairyOcarinaFRATex" OutName="item_name_fairy_ocarina_fra" Format="ia4" Width="128" Height="16" Offset="0x1400" /> <!-- ITEM_OCARINA_FAIRY -->
+        <Texture Name="gItemNameBombFRATex" OutName="item_name_bomb_fra" Format="ia4" Width="128" Height="16" Offset="0x1800" /> <!-- ITEM_BOMB -->
+        <Texture Name="gItemNameBombchuFRATex" OutName="item_name_bombchu_fra" Format="ia4" Width="128" Height="16" Offset="0x1C00" /> <!-- ITEM_BOMBCHU -->
+        <Texture Name="gItemNameDekuStickFRATex" OutName="item_name_deku_stick_fra" Format="ia4" Width="128" Height="16" Offset="0x2000" /> <!-- ITEM_DEKU_STICK -->
+        <Texture Name="gItemNameDekuNutFRATex" OutName="item_name_deku_nut_fra" Format="ia4" Width="128" Height="16" Offset="0x2400" /> <!-- ITEM_DEKU_NUT -->
+        <Texture Name="gItemNameMagicBeansFRATex" OutName="item_name_magic_beans_fra" Format="ia4" Width="128" Height="16" Offset="0x2800" /> <!-- ITEM_MAGIC_BEANS -->
+        <!-- Swapped with slingshot -->
+        <Texture Name="gItemNameLongshotFRATex" OutName="item_name_longshot_fra" Format="ia4" Width="128" Height="16" Offset="0x2C00" /> <!-- ITEM_SLINGSHOT -->
+        <Texture Name="gItemNamePowderKegFRATex" OutName="item_name_powder_keg_fra" Format="ia4" Width="128" Height="16" Offset="0x3000" /> <!-- ITEM_POWDER_KEG -->
+        <Texture Name="gItemNamePictographBoxFRATex" OutName="item_name_pictograph_box_fra" Format="ia4" Width="128" Height="16" Offset="0x3400" /> <!-- ITEM_PICTOGRAPH_BOX -->
+        <Texture Name="gItemNameLensOfTruthFRATex" OutName="item_name_lens_of_truth_fra" Format="ia4" Width="128" Height="16" Offset="0x3800" /> <!-- ITEM_LENS_OF_TRUTH -->
+        <Texture Name="gItemNameHookshotFRATex" OutName="item_name_hookshot_fra" Format="ia4" Width="128" Height="16" Offset="0x3C00" /> <!-- ITEM_HOOKSHOT -->
+        <Texture Name="gItemNameGreatFairysSwordFRATex" OutName="item_name_great_fairys_sword_fra" Format="ia4" Width="128" Height="16" Offset="0x4000" /> <!-- ITEM_SWORD_GREAT_FAIRY -->
+        <!-- Swapped with longshot -->
+        <Texture Name="gItemNameFairySlingshotFRATex" OutName="item_name_fairy_slingshot_fra" Format="ia4" Width="128" Height="16" Offset="0x4400" /> <!-- ITEM_LONGSHOT -->
+
+        <!-- Bottled items -->
+        <Texture Name="gItemNameEmptyBottleFRATex" OutName="item_name_empty_bottle_fra" Format="ia4" Width="128" Height="16" Offset="0x4800" /> <!-- ITEM_BOTTLE -->
+        <Texture Name="gItemNameRedPotionFRATex" OutName="item_name_red_potion_fra" Format="ia4" Width="128" Height="16" Offset="0x4C00" /> <!-- ITEM_POTION_RED -->
+        <Texture Name="gItemNameGreenPotionFRATex" OutName="item_name_green_potion_fra" Format="ia4" Width="128" Height="16" Offset="0x5000" /> <!-- ITEM_POTION_GREEN -->
+        <Texture Name="gItemNameBluePotionFRATex" OutName="item_name_blue_potion_fra" Format="ia4" Width="128" Height="16" Offset="0x5400" /> <!-- ITEM_POTION_BLUE -->
+        <Texture Name="gItemNameFairyFRATex" OutName="item_name_fairy_fra" Format="ia4" Width="128" Height="16" Offset="0x5800" /> <!-- ITEM_FAIRY -->
+        <Texture Name="gItemNameDekuPrincessFRATex" OutName="item_name_deku_princess_fra" Format="ia4" Width="128" Height="16" Offset="0x5C00" /> <!-- ITEM_DEKU_PRINCESS -->
+        <Texture Name="gItemNameFullMilkFRATex" OutName="item_name_full_milk_fra" Format="ia4" Width="128" Height="16" Offset="0x6000" /> <!-- ITEM_MILK_BOTTLE -->
+        <Texture Name="gItemNameHalfMilkFRATex" OutName="item_name_half_milk_fra" Format="ia4" Width="128" Height="16" Offset="0x6400" /> <!-- ITEM_MILK_HALF -->
+        <Texture Name="gItemNameFishFRATex" OutName="item_name_fish_fra" Format="ia4" Width="128" Height="16" Offset="0x6800" /> <!-- ITEM_FISH -->
+        <Texture Name="gItemNameBugFRATex" OutName="item_name_bug_fra" Format="ia4" Width="128" Height="16" Offset="0x6C00" /> <!-- ITEM_BUG -->
+        <Texture Name="gItemNameBlueFireFRATex" OutName="item_name_blue_fire_fra" Format="ia4" Width="128" Height="16" Offset="0x7000" /> <!-- ITEM_BLUE_FIRE -->
+        <Texture Name="gItemNamePoeFRATex" OutName="item_name_poe_fra" Format="ia4" Width="128" Height="16" Offset="0x7400" /> <!-- ITEM_POE -->
+        <Texture Name="gItemNameBigPoeFRATex" OutName="item_name_big_poe_fra" Format="ia4" Width="128" Height="16" Offset="0x7800" /> <!-- ITEM_BIG_POE -->
+        <Texture Name="gItemNameSpringWaterFRATex" OutName="item_name_spring_water_fra" Format="ia4" Width="128" Height="16" Offset="0x7C00" /> <!-- ITEM_SPRING_WATER -->
+        <Texture Name="gItemNameHotSpringWaterFRATex" OutName="item_name_hot_spring_water_fra" Format="ia4" Width="128" Height="16" Offset="0x8000" /> <!-- ITEM_HOT_SPRING_WATER -->
+        <Texture Name="gItemNameZoraEggFRATex" OutName="item_name_zora_egg_fra" Format="ia4" Width="128" Height="16" Offset="0x8400" /> <!-- ITEM_ZORA_EGG -->
+        <Texture Name="gItemNameGoldDustFRATex" OutName="item_name_gold_dust_fra" Format="ia4" Width="128" Height="16" Offset="0x8800" /> <!-- ITEM_GOLD_DUST -->
+        <Texture Name="gItemNameMagicalMushroomFRATex" OutName="item_name_magical_mushroom_fra" Format="ia4" Width="128" Height="16" Offset="0x8C00" /> <!-- ITEM_MUSHROOM -->
+        <Texture Name="gItemNameSeaHorseFRATex" OutName="item_name_sea_horse_fra" Format="ia4" Width="128" Height="16" Offset="0x9000" /> <!-- ITEM_SEAHORSE -->
+        <Texture Name="gItemNameChateauRomaniFRATex" OutName="item_name_chateau_romani_fra" Format="ia4" Width="128" Height="16" Offset="0x9400" /> <!-- ITEM_CHATEAU -->
+        <Texture Name="gItemNameHylianLoachFRATex" OutName="item_name_hylian_loach_fra" Format="ia4" Width="128" Height="16" Offset="0x9800" /> <!-- ITEM_HYLIAN_LOACH -->
+        <Texture Name="gItemNameObabasDrinkFRATex" OutName="item_name_obabas_drink_fra" Format="ia4" Width="128" Height="16" Offset="0x9C00" /> <!-- ITEM_OBABA_DRINK -->
+
+        <!-- Trade Items -->
+        <Texture Name="gItemNameMoonsTearFRATex" OutName="item_name_moons_tear_fra" Format="ia4" Width="128" Height="16" Offset="0xA000" /> <!-- ITEM_MOONS_TEAR -->
+        <Texture Name="gItemNameLandTitleDeedFRATex" OutName="item_name_land_title_deed_fra" Format="ia4" Width="128" Height="16" Offset="0xA400" /> <!-- ITEM_DEED_LAND -->
+        <Texture Name="gItemNameSwampTitleDeedFRATex" OutName="item_name_swamp_title_deed_fra" Format="ia4" Width="128" Height="16" Offset="0xA800" /> <!-- ITEM_DEED_SWAMP -->
+        <Texture Name="gItemNameMountainTitleDeedFRATex" OutName="item_name_mountain_title_deed_fra" Format="ia4" Width="128" Height="16" Offset="0xAC00" /> <!-- ITEM_DEED_MOUNTAIN -->
+        <Texture Name="gItemNameOceanTitleDeedFRATex" OutName="item_name_ocean_title_deed_fra" Format="ia4" Width="128" Height="16" Offset="0xB000" /> <!-- ITEM_DEED_OCEAN -->
+        <Texture Name="gItemNameRoomKeyFRATex" OutName="item_name_room_key_fra" Format="ia4" Width="128" Height="16" Offset="0xB400" /> <!-- ITEM_ROOM_KEY -->
+        <Texture Name="gItemNameSpecialDeliveryToMamaFRATex" OutName="item_name_special_delivery_to_mama_fra" Format="ia4" Width="128" Height="16" Offset="0xB800" /> <!-- ITEM_LETTER_MAMA -->
+        <Texture Name="gItemNameLetterToKafeiFRATex" OutName="item_name_letter_to_kafei_fra" Format="ia4" Width="128" Height="16" Offset="0xBC00" /> <!-- ITEM_LETTER_TO_KAFEI -->
+        <Texture Name="gItemNamePendantOfMemoriesFRATex" OutName="item_name_pendant_of_memories_fra" Format="ia4" Width="128" Height="16" Offset="0xC000" /> <!-- ITEM_PENDANT_OF_MEMORIES -->
+
+        <!-- Translates to Moon's Stone? Slightly different than the japanese translation of Moon's Tear. Replaces Tear with Stone, the same character used in Stone's Mask -->
+        <Texture Name="gItemNameMoonsStoneFRATex" OutName="item_name_moons_stone_fra" Format="ia4" Width="128" Height="16" Offset="0xC400" /> <!-- ITEM_TINGLE_MAP -->
+
+        <!-- Masks -->
+        <Texture Name="gItemNameDekuMaskFRATex" OutName="item_name_deku_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xC800" /> <!-- ITEM_MASK_DEKU -->
+        <Texture Name="gItemNameGoronMaskFRATex" OutName="item_name_goron_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xCC00" /> <!-- ITEM_MASK_GORON -->
+        <Texture Name="gItemNameZoraMaskFRATex" OutName="item_name_zora_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xD000" /> <!-- ITEM_MASK_ZORA -->
+        <Texture Name="gItemNameFierceDeitysMaskFRATex" OutName="item_name_fierce_deitys_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xD400" /> <!-- ITEM_MASK_FIERCE_DEITY -->
+        <Texture Name="gItemNameMaskOfTruthFRATex" OutName="item_name_mask_of_truth_fra" Format="ia4" Width="128" Height="16" Offset="0xD800" /> <!-- ITEM_MASK_TRUTH -->
+        <Texture Name="gItemNameKafeisMaskFRATex" OutName="item_name_kafeis_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xDC00" /> <!-- ITEM_MASK_KAFEIS_MASK -->
+        <Texture Name="gItemNameAllNightMaskFRATex" OutName="item_name_all_night_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xE000" /> <!-- ITEM_MASK_ALL_NIGHT -->
+        <Texture Name="gItemNameBunnyHoodFRATex" OutName="item_name_bunny_hood_fra" Format="ia4" Width="128" Height="16" Offset="0xE400" /> <!-- ITEM_MASK_BUNNY -->
+        <Texture Name="gItemNameKeatonMaskFRATex" OutName="item_name_keaton_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xE800" /> <!-- ITEM_MASK_KEATON -->
+        <Texture Name="gItemNameGarosMaskFRATex" OutName="item_name_garos_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xEC00" /> <!-- ITEM_MASK_GARO -->
+        <Texture Name="gItemNameRomanisMaskFRATex" OutName="item_name_romanis_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xF000" /> <!-- ITEM_MASK_ROMANI -->
+        <Texture Name="gItemNameCircusLeadersMaskFRATex" OutName="item_name_circus_leaders_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xF400" /> <!-- ITEM_MASK_CIRCUS_LEADER -->
+        <Texture Name="gItemNamePostmansHatFRATex" OutName="item_name_postmans_hat_fra" Format="ia4" Width="128" Height="16" Offset="0xF800" /> <!-- ITEM_MASK_POSTMAN -->
+        <Texture Name="gItemNameCouplesMaskFRATex" OutName="item_name_couples_mask_fra" Format="ia4" Width="128" Height="16" Offset="0xFC00" /> <!-- ITEM_MASK_COUPLE -->
+        <Texture Name="gItemNameGreatFairysMaskFRATex" OutName="item_name_great_fairys_mask_fra" Format="ia4" Width="128" Height="16" Offset="0x10000" /> <!-- ITEM_MASK_GREAT_FAIRY -->
+        <Texture Name="gItemNameGibdoMaskFRATex" OutName="item_name_gibdo_mask_fra" Format="ia4" Width="128" Height="16" Offset="0x10400" /> <!-- ITEM_MASK_GIBDO -->
+        <Texture Name="gItemNameDonGerosMaskFRATex" OutName="item_name_don_geros_mask_fra" Format="ia4" Width="128" Height="16" Offset="0x10800" /> <!-- ITEM_MASK_DON_GERO -->
+        <Texture Name="gItemNameKamarosMaskFRATex" OutName="item_name_kamaros_mask_fra" Format="ia4" Width="128" Height="16" Offset="0x10C00" /> <!-- ITEM_MASK_KAMARO -->
+        <Texture Name="gItemNameCaptainsHatFRATex" OutName="item_name_captains_hat_fra" Format="ia4" Width="128" Height="16" Offset="0x11000" /> <!-- ITEM_MASK_CAPTAIN -->
+        <Texture Name="gItemNameStoneMaskFRATex" OutName="item_name_stone_mask_fra" Format="ia4" Width="128" Height="16" Offset="0x11400" /> <!-- ITEM_MASK_STONE -->
+        <Texture Name="gItemNameBremenMaskFRATex" OutName="item_name_bremen_mask_fra" Format="ia4" Width="128" Height="16" Offset="0x11800" /> <!-- ITEM_MASK_BREMEN -->
+        <Texture Name="gItemNameBlastMaskFRATex" OutName="item_name_blast_mask_fra" Format="ia4" Width="128" Height="16" Offset="0x11C00" /> <!-- ITEM_MASK_BLAST -->
+        <Texture Name="gItemNameMaskOfScentsFRATex" OutName="item_name_mask_of_scents_fra" Format="ia4" Width="128" Height="16" Offset="0x12000" /> <!-- ITEM_MASK_SCENTS -->
+        <Texture Name="gItemNameGiantsMaskFRATex" OutName="item_name_giants_mask_fra" Format="ia4" Width="128" Height="16" Offset="0x12400" /> <!-- ITEM_MASK_GIANT -->
+
+        <!-- Unused remnants from OoT -->
+        <Texture Name="gItemNameWindMedallionFRATex" OutName="item_name_wind_medallion_fra" Format="ia4" Width="128" Height="16" Offset="0x12800" /> <!-- ITEM_BOW_FIRE -->
+        <Texture Name="gItemNameFireMedallionFRATex" OutName="item_name_fire_medallion_fra" Format="ia4" Width="128" Height="16" Offset="0x12C00" /> <!-- ITEM_BOW_ICE -->
+        <Texture Name="gItemNameIceMedallionFRATex" OutName="item_name_ice_medallion_fra" Format="ia4" Width="128" Height="16" Offset="0x13000" /> <!-- ITEM_BOW_LIGHT -->
+
+        <!-- Equipment -->
+        <Texture Name="gItemNameKokiriSwordFRATex" OutName="item_name_kokiri_sword_fra" Format="ia4" Width="128" Height="16" Offset="0x13400" /> <!-- ITEM_SWORD_KOKIRI -->
+        <Texture Name="gItemNameRazorSwordFRATex" OutName="item_name_razor_sword_fra" Format="ia4" Width="128" Height="16" Offset="0x13800" /> <!-- ITEM_SWORD_RAZOR -->
+        <Texture Name="gItemNameGildedSwordFRATex" OutName="item_name_gilded_sword_fra" Format="ia4" Width="128" Height="16" Offset="0x13C00" /> <!-- ITEM_SWORD_GILDED -->
+        <!-- Unused remnants from OoT -->
+        <Texture Name="gItemNameBrokenGiantsKnifeFRATex" OutName="item_name_broken_giants_knife_fra" Format="ia4" Width="128" Height="16" Offset="0x14000" /> <!-- ITEM_SWORD_DEITY -->
+        <Texture Name="gItemNameHerosShieldFRATex" OutName="item_name_heros_shield_fra" Format="ia4" Width="128" Height="16" Offset="0x14400" /> <!-- ITEM_SHIELD_HERO -->
+        <Texture Name="gItemNameMirrorShieldFRATex" OutName="item_name_mirror_shield_fra" Format="ia4" Width="128" Height="16" Offset="0x14800" /> <!-- ITEM_SHIELD_MIRROR -->
+
+        <!-- Upgrades -->
+        <Texture Name="gItemNameQuiver30FRATex" OutName="item_name_quiver_30_fra" Format="ia4" Width="128" Height="16" Offset="0x14C00" /> <!-- ITEM_QUIVER_30 -->
+        <Texture Name="gItemNameQuiver40FRATex" OutName="item_name_quiver_40_fra" Format="ia4" Width="128" Height="16" Offset="0x15000" /> <!-- ITEM_QUIVER_40 -->
+        <Texture Name="gItemNameQuiver50FRATex" OutName="item_name_quiver_50_fra" Format="ia4" Width="128" Height="16" Offset="0x15400" /> <!-- ITEM_QUIVER_50 -->
+        <Texture Name="gItemNameBombBag20FRATex" OutName="item_name_bomb_bag_20_fra" Format="ia4" Width="128" Height="16" Offset="0x15800" /> <!-- ITEM_BOMB_BAG_20 -->
+        <Texture Name="gItemNameBombBag30FRATex" OutName="item_name_bomb_bag_30_fra" Format="ia4" Width="128" Height="16" Offset="0x15C00" /> <!-- ITEM_BOMB_BAG_30 -->
+        <Texture Name="gItemNameBombBag40FRATex" OutName="item_name_bomb_bag_40_fra" Format="ia4" Width="128" Height="16" Offset="0x16000" /> <!-- ITEM_BOMB_BAG_40 -->
+
+        <!-- Unused remnants from OoT -->
+        <Texture Name="gItemNameBigKey1FRATex" OutName="item_name_big_key_1_fra" Format="ia4" Width="128" Height="16" Offset="0x16400" /> <!-- ITEM_WALLET_DEFAULT -->
+        <Texture Name="gItemNameBigKey2FRATex" OutName="item_name_big_key_2_fra" Format="ia4" Width="128" Height="16" Offset="0x16800" /> <!-- ITEM_WALLET_ADULT -->
+        <Texture Name="gItemNameBigKey3FRATex" OutName="item_name_big_key_3_fra" Format="ia4" Width="128" Height="16" Offset="0x16C00" /> <!-- ITEM_WALLET_GIANT -->
+        <Texture Name="gItemNameBigKey4FRATex" OutName="item_name_big_key_4_fra" Format="ia4" Width="128" Height="16" Offset="0x17000" /> <!-- ITEM_FISHING_ROD -->
+
+        <!-- Boss remains -->
+        <Texture Name="gItemNameOdolwasRemainsFRATex" OutName="item_name_odolwas_remains_fra" Format="ia4" Width="128" Height="16" Offset="0x17400" /> <!-- ITEM_REMAINS_ODOLWA -->
+        <Texture Name="gItemNameGohtsRemainsFRATex" OutName="item_name_gohts_remains_fra" Format="ia4" Width="128" Height="16" Offset="0x17800" /> <!-- ITEM_REMAINS_GOHT -->
+        <Texture Name="gItemNameGyorgsRemainsFRATex" OutName="item_name_gyorgs_remains_fra" Format="ia4" Width="128" Height="16" Offset="0x17C00" /> <!-- ITEM_REMAINS_GYORG -->
+        <Texture Name="gItemNameTwinmoldsRemainsFRATex" OutName="item_name_twinmolds_remains_fra" Format="ia4" Width="128" Height="16" Offset="0x18000" /> <!-- ITEM_REMAINS_TWINMOLD -->
+
+        <!-- Songs -->
+        <Texture Name="gItemNameSonataOfAwakeningFRATex" OutName="item_name_sonata_of_awakening_fra" Format="ia4" Width="128" Height="16" Offset="0x18400" /> <!-- ITEM_SONG_SONATA -->
+        <Texture Name="gItemNameGoronLullabyFRATex" OutName="item_name_goron_lullaby_fra" Format="ia4" Width="128" Height="16" Offset="0x18800" /> <!-- ITEM_SONG_LULLABY -->
+        <Texture Name="gItemNameNewWaveBossaNovaFRATex" OutName="item_name_new_wave_bossa_nova_fra" Format="ia4" Width="128" Height="16" Offset="0x18C00" /> <!-- ITEM_SONG_NOVA -->
+        <Texture Name="gItemNameElegyOfEmptynessFRATex" OutName="item_name_elegy_of_emptiness_fra" Format="ia4" Width="128" Height="16" Offset="0x19000" /> <!-- ITEM_SONG_ELEGY -->
+        <Texture Name="gItemNameOathToOrderFRATex" OutName="item_name_oath_to_order_fra" Format="ia4" Width="128" Height="16" Offset="0x19400" /> <!-- ITEM_SONG_OATH -->
+        <!-- Unused remnants from OoT -->
+        <Texture Name="gItemNameNocturneOfShadowFRATex" OutName="item_name_nocturne_of_shadow_fra" Format="ia4" Width="128" Height="16" Offset="0x19800" /> <!-- ITEM_SONG_SARIA -->
+        <Texture Name="gItemNameSongOfTimeFRATex" OutName="item_name_song_of_time_fra" Format="ia4" Width="128" Height="16" Offset="0x19C00" /> <!-- ITEM_SONG_TIME -->
+        <Texture Name="gItemNameSongOfHealingFRATex" OutName="item_name_song_of_healing_fra" Format="ia4" Width="128" Height="16" Offset="0x1A000" /> <!-- ITEM_SONG_HEALING -->
+        <Texture Name="gItemNameEponasSongFRATex" OutName="item_name_eponas_song_fra" Format="ia4" Width="128" Height="16" Offset="0x1A400" /> <!-- ITEM_SONG_EPONA -->
+        <Texture Name="gItemNameSongOfSoaringFRATex" OutName="item_name_song_of_soaring_fra" Format="ia4" Width="128" Height="16" Offset="0x1A800" /> <!-- ITEM_SONG_SOARING -->
+        <Texture Name="gItemNameSongOfStormsFRATex" OutName="item_name_song_of_storms_fra" Format="ia4" Width="128" Height="16" Offset="0x1AC00" /> <!-- ITEM_SONG_STORMS -->
+        <!-- Unused remnants from OoT -->
+        <Texture Name="gItemNameSunsSongFRATex" OutName="item_name_suns_song_fra" Format="ia4" Width="128" Height="16" Offset="0x1B000" /> <!-- ITEM_SONG_SUN -->
+
+        <!-- Misc -->
+        <Texture Name="gItemNameBombersNotebookFRATex" OutName="item_name_bombers_notebook_fra" Format="ia4" Width="128" Height="16" Offset="0x1B400" /> <!-- ITEM_BOMBERS_NOTEBOOK -->
+        <!-- Unused remnants from OoT -->
+        <Texture Name="gItemNameGoldSkulltulaFRATex" OutName="item_name_gold_skulltula_fra" Format="ia4" Width="128" Height="16" Offset="0x1B800" /> <!-- ITEM_SKULL_TOKEN -->
+        <Texture Name="gItemNamePieceOfHeartFRATex" OutName="item_name_piece_of_heart_fra" Format="ia4" Width="128" Height="16" Offset="0x1BC00" /> <!-- ITEM_HEART_CONTAINER, Piece of Heart? -->
+        <!-- Unused remnants from OoT -->
+        <Texture Name="gItemNamePieceOfHeartFRA2Tex" OutName="item_name_piece_of_heart_fra2" Format="ia4" Width="128" Height="16" Offset="0x1C000" /> <!-- ITEM_HEART_PIECE -->
+        <!-- Identical to gItemNameSunsSongFRATex -->
+        <Texture Name="gItemNameSunsSong2FRATex" OutName="item_name_suns_song_2_fra" Format="ia4" Width="128" Height="16" Offset="0x1C400" /> <!-- ITEM_71 -->
+        <!-- Unused remnants from OoT -->
+        <Texture Name="gItemNameSongOfTimeFRA2Tex" OutName="item_name_song_of_time_fra2" Format="ia4" Width="128" Height="16" Offset="0x1C800" /> <!-- ITEM_72 -->
+        <Texture Name="gItemNameLullabyIntroFRATex" OutName="item_name_lullaby_intro_fra" Format="ia4" Width="128" Height="16" Offset="0x1CC00" /> <!-- ITEM_SONG_LULLABY_INTRO -->
+        <Texture Name="gItemNameBigKeyFRATex" OutName="item_name_big_key_fra" Format="ia4" Width="128" Height="16" Offset="0x1D000" /> <!-- ITEM_KEY_BOSS -->
+        <Texture Name="gItemNameCompassFRATex" OutName="item_name_compass_fra" Format="ia4" Width="128" Height="16" Offset="0x1D400" /> <!-- ITEM_COMPASS -->
+        <Texture Name="gItemNameDungeonMapFRATex" OutName="item_name_dungeon_map_fra" Format="ia4" Width="128" Height="16" Offset="0x1D800" /> <!-- ITEM_DUNGEON_MAP -->
+        <Texture Name="gItemNameStrayFairiesFRATex" OutName="item_name_stray_fairies_fra" Format="ia4" Width="128" Height="16" Offset="0x1DC00" /> <!-- ITEM_STRAY_FAIRIES -->
+    </File>
+</Root>

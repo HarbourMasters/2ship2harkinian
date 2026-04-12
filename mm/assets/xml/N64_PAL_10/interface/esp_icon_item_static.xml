@@ -1,0 +1,31 @@
+<Root>
+    <!-- Pause Menu: Language-Dependent Textures -->
+    <File Name="esp_icon_item_static" Segment="13">
+        <!-- Pause Menu Dungeon Title Cards -->
+        <Texture Name="gPauseWoodfallTitleGCESPTex" OutName="pause_woodfall_title_esp" Format="ia4" Width="128" Height="16" Offset="0x0"/>
+        <Texture Name="gPauseSnowheadTitleGCESPTex" OutName="pause_snowhead_title_esp" Format="ia4" Width="128" Height="16" Offset="0x400"/>
+        <Texture Name="gPauseGreatBayTitleGCESPTex" OutName="pause_great_bay_title_esp" Format="ia4" Width="128" Height="16" Offset="0x800"/>
+        <Texture Name="gPauseStoneTowerTitleGCESPTex" OutName="pause_stone_tower_title_esp" Format="ia4" Width="128" Height="16" Offset="0xC00"/>
+
+        <!-- Pause Menu Info Panel To-> Textures -->
+        <Texture Name="gPauseToEquipESPTex" OutName="pause_to_equip_esp" Format="ia4" Width="80" Height="16" Offset="0x1000"/>
+        <Texture Name="gPauseToDecideESPTex" OutName="pause_to_decide_esp" Format="ia4" Width="80" Height="16" Offset="0x1280"/>
+        <Texture Name="gPauseToPlayMelodyESPTex" OutName="pause_to_play_melody_esp" Format="ia4" Width="112" Height="16" Offset="0x1500"/>
+        <Texture Name="gPauseToSelectItemESPTex" OutName="pause_to_select_item_esp" Format="ia4" Width="128" Height="16" Offset="0x1880"/>
+        <Texture Name="gPauseToMapESPTex" OutName="pause_to_map_esp" Format="ia4" Width="128" Height="16" Offset="0x1C80"/>
+        <Texture Name="gPauseToQuestStatusESPTex" OutName="pause_to_quest_status_esp" Format="ia4" Width="128" Height="16" Offset="0x2080"/>
+        <Texture Name="gPauseToMasksESPTex" OutName="pause_to_masks_esp" Format="ia4" Width="128" Height="16" Offset="0x2480"/>
+        <Texture Name="gPauseToViewNotebookESPTex" OutName="pause_to_view_notebook_esp" Format="ia4" Width="112" Height="16" Offset="0x2880"/>
+
+        <!-- Pause Menu Pages Background Textures -->
+        <!-- Divided into 3 columns (first digit) and 5 rows (second digit) -->
+        <Texture Name="gPauseMasks10ESPTex" OutName="pause_masks_1_0_esp" Format="ia8" Width="80" Height="32" Offset="0x2C00"/>
+        <Texture Name="gPauseSelectItem00ESPTex" OutName="pause_select_item_0_0_esp" Format="ia8" Width="80" Height="32" Offset="0x3600"/>
+        <Texture Name="gPauseSelectItem10ESPTex" OutName="pause_select_item_1_0_esp" Format="ia8" Width="80" Height="32" Offset="0x4000"/>
+        <Texture Name="gPauseSelectItem20ESPTex" OutName="pause_select_item_2_0_esp" Format="ia8" Width="80" Height="32" Offset="0x4A00"/>
+        <Texture Name="gPauseMap10ESPTex" OutName="pause_map_1_0_esp" Format="ia8" Width="80" Height="32" Offset="0x5400"/>
+        <Texture Name="gPauseQuestStatus00ESPTex" OutName="pause_quest_status_0_0_esp" Format="ia8" Width="80" Height="32" Offset="0x5E00"/>
+        <Texture Name="gPauseQuestStatus10ESPTex" OutName="pause_quest_status_1_0_esp" Format="ia8" Width="80" Height="32" Offset="0x6800"/>
+        <Texture Name="gPauseQuestStatus20ESPTex" OutName="pause_quest_status_2_0_esp" Format="ia8" Width="80" Height="32" Offset="0x7200"/>
+    </File>
+</Root>

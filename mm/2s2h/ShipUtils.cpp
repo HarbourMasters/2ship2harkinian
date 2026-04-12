@@ -25,7 +25,7 @@ extern "C" {
 extern float OTRGetAspectRatio();
 
 extern f32 sNESFontWidths[160];
-extern const char* fontTbl[156];
+extern const char* gFontTbl[156];
 extern TexturePtr gItemIcons[131];
 extern TexturePtr gQuestIcons[14];
 extern TexturePtr gBombersNotebookPhotos[24];
@@ -295,7 +295,7 @@ extern "C" TexturePtr Ship_GetCharFontTextureNES(u8 character) {
         return (TexturePtr)gEmptyTexture;
     }
 
-    return (TexturePtr)fontTbl[adjustedChar];
+    return (TexturePtr)gFontTbl[adjustedChar];
 }
 
 static bool seeded = false;
