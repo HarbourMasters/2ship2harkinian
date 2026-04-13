@@ -226,8 +226,7 @@ void DrawSplitsList(bool isMain) {
                     !gPlayState ? ImGui::TextColored(COLOR_WHITE, BLANK_SPLIT)
                     : i < comparisonList.size()
                         ? ImGui::TextColored(
-                              GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).colorDisplay,
-                              "%s",
+                              GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).colorDisplay, "%s",
                               Ship_FormatTimeDisplay(
                                   GetComparisonTimeTextDisplay(splitList[i], comparisonList[i]).timeDisplay)
                                   .c_str())
