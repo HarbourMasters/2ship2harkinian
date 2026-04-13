@@ -57,24 +57,13 @@ void RegisterExtendedKeyboardControls() {
     // Input hook: ESS modifier, half-stick, and notch correction.
     // All three modify the Input struct before Player_ProcessControlStick runs,
     // so the engine sees the adjusted values naturally.
+    // Evaluation order: Half Stick → Notch Correction → ESS.
+    // Half stick is lowest priority (base input adjustment).
+    // Notch correction modifies the combined result on the A-press frame.
+    // ESS is highest priority (normalizes the final result to 17/127).
+    // Quick spin doesn't modify stick — it uses a VB hook below.
     COND_HOOK(OnPassPlayerInputs, CVAR, [](Input* input) {
-        // ESS Position — hold the ESS button to normalize the stick to 17/127.
-        // Preserves the stick direction but reduces magnitude to ESS Postion.
-        // Both cur and rel must be set — Lib_GetControlStickData reads rel for
-        // magnitude and cur for angle.
-        if (CHECK_BTN_ALL(input->cur.button, CVAR_ESS_BTN)) {
-            s8 x = input->cur.stick_x;
-            s8 y = input->cur.stick_y;
-            if (x != 0 || y != 0) {
-                float mag = sqrtf((float)(x * x + y * y));
-                input->cur.stick_x = (s8)((x / mag) * ESS_MAGNITUDE);
-                input->cur.stick_y = (s8)((y / mag) * ESS_MAGNITUDE);
-                input->rel.stick_x = input->cur.stick_x;
-                input->rel.stick_y = input->cur.stick_y;
-            }
-        }
-
-        // Half Stick — keyboard keys that add ±35 to each axis.
+        // 1. Half Stick — keyboard keys that add ±35 to each axis.
         // On keyboard, stick input is binary (0 or full). These keys let you
         // hit intermediate angles useful for diagonal movement setups.
         // Uses raw SDL scancodes because the engine's button system doesn't
@@ -103,7 +92,7 @@ void RegisterExtendedKeyboardControls() {
         input->rel.stick_x = input->cur.stick_x;
         input->rel.stick_y = input->cur.stick_y;
 
-        // Diagonal Notch Correction — keyboard produces perfect 45° diagonals
+        // 2. Diagonal Notch Correction — keyboard produces perfect 45° diagonals
         // that always resolve to a sidehop on down-left/down-right.
         // This zeros out X on the frame A is pressed so the engine sees pure-down (backflip).
         // Without this you'd need an awkward down to down-diagonal input to
@@ -119,6 +108,22 @@ void RegisterExtendedKeyboardControls() {
             s8 ay = (y > 0) ? y : -y;
             if (y < 0 && ax > 10 && ay > 10 && (ax - ay > -10 && ax - ay < 10)) {
                 input->cur.stick_x = 0;
+            }
+        }
+
+        // 3. ESS Position — hold the ESS button to normalize the stick to 17/127.
+        // Highest priority: runs last so it normalizes the final combined input
+        // from half-stick, notch correction, etc. Both cur and rel must be set —
+        // Lib_GetControlStickData reads rel for magnitude and cur for angle.
+        if (CHECK_BTN_ALL(input->cur.button, CVAR_ESS_BTN)) {
+            s8 x = input->cur.stick_x;
+            s8 y = input->cur.stick_y;
+            if (x != 0 || y != 0) {
+                float mag = sqrtf((float)(x * x + y * y));
+                input->cur.stick_x = (s8)((x / mag) * ESS_MAGNITUDE);
+                input->cur.stick_y = (s8)((y / mag) * ESS_MAGNITUDE);
+                input->rel.stick_x = input->cur.stick_x;
+                input->rel.stick_y = input->cur.stick_y;
             }
         }
     });
