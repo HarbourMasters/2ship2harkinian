@@ -769,6 +769,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - None
+    VB_GIVE_COUPLES_MASK,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*EnGeg`
     VB_GIVE_DON_GERO_MASK,
 
@@ -1623,6 +1631,14 @@ typedef enum {
     // - `*ColliderElement atElem` (unused)
     // - `*ColliderElement acElem`
     VB_PERFORM_AC_COLLISION,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_PLAY_COUPLES_MASK_CUTSCENE,
 
     // #### `result`
     // ```c
