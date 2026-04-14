@@ -1193,7 +1193,7 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // true
+    // func_80A3E9DC(this, play)
     // ```
     // #### `args`
     // - None
