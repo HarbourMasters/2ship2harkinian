@@ -1196,6 +1196,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - None
+    VB_KAFEI_RUN_TO_TOWN,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `u16` (item under cursor)
     VB_KALEIDO_DISPLAY_ITEM_TEXT,
 
