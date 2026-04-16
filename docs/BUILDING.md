@@ -145,6 +145,10 @@ You can use a `flake.nix` file to instantly setup a development environment usin
             lsb-release
             pkg-config
 
+            # Asset extraction
+            python3
+            imagemagick
+
             # SDL2 libraries
             SDL2
             SDL2.dev
@@ -161,7 +165,7 @@ You can use a `flake.nix` file to instantly setup a development environment usin
             bzip2
 
             # X11 libraries
-            xorg.libX11
+            libX11
 
             # Audio libraries
             libogg
@@ -172,7 +176,11 @@ You can use a `flake.nix` file to instantly setup a development environment usin
             libopus.dev
             opusfile
             opusfile.dev
+
+            # Runtime Deps
+            zenity
           ];
+
           shellHook = ''
             echo "Shipwright development environment loaded"
             echo "Available tools: clang, git, cmake, ninja"
