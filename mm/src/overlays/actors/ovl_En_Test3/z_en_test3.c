@@ -80,7 +80,7 @@ void func_80A40678(EnTest3* this, PlayState* play);
 void func_80A40824(EnTest3* this, PlayState* play);
 void func_80A4084C(EnTest3* this, PlayState* play);
 void func_80A40908(EnTest3* this, PlayState* play);
-void func_80A40A6C(EnTest3* this, PlayState* play);
+void EnTest3_EnablePeephole(EnTest3* this, PlayState* play);
 
 static u8 sScheduleScript[] = {
     /* 0x000 */ SCHEDULE_CMD_CHECK_NOT_IN_DAY_S(1, 0x046 - 0x004),
@@ -185,7 +185,7 @@ ActorProfile En_Test3_Profile = {
 };
 
 static struct_80A4168C D_80A4168C[] = {
-    { func_80A40A6C, NULL },
+    { EnTest3_EnablePeephole, NULL },
     { NULL, NULL },
 };
 
@@ -1104,8 +1104,8 @@ void func_80A409D4(EnTest3* this, PlayState* play) {
     }
 }
 
-void func_80A40A6C(EnTest3* this, PlayState* play) {
-    SET_WEEKEVENTREG(WEEKEVENTREG_64_20);
+void EnTest3_EnablePeephole(EnTest3* this, PlayState* play) {
+    SET_WEEKEVENTREG(WEEKEVENTREG_CAN_USE_CURIOSITY_SHOP_PEEPHOLE);
 }
 
 void EnTest3_Update(Actor* thisx, PlayState* play2) {
