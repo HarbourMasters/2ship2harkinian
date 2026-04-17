@@ -165,7 +165,7 @@ You can use a `flake.nix` file to instantly setup a development environment usin
             bzip2
 
             # X11 libraries
-            libX11
+            libx11
 
             # Audio libraries
             libogg
