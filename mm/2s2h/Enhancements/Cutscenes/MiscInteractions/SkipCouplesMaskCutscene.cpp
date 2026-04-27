@@ -17,7 +17,7 @@ static constexpr u16 GET_COUPLES_MASK_TEXT_ID = 0x85;
 static Vec3f POSITION = { -420.0f, 210.0f, -160.0f };
 static Vec3s ROTATION = { 0x0000, 0xD555, 0x0000 };
 
-static void ShouldHandleCouplesMaskCs(bool* should, EnTest3* kafei) {
+static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
     EnAn* anju = (EnAn*)SubS_FindActor(gPlayState, NULL, ACTORCAT_NPC, ACTOR_EN_AN);
     if (anju != NULL) {
         anju->unk_3C0 = true;
@@ -46,7 +46,6 @@ static void ShouldHandleCouplesMaskCs(bool* should, EnTest3* kafei) {
                 },
         });
     }
-    *should = false;
 }
 
 static void RegisterSkipCouplesMaskCs() {
@@ -55,8 +54,9 @@ static void RegisterSkipCouplesMaskCs() {
             EnTest3* kafei = va_arg(args, EnTest3*);
             s32* couplesMaskCsPhase = va_arg(args, s32*);
             *couplesMaskCsPhase = 2;
+            *should = false;
 
-            ShouldHandleCouplesMaskCs(should, kafei);
+            SkipHandleCouplesMaskCs(kafei);
         }
     });
 }
