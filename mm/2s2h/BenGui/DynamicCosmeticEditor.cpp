@@ -91,8 +91,7 @@ static int GetCustomMaterialSortOrder(const std::string& materialPath) {
         materialPath.starts_with("__OTR__objects/object_link_boy/")) {
         return 4;
     }
-    if (materialPath.starts_with("objects/object_test3/") ||
-        materialPath.starts_with("__OTR__objects/object_test3/")) {
+    if (materialPath.starts_with("objects/object_test3/") || materialPath.starts_with("__OTR__objects/object_test3/")) {
         return 5;
     }
 
@@ -231,18 +230,20 @@ static std::string BuildDynamicCosmeticsStateSignature() {
 
 static void RefreshBuiltInSuppressedCosmetics() {
     static constexpr const char* kPlayerColorCvars[] = {
-        "gCosmetic.Player.HumanTunic.Color", "gCosmetic.Player.HumanHair.Color", "gCosmetic.Player.DekuTunic.Color",
+        "gCosmetic.Player.HumanTunic.Color", "gCosmetic.Player.HumanHair.Color",  "gCosmetic.Player.DekuTunic.Color",
         "gCosmetic.Player.DekuHair.Color",   "gCosmetic.Player.GoronTunic.Color", "gCosmetic.Player.ZoraTunic.Color",
         "gCosmetic.Player.KafeiHair.Color",
     };
     static constexpr const char* kPlayerChangedCvars[] = {
-        "gCosmetic.Player.HumanTunic.Changed", "gCosmetic.Player.HumanHair.Changed", "gCosmetic.Player.DekuTunic.Changed",
-        "gCosmetic.Player.DekuHair.Changed",   "gCosmetic.Player.GoronTunic.Changed", "gCosmetic.Player.ZoraTunic.Changed",
+        "gCosmetic.Player.HumanTunic.Changed", "gCosmetic.Player.HumanHair.Changed",
+        "gCosmetic.Player.DekuTunic.Changed",  "gCosmetic.Player.DekuHair.Changed",
+        "gCosmetic.Player.GoronTunic.Changed", "gCosmetic.Player.ZoraTunic.Changed",
         "gCosmetic.Player.KafeiHair.Changed",
     };
     static constexpr const char* kPlayerRainbowCvars[] = {
-        "gCosmetic.Player.HumanTunic.Rainbow", "gCosmetic.Player.HumanHair.Rainbow", "gCosmetic.Player.DekuTunic.Rainbow",
-        "gCosmetic.Player.DekuHair.Rainbow",   "gCosmetic.Player.GoronTunic.Rainbow", "gCosmetic.Player.ZoraTunic.Rainbow",
+        "gCosmetic.Player.HumanTunic.Rainbow", "gCosmetic.Player.HumanHair.Rainbow",
+        "gCosmetic.Player.DekuTunic.Rainbow",  "gCosmetic.Player.DekuHair.Rainbow",
+        "gCosmetic.Player.GoronTunic.Rainbow", "gCosmetic.Player.ZoraTunic.Rainbow",
         "gCosmetic.Player.KafeiHair.Rainbow",
     };
 
@@ -474,10 +475,10 @@ void ScanDynamicCosmetics() {
                                                    static_cast<uint8_t>(child->IntAttribute("G")),
                                                    static_cast<uint8_t>(child->IntAttribute("B")),
                                                    static_cast<uint8_t>(child->IntAttribute("A")) };
-                entry.option = MakeCosmeticOption(entry.baseCvar.c_str(), entry.valuesCvar.c_str(),
-                                                  entry.rainbowCvar.c_str(), entry.lockedCvar.c_str(),
-                                                  entry.changedCvar.c_str(), entry.label.c_str(), COSMETICS_GROUP_MAX,
-                                                  defaultColor, false, true, false);
+                entry.option =
+                    MakeCosmeticOption(entry.baseCvar.c_str(), entry.valuesCvar.c_str(), entry.rainbowCvar.c_str(),
+                                       entry.lockedCvar.c_str(), entry.changedCvar.c_str(), entry.label.c_str(),
+                                       COSMETICS_GROUP_MAX, defaultColor, false, true, false);
                 RefreshCustomCosmeticOption(entry);
                 customCosmeticEntries.push_back(std::move(entry));
             }
