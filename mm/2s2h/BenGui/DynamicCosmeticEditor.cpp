@@ -101,8 +101,7 @@ static DynamicCosmeticForm GetDynamicMaterialForm(const std::string& materialPat
         materialPath.starts_with("__OTR__objects/object_link_boy/")) {
         return DynamicCosmeticForm::FierceDeity;
     }
-    if (materialPath.starts_with("objects/object_test3/") ||
-        materialPath.starts_with("__OTR__objects/object_test3/")) {
+    if (materialPath.starts_with("objects/object_test3/") || materialPath.starts_with("__OTR__objects/object_test3/")) {
         return DynamicCosmeticForm::Kafei;
     }
 
@@ -509,34 +508,35 @@ void ScanDynamicCosmetics() {
         }
     }
 
-    std::stable_sort(customCosmeticEntries.begin(), customCosmeticEntries.end(),
-                     [](const CustomCosmeticEntry& lhs, const CustomCosmeticEntry& rhs) {
-                         int lhsOrder = 2;
-                         int rhsOrder = 2;
+    std::stable_sort(
+        customCosmeticEntries.begin(), customCosmeticEntries.end(),
+        [](const CustomCosmeticEntry& lhs, const CustomCosmeticEntry& rhs) {
+            int lhsOrder = 2;
+            int rhsOrder = 2;
 
-                         for (const auto& binding : lhs.bindings) {
-                             lhsOrder = std::min(lhsOrder,
-                                                 GetDynamicMaterialFormSortOrder(GetDynamicMaterialForm(binding.materialPath)));
-                         }
-                         for (const auto& binding : rhs.bindings) {
-                             rhsOrder = std::min(rhsOrder,
-                                                 GetDynamicMaterialFormSortOrder(GetDynamicMaterialForm(binding.materialPath)));
-                         }
+            for (const auto& binding : lhs.bindings) {
+                lhsOrder =
+                    std::min(lhsOrder, GetDynamicMaterialFormSortOrder(GetDynamicMaterialForm(binding.materialPath)));
+            }
+            for (const auto& binding : rhs.bindings) {
+                rhsOrder =
+                    std::min(rhsOrder, GetDynamicMaterialFormSortOrder(GetDynamicMaterialForm(binding.materialPath)));
+            }
 
-                         if (lhsOrder != rhsOrder) {
-                             return lhsOrder < rhsOrder;
-                         }
+            if (lhsOrder != rhsOrder) {
+                return lhsOrder < rhsOrder;
+            }
 
-                         if (lhs.category.empty() != rhs.category.empty()) {
-                             return !lhs.category.empty();
-                         }
+            if (lhs.category.empty() != rhs.category.empty()) {
+                return !lhs.category.empty();
+            }
 
-                         if (lhs.category != rhs.category) {
-                             return lhs.category < rhs.category;
-                         }
+            if (lhs.category != rhs.category) {
+                return lhs.category < rhs.category;
+            }
 
-                         return lhs.label < rhs.label;
-                     });
+            return lhs.label < rhs.label;
+        });
 
     for (auto& entry : customCosmeticEntries) {
         RefreshCustomCosmeticOption(entry);
