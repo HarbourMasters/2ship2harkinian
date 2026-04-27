@@ -61,6 +61,16 @@ static bool customFierceDeityCosmeticsAvailable = false;
 static bool customKafeiCosmeticsAvailable = false;
 static std::string sLastDynamicCosmeticsStateSignature;
 
+enum class DynamicCosmeticForm {
+    Human = 0,
+    Deku,
+    Goron,
+    Zora,
+    FierceDeity,
+    Kafei,
+    Other,
+};
+
 static bool IsCustomArchive(const std::shared_ptr<Ship::Archive>& archive) {
     if (archive == nullptr) {
         return false;
@@ -70,32 +80,37 @@ static bool IsCustomArchive(const std::shared_ptr<Ship::Archive>& archive) {
     return archivePath.find("\\mods\\") != std::string::npos || archivePath.find("/mods/") != std::string::npos;
 }
 
-static int GetCustomMaterialSortOrder(const std::string& materialPath) {
+static DynamicCosmeticForm GetDynamicMaterialForm(const std::string& materialPath) {
     if (materialPath.starts_with("objects/object_link_child/") ||
         materialPath.starts_with("__OTR__objects/object_link_child/")) {
-        return 0;
+        return DynamicCosmeticForm::Human;
     }
     if (materialPath.starts_with("objects/object_link_nuts/") ||
         materialPath.starts_with("__OTR__objects/object_link_nuts/")) {
-        return 1;
+        return DynamicCosmeticForm::Deku;
     }
     if (materialPath.starts_with("objects/object_link_goron/") ||
         materialPath.starts_with("__OTR__objects/object_link_goron/")) {
-        return 2;
+        return DynamicCosmeticForm::Goron;
     }
     if (materialPath.starts_with("objects/object_link_zora/") ||
         materialPath.starts_with("__OTR__objects/object_link_zora/")) {
-        return 3;
+        return DynamicCosmeticForm::Zora;
     }
     if (materialPath.starts_with("objects/object_link_boy/") ||
         materialPath.starts_with("__OTR__objects/object_link_boy/")) {
-        return 4;
+        return DynamicCosmeticForm::FierceDeity;
     }
-    if (materialPath.starts_with("objects/object_test3/") || materialPath.starts_with("__OTR__objects/object_test3/")) {
-        return 5;
+    if (materialPath.starts_with("objects/object_test3/") ||
+        materialPath.starts_with("__OTR__objects/object_test3/")) {
+        return DynamicCosmeticForm::Kafei;
     }
 
-    return 6;
+    return DynamicCosmeticForm::Other;
+}
+
+static int GetDynamicMaterialFormSortOrder(DynamicCosmeticForm form) {
+    return static_cast<int>(form);
 }
 
 static bool IsSkeletonOverriddenByCustomArchive(Ship::ArchiveManager* archiveManager, const char* path) {
@@ -121,26 +136,26 @@ static void RefreshCustomModelActiveFlags(Ship::ArchiveManager* archiveManager) 
 }
 
 static void MarkCustomCosmeticsAvailable(const std::string& materialPath) {
-    switch (GetCustomMaterialSortOrder(materialPath)) {
-        case 0:
+    switch (GetDynamicMaterialForm(materialPath)) {
+        case DynamicCosmeticForm::Human:
             customHumanCosmeticsAvailable = true;
             break;
-        case 1:
+        case DynamicCosmeticForm::Deku:
             customDekuCosmeticsAvailable = true;
             break;
-        case 2:
+        case DynamicCosmeticForm::Goron:
             customGoronCosmeticsAvailable = true;
             break;
-        case 3:
+        case DynamicCosmeticForm::Zora:
             customZoraCosmeticsAvailable = true;
             break;
-        case 4:
+        case DynamicCosmeticForm::FierceDeity:
             customFierceDeityCosmeticsAvailable = true;
             break;
-        case 5:
+        case DynamicCosmeticForm::Kafei:
             customKafeiCosmeticsAvailable = true;
             break;
-        default:
+        case DynamicCosmeticForm::Other:
             break;
     }
 }
@@ -500,10 +515,12 @@ void ScanDynamicCosmetics() {
                          int rhsOrder = 2;
 
                          for (const auto& binding : lhs.bindings) {
-                             lhsOrder = std::min(lhsOrder, GetCustomMaterialSortOrder(binding.materialPath));
+                             lhsOrder = std::min(lhsOrder,
+                                                 GetDynamicMaterialFormSortOrder(GetDynamicMaterialForm(binding.materialPath)));
                          }
                          for (const auto& binding : rhs.bindings) {
-                             rhsOrder = std::min(rhsOrder, GetCustomMaterialSortOrder(binding.materialPath));
+                             rhsOrder = std::min(rhsOrder,
+                                                 GetDynamicMaterialFormSortOrder(GetDynamicMaterialForm(binding.materialPath)));
                          }
 
                          if (lhsOrder != rhsOrder) {
