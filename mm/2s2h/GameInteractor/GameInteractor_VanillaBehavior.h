@@ -1634,10 +1634,11 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // true
+    // D_80A41D68 == 0
     // ```
     // #### `args`
-    // - None
+    // - `*EnTest3` (Kafei)
+    // - `*s32` (cutscene phase)
     VB_PLAY_COUPLES_MASK_CUTSCENE,
 
     // #### `result`
