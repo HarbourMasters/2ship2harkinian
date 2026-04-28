@@ -1639,7 +1639,7 @@ typedef enum {
     // #### `args`
     // - `*EnTest3` (Kafei)
     // - `*s32` (cutscene phase)
-    VB_PLAY_COUPLES_MASK_CUTSCENE,
+    VB_PLAY_COUPLES_MASK_CS,
 
     // #### `result`
     // ```c

@@ -50,7 +50,7 @@ static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
 }
 
 static void RegisterSkipCouplesMaskCs() {
-    COND_VB_SHOULD(VB_PLAY_COUPLES_MASK_CUTSCENE, CVAR, {
+    COND_VB_SHOULD(VB_PLAY_COUPLES_MASK_CS, CVAR, {
         if (*should) {
             EnTest3* kafei = va_arg(args, EnTest3*);
             s32* couplesMaskCsPhase = va_arg(args, s32*);
