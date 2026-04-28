@@ -150,6 +150,7 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .connections = {
             CONNECTION(RR_DEKU_PALACE_OUTSIDE, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
+            CONNECTION(RR_DEKU_PALACE_INSIDE_UPPER_MIDDLE, CanKillEnemy(ACTOR_EN_DEKUNUTS) && CAN_BE_DEKU),
             CONNECTION(RR_DEKU_PALACE_INSIDE_LOWER, true),
         }
     };
