@@ -15,7 +15,7 @@ extern "C" {
 static constexpr u16 GET_COUPLES_MASK_TEXT_ID = 0x85;
 
 static Vec3f POSITION = { -420.0f, 210.0f, -160.0f };
-static Vec3s ROTATION = { 0x0000, 0xD555, 0x0000 };
+static Vec3s ROTATION = { 0x0000, -0x2AAB, 0x0000 };
 
 static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
     EnAn* anju = (EnAn*)SubS_FindActor(gPlayState, NULL, ACTORCAT_NPC, ACTOR_EN_AN);
@@ -24,6 +24,7 @@ static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
         kafei->player.actor.world.pos = anju->actor.world.pos = POSITION;
         kafei->player.actor.world.rot = kafei->player.actor.shape.rot = anju->actor.world.rot = anju->actor.shape.rot =
             ROTATION;
+        kafei->player.yaw = ROTATION.y;
     }
 
     if (GameInteractor_Should(VB_GIVE_COUPLES_MASK, true)) {
