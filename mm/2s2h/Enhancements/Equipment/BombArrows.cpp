@@ -4,6 +4,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ObjectExtension/ObjectExtension.h"
 #include "2s2h/ShipInit.hpp"
+#include "2s2h/ShipUtils.h"
 
 extern "C" {
 #include "archives/icon_item_static/icon_item_static_yar.h"
@@ -51,26 +52,6 @@ struct PendingBombArrowEquip {
 
 static PendingBombArrowEquip sPendingEquip = {};
 static bool sHasPendingEquip = false;
-
-static Vtx sBombCycleExtraItemVtx[] = {
-    // Left item (unused in 2-item mode; kept for layout parity)
-    VTX(-48, 16, 0, 0 << 5, 0 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    VTX(-16, 16, 0, 32 << 5, 0 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    VTX(-48, -16, 0, 0 << 5, 32 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    VTX(-16, -16, 0, 32 << 5, 32 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    // Right item
-    VTX(16, 16, 0, 0 << 5, 0 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    VTX(48, 16, 0, 32 << 5, 0 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    VTX(16, -16, 0, 0 << 5, 32 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    VTX(48, -16, 0, 32 << 5, 32 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-};
-
-static Vtx sBombCycleAButtonVtx[] = {
-    VTX(-18, 12, 0, 0 << 5, 0 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    VTX(18, 12, 0, 24 << 5, 0 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    VTX(-18, -12, 0, 0 << 5, 16 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-    VTX(18, -12, 0, 24 << 5, 16 << 5, 0xFF, 0xFF, 0xFF, 0xFF),
-};
 
 // 14x14 units (50% of 28-unit kaleido grid quad), matching HUD overlay ratio.
 static Vtx sBombOverlayVtx[] = {
@@ -419,18 +400,12 @@ static void DrawBombArrowCycleExtras(PlayState* play, bool canCycle, ItemId alte
 
         // Show A-button prompt when hovered.
         if (pauseCtx->cursorSlot[PAUSE_ITEM] == slot && pauseCtx->cursorSpecialPos == 0) {
-            Color_RGB8 aButtonColor = { 0, 100, 255 };
-
-            gSPVertex(POLY_OPA_DISP++, (uintptr_t)sBombCycleAButtonVtx, 4, 0);
-            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, aButtonColor.r, aButtonColor.g, aButtonColor.b, pauseCtx->alpha);
-            gDPLoadTextureBlock(POLY_OPA_DISP++, gABtnSymbolTex, G_IM_FMT_IA, G_IM_SIZ_8b, 24, 16, 0,
-                                G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, 4, 4, G_TX_NOLOD, G_TX_NOLOD);
-            gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
+            Ship_DrawKaleidoCycleAButtonPrompt(play, pauseCtx->alpha);
         }
 
         // Draw the right alternate item.
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
-        gSPVertex(POLY_OPA_DISP++, (uintptr_t)sBombCycleExtraItemVtx, 8, 0);
+        gSPVertex(POLY_OPA_DISP++, (uintptr_t)sCycleExtraItemVtx, 8, 0);
         KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, gItemIcons[alternateItem], 32, 32, 4);
 
         // If the alternate is the bow (bomb arrows), overlay a bomb icon on the preview.
@@ -561,6 +536,9 @@ static void DrawBombArrowAmmoCount(PlayState* play, s16 button, s16 alpha, bool 
     bool turnGreen = (effectiveAmmo == effectiveMax);
 
     OPEN_DISPS(play->state.gfxCtx);
+
+    gDPPipeSync(OVERLAY_DISP++);
+    GameInteractor_Should(VB_SET_BUTTON_ENV_COLOR, false);
 
     if (ammo == 0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 100, 100, alpha);
