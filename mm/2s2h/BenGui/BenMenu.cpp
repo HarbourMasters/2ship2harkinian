@@ -247,7 +247,7 @@ WidgetInfo& BenMenu::AddWidget(WidgetPath& pathInfo, std::string widgetName, Wid
 // clang-format on
 std::vector<std::string> contributors = {
     "ProxySaw", // "Garrett Cox", manual replacement
-    "Archez",
+    "Archez",   // "Adam Bird", dupe
     "Eblo",
     "louist103",
     "balloondude2",
@@ -255,7 +255,7 @@ std::vector<std::string> contributors = {
     "inspectredc",
     "sitton76",
     "mckinlee",
-    "Patrick12115",
+    "ItsHeckinPat", // "Patrick12115", dupe
     "briaguya",
     "Malkierian",
     "PurpleHato",
@@ -276,6 +276,7 @@ std::vector<std::string> contributors = {
     "Mrlinkwii",
     "Liam Scholte",
     "Lars-Christian Selland",
+    "Jameriquiah", // "Jordyn Hardyman", dupe
     "verbes4",
     "justawayofthesamurai",
     "cplaster",
@@ -290,7 +291,6 @@ std::vector<std::string> contributors = {
     "MegaMech",
     "Louis",
     "Kenix3",
-    "Jameriquiah", // "Jordyn Hardyman", manual replacement
     "Jacob Erly",
     "Hoeloe",
     "Ghunzor",
@@ -316,6 +316,10 @@ void BenMenu::AddSettings() {
                      .Tooltip("Changes the Theme of the Menu Widgets.")
                      .ComboMap(&menuThemeOptions)
                      .DefaultIndex(Colors::LightBlue));
+    AddWidget(path, "Menu Background Opacity", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gSettings.Menu.BackgroundOpacity")
+        .Options(FloatSliderOptions().DefaultValue(0.85f).IsPercentage().Tooltip(
+            "Sets the opacity of the background of the port menu."));
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_IMGUI_CONTROLLER_NAV)
@@ -976,6 +980,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Instant Putaway", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.InstantPutaway")
         .Options(CheckboxOptions().Tooltip("Allows Link to instantly puts away held item without waiting."));
+    AddWidget(path, "Unsheathe Sword Without Slashing", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.UnsheatheWithoutSlashing")
+        .Options(CheckboxOptions().Tooltip("Allows Link to unsheathe sword without slashing automatically."));
     AddWidget(path, "Fierce Deity Putaway", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.FierceDeityPutaway")
         .Options(CheckboxOptions().Tooltip("Allows Fierce Deity Link to put away his sword."));
@@ -1020,6 +1027,10 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Equipment.BetterPictoMessage")
         .Options(
             CheckboxOptions().Tooltip("Inform the player what target if any is being captured in the pictograph."));
+    AddWidget(path, "Picto Box on C-Up", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Items.PictoBoxOnCUp")
+        .Options(CheckboxOptions().Tooltip(
+            "Press C-Up to activate the Pictograph Box once acquired, without needing to equip it to a C-button."));
     AddWidget(path, "Arrow Type Cycling", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.PlayerActions.ArrowCycle")
         .Options(CheckboxOptions().Tooltip(
@@ -1087,8 +1098,13 @@ void BenMenu::AddEnhancements() {
                               "to the Curiosity Shop owner for Rupees.\n"
                               "-Vanilla: Ammo items cannot be sold\n"
                               "-Full Price: Sell at full value\n"
-                              "-Half Price: Sell at half value (rounded up)")
+                              "-Half Price: Sell at half value (rounded up)"
+                              "Arrows will always be sold back at Full Price.")
                      .ComboVec(&ammoBuybackOptions));
+    AddWidget(path, "Extra Powder Kegs", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Items.ExtraPowderKegs")
+        .Options(CheckboxOptions().Tooltip(
+            "Allows carrying up to 3 Powder Kegs at once instead of the vanilla limit of 1."));
     AddWidget(path, "Curiosity Shop Refills", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Shops.CuriosityShopRefills")
         .Options(CheckboxOptions().Tooltip(
@@ -1100,6 +1116,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Disable Screen Flash for Enemy Kills", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.A11y.NoScreenFlashForEnemyKill")
         .Options(CheckboxOptions().Tooltip("Disables the white screen flash on enemy kill."));
+    AddWidget(path, "Disable Final Day Quakes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.A11y.NoFinalDayQuakes")
+        .Options(CheckboxOptions().Tooltip("Earthquakes will not occur on the final day."));
     AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.BowReticle")
         .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
@@ -1163,6 +1182,10 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Cycle.DoNotResetTimeSpeed")
         .Options(CheckboxOptions().Tooltip(
             "Playing the Song of Time will not reset the current time speed set by Inverted Song of Time."));
+    AddWidget(path, "Do not reset Chateau status", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cycle.DoNotResetChateau")
+        .Options(CheckboxOptions().Tooltip(
+            "Playing the Song of Time will not reset the infinite magic status granted by Chateau Romani."));
     AddWidget(path, "Keep Express Mail", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.KeepExpressMail")
         .Options(CheckboxOptions().Tooltip(
@@ -1195,6 +1218,16 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Toggle between standard assets and alternate assets. Usually mods will indicate if "
             "this setting has to be used or not."));
+    AddWidget(path, "Disable Bomb Billboarding", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Mods.DisableBombBillboarding")
+        .Options(CheckboxOptions().Tooltip(
+            "Disables bombs always rotating to face the camera. To be used in conjunction with mods that want "
+            "to replace bombs with 3D objects."));
+    AddWidget(path, "Disable Grotto Fixed Rotation", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Mods.DisableGrottoRotation")
+        .Options(CheckboxOptions().Tooltip(
+            "Disables Grottos rotating with the Camera. To be used in conjuction with mods that want to "
+            "replace grottos with 3D objects."));
     AddWidget(path, "Motion Blur", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Motion Blur Mode", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Graphics.MotionBlur.Mode")
@@ -1299,9 +1332,14 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Masks.PersistentBunnyHood.Enabled")
         .Options(CheckboxOptions().Tooltip(
             "Permanently toggle a speed boost from the bunny hood by pressing 'A' on it in the mask menu."));
-    AddWidget(path, "No Blast Mask Cooldown", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Masks.NoBlastMaskCooldown")
-        .Options(CheckboxOptions().Tooltip("Eliminates the Cooldown between Blast Mask usage."));
+    AddWidget(path, "Blast Mask Cooldown", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gEnhancements.Masks.BlastMaskCooldown")
+        .Options(FloatSliderOptions()
+                     .Tooltip("Customize the Cooldown between Blast Mask usage. Default is 15.5 seconds.")
+                     .Min(0.0f)
+                     .Max(15.5f)
+                     .Format("%.1f seconds")
+                     .DefaultValue(15.5f));
     AddWidget(path, "Goron Rolling Ignores Magic", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.GoronRollingIgnoresMagic")
         .Options(CheckboxOptions().Tooltip(
@@ -1331,6 +1369,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Right Stick Ocarina", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Playback.RightStickOcarina")
         .Options(CheckboxOptions().Tooltip("Enables using the Right Stick for Ocarina playback."));
+    AddWidget(path, "Song Items", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Songs.SongItems")
+        .Options(CheckboxOptions().Tooltip("Equip songs to C/D-Pad buttons from the Quest Status page. "
+                                           "Songs auto-play when used, skipping manual note input."));
     AddWidget(path, "Pause Owl Warp", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.PauseOwlWarp")
         .Options(CheckboxOptions().Tooltip(
@@ -1338,6 +1380,10 @@ void BenMenu::AddEnhancements() {
             "Requires that you can play Song of Soaring normally.\n\n"
             "Accounts for Index-Warp being active, by presenting all valid warps for the registered "
             "map points. Great Bay Coast warp is always given for index 0 warp as a convenience."));
+    AddWidget(path, "Better Owl Warp Menu", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Songs.BetterOwlWarpMenu")
+        .Options(CheckboxOptions().Tooltip(
+            "Makes cursor movement conform more to Control Stick direction when choosing an Owl Statue to warp to."));
     AddWidget(path, "Zora Eggs For Bossa Nova", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Songs.ZoraEggCount")
         .Options(IntSliderOptions()
@@ -1441,6 +1487,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Dampe Flame Digging", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.DampeDiggingSkip")
         .Options(CheckboxOptions().Tooltip("Only requires digging up one flame to spawn the big poe."));
+    AddWidget(path, "Always Show Shrine of Truth Feathers", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.AlwaysShowShrineFeathers")
+        .Options(CheckboxOptions().Tooltip("Always reveals the feather-marked path to the Shrine of Truth."));
     AddWidget(path, "Fast Chests", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FastChests")
         .Options(CheckboxOptions().Tooltip("Uses the quick kick animation for all chests in vanilla gameplay."));
@@ -1461,6 +1510,9 @@ void BenMenu::AddEnhancements() {
             "Automatically deposits excess Rupees into your bank account when your wallet is full. "
             "Deposits stop when the bank reaches maximum capacity. "
             "Bank rewards are granted automatically. Notifications display deposit amount and new balance."));
+    AddWidget(path, "Faster Rupee Accumulator", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterRupeeAccumulator")
+        .Options(CheckboxOptions().Tooltip("Causes your Wallet to fill and empty faster when you gain or lose money."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
@@ -1478,10 +1530,11 @@ void BenMenu::AddEnhancements() {
                               "- Owl Warp menu crash when moving the cursor with Index-Warp active\n"
                               "- Remote Hookshot Hookslide crashes when over voids in Great Bay Temple")
                      .DefaultValue(true));
-    AddWidget(path, "Fix Ammo Count Color", WIDGET_CVAR_CHECKBOX)
-        .CVar("gFixes.FixAmmoCountEnvColor")
-        .Options(CheckboxOptions().Tooltip("Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
-                                           "the wrong color prior to obtaining magic or other conditions."));
+    AddWidget(path, "Fix Button Env Color", WIDGET_CVAR_CHECKBOX)
+        .CVar("gFixes.FixButtonEnvColor")
+        .Options(CheckboxOptions().Tooltip(
+            "Fixes a missing gDPSetEnvColor, which causes ammo counts and B button "
+            "action labels to be the wrong color prior to obtaining magic or other conditions."));
     AddWidget(path, "Fix Epona stealing Sword", WIDGET_CVAR_CHECKBOX)
         .CVar("gFixes.FixEponaStealingSword")
         .Options(CheckboxOptions().Tooltip(
@@ -1509,6 +1562,11 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Fixes a bug that results in the wrong audio playing upon receiving a 4th piece of heart to "
             "fill a new heart container."));
+    AddWidget(path, "Fix Deku Butler Shock Animation", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Fixes.DekuButlerFixShockLoopAnimation")
+        .Options(CheckboxOptions().Tooltip(
+            "Fixes a bug where the Deku Butler loops the incorrect animation in the cutscene that plays after "
+            "freeing the Deku Princess."));
 
     // Restorations
     path = { "Enhancements", "Restorations", SECTION_COLUMN_1 };
