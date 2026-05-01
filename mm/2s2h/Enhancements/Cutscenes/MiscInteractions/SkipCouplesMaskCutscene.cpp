@@ -28,7 +28,7 @@ static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
         kafei->player.yaw = ROTATION.y;
     }
 
-    if (!IS_RANDO && GameInteractor_Should(VB_GIVE_COUPLES_MASK, true)) {
+    if (!IS_RANDO && GameInteractor_Should(VB_GIVE_ITEM_FROM_DMCHAR05, true, ITEM_MASK_COUPLE)) {
         GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
             .showGetItemCutscene = !CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0),
             .param = GID_MASK_COUPLE,
@@ -41,7 +41,7 @@ static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
                         CustomMessage::StartTextbox(text.msg + "\x1C\x02\x10", text);
                     }
 
-                    Item_Give(gPlayState, ITEM_MASK_COUPLE);
+                    Item_Give(play, ITEM_MASK_COUPLE);
                     Message_BombersNotebookQueueEvent(play, BOMBERS_NOTEBOOK_EVENT_MET_ANJU);
                     Message_BombersNotebookQueueEvent(play, BOMBERS_NOTEBOOK_EVENT_MET_KAFEI);
                     Message_BombersNotebookQueueEvent(play, BOMBERS_NOTEBOOK_EVENT_RECEIVED_COUPLES_MASK);

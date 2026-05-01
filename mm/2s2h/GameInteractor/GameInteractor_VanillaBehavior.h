@@ -769,14 +769,6 @@ typedef enum {
     // true
     // ```
     // #### `args`
-    // - None
-    VB_GIVE_COUPLES_MASK,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
     // - `*EnGeg`
     VB_GIVE_DON_GERO_MASK,
 
