@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/CustomItem/CustomItem.h"
+#include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
 
 extern "C" {
@@ -27,7 +28,7 @@ static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
         kafei->player.yaw = ROTATION.y;
     }
 
-    if (GameInteractor_Should(VB_GIVE_COUPLES_MASK, true)) {
+    if (!IS_RANDO && GameInteractor_Should(VB_GIVE_COUPLES_MASK, true)) {
         GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
             .showGetItemCutscene = !CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0),
             .param = GID_MASK_COUPLE,
