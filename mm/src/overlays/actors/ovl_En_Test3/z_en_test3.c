@@ -912,7 +912,8 @@ s32 func_80A3FFD0(EnTest3* this, PlayState* play2) {
     PlayState* play = play2;
 
     if (D_80A41D68 == 0) {
-        if (GameInteractor_Should(VB_PLAY_COUPLES_MASK_CS, !Play_InCsMode(play) && (play->roomCtx.curRoom.num == 2), this, &D_80A41D68)) {
+        if (GameInteractor_Should(VB_PLAY_COUPLES_MASK_CS, !Play_InCsMode(play) && (play->roomCtx.curRoom.num == 2),
+                                  this, &D_80A41D68)) {
             D_80A41D68 = 1;
         }
     } else if (D_80A41D68 == 1) {
