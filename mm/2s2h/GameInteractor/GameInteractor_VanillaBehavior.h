@@ -1626,7 +1626,7 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // D_80A41D68 == 0
+    // !Play_InCsMode(play) && (play->roomCtx.curRoom.num == 2)
     // ```
     // #### `args`
     // - `*EnTest3` (Kafei)
