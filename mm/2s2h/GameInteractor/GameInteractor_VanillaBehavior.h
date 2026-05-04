@@ -315,6 +315,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - None
+    VB_CONSUME_EPONA_CARROT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*EnGinkoMan`
     VB_CONTINUE_BANKER_DIALOGUE,
 
@@ -970,14 +978,6 @@ typedef enum {
     // - `*f32` (phi_f0: rubberbanded speed)
     // - `*f32` (phi_f2: player's speed or 20, whichever is greater)
     VB_GORON_RACE_RUBBERBANDING,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - None
-    VB_CONSUME_EPONA_CARROT,
 
     // #### `result`
     // ```c
