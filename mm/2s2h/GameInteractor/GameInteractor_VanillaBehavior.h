@@ -977,6 +977,14 @@ typedef enum {
     // ```
     // #### `args`
     // - None
+    VB_CONSUME_EPONA_CARROT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
     VB_GORON_ROLL_CONSUME_MAGIC,
 
     // #### `result`
