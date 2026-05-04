@@ -27,6 +27,7 @@ static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
 
     anju->unk_3C0 = true;
     kafei->player.actor.world.pos = anju->actor.world.pos = POSITION;
+    kafei->player.actor.world.pos.z -= 2.0f;
     kafei->player.actor.world.rot = kafei->player.actor.shape.rot = anju->actor.world.rot = anju->actor.shape.rot =
         ROTATION;
     kafei->player.yaw = ROTATION.y;
