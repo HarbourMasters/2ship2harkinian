@@ -8,6 +8,7 @@
 extern "C" {
 #include "src/overlays/actors/ovl_En_An/z_en_an.h"
 #include "src/overlays/actors/ovl_En_Test3/z_en_test3.h"
+void Player_StartTalking(PlayState* play, Actor* actor);
 }
 
 #define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
@@ -20,17 +21,19 @@ static Vec3s ROTATION = { 0x0000, -0x2AAB, 0x0000 };
 
 static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
     EnAn* anju = (EnAn*)SubS_FindActor(gPlayState, NULL, ACTORCAT_NPC, ACTOR_EN_AN);
-    if (anju != NULL) {
-        anju->unk_3C0 = true;
-        kafei->player.actor.world.pos = anju->actor.world.pos = POSITION;
-        kafei->player.actor.world.rot = kafei->player.actor.shape.rot = anju->actor.world.rot = anju->actor.shape.rot =
-            ROTATION;
-        kafei->player.yaw = ROTATION.y;
+    if (anju == NULL) {
+        return;
     }
+
+    anju->unk_3C0 = true;
+    kafei->player.actor.world.pos = anju->actor.world.pos = POSITION;
+    kafei->player.actor.world.rot = kafei->player.actor.shape.rot = anju->actor.world.rot = anju->actor.shape.rot =
+        ROTATION;
+    kafei->player.yaw = ROTATION.y;
 
     if (!IS_RANDO && GameInteractor_Should(VB_GIVE_ITEM_FROM_DMCHAR05, true, ITEM_MASK_COUPLE)) {
         GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
-            .showGetItemCutscene = !CVarGetInteger("gEnhancements.Cutscenes.SkipGetItemCutscenes", 0),
+            .showGetItemCutscene = true,
             .param = GID_MASK_COUPLE,
             .giveItem =
                 [](Actor* actor, PlayState* play) {
@@ -42,12 +45,12 @@ static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
                     }
 
                     Item_Give(play, ITEM_MASK_COUPLE);
-                    Message_BombersNotebookQueueEvent(play, BOMBERS_NOTEBOOK_EVENT_MET_ANJU);
-                    Message_BombersNotebookQueueEvent(play, BOMBERS_NOTEBOOK_EVENT_MET_KAFEI);
-                    Message_BombersNotebookQueueEvent(play, BOMBERS_NOTEBOOK_EVENT_RECEIVED_COUPLES_MASK);
                 },
         });
     }
+
+    anju->actor.textId = 0x2955; // This message automatically queues Notebook events
+    Player_StartTalking(gPlayState, &anju->actor);
 }
 
 static void RegisterSkipCouplesMaskCs() {
