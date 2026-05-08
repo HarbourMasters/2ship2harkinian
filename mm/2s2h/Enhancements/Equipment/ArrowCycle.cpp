@@ -326,6 +326,11 @@ void ArrowCycleMain() {
             Magic_Add(gPlayState, sMagicArrowCosts[ARROW_GET_MAGIC_FROM_TYPE(heldArrow->actor.params)]);
         }
 
+        // If the held arrow has a bomb attached, then we should return the bomb.
+        if (IsBombArrowButton(player)) {
+            Inventory_ChangeAmmo(ITEM_BOMB, 1);
+        }
+
         CycleToNextArrow(gPlayState, player);
         // Track that we just cycled for 2 frames to prevent held R input from triggering the shield action when in
         // Z-Target mode as the arrow is respawned (Player_UpperAction_8)
