@@ -154,6 +154,7 @@ void SetupGuiElements() {
                                                                              "Item Tracker Settings", ImVec2(800, 400));
     gui->AddGuiWindow(mItemTrackerSettingsWindow);
 
+    DisplayOverlay_Init();
     mDisplayOverlayWindow = std::make_shared<DisplayOverlayWindow>("gWindows.DisplayOverlay", "Display Overlay");
     gui->AddGuiWindow(mDisplayOverlayWindow);
 
@@ -220,6 +221,19 @@ void Destroy() {
 void RegisterPopup(std::string title, std::string message, std::string button1, std::string button2,
                    std::function<void()> button1callback, std::function<void()> button2callback) {
     mModalWindow->RegisterPopup(title, message, button1, button2, button1callback, button2callback);
+}
+
+void SetDisplayOverlayVisibility(bool visible) {
+    if (mDisplayOverlayWindow != nullptr) {
+        if (visible) {
+            mDisplayOverlayWindow->Show();
+        } else {
+            mDisplayOverlayWindow->Hide();
+        }
+    } else {
+        CVarSetInteger("gWindows.DisplayOverlay", visible ? 1 : 0);
+    }
+    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 }
 
 } // namespace BenGui

@@ -43,10 +43,10 @@ void DrawInGameTimer(uint32_t timer, ImVec4 color = ImVec4(1, 1, 1, 1)) {
 }
 
 void DisplayOverlayWindow::Draw() {
-    if (!gPlayState) {
+    if (!IsVisible() || !gPlayState) {
         return;
     }
-    int displayOverlay = CVarGetInteger("gWindows.DisplayOverlay", 0);
+    int displayOverlay = CVarGetInteger(CVAR_DISPLAY_OVERLAY_MODE, 0);
     if (displayOverlay == TIMER_DISPLAY_NONE) {
         return;
     }
@@ -104,4 +104,19 @@ void DisplayOverlayWindow::Draw() {
 }
 
 void DisplayOverlayWindow::InitElement() {
+}
+
+void DisplayOverlay_Init() {
+    if (CVarGetInteger(CVAR_DISPLAY_OVERLAY_MODE, -1) == -1) {
+        int oldVal = CVarGetInteger("gWindows.DisplayOverlay", 0);
+        // Map legacy overloaded CVar to new split CVars
+        if (oldVal == TIMER_DISPLAY_RTA || oldVal == TIMER_DISPLAY_IGT) {
+            CVarSetInteger(CVAR_DISPLAY_OVERLAY_MODE, oldVal);
+            CVarSetInteger("gWindows.DisplayOverlay", 1);
+        } else {
+            CVarSetInteger(CVAR_DISPLAY_OVERLAY_MODE, TIMER_DISPLAY_NONE);
+            CVarSetInteger("gWindows.DisplayOverlay", 0);
+        }
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    }
 }
