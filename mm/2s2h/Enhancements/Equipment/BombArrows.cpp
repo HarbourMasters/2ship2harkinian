@@ -519,7 +519,7 @@ static void HandleEquipCleanup(PauseContext* pauseCtx) {
     }
 }
 
-static void DrawBombArrowAmmoCount(PlayState* play, s16 button, s16 alpha, bool isDpad) {
+static void DrawBombArrowAmmoCount(PlayState* play, s16 button, s16 alpha, bool isDpad, bool has_bombs) {
     if (!IsBombArrowButton(button, isDpad)) {
         return;
     }
@@ -531,9 +531,17 @@ static void DrawBombArrowAmmoCount(PlayState* play, s16 button, s16 alpha, bool 
 
     s16 effectiveAmmo = (arrows < bombs) ? arrows : bombs;
     s16 effectiveMax = (maxArrows < maxBombs) ? maxArrows : maxBombs;
+    s16 ammo;
+    bool turnGreen;
 
-    s16 ammo = effectiveAmmo;
-    bool turnGreen = (effectiveAmmo == effectiveMax);
+    // When out of bombs displays arrow count instead
+    if (has_bombs) {
+        ammo = effectiveAmmo;
+        turnGreen = (effectiveAmmo == effectiveMax);
+    } else {
+        ammo = arrows;
+        turnGreen = (arrows == maxArrows);
+    }
 
     OPEN_DISPS(play->state.gfxCtx);
 
@@ -980,10 +988,16 @@ static void OnDrawHudAmmoCount(bool* should, va_list args) {
     s16 button = (s16)va_arg(args, int);
     s16 alpha = (s16)va_arg(args, int);
     bool isDpad = (bool)va_arg(args, int);
+    bool has_bombs = (AMMO(ITEM_BOMB) > 0);
 
     if (IsBombArrowButton(button, isDpad)) {
         *should = false;
-        DrawBombArrowAmmoCount(gPlayState, button, alpha, isDpad);
+        DrawBombArrowAmmoCount(gPlayState, button, alpha, isDpad, has_bombs);
+
+        // When bombs is 0, reduce alpha for bomb texture.
+        if (!has_bombs) {
+            alpha /= 2;
+        }
 
         // Draw the bomb overlay here so it shares the same render order as the C/D-button icons.
         if (isDpad) {
