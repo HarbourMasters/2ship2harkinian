@@ -51,6 +51,29 @@ void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::
             RC_GREAT_BAY_COAST_COW_FRONT } }
     };
 
+    auto IsSafeScene = [&](SceneId sceneId) {
+        return sceneId != SCENE_MITURIN &&    // Woodfall Temple
+               sceneId != SCENE_MITURIN_BS && // Woodfall Temple Boss
+               sceneId != SCENE_SEA &&        // Great Bay Temple
+               sceneId != SCENE_SEA_BS &&     // Great Bay Temple Boss
+               sceneId != SCENE_LAST_DEKU &&  // Moon Deku
+               sceneId != SCENE_LAST_GORON && // Moon Goron
+               sceneId != SCENE_LAST_ZORA &&  // Moon Goron
+               sceneId != SCENE_LAST_LINK &&  // Moon Human
+               sceneId != SCENE_SOUGEN &&     // Moon
+               sceneId != SCENE_LAST_BS;      // Moon Boss
+    };
+
+    auto IsSafeCheck = [&](RandoCheckId randoCheckId) {
+        return randoCheckId != RC_BENEATH_THE_WELL_COW && randoCheckId != RC_ROMANI_RANCH_BARN_COW_LEFT &&
+               randoCheckId != RC_ROMANI_RANCH_BARN_COW_MIDDLE && randoCheckId != RC_ROMANI_RANCH_BARN_COW_RIGHT &&
+               randoCheckId != RC_ROMANI_RANCH_FIELD_COW_ENTRANCE &&
+               randoCheckId != RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_BACK &&
+               randoCheckId != RC_ROMANI_RANCH_FIELD_COW_NEAR_HOUSE_FRONT &&
+               randoCheckId != RC_TERMINA_FIELD_COW_BACK && randoCheckId != RC_TERMINA_FIELD_COW_FRONT &&
+               randoCheckId != RC_GREAT_BAY_COAST_COW_BACK && randoCheckId != RC_GREAT_BAY_COAST_COW_FRONT;
+    };
+
     for (auto& randoCheckId : checkPool) {
         if (randoCheckId == RC_UNKNOWN) {
             continue;
@@ -67,17 +90,7 @@ void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::
         if (itemToSceneBlacklist.find(randoItemId) != itemToSceneBlacklist.end() ||
             itemToCheckBlacklist.find(randoItemId) != itemToCheckBlacklist.end()) {
             importantItems[randoItemId] = randoCheckId;
-        } else if (randoStaticCheck.sceneId != SCENE_MITURIN &&    // Woodfall Temple
-                   randoStaticCheck.sceneId != SCENE_MITURIN_BS && // Woodfall Temple Boss
-                   randoStaticCheck.sceneId != SCENE_SEA &&        // Great Bay Temple
-                   randoStaticCheck.sceneId != SCENE_SEA_BS &&     // Great Bay Temple Boss
-                   randoStaticCheck.sceneId != SCENE_LAST_DEKU &&  // Moon Deku
-                   randoStaticCheck.sceneId != SCENE_LAST_GORON && // Moon Goron
-                   randoStaticCheck.sceneId != SCENE_LAST_ZORA &&  // Moon Goron
-                   randoStaticCheck.sceneId != SCENE_LAST_LINK &&  // Moon Human
-                   randoStaticCheck.sceneId != SCENE_SOUGEN &&     // Moon
-                   randoStaticCheck.sceneId != SCENE_LAST_BS       // Moon Boss
-        ) {
+        } else if (IsSafeScene(randoStaticCheck.sceneId) && IsSafeCheck(randoStaticCheck.randoCheckId)) {
             safeChecks.push_back(randoCheckId);
         }
     }
