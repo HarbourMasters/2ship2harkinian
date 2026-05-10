@@ -1131,6 +1131,12 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Items.ExtraPowderKegs")
         .Options(CheckboxOptions().Tooltip(
             "Allows carrying up to 3 Powder Kegs at once instead of the vanilla limit of 1."));
+    AddWidget(path, "Extended Projectile Interaction Distance", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Gameplay.ExtendedProjectileInteractionDistance")
+        .Options(CheckboxOptions().Tooltip(
+            "Allows projectiles and explosions to hit breakable objects at a distance matching your "
+            "Increase Actor Draw Distance setting.\n\n"
+            "Does not affect pickup ranges, talk prompts, or physical body collision."));
     AddWidget(path, "Curiosity Shop Refills", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Shops.CuriosityShopRefills")
         .Options(CheckboxOptions().Tooltip(
