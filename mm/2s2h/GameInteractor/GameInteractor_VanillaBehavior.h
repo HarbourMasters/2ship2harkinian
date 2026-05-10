@@ -315,6 +315,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - None
+    VB_CONSUME_EPONA_CARROT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*EnGinkoMan`
     VB_CONTINUE_BANKER_DIALOGUE,
 

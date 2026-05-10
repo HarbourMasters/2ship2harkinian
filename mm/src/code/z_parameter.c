@@ -8712,7 +8712,8 @@ void Interface_DrawMinigameIcons(PlayState* play) {
 
     if (!IS_PAUSED(&play->pauseCtx)) {
         // Carrots rendering if the action corresponds to riding a horse
-        if (interfaceCtx->aButtonDoActionDelayed == DO_ACTION_FASTER) {
+        if (interfaceCtx->aButtonDoActionDelayed == DO_ACTION_FASTER &&
+            GameInteractor_Should(VB_CONSUME_EPONA_CARROT, true)) {
             // Load Carrot Icon
             gDPLoadTextureBlock(OVERLAY_DISP++, gCarrotIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 16, 16, 0,
                                 G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,

@@ -924,6 +924,9 @@ void BenMenu::AddEnhancements() {
         .CVar("gCheats.InfiniteConsumables")
         .Options(
             CheckboxOptions().Tooltip("Always have max Consumables, you must have collected the consumables first."));
+    AddWidget(path, "Infinite Epona Carrots", WIDGET_CVAR_CHECKBOX)
+        .CVar("gCheats.InfiniteEponaCarrots")
+        .Options(CheckboxOptions().Tooltip("Allows Epona to boost without consuming carrots."));
     AddWidget(path, "Easy Frame Advance", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.EasyFrameAdvance")
         .Options(CheckboxOptions().Tooltip(
