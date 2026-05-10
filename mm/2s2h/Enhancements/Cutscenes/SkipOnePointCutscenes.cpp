@@ -63,6 +63,7 @@ void RegisterSkipOnePointCutscenes() {
                     *should = false;
                 }
                 break;
+            case ACTOR_EN_CHA:    // Bell in Laundry Pool
             case ACTOR_BG_SPDWEB: // Spider Web
             case ACTOR_DOOR_SHUTTER:
             case ACTOR_BG_NUMA_HANA: // Big wooden flower in Woodfall Temple
