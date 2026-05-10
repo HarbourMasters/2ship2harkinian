@@ -102,6 +102,7 @@ void RegisterSkipOnePointCutscenes() {
             case ACTOR_BG_IKNIN_SUSCEIL:
             case ACTOR_BG_IKANA_DHARMA:
             case ACTOR_OBJ_HUGEBOMBIWA:
+            case ACTOR_OBJ_WARPSTONE:
                 *should = false;
                 break;
             default:
