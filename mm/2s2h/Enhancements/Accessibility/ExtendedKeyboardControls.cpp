@@ -51,6 +51,17 @@ static inline int clampStick(int val) {
     return (val > 127) ? 127 : (val < -128) ? -128 : val;
 }
 
+static inline void clampMagnitude(int* x, int* y, int maxMag) {
+    float fx = (float)*x;
+    float fy = (float)*y;
+    float mag = sqrtf(fx * fx + fy * fy);
+    if (mag > (float)maxMag) {
+        float scale = (float)maxMag / mag;
+        *x = (int)(fx * scale);
+        *y = (int)(fy * scale);
+    }
+}
+
 // ===== Registration =====
 
 void RegisterExtendedKeyboardControls() {
@@ -71,6 +82,8 @@ void RegisterExtendedKeyboardControls() {
         const Uint8* keys = SDL_GetKeyboardState(NULL);
         int sx = input->cur.stick_x;
         int sy = input->cur.stick_y;
+        int origSx = sx;
+        int origSy = sy;
         int32_t kL = CVarGetInteger(CVAR_HALF_LEFT_KEY, 0);
         int32_t kR = CVarGetInteger(CVAR_HALF_RIGHT_KEY, 0);
         int32_t kU = CVarGetInteger(CVAR_HALF_UP_KEY, 0);
@@ -85,12 +98,13 @@ void RegisterExtendedKeyboardControls() {
         if (kD > 0 && keys[kD])
             sy -= HALF_STICK_VALUE;
 
-        input->cur.stick_x = (s8)clampStick(sx);
-        input->cur.stick_y = (s8)clampStick(sy);
-        // Lib_GetControlStickData reads rel for magnitude — without this,
-        // half-stick inputs are ignored when there's no real stick input.
-        input->rel.stick_x = input->cur.stick_x;
-        input->rel.stick_y = input->cur.stick_y;
+        if (sx != origSx || sy != origSy) {
+            clampMagnitude(&sx, &sy, 72);
+            input->cur.stick_x = (s8)clampStick(sx);
+            input->cur.stick_y = (s8)clampStick(sy);
+            input->rel.stick_x = input->cur.stick_x;
+            input->rel.stick_y = input->cur.stick_y;
+        }
 
         // 2. Diagonal Notch Correction — keyboard produces perfect 45° diagonals
         // that always resolve to a sidehop on down-left/down-right.
