@@ -1164,6 +1164,80 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Minigames.MarkShootingGalleryOctoroks")
         .Options(CheckboxOptions().Tooltip("Places markers on the Town Shooting Gallery Octoroks, indicating whether "
                                            "they should be hit."));
+    AddWidget(path, "Extended Keyboard Controls", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.ExtKeyboardControls")
+        .Options(CheckboxOptions().Tooltip(
+            "ESS position modifier (hold button for 17/127 stick), instant quick spin (hold button + B), "
+            "diagonal notch correction, and half-stick keyboard inputs (~35/127 for diagonal angles)."));
+    AddWidget(path, "  ESS Button:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gEnhancements.Player.ExtKeyboardEssBtn")
+        .PreFunc(
+            [](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.ExtKeyboardControls", 0); })
+        .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER1));
+    AddWidget(path, "  Quick Spin Button:", WIDGET_CVAR_BTN_SELECTOR)
+        .CVar("gEnhancements.Player.ExtKeyboardSpinBtn")
+        .PreFunc(
+            [](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.ExtKeyboardControls", 0); })
+        .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER2));
+    AddWidget(path, "  Diagonal Notch Correction", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.ExtKeyboardNotchFix")
+        .PreFunc(
+            [](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.ExtKeyboardControls", 0); })
+        .Options(CheckboxOptions().Tooltip(
+            "On keyboard, down-left/down-right are perfect 45 degree diagonals that always "
+            "produce a sidehop. This corrects the angle on the Z+A frame so drifted backflips "
+            "are possible from down-diagonals."));
+    AddWidget(path, "  Half-Stick Keys", WIDGET_CUSTOM)
+        .PreFunc(
+            [](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.ExtKeyboardControls", 0); })
+        .CustomFunction([](WidgetInfo& info) {
+            struct KeyBinding {
+                const char* label;
+                const char* cvar;
+            };
+            static const KeyBinding bindings[] = {
+                { "Half Left", "gEnhancements.Player.ExtKeyboardHalfLeftKey" },
+                { "Half Right", "gEnhancements.Player.ExtKeyboardHalfRightKey" },
+                { "Half Up", "gEnhancements.Player.ExtKeyboardHalfUpKey" },
+                { "Half Down", "gEnhancements.Player.ExtKeyboardHalfDownKey" },
+            };
+            static int pendingBindIndex = -1;
+
+            for (int i = 0; i < 4; i++) {
+                int32_t scancode = CVarGetInteger(bindings[i].cvar, 0);
+                const char* keyName =
+                    scancode > 0 ? SDL_GetKeyName(SDL_GetKeyFromScancode((SDL_Scancode)scancode)) : "None";
+
+                ImGui::Text("%s:", bindings[i].label);
+                ImGui::SameLine();
+
+                auto popupId = StringHelper::Sprintf("##extKeyBind%d", i);
+                if (pendingBindIndex == i) {
+                    ImGui::Button(StringHelper::Sprintf("Press a key...%s", popupId.c_str()).c_str());
+                    int numkeys;
+                    const Uint8* keys = SDL_GetKeyboardState(&numkeys);
+                    for (int k = 4; k < numkeys; k++) {
+                        if (keys[k]) {
+                            CVarSetInteger(bindings[i].cvar, k);
+                            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+                            pendingBindIndex = -1;
+                            break;
+                        }
+                    }
+                } else {
+                    if (ImGui::Button(StringHelper::Sprintf("%s%s", keyName, popupId.c_str()).c_str())) {
+                        pendingBindIndex = i;
+                    }
+                    if (scancode > 0) {
+                        ImGui::SameLine();
+                        if (ImGui::Button(StringHelper::Sprintf("%s##extKeyClear%d", ICON_FA_TIMES, i).c_str())) {
+                            CVarSetInteger(bindings[i].cvar, 0);
+                            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+                        }
+                    }
+                }
+            }
+        });
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Saving", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)

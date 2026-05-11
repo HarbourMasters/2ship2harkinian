@@ -5707,7 +5707,7 @@ PlayerMeleeWeaponAnimation func_808335F4(Player* this) {
             }
         }
     } else {
-        if (Player_CanSpinAttack(this)) {
+        if (GameInteractor_Should(VB_PLAYER_CAN_SPIN_ATTACK, Player_CanSpinAttack(this))) {
             meleeWeaponAnim = PLAYER_MWA_SPIN_ATTACK_1H;
         } else {
             if (controlStickDirection <= PLAYER_STICK_DIR_NONE) {
@@ -18801,7 +18801,7 @@ void Player_Action_84(Player* this, PlayState* play) {
     if (PlayerAnimation_Update(play, &this->skelAnime) ||
         ((this->meleeWeaponAnimation >= PLAYER_MWA_FLIPSLASH_FINISH) &&
          (this->meleeWeaponAnimation <= PLAYER_MWA_ZORA_JUMPKICK_FINISH) && (this->skelAnime.curFrame > 2.0f) &&
-         Player_CanSpinAttack(this))) {
+         GameInteractor_Should(VB_PLAYER_CAN_SPIN_ATTACK, Player_CanSpinAttack(this)))) {
         sPlayerUseHeldItem = this->av2.actionVar2;
 
         if (!Player_ActionHandler_7(this, play)) {
