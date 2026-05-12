@@ -36,16 +36,16 @@ extern "C" {
 
 // ===== Constants =====
 
-// 17/127 is the ESS position — the exact stick magnitude for Extended Superslide.
+// 17/127 is in the middle of ESS range
 #define ESS_MAGNITUDE 17
 
 // ~35/127 gives useful diagonal angles when combined with full-axis keyboard input.
-// Keyboard normally only gives 0 or full (±69 after octagonal bounding) on each axis.
+// Keyboard normally only gives 0 or full on each axis.
 #define HALF_STICK_VALUE 35
 
 // ===== Helpers =====
 
-// Clamp to s8 range after half-stick arithmetic. Defensive — keyboard max is ~69
+// Clamp to s8 range after half-stick arithmetic, keyboard max is ~69
 // and half-stick adds 35, so 104 fits, but this guards against edge cases.
 static inline int clampStick(int val) {
     return (val > 127) ? 127 : (val < -128) ? -128 : val;
@@ -116,10 +116,10 @@ void RegisterExtendedKeyboardControls() {
         // 10 of each other). Analog sticks never hit exact 45° so this is
         // effectively keyboard-only.
         if (CVAR_NOTCH && CHECK_BTN_ALL(input->press.button, BTN_A)) {
-            s8 x = input->cur.stick_x;
-            s8 y = input->cur.stick_y;
-            s8 ax = (x > 0) ? x : -x;
-            s8 ay = (y > 0) ? y : -y;
+            int x = input->cur.stick_x;
+            int y = input->cur.stick_y;
+            int ax = (x > 0) ? x : -x;
+            int ay = (y > 0) ? y : -y;
             if (y < 0 && ax > 10 && ay > 10 && (ax - ay > -10 && ax - ay < 10)) {
                 input->cur.stick_x = 0;
             }
