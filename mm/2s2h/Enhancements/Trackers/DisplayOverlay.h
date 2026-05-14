@@ -2,8 +2,6 @@
 
 #define CVAR_DISPLAY_OVERLAY_MODE "gDisplayOverlay.Mode"
 
-void DisplayOverlay_Init();
-
 void DisplayOverlayInitSettings();
 
 class DisplayOverlayWindow : public Ship::GuiWindow {

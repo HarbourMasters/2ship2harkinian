@@ -105,18 +105,3 @@ void DisplayOverlayWindow::Draw() {
 
 void DisplayOverlayWindow::InitElement() {
 }
-
-void DisplayOverlay_Init() {
-    if (CVarGetInteger(CVAR_DISPLAY_OVERLAY_MODE, -1) == -1) {
-        int oldVal = CVarGetInteger("gWindows.DisplayOverlay", 0);
-        // Map legacy overloaded CVar to new split CVars
-        if (oldVal == TIMER_DISPLAY_RTA || oldVal == TIMER_DISPLAY_IGT) {
-            CVarSetInteger(CVAR_DISPLAY_OVERLAY_MODE, oldVal);
-            CVarSetInteger("gWindows.DisplayOverlay", 1);
-        } else {
-            CVarSetInteger(CVAR_DISPLAY_OVERLAY_MODE, TIMER_DISPLAY_NONE);
-            CVarSetInteger("gWindows.DisplayOverlay", 0);
-        }
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-    }
-}
