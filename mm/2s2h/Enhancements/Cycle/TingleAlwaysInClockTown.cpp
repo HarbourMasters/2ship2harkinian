@@ -3,11 +3,14 @@
 #include "2s2h/ShipInit.hpp"
 
 extern "C" {
-#include "variables.h"
+#include "src/overlays/actors/ovl_En_Bal/z_en_bal.h"
+Actor* Actor_SpawnEntry(ActorContext* actorCtx, ActorEntry* actorEntry, PlayState* play);
 }
 
 #define CVAR_NAME "gEnhancements.Cycle.TingleAlwaysInClockTown"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
+
+static ActorEntry originalTingle;
 
 static ActorEntry* GetTingleActorEntry() {
     ActorEntry* entry = gPlayState->setupActorList;
@@ -20,6 +23,8 @@ static ActorEntry* GetTingleActorEntry() {
     return NULL;
 }
 
+// This hook modifies Tingle's actor entry so he'll always appear in Clock Town, regardless of the time.
+// This modification is permanent, which is why we also need the other hook to revert it.
 static void SetTingleAlwaysInClockTown(s16 sceneId, s8 roomNum) {
     if (sceneId != SCENE_BACKTOWN) {
         return;
@@ -30,12 +35,54 @@ static void SetTingleAlwaysInClockTown(s16 sceneId, s8 roomNum) {
         return;
     }
 
+    // Copy original entry so we can revert it later
+    originalTingle = *tingleEntry;
+
+    // Set half-day flags all to on so he'll spawn regardless of the time of day
     tingleEntry->rot.x |= 0x7;
     tingleEntry->rot.z |= 0x7F;
 }
 
+static void ResetTingleActorEntry(Actor* actor) {
+    if (gPlayState->sceneId != SCENE_BACKTOWN) {
+        return;
+    }
+
+    if (originalTingle.id != ACTOR_EN_BAL) {
+        // ActorEntry data hasn't been copied, so there's nothing to revert
+        return;
+    }
+
+    ActorEntry* tingleEntry = GetTingleActorEntry();
+    if (tingleEntry == NULL) {
+        return;
+    }
+
+    *tingleEntry = originalTingle;
+}
+
+static void SpawnTingle() {
+    EnBal* tingle = (EnBal*)SubS_FindActor(gPlayState, NULL, ACTORCAT_NPC, ACTOR_EN_BAL);
+    if (tingle != NULL) {
+        // Tingle already spawned, do not spawn a second one
+        return;
+    }
+
+    ActorEntry* tingleEntry = GetTingleActorEntry();
+    if (tingleEntry == NULL) {
+        return;
+    }
+
+    Actor_SpawnEntry(&gPlayState->actorCtx, tingleEntry, gPlayState);
+}
+
 static void RegisterTingleAlwaysInClockTown() {
+    if (CVAR && gPlayState != NULL && gPlayState->sceneId == SCENE_BACKTOWN) {
+        SpawnTingle();
+    }
+
     COND_HOOK(AfterRoomSceneCommands, CVAR, SetTingleAlwaysInClockTown);
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_BAL, CVAR, ResetTingleActorEntry);
 }
 
 static RegisterShipInitFunc initFunc(RegisterTingleAlwaysInClockTown, { CVAR_NAME });

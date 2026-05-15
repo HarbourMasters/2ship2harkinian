@@ -1227,7 +1227,9 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Allows the wallet reward to be collected on any day."));
     AddWidget(path, "Tingle Always in Clock Town", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.TingleAlwaysInClockTown")
-        .Options(CheckboxOptions().Tooltip("Tingle will always appear in North Clock Town, not just during the day."));
+        .Options(CheckboxOptions().Tooltip("Tingle will always appear in North Clock Town, not just during the day. If "
+                                           "you turn this off at night while Tingle is present, he will remain until "
+                                           "the scene is reset."));
 
     //// Graphics Enhancements
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
