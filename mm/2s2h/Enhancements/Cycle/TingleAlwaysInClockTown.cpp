@@ -76,9 +76,24 @@ static void SpawnTingle() {
     Actor_SpawnEntry(&gPlayState->actorCtx, tingleEntry, gPlayState);
 }
 
+static void DestroyTingle() {
+    Actor* tingle = SubS_FindActor(gPlayState, NULL, ACTORCAT_NPC, ACTOR_EN_BAL);
+    if (tingle == NULL) {
+        // Tingle not present, nothing to destroy
+        return;
+    }
+
+    Actor_Kill(tingle);
+}
+
 static void RegisterTingleAlwaysInClockTown() {
-    if (CVAR && gPlayState != NULL && gPlayState->sceneId == SCENE_BACKTOWN) {
-        SpawnTingle();
+    if (gPlayState != NULL && gPlayState->sceneId == SCENE_BACKTOWN &&
+        (HALFDAYBIT_NIGHTS & gPlayState->actorCtx.halfDaysBit)) {
+        if (CVAR) {
+            SpawnTingle();
+        } else {
+            DestroyTingle();
+        }
     }
 
     COND_HOOK(AfterRoomSceneCommands, CVAR, SetTingleAlwaysInClockTown);
