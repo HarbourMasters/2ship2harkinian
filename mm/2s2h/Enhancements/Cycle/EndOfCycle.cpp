@@ -89,7 +89,7 @@ static RegisterShipInitFunc initFunc_Consumables(RegisterEndOfCycleSaveHook_Cons
 static void RegisterEndOfCycleSaveHook_Bottles() {
     COND_HOOK(AfterEndOfCycleSave, CVAR_BOTTLE, []() {
         int stolenBottles = (((saveInfoCopy.stolenItems & 0xFF000000) >> 0x18) == ITEM_BOTTLE) +
-            (((saveInfoCopy.stolenItems & 0x00FF0000) >> 0x10) == ITEM_BOTTLE);
+                            (((saveInfoCopy.stolenItems & 0x00FF0000) >> 0x10) == ITEM_BOTTLE);
 
         // Replace bottles back, accounting for any stolen bottles
         for (int i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
@@ -124,9 +124,9 @@ static void RegisterEndOfCycleSaveHook_Sword() {
         // Check for razor sword equipped, stolen, or turned into the smithy
         if (curSword == EQUIP_VALUE_SWORD_RAZOR ||
             (curSword == EQUIP_VALUE_SWORD_NONE &&
-                ((saveInfoCopy.permanentSceneFlags[SCENE_KAJIYA].unk_14 & 4) ||
-                    (((saveInfoCopy.stolenItems & 0xFF000000) >> 0x18) == ITEM_SWORD_RAZOR) ||
-                    (((saveInfoCopy.stolenItems & 0x00FF0000) >> 0x10) == ITEM_SWORD_RAZOR)))) {
+             ((saveInfoCopy.permanentSceneFlags[SCENE_KAJIYA].unk_14 & 4) ||
+              (((saveInfoCopy.stolenItems & 0xFF000000) >> 0x18) == ITEM_SWORD_RAZOR) ||
+              (((saveInfoCopy.stolenItems & 0x00FF0000) >> 0x10) == ITEM_SWORD_RAZOR)))) {
 
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_RAZOR);
             BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;
@@ -145,7 +145,7 @@ static RegisterShipInitFunc initFunc_Time(RegisterEndOfCycleSaveHook_Time, { CVA
 static void RegisterEndOfCycleSaveHook_Chateau() {
     COND_HOOK(AfterEndOfCycleSave, CVAR_CHATEAU, []() {
         if (saveInfoCopy.weekEventReg[((WEEKEVENTREG_DRANK_CHATEAU_ROMANI) >> 8)] &
-            ((WEEKEVENTREG_DRANK_CHATEAU_ROMANI) & 0xFF)) {
+            ((WEEKEVENTREG_DRANK_CHATEAU_ROMANI)&0xFF)) {
             SET_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI);
         }
     });
@@ -154,9 +154,8 @@ static void RegisterEndOfCycleSaveHook_Chateau() {
 static RegisterShipInitFunc initFunc_Chateau(RegisterEndOfCycleSaveHook_Chateau, { CVAR_NAME_CHATEAU });
 
 static void RegisterEndOfCycleSaveHook_ScarecrowSong() {
-    COND_HOOK(AfterEndOfCycleSave, CVAR_SCARECROW, []() {
-        gSaveContext.save.saveInfo.scarecrowSpawnSongSet = saveInfoCopy.scarecrowSpawnSongSet;
-    });
+    COND_HOOK(AfterEndOfCycleSave, CVAR_SCARECROW,
+              []() { gSaveContext.save.saveInfo.scarecrowSpawnSongSet = saveInfoCopy.scarecrowSpawnSongSet; });
 }
 
 static RegisterShipInitFunc initFunc_ScarecrowSong(RegisterEndOfCycleSaveHook_ScarecrowSong, { CVAR_NAME_SCARECROW });
