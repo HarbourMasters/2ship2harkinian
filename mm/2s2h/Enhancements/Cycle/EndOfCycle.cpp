@@ -117,6 +117,17 @@ static void RegisterEndOfCycleSaveHook_Bottles() {
 
 static RegisterShipInitFunc initFunc_Bottles(RegisterEndOfCycleSaveHook_Bottles, { CVAR_NAME_BOTTLE });
 
+static void RegisterEndOfCycleSaveHook_Chateau() {
+    COND_HOOK(AfterEndOfCycleSave, CVAR_CHATEAU, []() {
+        if (saveInfoCopy.weekEventReg[((WEEKEVENTREG_DRANK_CHATEAU_ROMANI) >> 8)] &
+            ((WEEKEVENTREG_DRANK_CHATEAU_ROMANI)&0xFF)) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI);
+        }
+    });
+}
+
+static RegisterShipInitFunc initFunc_Chateau(RegisterEndOfCycleSaveHook_Chateau, { CVAR_NAME_CHATEAU });
+
 static void RegisterEndOfCycleSaveHook_Sword() {
     COND_HOOK(AfterEndOfCycleSave, CVAR_SWORD || IS_RANDO, []() {
         u8 curSword = (saveInfoCopy.equips.equipment & gEquipMasks[EQUIP_TYPE_SWORD]) >> gEquipShifts[EQUIP_TYPE_SWORD];
@@ -141,17 +152,6 @@ static void RegisterEndOfCycleSaveHook_Time() {
 }
 
 static RegisterShipInitFunc initFunc_Time(RegisterEndOfCycleSaveHook_Time, { CVAR_NAME_TIME });
-
-static void RegisterEndOfCycleSaveHook_Chateau() {
-    COND_HOOK(AfterEndOfCycleSave, CVAR_CHATEAU, []() {
-        if (saveInfoCopy.weekEventReg[((WEEKEVENTREG_DRANK_CHATEAU_ROMANI) >> 8)] &
-            ((WEEKEVENTREG_DRANK_CHATEAU_ROMANI)&0xFF)) {
-            SET_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI);
-        }
-    });
-}
-
-static RegisterShipInitFunc initFunc_Chateau(RegisterEndOfCycleSaveHook_Chateau, { CVAR_NAME_CHATEAU });
 
 static void RegisterEndOfCycleSaveHook_ScarecrowSong() {
     COND_HOOK(AfterEndOfCycleSave, CVAR_SCARECROW,
