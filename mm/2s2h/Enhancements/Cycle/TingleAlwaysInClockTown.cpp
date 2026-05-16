@@ -3,7 +3,6 @@
 #include "2s2h/ShipInit.hpp"
 
 extern "C" {
-#include "src/overlays/actors/ovl_En_Bal/z_en_bal.h"
 Actor* Actor_SpawnEntry(ActorContext* actorCtx, ActorEntry* actorEntry, PlayState* play);
 }
 
@@ -62,7 +61,7 @@ static void ResetTingleActorEntry(Actor* actor) {
 }
 
 static void SpawnTingle() {
-    EnBal* tingle = (EnBal*)SubS_FindActor(gPlayState, NULL, ACTORCAT_NPC, ACTOR_EN_BAL);
+    Actor* tingle = SubS_FindActor(gPlayState, NULL, ACTORCAT_NPC, ACTOR_EN_BAL);
     if (tingle != NULL) {
         // Tingle already spawned, do not spawn a second one
         return;
