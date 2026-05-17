@@ -4419,6 +4419,7 @@ bool func_80831194(PlayState* play, Player* this) {
         }
 
         this->unk_D57 = (this->transformation == PLAYER_FORM_DEKU) ? 20 : 4;
+        GameInteractor_ExecuteOnPlayerReleaseHeldActor(play, this, this->heldActor);
 
         this->heldActor->parent = NULL;
         this->actor.child = NULL;

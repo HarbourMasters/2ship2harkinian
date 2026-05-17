@@ -184,6 +184,11 @@ void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPlayerPostLimbDraw>(player, limbIndex);
 }
 
+void GameInteractor_ExecuteOnPlayerReleaseHeldActor(PlayState* play, Player* player, Actor* heldActor) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayerReleaseHeldActor>(play, player, heldActor);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPlayerReleaseHeldActor>(play, player, heldActor);
+}
+
 void GameInteractor_ExecuteOnBossDefeated(s16 actorId) {
     SPDLOG_DEBUG("GameInteractor_ExecuteOnBossDefeated: actorId: {}", actorId);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnBossDefeated>(actorId);
