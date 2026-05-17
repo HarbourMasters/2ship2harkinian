@@ -156,6 +156,13 @@ static RegisterShipInitFunc initFunc_Time(RegisterEndOfCycleSaveHook_Time, { CVA
 static void RegisterEndOfCycleSaveHook_ScarecrowSong() {
     COND_HOOK(AfterEndOfCycleSave, CVAR_SCARECROW,
               []() { gSaveContext.save.saveInfo.scarecrowSpawnSongSet = saveInfoCopy.scarecrowSpawnSongSet; });
+
+    COND_HOOK(OnSaveLoad, CVAR_SCARECROW, [](s16 fileNum) {
+        if (!gSaveContext.save.isOwlSave && gSaveContext.save.saveInfo.scarecrowSpawnSongSet) {
+            memcpy(gScarecrowSpawnSongPtr, gSaveContext.save.saveInfo.scarecrowSpawnSong,
+                   sizeof(gSaveContext.save.saveInfo.scarecrowSpawnSong));
+        }
+    });
 }
 
 static RegisterShipInitFunc initFunc_ScarecrowSong(RegisterEndOfCycleSaveHook_ScarecrowSong, { CVAR_NAME_SCARECROW });
