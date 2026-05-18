@@ -32,6 +32,8 @@ void SetStartingItemsInSave(RandoSaveInfo& randoSaveInfo, std::vector<RandoItemI
 std::vector<RandoItemId> GetStartingItemsFromConfig();
 void SetStartingItemsInConfig(std::vector<RandoItemId>& startingItems);
 
+std::vector<RandoCheckId> FindMultiItemPlacement(RandoItemId randoItemId);
+
 } // namespace Rando
 
 #endif
