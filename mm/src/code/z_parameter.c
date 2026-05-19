@@ -8371,6 +8371,12 @@ void Interface_DrawTimers(PlayState* play) {
                     if (sTimerId == TIMER_ID_MOON_CRASH) {
                         gSaveContext.save.day = 4;
                         if ((play->sceneId == SCENE_OKUJOU) && (gSaveContext.sceneLayer == 3)) {
+                            // This is a moon crash edge case that only occurs if the player played Oath to Order
+                            // without saving the Four Giants. An extra cutscene plays in Termina Field before the
+                            // standard moon crash cutscene, and Interface_StartMoonCrash never gets called. Therefore,
+                            // we add an extra call here to execute the moon crash hooks.
+                            GameInteractor_ExecuteBeforeMoonCrash();
+
                             play->nextEntrance = ENTRANCE(TERMINA_FIELD, 1);
                             gSaveContext.nextCutsceneIndex = 0xFFF0;
                             play->transitionTrigger = TRANS_TRIGGER_START;
