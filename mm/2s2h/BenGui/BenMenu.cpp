@@ -1225,6 +1225,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Oceanside wallet any day", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.OceansideWalletAnyDay")
         .Options(CheckboxOptions().Tooltip("Allows the wallet reward to be collected on any day."));
+    AddWidget(path, "Tingle Always in Clock Town", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cycle.TingleAlwaysInClockTown")
+        .Options(CheckboxOptions().Tooltip("Tingle will always appear in North Clock Town, not just during the day."));
 
     //// Graphics Enhancements
     path = { "Enhancements", "Graphics", SECTION_COLUMN_1 };
