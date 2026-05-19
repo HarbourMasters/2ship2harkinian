@@ -313,6 +313,10 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
     }
 
     if (flashSave == FLASH_SAVE_SRAM_HEADER || flashSave == FLASH_SAVE_SRAM_HEADER_BACKUP) {
+        if (pageCount * 128u < sizeof(SaveOptions)) {
+            SPDLOG_ERROR("SaveManager_SysFlashrom_WriteData: saveBuffer too small for SaveOptions");
+            return;
+        }
         SaveOptions saveOptions;
         memcpy(&saveOptions, saveBuffer, sizeof(SaveOptions));
 
@@ -340,6 +344,10 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
         case FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE:
         case FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE:
         case FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE: {
+            if (pageCount * 128u < sizeof(Save)) {
+                SPDLOG_ERROR("SaveManager_SysFlashrom_WriteData: saveBuffer too small for Save");
+                break;
+            }
             Save save;
             memcpy(&save, saveBuffer, sizeof(Save));
 
@@ -381,6 +389,10 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
         case FLASH_SAVE_FILE_1_OWL_SAVE:
         case FLASH_SAVE_FILE_2_OWL_SAVE:
         case FLASH_SAVE_FILE_3_OWL_SAVE: {
+            if (pageCount * 128u < offsetof(SaveContext, fileNum)) {
+                SPDLOG_ERROR("SaveManager_SysFlashrom_WriteData: saveBuffer too small for SaveContext");
+                break;
+            }
             SaveContext saveContext;
             memcpy(&saveContext, saveBuffer, offsetof(SaveContext, fileNum));
 
@@ -450,6 +462,10 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
         try {
             SaveOptions saveOptions = j;
 
+            if (pageCount * 128u < sizeof(SaveOptions)) {
+                SPDLOG_ERROR("SaveManager_SysFlashrom_ReadData: saveBuffer too small for SaveOptions");
+                return -1;
+            }
             memcpy(saveBuffer, &saveOptions, sizeof(SaveOptions));
             return 0;
         } catch (nlohmann::json::exception& je) {
