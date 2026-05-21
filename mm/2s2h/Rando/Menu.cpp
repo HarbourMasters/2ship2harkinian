@@ -1124,6 +1124,10 @@ static void DrawHintsTab() {
     CVarCheckbox("Oath to Order", Rando::StaticData::Options[RO_HINTS_OATH_TO_ORDER].cvar,
                  CheckboxOptions({ { .tooltip = "Once you have the Moon Access Requirements, talking to Skull Kid on "
                                                 "the Clock Tower Rooftop will hint the location of Oath to Order" } }));
+    CVarCheckbox("Transformation Masks", Rando::StaticData::Options[RO_HINTS_TRANSFORMATIONS].cvar,
+                 CheckboxOptions({ { .tooltip = "Checking the sign near the Business Scrub in South Clock Town "
+                                                "will reveal the location of Transformation Masks.\n"
+                                                "Note: This excludes Fierce Deity." } }));
     CVarCheckbox(
         "General Actor Hints", "gPlaceholderBool",
         CheckboxOptions({ { .disabled = true,

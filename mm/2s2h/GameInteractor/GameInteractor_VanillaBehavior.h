@@ -315,6 +315,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - None
+    VB_CONSUME_EPONA_CARROT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*EnGinkoMan`
     VB_CONTINUE_BANKER_DIALOGUE,
 
@@ -471,6 +479,16 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - `s16` (button)
+    // - `s16` (alpha)
+    // - `bool` (isDpad)
+    VB_DRAW_HUD_AMMO_COUNT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*Actor`
     VB_DRAW_LOCK_ON_ARROW,
 
@@ -513,6 +531,9 @@ typedef enum {
     // ```
     // #### `args`
     // - `*ItemId`
+    // - `s32` (slot)
+    // - `s32` (isDpad)
+    // - `s32` (pageIndex)
     VB_DRAW_ITEM_EQUIPPED_OUTLINE,
 
     // #### `result`
@@ -710,6 +731,24 @@ typedef enum {
     // #### `args`
     // - None
     VB_EN_FSN_HAS_ITEMS,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*EnGs`
+    // - `*PlayState`
+    VB_EN_GS_BEFORE_GOSSIP_GROTTO_SEQUENCE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*EnGs`
+    // - `*PlayState`
+    VB_EN_GS_FINISH_OCARINA_ON_RESET,
 
     // #### `result`
     // ```c
@@ -1123,14 +1162,6 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // func_80BD7CEC(this)
-    // ```
-    // #### `args`
-    // - None
-    VB_HIDEOUT_DOOR_OPEN,
-
-    // #### `result`
-    // ```c
     // (!DynaPolyActor_IsPlayerAbove((DynaPolyActor*)this->actor.child) &&
     //  (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND)) ||
     // (gSaveContext.timerCurTimes[TIMER_ID_MINIGAME_2] <= SECONDS_TO_TIMER(0)) ||
@@ -1201,19 +1232,22 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // func_80A3E9DC(this, play)
+    // true
     // ```
     // #### `args`
-    // - None
-    VB_KAFEI_RUN_TO_TOWN,
+    // - `u16` (item under cursor)
+    VB_KALEIDO_DISPLAY_ITEM_TEXT,
 
     // #### `result`
     // ```c
     // true
     // ```
     // #### `args`
-    // - `u16` (item under cursor)
-    VB_KALEIDO_DISPLAY_ITEM_TEXT,
+    // - `PauseContext*`
+    // - `GraphicsContext*`
+    // - `s16` (item)
+    // - `u16` (ammoIndex)
+    VB_KALEIDO_DRAW_AMMO_COUNT,
 
     // #### `result`
     // ```c
@@ -1626,6 +1660,28 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON
+    // ```
+    // #### `args`
+    // - None
+    VB_PICTO_ACTIVATE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_PICTO_DISPLAY,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*PreRender` (prerender)
+    VB_PICTO_TAKE,
+
     // !Play_InCsMode(play) && (play->roomCtx.curRoom.num == 2)
     // ```
     // #### `args`
