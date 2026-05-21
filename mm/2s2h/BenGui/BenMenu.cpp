@@ -1224,6 +1224,9 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Cycle.DoNotResetChateau")
         .Options(CheckboxOptions().Tooltip(
             "Playing the Song of Time will not reset the infinite magic status granted by Chateau Romani."));
+    AddWidget(path, "Do not reset Scarecrow's Song", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cycle.DoNotResetScarecrowSong")
+        .Options(CheckboxOptions().Tooltip("Playing the Song of Time will not reset the Scarecrow's Song."));
     AddWidget(path, "Keep Express Mail", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cycle.KeepExpressMail")
         .Options(CheckboxOptions().Tooltip(
