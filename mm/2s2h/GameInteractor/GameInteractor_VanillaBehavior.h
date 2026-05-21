@@ -1682,6 +1682,13 @@ typedef enum {
     // - `*PreRender` (prerender)
     VB_PICTO_TAKE,
 
+    // !Play_InCsMode(play) && (play->roomCtx.curRoom.num == 2)
+    // ```
+    // #### `args`
+    // - `*EnTest3` (Kafei)
+    // - `*s32` (cutscene phase)
+    VB_PLAY_COUPLES_MASK_CS,
+
     // #### `result`
     // ```c
     // Rand_Next() & 0x80
