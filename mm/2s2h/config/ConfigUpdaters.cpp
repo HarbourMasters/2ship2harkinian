@@ -1,6 +1,5 @@
 #include "2s2h/config/ConfigUpdaters.h"
 
-#include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Trackers/DisplayOverlay.h"
 
