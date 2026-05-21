@@ -32,7 +32,7 @@ static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
         ROTATION;
     kafei->player.yaw = ROTATION.y;
 
-    if (!IS_RANDO && GameInteractor_Should(VB_GIVE_ITEM_FROM_DMCHAR05, true, ITEM_MASK_COUPLE)) {
+    if (GameInteractor_Should(VB_GIVE_ITEM_FROM_DMCHAR05, true, ITEM_MASK_COUPLE)) {
         GameInteractor::Instance->events.emplace_back(GIEventGiveItem{
             .showGetItemCutscene = true,
             .param = GID_MASK_COUPLE,
