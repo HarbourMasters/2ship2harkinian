@@ -734,6 +734,24 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*EnGs`
+    // - `*PlayState`
+    VB_EN_GS_BEFORE_GOSSIP_GROTTO_SEQUENCE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*EnGs`
+    // - `*PlayState`
+    VB_EN_GS_FINISH_OCARINA_ON_RESET,
+
+    // #### `result`
+    // ```c
     // itemAction == GET_IA_FROM_MASK(this->currentMask)
     // ```
     // #### `args`
