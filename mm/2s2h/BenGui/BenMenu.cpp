@@ -1442,6 +1442,13 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Songs.SkipSoaringCutscene")
         .Options(CheckboxOptions().Tooltip("Skips the cutscene when using the Song of Soaring to warp."));
 
+    // Item Enhancements
+    path.column = SECTION_COLUMN_3;
+    AddWidget(path, "Items", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Color Pictograph", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Items.ColorPictograph")
+        .Options(CheckboxOptions().Tooltip("Will take and display pictographs in color."));
+
     // Time Savers
     path = { "Enhancements", "Time Savers", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Time Savers", 3);
