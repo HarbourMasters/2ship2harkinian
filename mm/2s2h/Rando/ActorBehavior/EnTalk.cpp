@@ -110,7 +110,7 @@ void ApplyTransformationHints(u16* textId, bool* loadFromMessageTable) {
             }
             for (auto& location : itemPlacements) {
                 if (location == RC_UNKNOWN) {
-                    locationStr = "%gLinks pocket%w";
+                    locationStr = "%gLink's pocket%w";
                     break;
                 }
 
@@ -122,7 +122,7 @@ void ApplyTransformationHints(u16* textId, bool* loadFromMessageTable) {
             }
             CustomMessage::Replace(&msg, "{{locations}}", locationStr);
         } else {
-            CustomMessage::Replace(&msg, "{{locations}}", "%gLinks pocket%w");
+            CustomMessage::Replace(&msg, "{{locations}}", "%gLink's pocket%w");
         }
     }
 
