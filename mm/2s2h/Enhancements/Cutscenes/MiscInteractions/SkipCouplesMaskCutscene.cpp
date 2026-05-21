@@ -16,6 +16,9 @@ void Player_StartTalking(PlayState* play, Actor* actor);
 
 static constexpr u16 GET_COUPLES_MASK_TEXT_ID = 0x85;
 
+// This message automatically queues Notebook events
+static constexpr u16 NOTEBOOK_EVENTS_TEXT_ID = 0x2955;
+
 static Vec3f POSITION = { -420.0f, 210.0f, -160.0f };
 static Vec3s ROTATION = { 0x0000, -0x2AAB, 0x0000 };
 
@@ -50,7 +53,7 @@ static void SkipHandleCouplesMaskCs(EnTest3* kafei) {
         });
     }
 
-    anju->actor.textId = 0x2955; // This message automatically queues Notebook events
+    anju->actor.textId = NOTEBOOK_EVENTS_TEXT_ID;
     Player_StartTalking(gPlayState, &anju->actor);
 }
 
