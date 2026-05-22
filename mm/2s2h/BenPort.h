@@ -35,16 +35,24 @@ struct ImFont;
 const std::string customMessageTableID = "BaseGameOverrides";
 const std::string appShortName = "2ship";
 
+#ifdef __WIIU__
+const uint32_t defaultImGuiScale = 3;
+#else
+const uint32_t defaultImGuiScale = 1;
+#endif
+
+const float imguiScaleOptionToValue[4] = { 0.75f, 1.0f, 1.5f, 2.0f };
+
 class OTRGlobals {
   public:
     static OTRGlobals* Instance;
 
-    ImFont* fontStandard;
-    ImFont* fontStandardLarger;
-    ImFont* fontStandardLargest;
-    ImFont* fontMono;
-    ImFont* fontMonoLarger;
-    ImFont* fontMonoLargest;
+    ImFont* fontStandard = nullptr;
+    ImFont* fontStandardLarger = nullptr;
+    ImFont* fontStandardLargest = nullptr;
+    ImFont* fontMono = nullptr;
+    ImFont* fontMonoLarger = nullptr;
+    ImFont* fontMonoLargest = nullptr;
 
     std::shared_ptr<Ship::Context> context;
 
@@ -53,10 +61,14 @@ class OTRGlobals {
 
     uint32_t GetInterpolationFPS();
     std::shared_ptr<std::vector<std::string>> ListFiles(std::string path);
+    void RunExtract(int argc, char* argv[]);
+    void Initialize();
+    void ScaleImGui();
 
   private:
     ImFont* CreateFontWithSize(float size, std::string fontPath = "");
     void CheckSaveFile(size_t sramSize) const;
+    ImFont* CreateDefaultFontWithSize(float size);
 };
 
 uint32_t IsGameMasterQuest();
@@ -70,7 +82,7 @@ uint32_t IsGameMasterQuest();
 #include <z64keyframe.h>
 #include <z64scene.h>
 #include <z64skin.h>
-void InitOTR(void);
+void InitOTR(int argc, char* argv[]);
 void DeinitOTR(void);
 void VanillaItemTable_Init();
 void OTRAudio_Init();
