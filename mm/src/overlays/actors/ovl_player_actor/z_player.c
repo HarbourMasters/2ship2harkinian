@@ -10923,7 +10923,7 @@ s32 func_80840CD4(Player* this, PlayState* play) {
                                       sPlayerItemButtons)) {
         PlayerMeleeWeaponAnimation meleeWeaponAnim;
 
-        if ((this->unk_B08 >= 0.85f) || Player_CanSpinAttack(this)) {
+        if ((this->unk_B08 >= 0.85f) || GameInteractor_Should(VB_PLAYER_CAN_SPIN_ATTACK, Player_CanSpinAttack(this))) {
             meleeWeaponAnim = D_8085CF84[Player_IsHoldingTwoHandedWeapon(this)];
         } else {
             meleeWeaponAnim = D_8085CF80[Player_IsHoldingTwoHandedWeapon(this)];
