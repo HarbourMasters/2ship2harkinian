@@ -87,14 +87,13 @@ void RegisterExtendedKeyboardControls() {
             }
         }
 
-        // Notch Correction: zeros X-axis on the A-press frame when input is a near-exact diagonal,
-        // so down-diagonals produce drifited backflips instead of sidehops.
+        // Notch Correction: zeros X on the A-press frame at near-exact diagonals so
+        // the engine sees a cardinal input (backflip) instead of diagonal (sidehop).
+        // All four diagonals are corrected since camera angle affects which direction is "back".
         if (CVAR_NOTCH && CHECK_BTN_ALL(input->press.button, BTN_A)) {
-            int x = input->cur.stick_x;
-            int y = input->cur.stick_y;
-            int ax = (x > 0) ? x : -x;
-            int ay = (y > 0) ? y : -y;
-            if (y < 0 && ax > 10 && ay > 10 && (ax - ay > -10 && ax - ay < 10)) {
+            int ax = (input->cur.stick_x > 0) ? input->cur.stick_x : -input->cur.stick_x;
+            int ay = (input->cur.stick_y > 0) ? input->cur.stick_y : -input->cur.stick_y;
+            if (ax > 10 && ay > 10 && (ax - ay > -10 && ax - ay < 10)) {
                 input->cur.stick_x = 0;
             }
         }
