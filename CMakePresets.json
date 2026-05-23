@@ -1,0 +1,80 @@
+{
+  "version": 10,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 31,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "msvc/x64",
+      "displayName": "MSVC Toolchain, x64",
+      "description": "Build using MS Visual C++ compiler for x64 architecture",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/build/msvc/x64",
+      "architecture": "x64",
+      "toolset": "v143"
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "msvc/x64/base",
+      "hidden": true,
+      "targets": ["Generate2ShipOtr", "2ship"],
+      "configurePreset": "msvc/x64"
+    },
+    {
+      "name": "msvc/x64/debug",
+      "inherits": "msvc/x64/base",
+      "configuration": "Debug"
+    },
+    {
+      "name": "msvc/x64/release",
+      "inherits": "msvc/x64/base",
+      "configuration": "Release"
+    },
+    {
+      "name": "msvc/x64/rel_debug",
+      "inherits": "msvc/x64/base",
+      "configuration": "RelWithDebInfo"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "msvc/x64",
+      "configurePreset": "msvc/x64",
+      "output": {"outputOnFailure": true},
+      "execution": {"noTestsAction": "error", "stopOnFailure": true}
+    }
+  ],
+  "packagePresets": [
+    {
+      "name": "msvc/x64",
+      "configurePreset": "msvc/x64",
+      "generators": ["ZIP"]
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "msvc/x64",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "msvc/x64"
+        },
+        {
+          "type": "build",
+          "name": "msvc/x64/debug"
+        },
+        {
+          "type": "test",
+          "name": "msvc/x64"
+        },
+        {
+          "type": "package",
+          "name": "msvc/x64"
+        }
+      ]
+    }
+  ]
+}
