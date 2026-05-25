@@ -711,6 +711,17 @@ void BenMenu::AddSettings() {
         .CVar("gWindows.InputViewerSettings")
         .WindowName("Input Viewer Settings")
         .Options(ButtonOptions().Tooltip("Enables the separate Input Viewer Settings Window."));
+
+    // Mod Menu
+    path.sidebarName = "Mod Menu";
+    path.column = SECTION_COLUMN_1;
+    AddSidebarEntry("Settings", path.sidebarName, 2);
+    AddWidget(path, "Mod Menu", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Popout Mod Menu Window", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.InputViewer")
+        .WindowName("Mod Menu")
+        .HideInSearch(true)
+        .Options(ButtonOptions().Tooltip("Enables the separate Mod Menu Window."));
 }
 int32_t motionBlurStrength;
 
