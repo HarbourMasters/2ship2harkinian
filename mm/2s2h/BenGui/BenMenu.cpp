@@ -718,7 +718,7 @@ void BenMenu::AddSettings() {
     AddSidebarEntry("Settings", path.sidebarName, 2);
     AddWidget(path, "Mod Menu", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Popout Mod Menu Window", WIDGET_WINDOW_BUTTON)
-        .CVar("gWindows.InputViewer")
+        .CVar("gWindows.ModMenu")
         .WindowName("Mod Menu")
         .HideInSearch(true)
         .Options(ButtonOptions().Tooltip("Enables the separate Mod Menu Window."));
