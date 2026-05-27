@@ -1452,6 +1452,9 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Timesavers.PowderKegCertification")
         .Options(CheckboxOptions().Tooltip(
             "Skips requiring to take the Powder Keg Test before being given the Certification."));
+    AddWidget(path, "Faster Bottle Actions", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterBottleActions")
+        .Options(CheckboxOptions().Tooltip("Speeds up bottle emptying, drinking, and Fairy release animations."));
     AddWidget(path, "Skip Ballad of Windfish", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.SkipBalladOfWindfish")
         .Options(CheckboxOptions().Tooltip(

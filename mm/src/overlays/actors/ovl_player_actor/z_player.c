@@ -18107,6 +18107,10 @@ u8 D_8085D790[] = {
 void Player_Action_67(Player* this, PlayState* play) {
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_ITEM_BOTTLE]);
 
+    // #region 2S2H [Enhancement] - Faster Bottle Actions
+    GameInteractor_Should(VB_DRINKING_BOTTLE, true, this);
+    // #endregion
+
     if (PlayerAnimation_Update(play, &this->skelAnime)) {
         if (this->av2.actionVar2 == 0) {
             if (this->itemAction == PLAYER_IA_BOTTLE_POE) {
@@ -18310,9 +18314,13 @@ void Player_Action_68(Player* this, PlayState* play) {
 
 Vec3f D_8085D7EC = { 0.0f, 0.0f, 5.0f };
 
-// Releasing fairy from bottle
+// Releasing Fairy from bottle
 void Player_Action_69(Player* this, PlayState* play) {
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_ITEM_BOTTLE]);
+
+    // #region 2S2H [Enhancement] - Faster Bottle Actions
+    GameInteractor_Should(VB_RELEASING_BOTTLE_FAIRY, true, this);
+    // #endregion
 
     if (PlayerAnimation_Update(play, &this->skelAnime)) {
         Player_StopCutscene(this);
@@ -18384,6 +18392,10 @@ void Player_Action_70(Player* this, PlayState* play) {
 
     Player_DecelerateToZero(this);
     func_8083249C(this);
+
+    // #region 2S2H [Enhancement] - Faster Bottle Actions
+    GameInteractor_Should(VB_EMPTYING_BOTTLE, true, this);
+    // #endregion
 
     if (PlayerAnimation_Update(play, &this->skelAnime)) {
         Player_StopCutscene(this);
