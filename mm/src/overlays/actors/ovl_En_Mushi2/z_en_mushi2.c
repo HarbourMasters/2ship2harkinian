@@ -7,6 +7,8 @@
 #include "overlays/actors/ovl_Obj_Bean/z_obj_bean.h"
 #include "z_en_mushi2.h"
 
+#include "GameInteractor/GameInteractor.h"
+
 #define FLAGS (ACTOR_FLAG_UPDATE_CULLING_DISABLED)
 
 void EnMushi2_Init(Actor* thisx, PlayState* play);
@@ -712,6 +714,9 @@ s32 func_80A6A058(EnMushi2* this) {
 
     if ((this->unk_34C != NULL) && (bean->unk_1E4 == 2)) {
         bean->unk_1E0++;
+        // #region 2S2H [Enhancement] - Faster Soft Soil Skulltula
+        GameInteractor_Should(VB_SOFT_SOIL_BUG_BURROWED, true, bean);
+        // #endregion
         return true;
     }
     return false;
@@ -759,8 +764,23 @@ void EnMushi2_Init(Actor* thisx, PlayState* play) {
 
     if ((sp3C == 0) && func_80A68860(this, play) && func_80A68910(this, play) &&
         (ENMUSHI2_GET_3(&this->actor) == ENMUSHI2_0)) {
-        func_80A6A024(this);
+        // #region 2S2H [Enhancement] - Faster Soft Soil Skulltula
+        // func_80A6A024 returns true only for the first bug to claim the soil.  When the enhancement is active,
+        // non-tracking bugs have unk_34C cleared so they can free-roam immediately instead of all three burrowing.
+        if (!func_80A6A024(this) && !GameInteractor_Should(VB_BUG_TRACK_SOFT_SOIL, true)) {
+            this->unk_34C = NULL;
+        }
+        // #endregion
     }
+
+    // #region 2S2H [Enhancement] - Faster Soft Soil Skulltula
+    // Child bulds (non-ENMUSHI2_0) also get unk_34C set by func_80A68910 in the condition chain above, but never enter
+    // the if block.  Free them as well.
+    if (this->unk_34C != NULL && ENMUSHI2_GET_3(&this->actor) != ENMUSHI2_0 &&
+        !GameInteractor_Should(VB_BUG_TRACK_SOFT_SOIL, true)) {
+        this->unk_34C = NULL;
+    }
+    // #endregion
 
     this->unk_358 = 0.0f;
     this->unk_36A = Rand_S16Offset(240, 40);
