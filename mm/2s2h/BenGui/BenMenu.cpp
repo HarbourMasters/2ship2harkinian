@@ -1455,6 +1455,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Faster Bottle Actions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterBottleActions")
         .Options(CheckboxOptions().Tooltip("Speeds up bottle emptying, drinking, and Fairy release animations."));
+    AddWidget(path, "Skip Bottle Catch Cutscene", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.SkipBottleCatchCutscene")
+        .Options(CheckboxOptions().Tooltip(
+            "Skips the hold-up animation and textbox after catching something in a bottle."));
     AddWidget(path, "Skip Ballad of Windfish", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.SkipBalladOfWindfish")
         .Options(CheckboxOptions().Tooltip(

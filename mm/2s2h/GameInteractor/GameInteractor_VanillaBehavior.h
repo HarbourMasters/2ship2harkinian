@@ -2203,6 +2203,14 @@ typedef enum {
     // #### `args`
     // - `*Player`
     VB_RELEASING_BOTTLE_FAIRY,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_PLAY_BOTTLE_CATCH_CS,
 } GIVanillaBehavior;
 
 #endif
