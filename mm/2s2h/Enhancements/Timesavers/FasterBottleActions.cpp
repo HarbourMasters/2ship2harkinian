@@ -1,10 +1,6 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
-extern "C" {
-#include "z64player.h"
-}
-
 #define CVAR_NAME "gEnhancements.Timesavers.FasterBottleActions"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
@@ -19,11 +15,11 @@ void RegisterFasterBottleActions() {
     COND_VB_SHOULD(VB_DRINKING_BOTTLE, CVAR, {
         const auto player = va_arg(args, Player*);
         // av2.actionVar2 tracks the drink phase:
+        // < 0 = Deku form end sequence
         //   0 = Initial        (start animation playing)
         //   1 = Drink loop     (waiting for HP/magic fill)
-        //   2 = End animation  (human forms)
+        //   2 = End animation  (all other forms)
         //   3 = Final transition
-        // < 0 = Deku form end sequence
         player->skelAnime.playSpeed = player->av2.actionVar2 != 1 ? sBottleAnimSpeedMultiplier : 1.0f;
     });
 
