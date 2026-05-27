@@ -199,6 +199,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - `*EnMushi2`
+    VB_BUG_DECREMENT_LIFE_TIMER,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*ObjBean`
     VB_BUG_TRACK_SOFT_SOIL,
 

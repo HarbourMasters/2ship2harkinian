@@ -1448,8 +1448,8 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Faster Soft Soil Skulltula", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterSoftSoilSkulltula")
         .Options(CheckboxOptions().Tooltip(
-            "Only one bug needs to burrow into a soft soil patch to spawn the Gold Skulltula, matching "
-            "Ocarina of Time's behavior.  Remaining bugs can be rebottled."));
+            "Only one bug needs to burrow to spawn the Gold Skulltula, matching Ocarina of Time's behavior.  The "
+            "burrowing is sped up, and the remaining bugs stay available for rebottling."));
     AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
         .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));

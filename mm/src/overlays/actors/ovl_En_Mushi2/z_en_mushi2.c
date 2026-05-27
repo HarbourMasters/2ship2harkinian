@@ -767,14 +767,18 @@ void EnMushi2_Init(Actor* thisx, PlayState* play) {
         // #region 2S2H [Enhancement] - Faster Soft Soil Skulltula
         // func_80A6A024 returns true only for the first bug to claim the soil.  When the enhancement is active,
         // non-tracking bugs have unk_34C cleared so they can free-roam immediately instead of all three burrowing.
+        // The tracking bug has its guidance factor maxed so it heads straight for the soil instead of gradually homing
+        // in.
         if (!func_80A6A024(this) && !GameInteractor_Should(VB_BUG_TRACK_SOFT_SOIL, true)) {
             this->unk_34C = NULL;
+        } else if (!GameInteractor_Should(VB_BUG_TRACK_SOFT_SOIL, true)) {
+            this->unk_358 = 1.0f;
         }
         // #endregion
     }
 
     // #region 2S2H [Enhancement] - Faster Soft Soil Skulltula
-    // Child bulds (non-ENMUSHI2_0) also get unk_34C set by func_80A68910 in the condition chain above, but never enter
+    // Child bugs (non-ENMUSHI2_0) also get unk_34C set by func_80A68910 in the condition chain above, but never enter
     // the if block.  Free them as well.
     if (this->unk_34C != NULL && ENMUSHI2_GET_3(&this->actor) != ENMUSHI2_0 &&
         !GameInteractor_Should(VB_BUG_TRACK_SOFT_SOIL, true)) {
@@ -1156,7 +1160,13 @@ void EnMushi2_Update(Actor* thisx, PlayState* play) {
     }
 
     if (this->unk_36A > 0) {
-        this->unk_36A--;
+        // #region 2S2H [Enhancement] - Faster Soft Soil Skulltula
+        if (GameInteractor_Should(VB_BUG_DECREMENT_LIFE_TIMER, true, this)) {
+        // #endregion
+            this->unk_36A--;
+        // #region 2S2H [Enhancement] - Faster Soft Soil Skulltula
+        }
+        // #endregion
     }
 
     if ((this->unk_34C != NULL) && ((this->actionFunc == func_80A6A5C0) || (this->actionFunc == func_80A6A824)) &&
