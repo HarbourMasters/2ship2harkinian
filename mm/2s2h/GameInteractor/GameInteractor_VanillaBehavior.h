@@ -540,6 +540,14 @@ typedef enum {
     VB_DRAW_SLIME_RANDO_ITEM,
 
     // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Player`
+    VB_DRINKING_BOTTLE,
+
+    // #### `result`
     // #### In `Item_DropCollectible`:
     // ```c
     // true
@@ -577,6 +585,14 @@ typedef enum {
     // - `*EnTorch2`
     // - `*u16` (target alpha)
     VB_ELEGY_STATUE_FADE_IN_OUT,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Player`
+    VB_EMPTYING_BOTTLE,
 
     // #### `result`
     // ```c
@@ -1505,6 +1521,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - None
+    VB_PLAY_BOTTLE_CATCH_CS,
+
+    // #### `result`
+    // ```c
     // Rand_Next() & 0x80
     // ```
     // #### `args`
@@ -1687,6 +1711,14 @@ typedef enum {
     // #### `args`
     // - `*s16` (cutscene ID)
     VB_QUEUE_CUTSCENE,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*Player`
+    VB_RELEASING_BOTTLE_FAIRY,
 
     // #### `result`
     // ```c
@@ -2179,38 +2211,6 @@ typedef enum {
     // #### `args`
     // - `*f32` (speed)
     VB_ZTARGET_SPEED_CHECK,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - `*Player`
-    VB_DRINKING_BOTTLE,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - `*Player`
-    VB_EMPTYING_BOTTLE,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - `*Player`
-    VB_RELEASING_BOTTLE_FAIRY,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - None
-    VB_PLAY_BOTTLE_CATCH_CS,
 } GIVanillaBehavior;
 
 #endif
