@@ -111,17 +111,15 @@ void RenderWarpPointSection() {
                                });
 
         ImGui::SameLine();
-        bool isEmpty = warpNameInput.empty();
-        if (isEmpty) {
-            ImGui::BeginDisabled();
-        }
-
         if (UIWidgets::Button(ICON_FA_PLUS)) {
             Player* player = GET_PLAYER(gPlayState);
 
-            std::string warpName = Ship_GetSceneName(gPlayState->sceneId);
-            if (gPlayState->roomCtx.curRoom.num != 0) {
-                warpName += " (" + std::to_string(gPlayState->roomCtx.curRoom.num) + ")";
+            bool isEmpty = warpNameInput.empty();
+            if (warpNameInput.empty()) {
+                warpNameInput = Ship_GetSceneName(gPlayState->sceneId);
+                if (gPlayState->roomCtx.curRoom.num != 0) {
+                    warpNameInput += " (" + std::to_string(gPlayState->roomCtx.curRoom.num) + ")";
+                }
             }
 
             warpPoints[warpNameInput] = WarpPoint{
@@ -132,9 +130,6 @@ void RenderWarpPointSection() {
             };
             SaveConfig();
             warpNameInput = "";
-        }
-        if (isEmpty) {
-            ImGui::EndDisabled();
         }
     }
     // List of warp points, showing just their name, a button to warp and a button to delete
