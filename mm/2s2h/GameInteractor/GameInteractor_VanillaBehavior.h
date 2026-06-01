@@ -196,6 +196,22 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*EnMushi2`
+    VB_BUG_DECREMENT_LIFE_TIMER,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*ObjBean`
+    VB_BUG_TRACK_SOFT_SOIL,
+
+    // #### `result`
+    // ```c
     // false
     // ```
     // #### `args`
@@ -1934,6 +1950,14 @@ typedef enum {
     // #### `args`
     // - `u8` (song index)
     VB_SONG_AVAILABLE_TO_PLAY,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*ObjBean`
+    VB_SOFT_SOIL_BUG_BURROWED,
 
     // #### `result`
     // ```c

@@ -1445,6 +1445,11 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Chests", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FastChests")
         .Options(CheckboxOptions().Tooltip("Uses the quick kick animation for all chests in vanilla gameplay."));
+    AddWidget(path, "Faster Soft Soil Skulltula", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterSoftSoilSkulltula")
+        .Options(CheckboxOptions().Tooltip(
+            "Only one bug needs to burrow to spawn the Gold Skulltula, matching Ocarina of Time's behavior.  The "
+            "burrowing is sped up, and the remaining bugs stay available for rebottling."));
     AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
         .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
