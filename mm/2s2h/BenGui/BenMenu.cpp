@@ -1445,6 +1445,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Chests", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FastChests")
         .Options(CheckboxOptions().Tooltip("Uses the quick kick animation for all chests in vanilla gameplay."));
+    AddWidget(path, "Faster Bottle Actions", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterBottleActions")
+        .Options(CheckboxOptions().Tooltip("Speeds up bottle emptying, drinking, and Fairy release animations."));
     AddWidget(path, "Faster Scene Transitions", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterSceneTransitions")
         .Options(CheckboxOptions().Tooltip("Fade in and out more quickly when moving between areas."));
@@ -1456,6 +1459,10 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Timesavers.SkipBalladOfWindfish")
         .Options(CheckboxOptions().Tooltip(
             "Play the complete Ballad after playing in one form if you have all three transformation masks."));
+    AddWidget(path, "Skip Bottle Catch Cutscene", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.SkipBottleCatchCutscene")
+        .Options(CheckboxOptions().Tooltip(
+            "Skips the hold-up animation and textbox after catching something in a bottle."));
     AddWidget(path, "Auto Bank Deposit", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.AutoBankDeposit")
         .Options(CheckboxOptions().Tooltip(

@@ -18106,6 +18106,10 @@ u8 D_8085D790[] = {
 void Player_Action_67(Player* this, PlayState* play) {
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_ITEM_BOTTLE]);
 
+    // #region 2S2H [Enhancement] - Faster Bottle Actions
+    GameInteractor_Should(VB_DRINKING_BOTTLE, true, this);
+    // #endregion
+
     if (PlayerAnimation_Update(play, &this->skelAnime)) {
         if (this->av2.actionVar2 == 0) {
             if (this->itemAction == PLAYER_IA_BOTTLE_POE) {
@@ -18257,12 +18261,28 @@ void Player_Action_68(Player* this, PlayState* play) {
                         }
 
                         if (i < ARRAY_COUNT(D_8085D798)) {
-                            this->av1.actionVar1 = i + 1;
-                            this->av2.actionVar2 = 0;
-                            this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
-                            interactRangeActor->parent = &this->actor;
-                            Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
-                            Player_Anim_PlayOnceAdjusted(play, this, sp24->unk_4);
+                            // #region 2S2H [Enhancement] - Skip Bottle Catch Cutscene
+                            if (GameInteractor_Should(VB_PLAY_BOTTLE_CATCH_CS, true)) {
+                            // #endregion
+                                this->av1.actionVar1 = i + 1;
+                                this->av2.actionVar2 = 0;
+                                this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                                interactRangeActor->parent = &this->actor;
+                                Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
+                                Player_Anim_PlayOnceAdjusted(play, this, sp24->unk_4);
+                            // #region 2S2H [Enhancement] - Skip Bottle Catch Cutscene
+                            } else {
+                                interactRangeActor->parent = &this->actor;
+                                Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
+                                Audio_PlayFanfare(NA_BGM_GET_ITEM);
+
+                                if (entry->itemAction == PLAYER_IA_BOTTLE_DEKU_PRINCESS) {
+                                    // Deku Princess normally relies on a post-catch talkActor dialog flow to reach
+                                    // Actor_Kill.  Since we skip that flow, kill her directly.
+                                    Actor_Kill(interactRangeActor);
+                                }
+                            }
+                            // #endregion
                         }
                     }
                 }
@@ -18286,12 +18306,28 @@ void Player_Action_68(Player* this, PlayState* play) {
                             }
 
                             if (i < ARRAY_COUNT(D_8085D798)) {
-                                this->av1.actionVar1 = i + 1;
-                                this->av2.actionVar2 = 0;
-                                this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
-                                interactRangeActor->parent = &this->actor;
-                                Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
-                                Player_Anim_PlayOnceAdjusted(play, this, sp24->unk_4);
+                                // #region 2S2H [Enhancement] - Skip Bottle Catch Cutscene
+                                if (GameInteractor_Should(VB_PLAY_BOTTLE_CATCH_CS, true)) {
+                                // #endregion
+                                    this->av1.actionVar1 = i + 1;
+                                    this->av2.actionVar2 = 0;
+                                    this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                                    interactRangeActor->parent = &this->actor;
+                                    Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
+                                    Player_Anim_PlayOnceAdjusted(play, this, sp24->unk_4);
+                                // #region 2S2H [Enhancement] - Skip Bottle Catch Cutscene
+                                } else {
+                                    interactRangeActor->parent = &this->actor;
+                                    Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
+                                    Audio_PlayFanfare(NA_BGM_GET_ITEM);
+
+                                    if (entry->itemAction == PLAYER_IA_BOTTLE_DEKU_PRINCESS) {
+                                        // Deku Princess normally relies on a post-catch talkActor dialog flow to reach
+                                        // Actor_Kill.  Since we skip that flow, kill her directly.
+                                        Actor_Kill(interactRangeActor);
+                                    }
+                                }
+                                // #endregion
                             }
                         }
                     }
@@ -18310,6 +18346,10 @@ Vec3f D_8085D7EC = { 0.0f, 0.0f, 5.0f };
 
 void Player_Action_69(Player* this, PlayState* play) {
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_ITEM_BOTTLE]);
+
+    // #region 2S2H [Enhancement] - Faster Bottle Actions
+    GameInteractor_Should(VB_RELEASING_BOTTLE_FAIRY, true, this);
+    // #endregion
 
     if (PlayerAnimation_Update(play, &this->skelAnime)) {
         Player_StopCutscene(this);
@@ -18380,6 +18420,10 @@ void Player_Action_70(Player* this, PlayState* play) {
 
     Player_DecelerateToZero(this);
     func_8083249C(this);
+
+    // #region 2S2H [Enhancement] - Faster Bottle Actions
+    GameInteractor_Should(VB_EMPTYING_BOTTLE, true, this);
+    // #endregion
 
     if (PlayerAnimation_Update(play, &this->skelAnime)) {
         Player_StopCutscene(this);
