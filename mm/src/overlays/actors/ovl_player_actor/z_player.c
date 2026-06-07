@@ -18103,7 +18103,6 @@ u8 D_8085D790[] = {
     1 | 2, // PLAYER_IA_BOTTLE_CHATEAU
 };
 
-// Drinking from bottle
 void Player_Action_67(Player* this, PlayState* play) {
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_ITEM_BOTTLE]);
 
@@ -18207,7 +18206,6 @@ struct_8085D798 D_8085D798[] = {
     { ACTOR_EN_ELF, FAIRY_PARAMS(FAIRY_TYPE_6, false, 0), ITEM_FAIRY, PLAYER_IA_BOTTLE_FAIRY, 0x5E },
 };
 
-// Catching items in bottle
 void Player_Action_68(Player* this, PlayState* play) {
     struct_8085D200* sp24 = &D_8085D200[this->av2.actionVar2];
 
@@ -18346,7 +18344,6 @@ void Player_Action_68(Player* this, PlayState* play) {
 
 Vec3f D_8085D7EC = { 0.0f, 0.0f, 5.0f };
 
-// Releasing Fairy from bottle
 void Player_Action_69(Player* this, PlayState* play) {
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_ITEM_BOTTLE]);
 
@@ -18372,7 +18369,6 @@ void Player_Action_69(Player* this, PlayState* play) {
     }
 }
 
-// Emptying bottle contents
 void Player_Action_70(Player* this, PlayState* play) {
     static Vec3f D_8085D7F8 = { 10.0f, 268 * 0.1f, 30.0f };
     static s8 D_8085D804[PLAYER_FORM_MAX] = {
