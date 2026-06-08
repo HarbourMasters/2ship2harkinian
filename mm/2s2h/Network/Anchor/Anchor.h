@@ -67,9 +67,15 @@ class Anchor : public Network {
     HOOK_ID sceneInitHookId = 0;
     HOOK_ID actorInitHookId = 0;
     HOOK_ID actorUpdateHookId = 0;
+    HOOK_ID flagSetHookId = 0;
+    HOOK_ID flagUnsetHookId = 0;
+    HOOK_ID sceneFlagSetHookId = 0;
+    HOOK_ID sceneFlagUnsetHookId = 0;
 
     uint32_t spawningDummyPlayerForClientId = 0;
     bool shouldRefreshActors = false;
+    // Set while applying an incoming packet so our own send-hooks don't echo it back out.
+    bool isApplyingRemotePacket = false;
 
     void RegisterHooks();
     void UnregisterHooks();
@@ -86,6 +92,8 @@ class Anchor : public Network {
     void HandlePacket_AllClientState(nlohmann::json payload);
     void HandlePacket_UpdateClientState(nlohmann::json payload);
     void HandlePacket_PlayerUpdate(nlohmann::json payload);
+    void HandlePacket_SetFlag(nlohmann::json payload);
+    void HandlePacket_UnsetFlag(nlohmann::json payload);
     void HandlePacket_ServerMessage(nlohmann::json payload);
     void HandlePacket_DisableAnchor(nlohmann::json payload);
 
@@ -102,6 +110,8 @@ class Anchor : public Network {
     inline static const std::string ALL_CLIENT_STATE = "ALL_CLIENT_STATE";
     inline static const std::string UPDATE_CLIENT_STATE = "UPDATE_CLIENT_STATE";
     inline static const std::string PLAYER_UPDATE = "PLAYER_UPDATE";
+    inline static const std::string SET_FLAG = "SET_FLAG";
+    inline static const std::string UNSET_FLAG = "UNSET_FLAG";
     inline static const std::string SERVER_MESSAGE = "SERVER_MESSAGE";
     inline static const std::string DISABLE_ANCHOR = "DISABLE_ANCHOR";
 
@@ -123,6 +133,8 @@ class Anchor : public Network {
     void SendPacket_Handshake();
     void SendPacket_UpdateClientState();
     void SendPacket_PlayerUpdate();
+    void SendPacket_SetFlag(s16 sceneId, s16 flagType, s32 flag);
+    void SendPacket_UnsetFlag(s16 sceneId, s16 flagType, s32 flag);
 };
 
 #endif // __cplusplus

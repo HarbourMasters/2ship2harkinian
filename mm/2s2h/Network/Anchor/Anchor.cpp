@@ -23,6 +23,8 @@ const std::string Anchor::clientVersion = (const char*)gGitCommitHash;
 void Anchor::Enable() {
     ownClientId = CVarGetInteger("gNetwork.Anchor.LastClientId", 0);
     roomState.ownerClientId = 0;
+    // Default progression sync on. (Future: drive this from server room state.)
+    roomState.syncItemsAndFlags = 1;
 
     // Register the game-thread hooks once for the lifetime of the connection. The handlers
     // bail out early when not connected, so it is safe to leave them registered.
@@ -93,6 +95,38 @@ void Anchor::RegisterHooks() {
                 Anchor::Instance->SendPacket_PlayerUpdate();
             });
     }
+    if (flagSetHookId == 0) {
+        flagSetHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagSet>([](FlagType flagType,
+                                                                                                 u32 flag) {
+            if (Anchor::Instance->isConnected && !Anchor::Instance->isApplyingRemotePacket) {
+                Anchor::Instance->SendPacket_SetFlag(SCENE_MAX, (s16)flagType, (s32)flag);
+            }
+        });
+    }
+    if (flagUnsetHookId == 0) {
+        flagUnsetHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagUnset>([](FlagType flagType,
+                                                                                                     u32 flag) {
+            if (Anchor::Instance->isConnected && !Anchor::Instance->isApplyingRemotePacket) {
+                Anchor::Instance->SendPacket_UnsetFlag(SCENE_MAX, (s16)flagType, (s32)flag);
+            }
+        });
+    }
+    if (sceneFlagSetHookId == 0) {
+        sceneFlagSetHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneFlagSet>(
+            [](s16 sceneId, FlagType flagType, u32 flag) {
+                if (Anchor::Instance->isConnected && !Anchor::Instance->isApplyingRemotePacket) {
+                    Anchor::Instance->SendPacket_SetFlag(sceneId, (s16)flagType, (s32)flag);
+                }
+            });
+    }
+    if (sceneFlagUnsetHookId == 0) {
+        sceneFlagUnsetHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneFlagUnset>(
+            [](s16 sceneId, FlagType flagType, u32 flag) {
+                if (Anchor::Instance->isConnected && !Anchor::Instance->isApplyingRemotePacket) {
+                    Anchor::Instance->SendPacket_UnsetFlag(sceneId, (s16)flagType, (s32)flag);
+                }
+            });
+    }
 }
 
 void Anchor::UnregisterHooks() {
@@ -111,6 +145,22 @@ void Anchor::UnregisterHooks() {
     if (actorUpdateHookId != 0) {
         GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnActorUpdate>(actorUpdateHookId);
         actorUpdateHookId = 0;
+    }
+    if (flagSetHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnFlagSet>(flagSetHookId);
+        flagSetHookId = 0;
+    }
+    if (flagUnsetHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnFlagUnset>(flagUnsetHookId);
+        flagUnsetHookId = 0;
+    }
+    if (sceneFlagSetHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneFlagSet>(sceneFlagSetHookId);
+        sceneFlagSetHookId = 0;
+    }
+    if (sceneFlagUnsetHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneFlagUnset>(sceneFlagUnsetHookId);
+        sceneFlagUnsetHookId = 0;
     }
 }
 
@@ -157,6 +207,10 @@ void Anchor::OnIncomingJson(nlohmann::json payload) {
         HandlePacket_UpdateClientState(payload);
     } else if (packetType == PLAYER_UPDATE) {
         HandlePacket_PlayerUpdate(payload);
+    } else if (packetType == SET_FLAG) {
+        HandlePacket_SetFlag(payload);
+    } else if (packetType == UNSET_FLAG) {
+        HandlePacket_UnsetFlag(payload);
     } else if (packetType == SERVER_MESSAGE) {
         HandlePacket_ServerMessage(payload);
     } else if (packetType == DISABLE_ANCHOR) {
