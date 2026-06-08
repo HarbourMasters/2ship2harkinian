@@ -22,6 +22,35 @@ inline void from_json(const json& j, Color_RGB8& color) {
     j.at("b").get_to(color.b);
 }
 
+inline void to_json(json& j, const Vec3f& vec) {
+    j = json{ { "x", vec.x }, { "y", vec.y }, { "z", vec.z } };
+}
+
+inline void from_json(const json& j, Vec3f& vec) {
+    j.at("x").get_to(vec.x);
+    j.at("y").get_to(vec.y);
+    j.at("z").get_to(vec.z);
+}
+
+inline void to_json(json& j, const Vec3s& vec) {
+    j = json{ { "x", vec.x }, { "y", vec.y }, { "z", vec.z } };
+}
+
+inline void from_json(const json& j, Vec3s& vec) {
+    j.at("x").get_to(vec.x);
+    j.at("y").get_to(vec.y);
+    j.at("z").get_to(vec.z);
+}
+
+inline void to_json(json& j, const PosRot& posRot) {
+    j = json{ { "pos", posRot.pos }, { "rot", posRot.rot } };
+}
+
+inline void from_json(const json& j, PosRot& posRot) {
+    j.at("pos").get_to(posRot.pos);
+    j.at("rot").get_to(posRot.rot);
+}
+
 inline void from_json(const json& j, AnchorClient& client) {
     client.clientId = j.value("clientId", (u32)0);
     client.name = j.value("name", "???");

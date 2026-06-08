@@ -5,8 +5,11 @@
 #include <spdlog/spdlog.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/BenGui/Notification.h"
+#include "2s2h/ObjectExtension/ObjectExtension.h"
+#include "2s2h/NameTag/NameTag.h"
 
 extern "C" {
+#include "macros.h"
 #include "variables.h"
 #include "functions.h"
 extern PlayState* gPlayState;
@@ -56,8 +59,39 @@ void Anchor::RegisterHooks() {
                                                                                                      s8 spawnNum) {
             if (Anchor::Instance->isConnected) {
                 Anchor::Instance->SendPacket_UpdateClientState();
+                // Respawn dummy players for this scene on the next player update tick.
+                Anchor::Instance->shouldRefreshActors = true;
             }
         });
+    }
+    if (actorInitHookId == 0) {
+        // Intercept the player actors we spawn for remote clients and repurpose them as dummies.
+        actorInitHookId = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldActorInit>(
+            ACTOR_PLAYER, [](Actor* actor, bool* should) {
+                if (Anchor::Instance->spawningDummyPlayerForClientId != 0) {
+                    Anchor::Instance->SetDummyPlayerClientId(actor, Anchor::Instance->spawningDummyPlayerForClientId);
+                    Actor_ChangeCategory(gPlayState, &gPlayState->actorCtx, actor, ACTORCAT_NPC);
+                    actor->id = ACTOR_EN_TEST;
+                    actor->init = DummyPlayer_Init;
+                    actor->update = DummyPlayer_Update;
+                    actor->draw = DummyPlayer_Draw;
+                    actor->destroy = DummyPlayer_Destroy;
+                }
+            });
+    }
+    if (actorUpdateHookId == 0) {
+        // Fires every frame for the local player only (dummies are relabeled ACTOR_EN_TEST).
+        actorUpdateHookId = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(
+            ACTOR_PLAYER, [](Actor* actor) {
+                if (!Anchor::Instance->isConnected) {
+                    return;
+                }
+                if (Anchor::Instance->shouldRefreshActors) {
+                    Anchor::Instance->shouldRefreshActors = false;
+                    Anchor::Instance->RefreshClientActors();
+                }
+                Anchor::Instance->SendPacket_PlayerUpdate();
+            });
     }
 }
 
@@ -69,6 +103,14 @@ void Anchor::UnregisterHooks() {
     if (sceneInitHookId != 0) {
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(sceneInitHookId);
         sceneInitHookId = 0;
+    }
+    if (actorInitHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldActorInit>(actorInitHookId);
+        actorInitHookId = 0;
+    }
+    if (actorUpdateHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnActorUpdate>(actorUpdateHookId);
+        actorUpdateHookId = 0;
     }
 }
 
@@ -113,6 +155,8 @@ void Anchor::OnIncomingJson(nlohmann::json payload) {
         HandlePacket_AllClientState(payload);
     } else if (packetType == UPDATE_CLIENT_STATE) {
         HandlePacket_UpdateClientState(payload);
+    } else if (packetType == PLAYER_UPDATE) {
+        HandlePacket_PlayerUpdate(payload);
     } else if (packetType == SERVER_MESSAGE) {
         HandlePacket_ServerMessage(payload);
     } else if (packetType == DISABLE_ANCHOR) {
@@ -239,6 +283,9 @@ void Anchor::HandlePacket_AllClientState(nlohmann::json payload) {
     for (auto& clientId : clientsToRemove) {
         clients.erase(clientId);
     }
+
+    // Roster changed; respawn dummy players on the next player update tick.
+    shouldRefreshActors = true;
 }
 
 void Anchor::HandlePacket_UpdateClientState(nlohmann::json payload) {
@@ -247,6 +294,7 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json payload) {
         return;
     }
 
+    s16 oldSceneId = clients[clientId].sceneId;
     AnchorClient client = payload["state"].get<AnchorClient>();
     clients[clientId].name = client.name;
     clients[clientId].color = client.color;
@@ -259,6 +307,11 @@ void Anchor::HandlePacket_UpdateClientState(nlohmann::json payload) {
     clients[clientId].sceneId = client.sceneId;
     clients[clientId].curRoomNum = client.curRoomNum;
     clients[clientId].entranceIndex = client.entranceIndex;
+
+    // A remote player entering or leaving our scene must (de)spawn their dummy.
+    if (oldSceneId != client.sceneId) {
+        shouldRefreshActors = true;
+    }
 }
 
 void Anchor::HandlePacket_ServerMessage(nlohmann::json payload) {
@@ -274,4 +327,55 @@ void Anchor::HandlePacket_DisableAnchor(nlohmann::json payload) {
     CVarClear("gNetwork.Anchor.Enabled");
     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     Disable();
+}
+
+// MARK: - Dummy players
+
+// Attaches the owning clientId to a dummy player actor via the ObjectExtension system.
+struct DummyPlayerClientId {
+    uint32_t clientId = 0;
+};
+static ObjectExtension::Register<DummyPlayerClientId> DummyPlayerClientIdRegister;
+
+uint32_t Anchor::GetDummyPlayerClientId(const Actor* actor) {
+    const DummyPlayerClientId* data = ObjectExtension::GetInstance().Get<DummyPlayerClientId>(actor);
+    return data != nullptr ? data->clientId : 0;
+}
+
+void Anchor::SetDummyPlayerClientId(const Actor* actor, uint32_t clientId) {
+    ObjectExtension::GetInstance().Set<DummyPlayerClientId>(actor, DummyPlayerClientId{ clientId });
+}
+
+// Kills all existing dummy players and respawns one for each online client in our scene.
+void Anchor::RefreshClientActors() {
+    if (!IsSaveLoaded()) {
+        return;
+    }
+
+    Actor* actor = gPlayState->actorCtx.actorLists[ACTORCAT_NPC].first;
+    while (actor != NULL) {
+        Actor* next = actor->next;
+        if (actor->id == ACTOR_EN_TEST && actor->update == DummyPlayer_Update) {
+            NameTag_RemoveAllForActor(actor);
+            Actor_Kill(actor);
+        }
+        actor = next;
+    }
+
+    for (auto& [clientId, client] : clients) {
+        if (!client.online || client.self || !client.isSaveLoaded) {
+            continue;
+        }
+        if (client.sceneId != gPlayState->sceneId) {
+            continue;
+        }
+
+        spawningDummyPlayerForClientId = clientId;
+        // ShouldActorInit (registered above) intercepts this spawn and converts it to a dummy.
+        Actor* dummy =
+            Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_PLAYER, client.posRot.pos.x, client.posRot.pos.y,
+                        client.posRot.pos.z, client.posRot.rot.x, client.posRot.rot.y, client.posRot.rot.z, 0);
+        client.player = (Player*)dummy;
+    }
+    spawningDummyPlayerForClientId = 0;
 }

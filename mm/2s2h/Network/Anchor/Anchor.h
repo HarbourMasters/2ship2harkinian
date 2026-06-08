@@ -11,6 +11,11 @@ extern "C" {
 #include "z64.h"
 }
 
+void DummyPlayer_Init(Actor* actor, PlayState* play);
+void DummyPlayer_Update(Actor* actor, PlayState* play);
+void DummyPlayer_Draw(Actor* actor, PlayState* play);
+void DummyPlayer_Destroy(Actor* actor, PlayState* play);
+
 // Per-client state shared across the room. This is the Majora's Mask flavored equivalent of
 // Shipwright's AnchorClient; field names track MM structures (e.g. sceneId rather than sceneNum).
 typedef struct {
@@ -27,6 +32,25 @@ typedef struct {
     s16 sceneId;
     s8 curRoomNum;
     s32 entranceIndex;
+
+    // Only populated by PLAYER_UPDATE packets (real-time, sent every frame).
+    s32 form; // PlayerTransformation
+    PosRot posRot;
+    Vec3s jointTable[PLAYER_LIMB_MAX];
+    Vec3s prevTransl;
+    Vec3s upperLimbRot;
+    u8 movementFlags;
+    s8 currentBoots;
+    u8 currentMask;
+    u32 stateFlags1;
+    u32 stateFlags2;
+    s8 itemAction;
+    s8 heldItemAction;
+    s8 invincibilityTimer;
+    u8 face;
+
+    // Pointer to the spawned dummy player actor (if any).
+    Player* player;
 } AnchorClient;
 
 typedef struct {
@@ -41,6 +65,11 @@ class Anchor : public Network {
   private:
     HOOK_ID processPacketsHookId = 0;
     HOOK_ID sceneInitHookId = 0;
+    HOOK_ID actorInitHookId = 0;
+    HOOK_ID actorUpdateHookId = 0;
+
+    uint32_t spawningDummyPlayerForClientId = 0;
+    bool shouldRefreshActors = false;
 
     void RegisterHooks();
     void UnregisterHooks();
@@ -56,6 +85,7 @@ class Anchor : public Network {
 
     void HandlePacket_AllClientState(nlohmann::json payload);
     void HandlePacket_UpdateClientState(nlohmann::json payload);
+    void HandlePacket_PlayerUpdate(nlohmann::json payload);
     void HandlePacket_ServerMessage(nlohmann::json payload);
     void HandlePacket_DisableAnchor(nlohmann::json payload);
 
@@ -71,6 +101,7 @@ class Anchor : public Network {
     inline static const std::string HANDSHAKE = "HANDSHAKE";
     inline static const std::string ALL_CLIENT_STATE = "ALL_CLIENT_STATE";
     inline static const std::string UPDATE_CLIENT_STATE = "UPDATE_CLIENT_STATE";
+    inline static const std::string PLAYER_UPDATE = "PLAYER_UPDATE";
     inline static const std::string SERVER_MESSAGE = "SERVER_MESSAGE";
     inline static const std::string DISABLE_ANCHOR = "DISABLE_ANCHOR";
 
@@ -84,8 +115,14 @@ class Anchor : public Network {
 
     bool IsSaveLoaded();
 
+    // Remote player (dummy actor) management.
+    void RefreshClientActors();
+    uint32_t GetDummyPlayerClientId(const Actor* actor);
+    void SetDummyPlayerClientId(const Actor* actor, uint32_t clientId);
+
     void SendPacket_Handshake();
     void SendPacket_UpdateClientState();
+    void SendPacket_PlayerUpdate();
 };
 
 #endif // __cplusplus
