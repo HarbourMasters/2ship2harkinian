@@ -60,14 +60,14 @@ void Anchor::RegisterHooks() {
         });
     }
     if (sceneInitHookId == 0) {
-        sceneInitHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](s8 sceneId,
-                                                                                                     s8 spawnNum) {
-            if (Anchor::Instance->isConnected) {
-                Anchor::Instance->SendPacket_UpdateClientState();
-                // Respawn dummy players for this scene on the next player update tick.
-                Anchor::Instance->shouldRefreshActors = true;
-            }
-        });
+        sceneInitHookId =
+            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](s8 sceneId, s8 spawnNum) {
+                if (Anchor::Instance->isConnected) {
+                    Anchor::Instance->SendPacket_UpdateClientState();
+                    // Respawn dummy players for this scene on the next player update tick.
+                    Anchor::Instance->shouldRefreshActors = true;
+                }
+            });
     }
     if (actorInitHookId == 0) {
         // Intercept the player actors we spawn for remote clients and repurpose them as dummies.
@@ -104,20 +104,20 @@ void Anchor::RegisterHooks() {
             });
     }
     if (flagSetHookId == 0) {
-        flagSetHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagSet>([](FlagType flagType,
-                                                                                                 u32 flag) {
-            if (Anchor::Instance->isConnected && !Anchor::Instance->isApplyingRemotePacket) {
-                Anchor::Instance->SendPacket_SetFlag(SCENE_MAX, (s16)flagType, (s32)flag);
-            }
-        });
+        flagSetHookId =
+            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagSet>([](FlagType flagType, u32 flag) {
+                if (Anchor::Instance->isConnected && !Anchor::Instance->isApplyingRemotePacket) {
+                    Anchor::Instance->SendPacket_SetFlag(SCENE_MAX, (s16)flagType, (s32)flag);
+                }
+            });
     }
     if (flagUnsetHookId == 0) {
-        flagUnsetHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagUnset>([](FlagType flagType,
-                                                                                                     u32 flag) {
-            if (Anchor::Instance->isConnected && !Anchor::Instance->isApplyingRemotePacket) {
-                Anchor::Instance->SendPacket_UnsetFlag(SCENE_MAX, (s16)flagType, (s32)flag);
-            }
-        });
+        flagUnsetHookId =
+            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFlagUnset>([](FlagType flagType, u32 flag) {
+                if (Anchor::Instance->isConnected && !Anchor::Instance->isApplyingRemotePacket) {
+                    Anchor::Instance->SendPacket_UnsetFlag(SCENE_MAX, (s16)flagType, (s32)flag);
+                }
+            });
     }
     if (sceneFlagSetHookId == 0) {
         sceneFlagSetHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneFlagSet>(

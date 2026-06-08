@@ -69,7 +69,8 @@ void Anchor::SendPacket_UpdateTeamState() {
     state["strayFairies"] = std::vector<s8>(inv.strayFairies, inv.strayFairies + ARRAY_COUNT(inv.strayFairies));
 
     state["weekEventReg"] = std::vector<u8>(si.weekEventReg, si.weekEventReg + ARRAY_COUNT(si.weekEventReg));
-    state["eventInf"] = std::vector<u8>(gSaveContext.eventInf, gSaveContext.eventInf + ARRAY_COUNT(gSaveContext.eventInf));
+    state["eventInf"] =
+        std::vector<u8>(gSaveContext.eventInf, gSaveContext.eventInf + ARRAY_COUNT(gSaveContext.eventInf));
     state["scenesVisible"] = std::vector<u32>(si.scenesVisible, si.scenesVisible + ARRAY_COUNT(si.scenesVisible));
     state["skullTokenCount"] = si.skullTokenCount;
     state["regionsVisited"] = si.regionsVisited;
@@ -142,9 +143,8 @@ void Anchor::HandlePacket_UpdateTeamState(json payload) {
 
     isApplyingRemotePacket = false;
 
-    bool notified =
-        ReconcileUpgrades(senderName, oldMagicAcquired, oldDoubleMagic, oldDoubleDefense, oldHealthCapacity,
-                          oldMagicLevel);
+    bool notified = ReconcileUpgrades(senderName, oldMagicAcquired, oldDoubleMagic, oldDoubleDefense, oldHealthCapacity,
+                                      oldMagicLevel);
     if (!notified) {
         Notification::Emit({ .message = "Save synced from team" });
     }
