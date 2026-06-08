@@ -71,11 +71,31 @@ class Anchor : public Network {
     HOOK_ID flagUnsetHookId = 0;
     HOOK_ID sceneFlagSetHookId = 0;
     HOOK_ID sceneFlagUnsetHookId = 0;
+    HOOK_ID giveItemHookId = 0;
+    HOOK_ID saveLoadHookId = 0;
+    HOOK_ID saveHookId = 0;
 
     uint32_t spawningDummyPlayerForClientId = 0;
     bool shouldRefreshActors = false;
     // Set while applying an incoming packet so our own send-hooks don't echo it back out.
     bool isApplyingRemotePacket = false;
+    // Set when a save is (re)loaded; the next game-thread tick requests team state.
+    bool justLoadedSave = false;
+
+    // Snapshot of key save upgrades, used to detect mid-game acquisitions (e.g. magic, heart
+    // containers) that aren't covered by a flag or item-give and push them to the team live.
+    bool upgradeSnapshotValid = false;
+    s8 prevMagicLevel = 0;
+    u8 prevIsMagicAcquired = 0;
+    u8 prevIsDoubleMagicAcquired = 0;
+    u8 prevDoubleDefense = 0;
+    s16 prevHealthCapacity = 0;
+    void CheckAndPushSaveUpgrades();
+    void SnapshotSaveUpgrades();
+    // Applies the magic-meter kick + emits contextual notifications after upgrades change.
+    // Returns true if it emitted a notification.
+    bool ReconcileUpgrades(const std::string& senderName, u8 oldMagicAcquired, u8 oldDoubleMagic, u8 oldDoubleDefense,
+                           s16 oldHealthCapacity, s8 oldMagicLevel);
 
     void RegisterHooks();
     void UnregisterHooks();
@@ -94,6 +114,10 @@ class Anchor : public Network {
     void HandlePacket_PlayerUpdate(nlohmann::json payload);
     void HandlePacket_SetFlag(nlohmann::json payload);
     void HandlePacket_UnsetFlag(nlohmann::json payload);
+    void HandlePacket_GiveItem(nlohmann::json payload);
+    void HandlePacket_RequestTeamState(nlohmann::json payload);
+    void HandlePacket_UpdateTeamState(nlohmann::json payload);
+    void HandlePacket_GiveUpgrade(nlohmann::json payload);
     void HandlePacket_ServerMessage(nlohmann::json payload);
     void HandlePacket_DisableAnchor(nlohmann::json payload);
 
@@ -112,6 +136,10 @@ class Anchor : public Network {
     inline static const std::string PLAYER_UPDATE = "PLAYER_UPDATE";
     inline static const std::string SET_FLAG = "SET_FLAG";
     inline static const std::string UNSET_FLAG = "UNSET_FLAG";
+    inline static const std::string GIVE_ITEM = "GIVE_ITEM";
+    inline static const std::string REQUEST_TEAM_STATE = "REQUEST_TEAM_STATE";
+    inline static const std::string UPDATE_TEAM_STATE = "UPDATE_TEAM_STATE";
+    inline static const std::string GIVE_UPGRADE = "GIVE_UPGRADE";
     inline static const std::string SERVER_MESSAGE = "SERVER_MESSAGE";
     inline static const std::string DISABLE_ANCHOR = "DISABLE_ANCHOR";
 
@@ -135,6 +163,10 @@ class Anchor : public Network {
     void SendPacket_PlayerUpdate();
     void SendPacket_SetFlag(s16 sceneId, s16 flagType, s32 flag);
     void SendPacket_UnsetFlag(s16 sceneId, s16 flagType, s32 flag);
+    void SendPacket_GiveItem(u8 item);
+    void SendPacket_RequestTeamState();
+    void SendPacket_UpdateTeamState();
+    void SendPacket_GiveUpgrade();
 };
 
 #endif // __cplusplus

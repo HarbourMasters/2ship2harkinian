@@ -25,6 +25,9 @@ void Anchor::Enable() {
     roomState.ownerClientId = 0;
     // Default progression sync on. (Future: drive this from server room state.)
     roomState.syncItemsAndFlags = 1;
+    // Request the team's current save state once we're connected and in game.
+    justLoadedSave = true;
+    upgradeSnapshotValid = false;
 
     // Register the game-thread hooks once for the lifetime of the connection. The handlers
     // bail out early when not connected, so it is safe to leave them registered.
@@ -92,6 +95,11 @@ void Anchor::RegisterHooks() {
                     Anchor::Instance->shouldRefreshActors = false;
                     Anchor::Instance->RefreshClientActors();
                 }
+                if (Anchor::Instance->justLoadedSave) {
+                    Anchor::Instance->justLoadedSave = false;
+                    Anchor::Instance->SendPacket_RequestTeamState();
+                }
+                Anchor::Instance->CheckAndPushSaveUpgrades();
                 Anchor::Instance->SendPacket_PlayerUpdate();
             });
     }
@@ -127,6 +135,26 @@ void Anchor::RegisterHooks() {
                 }
             });
     }
+    if (giveItemHookId == 0) {
+        giveItemHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemGive>([](u8 item) {
+            if (Anchor::Instance->isConnected && !Anchor::Instance->isApplyingRemotePacket) {
+                Anchor::Instance->SendPacket_GiveItem(item);
+            }
+        });
+    }
+    if (saveLoadHookId == 0) {
+        saveLoadHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveLoad>([](s16 fileNum) {
+            Anchor::Instance->justLoadedSave = true;
+            Anchor::Instance->upgradeSnapshotValid = false;
+        });
+    }
+    if (saveHookId == 0) {
+        saveHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::AfterEndOfCycleSave>([]() {
+            if (Anchor::Instance->isConnected) {
+                Anchor::Instance->SendPacket_UpdateTeamState();
+            }
+        });
+    }
 }
 
 void Anchor::UnregisterHooks() {
@@ -161,6 +189,18 @@ void Anchor::UnregisterHooks() {
     if (sceneFlagUnsetHookId != 0) {
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneFlagUnset>(sceneFlagUnsetHookId);
         sceneFlagUnsetHookId = 0;
+    }
+    if (giveItemHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnItemGive>(giveItemHookId);
+        giveItemHookId = 0;
+    }
+    if (saveLoadHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSaveLoad>(saveLoadHookId);
+        saveLoadHookId = 0;
+    }
+    if (saveHookId != 0) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::AfterEndOfCycleSave>(saveHookId);
+        saveHookId = 0;
     }
 }
 
@@ -211,6 +251,14 @@ void Anchor::OnIncomingJson(nlohmann::json payload) {
         HandlePacket_SetFlag(payload);
     } else if (packetType == UNSET_FLAG) {
         HandlePacket_UnsetFlag(payload);
+    } else if (packetType == GIVE_ITEM) {
+        HandlePacket_GiveItem(payload);
+    } else if (packetType == REQUEST_TEAM_STATE) {
+        HandlePacket_RequestTeamState(payload);
+    } else if (packetType == UPDATE_TEAM_STATE) {
+        HandlePacket_UpdateTeamState(payload);
+    } else if (packetType == GIVE_UPGRADE) {
+        HandlePacket_GiveUpgrade(payload);
     } else if (packetType == SERVER_MESSAGE) {
         HandlePacket_ServerMessage(payload);
     } else if (packetType == DISABLE_ANCHOR) {
