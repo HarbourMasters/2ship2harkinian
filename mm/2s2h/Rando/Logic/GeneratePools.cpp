@@ -281,7 +281,7 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
         }
     }
 
-    // Adjust Heart Containers/Pieces based on starting health
+    // Adjust Heart Pieces based on starting health
     if (saveInfo.randoSaveOptions[RO_STARTING_HEALTH] < 3) {
         // Add up to 8 Heart Pieces
         int piecesToAdd = 4 * (3 - saveInfo.randoSaveOptions[RO_STARTING_HEALTH]);
