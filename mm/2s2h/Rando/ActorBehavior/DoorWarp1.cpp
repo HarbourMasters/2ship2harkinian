@@ -15,7 +15,8 @@ void Rando::ActorBehavior::InitDoorWarp1VBehavior() {
      */
     COND_VB_SHOULD(VB_SPAWN_BOSS_REMAINS, IS_RANDO, {
         s32* remains = va_arg(args, s32*);
-        if ((gPlayState->sceneId == SCENE_MITURIN_BS) && !RANDO_SAVE_CHECKS[RC_WOODFALL_TEMPLE_BOSS_WARP].cycleObtained) {
+        if ((gPlayState->sceneId == SCENE_MITURIN_BS) &&
+            !RANDO_SAVE_CHECKS[RC_WOODFALL_TEMPLE_BOSS_WARP].cycleObtained) {
             // Odolwa's Lair
             *remains = 1;
         } else if ((gPlayState->sceneId == SCENE_HAKUGIN_BS) &&

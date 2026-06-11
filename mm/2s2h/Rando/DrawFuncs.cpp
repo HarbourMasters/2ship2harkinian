@@ -993,10 +993,10 @@ extern void DrawShellBlade() {
 }
 
 extern void DrawSkullfish() {
-    SETUP_DRAW(OBJECT_PR_2_LIMB_MAX);
+    SETUP_DRAW(PR_2_LIMB_MAX);
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
     Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
-    SETUP_FLEX_SKEL(OBJECT_PR_2_LIMB_MAX, object_pr_Skel_004188, object_pr_Anim_004340);
+    SETUP_FLEX_SKEL(PR_2_LIMB_MAX, gSkullFishSkel, gSkullFishSwimAnim);
 
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
