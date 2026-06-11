@@ -1,6 +1,7 @@
 #include "MiscBehavior.h"
 #include "Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h_assets.h"
+#include "2s2h/BenGui/CosmeticEditor.h"
 
 extern "C" {
 #include "z64save.h"
@@ -333,8 +334,9 @@ void RegisterShoulds() {
         OPEN_DISPS(gFileSelectState->state.gfxCtx);
 
         // But then we also render the same small box again, but using the expanded file info alpha
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, sWindowContentColors[0], sWindowContentColors[1],
-                        sWindowContentColors[2], gFileSelectState->fileInfoAlpha[fileIndex]);
+        gDPSetPrimColorOverride(POLY_OPA_DISP++, 0, 0, sWindowContentColors[0], sWindowContentColors[1],
+                                sWindowContentColors[2], gFileSelectState->fileInfoAlpha[fileIndex],
+                                COSMETIC_ID("Menus.FilePlates"));
         gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelBlankButtonTex, G_IM_FMT_IA, G_IM_SIZ_16b, 52, 16, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);

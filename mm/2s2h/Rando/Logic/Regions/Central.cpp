@@ -72,8 +72,8 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_CLOCK_TOWER_ROOF] = RandoRegion{ .sceneId = SCENE_OKUJOU,
         .checks = {
-            CHECK(RC_CLOCK_TOWER_ROOF_SONG_OF_TIME, (HAS_MAGIC && CAN_BE_DEKU) || HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT)),
-            CHECK(RC_CLOCK_TOWER_ROOF_OCARINA, (HAS_MAGIC && CAN_BE_DEKU) || HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT)),
+            CHECK(RC_CLOCK_TOWER_ROOF_SONG_OF_TIME, CAN_USE_PROJECTILE),
+            CHECK(RC_CLOCK_TOWER_ROOF_OCARINA, CAN_USE_PROJECTILE),
             CHECK(RC_CLOCK_TOWER_ROOF_POT_01, true),
             CHECK(RC_CLOCK_TOWER_ROOF_POT_02, true),
             CHECK(RC_CLOCK_TOWER_ROOF_POT_03, true),
@@ -94,6 +94,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_CLOCK_TOWN_STRAY_FAIRY,         CAN_BE_DEKU && IS_NIGHT()),
             CHECK(RC_CLOCK_TOWN_EAST_UPPER_CHEST,    true),
             CHECK(RC_CLOCK_TOWN_BOMBERS_NOTEBOOK,    RANDO_EVENTS[RE_BOMBER_CODE]),
+            CHECK(RC_CLOCK_TOWN_POSTBOX,             HAS_ITEM(ITEM_MASK_POSTMAN)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 7),                ENTRANCE(EAST_CLOCK_TOWN, 0), true),
@@ -221,7 +222,6 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_CLOCK_TOWN_WEST] = RandoRegion{ .sceneId = SCENE_ICHIBA,
         .checks = {
-            CHECK(RC_CLOCK_TOWN_POSTBOX, HAS_ITEM(ITEM_MASK_POSTMAN)),
             CHECK(RC_CLOCK_TOWN_WEST_BANK_ADULTS_WALLET, true),
             CHECK(RC_CLOCK_TOWN_WEST_BANK_PIECE_OF_HEART, CUR_UPG_VALUE(UPG_WALLET) >= 1),
             CHECK(RC_CLOCK_TOWN_WEST_BANK_INTEREST, CUR_UPG_VALUE(UPG_WALLET) >= 1),

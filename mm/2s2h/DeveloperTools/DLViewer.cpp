@@ -38,6 +38,7 @@ std::string activeDisplayList = "";
 std::vector<std::string> displayListSearchResults;
 int16_t searchDebounceFrames = -1;
 bool doSearch = false;
+bool sortedFirstUnfiltered = false;
 
 // Extended command map with all GBI commands
 std::unordered_map<int, std::string> cmdMap = {
@@ -145,7 +146,7 @@ CommandCategory GetCommandCategory(int cmd) {
 
 void PerformDisplayListSearch() {
     // Get all DL files using broad pattern (glob_match is case-sensitive, so we filter manually)
-    auto result = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles("*DL*");
+    static auto result = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles("*DL*");
 
     displayListSearchResults.clear();
 
@@ -343,7 +344,7 @@ void DrawColorEditor(uint8_t& r, uint8_t& g, uint8_t& b, uint8_t& a, const std::
         }
 
         ImGui::SameLine();
-        ImGui::Text(letter);
+        ImGui::Text("%s", letter);
         ImGui::SameLine();
     };
 
@@ -758,6 +759,11 @@ void DLViewerWindow::DrawElement() {
     if (cachedActionsHeaderWidth == 0.0f) {
         cachedActionsHeaderWidth = ImGui::CalcTextSize("Actions").x + ImGui::GetStyle().FramePadding.x * 2.0f;
     }
+    // Sorting ~16k unfiltered DLs is expensive on debug, so lazy load it on first draw
+    if (!sortedFirstUnfiltered) {
+        PerformDisplayListSearch();
+        sortedFirstUnfiltered = true;
+    }
 
     ImGui::BeginDisabled(CVarGetInteger("gDeveloperTools.DisableChanges", 0));
 
@@ -801,5 +807,4 @@ void DLViewerWindow::DrawElement() {
 }
 
 void DLViewerWindow::InitElement() {
-    PerformDisplayListSearch();
 }

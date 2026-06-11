@@ -40,3 +40,13 @@ RandoCheckId Rando::FindItemPlacement(RandoItemId randoItemId) {
 
     return RC_UNKNOWN;
 }
+
+std::vector<RandoCheckId> Rando::FindMultiItemPlacement(RandoItemId randoItemId) {
+    std::vector<RandoCheckId> itemPlacements;
+    for (auto& [randocheckId, check] : Rando::StaticData::Checks) {
+        if (RANDO_SAVE_CHECKS[randocheckId].randoItemId == randoItemId) {
+            itemPlacements.push_back(randocheckId);
+        }
+    }
+    return itemPlacements;
+}
