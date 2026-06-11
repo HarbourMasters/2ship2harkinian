@@ -170,7 +170,7 @@ inline void from_json(const json& j, ItemEquips& itemEquips) {
 }
 
 inline void to_json(json& j, const Inventory& inventory) {
-    // Setup and copy u8 arrays to ainline void json treating char[] as strings
+    // Setup and copy u8 arrays to avoid json treating char[] as strings
     // These char[] are not null-terminated, so saving as strings causes overflow/corruption
     uint8_t dekuPlaygroundPlayerName[3][8];
     memcpy(dekuPlaygroundPlayerName, inventory.dekuPlaygroundPlayerName, sizeof(dekuPlaygroundPlayerName));
@@ -226,7 +226,7 @@ inline void from_json(const json& j, PermanentSceneFlags& permanentSceneFlags) {
 }
 
 inline void to_json(json& j, const SavePlayerData& savePlayerData) {
-    // Setup and copy u8 arrays to ainline void json treating char[] as strings
+    // Setup and copy u8 arrays to avoid json treating char[] as strings
     // These char[] are not null-terminated, so saving as strings causes overflow/corruption
     u8 newf[6];
     u8 playerName[8];
