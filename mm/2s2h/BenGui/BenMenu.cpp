@@ -1703,13 +1703,21 @@ void BenMenu::AddEnhancements() {
                      .Max(40)
                      .DefaultValue(0));
 
-    // Difficulty Options
+   // Difficulty Options
     path = { "Enhancements", "Difficulty Options", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
     AddWidget(path, "Combat", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
         .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
+    static const std::unordered_map<int32_t, const char*> bossHealthOptions = { { 1, "1.0x (Default)" },
+                                                                                { 2, "1.5x" },
+                                                                                { 3, "2.0x" } };
+    AddWidget(path, "Boss Health Multiplier", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.BossHealthMultiplier")
+        .Options(ComboboxOptions()
+                     .Tooltip("Multiply the health of all bosses (Restart Required).")
+                     .ComboMap(&bossHealthOptions));
     AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
         .Options(ComboboxOptions()
