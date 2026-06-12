@@ -11,6 +11,7 @@
 #include "HudEditor.h"
 #include "Notification.h"
 #include "2s2h/Enhancements/Trackers/DisplayOverlay.h"
+#include "2s2h/Enhancements/Accessibility/ExtendedKeyboardControls.h"
 #include <variant>
 #include <ship/utils/StringHelper.h>
 #include <spdlog/fmt/fmt.h>
@@ -1192,6 +1193,44 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Minigames.MarkShootingGalleryOctoroks")
         .Options(CheckboxOptions().Tooltip("Places markers on the Town Shooting Gallery Octoroks, indicating whether "
                                            "they should be hit."));
+    AddWidget(path, "Extended Keyboard Controls", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.ExtKeyboardControls")
+        .Options(CheckboxOptions().Tooltip("Enables additional keyboard-focused stick input modifiers"));
+    AddWidget(path, "Extended Keyboard Controls Sub-Options", WIDGET_CUSTOM)
+        .PreFunc(
+            [](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gEnhancements.Player.ExtKeyboardControls", 0); })
+        .CustomFunction([](WidgetInfo& info) {
+            ImGui::Indent();
+            UIWidgets::CVarCheckbox(
+                "Enable ESS Button", "gEnhancements.Player.ExtKeyboardEss",
+                UIWidgets::CheckboxOptions().Tooltip("Hold a button to clamp stick input to ESS range."));
+            if (CVarGetInteger("gEnhancements.Player.ExtKeyboardEss", 0)) {
+                ImGui::Indent();
+                UIWidgets::CVarBtnSelector("ESS Button:", "gEnhancements.Player.ExtKeyboardEssBtn",
+                                           UIWidgets::BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER1));
+                ImGui::Unindent();
+            }
+            UIWidgets::CVarCheckbox("Enable Quick Spin Button", "gEnhancements.Player.ExtKeyboardSpin",
+                                    UIWidgets::CheckboxOptions().Tooltip(
+                                        "Sets a flag to allow Quickspins or JS cancels without needing stick inputs"));
+            if (CVarGetInteger("gEnhancements.Player.ExtKeyboardSpin", 0)) {
+                ImGui::Indent();
+                UIWidgets::CVarBtnSelector("Quick Spin Button:", "gEnhancements.Player.ExtKeyboardSpinBtn",
+                                           UIWidgets::BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER2));
+                ImGui::Unindent();
+            }
+            UIWidgets::CVarCheckbox(
+                "Enable Diagonal Notch Fix", "gEnhancements.Player.ExtKeyboardNotchFix",
+                UIWidgets::CheckboxOptions().Tooltip("Ignores left/right inputs for 1 frame when pressing A while "
+                                                     "holding down-left/right (Allows drifted backflips)"));
+            UIWidgets::CVarCheckbox("Enable Half-Stick Bindings", "gEnhancements.Player.ExtKeyboardHalfStick",
+                                    UIWidgets::CheckboxOptions().Tooltip(
+                                        "Enables a second set up/down/left/right stick inputs at half magnitude"));
+            if (CVarGetInteger("gEnhancements.Player.ExtKeyboardHalfStick", 0)) {
+                ExtendedKeyboardControls_RenderHalfStickKeysWidget();
+            }
+            ImGui::Unindent();
+        });
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Saving", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)

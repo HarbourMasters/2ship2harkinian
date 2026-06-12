@@ -1365,6 +1365,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // Player_CanSpinAttack(this)
+    // ```
+    // #### `args`
+    // - None
+    VB_PLAYER_CAN_SPIN_ATTACK,
+
+    // #### `result`
+    // ```c
     // CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) && CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
     // CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) && CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD)
     // ```
