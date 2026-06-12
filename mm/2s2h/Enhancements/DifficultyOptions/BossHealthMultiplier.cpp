@@ -15,11 +15,8 @@ static uint32_t sLastFrames = 0;
 
 void RegisterBossHealthMultiplier() {
     COND_HOOK(OnActorUpdate, 1, [](Actor* actor) {
-        if (actor->id == ACTOR_BOSS_01 ||
-            actor->id == ACTOR_BOSS_HAKUGIN ||
-            actor->id == ACTOR_BOSS_03 ||
-            actor->id == ACTOR_BOSS_02 ||
-            actor->id == ACTOR_BOSS_07) {
+        if (actor->id == ACTOR_BOSS_01 || actor->id == ACTOR_BOSS_HAKUGIN || actor->id == ACTOR_BOSS_03 ||
+            actor->id == ACTOR_BOSS_02 || actor->id == ACTOR_BOSS_07) {
 
             if (gPlayState != NULL && Player_InBlockingCsMode(gPlayState, GET_PLAYER(gPlayState))) {
                 return;

@@ -1703,7 +1703,7 @@ void BenMenu::AddEnhancements() {
                      .Max(40)
                      .DefaultValue(0));
 
-   // Difficulty Options
+    // Difficulty Options
     path = { "Enhancements", "Difficulty Options", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
     AddWidget(path, "Combat", WIDGET_SEPARATOR_TEXT);
