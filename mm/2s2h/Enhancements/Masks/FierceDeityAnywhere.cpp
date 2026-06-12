@@ -22,16 +22,27 @@ struct SwordBeamCollision {
 };
 static ObjectExtension::Register<SwordBeamCollision> SwordBeamCollisionRegister;
 
-bool GetActorHitBySwordBeam(Actor* actor) {
+static bool GetActorHitBySwordBeam(Actor* actor) {
     const SwordBeamCollision* collision = ObjectExtension::GetInstance().Get<SwordBeamCollision>(actor);
     return collision != nullptr ? collision->hitBySwordBeam : SwordBeamCollision{}.hitBySwordBeam;
 }
 
-void SetActorHitBySwordBeam(const Actor* actor, bool hitBySwordBeam) {
+static void SetActorHitBySwordBeam(const Actor* actor, bool hitBySwordBeam) {
     ObjectExtension::GetInstance().Set<SwordBeamCollision>(actor, SwordBeamCollision{ hitBySwordBeam });
 }
 
-void RegisterFierceDeityAnywhere() {
+static void AllowTransformationMask(ItemId* itemId, bool* should) {
+    Player* player = GET_PLAYER(gPlayState);
+    if ((player == NULL) || (player->transformation != PLAYER_FORM_FIERCE_DEITY)) {
+        return;
+    }
+
+    if (*itemId >= ITEM_MASK_DEKU && *itemId <= ITEM_MASK_ZORA) {
+        *should = false;
+    }
+}
+
+static void RegisterFierceDeityAnywhere() {
     COND_VB_SHOULD(VB_DISABLE_FD_MASK, CVAR, { *should = false; });
 
     COND_VB_SHOULD(VB_DAMAGE_MULTIPLIER, CVAR, {
@@ -217,6 +228,11 @@ void RegisterFierceDeityAnywhere() {
             Player_GetEnvironmentalHazard(gPlayState) > PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) {
             *should = false;
         }
+    });
+
+    COND_VB_SHOULD(VB_ITEM_BE_RESTRICTED, CVAR, {
+        ItemId * itemId = va_arg(args, ItemId*);
+        AllowTransformationMask(itemId, should);
     });
 }
 
