@@ -234,6 +234,15 @@ static void RegisterFierceDeityAnywhere() {
         ItemId* itemId = va_arg(args, ItemId*);
         AllowTransformationMask(itemId, should);
     });
+
+    /*
+     * Needed to allow FD Link to use transformation masks while in water.
+     */
+    COND_VB_SHOULD(VB_FD_ALWAYS_WIELD_SWORD, CVAR, {
+        if (Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) {
+            *should = false;
+        }
+    });
 }
 
 static RegisterShipInitFunc initFunc(RegisterFierceDeityAnywhere, { CVAR_NAME });
