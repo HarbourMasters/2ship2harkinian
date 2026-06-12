@@ -32,6 +32,13 @@ extern SaveContext gSaveContext;
 extern std::unordered_map<s16, const char*> warpPointSceneList;
 extern void Warp();
 
+static std::unordered_map<int32_t, const char*> imguiScaleOptions = {
+    { 0, "Small" },
+    { 1, "Normal" },
+    { 2, "Large" },
+    { 3, "X-Large" },
+};
+
 static const std::unordered_map<int32_t, const char*> menuThemeOptions = {
     { UIWidgets::Colors::Red, "Red" },
     { UIWidgets::Colors::DarkRed, "Dark Red" },
@@ -380,6 +387,16 @@ void BenMenu::AddSettings() {
         })
         .Options(ButtonOptions().Tooltip("Opens the folder that contains the save and mods folders, etc."));
 
+    AddWidget(path, "ImGui Menu Scaling", WIDGET_CVAR_COMBOBOX)
+        .CVar("gSettings.ImGuiScale")
+        .Options(ComboboxOptions()
+                     .ComboMap(&imguiScaleOptions)
+                     .Tooltip("Changes the scaling of the ImGui menu elements.")
+                     .DefaultIndex(1)
+                     .ComponentAlignment(UIWidgets::Right)
+                     .LabelPosition(UIWidgets::Far))
+        .Callback([](WidgetInfo& info) { OTRGlobals::Instance->ScaleImGui(); });
+
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "about", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
         ImGui::BeginChild("about");
@@ -695,6 +712,17 @@ void BenMenu::AddSettings() {
         .CVar("gWindows.InputViewerSettings")
         .WindowName("Input Viewer Settings")
         .Options(ButtonOptions().Tooltip("Enables the separate Input Viewer Settings Window."));
+
+    // Mod Menu
+    path.sidebarName = "Mod Menu";
+    path.column = SECTION_COLUMN_1;
+    AddSidebarEntry("Settings", path.sidebarName, 2);
+    AddWidget(path, "Mod Menu", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Popout Mod Menu Window", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.ModMenu")
+        .WindowName("Mod Menu")
+        .HideInSearch(true)
+        .Options(ButtonOptions().Tooltip("Enables the separate Mod Menu Window."));
 }
 int32_t motionBlurStrength;
 
