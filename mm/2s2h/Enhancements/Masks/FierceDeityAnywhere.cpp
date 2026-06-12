@@ -231,7 +231,7 @@ static void RegisterFierceDeityAnywhere() {
     });
 
     COND_VB_SHOULD(VB_ITEM_BE_RESTRICTED, CVAR, {
-        ItemId * itemId = va_arg(args, ItemId*);
+        ItemId* itemId = va_arg(args, ItemId*);
         AllowTransformationMask(itemId, should);
     });
 }
