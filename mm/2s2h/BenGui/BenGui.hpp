@@ -6,13 +6,13 @@
 #include "BenModals.h"
 
 namespace BenGui {
-    void SetupHooks();
-    void SetupGuiElements();
-    void Draw();
-    void Destroy();
-    UIWidgets::Colors GetMenuThemeColor();
-    void SetDisplayOverlayVisibility(bool visible);
-}
+void SetupHooks();
+void SetupGuiElements();
+void Draw();
+void Destroy();
+UIWidgets::Colors GetMenuThemeColor();
+void SetDisplayOverlayVisibility(bool visible);
+} // namespace BenGui
 
 #define THEME_COLOR BenGui::GetMenuThemeColor()
 

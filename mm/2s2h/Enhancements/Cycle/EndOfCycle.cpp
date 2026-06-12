@@ -120,7 +120,7 @@ static RegisterShipInitFunc initFunc_Bottles(RegisterEndOfCycleSaveHook_Bottles,
 static void RegisterEndOfCycleSaveHook_Chateau() {
     COND_HOOK(AfterEndOfCycleSave, CVAR_CHATEAU, []() {
         if (saveInfoCopy.weekEventReg[((WEEKEVENTREG_DRANK_CHATEAU_ROMANI) >> 8)] &
-            ((WEEKEVENTREG_DRANK_CHATEAU_ROMANI)&0xFF)) {
+            ((WEEKEVENTREG_DRANK_CHATEAU_ROMANI) & 0xFF)) {
             SET_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI);
         }
     });
