@@ -216,6 +216,20 @@ ResourceFactoryBinaryAudioSampleV2::ReadResource(std::shared_ptr<Ship::File> fil
     audioSample->loop.end = reader->ReadUInt32();
     audioSample->loop.count = reader->ReadUInt32();
 
+    // 2S2H [Port] AdpcmLoop.sampleEnd (offset 0x0C, the clip's total s16-sample count) isn't
+    // carried by the .o2r, and isn't extracted by ZAPD. As far as we can tell that's because the
+    // OTR pipeline was authored for OoT, whose audio engine never reads this field (sm64's doesn't
+    // either — it names 0x0C `pad`). MM is the exception: its count==2 "loop N times then stop"
+    // path in synthesis.c reads it. So for MM the field was left uninitialized, which on the build
+    // where we hit this read as poison (0xBEC0FEBE) -> huge sampleEndPos -> out-of-bounds sample
+    // read -> crash. As a minimal, format-compatible stopgap we initialize it to the loop end:
+    // exact for one-shots, and a safe (possibly slightly short) value for count==2 samples. The
+    // proper fix — extracting the real 0x0C from the ROM (ZAPD ZAudio + OTRExporter + a
+    // resource-version bump, then re-extract) — really belongs to whoever maintains the asset
+    // pipeline; it's the only way to recover the true tail length for count==2 samples, and we'd
+    // defer to the maintainers on the format/version conventions for it.
+    audioSample->loop.sampleEnd = audioSample->loop.end;
+
     // This always seems to be 16. Can it be removed in V3?
     uint32_t loopStateCount = reader->ReadUInt32();
     for (int i = 0; i < 16; i++) {
@@ -263,6 +277,7 @@ ResourceFactoryXMLAudioSampleV0::ReadResource(std::shared_ptr<Ship::File> file,
         audioSample->loop.start = loopRoot->UnsignedAttribute("Start");
         audioSample->loop.end = loopRoot->UnsignedAttribute("End");
         audioSample->loop.count = loopRoot->UnsignedAttribute("Count");
+        audioSample->loop.sampleEnd = audioSample->loop.end; // 2S2H [Port]: see binary path above
         tinyxml2::XMLElement* predictor = loopRoot->FirstChildElement("Predictor");
         while (predictor != nullptr) {
             audioSample->loop.state[i++] = predictor->IntAttribute("State");

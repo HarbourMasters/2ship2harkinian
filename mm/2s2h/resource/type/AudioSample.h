@@ -9,7 +9,13 @@ typedef struct {
     /* 0x00 */ u32 start;
     /* 0x04 */ u32 end;
     /* 0x08 */ u32 count;
-    /* 0x0C */ char unk_0C[0x4];
+    /* 0x0C */ u32 sampleEnd; // 2S2H [Port] Total s16-samples in the clip. Only MM's count==2 &&
+                              // stopLoop path (synthesis.c) reads this; OoT/SoH never do (this was
+                              // `char unk_0C[0x4]` there, matching the decomp). Leaving it unset
+                              // crashed count==2 samples on our build (uninitialized -> poison
+                              // 0xBEC0FEBE -> OOB read). It's initialized in AudioSampleFactory as a
+                              // stopgap; the .o2r/ZAPD don't carry the real value yet — see that
+                              // file for what a proper extraction would involve.
     /* 0x10 */ s16 state[16]; // only exists if count != 0. 8-byte aligned
 } AdpcmLoop;                  // size = 0x30 (or 0x10)
 

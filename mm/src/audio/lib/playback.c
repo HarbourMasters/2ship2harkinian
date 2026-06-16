@@ -197,12 +197,19 @@ void AudioPlayback_ProcessNotes(void) {
         playbackState = &note->playbackState;
         if (playbackState->parentLayer != NO_LAYER) {
 
-            // OTRTODO: This skips playback if the pointer is below where memory on the N64 normally would be.
-            // This does not translate well to modern platforms and how they map memory.
-            // Considering that this check is not present in OoT/SoH, we may be able to remove this altogether.
-            if ((uintptr_t)playbackState->parentLayer < 0x7FFFFFFF) {
-                continue;
-            }
+            // 2S2H [Port] Removed the original guard that stood here:
+            //     if ((uintptr_t)playbackState->parentLayer < 0x7FFFFFFF) { continue; }
+            // Its intent (skip "below where N64 RAM would be" pointers) is reasonable on the
+            // N64, where valid pointers are >= 0x80000000. On a 64-bit host it appears to
+            // misfire in a layout-dependent way: SequenceLayers come from gAudioHeap (a static
+            // array), so a PIE/ASLR build places them high and the guard is harmless, but a
+            // non-PIE build places them low (~0x02dc9268 on the build where we saw this) and the
+            // guard then skips EVERY note's playback update. The ADSR envelope never leaves
+            // INITIAL, `current` stays 0, and all SFX play at zero volume (a silent "click").
+            // OoT/SoH has no equivalent check and NO_LAYER is already handled just above, so
+            // removing it was the smallest change that restored SFX here. If this was guarding
+            // against something we didn't reproduce, a narrower validity check may be preferable
+            // — we couldn't find what it protected against.
 
             if ((note != playbackState->parentLayer->note) && (playbackState->status == PLAYBACK_STATUS_0)) {
                 playbackState->adsr.action.s.release = true;

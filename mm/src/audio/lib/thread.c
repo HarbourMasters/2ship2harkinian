@@ -486,15 +486,16 @@ void AudioThread_ProcessCmds(u32 msg) {
 }
 
 u32 AudioThread_GetExternalLoadQueueMsg(u32* retMsg) {
-    u32 msg;
+    OSMesg msg; // 2S2H [Port] OSMesg is 8 bytes on a 64-bit host; receiving into a 4-byte u32
+                // overflows the stack (same pattern as the AudioLoad_ProcessScriptLoads fix).
 
-    if (osRecvMesg(&gAudioCtx.externalLoadQueue, (OSMesg*)&msg, OS_MESG_NOBLOCK) == -1) {
+    if (osRecvMesg(&gAudioCtx.externalLoadQueue, &msg, OS_MESG_NOBLOCK) == -1) {
         *retMsg = 0;
         return 0;
     }
 
-    *retMsg = msg & 0xFFFFFF;
-    return msg >> 0x18;
+    *retMsg = msg.data32 & 0xFFFFFF;
+    return msg.data32 >> 0x18;
 }
 
 u8* AudioThread_GetFontsForSequence(s32 seqId, u32* outNumFonts, u8* buff) {
@@ -522,7 +523,7 @@ s32 func_80193C5C(void) {
 void AudioThread_WaitForAudioResetQueueP(void) {
     // macro?
     // clang-format off
-    s32 chk = -1; s32 msg; do {} while (osRecvMesg(gAudioCtx.audioResetQueueP, (OSMesg*)&msg, OS_MESG_NOBLOCK) != chk);
+    s32 chk = -1; OSMesg msg; do {} while (osRecvMesg(gAudioCtx.audioResetQueueP, &msg, OS_MESG_NOBLOCK) != chk);
     // clang-format on
 }
 
