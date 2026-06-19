@@ -112,7 +112,14 @@ ResourceFactoryBinaryCutsceneV0::ReadResource(std::shared_ptr<Ship::File> file,
                     // We need to store the first half of the header to get the number of entries.
                     uint32_t header1 = read_CMD_HH(reader);
 
+                    // read_CMD_HH swaps the two half words to native order on big-endian,
+                    // which leaves the entry count in the high half there rather than the
+                    // low half. Without this, big-endian reads a bogus numEntries and walks
+                    // past the command list (crash after the intro cutscene on PPC).
                     uint32_t numEntries = header1 & 0xFFFF;
+                    if (reader->GetEndianness() != Ship::Endianness::Native) {
+                        numEntries = header1 >> 16 & 0xFFFF;
+                    }
 
                     cutscene->commands.push_back(header1);
                     if (numEntries == 0xFFFF) {
