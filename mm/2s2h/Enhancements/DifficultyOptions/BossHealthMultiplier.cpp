@@ -44,10 +44,8 @@ void RegisterBossHealthMultiplier() {
                     if (option == 3)
                         multiplier = 2.0f;
 
-                    if (multiplier > 1.0f) {
-                        currentHealth = (s8)(currentHealth * multiplier);
-                        actor->colChkInfo.health = currentHealth;
-                    }
+                    currentHealth = (s8)(currentHealth * multiplier);
+                    actor->colChkInfo.health = currentHealth;
                 }
 
                 sLastBossHealth[actor] = currentHealth;
