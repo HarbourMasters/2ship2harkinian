@@ -36,7 +36,7 @@ void RegisterBossHealthMultiplier() {
                 // Every time a boss phases or unfreezes (e.g. Goth, Majora's transformations), the engine overwrites
                 // its health with hardcoded values, so we just watch for health surges and override it again.
                 if (sLastBossHealth.count(actor) == 0 || currentHealth > sLastBossHealth[actor]) {
-                    int option = CVarGetInteger(CVAR_NAME, 1);
+                    int option = CVAR;
                     float multiplier = 1.0f;
 
                     if (option == 2)
