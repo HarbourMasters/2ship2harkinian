@@ -1716,7 +1716,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Boss Health Multiplier", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.BossHealthMultiplier")
         .Options(ComboboxOptions()
-                     .Tooltip("Multiply the health of all bosses (Restart Required).")
+                     .Tooltip("Multiply the health of all bosses. Requires a Scene Reload to take effect.")
                      .ComboMap(&bossHealthOptions));
     AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
