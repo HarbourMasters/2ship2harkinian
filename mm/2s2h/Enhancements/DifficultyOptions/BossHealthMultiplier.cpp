@@ -9,12 +9,13 @@ extern "C" {
 }
 
 #define CVAR_NAME "gEnhancements.DifficultyOptions.BossHealthMultiplier"
+#define CVAR CVarGetInteger(CVAR_NAME, 1)
 
 static std::unordered_map<Actor*, int> sLastBossHealth;
 static uint32_t sLastFrames = 0;
 
 void RegisterBossHealthMultiplier() {
-    COND_HOOK(OnActorUpdate, 1, [](Actor* actor) {
+    COND_HOOK(OnActorUpdate, CVAR > 1, [](Actor* actor) {
         if (actor->id == ACTOR_BOSS_01 || actor->id == ACTOR_BOSS_HAKUGIN || actor->id == ACTOR_BOSS_03 ||
             actor->id == ACTOR_BOSS_02 || actor->id == ACTOR_BOSS_07) {
 
