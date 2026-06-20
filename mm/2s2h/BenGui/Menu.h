@@ -23,6 +23,7 @@ class Menu : public GuiWindow {
     void Draw() override;
     void InsertSidebarSearch();
     void RemoveSidebarSearch();
+    void UpdateAudioBackendObjects();
     void UpdateWindowBackendObjects();
     bool IsMenuPopped();
     UIWidgets::Colors GetMenuThemeColor();
@@ -42,6 +43,8 @@ class Menu : public GuiWindow {
     ImGuiTextFilter menuSearch;
     uint8_t searchSidebarIndex;
     UIWidgets::Colors defaultThemeIndex;
+    std::shared_ptr<std::vector<Ship::AudioBackend>> availableAudioBackends;
+    std::unordered_map<Ship::AudioBackend, const char*> availableAudioBackendsMap;
     std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
     std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
     Ship::WindowBackend configWindowBackend;

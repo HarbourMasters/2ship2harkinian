@@ -94,6 +94,14 @@ void Menu::RemoveSidebarSearch() {
     CVarSetString(menuEntries["Settings"].sidebarCvar, menuEntries["Settings"].sidebarOrder.at(curIndex).c_str());
 }
 
+void Menu::UpdateAudioBackendObjects() {
+    availableAudioBackends = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends();
+    availableAudioBackendsMap.clear();
+    for (auto& backend : *availableAudioBackends) {
+        availableAudioBackendsMap[backend] = audioBackendsMap.at(backend);
+    }
+}
+
 void Menu::UpdateWindowBackendObjects() {
     Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
     int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
@@ -129,6 +137,7 @@ void Menu::InitElement() {
     poppedPos.x = CVarGetInteger("gSettings.Menu.PoppedPos.x", 0);
     poppedPos.y = CVarGetInteger("gSettings.Menu.PoppedPos.y", 0);
 
+    UpdateAudioBackendObjects();
     UpdateWindowBackendObjects();
 }
 
@@ -308,9 +317,9 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors me
                 UIWidgets::ComboboxOptions options = {};
                 options.color = menuThemeIndex;
                 options.tooltip = "Sets the audio API used by the game. Requires a relaunch to take effect.";
-                options.disabled = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1;
+                options.disabled = availableAudioBackends->size() <= 1;
                 options.disabledTooltip = "Only one audio API is available on this platform.";
-                if (UIWidgets::Combobox("Audio API", &currentAudioBackend, &audioBackendsMap, options)) {
+                if (UIWidgets::Combobox("Audio API", &currentAudioBackend, &availableAudioBackendsMap, options)) {
                     Ship::Context::GetInstance()->GetAudio()->SetCurrentAudioBackend(currentAudioBackend);
                 }
             } break;
