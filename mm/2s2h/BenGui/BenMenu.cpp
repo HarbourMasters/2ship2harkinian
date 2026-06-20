@@ -1006,6 +1006,11 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Speed Modifier Mode", WIDGET_CVAR_COMBOBOX)
         .CVar("gCheats.SpeedModifier.Mode")
         .Options(ComboboxOptions().ComboVec(&speedModifierModeOptions).LabelPosition(LabelPosition::None));
+    AddWidget(path, "Don't affect jump distance/velocity", WIDGET_CVAR_CHECKBOX)
+        .CVar("gCheats.SpeedModifier.DoesntChangeJump")
+        .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gCheats.SpeedModifier.Mode", 0); })
+        .Options(CheckboxOptions().Tooltip(
+            "Prevents the speed modifier from carrying into jump distance by restoring vanilla horizontal jump velocity."));
     AddWidget(path, "Multiplier:", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gCheats.SpeedModifier.Value")
         .PreFunc([](WidgetInfo& info) { info.isHidden = !CVarGetInteger("gCheats.SpeedModifier.Mode", 0); })
