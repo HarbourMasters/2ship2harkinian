@@ -12,12 +12,18 @@ extern Input* sPlayerControlInput;
 #define CVAR_SPEED_MODIFIER_TOGGLE_NAME "gCheats.SpeedModifier.Toggle"
 #define CVAR_SPEED_MODIFIER_VALUE_NAME "gCheats.SpeedModifier.Value"
 #define CVAR_SPEED_MODIFIER_BTN_NAME "gCheats.SpeedModifier.Btn"
+#define CVAR_SPEED_MODIFIER_DOESNT_CHANGE_JUMP_NAME "gCheats.SpeedModifier.DoesntChangeJump"
 #define CVAR_SPEED_MODIFIER_MODE CVarGetInteger(CVAR_SPEED_MODIFIER_MODE_NAME, 0)
 #define CVAR_SPEED_MODIFIER_TOGGLE CVarGetInteger(CVAR_SPEED_MODIFIER_TOGGLE_NAME, 0)
 #define CVAR_SPEED_MODIFIER_VALUE CVarGetFloat(CVAR_SPEED_MODIFIER_VALUE_NAME, 1.0f)
 #define CVAR_SPEED_MODIFIER_BTN CVarGetInteger(CVAR_SPEED_MODIFIER_BTN_NAME, BTN_CUSTOM_MODIFIER1)
+#define CVAR_SPEED_MODIFIER_DOESNT_CHANGE_JUMP CVarGetInteger(CVAR_SPEED_MODIFIER_DOESNT_CHANGE_JUMP_NAME, 0)
 
 bool btnHeldOrToggled = false;
+
+static bool IsSpeedModifierActive() {
+    return CVAR_SPEED_MODIFIER_MODE == 1 || btnHeldOrToggled;
+}
 
 void RegisterLinkSpeedModifier() {
     // Reset in case they disabled while toggled
@@ -26,7 +32,7 @@ void RegisterLinkSpeedModifier() {
     COND_VB_SHOULD(VB_SPEED_MODIFIER_WALK, CVAR_SPEED_MODIFIER_MODE, {
         f32* speedTarget = va_arg(args, f32*);
 
-        if (CVAR_SPEED_MODIFIER_MODE == 1 || btnHeldOrToggled) {
+        if (IsSpeedModifierActive()) {
             *speedTarget *= CVAR_SPEED_MODIFIER_VALUE;
         }
     });
@@ -44,7 +50,7 @@ void RegisterLinkSpeedModifier() {
             return;
         }
 
-        if (CVAR_SPEED_MODIFIER_MODE == 1 || btnHeldOrToggled) {
+        if (IsSpeedModifierActive()) {
             swimMod *= CVAR_SPEED_MODIFIER_VALUE;
             *maxSpeed *= swimMod;
             Math_AsymStepToF(speed, *speedTarget * 0.8f * swimMod, *incrStep, (fabsf(*speed) * 0.02f) + 0.05f);
@@ -52,18 +58,26 @@ void RegisterLinkSpeedModifier() {
         }
     });
 
+    COND_VB_SHOULD(VB_SPEED_MODIFIER_JUMP, CVAR_SPEED_MODIFIER_MODE && CVAR_SPEED_MODIFIER_DOESNT_CHANGE_JUMP, {
+        f32* speedXZ = va_arg(args, f32*);
+
+        if (IsSpeedModifierActive() && CVAR_SPEED_MODIFIER_VALUE != 0.0f) {
+            *speedXZ /= CVAR_SPEED_MODIFIER_VALUE;
+        }
+    });
+
     COND_HOOK(OnPassPlayerInputs, CVAR_SPEED_MODIFIER_MODE >= 2, [](Input* input) {
+        const s32 modMask = CVAR_SPEED_MODIFIER_BTN;
+
+        if (modMask == 0) {
+            btnHeldOrToggled = false;
+            return;
+        }
+
         if (CVAR_SPEED_MODIFIER_MODE == 2) {
-            if (CHECK_BTN_ALL(input->cur.button, CVAR_SPEED_MODIFIER_BTN)) {
-                btnHeldOrToggled = true;
-            } else {
-                btnHeldOrToggled = false;
-            }
-        } else {
-            if (CHECK_BTN_ALL(input->cur.button, CVAR_SPEED_MODIFIER_BTN) &&
-                CHECK_BTN_ANY(input->press.button, CVAR_SPEED_MODIFIER_BTN)) {
-                btnHeldOrToggled = !btnHeldOrToggled;
-            }
+            btnHeldOrToggled = CHECK_BTN_ANY(input->cur.button, modMask);
+        } else if (CHECK_BTN_ANY(input->press.button, modMask)) {
+            btnHeldOrToggled = !btnHeldOrToggled;
         }
     });
 }

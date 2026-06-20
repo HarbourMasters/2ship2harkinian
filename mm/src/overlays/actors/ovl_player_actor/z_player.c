@@ -6319,6 +6319,9 @@ void func_80834D50(PlayState* play, Player* this, PlayerAnimationHeader* anim, f
     if (anim != NULL) {
         Player_Anim_PlayOnceAdjusted(play, this, anim);
     }
+
+    GameInteractor_Should(VB_SPEED_MODIFIER_JUMP, true, &this->speedXZ);
+
     func_80834CD0(this, speed, sfxId);
 }
 

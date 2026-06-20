@@ -2198,6 +2198,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - '*f32' (speedXZ)
+    VB_SPEED_MODIFIER_JUMP,
+
+    // #### `result`
+    // ```c
     // this->actor.xzDistToPlayer < 350.0f
     // ```
     // #### `args`
