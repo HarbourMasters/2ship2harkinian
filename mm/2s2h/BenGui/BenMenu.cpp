@@ -1711,7 +1711,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
         .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
     static const std::unordered_map<int32_t, const char*> bossHealthOptions = {
-        { 1, "1.0x (Default)" }, { 2, "1.25x" }, { 3, "1.50x" }, { 4, "1.75x" }, { 5, "2.0x" }
+        { 1, "1x (Default)" }, { 2, "1.25x" }, { 3, "1.50x" }, { 4, "1.75x" }, { 5, "2x" }
     };
     AddWidget(path, "Boss Health Multiplier", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.BossHealthMultiplier")
