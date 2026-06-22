@@ -61,6 +61,10 @@ static const std::vector<const char*> alwaysWinDoggyraceOptions = {
     "Always",                    // ALWAYS_WIN_DOGGY_RACE_ALWAYS
 };
 
+static const std::unordered_map<int32_t, const char*> bossHealthOptions = {
+    { 0, "1x (Default)" }, { 1, "1.25x" }, { 2, "1.50x" }, { 3, "1.75x" }, { 4, "2x" }
+};
+
 static const std::vector<const char*> cremiaRewardOptions = {
     "Vanilla", // CREMIA_REWARD_RANDOM
     "Hug",     // CREMIA_REWARD_ALWAYS_HUG
@@ -1710,9 +1714,6 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
         .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
-    static const std::unordered_map<int32_t, const char*> bossHealthOptions = {
-        { 1, "1x (Default)" }, { 2, "1.25x" }, { 3, "1.50x" }, { 4, "1.75x" }, { 5, "2x" }
-    };
     AddWidget(path, "Boss Health Multiplier", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.BossHealthMultiplier")
         .Options(ComboboxOptions()
