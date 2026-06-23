@@ -18263,7 +18263,8 @@ void Player_Action_68(Player* this, PlayState* play) {
                             entry++;
                         }
 
-                        if (i < ARRAY_COUNT(D_8085D798)) {
+                        if (GameInteractor_Should(VB_PLAY_BOTTLE_CATCH_TEXT, i < ARRAY_COUNT(D_8085D798), this,
+                                                  interactRangeActor, entry->itemId, entry->itemAction)) {
                             this->av1.actionVar1 = i + 1;
                             this->av2.actionVar2 = 0;
                             this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
@@ -18292,7 +18293,8 @@ void Player_Action_68(Player* this, PlayState* play) {
                                 entry++;
                             }
 
-                            if (i < ARRAY_COUNT(D_8085D798)) {
+                            if (GameInteractor_Should(VB_PLAY_BOTTLE_CATCH_TEXT, i < ARRAY_COUNT(D_8085D798), this,
+                                                      interactRangeActor, entry->itemId, entry->itemAction)) {
                                 this->av1.actionVar1 = i + 1;
                                 this->av2.actionVar2 = 0;
                                 this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;

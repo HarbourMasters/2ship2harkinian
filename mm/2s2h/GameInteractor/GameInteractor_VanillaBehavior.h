@@ -1690,6 +1690,17 @@ typedef enum {
     // - `*PreRender` (prerender)
     VB_PICTO_TAKE,
 
+    // #### `result`
+    // ```c
+    // i < ARRAY_COUNT(D_8085D798)
+    // ```
+    // #### `args`
+    // - `*Player`
+    // - `*Actor` (interactRangeActor)
+    // - `ItemId`
+    // - `PlayerItemAction`
+    VB_PLAY_BOTTLE_CATCH_TEXT,
+
     // !Play_InCsMode(play) && (play->roomCtx.curRoom.num == 2)
     // ```
     // #### `args`
