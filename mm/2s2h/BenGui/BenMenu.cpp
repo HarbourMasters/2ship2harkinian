@@ -1602,6 +1602,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Faster Rupee Accumulator", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterRupeeAccumulator")
         .Options(CheckboxOptions().Tooltip("Causes your Wallet to fill and empty faster when you gain or lose money."));
+    AddWidget(path, "Faster Bottles", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterBottles")
+        .Options(CheckboxOptions().Tooltip("Speeds up animation when using a bottle item."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };

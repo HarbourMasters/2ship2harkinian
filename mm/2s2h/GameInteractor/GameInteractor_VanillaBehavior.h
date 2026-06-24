@@ -2380,6 +2380,14 @@ typedef enum {
     // true
     // ```
     // #### `args`
+    // - `Player*`
+    VB_USE_BOTTLE_ITEM,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
     // - `*Camera`
     VB_USE_CUSTOM_CAMERA,
 
