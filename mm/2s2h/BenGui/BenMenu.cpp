@@ -1693,6 +1693,10 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Restorations.BonkCollision")
         .Options(
             CheckboxOptions().Tooltip("Corrects rolls to allow bonking trees near the end of the roll, as in OoT."));
+    AddWidget(path, "Soil Patch Burrowed Bugs", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Restorations.SoilPatch")
+        .Options(CheckboxOptions().Tooltip("Removes the cutscene lock when bugs burrow into a Skulltula soil patch, "
+                                           "allowing the player to re-bottle them, as in OoT."));
     AddWidget(path, "Simulated Input Lag", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_SIMULATED_INPUT_LAG)
         .Options(IntSliderOptions()
