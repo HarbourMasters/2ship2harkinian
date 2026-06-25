@@ -161,7 +161,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_GLITCHLESS) {
                     Rando::Logic::ApplyGlitchlessLogicToSaveContext(checkPool, itemPool);
                 } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_VOYAGE_3) {
-                    Rando::Logic::ApplyDeckscrubberLogicToSaveContext(checkPool, itemPool);
+                    Rando::Logic::ApplyVoyage3LogicToSaveContext(checkPool, itemPool);
                 } else {
                     throw std::runtime_error("Logic option not implemented: " +
                                              std::to_string(RANDO_SAVE_OPTIONS[RO_LOGIC]));
