@@ -383,7 +383,9 @@ static void DrawLogicConditionsTab() {
     if (UIWidgets::CVarCombobox("Logic", Rando::StaticData::Options[RO_LOGIC].cvar, &logicOptions)) {
         ClearIncompatibleSetting();
     }
+    // Note: Voyage 3 logic is a placeholder used for conditionals to automatically set presets.
     UIWidgets::Tooltip(
+        "Voyage 3 - Same as Glitchless logic.\n\n"
         "Glitchless - The items are shuffled in a way that guarantees the seed is beatable without "
         "glitches. With this setting, \"Save Game on Moon Crash\" is automatically enabled.\n\n"
         "No Logic - The items are shuffled completely randomly, this can result in unbeatable seeds, and "
