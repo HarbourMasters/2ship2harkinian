@@ -1400,7 +1400,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Easy Mask Equip", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.EasyMaskEquip")
         .Options(CheckboxOptions().Tooltip("In the pause menu, press A on any owned mask to put it on or take it off "
-                                           "without assigning it to a C-button. Mask-specific restrictions still "
+                                           "without assigning it to a button. Mask-specific restrictions still "
                                            "apply."));
     AddWidget(path, "Fierce Deity's Mask Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.FierceDeitysAnywhere")

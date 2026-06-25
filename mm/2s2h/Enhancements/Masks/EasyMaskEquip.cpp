@@ -1,14 +1,9 @@
-#include <libultraship/bridge/consolevariablebridge.h>
-#include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
 
 extern "C" {
 #include "assets/interface/parameter_static/parameter_static.h"
 #include "src/overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
-#include "variables.h"
-#include "z64interface.h"
-#include "z64player.h"
 
 void Player_UseItem(PlayState* play, Player* player, ItemId item);
 void func_8082E1F0(Player* player, u16 sfxId);
@@ -52,6 +47,17 @@ struct PendingActionState {
     PlayerUnkAA5 savedUnkAA5 = PLAYER_UNKAA5_0;
     PlayerMask savedEquippedMask = PLAYER_MASK_NONE;
     bool hasSavedEquippedMask = false;
+};
+
+struct EasyMaskEquipStateSnapshot {
+    PendingActionState pendingAction = {};
+    VisualMaskOverride visualMaskOverride = {};
+    ButtonGhostState buttonGhost = {};
+    PlayerItemAction playerItemAction = PLAYER_IA_NONE;
+    PlayerUnkAA5 playerUnkAA5 = PLAYER_UNKAA5_0;
+    PlayerMask equippedMask = PLAYER_MASK_NONE;
+    bool hasPendingAction = false;
+    bool hasPlayer = false;
 };
 
 static bool sShowingAButtonPrompt = false;
@@ -99,6 +105,35 @@ static bool HasPendingAction() {
     return sPendingAction.mode != PENDING_NONE;
 }
 
+static EasyMaskEquipStateSnapshot CaptureEasyMaskEquipState(Player* player) {
+    EasyMaskEquipStateSnapshot snapshot = {};
+
+    snapshot.pendingAction = sPendingAction;
+    snapshot.visualMaskOverride = sVisualMaskOverride;
+    snapshot.buttonGhost = sButtonGhost;
+    snapshot.equippedMask = static_cast<PlayerMask>(gSaveContext.save.equippedMask);
+    snapshot.hasPendingAction = HasPendingAction();
+    snapshot.hasPlayer = player != nullptr;
+    if (snapshot.hasPlayer) {
+        snapshot.playerItemAction = static_cast<PlayerItemAction>(player->itemAction);
+        snapshot.playerUnkAA5 = static_cast<PlayerUnkAA5>(player->unk_AA5);
+    }
+
+    return snapshot;
+}
+
+static void RestoreEasyMaskEquipState(Player* player, const EasyMaskEquipStateSnapshot& snapshot) {
+    sPendingAction = snapshot.pendingAction;
+    sVisualMaskOverride = snapshot.visualMaskOverride;
+    sButtonGhost = snapshot.buttonGhost;
+    gSaveContext.save.equippedMask = snapshot.equippedMask;
+
+    if (snapshot.hasPlayer && (player != nullptr)) {
+        player->itemAction = snapshot.playerItemAction;
+        player->unk_AA5 = snapshot.playerUnkAA5;
+    }
+}
+
 static void ClearPendingActionOnly() {
     sPendingAction.mode = PENDING_NONE;
     sPendingAction.selectedMask = PLAYER_MASK_NONE;
@@ -113,6 +148,14 @@ static void ClearPendingActionOnly() {
 static void ResetPendingAction() {
     ClearPendingActionOnly();
     ClearVisualMaskOverride();
+}
+
+static void ResetOrRestorePreviousPendingAction(Player* player, const EasyMaskEquipStateSnapshot& previousState) {
+    if (previousState.hasPendingAction) {
+        RestoreEasyMaskEquipState(player, previousState);
+    } else {
+        ResetPendingAction();
+    }
 }
 
 static void SavePendingSnapshot(Player* player) {
@@ -181,15 +224,58 @@ static bool PlayerActionReachedTarget(Player* player) {
     return player->currentMask == sPendingAction.targetMask;
 }
 
+static bool PlayerCanProcessFormChangingMaskAction(Player* player) {
+    if (player == nullptr) {
+        return false;
+    }
+
+    // Mirrors Player_ActionHandler_13 so EME does not keep pending state for mask actions vanilla cancels.
+    return (player->actor.bgCheckFlags & (BGCHECKFLAG_GROUND | BGCHECKFLAG_GROUND_TOUCH)) ||
+           (player->stateFlags1 & (PLAYER_STATE1_8000000 | PLAYER_STATE1_800000)) ||
+           (player->stateFlags3 & PLAYER_STATE3_8) || (player->skelAnime.movementFlags & ANIM_FLAG_ENABLE_MOVEMENT);
+}
+
+static bool QueueFormChangingMaskAction(Player* player, ItemId item, PlayerMask selectedMask,
+                                        PlayerItemAction itemAction, PlayerMask targetMask, PendingMode pendingMode,
+                                        bool playMenuSfx = true) {
+    if (!PlayerCanProcessFormChangingMaskAction(player)) {
+        Audio_PlaySfx(NA_SE_SY_ERROR);
+        return false;
+    }
+
+    SavePendingSnapshot(player);
+
+    sPendingAction.mode = pendingMode;
+    sPendingAction.selectedMask = selectedMask;
+    sPendingAction.targetMask = targetMask;
+    sPendingAction.itemAction = itemAction;
+
+    Player_UseItem(gPlayState, player, item);
+
+    if ((player->itemAction != itemAction) || (player->unk_AA5 != PLAYER_UNKAA5_5) ||
+        ((sPendingAction.savedItemAction == player->itemAction) && (sPendingAction.savedUnkAA5 == player->unk_AA5))) {
+        player->itemAction = sPendingAction.savedItemAction;
+        player->unk_AA5 = sPendingAction.savedUnkAA5;
+        if (sPendingAction.hasSavedEquippedMask) {
+            gSaveContext.save.equippedMask = sPendingAction.savedEquippedMask;
+        }
+        ClearPendingActionOnly();
+        return false;
+    }
+
+    SetVisualMaskOverride(targetMask);
+    if (playMenuSfx) {
+        Audio_PlaySfx(NA_SE_SY_DECIDE);
+    }
+    return true;
+}
+
 static bool PlayerCanStartFollowUpAction(Player* player) {
     return (player != nullptr) && (gPlayState->pauseCtx.state == PAUSE_STATE_OFF) &&
            (player->transformation == PLAYER_FORM_HUMAN) && (player->currentMask == PLAYER_MASK_NONE) &&
            (player->unk_AA5 == PLAYER_UNKAA5_0) &&
            !(player->stateFlags1 & (PLAYER_STATE1_2 | PLAYER_STATE1_100 | PLAYER_STATE1_20000000));
 }
-
-static bool QueuePlayerAction(Player* player, ItemId item, PlayerMask selectedMask, PlayerItemAction itemAction,
-                              PlayerMask targetMask, PendingMode pendingMode, bool playMenuSfx = true);
 
 static PlayerMask GetMaskFromItem(Player* player, ItemId item) {
     PlayerItemAction itemAction = Player_ItemToItemAction(player, item);
@@ -278,7 +364,7 @@ static void RestoreAButtonPrompt() {
     sShowingAButtonPrompt = false;
 }
 
-static void OnKaleidoUpdate(PauseContext* pauseCtx) {
+static void UpdateMaskPageAButtonPrompt(PauseContext* pauseCtx) {
     if (!CursorIsOnMask(pauseCtx)) {
         RestoreAButtonPrompt();
         return;
@@ -354,9 +440,7 @@ static void DrawActiveMaskOutline(PauseContext* pauseCtx, s16 slot) {
     CLOSE_DISPS(gfxCtx);
 }
 
-static void OnBeforeKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex) {
-    (void)pauseIndex;
-
+static void DrawActiveMaskSelection(PauseContext* pauseCtx, u16) {
     if ((gPlayState == nullptr) || (pauseCtx == nullptr) || (pauseCtx->state != PAUSE_STATE_MAIN)) {
         return;
     }
@@ -380,7 +464,7 @@ static void RestoreButtonGhost() {
     sButtonGhost.active = false;
 }
 
-static void OnShouldPlayerUpdate(Actor* actor, bool* should) {
+static void MaintainMaskButtonGhostBeforePlayerUpdate(Actor* actor, bool* should) {
     RestoreButtonGhost();
 
     if (!*should || (actor == nullptr) || (sButtonGhost.mask == PLAYER_MASK_NONE)) {
@@ -398,7 +482,7 @@ static void OnShouldPlayerUpdate(Actor* actor, bool* should) {
     sButtonGhost.active = true;
 }
 
-static void OnPlayerUpdate(Actor* actor) {
+static void ProcessPendingMaskEquip(Actor* actor) {
     Player* player = GET_PLAYER(gPlayState);
 
     RestoreButtonGhost();
@@ -438,8 +522,8 @@ static void OnPlayerUpdate(Actor* actor) {
                 PlayerItemAction giantAction = Player_ItemToItemAction(player, giantItem);
 
                 if (!ShouldAllowGiantMask(player, PLAYER_MASK_GIANT) ||
-                    !QueuePlayerAction(player, giantItem, PLAYER_MASK_GIANT, giantAction, PLAYER_MASK_GIANT,
-                                       PENDING_PLAYER_ACTION, false)) {
+                    !QueueFormChangingMaskAction(player, giantItem, PLAYER_MASK_GIANT, giantAction, PLAYER_MASK_GIANT,
+                                                 PENDING_PLAYER_ACTION, false)) {
                     ResetPendingAction();
                 }
             }
@@ -469,9 +553,7 @@ static void OnPlayerUpdate(Actor* actor) {
     }
 }
 
-static void OnGetItemOnButton(bool* should, va_list args) {
-    (void)should;
-
+static void HideMaskButtonGhostFromItemLookup(bool*, va_list args) {
     EquipSlot slot = static_cast<EquipSlot>(va_arg(args, int));
     ItemId* item = va_arg(args, ItemId*);
 
@@ -480,7 +562,7 @@ static void OnGetItemOnButton(bool* should, va_list args) {
     }
 }
 
-static void OnDrawItemEquippedOutline(bool* should, va_list args) {
+static void SuppressDefaultActiveMaskOutline(bool* should, va_list args) {
     if ((gPlayState == nullptr) || !*should) {
         return;
     }
@@ -555,36 +637,7 @@ static bool QueueNoMask(Player* player, PlayerMask selectedMask) {
         return false;
     }
 
-    return QueuePlayerAction(player, item, selectedMask, itemAction, PLAYER_MASK_NONE, PENDING_PLAYER_ACTION);
-}
-
-static bool QueuePlayerAction(Player* player, ItemId item, PlayerMask selectedMask, PlayerItemAction itemAction,
-                              PlayerMask targetMask, PendingMode pendingMode, bool playMenuSfx) {
-    SavePendingSnapshot(player);
-
-    sPendingAction.mode = pendingMode;
-    sPendingAction.selectedMask = selectedMask;
-    sPendingAction.targetMask = targetMask;
-    sPendingAction.itemAction = itemAction;
-
-    Player_UseItem(gPlayState, player, item);
-
-    if ((player->itemAction != itemAction) || (player->unk_AA5 != PLAYER_UNKAA5_5) ||
-        ((sPendingAction.savedItemAction == player->itemAction) && (sPendingAction.savedUnkAA5 == player->unk_AA5))) {
-        player->itemAction = sPendingAction.savedItemAction;
-        player->unk_AA5 = sPendingAction.savedUnkAA5;
-        if (sPendingAction.hasSavedEquippedMask) {
-            gSaveContext.save.equippedMask = sPendingAction.savedEquippedMask;
-        }
-        ClearPendingActionOnly();
-        return false;
-    }
-
-    SetVisualMaskOverride(targetMask);
-    if (playMenuSfx) {
-        Audio_PlaySfx(NA_SE_SY_DECIDE);
-    }
-    return true;
+    return QueueFormChangingMaskAction(player, item, selectedMask, itemAction, PLAYER_MASK_NONE, PENDING_PLAYER_ACTION);
 }
 
 static bool QueueReturnToHumanThenRegular(Player* player, ItemId item, PlayerMask mask, PlayerItemAction itemAction) {
@@ -594,7 +647,8 @@ static bool QueueReturnToHumanThenRegular(Player* player, ItemId item, PlayerMas
         return false;
     }
 
-    if (!QueuePlayerAction(player, item, maskToEquip, itemAction, maskToEquip, PENDING_RETURN_TO_HUMAN_THEN_REGULAR)) {
+    if (!QueueFormChangingMaskAction(player, item, maskToEquip, itemAction, maskToEquip,
+                                     PENDING_RETURN_TO_HUMAN_THEN_REGULAR)) {
         return false;
     }
 
@@ -617,8 +671,8 @@ static bool QueueReturnToHumanThenGiant(Player* player) {
         return false;
     }
 
-    return QueuePlayerAction(player, returnItem, PLAYER_MASK_GIANT, returnAction, PLAYER_MASK_GIANT,
-                             PENDING_RETURN_TO_HUMAN_THEN_GIANT);
+    return QueueFormChangingMaskAction(player, returnItem, PLAYER_MASK_GIANT, returnAction, PLAYER_MASK_GIANT,
+                                       PENDING_RETURN_TO_HUMAN_THEN_GIANT);
 }
 
 static bool QueueTransformationMask(Player* player, ItemId item, PlayerMask mask, PlayerItemAction itemAction,
@@ -627,10 +681,10 @@ static bool QueueTransformationMask(Player* player, ItemId item, PlayerMask mask
         return false;
     }
 
-    return QueuePlayerAction(player, item, mask, itemAction, targetMask, PENDING_PLAYER_ACTION);
+    return QueueFormChangingMaskAction(player, item, mask, itemAction, targetMask, PENDING_PLAYER_ACTION);
 }
 
-static void OnKaleidoDisplayItemText(bool* should, va_list args) {
+static void HandleMaskPageSelection(bool* should, va_list args) {
     if (!*should || (gPlayState == nullptr)) {
         return;
     }
@@ -653,18 +707,22 @@ static void OnKaleidoDisplayItemText(bool* should, va_list args) {
 
     *should = false;
 
+    EasyMaskEquipStateSnapshot previousState = CaptureEasyMaskEquipState(player);
+
     if (HasPendingAction()) {
         CancelPendingAction(player);
     }
 
     if ((player->currentMask == PLAYER_MASK_GIANT) && (mask != PLAYER_MASK_GIANT)) {
         Audio_PlaySfx(NA_SE_SY_ERROR);
-        ResetPendingAction();
+        ResetOrRestorePreviousPendingAction(player, previousState);
         return;
     }
 
     if (targetMask == PLAYER_MASK_NONE) {
-        QueueNoMask(player, mask);
+        if (!QueueNoMask(player, mask)) {
+            ResetOrRestorePreviousPendingAction(player, previousState);
+        }
         return;
     }
 
@@ -678,20 +736,20 @@ static void OnKaleidoDisplayItemText(bool* should, va_list args) {
         }
 
         if (!queued) {
-            ResetPendingAction();
+            ResetOrRestorePreviousPendingAction(player, previousState);
         }
         return;
     }
 
     if ((targetMask == PLAYER_MASK_GIANT) && (player->transformation != PLAYER_FORM_HUMAN)) {
         if (!QueueReturnToHumanThenGiant(player)) {
-            ResetPendingAction();
+            ResetOrRestorePreviousPendingAction(player, previousState);
         }
         return;
     }
 
     if (!QueueTransformationMask(player, item, mask, itemAction, targetMask)) {
-        ResetPendingAction();
+        ResetOrRestorePreviousPendingAction(player, previousState);
     }
 }
 
@@ -705,13 +763,13 @@ void RegisterEasyMaskEquip() {
         sButtonGhost.mask = PLAYER_MASK_NONE;
     }
 
-    COND_HOOK(OnKaleidoUpdate, CVAR, OnKaleidoUpdate);
-    COND_ID_HOOK(BeforeKaleidoDrawPage, PAUSE_MASK, CVAR, OnBeforeKaleidoDrawPage);
-    COND_ID_HOOK(ShouldActorUpdate, ACTOR_PLAYER, CVAR, OnShouldPlayerUpdate);
-    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVAR, OnPlayerUpdate);
-    COND_VB_SHOULD(VB_DRAW_ITEM_EQUIPPED_OUTLINE, CVAR, OnDrawItemEquippedOutline(should, args));
-    COND_VB_SHOULD(VB_GET_ITEM_ON_BUTTON, CVAR, OnGetItemOnButton(should, args));
-    COND_VB_SHOULD(VB_KALEIDO_DISPLAY_ITEM_TEXT, CVAR, OnKaleidoDisplayItemText(should, args));
+    COND_HOOK(OnKaleidoUpdate, CVAR, UpdateMaskPageAButtonPrompt);
+    COND_ID_HOOK(BeforeKaleidoDrawPage, PAUSE_MASK, CVAR, DrawActiveMaskSelection);
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_PLAYER, CVAR, MaintainMaskButtonGhostBeforePlayerUpdate);
+    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVAR, ProcessPendingMaskEquip);
+    COND_VB_SHOULD(VB_DRAW_ITEM_EQUIPPED_OUTLINE, CVAR, SuppressDefaultActiveMaskOutline(should, args));
+    COND_VB_SHOULD(VB_GET_ITEM_ON_BUTTON, CVAR, HideMaskButtonGhostFromItemLookup(should, args));
+    COND_VB_SHOULD(VB_KALEIDO_DISPLAY_ITEM_TEXT, CVAR, HandleMaskPageSelection(should, args));
 }
 
 static RegisterShipInitFunc initFunc(RegisterEasyMaskEquip, { CVAR_NAME, CVAR_PERSISTENT_BUNNY_HOOD_NAME });
