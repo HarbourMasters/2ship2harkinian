@@ -8,6 +8,8 @@
 #include "2s2h/BenGui/BenGui.hpp"
 #include "2s2h/Rando/Logic/Logic.h"
 #include "2s2h/ShipInit.hpp"
+#include "PresetManager/PresetManager.h"
+#include "PresetManager/PresetDescriptions.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Sth/z_en_sth.h"
@@ -1148,10 +1150,30 @@ static void DrawHintsTab() {
     ImGui::EndChild();
 }
 
+void DrawRacesTab() {
+    ImGui::BeginChild("randoRacesColumn1", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
+    ImGui::Text("Apply the Voyage 3 Preset and then create your File.");
+    ImGui::PushID("Voyage3Set");
+    if (UIWidgets::Button("Apply Preset", { .color = COLOR_GREEN })) {
+        PresetManager_ApplyPreset(voyage3J);
+    }
+    DrawVoyage3Description();
+    ImGui::PopID();
+    ImGui::EndChild();
+}
+
 void Rando::RegisterMenu() {
     mBenMenu->AddMenuEntry("Rando", "gSettings.Menu.RandoSidebarSection");
+
+     // New Race Menu
+    mBenMenu->AddSidebarEntry("Rando", "Races", 1);
+    WidgetPath path = { "Rando", "Races", SECTION_COLUMN_1 };
+    path.sidebarName = "Races";
+    mBenMenu->AddWidget(path, "Races", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawRacesTab(); });
+
+    // Existing Rando Menu
     mBenMenu->AddSidebarEntry("Rando", "General", 1);
-    WidgetPath path = { "Rando", "General", SECTION_COLUMN_1 };
+    path = { "Rando", "General", SECTION_COLUMN_1 };
     mBenMenu->AddWidget(path, "General", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawGeneralTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Logic/Conditions", 1);
     path.sidebarName = "Logic/Conditions";
