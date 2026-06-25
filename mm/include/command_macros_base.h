@@ -1,7 +1,7 @@
 #ifndef _COMMAND_MACROS_BASE_H_
 #define _COMMAND_MACROS_BASE_H_
 
-#include <endianness.h>
+#include <ship/utils/binarytools/endianness.h>
 
 /**
  * Command Base macros intended for use in designing of more specific command macros

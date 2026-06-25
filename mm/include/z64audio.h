@@ -1,7 +1,7 @@
 #ifndef Z64AUDIO_H
 #define Z64AUDIO_H
 
-#include <endianness.h>
+#include <ship/utils/binarytools/endianness.h>
 
 #include "PR/ultratypes.h"
 #include "PR/os_voice.h"
