@@ -317,7 +317,7 @@ static void DrawGeneralTab() {
         UIWidgets::PopStyleSlider();
 
         UIWidgets::CVarCheckbox("Generate Spoiler File", "gRando.GenerateSpoiler",
-                                CheckboxOptions().DefaultValue(true));
+                                CheckboxOptions().DefaultValue(false));
     }
 
     float mainWidth = 300.0f; // Arbitrary width for progress bars
