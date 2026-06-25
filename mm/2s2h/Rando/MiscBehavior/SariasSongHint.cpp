@@ -24,8 +24,8 @@ static int playedSariasSongState = 0;
 // This removes already hinted items based on enabled hints: Hookshot, Deku Mask, Goron Mask, Zora Mask,
 // Song of Soaring. This also adds the arrows, Elegy, and First Magic.
 std::set<RandoItemId> priorityItems = {
-    RI_BOW,    RI_MASK_BLAST,     RI_BOMB_BAG_20,    RI_SINGLE_MAGIC,    RI_ARROW_FIRE,   RI_ARROW_ICE,
-    RI_ARROW_LIGHT, RI_SONG_SONATA, RI_SONG_LULLABY, RI_SONG_NOVA, RI_SONG_ELEGY, RI_MASK_FIERCE_DEITY,
+    RI_BOW,         RI_MASK_BLAST,  RI_BOMB_BAG_20,  RI_SINGLE_MAGIC,    RI_ARROW_FIRE, RI_ARROW_ICE,
+    RI_ARROW_LIGHT, RI_SONG_SONATA, RI_SONG_LULLABY, RI_SONG_NOVA,       RI_SONG_ELEGY, RI_MASK_FIERCE_DEITY,
 };
 
 RandoCheckId GetProgressiveCheckInLogic() {
@@ -60,6 +60,8 @@ RandoCheckId GetProgressiveCheckInLogic() {
 
     // First, we try to return a priority check if one is available, in order of the priority items list.
     // If no priority checks are available, we return a random major/mask check.
+	
+	// Note: the priorityChecks variable is not set in the order of priorityItems. 
     return priorityChecks.empty()
                ? (otherChecks.empty() ? RC_UNKNOWN : otherChecks[Ship_Random(0, otherChecks.size() - 1)])
                : priorityChecks[0];
