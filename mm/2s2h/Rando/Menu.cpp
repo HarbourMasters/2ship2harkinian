@@ -17,6 +17,7 @@ extern "C" {
 
 // TODO: This block should come from elsewhere, tied to data in Rando::StaticData::Options
 std::unordered_map<int32_t, const char*> logicOptions = {
+    { RO_LOGIC_VOYAGE_3, "Voyage 3" },
     { RO_LOGIC_GLITCHLESS, "Glitchless" },
     { RO_LOGIC_NO_LOGIC, "No Logic" },
     { RO_LOGIC_NEARLY_NO_LOGIC, "Nearly No Logic" },
