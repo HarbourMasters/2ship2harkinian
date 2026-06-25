@@ -13,12 +13,12 @@ std::vector<std::pair<std::string, std::string>> voyage3Reqs = {
 };
 
 std::vector<std::string> voyage3Shuffles = {
-    "Shuffle Songs", "Shuffle Stray Fairies", "Shuffle Cows", "Shuffle Shops", "Shuffle Boss Remains", "Shuffle Tingle Maps",
+    "Shuffle Boss Remains", "Shuffle Cows", "Shuffle Shops", "Shuffle Songs", "Shuffle Stray Fairies", "Shuffle Tingle Maps",
 };
 
 std::vector<std::string> voyage3Starting = {
-    "Full Wallets",    "Maps and Compasses", "Kokiri Sword", "Hero's Shield",
-    "Ocarina of Time", "Song of Time",       "Bunny Hood", "Epona's Song",
+    "Bunny Hood", "Epona's Song", "Full Wallets", "Hero's Shield", 
+    "Maps and Compasses", "Kokiri Sword", "Ocarina of Time", "Song of Time",        
 };
 
 std::vector<std::pair<std::string, std::string>> voyage3Hints = {
@@ -40,7 +40,7 @@ std::vector<std::pair<std::string, std::string>> voyage3Hints = {
 void DrawVoyage3Description() {
     ImGui::SeparatorText("Voyage 3 Settings");
     ImGui::TextColored(TEXT_COLOR(ORANGE), "Requirements");
-    if (ImGui::BeginTable("Voyage3Req", 2)) {
+    if (ImGui::BeginTable("Voyage3SeedSettings", 2)) {
         for (auto& [key, value] : voyage3Reqs) {
             ImGui::TableNextColumn();
             ImGui::TextColored(TEXT_COLOR(GREEN), key.c_str());
@@ -53,13 +53,21 @@ void DrawVoyage3Description() {
     if (ImGui::BeginTable("Voyage3Req", 2)) {
         ImGui::TableNextColumn();
         ImGui::TextColored(TEXT_COLOR(ORANGE), "Included Shuffles");
-        for (auto& shuffle : voyage3Shuffles) {
-            ImGui::Text(shuffle.c_str());
+         if (ImGui::BeginTable("Voyage3Shuffles", 2)) {
+            for (auto& shuffle : voyage3Shuffles) {
+                ImGui::TableNextColumn();
+                ImGui::Text(shuffle.c_str());
+            }
+            ImGui::EndTable();
         }
         ImGui::TableNextColumn();
         ImGui::TextColored(TEXT_COLOR(ORANGE), "Starting Items");
-        for (auto& item : voyage3Starting) {
-            ImGui::Text(item.c_str());
+        if (ImGui::BeginTable("Voyage3Starting", 2)) {
+            for (auto& item : voyage3Starting) {
+                ImGui::TableNextColumn();
+                ImGui::Text(item.c_str());
+            }
+            ImGui::EndTable();
         }
         ImGui::EndTable();
     }
