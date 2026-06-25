@@ -14,9 +14,18 @@ extern s16 sLastPlayedSong;
 
 static int playedSariasSongState = 0;
 
+// Original Code from 2S2H dev, 
+// std::set<RandoItemId> priorityItems = {
+//     RI_BOW,       RI_HOOKSHOT,          RI_MASK_BLAST,  RI_BOMB_BAG_20,  RI_MASK_DEKU, RI_MASK_GORON,
+//     RI_MASK_ZORA, RI_MASK_FIERCE_DEITY, RI_SONG_SONATA, RI_SONG_LULLABY, RI_SONG_NOVA, RI_SONG_SOARING,
+// };
+
+// Modified Code. This is to make Saria's a more useful song in Voyage 3.
+// This removes already hinted items based on enabled hints: Hookshot, Deku Mask, Goron Mask, Zora Mask,
+// Song of Soaring. This also adds the arrows, Elegy, and First Magic.
 std::set<RandoItemId> priorityItems = {
-    RI_BOW,       RI_HOOKSHOT,          RI_MASK_BLAST,  RI_BOMB_BAG_20,  RI_MASK_DEKU, RI_MASK_GORON,
-    RI_MASK_ZORA, RI_MASK_FIERCE_DEITY, RI_SONG_SONATA, RI_SONG_LULLABY, RI_SONG_NOVA, RI_SONG_SOARING,
+    RI_BOW,    RI_MASK_BLAST,     RI_BOMB_BAG_20,    RI_SINGLE_MAGIC,    RI_ARROW_FIRE,   RI_ARROW_ICE,
+    RI_ARROW_LIGHT, RI_SONG_SONATA, RI_SONG_LULLABY, RI_SONG_NOVA, RI_SONG_ELEGY, RI_MASK_FIERCE_DEITY,
 };
 
 RandoCheckId GetProgressiveCheckInLogic() {
