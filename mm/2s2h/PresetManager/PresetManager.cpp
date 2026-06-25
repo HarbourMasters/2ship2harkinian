@@ -270,7 +270,7 @@ nlohmann::json curatedPresetJ = R"(
 )"_json;
 
 // Addition of Voyage 3 Preset
-nlohmann::json voyage3PresetJ = R"(
+nlohmann::json voyage3J = R"(
 {
     "ClearCVars": [
         "gCheats",
@@ -520,7 +520,7 @@ void PresetManager_RefreshPresets() {
     presets.insert(
         { "Defaults (Everything Off)", { defaultsPresetJ, { "Developer Tools", "Enhancements", "HUD", "Rando" } } });
     presets.insert({ "Curated", { curatedPresetJ, { "Developer Tools", "Enhancements", "HUD" } } });
-    presets.insert({ "Voyage 3: A New World's Bounty", { voyage3PresetJ, { "Developer Tools", "Enhancements", "Rando" } } });
+    presets.insert({ "Voyage 3: A New World's Bounty", { voyage3J, { "Developer Tools", "Enhancements", "Rando" } } });
 
     // ensure the presets folder exists
     if (!std::filesystem::exists(presetsFolderPath)) {
