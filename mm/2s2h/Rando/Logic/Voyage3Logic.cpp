@@ -16,7 +16,7 @@ namespace Rando {
 
 namespace Logic {
 
-void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool) {
+void ApplyVoyage3LogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool) {
     uint64_t tick = GetUnixTimestamp();
 
     SaveContext copiedSaveContext;
