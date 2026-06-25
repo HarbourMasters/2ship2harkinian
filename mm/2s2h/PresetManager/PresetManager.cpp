@@ -290,6 +290,9 @@ nlohmann::json voyage3J = R"(
                 "Mode": 0
             }
         },
+		"gDisplayOverlay": {
+            "Mode": 1
+        },
         "gEnhancements": {
             "Cutscenes": {
                 "HideTitleCards": 1,
