@@ -1565,6 +1565,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Auto Bombers' Code", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dialogue.AutoBombersCode")
         .Options(CheckboxOptions().Tooltip("Automatically fill in the Bombers' code once you've got the notebook."));
+    AddWidget(path, "Skip Bottle Pickup Messages", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Dialogue.SkipBottlePickupMessages")
+        .Options(CheckboxOptions().Tooltip("Skip pickup messages for bottle swipes."));
 
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
@@ -1608,6 +1611,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Faster Rupee Accumulator", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.FasterRupeeAccumulator")
         .Options(CheckboxOptions().Tooltip("Causes your Wallet to fill and empty faster when you gain or lose money."));
+    AddWidget(path, "Faster Bottles", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.FasterBottles")
+        .Options(CheckboxOptions().Tooltip("Speeds up animation when using a bottle item."));
 
     // Fixes
     path = { "Enhancements", "Fixes", SECTION_COLUMN_1 };
