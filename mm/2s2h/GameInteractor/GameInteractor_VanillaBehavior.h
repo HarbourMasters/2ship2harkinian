@@ -328,6 +328,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // (bean->unk_1E4 == 2) || (bean->unk_1E4 == 1)
+    // ```
+    // #### `args`
+    // - `ObjBean*`
+    VB_COUNT_BURROWED_BUGS,
+
+    // #### `result`
+    // ```c
     // gHorsePlayedEponasSong
     // ```
     // #### `args`
