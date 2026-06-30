@@ -205,8 +205,6 @@ void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std
                         IsItemAllowedAtCheck(itemPool[i], checkWithJunk)) {
                         nonJunkItemsThatWeHaveNotTried.push_back({ itemPool[i], i });
                     }
-                    if (nonJunkItemsThatWeHaveTried.find(itemPool[i]) == nonJunkItemsThatWeHaveTried.end() &&
-                        IsItemAllowedAtCheck(itemPool[i], checkWithJunk)) {
                 }
             }
 
