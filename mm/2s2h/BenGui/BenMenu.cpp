@@ -1407,6 +1407,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Masks.3DSMaskEquip")
         .Options(CheckboxOptions().Tooltip("Allows equipping masks while in other forms, returning you to human form "
                                            "with the mask immediately equipped, like in MM3D."));
+    AddWidget(path, "Easy Mask Equip", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Masks.EasyMaskEquip")
+        .Options(CheckboxOptions().Tooltip("In the pause menu, press A on any owned mask to put it on or take it off "
+                                           "without assigning it to a button. Mask-specific restrictions still "
+                                           "apply."));
     AddWidget(path, "Fierce Deity's Mask Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.FierceDeitysAnywhere")
         .Options(CheckboxOptions().Tooltip("Allow using Fierce Deity's mask outside of boss rooms."));
