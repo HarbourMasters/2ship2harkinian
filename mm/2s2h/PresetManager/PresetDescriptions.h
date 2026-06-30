@@ -103,4 +103,14 @@ void DrawVoyage3Description() {
         ImGui::TextWrapped(value.c_str());
         ImGui::Separator();
     }
+
+	//New Addition to add forced junk information
+    ImGui::TextColored(TEXT_COLOR(ORANGE), "Forced Junk");
+
+    for (auto& [key, value] : voyage3ForcedJunk) {
+        ImGui::TextColored(TEXT_COLOR(GREEN), key.c_str());
+        ImGui::TextWrapped(value.c_str());
+        ImGui::Separator();
+    }
+	//---
 }
