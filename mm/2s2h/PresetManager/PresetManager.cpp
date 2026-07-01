@@ -484,7 +484,7 @@ nlohmann::json voyage3J = R"(
                 "StoneTowerTempleFix": 0
             },
 			"TimeMovesWhenYouMove": 0
-		}
+		},
         "gRando": {
             "CSMC": 1,
             "Enabled": 1,
