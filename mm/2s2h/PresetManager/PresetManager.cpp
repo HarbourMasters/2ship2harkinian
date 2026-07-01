@@ -278,7 +278,6 @@ nlohmann::json voyage3J = R"(
         "gDeveloperTools",
         "gEventLog",
         "gFixes",
-        "gModes",
         "gNetwork",
         "gNotifications",
         "gRando"
@@ -350,7 +349,7 @@ nlohmann::json voyage3J = R"(
                 "CompletedHeartContainerAudio": 1,
                 "ConsoleCrashes": 1,
                 "ControlCharacters": 1,
-                "FierceDeityZTargetMovement": 0,
+                "FierceDeityZTargetMovement": 1,
                 "FixTexturesOOB": 1
             },
             "Gameplay": {
@@ -479,6 +478,13 @@ nlohmann::json voyage3J = R"(
         },
         "gForceCursorVisibility": 1,
         "gMatchRefreshRate": 0,
+		"gModes": {
+			"MirroredWorld": {
+                "Mode": 0,
+                "StoneTowerTempleFix": 0
+            },
+			"TimeMovesWhenYouMove": 0
+		}
         "gRando": {
             "CSMC": 1,
             "Enabled": 1,
