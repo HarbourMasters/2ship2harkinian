@@ -51,8 +51,7 @@ void RegisterSkipOnePointCutscenes() {
                     *should = false;
                 }
                 break;
-            case ACTOR_OBJ_BEAN:        // Bean Patch
-            case ACTOR_OBJ_MAKEKINSUTA: // Bean Patch
+            case ACTOR_OBJ_BEAN: // Bean Patch
             case ACTOR_OBJ_SPIDERTENT:
                 actor->csId = -1;
                 *should = false;
