@@ -18,7 +18,8 @@ static void RegisterSoilPatchRestoration() {
             return;
         }
 
-        if (actor->id == ACTOR_OBJ_MAKEKINSUTA) { // Soil patch Skulltula spawner
+        if (actor->id == ACTOR_OBJ_MAKEKINSUTA ||
+            (actor->id == ACTOR_OBJ_BEAN && OBJBEAN_GET_C000(actor) != ENOBJBEAN_GET_C000_0)) {
             actor->csId = -1;
             *should = false;
         }
