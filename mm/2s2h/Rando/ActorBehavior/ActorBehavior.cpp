@@ -60,6 +60,7 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitEnBjtBehavior();
     Rando::ActorBehavior::InitEnBomBowlManBehavior();
     Rando::ActorBehavior::InitEnBoxBehavior();
+    Rando::ActorBehavior::InitEnButteBehavior();
     Rando::ActorBehavior::InitEnCowBehavior();
     Rando::ActorBehavior::InitEnDaiBehavior();
     Rando::ActorBehavior::InitEnDnhBehavior();

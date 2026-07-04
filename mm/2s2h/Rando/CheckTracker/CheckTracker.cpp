@@ -118,6 +118,7 @@ std::set<RandoCheckType> checkTypeFilter;
 std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_UNKNOWN*/ gItemIconBombersNotebookTex,
     /*RCTYPE_BARREL*/ gBarrelTrackerIcon,
+    /*RCTYPE_BUTTERFLY*/ gItemIconDekuStickTex,
     /*RCTYPE_CHEST*/ gChestTrackerIcon,
     /*RCTYPE_COW*/ gItemIconRomaniMaskTex,
     /*RCTYPE_CRATE*/ gCrateTrackerIcon,
