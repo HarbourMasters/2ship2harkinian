@@ -93,6 +93,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_71, true),
             CHECK(RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_72, true),
             CHECK(RC_ENEMY_DROP_GIANT_BEE, CAN_USE_PROJECTILE && CanKillEnemy(ACTOR_EN_BEE)), // In a beehive
+            CHECK(RC_GREAT_BAY_COAST_COW_GROTTO_BEEHIVE, CAN_USE_PROJECTILE),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(GREAT_BAY_COAST, 0),              ENTRANCE(GROTTOS, 27), true),
