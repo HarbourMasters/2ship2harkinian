@@ -331,6 +331,8 @@ nlohmann::json voyage3J = R"(
                 "HyperEnemies": 0,
                 "JinxedTimer": 60,
                 "LowerBankRewardThresholds": 1,
+				"NoHeartDrops": 0,
+                "NoRandomDrops": 0,
                 "PermanentHeartLoss": 0
             },
             "Dpad": {
