@@ -10,6 +10,10 @@ namespace Rando {
 namespace Logic {
 
 void ApplyNearlyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool) {
+    // ProxySaw's item constraint addition.
+    PreplaceConfinedItems(checkPool, itemPool);
+    
+    // ---
     for (size_t i = 0; i < itemPool.size(); i++) {
         std::swap(itemPool[i], itemPool[Ship_Random(0, itemPool.size() - 1)]);
     }

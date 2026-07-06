@@ -278,7 +278,6 @@ nlohmann::json voyage3J = R"(
         "gDeveloperTools",
         "gEventLog",
         "gFixes",
-        "gModes",
         "gNetwork",
         "gNotifications",
         "gRando"
@@ -306,40 +305,57 @@ nlohmann::json voyage3J = R"(
                 "SkipStoryCutscenes": 1,
                 "SkipToFileSelect": 1
             },
+            "Cycle": {
+                "DoNotResetChateau": 0,
+                "DoNotResetConsumables": 0,
+                "DoNotResetRazorSword": 0,
+                "DoNotResetRupees": 0,
+                "DoNotResetTimeSpeed": 0,
+                "SaveOnMoonCrash": 0,
+                "TingleAlwaysInClockTown": 0
+            },
             "Dialogue": {
                 "AutoBombersCode": 1,
                 "FastBankSelection": 1,
                 "FastText": 1
             },
             "DifficultyOptions": {
+                "DamageMultiplier": 0,
                 "DekuGuardSearchBalls": 0,
+                "DeleteFileOnDeath": 0,
                 "DisableTakkuriSteal": 1,
                 "FrogChoirCount": 5,
                 "GibdoTradeSequence": 1,
                 "GoronRace": 1,
                 "HiddenGrottosVisibility": 0,
-                "LowerBankRewardThresholds": 1
+                "HyperEnemies": 0,
+                "JinxedTimer": 60,
+                "LowerBankRewardThresholds": 1,
+                "PermanentHeartLoss": 0
             },
             "Dpad": {
                 "DpadEquips": 1
             },
             "Equipment": {
                 "BetterPictoMessage": 1,
-				"BombArrows": 0,
+                "BombArrows": 0,
                 "ChuDrops": 1,
+                "GreatFairySwordBButton": 0,
                 "ItemUnequip": 0,
                 "MagicArrowEquipSpeed": 1,
                 "TwoHandedSwordSpinAttack": 0
             },
             "Fixes": {
                 "CompletedHeartContainerAudio": 1,
+                "ConsoleCrashes": 1,
                 "ControlCharacters": 1,
-                "FierceDeityZTargetMovement": 1
+                "FierceDeityZTargetMovement": 1,
+                "FixTexturesOOB": 1
             },
             "Gameplay": {
                 "ExtendedProjectileInteractionDistance": 0
             },
-			"Graphics": {
+            "Graphics": {
                 "3DItemDrops": 1,
                 "AuthenticLogo": 1,
                 "DisableBlackBars": 1,
@@ -349,21 +365,22 @@ nlohmann::json voyage3J = R"(
                     "Mode": 1
                 }
             },
-			"Items": {
+            "Items": {
                 "AmmoBuyback": 0,
                 "ColorPictograph": 1,
                 "ExtraPowderKegs": 0,
-				"PictoBoxOnCUp": 0
+                "PictoBoxOnCUp": 0,
+                "RemoveExplosiveLimit": 0
             },
             "Masks": {
                 "3DSMaskEquip": 1,
                 "BlastMaskCooldown": 3.0,
-				"BlastMaskKeg": 1,
+                "BlastMaskKeg": 1,
                 "FastTransformation": 1,
                 "FierceDeitysAnywhere": 1,
                 "GoronRollingFastSpikes": 0,
                 "GoronRollingIgnoresMagic": 0,
-				"NoBlastMaskCooldown": 1,
+                "NoBlastMaskCooldown": 1,
                 "PersistentBunnyHood": {
                     "Enabled": 1
                 }
@@ -375,7 +392,7 @@ nlohmann::json voyage3J = R"(
                 "BoatArcheryInvincible": 1,
                 "BoatArcheryScore": 10,
                 "BombersHideAndSeek": 5,
-				"CremiaHugs": 0,
+                "CremiaHugs": 0,
                 "CuccoShackCuccoCount": 1,
                 "HoneyAndDarlingDay1": 8,
                 "HoneyAndDarlingDay2": 8,
@@ -400,9 +417,9 @@ nlohmann::json voyage3J = R"(
                 "FastFlowerLaunch": 1,
                 "FasterPushAndPull": 1,
                 "FierceDeityPutaway": 1,
-				"InfiniteDekuHopping": 0,
+                "InfiniteDekuHopping": 0,
                 "InstantPutaway": 1,
-				"ManualJump": 0,
+                "ManualJump": 0,
                 "PreventDiveOverWater": 0,
                 "UnderwaterOcarina": 1,
                 "UnsheatheWithoutSlashing": 0
@@ -414,6 +431,7 @@ nlohmann::json voyage3J = R"(
             },
             "Restorations": {
                 "BonkCollision": 0,
+                "ConstantFlipsHops": 0,
                 "JPGrottos": 0,
                 "OoTFasterSwim": 0,
                 "PowerCrouchStab": 2,
@@ -422,14 +440,16 @@ nlohmann::json voyage3J = R"(
                 "WoodfallMountainAppearance": 1
             },
             "Saving": {
+                "Autosave": 0,
                 "FileSlot3": 1,
                 "PauseSave": 1,
-                "PersistentOwlSaves": 0
+                "PersistentOwlSaves": 0,
+                "RememberSaveLocation": 0
             },
             "Shops": {
                 "CuriosityShopRefills": 0
             },
-			"Songs": {
+            "Songs": {
                 "BetterSongOfDoubleTime": 1,
                 "FasterSongPlayback": 1,
                 "SkipSoTCutscenes": 1,
@@ -439,13 +459,13 @@ nlohmann::json voyage3J = R"(
             "Timesavers": {
                 "AlwaysShowShrineFeathers": 0,
                 "AutoBankDeposit": 0,
-				"DampeDiggingSkip": 1,
+                "DampeDiggingSkip": 1,
                 "FastChests": 1,
-				"FasterRupeeAccumulator": 1,
+                "FasterRupeeAccumulator": 1,
                 "FasterSceneTransitions": 1,
                 "GalleryTwofer": 1,
                 "MarineLabHP": 1,
-				"PowderKegCertification": 0,
+                "PowderKegCertification": 0,
                 "SkipBalladOfWindfish": 1,
                 "SwampBoatSpeed": 1
             }
@@ -458,6 +478,13 @@ nlohmann::json voyage3J = R"(
         },
         "gForceCursorVisibility": 1,
         "gMatchRefreshRate": 0,
+		"gModes": {
+			"MirroredWorld": {
+                "Mode": 0,
+                "StoneTowerTempleFix": 0
+            },
+			"TimeMovesWhenYouMove": 0
+		},
         "gRando": {
             "CSMC": 1,
             "Enabled": 1,
@@ -480,6 +507,9 @@ nlohmann::json voyage3J = R"(
                 "RO_HINTS_TRANSFORMATIONS": 1,
                 "RO_MINIMUM_STRAY_FAIRIES": 5,
                 "RO_PLENTIFUL_ITEMS": 0,
+				"RO_PLACEMENT_BOSS_KEYS": 1,
+                "RO_PLACEMENT_SMALL_KEYS": 0,
+                "RO_PLACEMENT_STRAY_FAIRIES": 0,
                 "RO_SHUFFLE_BOSS_REMAINS": 1,
                 "RO_SHUFFLE_COWS": 1,
                 "RO_SHUFFLE_FREESTANDING_ITEMS": 0,

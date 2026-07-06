@@ -63,7 +63,10 @@ RandoCheckId GetProgressiveCheckInLogic() {
 	
 	// Note: the priorityChecks variable is not set in the order of priorityItems. 
     return priorityChecks.empty()
-               ? (otherChecks.empty() ? RC_UNKNOWN : otherChecks[Ship_Random(0, otherChecks.size() - 1)])
+               ? (otherChecks.empty() 
+				  ? RC_UNKNOWN 
+				  : otherChecks[Ship_Random(0, otherChecks.size() - 1)]
+			   )
                : priorityChecks[0];
 }
 
