@@ -591,8 +591,12 @@ void Sched_ThreadEntry(void* arg) {
                 Sched_HandleRDPDone(sched);
                 continue;
         }
-        // Check if it's a message from the IrqMgr
-        switch (((OSScMsg*)msg.data32)->type) {
+        // Check if it's a message from the IrqMgr.
+        // 2S2H [Port] These messages are sent as OSScMsg pointers (OS_MESG_PTR), so read the
+        // 64-bit .ptr union member, not .data32, which truncates the pointer on a 64-bit host.
+        // (We found this by inspection rather than a reproduced crash, but the truncation is
+        // unambiguous; it matches the standard pointer-width adjustment used elsewhere in the port.)
+        switch (((OSScMsg*)msg.ptr)->type) {
             case OS_SC_RETRACE_MSG:
                 Sched_HandleRetrace(sched);
                 continue;

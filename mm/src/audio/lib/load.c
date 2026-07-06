@@ -1932,6 +1932,7 @@ s32 AudioLoad_ProcessSamplePreloads(s32 resetStatus) {
     Sample* sample;
     AudioPreloadReq* preload;
     u32 preloadIndex;
+    OSMesg preloadMsg; // OSMesg is 8 bytes on host; must not receive into a 4-byte u32
     u32 key;
     u32 nChunks;
     s32 pad;
@@ -1939,16 +1940,16 @@ s32 AudioLoad_ProcessSamplePreloads(s32 resetStatus) {
     if (gAudioCtx.preloadSampleStackTop > 0) {
         if (resetStatus != 0) {
             // Clear result queue and preload stack and return.
-            osRecvMesg(&gAudioCtx.preloadSampleQueue, (OSMesg*)&preloadIndex, OS_MESG_NOBLOCK);
+            osRecvMesg(&gAudioCtx.preloadSampleQueue, &preloadMsg, OS_MESG_NOBLOCK);
             gAudioCtx.preloadSampleStackTop = 0;
             return false;
         }
-        if (osRecvMesg(&gAudioCtx.preloadSampleQueue, (OSMesg*)&preloadIndex, OS_MESG_NOBLOCK) == -1) {
+        if (osRecvMesg(&gAudioCtx.preloadSampleQueue, &preloadMsg, OS_MESG_NOBLOCK) == -1) {
             // Previous preload is not done yet.
             return false;
         }
 
-        preloadIndex >>= 24;
+        preloadIndex = preloadMsg.data32 >> 24;
         preload = &gAudioCtx.preloadSampleStack[preloadIndex];
 
         if (preload->isFree == false) {
@@ -2247,11 +2248,16 @@ void AudioLoad_ScriptLoad(s32 tableType, s32 id, s8* isDone) {
 
 void AudioLoad_ProcessScriptLoads(void) {
     u32 temp;
-    u32 sp20;
+    // 2S2H [Port] OSMesg is 8 bytes on a 64-bit host (it holds a void*); osRecvMesg copies a
+    // full OSMesg, so the receive buffer must be an OSMesg — receiving into a 4-byte u32 (the old
+    // `(OSMesg*)&sp20`) overflows the stack. This was an observed crash. Note for maintainers:
+    // the same "osRecvMesg into a narrower-than-OSMesg local" pattern may exist at other call
+    // sites; a sweep of osRecvMesg usages for this would be worthwhile.
+    OSMesg sp20;
     s8* isDone;
 
-    if (osRecvMesg(&sScriptLoadQueue, (OSMesg*)&sp20, OS_MESG_NOBLOCK) != -1) {
-        temp = sp20 >> 24;
+    if (osRecvMesg(&sScriptLoadQueue, &sp20, OS_MESG_NOBLOCK) != -1) {
+        temp = sp20.data32 >> 24;
         isDone = sScriptLoadDonePointers[temp];
         if (isDone != NULL) {
             *isDone = false;

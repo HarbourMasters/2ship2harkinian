@@ -1047,8 +1047,28 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                 loopToPoint = false;
                 dmemUncompressedAddrOffset2 = 0;
 
-                numFirstFrameSamplesToIgnore = synthState->samplePosInt & 0xF;
                 numSamplesUntilEnd = sampleEndPos - synthState->samplePosInt;
+
+                // 2S2H [Port] Defensive guard — a stopgap, not a root-cause fix. We saw crashes
+                // where a note reused for a new (shorter) sample carried a stale samplePosInt past
+                // the new sample's end, making numSamplesUntilEnd negative; that cascades
+                // (numSamplesInFirstFrame negative -> numSamplesProcessed runs away ->
+                // numSamplesToDecode explodes) until the software-RSP mixer writes past its DMEM
+                // scratch buffer (a global-buffer-overflow, seen under ASan in aADPCMdecImpl).
+                // Clamping keeps it in-bounds. We are not certain of the underlying cause: our best
+                // guess is that samplePosInt isn't reset when a note is reused, so a fuller fix
+                // probably belongs there (resetting position/state on the reuse path) rather than
+                // here. It is also possible this was a downstream symptom of another bug and no
+                // longer triggers — we have not re-verified it since. One thing we did learn the
+                // hard way and want to pass on: do NOT try to "fix" this by copying the whole
+                // note->sampleState into the per-update list in AudioSynth_SyncSampleStates — that
+                // list is filled field-by-field by AudioPlayback (volumes, pan, gain, frequency,
+                // ...), so a wholesale copy clobbers it and silences all audio.
+                if (numSamplesUntilEnd < 0) {
+                    numSamplesUntilEnd = 0;
+                }
+
+                numFirstFrameSamplesToIgnore = synthState->samplePosInt & 0xF;
 
                 // Calculate number of samples to process this loop
                 numSamplesToProcess = numSamplesToLoadAdj - numSamplesProcessed;

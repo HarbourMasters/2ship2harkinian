@@ -142,7 +142,9 @@ void Object_LoadAll(ObjectContext* objectCtx) {
 }
 
 void* func_8012F73C(ObjectContext* objectCtx, s32 slot, s16 id) {
-    u32 addr;
+    uintptr_t addr; // 2S2H [Port] was u32, which truncates the 64-bit host `segment` pointer below
+                    // (`addr = (uintptr_t)...segment + vromSize`). Found by inspection; pointer-width
+                    // adjustment consistent with the rest of the port.
     uintptr_t vromSize;
     RomFile* fileTableEntry;
 
@@ -152,8 +154,7 @@ void* func_8012F73C(ObjectContext* objectCtx, s32 slot, s16 id) {
     fileTableEntry = &gObjectTable[id];
     vromSize = fileTableEntry->vromEnd - fileTableEntry->vromStart;
 
-    // TODO: UB to cast void to u32
-    addr = ((u32)objectCtx->slots[slot].segment) + vromSize;
+    addr = ((uintptr_t)objectCtx->slots[slot].segment) + vromSize;
     addr = ALIGN16(addr);
 
     return (void*)addr;
