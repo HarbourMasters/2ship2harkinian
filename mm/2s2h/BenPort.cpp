@@ -624,7 +624,7 @@ void OTRGlobals::Initialize() {
     std::unordered_set<uint32_t> validHashes = { MM_NTSC_US_10, MM_NTSC_US_GC };
 
 #if (_DEBUG)
-    auto defaultLogLevel = spdlog::level::trace;
+    auto defaultLogLevel = spdlog::level::debug;
 #else
     auto defaultLogLevel = spdlog::level::info;
 #endif
@@ -632,7 +632,7 @@ void OTRGlobals::Initialize() {
     context->InitConsoleVariables();
     auto logLevel = static_cast<spdlog::level::level_enum>(CVarGetInteger("gDeveloperTools.LogLevel", defaultLogLevel));
     context->InitLogging(logLevel, logLevel);
-    Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
+    Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%^%l%$] %v");
 
     context->InitGfxDebugger();
     context->InitFileDropMgr();

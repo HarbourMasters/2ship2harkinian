@@ -107,7 +107,7 @@ static const std::vector<const char*> debugSaveOptions = {
 };
 
 #ifdef _DEBUG
-DebugLogOption defaultLogLevel = DEBUG_LOG_TRACE;
+DebugLogOption defaultLogLevel = DEBUG_LOG_DEBUG;
 #else
 DebugLogOption defaultLogLevel = DEBUG_LOG_INFO;
 #endif
