@@ -298,7 +298,7 @@ nlohmann::json voyage3J = R"(
                 "SkipEnemyCutscenes": 1,
                 "SkipEntranceCutscenes": 1,
                 "SkipFirstCycle": 1,
-                "SkipGetItemCutscenes": 1,
+                "SkipGetItemCutscenes": 2,
                 "SkipIntroSequence": 1,
                 "SkipMiscInteractions": 1,
                 "SkipOnePointCutscenes": 1,
@@ -317,7 +317,8 @@ nlohmann::json voyage3J = R"(
             "Dialogue": {
                 "AutoBombersCode": 1,
                 "FastBankSelection": 1,
-                "FastText": 1
+                "FastText": 1,
+                "SkipBottlePickupMessages": 1
             },
             "DifficultyOptions": {
                 "DamageMultiplier": 0,
@@ -331,6 +332,8 @@ nlohmann::json voyage3J = R"(
                 "HyperEnemies": 0,
                 "JinxedTimer": 60,
                 "LowerBankRewardThresholds": 1,
+				"NoHeartDrops": 0,
+                "NoRandomDrops": 0,
                 "PermanentHeartLoss": 0
             },
             "Dpad": {
