@@ -37,6 +37,30 @@ std::vector<std::pair<std::string, std::string>> voyage3Hints = {
     { "Bank Reward", "The sign next to the bank will tell you what item is rewarded for the Heart Piece check." },
 };
 
+//New Addition for Forced Junk Information
+std::vector<std::pair<std::string, std::string>> voyage3ForcedJunk = {
+    { "Beneath the Graveyard Dampe Chest", "The Dampe digging side quest, which can be accessed at Ikana graveyard "
+										   "on night 3 with captains hat." },
+    { "Minigames All Day Rewards", "North Clocktown Deku Playground all day reward.\n"
+								   "East Clock Town Honey and Darling all day reward." },
+    { "East Clock Town Shooting Gallery", "The reward for getting a perfect score in the East Clock Town Shooting Gallery." },
+    { "Deku Shrine Mask of Scents", "Once you complete Woodfall Temple, the reward for completing the Butler race." },
+    { "Great Bay Coast Fisherman Minigame",
+      "Once you complete Great Bay Temple, the island hopping minigame ran by the fisherman." },
+    { "Dungeon Stray Fairies", "Any stray fairy that are located in dungeons whose vanilla location were not in chests,\n"
+							   "including stray fairies in bubbles, pots, or any stray fairy found by defeating enemies.\n"
+							   "This makes the Great Fairy Mask effectively useless." },
+    { "All Moon Checks", "Any check that is located on the moon." },
+    { "Mountain Village Frog Choir", "Once you complete Snowhead Temple, the reward for returning all frogs with Don Gero's "
+						"Mask. This makes the Don Gero Mask effectively useless." },
+	{ "Stock Pot Inn Couples Mask", "The final reward in the Kafei and Anju story quest found on Night 3.\n" 
+									"This makes the Pendant of Memories effectively useless." },
+	{ "Waterfall Rapids Beaver Race #2", "The reward obtained by racing the older beaver brother a second time.\n" 
+										 "With racing younger brother being disabled, you only need to race the older "
+										 "brother once." },
+};
+//---
+
 void DrawVoyage3Description() {
     ImGui::SeparatorText("Voyage 3 Settings");
     ImGui::TextColored(TEXT_COLOR(ORANGE), "Requirements");
@@ -79,4 +103,14 @@ void DrawVoyage3Description() {
         ImGui::TextWrapped(value.c_str());
         ImGui::Separator();
     }
+
+	//New Addition to add forced junk information
+    ImGui::TextColored(TEXT_COLOR(ORANGE), "Forced Junk");
+
+    for (auto& [key, value] : voyage3ForcedJunk) {
+        ImGui::TextColored(TEXT_COLOR(GREEN), key.c_str());
+        ImGui::TextWrapped(value.c_str());
+        ImGui::Separator();
+    }
+	//---
 }

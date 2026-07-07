@@ -108,11 +108,23 @@ void ApplyVoyage3LogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::v
                     bool inPool = it != checkPool.end();
                     if (inPool) {
                         checkPool.erase(it);
-                        randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId = itemPool.back();
+                        // randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId = itemPool.back();
+                        // ProxySaw's item constraint addition.
+                        size_t pickIndex = SelectItemForCheck(itemPool, checkPool, randoCheckId);
+                        if (pickIndex == itemPool.size()) {
+                            handleError("No allowed item remains for reachable check: " +
+                                        std::string(Rando::StaticData::Checks[randoCheckId].name));
+                        }
+
+                        randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId = itemPool[pickIndex];
+                        // ---
                         RANDO_SAVE_CHECKS[randoCheckId].shuffled = true;
 
-                        itemPool.pop_back();
-
+                        // itemPool.pop_back();
+                        // ProxySaw's item constraint addition. 
+                        itemPool.erase(itemPool.begin() + pickIndex);
+                        // ---
+                        
                         if (Rando::StaticData::Items[randoItemId].randoItemType == RITYPE_JUNK ||
                             Rando::StaticData::Items[randoItemId].randoItemType == RITYPE_HEALTH) {
                             checksWithJunk.push_back(randoCheckId);
@@ -190,7 +202,11 @@ void ApplyVoyage3LogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::v
                 if (Rando::StaticData::Items[itemPool[i]].randoItemType != RITYPE_JUNK &&
                     Rando::StaticData::Items[itemPool[i]].randoItemType != RITYPE_HEALTH) {
                     anyNonJunkItemsLeft = true;
-                    if (nonJunkItemsThatWeHaveTried.find(itemPool[i]) == nonJunkItemsThatWeHaveTried.end()) {
+                    // if (nonJunkItemsThatWeHaveTried.find(itemPool[i]) == nonJunkItemsThatWeHaveTried.end()) {
+                    // ProxySaw's item constraint addition.
+                    if (nonJunkItemsThatWeHaveTried.find(itemPool[i]) == nonJunkItemsThatWeHaveTried.end() &&
+                        IsItemAllowedAtCheck(itemPool[i], checkWithJunk)) {
+                    // ---
                         nonJunkItemsThatWeHaveNotTried.push_back({ itemPool[i], i });
                     }
                 }
