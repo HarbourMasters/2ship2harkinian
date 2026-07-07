@@ -3037,7 +3037,6 @@ typedef enum {
 } RandoOptionDungeonItemPlacement;
 
 // ---
-
 typedef enum {
     RO_CLOCK_SHUFFLE_RANDOM,
     RO_CLOCK_SHUFFLE_ASCENDING,
