@@ -569,7 +569,7 @@ std::string GetItemName(RandoItemId randoItemId, bool includeArticle, RandoCheck
         RandoItemId trappedItemId = Rando::CurrentTrapItem(randoCheckId);
         std::string fakeItemName = GetItemName(trappedItemId, false);
         // Pick a random letter in the item name, and double it to fool the player
-        auto letterIndex = Ship_Random(0, fakeItemName.length() - 1);
+        auto letterIndex = Ship_Random(0, fakeItemName.length());
         char letterToDouble = fakeItemName[letterIndex];
         fakeItemName.insert(letterIndex, 1, letterToDouble);
         result.clear();

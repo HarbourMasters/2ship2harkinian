@@ -51,9 +51,8 @@ RandoCheckId GetProgressiveCheckInLogic() {
 
     // First, we try to return a priority check if one is available, in order of the priority items list.
     // If no priority checks are available, we return a random major/mask check.
-    return priorityChecks.empty()
-               ? (otherChecks.empty() ? RC_UNKNOWN : otherChecks[Ship_Random(0, otherChecks.size() - 1)])
-               : priorityChecks[0];
+    return priorityChecks.empty() ? (otherChecks.empty() ? RC_UNKNOWN : otherChecks[Ship_Random(0, otherChecks.size())])
+                                  : priorityChecks[0];
 }
 
 void Rando::MiscBehavior::SariasSongHint() {

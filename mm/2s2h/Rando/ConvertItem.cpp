@@ -163,10 +163,10 @@ RandoItemId Rando::CurrentJunkItem(RandoCheckId randoCheckId) {
     if (CVarGetInteger("gRando.JunkItems", 0) == 0) {
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId +
                          (gPlayState->gameplayFrames / 30));
-        return obtainableJunkItems[Ship_Random(0, obtainableJunkItems.size() - 1)];
+        return obtainableJunkItems[Ship_Random(0, obtainableJunkItems.size())];
     } else {
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
-        return obtainableJunkItems[Ship_Random(0, obtainableJunkItems.size() - 1)];
+        return obtainableJunkItems[Ship_Random(0, obtainableJunkItems.size())];
     }
 }
 
@@ -178,7 +178,7 @@ RandoItemId Rando::CurrentTrapItem(RandoCheckId randoCheckId) {
 
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
 
-        return obtainableTrapItems[Ship_Random(0, obtainableTrapItems.size() - 1)];
+        return obtainableTrapItems[Ship_Random(0, obtainableTrapItems.size())];
     } else {
         if (allTrapItems.size() == 0) {
             return RI_RUPEE_SILVER;
@@ -186,7 +186,7 @@ RandoItemId Rando::CurrentTrapItem(RandoCheckId randoCheckId) {
 
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
 
-        return allTrapItems[Ship_Random(0, allTrapItems.size() - 1)];
+        return allTrapItems[Ship_Random(0, allTrapItems.size())];
     }
 }
 
