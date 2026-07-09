@@ -656,7 +656,7 @@ static void DrawItemsTab() {
                 UIWidgets::IntSliderOptions()
                     .Min(0)
                     .Max(359)
-                    .DefaultValue(0)
+                    .DefaultValue(350)
                     .LabelPosition(UIWidgets::LabelPosition::None)
                     .Tooltip("Controls when the final hours countdown begins (00:00 to 05:59). "
                              "When you run out of owned half-days, this allows the player control over how much "
