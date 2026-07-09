@@ -644,7 +644,7 @@ static void DrawItemsTab() {
         }
         // Terminal time slider (Final Hours start time)
         {
-            int32_t terminalMinutes = CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar, 0);
+            int32_t terminalMinutes = CVarGetInteger(Rando::StaticData::Options[RO_CLOCK_TERMINAL_TIME].cvar, 350);
             int hours = terminalMinutes / 60;
             int minutes = terminalMinutes % 60;
 
