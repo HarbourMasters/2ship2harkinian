@@ -15,7 +15,7 @@ void ApplyNoLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector
 
     // ---
     for (size_t i = 0; i < itemPool.size(); i++) {
-        std::swap(itemPool[i], itemPool[Ship_Random(0, itemPool.size() - 1)]);
+        std::swap(itemPool[i], itemPool[Ship_Random(0, itemPool.size())]);
     }
 
     for (auto& randoCheckId : checkPool) {

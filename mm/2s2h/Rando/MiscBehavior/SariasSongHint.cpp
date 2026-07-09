@@ -60,14 +60,8 @@ RandoCheckId GetProgressiveCheckInLogic() {
 
     // First, we try to return a priority check if one is available, in order of the priority items list.
     // If no priority checks are available, we return a random major/mask check.
-	
-	// Note: the priorityChecks variable is not set in the order of priorityItems. 
-    return priorityChecks.empty()
-               ? (otherChecks.empty() 
-				  ? RC_UNKNOWN 
-				  : otherChecks[Ship_Random(0, otherChecks.size() - 1)]
-			   )
-               : priorityChecks[0];
+    return priorityChecks.empty() ? (otherChecks.empty() ? RC_UNKNOWN : otherChecks[Ship_Random(0, otherChecks.size())])
+                                  : priorityChecks[0];
 }
 
 void Rando::MiscBehavior::SariasSongHint() {
@@ -82,10 +76,8 @@ void Rando::MiscBehavior::SariasSongHint() {
 
     COND_VB_SHOULD(VB_SONG_AVAILABLE_TO_PLAY, shouldRegister, {
         uint8_t* songIndex = va_arg(args, uint8_t*);
-        // If the currently played song is Sun's Song, set it to be available to be played.
         if (*songIndex == OCARINA_SONG_SARIAS && CHECK_QUEST_ITEM(QUEST_SONG_SARIA)) {
             *should = true;
-            playedSariasSongState = 1;
         }
     });
 
@@ -113,6 +105,7 @@ void Rando::MiscBehavior::SariasSongHint() {
 
         if (sLastPlayedSong == OCARINA_SONG_SARIAS) {
             *should = true;
+            playedSariasSongState = 1;
             Message_StartTextbox(gPlayState, 0x1B95, NULL);
             gPlayState->msgCtx.ocarinaMode = OCARINA_MODE_PROCESS_RESTRICTED_SONG;
         }
