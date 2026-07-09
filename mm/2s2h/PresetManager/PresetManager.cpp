@@ -27,7 +27,6 @@ nlohmann::json defaultsPresetJ = R"(
         "gCheats",
         "gCollisionViewer",
         "gDeveloperTools",
-        "gDisplayOverlay",
         "gEnhancements",
         "gEventLog",
         "gFixes",
@@ -37,7 +36,8 @@ nlohmann::json defaultsPresetJ = R"(
         "gNotifications",
         "gRando",
         "gWindows",
-        "ItemTracker"
+        "ItemTracker",
+        "gAudioEditor"
     ],
     "CVars": {},
     "type": "2S2H_PRESET",
@@ -64,6 +64,9 @@ nlohmann::json curatedPresetJ = R"(
             "LogLevel": 2
         },
         "gEnhancements": {
+			"Camera": {
+                "FixTargettingCameraSnap": 1
+            },
             "Cutscenes": {
                 "HideTitleCards": 1,
                 "SkipEnemyCutscenes": 1,
@@ -78,20 +81,25 @@ nlohmann::json curatedPresetJ = R"(
             },
             "Cycle": {
                 "DoNotResetBottleContent": 1,
+				"DoNotResetChateau": 1,
                 "DoNotResetConsumables": 1,
                 "DoNotResetRazorSword": 1,
                 "DoNotResetRupees": 1,
+				"DoNotResetScarecrowSong": 1,
                 "DoNotResetTimeSpeed": 1,
                 "KeepExpressMail": 1,
                 "OceansideWalletAnyDay": 1,
+				"SaveOnMoonCrash": 1,
                 "StopOceansideSpiderHouseSquatter": 1
             },
             "Dialogue": {
                 "FastBankSelection": 1,
-                "FastText": 1
+                "FastText": 1,
+                "SkipBottlePickupMessages": 1
             },
             "DifficultyOptions": {
                 "GoronRace": 1,
+				"JinxedTimer": 20,
                 "LowerBankRewardThresholds": 1
             },
             "Dpad": {
@@ -106,6 +114,7 @@ nlohmann::json curatedPresetJ = R"(
             "Fixes": {
                 "CompletedHeartContainerAudio": 1,
                 "ControlCharacters": 1,
+				"DekuButlerFixShockLoopAnimation": 1,
                 "FierceDeityZTargetMovement": 1
             },
             "Graphics": {
@@ -118,12 +127,15 @@ nlohmann::json curatedPresetJ = R"(
                 "FixSceneGeometrySeams": 1,
                 "IncreaseActorDrawDistance": 5
             },
+			"Items": {
+                "ColorPictograph": 1,
+                "RemoveExplosiveLimit": 1
+            },
             "Masks": {
+				"3DSMaskEquip": 1,
                 "FastTransformation": 1,
                 "FierceDeitysAnywhere": 1,
-                "GoronRollingFastSpikes": 1,
-                "GoronRollingIgnoresMagic": 1,
-                "BlastMaskCooldown": 0,
+				"BlastMaskCooldown": 0.0,
                 "PersistentBunnyHood": {
                     "Enabled": 1
                 }
@@ -173,6 +185,7 @@ nlohmann::json curatedPresetJ = R"(
                 "OoTFasterSwim": 1,
                 "PowerCrouchStab": 1,
                 "SideRoll": 1,
+				"SoilPatch": 1,
                 "TatlISG": 1,
                 "WoodfallMountainAppearance": 1
             },
@@ -183,16 +196,21 @@ nlohmann::json curatedPresetJ = R"(
                 "PersistentOwlSaves": 1
             },
             "Songs": {
+				"BetterOwlWarpMenu": 1,
                 "BetterSongOfDoubleTime": 1,
                 "EnableSunsSong": 1,
                 "FasterSongPlayback": 1,
                 "PauseOwlWarp": 1,
                 "SkipSoTCutscenes": 1,
-                "SkipSoaringCutscene": 1
+                "SkipSoaringCutscene": 1,
+                "ZoraEggCount": 1
             },
             "Timesavers": {
+				"AlwaysShowShrineFeathers": 1,
                 "DampeDiggingSkip": 1,
                 "FastChests": 1,
+				"FasterBottles": 1,
+                "FasterSceneTransitions": 1,
                 "GalleryTwofer": 1,
                 "MarineLabHP": 1,
                 "SkipBalladOfWindfish": 1,
@@ -270,7 +288,7 @@ nlohmann::json curatedPresetJ = R"(
 )"_json;
 
 // Addition of Voyage 3 Preset
-nlohmann::json voyage3J = R"(
+nlohmann::json voyage3PresetJ = R"(
 {
     "ClearCVars": [
         "gCheats",
@@ -288,9 +306,6 @@ nlohmann::json voyage3J = R"(
             "SpeedModifier": {
                 "Mode": 0
             }
-        },
-		"gDisplayOverlay": {
-            "Mode": 1
         },
         "gEnhancements": {
             "Cutscenes": {
@@ -537,6 +552,20 @@ nlohmann::json voyage3J = R"(
                 "RI_SONG_TIME",
                 "RI_MASK_BUNNY",
                 "RI_SONG_EPONA"
+            ],
+            "SariaPriorityItems": [
+                "RI_BOW",
+                "RI_MASK_BLAST",
+                "RI_BOMB_BAG_20",
+                "RI_SINGLE_MAGIC",
+                "RI_ARROW_FIRE",
+                "RI_ARROW_ICE",
+                "RI_ARROW_LIGHT",
+                "RI_SONG_SONATA",
+                "RI_SONG_LULLABY",
+                "RI_SONG_NOVA",
+                "RI_SONG_ELEGY",
+                "RI_MASK_FIERCE_DEITY"
             ],
             "Traps": {
                 "Freeze": 1,
