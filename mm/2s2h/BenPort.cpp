@@ -208,7 +208,6 @@ typedef enum PromptSteps {
     PS_FILE_CHECK,
     PS_LOCAL,
     PS_FIRST,
-    PS_SECOND,
     PS_DUPE,
     PS_WAIT,
     PS_NONE,
@@ -507,29 +506,10 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                         extractionTask = threadPool->submit_task([&]() -> void {
                             extract.CallZapd(installPath, Ship::Context::GetAppDirectoryPath(appShortName),
                                              &extractCount, &totalExtract);
-                            promptStep = PS_SECOND;
+                            extractStep = ES_VERIFY;
                             extractCount = 0;
                             totalExtract = 0;
                         });
-                        continue;
-                    }
-                    case PS_SECOND: {
-                        BenGui::RegisterPopup(
-                            "Extraction Complete", "ROM Extracted. Extract another?", "Yes", "No",
-                            [&]() {
-                                if (!extract.ManuallySearchForRomMatchingType(RomSearchMode::Vanilla)) {
-                                    extractStep = ES_VERIFY;
-                                } else {
-                                    extractionTask = threadPool->submit_task([&]() -> void {
-                                        extract.CallZapd(installPath, Ship::Context::GetAppDirectoryPath(appShortName),
-                                                         &extractCount, &totalExtract);
-                                        extractStep = ES_VERIFY;
-                                        extractCount = 0;
-                                        totalExtract = 0;
-                                    });
-                                }
-                            },
-                            [&]() { extractStep = ES_VERIFY; });
                         continue;
                     }
                     default:
