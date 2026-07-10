@@ -1176,7 +1176,7 @@ void DrawRacesTab() {
     ImGui::Text("Apply the Voyage 3 Preset and then create your File.");
     ImGui::PushID("Voyage3Set");
     if (UIWidgets::Button("Apply Preset", { .color = COLOR_GREEN })) {
-        PresetManager_ApplyPreset(voyage3J);
+        PresetManager_ApplyPreset(voyage3PresetJ);
     }
     DrawVoyage3Description();
     ImGui::PopID();
