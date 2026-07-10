@@ -615,6 +615,7 @@ void PushStyleButton(const ImVec4& color, ImVec2 padding = ImVec2(10.0f, 8.0f));
 void PushStyleButton(Colors color = Colors::Gray, ImVec2 padding = ImVec2(10.0f, 8.0f));
 void PopStyleButton();
 bool Button(const char* label, const ButtonOptions& options = {});
+bool IconButton(const char* strId, const char* icon, const ButtonOptions& options = {});
 bool WindowButton(const char* label, const char* cvarName, std::shared_ptr<Ship::GuiWindow> windowPtr,
                   const WindowButtonOptions& options = {});
 
