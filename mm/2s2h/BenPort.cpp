@@ -170,7 +170,7 @@ OTRGlobals::OTRGlobals() {
     context->InitConsole();
 
     auto benInputEditorWindow = std::make_shared<BenInputEditorWindow>("gWindows.BenInputEditor", "2S2H Input Editor");
-    auto benFast3dWindow =
+    benFast3dWindow =
         std::make_shared<Fast::Fast3dWindow>(
             std::make_shared<Ship::Gui>(std::vector<std::shared_ptr<Ship::GuiWindow>>({ benInputEditorWindow })),
             std::make_shared<LocalMouseStateManager>()

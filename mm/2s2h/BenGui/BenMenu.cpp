@@ -2351,20 +2351,4 @@ void BenMenu::DrawElement() {
     Ship::Menu::DrawElement();
 }
 
-void BenMenu::SetVisibility(bool visible) {
-    bool wasVisible = IsVisible();
-    Ship::Menu::SetVisibility(visible);
-
-    static bool captureBuffer = false;
-    if (wasVisible == visible) {
-        return;
-    }
-    std::shared_ptr<Ship::Window> window = Ship::Context::GetInstance()->GetWindow();
-    if (visible) {
-        captureBuffer = window->IsMouseCaptured();
-        window->SetMouseCapture(false);
-    } else {
-        window->SetMouseCapture(captureBuffer);
-    }
-};
 } // namespace BenGui
