@@ -380,6 +380,10 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SONG_INVERTED_TIME:
             Flags_SetRandoInf(RANDO_INF_OBTAINED_SONG_INVERTED_TIME);
             break;
+        case RI_SONG_SARIA:
+            gSaveContext.save.shipSaveInfo.rando.sariaHintsAvailable++;
+            Item_Give(gPlayState, Rando::StaticData::Items[randoItemId].itemId);
+            break;
         case RI_JUNK:
         case RI_NONE:
             break;
