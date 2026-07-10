@@ -181,6 +181,33 @@ bool Button(const char* label, const ButtonOptions& options) {
     return dirty;
 }
 
+bool IconButton(const char* strId, const char* icon, const ButtonOptions& options) {
+    ImVec2 buttonScreenPos = ImGui::GetCursorScreenPos();
+    bool clicked = Button(strId, options);
+
+    ImGuiCol textColorIndex = options.disabled ? ImGuiCol_TextDisabled : ImGuiCol_Text;
+    ImU32 textColor = ImGui::GetColorU32(textColorIndex);
+    ImFont* font = ImGui::GetFont();
+
+    unsigned int codepoint = 0;
+    ImTextCharFromUtf8(&codepoint, icon, NULL);
+    const ImFontGlyph* glyph = font->FindGlyph((ImWchar)codepoint);
+
+    if (glyph != NULL) {
+        float glyphWidth = glyph->X1 - glyph->X0;
+        float glyphHeight = glyph->Y1 - glyph->Y0;
+        ImVec2 penPos = ImVec2(buttonScreenPos.x + (options.size.x - glyphWidth) * 0.5f - glyph->X0,
+                               buttonScreenPos.y + (options.size.y - glyphHeight) * 0.5f - glyph->Y0);
+        font->RenderChar(ImGui::GetWindowDrawList(), ImGui::GetFontSize(), penPos, textColor, (ImWchar)codepoint);
+    } else {
+        ImVec2 iconSize = ImGui::CalcTextSize(icon);
+        ImVec2 iconPos = ImVec2(buttonScreenPos.x + (options.size.x - iconSize.x) * 0.5f,
+                                buttonScreenPos.y + (options.size.y - iconSize.y) * 0.5f);
+        ImGui::GetWindowDrawList()->AddText(iconPos, textColor, icon);
+    }
+    return clicked;
+}
+
 bool WindowButton(const char* label, const char* cvarName, std::shared_ptr<Ship::GuiWindow> windowPtr,
                   const WindowButtonOptions& options) {
     ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0));
