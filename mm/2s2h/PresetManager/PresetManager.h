@@ -3,7 +3,7 @@
 #define PRESET_MANAGER_H
 
 #include <string>
-extern nlohmann::json voyage3J;
+extern nlohmann::json voyage3PresetJ;
 
 bool PresetManager_HandleFileDropped(const std::string& filePath);
 void PresetManager_ApplyPreset(nlohmann::json j);
