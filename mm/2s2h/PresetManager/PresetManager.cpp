@@ -408,7 +408,7 @@ nlohmann::json voyage3PresetJ = R"(
             "Masks": {
                 "3DSMaskEquip": 1,
                 "BlastMaskCooldown": 3.0,
-                "BlastMaskKeg": 1,
+                "BlastMaskKeg": 0,
                 "FastTransformation": 1,
                 "FierceDeitysAnywhere": 1,
                 "GoronRollingFastSpikes": 0,
