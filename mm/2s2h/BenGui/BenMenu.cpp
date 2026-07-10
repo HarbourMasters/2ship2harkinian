@@ -947,6 +947,43 @@ void BenMenu::AddEnhancements() {
                      .Min(0.1f)
                      .Max(3.0f));
 
+    path.column = SECTION_COLUMN_3;
+    AddWidget(path, "Mouse", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Camera.Mouse.Enabled")
+        .Options(CheckboxOptions().DefaultValue(false))
+        .Callback(
+            [](WidgetInfo& info) {
+                bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
+                Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
+            }
+        );
+    AddWidget(path, "Auto Capture Mouse Input", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Camera.Mouse.AutoCapture")
+        .Callback(
+            [](WidgetInfo& info) {
+                bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
+                Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
+            }
+        ).Options(
+            CheckboxOptions().Tooltip(
+                "When Mouse Controls are enabled, this toggles whether the program will automatically "
+                "hide the cursor and capture mouse input when closing the menu."
+            )
+        );
+    AddWidget(path, "Mouse Shielding Enabled", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Mouse.Shielding.Enabled")
+        .Options(CheckboxOptions().DefaultValue(false))
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
+        });
+    AddWidget(path, "Mouse Quickspin", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Mouse.Quickspin.Enable")
+        .Options(CheckboxOptions().DefaultValue(false))
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
+        });
+
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Cheats", 2);
     AddWidget(path, "Infinite Health", WIDGET_CVAR_CHECKBOX)
@@ -2198,6 +2235,12 @@ void BenMenu::InitElement() {
         { DISABLE_FOR_FREE_LOOK_OFF,
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
             "Free Look is Disabled" } },
+        { DISABLE_FOR_MOUSE_ON,
+          { [](disabledInfo& info) -> bool { return CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0); },
+            "Mouse is Enabled" } },
+        { DISABLE_FOR_MOUSE_OFF,
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0); },
+            "Mouse is Disabled" } },
         { DISABLE_FOR_GYRO_OFF,
           { [](disabledInfo& info) -> bool {
                return !CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0);
@@ -2307,4 +2350,21 @@ void BenMenu::Draw() {
 void BenMenu::DrawElement() {
     Ship::Menu::DrawElement();
 }
+
+void BenMenu::SetVisibility(bool visible) {
+    bool wasVisible = IsVisible();
+    Ship::Menu::SetVisibility(visible);
+
+    static bool captureBuffer = false;
+    if (wasVisible == visible) {
+        return;
+    }
+    std::shared_ptr<Ship::Window> window = Ship::Context::GetInstance()->GetWindow();
+    if (visible) {
+        captureBuffer = window->IsMouseCaptured();
+        window->SetMouseCapture(false);
+    } else {
+        window->SetMouseCapture(captureBuffer);
+    }
+};
 } // namespace BenGui

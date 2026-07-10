@@ -48,6 +48,7 @@
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/Enhancements/Controls/Mouse/Mouse.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 void Player_Init(Actor* thisx, PlayState* play);
@@ -5633,6 +5634,10 @@ s32 Player_CanSpinAttack(Player* this) {
     iter = &this->controlStickSpinAngles[0];
     iter2 = &sp3C[0];
 
+    if (GameInteractor_Should(VB_SHOULD_QUICKSPIN, false, iter2, sp3C)) {
+        return true;
+    }
+
     for (i = 0; i < ARRAY_COUNT(this->controlStickSpinAngles); i++, iter++, iter2++) {
         if ((*iter2 = *iter) < 0) {
             return false;
@@ -8543,6 +8548,14 @@ s32 Player_ActionHandler_11(Player* this, PlayState* play) {
                     if (!Player_IsGoronOrDeku(this)) {
                         Player_SetModelsForHoldingShield(this);
                         anim = D_8085BE84[PLAYER_ANIMGROUP_defense][this->modelAnimType];
+
+                        // FIXME: cursor reset on shield pull
+                        if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+                            u32 width = OTRGetCurrentWidth();
+                            u32 height = OTRGetCurrentHeight();
+                            Mouse_SetCursorPos(width / 2, height / 2);
+                        }
+                        //
                     } else {
                         anim = (this->transformation == PLAYER_FORM_DEKU) ? &gPlayerAnim_pn_gurd
                                                                           : &gPlayerAnim_clink_normal_defense_ALL;
@@ -8715,6 +8728,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             Message_StartTextbox(play, (play->sceneId == SCENE_AYASHIISHOP) ? 0x2A00 : 0x5E6, NULL);
         }
     } else {
+        // TODO: add mouse
         sPlayerControlInput = play->state.input;
         if (play->view.fovy >= 25.0f) {
             s16 prevFocusX = thisx->focus.rot.x;
@@ -10055,7 +10069,25 @@ s32 func_8083E514(Player* this, f32* arg2, s16* arg3, PlayState* play) {
         if (this->focusActor != NULL) {
             func_8083C62C(this, true);
         } else {
-            Math_SmoothStepToS(&this->actor.focus.rot.x, (sPlayerControlInput->rel.stick_y * 240.0f), 0xE, 0xFA0, 0x1E);
+            // FIXME: additional cvar check for settings
+            if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+                MouseCoords mouseDelta = Mouse_GetDelta();
+
+                if (mouseDelta.y != 0) {
+                    this->actor.focus.rot.x += mouseDelta.y * 8;
+                    this->actor.focus.rot.x = CLAMP(
+                        this->actor.focus.rot.x - (
+                            mouseDelta.y * 12.0f
+                            * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f)
+                            * -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y)
+                        ),
+                        -60 * 240,
+                        60 * 240
+                    );
+                }
+            } else {
+                Math_SmoothStepToS(&this->actor.focus.rot.x, (sPlayerControlInput->rel.stick_y * 240.0f), 0xE, 0xFA0, 0x1E);
+            }
             func_80832754(this, true);
         }
     } else {
@@ -13531,6 +13563,22 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
         stickY += leftStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityY", 1.0f);
     }
 
+    if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+        MouseCoords mouseDelta = Mouse_GetDelta();
+
+        // TODO: gyro?
+        if (mouseDelta.x != 0) {
+            this->actor.focus.rot.y += mouseDelta.x * 12.0f *
+                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f) *
+                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_X);
+        }
+        if (mouseDelta.y != 0) {
+            this->actor.focus.rot.x -= mouseDelta.y * 12.0f *
+                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f) *
+                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y);
+        }
+    }
+
     if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
         gyroX = sPlayerControlInput->cur.gyro_y * 720; // -40 to 40, avg -4 to 4
         gyroY = sPlayerControlInput->cur.gyro_x * 720; // -20 to 20, avg -2 to 2
@@ -15268,8 +15316,145 @@ void Player_Action_17(Player* this, PlayState* play) {
     }
 }
 
+void Ship_HandleShielding(Player* this, PlayState* play) {
+    Player_DecelerateToZero(this);
+
+    if (this->transformation == PLAYER_FORM_GORON) {
+        SkelAnime_Update(&this->unk_2C8);
+
+        if (!func_8083FE38(this, play)) {
+            if (!Player_ActionHandler_11(this, play)) {
+                this->stateFlags1 &= ~PLAYER_STATE1_400000;
+
+                if (this->itemAction <= PLAYER_IA_MINUS1) {
+                    func_80123C58(this);
+                }
+
+                func_80836A98(this, D_8085BE84[PLAYER_ANIMGROUP_defense_end][this->modelAnimType], play);
+                func_80830B38(this);
+            } else {
+                this->stateFlags1 |= PLAYER_STATE1_400000;
+            }
+        }
+
+        return;
+    }
+
+    if (PlayerAnimation_Update(play, &this->skelAnime)) {
+        if (!Player_IsGoronOrDeku(this)) {
+            Player_Anim_PlayLoop(play, this, D_8085BE84[PLAYER_ANIMGROUP_defense_wait][this->modelAnimType]);
+        }
+
+        this->av2.actionVar2 = 1;
+        this->av1.actionVar1 = 0;
+    }
+
+    if (!Player_IsGoronOrDeku(this)) {
+        this->stateFlags1 |= PLAYER_STATE1_400000;
+        Player_UpdateUpperBody(this, play);
+        this->stateFlags1 &= ~PLAYER_STATE1_400000;
+        if (this->transformation == PLAYER_FORM_ZORA) {
+            func_8082F164(this, BTN_R | BTN_B);
+        }
+    }
+
+    if (this->av2.actionVar2 != 0) {
+        static bool lastInputIsMouse = false;
+        f32 xInput = 0, yInput = 0;
+
+        bool mouseControl = (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0));
+        if (mouseControl) {
+            MouseCoords mouseDelta = Mouse_GetDelta();
+            if (mouseDelta.x != 0 || mouseDelta.y != 0) {
+                lastInputIsMouse = true;
+                xInput += ((f32)mouseDelta.x) * 60 * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
+                yInput -= ((f32)mouseDelta.y) * 60 * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+            }
+        }
+
+        f32 xStick = sPlayerControlInput->rel.stick_x * -120;
+        f32 yStick = sPlayerControlInput->rel.stick_y * 180;
+        if (xStick != 0 || yStick != 0) {
+            lastInputIsMouse = false;
+            xInput += xStick;
+            yInput += yStick;
+        }
+
+        xInput *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
+        yInput *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
+
+        s16 rotYTarget, rotXTarget;
+        if (lastInputIsMouse) {
+            // Plain shield movement instead of camera-relative one
+            // TODO: control via cvar?
+            rotYTarget = this->upperLimbRot.y + xInput;
+            rotXTarget = this->actor.focus.rot.x + yInput;
+        } else {
+            s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
+            rotYTarget = (xInput * Math_CosS(camRelativeCurrentYRot)) - (yInput * Math_SinS(camRelativeCurrentYRot));
+            rotXTarget = (yInput * Math_CosS(camRelativeCurrentYRot)) + (xInput * Math_SinS(camRelativeCurrentYRot));
+        }
+
+        rotYTarget = CLAMP(rotYTarget, -60 * 120, 60 * 120);
+        rotXTarget = CLAMP(rotXTarget, -60 * 180, 0xDAC);
+
+        s16 rotYStep, rotXStep;
+        rotYStep = ABS_ALT(rotYTarget - this->upperLimbRot.y) / 4;
+        rotYStep = CLAMP_MIN(rotYStep, 0x32);
+        rotXStep = ABS_ALT(rotXTarget - this->actor.focus.rot.x) / 4;
+        rotXStep = CLAMP_MIN(rotXStep, 0x64);
+
+        this->upperLimbRot.x = this->actor.focus.rot.x;
+        Math_ScaledStepToS(&this->upperLimbRot.y, rotYTarget, rotYStep);
+        Math_ScaledStepToS(&this->actor.focus.rot.x, rotXTarget, rotXStep);
+
+        if (this->av1.actionVar1 != 0) {
+            if (!func_808401F4(play, this)) {
+                if (this->skelAnime.curFrame < 2.0f) {
+                    func_8082FA5C(play, this, PLAYER_MELEE_WEAPON_STATE_1);
+                }
+            } else {
+                this->av2.actionVar2 = 1;
+                this->av1.actionVar1 = 0;
+            }
+        } else if (!func_8083FE38(this, play)) {
+            if (Player_ActionHandler_11(this, play)) {
+                func_8083FD80(this, play);
+            } else {
+                this->stateFlags1 &= ~PLAYER_STATE1_400000;
+                func_8082DC38(this);
+
+                if (Player_IsGoronOrDeku(this)) {
+                    func_80836A5C(this, play);
+                    PlayerAnimation_Change(play, &this->skelAnime, this->skelAnime.animation, 1.0f,
+                                           Animation_GetLastFrame(this->skelAnime.animation), 0.0f, 2, 0.0f);
+                } else {
+                    if (this->itemAction <= PLAYER_IA_MINUS1) {
+                        func_80123C58(this);
+                    }
+
+                    func_80836A98(this, D_8085BE84[PLAYER_ANIMGROUP_defense_end][this->modelAnimType], play);
+                }
+
+                Player_PlaySfx(this, NA_SE_IT_SHIELD_REMOVE);
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
+    this->stateFlags1 |= PLAYER_STATE1_400000;
+    Player_SetModelsForHoldingShield(this);
+    this->unk_AA6_rotFlags |= 0xC1;
+}
+
 // Player_Action_Shielding
 void Player_Action_18(Player* this, PlayState* play) {
+    // #region 2S2H [Enhancements] custom handle for shielding
+    return Ship_HandleShielding(this, play);
+    // #endregion
+
     Player_DecelerateToZero(this);
 
     if (this->transformation == PLAYER_FORM_GORON) {
@@ -15320,8 +15505,8 @@ void Player_Action_18(Player* this, PlayState* play) {
         s16 var_a2;
         s16 var_a3;
 
-        xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
         yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
+        xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
         var_a1 = (yStick * Math_CosS(temp_a0)) + (Math_SinS(temp_a0) * xStick);
         temp_ft5 = (xStick * Math_CosS(temp_a0)) - (Math_SinS(temp_a0) * yStick);
 
