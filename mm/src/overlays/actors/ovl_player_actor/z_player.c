@@ -8728,7 +8728,6 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             Message_StartTextbox(play, (play->sceneId == SCENE_AYASHIISHOP) ? 0x2A00 : 0x5E6, NULL);
         }
     } else {
-        // TODO: add mouse
         sPlayerControlInput = play->state.input;
         if (play->view.fovy >= 25.0f) {
             s16 prevFocusX = thisx->focus.rot.x;
@@ -8736,16 +8735,26 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             s16 inputY;
             s16 inputX;
             s16 newYaw; // from base position shape.rot.y
+            s16 mouseX = 0;
+            s16 mouseY = 0;
 
-            // Pitch:
-            inputY = sPlayerControlInput->rel.stick_y * 4;
+            if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+                MouseCoords mouseDelta = Mouse_GetDelta();
+                mouseX = mouseDelta.x * 12.0f *
+                         CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
+                mouseY = mouseDelta.y * 12.0f *
+                         CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f) *
+                         GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y);
+            }
+
+            inputY = sPlayerControlInput->rel.stick_y * 4 + mouseY;
             // Add input, clamped to prevent turning too fast
             thisx->focus.rot.x += CLAMP(inputY, -0x12C, 0x12C);
             // Prevent looking too far up or down
             thisx->focus.rot.x = CLAMP(thisx->focus.rot.x, -0x2EE0, 0x2EE0);
 
             // Yaw: shape.rot.y is used as a fixed starting position
-            inputX = sPlayerControlInput->rel.stick_x * -4;
+            inputX = sPlayerControlInput->rel.stick_x * -4 - mouseX;
             inputX *= GameInteractor_InvertControl(GI_INVERT_TELESCOPE_X);
             // Start from current position: no input -> no change
             newYaw = thisx->focus.rot.y - thisx->shape.rot.y;
