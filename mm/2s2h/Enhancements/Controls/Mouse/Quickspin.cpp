@@ -56,16 +56,9 @@ bool HandleQuickspin(bool* should, s8* iter2, s8* sp3C) {
 }
 
 void RegisterQuickspinFunc() {
-    COND_VB_SHOULD(
-        VB_SHOULD_QUICKSPIN,
-        CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
-        { HandleQuickspin(should, va_arg(args, s8*), va_arg(args, s8*)); }
-    );
-    COND_HOOK(
-        OnPassPlayerInputs,
-        CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
-        UpdateQuickspinCount
-    );
+    COND_VB_SHOULD(VB_SHOULD_QUICKSPIN, CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
+                   { HandleQuickspin(should, va_arg(args, s8*), va_arg(args, s8*)); });
+    COND_HOOK(OnPassPlayerInputs, CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0), UpdateQuickspinCount);
 }
 
 static RegisterShipInitFunc initFunc(RegisterQuickspinFunc, { "gEnhancements.Mouse.Quickspin.Enable" });

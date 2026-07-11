@@ -952,45 +952,35 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.Enabled")
         .Options(CheckboxOptions().DefaultValue(false))
-        .Callback(
-            [](WidgetInfo& info) {
-                bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
-                Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
-            }
-        );
+        .Callback([](WidgetInfo& info) {
+            bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) &&
+                           CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
+            Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
+        });
     AddWidget(path, "Auto Capture Mouse Input", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.AutoCapture")
-        .Callback(
-            [](WidgetInfo& info) {
-                bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
-                Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
-            }
-        ).Options(
-            CheckboxOptions().Tooltip(
-                "When Mouse Controls are enabled, this toggles whether the program will automatically "
-                "hide the cursor and capture mouse input when closing the menu."
-            )
-        );
+        .Callback([](WidgetInfo& info) {
+            bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) &&
+                           CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
+            Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
+        })
+        .Options(CheckboxOptions().Tooltip(
+            "When Mouse Controls are enabled, this toggles whether the program will automatically "
+            "hide the cursor and capture mouse input when closing the menu."));
     AddWidget(path, "Disable Third Person Mouse Camera", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.DisableThirdPerson")
         .Options(CheckboxOptions().DefaultValue(false).Tooltip(
             "Prevents the mouse from moving the third-person camera, so only first-person aiming "
             "responds to the mouse."))
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
-        });
+        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active; });
     AddWidget(path, "Mouse Shielding Enabled", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Mouse.Shielding.Enabled")
         .Options(CheckboxOptions().DefaultValue(false))
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
-        });
+        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active; });
     AddWidget(path, "Mouse Quickspin", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Mouse.Quickspin.Enable")
         .Options(CheckboxOptions().DefaultValue(false))
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
-        });
+        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active; });
 
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Cheats", 2);

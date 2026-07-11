@@ -71,11 +71,8 @@ void Mouse_ForceToggleCapture() {
 void Mouse_UpdateCaptureByState() {
     bool capture = InferCaptureFromState(gameState);
 
-    if (
-        gameState.isCaptureForced
-        || !capture
-        || Ship::Context::GetInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()
-    ) {
+    if (gameState.isCaptureForced || !capture ||
+        Ship::Context::GetInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()) {
         Ship::Context::GetInstance()->GetWindow()->SetMouseCapture(capture);
     }
 }
@@ -98,30 +95,18 @@ void HandleKaleidoCapture(PauseContext* pauseCtx) {
 }
 
 void RegisterMouseRelatedHooks() {
-    COND_HOOK(
-        OnKaleidoUpdate,
-        true,
-        HandleKaleidoCapture
-    );
-    COND_HOOK(
-        OnSaveLoad,
-        true,
-        [](s16 fileNum) {
-            gameState.gameStarted = true;
+    COND_HOOK(OnKaleidoUpdate, true, HandleKaleidoCapture);
+    COND_HOOK(OnSaveLoad, true, [](s16 fileNum) {
+        gameState.gameStarted = true;
+        Mouse_UpdateCaptureByState();
+    });
+    COND_HOOK(OnConsoleLogoUpdate, true, []() {
+        if (gameState.gameStarted) {
+            gameState.gameStarted = false;
+            gameState.inKaleido = false;
             Mouse_UpdateCaptureByState();
         }
-    );
-    COND_HOOK(
-        OnConsoleLogoUpdate,
-        true,
-        []() {
-            if (gameState.gameStarted) {
-                gameState.gameStarted = false;
-                gameState.inKaleido = false;
-                Mouse_UpdateCaptureByState();
-            }
-        }
-    );
+    });
 }
 
 static RegisterShipInitFunc initFunc(RegisterMouseRelatedHooks, {});

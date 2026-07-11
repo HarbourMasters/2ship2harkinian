@@ -170,16 +170,12 @@ OTRGlobals::OTRGlobals() {
     context->InitConsole();
 
     auto benInputEditorWindow = std::make_shared<BenInputEditorWindow>("gWindows.BenInputEditor", "2S2H Input Editor");
-    benFast3dWindow =
-        std::make_shared<Fast::Fast3dWindow>(
-            std::make_shared<Ship::Gui>(std::vector<std::shared_ptr<Ship::GuiWindow>>({ benInputEditorWindow })),
-            std::make_shared<LocalMouseStateManager>()
-        );
+    benFast3dWindow = std::make_shared<Fast::Fast3dWindow>(
+        std::make_shared<Ship::Gui>(std::vector<std::shared_ptr<Ship::GuiWindow>>({ benInputEditorWindow })),
+        std::make_shared<LocalMouseStateManager>());
     context->InitWindow(benFast3dWindow);
-    benFast3dWindow->SetAutoCaptureMouse(
-        CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)
-        && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1)
-    );
+    benFast3dWindow->SetAutoCaptureMouse(CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) &&
+                                         CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1));
 
     BenGui::SetupMenu();
 
