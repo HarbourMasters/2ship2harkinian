@@ -504,7 +504,10 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_SONG_OATH:
             return !CHECK_QUEST_ITEM(QUEST_SONG_OATH);
         case RI_SONG_SARIA:
-            return !CHECK_QUEST_ITEM(QUEST_SONG_SARIA);
+            if (hasObtainedCheck) {
+                return false;
+            }
+            return true;
         case RI_SONG_SOARING:
             return !CHECK_QUEST_ITEM(QUEST_SONG_SOARING);
         case RI_SONG_SONATA:
