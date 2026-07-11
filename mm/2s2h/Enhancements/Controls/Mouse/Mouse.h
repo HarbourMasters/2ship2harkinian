@@ -1,4 +1,3 @@
-// TODO: Maybe this file should be part of BenPort
 #pragma once
 
 #include "ultratypes.h"

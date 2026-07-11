@@ -169,7 +169,6 @@ bool Camera_CanFreeLook(Camera* camera) {
         MouseCoords mouseDelta = Mouse_GetDelta();
         Player* player = GET_PLAYER(gPlayState);
         if (mouseDelta.x != 0 || mouseDelta.y != 0) {
-            // TODO: why auto? consider
             if (player->autoLockOnActor == NULL) {
                 sCanFreeLook = true;
             } else if (
@@ -192,7 +191,6 @@ bool Camera_CanFreeLook(Camera* camera) {
         }
     }
 
-    // TODO: check persistent Z-target freelook variant
     // Pressing Z will "Reset" Camera
     if (CHECK_BTN_ALL(sCamPlayState->state.input[0].press.button, BTN_Z)) {
         sCanFreeLook = false;

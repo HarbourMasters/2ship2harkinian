@@ -10078,12 +10078,10 @@ s32 func_8083E514(Player* this, f32* arg2, s16* arg3, PlayState* play) {
         if (this->focusActor != NULL) {
             func_8083C62C(this, true);
         } else {
-            // FIXME: additional cvar check for settings
             if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
                 MouseCoords mouseDelta = Mouse_GetDelta();
 
                 if (mouseDelta.y != 0) {
-                    this->actor.focus.rot.x += mouseDelta.y * 8;
                     this->actor.focus.rot.x = CLAMP(
                         this->actor.focus.rot.x - (
                             mouseDelta.y * 12.0f
@@ -13575,7 +13573,6 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
     if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
         MouseCoords mouseDelta = Mouse_GetDelta();
 
-        // TODO: gyro?
         if (mouseDelta.x != 0) {
             this->actor.focus.rot.y += mouseDelta.x * 12.0f *
                                        CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f) *

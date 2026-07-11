@@ -2458,7 +2458,13 @@ typedef enum {
     // - `*f32` (speed)
     VB_ZTARGET_SPEED_CHECK,
 
-    // FIXME: add docs
+    // #### `result`
+    // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `*s8` (buffer used for writing calculated spin-angles)
+    // - `*s8` (buffer used for validation of calculated spin-angles)
     VB_SHOULD_QUICKSPIN,
 } GIVanillaBehavior;
 
