@@ -264,6 +264,7 @@ static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
                                                                    "gRando.Options.RO_SHUFFLE_OWL_STATUES",
                                                                    "gRando.Options.RO_SHUFFLE_POT_DROPS",
                                                                    "gRando.Options.RO_SHUFFLE_SHOPS",
+                                                                   "gRando.Options.RO_SHUFFLE_SKELETON_KEY",
                                                                    "gRando.Options.RO_SHUFFLE_SNOWBALL_DROPS",
                                                                    "gRando.Options.RO_SHUFFLE_SONG_DOUBLE_TIME",
                                                                    "gRando.Options.RO_SHUFFLE_SONG_INVERTED_TIME",
@@ -732,8 +733,10 @@ static void DrawItemsTab() {
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Deku Nut Bag", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
-    CVarCheckbox("Skeleton Key", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox(
+        "Skeleton Key", Rando::StaticData::Options[RO_SHUFFLE_SKELETON_KEY].cvar,
+        CheckboxOptions({ { .tooltip = "Adds the Skeleton Key to the item pool. Collecting it immediately grants "
+                                       "the maximum number of Small Keys for every dungeon." } }));
     CVarCheckbox("Tycoon's Wallet", Rando::StaticData::Options[RO_SHUFFLE_TYCOON_WALLET].cvar,
                  CheckboxOptions({ { .tooltip = "Adds the Tycoon's Wallet (5,000 rupees) to the item pool\n"
                                                 "as a third progressive wallet upgrade.",
