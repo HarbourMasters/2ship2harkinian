@@ -8548,14 +8548,6 @@ s32 Player_ActionHandler_11(Player* this, PlayState* play) {
                     if (!Player_IsGoronOrDeku(this)) {
                         Player_SetModelsForHoldingShield(this);
                         anim = D_8085BE84[PLAYER_ANIMGROUP_defense][this->modelAnimType];
-
-                        // FIXME: cursor reset on shield pull
-                        if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
-                            u32 width = OTRGetCurrentWidth();
-                            u32 height = OTRGetCurrentHeight();
-                            Mouse_SetCursorPos(width / 2, height / 2);
-                        }
-                        //
                     } else {
                         anim = (this->transformation == PLAYER_FORM_DEKU) ? &gPlayerAnim_pn_gurd
                                                                           : &gPlayerAnim_clink_normal_defense_ALL;
@@ -15392,7 +15384,6 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         s16 rotYTarget, rotXTarget;
         if (lastInputIsMouse) {
             // Plain shield movement instead of camera-relative one
-            // TODO: control via cvar?
             rotYTarget = this->upperLimbRot.y + xInput;
             rotXTarget = this->actor.focus.rot.x + yInput;
         } else {
