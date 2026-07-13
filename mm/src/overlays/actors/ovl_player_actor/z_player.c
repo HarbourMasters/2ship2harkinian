@@ -8736,9 +8736,20 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             s16 inputY;
             s16 inputX;
             s16 newYaw; // from base position shape.rot.y
+            s16 mouseX = 0;
+            s16 mouseY = 0;
 
             // Pitch:
+            if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+                MouseCoords mouseDelta = Mouse_GetDelta();
+                mouseX = mouseDelta.x * 12.0f *
+                         CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
+                mouseY = mouseDelta.y * 12.0f *
+                         CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+            }
+
             inputY = sPlayerControlInput->rel.stick_y * 4;
+            inputY += mouseY;
             inputY *= -GameInteractor_InvertControl(GI_INVERT_TELESCOPE_Y);
             // Add input, clamped to prevent turning too fast
             thisx->focus.rot.x += CLAMP(inputY, -0x12C, 0x12C);
@@ -8746,7 +8757,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             thisx->focus.rot.x = CLAMP(thisx->focus.rot.x, -0x2EE0, 0x2EE0);
 
             // Yaw: shape.rot.y is used as a fixed starting position
-            inputX = sPlayerControlInput->rel.stick_x * -4;
+            inputX = sPlayerControlInput->rel.stick_x * -4 - mouseX;
             inputX *= GameInteractor_InvertControl(GI_INVERT_TELESCOPE_X);
             // Start from current position: no input -> no change
             newYaw = thisx->focus.rot.y - thisx->shape.rot.y;
@@ -10076,18 +10087,16 @@ s32 func_8083E514(Player* this, f32* arg2, s16* arg3, PlayState* play) {
 
                 if (mouseDelta.y != 0) {
                     this->actor.focus.rot.x += mouseDelta.y * 8;
-                    this->actor.focus.rot.x = CLAMP(
-                        this->actor.focus.rot.x - (
-                            mouseDelta.y * 12.0f
-                            * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f)
-                            * -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y)
-                        ),
-                        -60 * 240,
-                        60 * 240
-                    );
+                    this->actor.focus.rot.x =
+                        CLAMP(this->actor.focus.rot.x -
+                                  (mouseDelta.y * 12.0f *
+                                   CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f) *
+                                   -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y)),
+                              -60 * 240, 60 * 240);
                 }
             } else {
-                Math_SmoothStepToS(&this->actor.focus.rot.x, (sPlayerControlInput->rel.stick_y * 240.0f), 0xE, 0xFA0, 0x1E);
+                Math_SmoothStepToS(&this->actor.focus.rot.x, (sPlayerControlInput->rel.stick_y * 240.0f), 0xE, 0xFA0,
+                                   0x1E);
             }
             func_80832754(this, true);
         }
@@ -15363,13 +15372,16 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         static bool lastInputIsMouse = false;
         f32 xInput = 0, yInput = 0;
 
-        bool mouseControl = (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0));
+        bool mouseControl = (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) &&
+                             CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0));
         if (mouseControl) {
             MouseCoords mouseDelta = Mouse_GetDelta();
             if (mouseDelta.x != 0 || mouseDelta.y != 0) {
                 lastInputIsMouse = true;
-                xInput += ((f32)mouseDelta.x) * 60 * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
-                yInput -= ((f32)mouseDelta.y) * 60 * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+                xInput += ((f32)mouseDelta.x) * 60 *
+                          CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
+                yInput -= ((f32)mouseDelta.y) * 60 *
+                          CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
             }
         }
 

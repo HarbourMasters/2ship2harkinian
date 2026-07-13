@@ -1008,6 +1008,14 @@ void BenMenu::AddEnhancements() {
                 "hide the cursor and capture mouse input when closing the menu."
             )
         );
+    AddWidget(path, "Disable Third Person Mouse Camera", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Camera.Mouse.DisableThirdPerson")
+        .Options(CheckboxOptions().DefaultValue(false).Tooltip(
+            "Prevents the mouse from moving the third-person camera, so only first-person aiming "
+            "responds to the mouse."))
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
+        });
     AddWidget(path, "Mouse Shielding Enabled", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Mouse.Shielding.Enabled")
         .Options(CheckboxOptions().DefaultValue(false))
