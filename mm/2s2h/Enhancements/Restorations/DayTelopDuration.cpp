@@ -16,10 +16,10 @@ void RegisterDayTelopDurationRestoration() {
             return;
         }
 
-	// Only add frames the first time the DayTelop state is detected
-	if (gGameState -> frames != 1) {
-	    return;
-	}
+        // Only add frames the first time the DayTelop state is detected
+        if (gGameState -> frames != 1) {
+            return;
+        }
 
         DayTelopState* dayTelop = reinterpret_cast<DayTelopState*>(gGameState);
         dayTelop->transitionCountdown += 120;
