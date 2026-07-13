@@ -17,7 +17,7 @@ void RegisterDayTelopDurationRestoration() {
         }
 
         // Only add frames the first time the DayTelop state is detected
-        if (gGameState -> frames != 1) {
+        if (gGameState->frames != 1) {
             return;
         }
 
