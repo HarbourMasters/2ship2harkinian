@@ -246,7 +246,7 @@ void DayTelop_Init(GameState* thisx) {
     View_Init(&this->view, this->state.gfxCtx);
     this->state.main = DayTelop_Main;
     this->state.destroy = DayTelop_Destroy;
-    this->transitionCountdown = 260;
+    this->transitionCountdown = 140;
     this->fadeInState = DAYTELOP_HOURSTEXT_OFF;
 
     if (gSaveContext.save.day < 9) {
