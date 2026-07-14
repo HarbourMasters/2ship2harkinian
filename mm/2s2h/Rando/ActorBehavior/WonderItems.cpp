@@ -17,8 +17,6 @@ extern EnItem00* spawnReplacementItem(Vec3f& pos, Rando::StaticData::RandoStatic
 extern int isDropActorAtPosition(PlayState* play, Actor* callingActor_, Actor* actor, void* verifyData);
 extern void SpawnDropItem(Vec3f position, RandoCheckId randoCheckId);
 
-static Vec3f terminaFieldWallPos = { -835, -221, -3474 };
-
 // clang-format off
 std::map<std::tuple<s16, s16, s16, s16>, RandoCheckId> enWonderItemMap = {
     // Pirates' Fortress
@@ -85,8 +83,8 @@ bool SpawnDroppedWonderItems(Vec3f position, u32 params) {
                                             isDropActorAtPosition);
 
     if (dropActor == nullptr) {
-        dropActor = SubS_FindActorCustom(gPlayState, NULL, NULL, ACTORCAT_ITEMACTION, ACTOR_EN_GAKUFU,
-                                         &terminaFieldWallPos, isDropActorAtPosition);
+        dropActor = Actor_FindNearby(gPlayState, &GET_PLAYER(gPlayState)->actor, ACTOR_EN_GAKUFU, ACTORCAT_ITEMACTION,
+                                     99999.9f);
         if (dropActor == nullptr || ((EnGakufu*)dropActor)->actionFunc != EnGakufu_PlayRewardCutscene) {
             return false;
         }
