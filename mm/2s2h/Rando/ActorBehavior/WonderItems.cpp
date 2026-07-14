@@ -5,6 +5,7 @@
 extern "C" {
 #include "overlays/actors/ovl_En_Invisible_Ruppe/z_en_invisible_ruppe.h"
 #include "overlays/actors/ovl_En_Hit_Tag/z_en_hit_tag.h"
+#include "overlays/actors/ovl_Obj_Dora/z_obj_dora.h"
 }
 
 extern EnItem00* spawnReplacementItem(Vec3f& pos, Rando::StaticData::RandoStaticCheck& randoStaticCheck);
@@ -131,6 +132,14 @@ void Rando::ActorBehavior::InitWonderItemsBehavior() {
         Vec3f position = va_arg(args, Vec3f);
         u32 params = va_arg(args, u32);
         if (SpawnEnHitTagWonderItems(position, params)) {
+            *should = false;
+        }
+    });
+
+    COND_VB_SHOULD(VB_GONG_DROP_COLLECTIBLE, shouldRegister, {
+        ObjDora* objDora = va_arg(args, ObjDora*);
+        if (!RANDO_SAVE_CHECKS[RC_SWORDSMAN_SCHOOL_WONDER_ITEM].cycleObtained) {
+            SpawnDropItem(objDora->actor.world.pos, RC_SWORDSMAN_SCHOOL_WONDER_ITEM);
             *should = false;
         }
     });

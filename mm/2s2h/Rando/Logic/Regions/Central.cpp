@@ -397,6 +397,9 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_SWORDSMAN_SCHOOL_POT_03, CAN_USE_HUMAN_SWORD && AFTER(TIME_NIGHT3_AM_12_00)),
             CHECK(RC_SWORDSMAN_SCHOOL_POT_04, CAN_USE_HUMAN_SWORD && AFTER(TIME_NIGHT3_AM_12_00)),
             CHECK(RC_SWORDSMAN_SCHOOL_POT_05, CAN_USE_HUMAN_SWORD && AFTER(TIME_NIGHT3_AM_12_00)),
+            CHECK(RC_SWORDSMAN_SCHOOL_WONDER_ITEM, (CAN_BE_GORON || CAN_BE_ZORA || CAN_BE_DEKU || CAN_USE_SWORD ||
+                                                    HAS_ITEM(ITEM_DEKU_STICK) || HAS_ITEM(ITEM_HOOKSHOT) || HAS_ITEM(ITEM_BOW)) &&
+                                                    BEFORE(TIME_NIGHT3_PM_11_00)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(WEST_CLOCK_TOWN, 3),              ENTRANCE(SWORDMANS_SCHOOL, 0), true),
