@@ -4,13 +4,20 @@
 
 extern "C" {
 #include "overlays/actors/ovl_En_Invisible_Ruppe/z_en_invisible_ruppe.h"
+#include "overlays/actors/ovl_En_Gakufu/z_en_gakufu.h"
 #include "overlays/actors/ovl_En_Hit_Tag/z_en_hit_tag.h"
 #include "overlays/actors/ovl_Obj_Dora/z_obj_dora.h"
+
+extern Vec3f sRewardDropsSpawnTerminaFieldPos;
+extern u8 sRewardDropsIndex[];
+extern void EnGakufu_PlayRewardCutscene(EnGakufu* enGakufu, PlayState* play);
 }
 
 extern EnItem00* spawnReplacementItem(Vec3f& pos, Rando::StaticData::RandoStaticCheck& randoStaticCheck);
 extern int isDropActorAtPosition(PlayState* play, Actor* callingActor_, Actor* actor, void* verifyData);
 extern void SpawnDropItem(Vec3f position, RandoCheckId randoCheckId);
+
+static Vec3f terminaFieldWallPos = { -835, -221, -3474 };
 
 // clang-format off
 std::map<std::tuple<s16, s16, s16, s16>, RandoCheckId> enWonderItemMap = {
@@ -73,12 +80,16 @@ std::map<std::tuple<s16, s16, s16, s16>, RandoCheckId> enWonderItemMap = {
 };
 // clang-format on
 
-bool SpawnEnHitTagWonderItems(Vec3f position, u32 params) {
+bool SpawnDroppedWonderItems(Vec3f position, u32 params) {
     Actor* dropActor = SubS_FindActorCustom(gPlayState, NULL, NULL, ACTORCAT_ITEMACTION, ACTOR_EN_HIT_TAG, &position,
                                             isDropActorAtPosition);
 
     if (dropActor == nullptr) {
-        return false;
+        dropActor = SubS_FindActorCustom(gPlayState, NULL, NULL, ACTORCAT_ITEMACTION, ACTOR_EN_GAKUFU,
+                                         &terminaFieldWallPos, isDropActorAtPosition);
+        if (dropActor == nullptr || ((EnGakufu*)dropActor)->actionFunc != EnGakufu_PlayRewardCutscene) {
+            return false;
+        }
     }
 
     s16 actorListIndex = GetActorListIndex(dropActor);
@@ -89,10 +100,16 @@ bool SpawnEnHitTagWonderItems(Vec3f position, u32 params) {
     }
 
     RandoCheckId baseRandoCheckId = RC_UNKNOWN;
-    auto it = enWonderItemMap.find(
-        { ACTOR_EN_HIT_TAG, gPlayState->sceneId, gPlayState->roomCtx.curRoom.num, actorListIndex });
-    if (it != enWonderItemMap.end()) {
-        baseRandoCheckId = it->second;
+    if (dropActor->id == ACTOR_EN_GAKUFU) {
+        s32 hour = TIME_TO_HOURS_F(CURRENT_TIME);
+        baseRandoCheckId = RandoCheckId(RC_TERMINA_FIELD_WALL_WONDER_ITEM_01 + sRewardDropsIndex[hour]);
+        position = sRewardDropsSpawnTerminaFieldPos;
+    } else {
+        auto it = enWonderItemMap.find(
+            { ACTOR_EN_HIT_TAG, gPlayState->sceneId, gPlayState->roomCtx.curRoom.num, actorListIndex });
+        if (it != enWonderItemMap.end()) {
+            baseRandoCheckId = it->second;
+        }
     }
 
     if (baseRandoCheckId == RC_UNKNOWN) {
@@ -131,7 +148,7 @@ void Rando::ActorBehavior::InitWonderItemsBehavior() {
     COND_VB_SHOULD(VB_DROP_COLLECTIBLE, shouldRegister, {
         Vec3f position = va_arg(args, Vec3f);
         u32 params = va_arg(args, u32);
-        if (SpawnEnHitTagWonderItems(position, params)) {
+        if (SpawnDroppedWonderItems(position, params)) {
             *should = false;
         }
     });
