@@ -46,6 +46,15 @@ struct CustomCosmeticEntry {
     std::vector<CustomCosmeticBinding> bindings;
 };
 
+struct ManifestEntry {
+    std::string materialPath;
+    std::string cosmeticEntry;
+    std::string key;
+    std::string cosmeticCategory;
+    bool hasCosmeticCategory = false;
+    bool isPrimColor = false;
+};
+
 static std::vector<CustomCosmeticEntry> customCosmeticEntries;
 static bool customHumanModelActive = false;
 static bool customDekuModelActive = false;
@@ -417,14 +426,6 @@ void ScanDynamicCosmetics() {
     auto archiveManager = resourceManager->GetArchiveManager();
     RefreshCustomModelActiveFlags(archiveManager.get());
     auto archives = archiveManager->GetArchives();
-    struct ManifestEntry {
-        std::string materialPath;
-        std::string cosmeticEntry;
-        std::string key;
-        std::string cosmeticCategory;
-        bool hasCosmeticCategory = false;
-        bool isPrimColor = false;
-    };
     std::vector<ManifestEntry> manifestEntries;
     std::unordered_map<std::string, size_t> entryIndicesByKey;
 
