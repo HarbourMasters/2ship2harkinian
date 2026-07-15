@@ -746,6 +746,9 @@ static void DrawItemsTab() {
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Infinite Upgrades", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Purchase Infinite Rupees", Rando::StaticData::Options[RO_PURCHASE_INFINITE_RUPEES].cvar,
+                 CheckboxOptions({ { .tooltip = "Rupees in shops can be purchased any number of times "
+                                                "within a cycle." } }));
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
