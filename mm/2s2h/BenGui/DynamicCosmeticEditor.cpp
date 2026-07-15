@@ -510,9 +510,8 @@ void ScanDynamicCosmetics() {
             if (cosmeticEntry == nullptr || cosmeticEntry != manifestEntry.cosmeticEntry) {
                 continue;
             }
-            const char* cosmeticCategory =
-                manifestEntry.hasCosmeticCategory ? manifestEntry.cosmeticCategory.c_str()
-                                                  : child->Attribute("CosmeticCategory");
+            const char* cosmeticCategory = manifestEntry.hasCosmeticCategory ? manifestEntry.cosmeticCategory.c_str()
+                                                                             : child->Attribute("CosmeticCategory");
 
             const auto& key = manifestEntry.key;
 
