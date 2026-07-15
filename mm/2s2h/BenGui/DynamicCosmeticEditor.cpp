@@ -420,6 +420,7 @@ void ScanDynamicCosmetics() {
     struct ManifestEntry {
         std::string materialPath;
         std::string cosmeticEntry;
+        std::string key;
         std::string cosmeticCategory;
         bool hasCosmeticCategory = false;
         bool isPrimColor = false;
@@ -474,8 +475,14 @@ void ScanDynamicCosmetics() {
                 continue;
             }
 
+            std::string key = cosmeticEntry;
+            SanitizeCustomKey(key);
+            if (key.empty()) {
+                continue;
+            }
+
             const char* cosmeticCategory = manifestEntry->Attribute("CosmeticCategory");
-            manifestEntries.push_back({ resolvedMaterialPath, cosmeticEntry,
+            manifestEntries.push_back({ resolvedMaterialPath, cosmeticEntry, std::move(key),
                                         cosmeticCategory != nullptr ? cosmeticCategory : "",
                                         cosmeticCategory != nullptr, isPrimColor });
         }
@@ -507,11 +514,7 @@ void ScanDynamicCosmetics() {
                 manifestEntry.hasCosmeticCategory ? manifestEntry.cosmeticCategory.c_str()
                                                   : child->Attribute("CosmeticCategory");
 
-            std::string key = cosmeticEntry;
-            SanitizeCustomKey(key);
-            if (key.empty()) {
-                continue;
-            }
+            const auto& key = manifestEntry.key;
 
             Gfx expectedInstruction;
             if (isPrimColor) {
@@ -572,8 +575,8 @@ void ScanDynamicCosmetics() {
     std::stable_sort(
         customCosmeticEntries.begin(), customCosmeticEntries.end(),
         [](const CustomCosmeticEntry& lhs, const CustomCosmeticEntry& rhs) {
-            int lhsOrder = 2;
-            int rhsOrder = 2;
+            int lhsOrder = GetDynamicMaterialFormSortOrder(DynamicCosmeticForm::Other);
+            int rhsOrder = GetDynamicMaterialFormSortOrder(DynamicCosmeticForm::Other);
 
             for (const auto& binding : lhs.bindings) {
                 lhsOrder =
