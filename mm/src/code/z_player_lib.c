@@ -44,6 +44,9 @@
 // Assets for other actors
 #include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
 
+// Play as Kafei waist DL override
+#include "objects/object_test3/object_test3.h"
+
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
@@ -651,6 +654,20 @@ void func_80123140(PlayState* play, Player* player) {
 
     Actor_SetScale(&player->actor, scale);
 }
+
+// #region 2S2H [Port] Determine if we're using a custom model for link
+uint8_t Player_IsCustomLinkModel(Player* player) {
+    return ((player->transformation == PLAYER_FORM_HUMAN) && ResourceGetIsCustomByName(gLinkHumanSkel)) ||
+           ((player->transformation == PLAYER_FORM_DEKU) && ResourceGetIsCustomByName(gLinkDekuSkel)) ||
+           ((player->transformation == PLAYER_FORM_GORON) && ResourceGetIsCustomByName(gLinkGoronSkel)) ||
+           ((player->transformation == PLAYER_FORM_ZORA) && ResourceGetIsCustomByName(gLinkZoraSkel)) ||
+           ((player->transformation == PLAYER_FORM_FIERCE_DEITY) && ResourceGetIsCustomByName(gLinkFierceDeitySkel)) ||
+
+           // special case for kafei model swaps when using Play as Kafei enhancement
+           ((player->transformation == PLAYER_FORM_HUMAN) && CVarGetInteger("gModes.PlayAsKafei", 0) &&
+            ResourceGetIsCustomByName(gKafeiSkel));
+}
+// #endregion
 
 bool Player_InBlockingCsMode(PlayState* play, Player* player) {
     return (player->stateFlags1 & (PLAYER_STATE1_DEAD | PLAYER_STATE1_200 | PLAYER_STATE1_20000000)) ||
@@ -2698,7 +2715,9 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
 
             *dList = sheathDLists[sPlayerLod];
         } else if (limbIndex == PLAYER_LIMB_WAIST) {
-            *dList = player->waistDLists[sPlayerLod];
+            if (!Player_IsCustomLinkModel(player)) {
+                *dList = player->waistDLists[sPlayerLod];
+            }
         } else if (limbIndex == PLAYER_LIMB_HAT) {
             if (player->transformation == PLAYER_FORM_ZORA) {
                 Matrix_Scale((player->unk_B10[0] * 1) + 1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
