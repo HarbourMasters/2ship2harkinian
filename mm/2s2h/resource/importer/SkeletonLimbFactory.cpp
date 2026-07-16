@@ -3,22 +3,6 @@
 #include <tinyxml2.h>
 
 namespace SOH {
-static LimbType ParseLimbType(const std::string& limbType) {
-    if (limbType == "Standard") {
-        return LimbType::Standard;
-    }
-    if (limbType == "LOD") {
-        return LimbType::LOD;
-    }
-    if (limbType == "Skin") {
-        return LimbType::Skin;
-    }
-    if (limbType == "Curve") {
-        return LimbType::Curve;
-    }
-    return LimbType::Invalid;
-}
-
 static void BuildSkeletonLimbData(const std::shared_ptr<SkeletonLimb>& skeletonLimb) {
     if (skeletonLimb->limbType == LimbType::LOD) {
         skeletonLimb->limbData.lodLimb.jointPos.x = skeletonLimb->transX;
@@ -266,8 +250,7 @@ ResourceFactoryXMLSkeletonLimbV0::ReadResource(std::shared_ptr<Ship::File> file,
     auto skelLimb = std::make_shared<SkeletonLimb>(initData);
     auto reader = std::get<std::shared_ptr<tinyxml2::XMLDocument>>(file->Reader)->FirstChildElement();
 
-    const char* limbTypeAttr = reader->Attribute("Type");
-    skelLimb->limbType = limbTypeAttr != nullptr ? ParseLimbType(limbTypeAttr) : LimbType::LOD;
+    skelLimb->limbType = LimbType::LOD;
 
     // skelLimb->legTransX = reader->FloatAttribute("LegTransX");
     // skelLimb->legTransY = reader->FloatAttribute("LegTransY");
