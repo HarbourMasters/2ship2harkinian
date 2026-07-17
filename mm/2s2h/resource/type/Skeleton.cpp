@@ -83,7 +83,6 @@ void SkeletonPatcher::UpdateSkeletons() {
         switch (newSkel->type) {
             case SkeletonType::Flex:
                 skel.skelAnime->skeleton = newSkel->skeletonData.flexSkeletonHeader.sh.segment;
-                skel.skelAnime->dListCount = newSkel->skeletonData.flexSkeletonHeader.dListCount;
                 break;
             case SkeletonType::Normal:
                 skel.skelAnime->skeleton = newSkel->skeletonData.skeletonHeader.segment;
