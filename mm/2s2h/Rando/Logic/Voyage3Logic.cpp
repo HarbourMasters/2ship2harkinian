@@ -38,7 +38,7 @@ void ApplyVoyage3LogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::v
     // Inital shuffle of the item pool (Following shuffles done at the end of the loop)
     if (itemPool.size() > 1) {
         for (size_t i = 0; i < itemPool.size(); i++) {
-            size_t j = Ship_Random(0, itemPool.size() - 1);
+            size_t j = Ship_Random(0, itemPool.size());
             std::swap(itemPool[i], itemPool[j]);
         }
     }
@@ -182,7 +182,7 @@ void ApplyVoyage3LogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::v
                     std::partial_sum(checksWithJunkWeights.begin(), checksWithJunkWeights.end(),
                                      cumulativeWeights.begin());
                     double random = Ship_Random(0, cumulativeWeights.back());
-                    auto it = std::lower_bound(cumulativeWeights.begin(), cumulativeWeights.end(), random);
+                    auto it = std::upper_bound(cumulativeWeights.begin(), cumulativeWeights.end(), random);
                     size_t index = std::distance(cumulativeWeights.begin(), it);
 
                     checkWithJunk = checksWithJunk[index];
@@ -256,7 +256,7 @@ void ApplyVoyage3LogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::v
             // Shuffle the item pool
             if (itemPool.size() > 1) {
                 for (size_t i = 0; i < itemPool.size(); i++) {
-                    size_t j = Ship_Random(0, itemPool.size() - 1);
+                    size_t j = Ship_Random(0, itemPool.size());
                     std::swap(itemPool[i], itemPool[j]);
                 }
             }

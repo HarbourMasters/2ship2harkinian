@@ -305,12 +305,12 @@ nlohmann::json voyage3PresetJ = R"(
             "SpeedModifier": {
                 "Mode": 0
             }
-		},
+		    },
 		    "gDisplayOverlay": {
             "Mode": 1
         },
         "gEnhancements": {
-			"Camera": {
+			      "Camera": {
                 "DebugCam": {
                     "Enable": 0
                 }
@@ -348,7 +348,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "SkipBottlePickupMessages": 1
             },
             "DifficultyOptions": {
-				"BossHealthMultiplier": 0,
+				        "BossHealthMultiplier": 0,
                 "DamageMultiplier": 0,
                 "DekuGuardSearchBalls": 0,
                 "DeleteFileOnDeath": 0,
@@ -360,7 +360,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "HyperEnemies": 0,
                 "JinxedTimer": 60,
                 "LowerBankRewardThresholds": 1,
-				"NoHeartDrops": 0,
+				        "NoHeartDrops": 0,
                 "NoRandomDrops": 0,
                 "PermanentHeartLoss": 0
             },
@@ -380,7 +380,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "CompletedHeartContainerAudio": 1,
                 "ConsoleCrashes": 1,
                 "ControlCharacters": 1,
-				"DekuButlerFixShockLoopAnimation": 0,
+				        "DekuButlerFixShockLoopAnimation": 0,
                 "FierceDeityZTargetMovement": 1,
                 "FixTexturesOOB": 1
             },
@@ -389,7 +389,7 @@ nlohmann::json voyage3PresetJ = R"(
             },
             "Graphics": {
                 "3DItemDrops": 1,
-				"ActorCullingAccountsForWidescreen": 0,
+				        "ActorCullingAccountsForWidescreen": 0,
                 "AuthenticLogo": 1,
                 "DisableBlackBars": 1,
                 "FixSceneGeometrySeams": 0,
@@ -430,9 +430,9 @@ nlohmann::json voyage3PresetJ = R"(
                 "HoneyAndDarlingDay1": 8,
                 "HoneyAndDarlingDay2": 8,
                 "HoneyAndDarlingDay3": 16,
-				"RandomizeShootingGalleryOctoroks": 0,
+				        "RandomizeShootingGalleryOctoroks": 0,
                 "RomaniTargetPractice": 10,
-				"SkipHorseRace": 0,
+				        "SkipHorseRace": 0,
                 "SkipLittleBeaver": 1,
                 "SwampArcheryScore": 2120,
                 "SwordsmanSchoolScore": 30,
@@ -469,10 +469,10 @@ nlohmann::json voyage3PresetJ = R"(
                 "ConstantFlipsHops": 0,
                 "JPGrottos": 0,
                 "OoTFasterSwim": 0,
-				"PauseBufferWindow": 0,
+				        "PauseBufferWindow": 0,
                 "PowerCrouchStab": 2,
                 "SideRoll": 0,
-				"SoilPatch": 1,
+				        "SoilPatch": 1,
                 "TatlISG": 1,
                 "WoodfallMountainAppearance": 1
             },
@@ -515,13 +515,13 @@ nlohmann::json voyage3PresetJ = R"(
         },
         "gForceCursorVisibility": 1,
         "gMatchRefreshRate": 0,
-		"gModes": {
-			"MirroredWorld": {
+		    "gModes": {
+		      	"MirroredWorld": {
                 "Mode": 0,
                 "StoneTowerTempleFix": 0
             },
-			"TimeMovesWhenYouMove": 0
-		},
+			      "TimeMovesWhenYouMove": 0
+		    },
         "gRando": {
             "CSMC": 1,
             "Enabled": 1,
@@ -544,7 +544,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "RO_HINTS_TRANSFORMATIONS": 1,
                 "RO_MINIMUM_STRAY_FAIRIES": 5,
                 "RO_PLENTIFUL_ITEMS": 0,
-				"RO_PLACEMENT_BOSS_KEYS": 1,
+		        		"RO_PLACEMENT_BOSS_KEYS": 1,
                 "RO_PLACEMENT_SMALL_KEYS": 0,
                 "RO_PLACEMENT_STRAY_FAIRIES": 0,
                 "RO_SHUFFLE_BOSS_REMAINS": 1,
@@ -591,12 +591,12 @@ nlohmann::json voyage3PresetJ = R"(
                 "Shock": 1
             }
         },
-		"gSettings": {
-			"Menu": {
-				"Popout": 0
-			},
-			"SimulatedInputLag": 0
-		}
+		    "gSettings": {
+		    	"Menu": {
+		    		"Popout": 0
+			    },
+			    "SimulatedInputLag": 0
+		    }
     },
     "type": "2S2H_PRESET",
     "version": 1

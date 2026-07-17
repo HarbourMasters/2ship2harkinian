@@ -157,7 +157,7 @@ RandoCheckId GetProgressiveCheckInLogic() {
     Rando::Logic::FindReachableRegions(Rando::Logic::GetRegionIdFromEntrance(gSaveContext.save.entrance),
                                        reachableRegions, regionTimeStates);
 
-     std::unordered_map<RandoItemId, RandoCheckId> priorityItemChecks = {};
+    std::unordered_map<RandoItemId, RandoCheckId> priorityItemChecks = {};
     std::vector<RandoCheckId> otherChecks = {};
 
     for (RandoRegionId regionId : reachableRegions) {
