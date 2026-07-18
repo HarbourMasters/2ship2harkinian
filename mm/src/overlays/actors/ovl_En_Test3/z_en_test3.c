@@ -9,6 +9,7 @@
 
 #include "z64malloc.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/BenPort.h"
 
 #include "objects/object_test3/object_test3.h"
 #include "overlays/actors/ovl_En_Door/z_en_door.h"
