@@ -561,6 +561,8 @@ void EnTest3_Destroy(Actor* thisx, PlayState* play2) {
     PlayState* play = play2;
     EnTest3* this = (EnTest3*)thisx;
 
+    ResourceMgr_UnregisterSkeleton(&this->player.skelAnime);
+    ResourceMgr_UnregisterSkeleton(&this->player.skelAnimeUpper);
     Effect_Destroy(play, this->player.meleeWeaponEffectIndex[0]);
     Effect_Destroy(play, this->player.meleeWeaponEffectIndex[1]);
     Effect_Destroy(play, this->player.meleeWeaponEffectIndex[2]);
