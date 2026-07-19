@@ -131,6 +131,11 @@ jobs:
         APP=$(find build-cmake -name "*.app" -type d | head -1)
         sips -z 120 120 mm/macosx/2s2hIcon.png --out "$APP/Icon-60@2x.png"
         sips -z 180 180 mm/macosx/2s2hIcon.png --out "$APP/Icon-60@3x.png"
+    - name: Convert Info.plist to binary (AltStore parse compatibility)
+      run: |
+        APP=$(find build-cmake -name "*.app" -type d | head -1)
+        plutil -convert binary1 "$APP/Info.plist"
+        plutil -lint "$APP/Info.plist"
     - name: Package unsigned IPA
       run: |
         APP=$(find build-cmake -name "*.app" -type d | head -1)
