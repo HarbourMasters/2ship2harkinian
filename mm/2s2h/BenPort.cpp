@@ -999,8 +999,15 @@ static void IOS_PrepareAppDirectory() {
     std::filesystem::create_directories(dataPath, ec);
     chdir(dataPath.c_str());
     std::string bundlePath = Ship::Context::GetAppBundlePath();
-    std::filesystem::copy_file(bundlePath + "/2ship.o2r", dataPath + "/2ship.o2r",
-                               std::filesystem::copy_options::overwrite_existing, ec);
+    // Refresh the port archive only when the bundled copy actually differs (app update);
+    // a byte-identical clobber is pointless and a size check is cheap and safe.
+    const std::string bundleO2r = bundlePath + "/2ship.o2r";
+    const std::string dataO2r = dataPath + "/2ship.o2r";
+    std::error_code sizeEc;
+    if (!std::filesystem::exists(dataO2r) ||
+        std::filesystem::file_size(dataO2r, sizeEc) != std::filesystem::file_size(bundleO2r, sizeEc)) {
+        std::filesystem::copy_file(bundleO2r, dataO2r, std::filesystem::copy_options::overwrite_existing, ec);
+    }
     if (!std::filesystem::exists(dataPath + "/gamecontrollerdb.txt")) {
         std::filesystem::copy_file(bundlePath + "/gamecontrollerdb.txt", dataPath + "/gamecontrollerdb.txt", ec);
     }
