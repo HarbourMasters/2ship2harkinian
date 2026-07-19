@@ -35,7 +35,9 @@ build() {
   git -C "$WORK/$name" checkout -q FETCH_HEAD
   if [ "$name" = "opusfile" ]; then
     # opusfile versions itself via `git describe` (impossible in a shallow tagless fetch)
-    # or a package_version file, which is how release tarballs carry it. Provide the latter.
+    # or a package_version file — but only consults the file when .git is absent
+    # (OpusFilePackageVersion.cmake uses elseif on the .git dir). Drop .git, provide the file.
+    rm -rf "$WORK/$name/.git"
     echo 'PACKAGE_VERSION="0.12.1"' > "$WORK/$name/package_version"
   fi
   cmake -S "$WORK/$name" -B "$WORK/$name/build" -GNinja "${IOS_CMAKE_ARGS[@]}" "$@"
