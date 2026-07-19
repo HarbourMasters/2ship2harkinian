@@ -52,8 +52,11 @@ SDL game-controller input, 60fps interpolation on by default.
 ### Requirements
 
 * iPhone or iPad on **iOS 16+** (tested target: recent A16+ iPhones)
-* A **Bluetooth controller** (Xbox / PlayStation / Backbone — pair in iOS Settings). Touch
-  works for menus; gameplay currently expects a controller.
+* No controller needed: **on-screen touch controls** (floating stick, MM HUD-styled
+  buttons, drag-to-look camera, a dedicated ocarina piano mode via the ♪ pill, optional
+  gyro aiming). A **Bluetooth controller** (Xbox / PlayStation / Backbone) is still fully
+  supported — the overlay auto-hides while one is connected. Tune everything under
+  Settings → Touch Controls (gear pill opens the menu).
 * A PC (or Mac) with **[AltServer](https://altstore.io/)** to sideload — the app can never be
   on the App Store, and builds are signed with your own free Apple ID (7-day certificates,
   auto-refreshed by AltStore on shared WiFi).
@@ -97,7 +100,6 @@ and bundled into the app; `mm.o2r` always comes from your own ROM and is never d
 
 ### Known limitations
 
-* Controller required for gameplay (on-screen touch controls are planned, not yet built).
 * No in-app ROM extraction — extract on desktop, copy `mm.o2r` once.
 * Sideload signing expires after 7 days on a free Apple ID; AltStore refreshes it automatically
   when the phone shares WiFi with a running AltServer.
