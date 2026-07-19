@@ -1,0 +1,110 @@
+name: ios
+on:
+  push:
+    branches: [ios]
+  workflow_dispatch:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+
+  generate-2ship-otr:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: Git Checkout
+      uses: actions/checkout@v6
+      with:
+        submodules: true
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y $(cat .github/workflows/apt-deps.txt) libzip-dev zipcmp zipmerge ziptool
+    - name: Create deps folder
+      run: mkdir -p deps
+    - name: Install latest SDL
+      run: |
+        if [ ! -d "deps/SDL2-2.30.3" ]; then
+          wget https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-2.30.3.tar.gz
+          tar -xzf SDL2-2.30.3.tar.gz -C deps
+        fi
+        cd deps/SDL2-2.30.3
+        ./configure --enable-hidapi-libusb
+        make -j 10
+        sudo make install
+        sudo cp -av /usr/local/lib/libSDL* /lib/x86_64-linux-gnu/
+    - name: Install latest tinyxml2
+      run: |
+        sudo apt-get remove libtinyxml2-dev
+        if [ ! -d "deps/tinyxml2-10.0.0" ]; then
+          wget https://github.com/leethomason/tinyxml2/archive/refs/tags/10.0.0.tar.gz
+          tar -xzf 10.0.0.tar.gz -C deps
+        fi
+        cd deps/tinyxml2-10.0.0
+        mkdir -p build
+        cd build
+        cmake ..
+        make
+        sudo make install
+    - name: Generate 2ship.o2r
+      run: |
+        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
+        cmake --build build-cmake --config Release --target Generate2ShipOtr -j3
+    - name: Upload 2ship.o2r
+      uses: actions/upload-artifact@v7
+      with:
+        name: 2ship.o2r
+        path: 2ship.o2r
+        retention-days: 3
+
+  build-ios:
+    needs: generate-2ship-otr
+    runs-on: macos-15
+    steps:
+    - name: Git Checkout
+      uses: actions/checkout@v6
+      with:
+        submodules: true
+    - name: Install build tools
+      run: brew install ninja
+    - name: Cache codec deps
+      id: cache-codec-deps
+      uses: actions/cache@v4
+      with:
+        path: ios-deps-prefix
+        key: ${{ runner.os }}-ios-codec-deps-${{ hashFiles('.github/scripts/build-ios-deps.sh') }}
+    - name: Build codec deps (ogg/vorbis/opus/opusfile)
+      if: steps.cache-codec-deps.outputs.cache-hit != 'true'
+      run: bash .github/scripts/build-ios-deps.sh "$PWD/ios-deps-prefix"
+    - name: Configure (iphoneos arm64, Metal-only)
+      run: |
+        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja \
+          -DCMAKE_SYSTEM_NAME=iOS \
+          -DCMAKE_OSX_SYSROOT=iphoneos \
+          -DCMAKE_OSX_ARCHITECTURES=arm64 \
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
+          -DCMAKE_BUILD_TYPE:STRING=Release \
+          -DCMAKE_PREFIX_PATH="$PWD/ios-deps-prefix" \
+          -DCMAKE_FIND_ROOT_PATH="$PWD/ios-deps-prefix" \
+          -DBUNDLE_ID=com.patricklm.twoship
+    - name: Download 2ship.o2r
+      uses: actions/download-artifact@v7
+      with:
+        name: 2ship.o2r
+        path: build-cmake/mm
+    - name: Build
+      run: cmake --build build-cmake --target 2ship -j3
+    - name: Package unsigned IPA
+      run: |
+        APP=$(find build-cmake -name "*.app" -type d | head -1)
+        echo "Bundling $APP"
+        test -n "$APP"
+        ls -la "$APP"
+        mkdir -p Payload
+        cp -R "$APP" Payload/
+        zip -qry 2ship-ios.ipa Payload
+    - name: Upload IPA
+      uses: actions/upload-artifact@v7
+      with:
+        name: 2ship-ios-ipa
+        path: 2ship-ios.ipa
+        retention-days: 7
