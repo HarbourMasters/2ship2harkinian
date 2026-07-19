@@ -82,6 +82,8 @@ jobs:
           -DCMAKE_OSX_SYSROOT=iphoneos \
           -DCMAKE_OSX_ARCHITECTURES=arm64 \
           -DCMAKE_OSX_DEPLOYMENT_TARGET=16.0 \
+          -DPLATFORM=OS64 \
+          -DDEPLOYMENT_TARGET=16.0 \
           -DCMAKE_BUILD_TYPE:STRING=Release \
           -DCMAKE_PREFIX_PATH="$PWD/ios-deps-prefix" \
           -DCMAKE_FIND_ROOT_PATH="$PWD/ios-deps-prefix" \
