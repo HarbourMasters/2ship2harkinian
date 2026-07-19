@@ -27,9 +27,12 @@ IOS_CMAKE_ARGS=(
 )
 
 build() {
-  local name="$1" url="$2" tag="$3"; shift 3
-  echo "==> $name $tag"
-  git -C "$WORK" clone --depth 1 --branch "$tag" "$url" "$name"
+  local name="$1" url="$2" ref="$3"; shift 3
+  echo "==> $name $ref"
+  git init -q "$WORK/$name"
+  git -C "$WORK/$name" remote add origin "$url"
+  git -C "$WORK/$name" fetch -q --depth 1 origin "$ref"
+  git -C "$WORK/$name" checkout -q FETCH_HEAD
   cmake -S "$WORK/$name" -B "$WORK/$name/build" -GNinja "${IOS_CMAKE_ARGS[@]}" "$@"
   cmake --build "$WORK/$name/build" -j
   cmake --install "$WORK/$name/build"
@@ -38,7 +41,9 @@ build() {
 build ogg      https://github.com/xiph/ogg.git      v1.3.5 -DINSTALL_DOCS=OFF -DBUILD_TESTING=OFF
 build vorbis   https://github.com/xiph/vorbis.git   v1.3.7
 build opus     https://github.com/xiph/opus.git     v1.5.2 -DOPUS_BUILD_TESTING=OFF -DOPUS_BUILD_PROGRAMS=OFF
-build opusfile https://github.com/xiph/opusfile.git v0.12  -DOP_DISABLE_HTTP=ON -DOP_DISABLE_EXAMPLES=ON -DOP_DISABLE_DOCS=ON
+# opusfile's last release (0.12) predates its CMake support; pin master (dormant since 2024-09)
+build opusfile https://github.com/xiph/opusfile.git 3ecc22aa0a4430f61c2403d57370a089536d197a \
+  -DOP_DISABLE_HTTP=ON -DOP_DISABLE_EXAMPLES=ON -DOP_DISABLE_DOCS=ON
 
 echo "==> installed into $PREFIX:"
 find "$PREFIX/lib" -name '*.a' -maxdepth 1
