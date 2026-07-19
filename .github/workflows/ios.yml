@@ -80,6 +80,12 @@ jobs:
         submodules: true
     - name: Install build tools
       run: brew install ninja
+    - name: Configure ccache
+      uses: hendrikmuhs/ccache-action@v1.2.22
+      with:
+        key: ios-build
+        max-size: "1G"
+        evict-old-files: job
     - name: Cache codec deps
       id: cache-codec-deps
       uses: actions/cache@v4
@@ -90,8 +96,14 @@ jobs:
       if: steps.cache-codec-deps.outputs.cache-hit != 'true'
       run: bash .github/scripts/build-ios-deps.sh "$PWD/ios-deps-prefix"
     - name: Configure (iphoneos arm64, Metal-only)
+      env:
+        CCACHE_SLOPPINESS: pch_defines,time_macros
       run: |
         cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja \
+          -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_OBJC_COMPILER_LAUNCHER=ccache \
+          -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache \
           -DCMAKE_SYSTEM_NAME=iOS \
           -DCMAKE_OSX_SYSROOT=iphoneos \
           -DCMAKE_OSX_ARCHITECTURES=arm64 \
@@ -108,6 +120,8 @@ jobs:
         name: 2ship.o2r
         path: build-cmake/mm
     - name: Build
+      env:
+        CCACHE_SLOPPINESS: pch_defines,time_macros
       run: cmake --build build-cmake --target 2ship -j3
     - name: Package unsigned IPA
       run: |

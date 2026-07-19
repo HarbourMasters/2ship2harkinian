@@ -963,7 +963,12 @@ ArchiveVersion DetectArchiveVersion(std::string fileName, bool isO2rType) {
 }
 
 extern "C" void Messagebox_ShowErrorBox(char* title, char* body) {
+#ifdef __IOS__
+    // Extractor is compiled out on iOS
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, title, body, nullptr);
+#else
     Extractor::ShowErrorBox(title, body);
+#endif
 }
 
 bool VerifyArchiveVersion(ArchiveVersion version) {
