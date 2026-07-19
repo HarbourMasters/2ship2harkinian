@@ -297,6 +297,7 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
     OSFatal();
 #endif
 
+#ifndef __IOS__ // no in-app extraction on iOS, so the extractor's assets/ folder is not shipped
     if (!std::filesystem::exists(installPath + "/assets")) {
         BenGui::RegisterPopup("Extractor assets not found",
                               "No O2R files found. Missing 'assets/' folder needed to generate OTR file.\nPlease "
@@ -308,6 +309,7 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                               "now be redirected to re-extract them.");
         std::filesystem::remove("mm.o2r");
     }
+#endif
 
     std::shared_ptr<BS::thread_pool> threadPool = std::make_shared<BS::thread_pool>(1);
     std::optional<std::future<void>> extractionTask;
@@ -975,7 +977,30 @@ bool VerifyArchiveVersion(ArchiveVersion version) {
     return version.major != INT16_MAX && version.major != gBuildVersionMajor;
 }
 
+#ifdef __IOS__
+#include <unistd.h>
+// Make the app's Documents directory behave like a desktop install dir: it becomes the
+// working directory (the game reads and writes archives, config, and saves with relative
+// paths), and the bundled port assets are refreshed into it so version checks always match
+// the binary — including after an app update.
+static void IOS_PrepareAppDirectory() {
+    std::string dataPath = Ship::Context::GetAppDirectoryPath(appShortName);
+    std::error_code ec;
+    std::filesystem::create_directories(dataPath, ec);
+    chdir(dataPath.c_str());
+    std::string bundlePath = Ship::Context::GetAppBundlePath();
+    std::filesystem::copy_file(bundlePath + "/2ship.o2r", dataPath + "/2ship.o2r",
+                               std::filesystem::copy_options::overwrite_existing, ec);
+    if (!std::filesystem::exists(dataPath + "/gamecontrollerdb.txt")) {
+        std::filesystem::copy_file(bundlePath + "/gamecontrollerdb.txt", dataPath + "/gamecontrollerdb.txt", ec);
+    }
+}
+#endif
+
 extern "C" void InitOTR(int argc, char* argv[]) {
+#ifdef __IOS__
+    IOS_PrepareAppDirectory();
+#endif
     OTRGlobals::Instance = new OTRGlobals();
     OTRGlobals::Instance->RunExtract(argc, argv);
 
