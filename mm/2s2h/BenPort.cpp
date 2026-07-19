@@ -152,6 +152,16 @@ OTRGlobals::OTRGlobals() {
     context->InitConfiguration();
     context->InitConsoleVariables();
 
+#ifdef __IOS__
+    // One-time mobile defaults: phone sessions end abruptly, so autosave earns its keep.
+    // Seeded once so the player can still turn it off permanently.
+    if (!CVarGetInteger("gPort.MobileDefaultsApplied", 0)) {
+        CVarSetInteger("gEnhancements.Saving.Autosave", 1);
+        CVarSetInteger("gPort.MobileDefaultsApplied", 1);
+        CVarSave();
+    }
+#endif
+
     auto controlDeck = std::make_shared<LUS::ControlDeck>(std::vector<CONTROLLERBUTTONS_T>({
         BTN_CUSTOM_MODIFIER1,
         BTN_CUSTOM_MODIFIER2,
