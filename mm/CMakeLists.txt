@@ -626,6 +626,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
     find_package(Vorbis REQUIRED)
     find_package(Opus REQUIRED)
     find_package(OpusFile REQUIRED)
+    find_package(PNG REQUIRED)
     set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
         "Ogg::ogg"
@@ -634,6 +635,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
         "Vorbis::vorbisfile"
         "Opus::opus"
         "Opusfile::Opusfile"
+        "PNG::PNG"
         SDL2::SDL2
         SDL2::SDL2main
         ${CMAKE_DL_LIBS}

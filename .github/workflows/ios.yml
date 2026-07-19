@@ -15,13 +15,25 @@ jobs:
       uses: actions/checkout@v6
       with:
         submodules: true
+    - name: Compute o2r cache key
+      id: o2rkey
+      run: echo "key=otr-$(git rev-parse HEAD:mm/assets)-$(git rev-parse HEAD:OTRExporter)-$(git rev-parse HEAD:CMakeLists.txt)" >> "$GITHUB_OUTPUT"
+    - name: Cache 2ship.o2r
+      id: o2rcache
+      uses: actions/cache@v4
+      with:
+        path: 2ship.o2r
+        key: ${{ steps.o2rkey.outputs.key }}
     - name: Install dependencies
+      if: steps.o2rcache.outputs.cache-hit != 'true'
       run: |
         sudo apt-get update
         sudo apt-get install -y $(cat .github/workflows/apt-deps.txt) libzip-dev zipcmp zipmerge ziptool
     - name: Create deps folder
+      if: steps.o2rcache.outputs.cache-hit != 'true'
       run: mkdir -p deps
     - name: Install latest SDL
+      if: steps.o2rcache.outputs.cache-hit != 'true'
       run: |
         if [ ! -d "deps/SDL2-2.30.3" ]; then
           wget https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-2.30.3.tar.gz
@@ -33,6 +45,7 @@ jobs:
         sudo make install
         sudo cp -av /usr/local/lib/libSDL* /lib/x86_64-linux-gnu/
     - name: Install latest tinyxml2
+      if: steps.o2rcache.outputs.cache-hit != 'true'
       run: |
         sudo apt-get remove libtinyxml2-dev
         if [ ! -d "deps/tinyxml2-10.0.0" ]; then
@@ -46,6 +59,7 @@ jobs:
         make
         sudo make install
     - name: Generate 2ship.o2r
+      if: steps.o2rcache.outputs.cache-hit != 'true'
       run: |
         cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
         cmake --build build-cmake --config Release --target Generate2ShipOtr -j3

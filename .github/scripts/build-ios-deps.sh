@@ -51,6 +51,9 @@ build opus     https://github.com/xiph/opus.git     v1.5.2 -DOPUS_BUILD_TESTING=
 # opusfile's last release (0.12) predates its CMake support; pin master (dormant since 2024-09)
 build opusfile https://github.com/xiph/opusfile.git 3ecc22aa0a4430f61c2403d57370a089536d197a \
   -DOP_DISABLE_HTTP=ON -DOP_DISABLE_EXAMPLES=ON -DOP_DISABLE_DOCS=ON
+# game code (ColorPictograph enhancement) includes png.h directly; zlib comes from the iOS SDK
+build libpng   https://github.com/pnggroup/libpng.git v1.6.44 \
+  -DPNG_SHARED=OFF -DPNG_STATIC=ON -DPNG_TESTS=OFF -DPNG_TOOLS=OFF -DPNG_FRAMEWORK=OFF
 
 echo "==> installed into $PREFIX:"
 find "$PREFIX/lib" -name '*.a' -maxdepth 1
