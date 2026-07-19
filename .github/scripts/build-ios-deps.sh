@@ -22,6 +22,8 @@ IOS_CMAKE_ARGS=(
   -DCMAKE_PREFIX_PATH="$PREFIX"
   -DCMAKE_FIND_ROOT_PATH="$PREFIX"
   -DCMAKE_C_FLAGS=-fPIC
+  # ogg/vorbis/opusfile ship pre-3.5 cmake_minimum_required, removed in CMake 4.x
+  -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 )
 
 build() {
