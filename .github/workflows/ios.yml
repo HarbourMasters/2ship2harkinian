@@ -126,6 +126,11 @@ jobs:
       env:
         CCACHE_SLOPPINESS: pch_defines,time_macros
       run: cmake --build build-cmake --target 2ship -j3
+    - name: Generate app icons
+      run: |
+        APP=$(find build-cmake -name "*.app" -type d | head -1)
+        sips -z 120 120 mm/macosx/2s2hIcon.png --out "$APP/Icon-60@2x.png"
+        sips -z 180 180 mm/macosx/2s2hIcon.png --out "$APP/Icon-60@3x.png"
     - name: Package unsigned IPA
       run: |
         APP=$(find build-cmake -name "*.app" -type d | head -1)
