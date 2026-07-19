@@ -113,7 +113,7 @@ endif()
 
 list(FILTER ship__ EXCLUDE REGEX "2s2h/Extractor/*")
 
-if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")
+if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS|iOS")
     file(GLOB_RECURSE ship__Extractor RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
         "2s2h/Extractor/*.c"
         "2s2h/Extractor/*.cpp"
@@ -196,6 +196,24 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
         XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
         OUTPUT_NAME "2s2h-macos"
     )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
+        OUTPUT_NAME "2s2h"
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/ios/Info.plist.in
+        MACOSX_BUNDLE_EXECUTABLE_NAME "2s2h"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING ${CMAKE_PROJECT_VERSION}
+        MACOSX_BUNDLE_BUNDLE_VERSION ${CMAKE_PROJECT_VERSION}
+    )
+    # Bundle the port assets and controller db next to the executable inside the .app.
+    # 2ship.o2r is produced by a host build and dropped into ${CMAKE_BINARY_DIR}/mm by CI
+    # before the build step; gamecontrollerdb.txt is curl'd at configure time (below).
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_BINARY_DIR}/mm/2ship.o2r $<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/2ship.o2r
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            ${CMAKE_BINARY_DIR}/gamecontrollerdb.txt $<TARGET_BUNDLE_DIR:${PROJECT_NAME}>/gamecontrollerdb.txt)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	set_target_properties(${PROJECT_NAME} PROPERTIES
 	OUTPUT_NAME "2s2h.elf"
@@ -220,8 +238,13 @@ endif()
 ################################################################################
 # Compile definitions
 ################################################################################
-find_package(SDL2)
-set(SDL2-INCLUDE ${SDL2_INCLUDE_DIRS})
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    # SDL2 targets come from libultraship's FetchContent build; includes propagate via SDL2::SDL2.
+    set(SDL2-INCLUDE "")
+else()
+    find_package(SDL2)
+    set(SDL2-INCLUDE ${SDL2_INCLUDE_DIRS})
+endif()
 
 if (BUILD_CROWD_CONTROL)
     find_package(SDL2_net)
@@ -279,6 +302,27 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
 		"STBI_NO_THREAD_LOCALS;"
         SPDLOG_ACTIVE_LEVEL=${SPDLOG_MIN_CUTOFF}
         LOG_LEVEL_GAME_PRINTS=${SPDLOG_LEVEL_OFF}
+	)
+elseif (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+	# Same as the Clang/AppleClang branch below, minus ENABLE_OPENGL (Metal-only on iOS)
+	# and plus __IOS__ (matches libultraship's iOS platform define).
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
+		"$<$<CONFIG:Debug>:"
+			"_DEBUG;"
+		">"
+		"$<$<CONFIG:Release>:"
+			"NDEBUG;"
+		">"
+        "F3DEX_GBI_2;"
+		"_CONSOLE;"
+		"_CRT_SECURE_NO_WARNINGS;"
+		"UNICODE;"
+		"_UNICODE;"
+		"__IOS__;"
+        SPDLOG_ACTIVE_LEVEL=${SPDLOG_MIN_CUTOFF}
+        LOG_LEVEL_GAME_PRINTS=${SPDLOG_LEVEL_OFF}
+        "NON_MATCHING;"
+        "NON_EQUIVALENT;"
 	)
 elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang|AppleClang")
 	target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -573,6 +617,28 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
     target_include_directories(${PROJECT_NAME} PRIVATE
         ${DEVKITPRO}/portlibs/wiiu/include/
     )
+elseif(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    # SDL2 targets already exist via libultraship's FetchContent. No ZAPDLib (host tool).
+    # Audio codec libs are cross-compiled static libs provided via CMAKE_PREFIX_PATH by CI.
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+    find_package(Ogg REQUIRED)
+    find_package(Vorbis REQUIRED)
+    find_package(Opus REQUIRED)
+    find_package(OpusFile REQUIRED)
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES
+        "libultraship;"
+        "Ogg::ogg"
+        "Vorbis::vorbis"
+        "Vorbis::vorbisenc"
+        "Vorbis::vorbisfile"
+        "Opus::opus"
+        "Opusfile::Opusfile"
+        SDL2::SDL2
+        SDL2::SDL2main
+        ${CMAKE_DL_LIBS}
+        Threads::Threads
+    )
 else()
     find_package(SDL2)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
@@ -599,7 +665,7 @@ else()
 
 endif()
 
-if(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin|NintendoSwitch|CafeOS")
+if(NOT CMAKE_SYSTEM_NAME MATCHES "Darwin|NintendoSwitch|CafeOS|iOS")
 INSTALL(TARGETS 2ship DESTINATION . COMPONENT 2s2h)
 endif()
 

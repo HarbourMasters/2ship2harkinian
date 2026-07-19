@@ -42,7 +42,7 @@ void DrawBenMenu() {
                                 )) {
             Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuBar()->ToggleVisibility();
         }
-#if !defined(__SWITCH__) && !defined(__WIIU__)
+#if !defined(__SWITCH__) && !defined(__WIIU__) && !defined(__IOS__)
         if (UIWidgets::MenuItem("Toggle Fullscreen", "F11")) {
             Ship::Context::GetInstance()->GetWindow()->ToggleFullscreen();
         }
@@ -60,7 +60,7 @@ void DrawBenMenu() {
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console"))
                 ->Dispatch("reset");
         }
-#if !defined(__SWITCH__) && !defined(__WIIU__)
+#if !defined(__SWITCH__) && !defined(__WIIU__) && !defined(__IOS__)
         if (UIWidgets::MenuItem("Open App Files Folder")) {
             std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
             SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());

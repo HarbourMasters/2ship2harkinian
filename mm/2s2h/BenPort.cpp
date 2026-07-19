@@ -272,7 +272,9 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
             args.push_back(argv[i]);
         }
     }
+#ifndef __IOS__
     Extractor extract;
+#endif
     PromptSteps promptStep = PS_FILE_CHECK;
     std::atomic<size_t> extractCount = 0, totalExtract = 0;
 
@@ -323,7 +325,7 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                 if (shipArchiveVersionMatch) {
 #ifdef _WIN32
                     extractStep = ES_WINDOWS;
-#elif (defined(__WIIU__) || defined(__SWITCH__))
+#elif (defined(__WIIU__) || defined(__SWITCH__) || defined(__IOS__))
                     extractStep = ES_VERIFY;
 #else
                     extractStep = args.empty() ? ES_EXTRACT : ES_EXTRACT_ARGS;
@@ -422,7 +424,7 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                 break;
             }
             case ES_EXTRACT_ARGS: {
-#if !defined(__SWITCH__) && !defined(__WIIU__)
+#if !defined(__SWITCH__) && !defined(__WIIU__) && !defined(__IOS__)
                 if (args.empty()) {
                     BenGui::RegisterPopup(
                         "Run 2 Ship 2 Harkinian", "All files have been processed. Run 2S2H?", "Yes", "No",
@@ -470,6 +472,12 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                 break;
             }
             case ES_EXTRACT: {
+#ifdef __IOS__
+                // No in-app extraction on iOS; mm.o2r arrives via the Files app. Unreachable, but the
+                // Extractor class is compiled out so this case must not reference it.
+                extractStep = ES_VERIFY;
+                break;
+#else
                 switch (promptStep) {
                     case PS_FILE_CHECK: {
                         if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName))) {
@@ -516,12 +524,21 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
                         break;
                 }
                 break;
+#endif
             }
             case ES_VERIFY: {
                 if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName))) {
+#ifdef __IOS__
+                    BenGui::RegisterPopup("2Ship needs game data",
+                                          "mm.o2r was not found.\n\nCopy mm.o2r into this app's folder, then "
+                                          "relaunch:\n\nFrom Windows: Apple Devices app > iPhone > Files > 2Ship\n"
+                                          "On this phone: Files app > On My iPhone > 2Ship",
+                                          "OK", "", [&]() { exit(0); });
+#else
                     BenGui::RegisterPopup("No ROM Archives",
                                           "No ROM O2R files detected. Please generate a ROM O2R and relaunch.", "OK",
                                           "", [&]() { exit(0); });
+#endif
                 }
                 extractDone = true;
                 continue;
@@ -771,15 +788,22 @@ ImFont* OTRGlobals::CreateDefaultFontWithSize(float size) {
     return font;
 }
 
+// iOS defaults to 60fps interpolation out of the box; desktop keeps the upstream default of 20 (authentic N64 rate).
+#ifdef __IOS__
+static constexpr int32_t DEFAULT_INTERPOLATION_FPS = 60;
+#else
+static constexpr int32_t DEFAULT_INTERPOLATION_FPS = 20;
+#endif
+
 uint32_t OTRGlobals::GetInterpolationFPS() {
     if (CVarGetInteger("gMatchRefreshRate", 0)) {
         return Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
     } else if (CVarGetInteger(CVAR_VSYNC_ENABLED, 1) ||
                !Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
         return std::min<uint32_t>(Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate(),
-                                  CVarGetInteger("gInterpolationFPS", 20));
+                                  CVarGetInteger("gInterpolationFPS", DEFAULT_INTERPOLATION_FPS));
     }
-    return CVarGetInteger("gInterpolationFPS", 20);
+    return CVarGetInteger("gInterpolationFPS", DEFAULT_INTERPOLATION_FPS);
 }
 
 extern "C" void OTRMessage_Init();
