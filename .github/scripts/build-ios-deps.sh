@@ -33,6 +33,11 @@ build() {
   git -C "$WORK/$name" remote add origin "$url"
   git -C "$WORK/$name" fetch -q --depth 1 origin "$ref"
   git -C "$WORK/$name" checkout -q FETCH_HEAD
+  if [ "$name" = "opusfile" ]; then
+    # opusfile versions itself via `git describe` (impossible in a shallow tagless fetch)
+    # or a package_version file, which is how release tarballs carry it. Provide the latter.
+    echo 'PACKAGE_VERSION="0.12.1"' > "$WORK/$name/package_version"
+  fi
   cmake -S "$WORK/$name" -B "$WORK/$name/build" -GNinja "${IOS_CMAKE_ARGS[@]}" "$@"
   cmake --build "$WORK/$name/build" -j
   cmake --install "$WORK/$name/build"
