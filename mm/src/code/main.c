@@ -49,7 +49,10 @@ size_t gSystemHeapSize = 0;
 
 void InitOTR(int argc, char* argv[]);
 void Heaps_Free(void);
-#ifdef __GNUC__
+// On iOS the entry point must stay named SDL_main: SDL2main provides the real main(),
+// which runs UIApplicationMain and invokes SDL_main once the UIKit app is alive.
+// Renaming it to main here would shadow SDL2main's and skip the UIKit bootstrap entirely.
+#if defined(__GNUC__) && !defined(__IOS__)
 #define SDL_main main
 #endif
 
