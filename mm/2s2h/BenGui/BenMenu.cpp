@@ -346,6 +346,37 @@ void BenMenu::AddSettings() {
         .CVar("gSettings.Menu.BackgroundOpacity")
         .Options(FloatSliderOptions().DefaultValue(0.85f).IsPercentage().Tooltip(
             "Sets the opacity of the background of the port menu."));
+
+    // Touch Controls (on-screen overlay; primary input on mobile builds)
+    AddSidebarEntry("Settings", "Touch Controls", 1);
+    WidgetPath touchPath = { "Settings", "Touch Controls", SECTION_COLUMN_1 };
+    AddWidget(touchPath, "Enable Touch Controls", WIDGET_CVAR_CHECKBOX)
+        .CVar("gTouch.Enabled")
+        .Options(CheckboxOptions().Tooltip("Shows the on-screen touch controls overlay."));
+    AddWidget(touchPath, "Opacity", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gTouch.Opacity")
+        .Options(FloatSliderOptions().DefaultValue(0.35f).IsPercentage().Tooltip(
+            "Opacity of the touch control overlay."));
+    AddWidget(touchPath, "Button Scale", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gTouch.Scale")
+        .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.6f).Max(1.6f).Tooltip(
+            "Size multiplier for the touch buttons and stick."));
+    AddWidget(touchPath, "Fixed Stick Base", WIDGET_CVAR_CHECKBOX)
+        .CVar("gTouch.FixedStick")
+        .Options(CheckboxOptions().Tooltip(
+            "Anchors the analog stick in place instead of it appearing where your thumb lands."));
+    AddWidget(touchPath, "Camera Sensitivity", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gTouch.CameraSensitivity")
+        .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.2f).Max(3.0f).Tooltip(
+            "How fast dragging on the screen moves the camera."));
+    AddWidget(touchPath, "Gyro Aiming", WIDGET_CVAR_CHECKBOX)
+        .CVar("gTouch.GyroEnabled")
+        .Options(CheckboxOptions().Tooltip(
+            "Tilt the device to aim in first-person and while targeting."));
+    AddWidget(touchPath, "Gyro Sensitivity", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gTouch.GyroSensitivity")
+        .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.2f).Max(3.0f).Tooltip(
+            "How strongly device tilt affects aiming."));
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_IMGUI_CONTROLLER_NAV)
