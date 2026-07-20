@@ -160,6 +160,13 @@ OTRGlobals::OTRGlobals() {
         CVarSetInteger("gPort.MobileDefaultsApplied", 1);
         CVarSave();
     }
+
+    // Apple's Metal Performance HUD attaches to developer-signed apps whenever the
+    // system Graphics HUD setting is on; suppress it for this app unless explicitly
+    // re-enabled (gPort.ShowMetalHUD). Must be set before the Metal layer is created.
+    if (!CVarGetInteger("gPort.ShowMetalHUD", 0)) {
+        setenv("MTL_HUD_ENABLED", "0", 1);
+    }
 #endif
 
     auto controlDeck = std::make_shared<LUS::ControlDeck>(std::vector<CONTROLLERBUTTONS_T>({
