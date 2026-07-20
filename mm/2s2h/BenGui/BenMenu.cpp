@@ -365,6 +365,10 @@ void BenMenu::AddSettings() {
         .CVar("gTouch.FixedStick")
         .Options(CheckboxOptions().Tooltip(
             "Anchors the analog stick in place instead of it appearing where your thumb lands."));
+    AddWidget(touchPath, "Edge-Hugging Layout", WIDGET_CVAR_CHECKBOX)
+        .CVar("gTouch.EdgeLayout")
+        .Options(CheckboxOptions().Tooltip(
+            "Moves the buttons out to the screen edges and corners. Off keeps the classic layout."));
     AddWidget(touchPath, "Camera Sensitivity", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gTouch.CameraSensitivity")
         .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.2f).Max(3.0f).Tooltip(
