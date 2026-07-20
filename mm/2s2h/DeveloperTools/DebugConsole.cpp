@@ -19,12 +19,12 @@ extern "C" {
 
 #define CMD_REGISTER Ship::Context::GetRawInstance()->GetConsole()->AddCommand
 // TODO: Commands should be using the output passed in.
-#define ERROR_MESSAGE                                                                 \
-    std::reinterpret_pointer_cast<Ship::ConsoleWindow>(                               \
+#define ERROR_MESSAGE                                                                    \
+    std::reinterpret_pointer_cast<Ship::ConsoleWindow>(                                  \
         Ship::Context::GetRawInstance()->GetWindow()->GetGui()->GetGuiWindow("Console")) \
         ->SendErrorMessage
-#define INFO_MESSAGE                                                                  \
-    std::reinterpret_pointer_cast<Ship::ConsoleWindow>(                               \
+#define INFO_MESSAGE                                                                     \
+    std::reinterpret_pointer_cast<Ship::ConsoleWindow>(                                  \
         Ship::Context::GetRawInstance()->GetWindow()->GetGui()->GetGuiWindow("Console")) \
         ->SendInfoMessage
 

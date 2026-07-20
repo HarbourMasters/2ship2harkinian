@@ -612,7 +612,8 @@ static void DrawPriorityItemsPopup() {
                 ImGui::TableNextColumn();
                 const char* texturePath = Rando::StaticData::GetIconTexturePath(itemId);
                 ImTextureID textureId =
-                    std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())->GetTextureByName(texturePath);
+                    std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())
+                        ->GetTextureByName(texturePath);
                 float iconOffsetY = (ImGui::GetFrameHeight() - PRIORITY_BUTTON_SIZE) * 0.5f;
                 if (iconOffsetY > 0.0f) {
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + iconOffsetY);
@@ -943,7 +944,9 @@ static void DrawStartingItemsTab() {
 
         Rando::StaticData::RandoStaticItem randoStaticItem = Rando::StaticData::Items[startingItem];
         const char* texturePath = Rando::StaticData::GetIconTexturePath(startingItem);
-        ImTextureID textureId = std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())->GetTextureByName(texturePath);
+        ImTextureID textureId =
+            std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())
+                ->GetTextureByName(texturePath);
 
         ImVec4 tintColor =
             Ship_GetItemColorTint(startingItem == RI_PROGRESSIVE_LULLABY ? ITEM_SONG_LULLABY : randoStaticItem.itemId);
@@ -1008,8 +1011,9 @@ static void DrawStartingItemsTab() {
 
                     Rando::StaticData::RandoStaticItem randoStaticItem = Rando::StaticData::Items[item];
                     const char* texturePath = Rando::StaticData::GetIconTexturePath(item);
-                    ImTextureID textureId =
-                        std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())->GetTextureByName(texturePath);
+                    ImTextureID textureId = std::dynamic_pointer_cast<Fast::Fast3dGui>(
+                                                Ship::Context::GetRawInstance()->GetWindow()->GetGui())
+                                                ->GetTextureByName(texturePath);
 
                     // Force new row for Song of Time, first frog, and first time item
                     if (item == RI_SONG_TIME || item == RI_FROG_BLUE || item == RI_TIME_DAY_1) {
