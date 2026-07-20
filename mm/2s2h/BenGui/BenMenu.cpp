@@ -350,9 +350,8 @@ void BenMenu::AddSettings() {
     // Touch Controls (on-screen overlay; primary input on mobile builds)
     AddSidebarEntry("Settings", "Touch Controls", 1);
     WidgetPath touchPath = { "Settings", "Touch Controls", SECTION_COLUMN_1 };
-    AddWidget(touchPath, "Enable Touch Controls", WIDGET_CVAR_CHECKBOX)
-        .CVar("gTouch.Enabled")
-        .Options(CheckboxOptions().Tooltip("Shows the on-screen touch controls overlay."));
+    // No enable/disable checkbox on purpose: with no keyboard, disabling the overlay
+    // would leave no way to reopen this menu. The eye pill (recoverable) covers hiding.
     AddWidget(touchPath, "Opacity", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gTouch.Opacity")
         .Options(FloatSliderOptions().DefaultValue(0.35f).IsPercentage().Tooltip(
@@ -583,7 +582,12 @@ void BenMenu::AddSettings() {
                 .IsPercentage()
                 .Format("")
                 .Min(0.5f)
+#ifdef __IOS__
+                // A17-class GPUs have supersampling headroom well past desktop's 2x cap
+                .Max(4.0f));
+#else
                 .Max(2.0f));
+#endif
 #ifndef __WIIU__
     AddWidget(path, "Anti-aliasing (MSAA): %d", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_MSAA_VALUE)
