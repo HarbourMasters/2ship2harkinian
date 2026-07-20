@@ -17,6 +17,8 @@ extern "C" {
 uint64_t GetUnixTimestamp();
 }
 
+#include <fast/Fast3dGui.h>
+
 #define CVAR_NAME "gSettings.TimeSplits.Enable"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
@@ -99,7 +101,7 @@ void HandlePopUpContext(uint32_t popupId) {
             SplitsPushImageButtonStyle();
             if (ImGui::ImageButton(
                     std::to_string(list).c_str(),
-                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(GetItemImageById(list)),
+                    std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())->GetTextureByName(GetItemImageById(list)),
                     GetItemImageSizeById(list) * 1.5f, ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                     Ship_GetItemColorTint(list))) {
                 AddSplitEntryById(list);
@@ -124,7 +126,7 @@ void HandleDragAndDrop(size_t i) {
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
         ImGui::SetDragDropPayload("SPLIT_DRAG", &i, sizeof(size_t));
         ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
-                           Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                           std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())->GetTextureByName(
                                splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
                                                                            : gPauseUnusedCursorTex),
                            splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageSizeById(splitList[i].splitId)
