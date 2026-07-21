@@ -325,8 +325,7 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors me
                 options.disabledTooltip = "Only one renderer API is available on this platform.";
                 if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend,
                                         &availableWindowBackendsMap, options)) {
-                    Ship::Context::GetRawInstance()->GetConfig()->SetInt("Window.Backend.Id",
-                                                                        configWindowBackend);
+                    Ship::Context::GetRawInstance()->GetConfig()->SetInt("Window.Backend.Id", configWindowBackend);
                     Ship::Context::GetRawInstance()->GetConfig()->SetString("Window.Backend.Name",
                                                                             windowBackendsMap.at(configWindowBackend));
                     Ship::Context::GetRawInstance()->GetConfig()->Save();
