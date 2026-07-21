@@ -2107,6 +2107,10 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
     POLY_OPA_DISP = &gfx[2];
 
     D_801F59E0 = playerForm * 2;
+    // 2S2H [Port] Disable LOD when a custom player model is used
+    if (Player_IsCustomLinkModel((Player*)actor)) {
+        lod = 0;
+    }
     sPlayerLod = lod;
     SkelAnime_DrawFlexLod(play, skeleton, jointTable, dListCount, overrideLimbDraw, postLimbDraw, actor, lod);
 
