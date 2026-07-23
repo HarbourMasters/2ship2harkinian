@@ -392,6 +392,7 @@ nlohmann::json voyage3PresetJ = R"(
 				        "ActorCullingAccountsForWidescreen": 0,
                 "AuthenticLogo": 1,
                 "DisableBlackBars": 1,
+				"DisableSceneGeometryDistanceCheck": 0,
                 "FixSceneGeometrySeams": 0,
                 "IncreaseActorDrawDistance": 3,
                 "MotionBlur": {
@@ -467,6 +468,7 @@ nlohmann::json voyage3PresetJ = R"(
             "Restorations": {
                 "BonkCollision": 0,
                 "ConstantFlipsHops": 0,
+				"DayTelopDuration": 0,
                 "JPGrottos": 0,
                 "OoTFasterSwim": 0,
 				        "PauseBufferWindow": 0,
@@ -498,6 +500,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "AutoBankDeposit": 0,
                 "DampeDiggingSkip": 1,
                 "FastChests": 1,
+				"FasterBottles": 0,
                 "FasterRupeeAccumulator": 1,
                 "FasterSceneTransitions": 1,
                 "GalleryTwofer": 1,
@@ -554,6 +557,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "RO_SHUFFLE_GRASS_DROPS": 0,
                 "RO_SHUFFLE_OWL_STATUES": 0,
                 "RO_SHUFFLE_SHOPS": 1,
+				"RO_SHUFFLE_SKELETON_KEY": 1,
                 "RO_SHUFFLE_SONG_SARIA": 1,
                 "RO_SHUFFLE_TINGLE_SHOPS": 1,
                 "RO_SHUFFLE_TRAPS": 1,
