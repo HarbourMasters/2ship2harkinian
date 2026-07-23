@@ -29,6 +29,7 @@ void InitEnBalBehavior();
 void InitEnBjtBehavior();
 void InitEnBomBowlManBehavior();
 void InitEnBoxBehavior();
+void InitEnButteBehavior();
 void InitEnCowBehavior();
 void InitEnDaiBehavior();
 void InitEnDnhBehavior();
