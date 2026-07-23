@@ -90,6 +90,7 @@ void InitEnZotBehavior();
 void InitEnZowBehavior();
 void InitItemBHeartBehavior();
 void InitItemGetBehavior();
+void InitObjCombBehavior();
 void InitObjKibakoBehavior();
 void InitObjGrassBehavior();
 void InitObjMoonStoneBehavior();
