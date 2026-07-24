@@ -13,7 +13,8 @@ std::vector<std::pair<std::string, std::string>> voyage3Reqs = {
 };
 
 std::vector<std::string> voyage3Shuffles = {
-    "Shuffle Boss Remains", "Shuffle Cows", "Shuffle Shops", "Shuffle Songs", "Shuffle Stray Fairies", "Shuffle Tingle Maps",
+    "Shuffle Boss Remains", "Shuffle Cows", "Shuffle Shops", "Shuffle Skeleton Key", "Shuffle Boss Keys In Own Dungeon",
+	"Shuffle Small Keys Anywhere", "Shuffle Songs", "Shuffle Stray Fairies", "Shuffle Tingle Maps",
 };
 
 std::vector<std::string> voyage3Starting = {
@@ -60,6 +61,11 @@ std::vector<std::pair<std::string, std::string>> voyage3ForcedJunk = {
 										 "brother once." },
 };
 //---
+// New Addition for Saria's Hint information
+std::vector<std::pair<std::string, std::string>> voyage3SariasPriorityItemHints = {
+    "Bow", "Blast Mask", "First Bomb Bag", "First Magic Upgrade", "Fire Arrow", "Ice Arrow", "Light Arrow",
+	"Sonata of Awakening", "Goron Lullaby", "New Wave Bossa Nova", "Elegy of Emptiness", "Fierce Diety Mask",
+};
 
 void DrawVoyage3Description() {
     ImGui::SeparatorText("Voyage 3 Settings");
@@ -75,7 +81,7 @@ void DrawVoyage3Description() {
     }
     ImGui::Separator();
 	ImGui::Separator();
-    if (ImGui::BeginTable("Voyage3Req", 2)) {
+    if (ImGui::BeginTable("Voyage3Shuffles", 2)) {
         ImGui::TableNextColumn();
         ImGui::TextColored(TEXT_COLOR(ORANGE), "Included Shuffles");
          if (ImGui::BeginTable("Voyage3Shuffles", 2)) {
@@ -99,6 +105,24 @@ void DrawVoyage3Description() {
     ImGui::Separator();
 	ImGui::Separator();
     ImGui::TextColored(TEXT_COLOR(ORANGE), "Hints");
+	
+	//New Addition to add Saria's Hint Information
+    ImGui::TextColored(TEXT_COLOR(ORANGE), "Saria's Song - Item Hint");
+	ImGui::Text("After acquiring Saria's Song in game, playing it will allow you to get a free direct hint "
+		"to the first accessible item in logic. These prioritized items are listed below.");
+    if (ImGui::BeginTable("voyage3SariasPriorityItemHints", 2)) {
+		for (auto& item : voyage3SariasPriorityItemHints) {
+			ImGui::TableNextColumn();
+	        ImGui::TextColored(TEXT_COLOR(GREEN), item.c_str());
+	    }
+		ImGui::EndTable();
+	}
+	ImGui::Text("If an item has already been acquired, it will not be considered when the song is played.");
+	ImGui::Text("If none of the items listed above are logically accessible, you will instead get a hint for a major item "
+		"or a mask.");	
+	ImGui::Text("The song has a once time use, so use it wisely.");
+	ImGui::Separator();
+	//---
 
     for (auto& [key, value] : voyage3Hints) {
         ImGui::TextColored(TEXT_COLOR(GREEN), key.c_str());
@@ -107,7 +131,6 @@ void DrawVoyage3Description() {
     }
 
 	ImGui::Separator();
-	//New Addition to add forced junk information
     ImGui::TextColored(TEXT_COLOR(ORANGE), "Forced Junk");
 
     for (auto& [key, value] : voyage3ForcedJunk) {
@@ -115,5 +138,4 @@ void DrawVoyage3Description() {
         ImGui::TextWrapped(value.c_str());
         ImGui::Separator();
     }
-	//---
 }
