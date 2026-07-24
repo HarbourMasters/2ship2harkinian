@@ -1226,13 +1226,18 @@ template <typename T> static void DrawFlagTableArrayRowImpl(const FlagTable& fla
     constexpr int16_t width = sizeof(T) * 8;
     ImGui::PushID(flagTable.name);
     for (int16_t flagIndex = 0; flagIndex < width; flagIndex++) {
+        size_t flagEntryIndex = row * width + flagIndex;
+        if (flagEntryIndex >= flagTable.entries.size()) {
+            break;
+        }
+
         if (flagIndex != 0) {
             ImGui::SameLine();
         }
         ImGui::PushID(flagIndex);
         T bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
-        FlagEntry flagEntry = flagTable.entries.at(row * width + flagIndex);
+        FlagEntry flagEntry = flagTable.entries.at(flagEntryIndex);
         PushStyleCheckbox(LightBlue);
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(4.0f, 6.0f));
         std::string id = fmt::format("####{}", flagIndex);
