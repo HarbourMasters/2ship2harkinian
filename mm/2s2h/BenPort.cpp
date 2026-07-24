@@ -1868,7 +1868,7 @@ extern "C" int32_t OTRConvertHUDXToScreenX(int32_t v) {
     float hudScreenRatio = (hudWidth / 320.0f);
     float hudCoord = v * hudScreenRatio;
     // Prevent unsigned underflow
-    float gameOffset = gameAspectRatio < hudAspectRatio ? ((hudWidth - gameWidth) / 2) : ((gameWidth - hudWidth) / 2);
+    float gameOffset = (gameAspectRatio < hudAspectRatio ? (hudWidth - gameWidth) : (gameWidth - hudWidth)) / 2;
     float gameCoord = hudCoord + gameOffset;
     float gameScreenRatio = (320.0f / gameWidth);
     float screenScaledCoord = gameCoord * gameScreenRatio;
