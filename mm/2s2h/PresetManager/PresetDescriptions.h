@@ -107,9 +107,10 @@ void DrawVoyage3Description() {
     ImGui::TextColored(TEXT_COLOR(ORANGE), "Hints");
 	
 	//New Addition to add Saria's Hint Information
-    ImGui::TextColored(TEXT_COLOR(ORANGE), "Saria's Song - Item Hint");
+    ImGui::TextColored(TEXT_COLOR(GREEN), "Saria's Song - Item Hint");
 	ImGui::Text("After acquiring Saria's Song in game, playing it will allow you to get a free direct hint "
-		"to the first accessible item in logic. These prioritized items are listed below.");
+		"to the first accessible item in logic. \n"
+		"These prioritized items are:");
     if (ImGui::BeginTable("voyage3SariasPriorityItemHints", 2)) {
 		for (auto& item : voyage3SariasPriorityItemHints) {
 			ImGui::TableNextColumn();
