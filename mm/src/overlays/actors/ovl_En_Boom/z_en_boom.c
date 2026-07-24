@@ -7,6 +7,7 @@
 #include "z_en_boom.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "2s2h/BenGui/CosmeticEditor.h"
+#include "mods/equipment/objects/ikaxe_DL/header.h" // Skijer's NEI: gIKAxeInlineDL for the thrown axe
 
 #define FLAGS (ACTOR_FLAG_UPDATE_CULLING_DISABLED | ACTOR_FLAG_DRAW_CULLING_DISABLED)
 
@@ -148,6 +149,19 @@ void EnBoom_Init(Actor* thisx, PlayState* play) {
 
     Collider_InitQuad(play, &this->collider);
     Collider_SetQuad(play, &this->collider, &this->actor, &sQuadInit);
+
+    // Skijer's NEI: OoT boomerang variant — OoT's toucher deals 1 damage (MM's Zora fins deal 2).
+    // Same dmgFlags 0x10 (OoT DMG_BOOMERANG == MM DMG_ZORA_BOOMERANG bit), so the stun behavior
+    // on enemies is already identical.
+    if (this->actor.params == OOT_BOOMERANG) {
+        this->collider.elem.atDmgInfo.damage = 1;
+    } else if (this->actor.params == IKAXE_TOMAHAWK) {
+        // Skijer's NEI: the thrown Iron Knuckle's Axe hits as a Goron punch (the base hammer's
+        // side-swing damage), so enemies react the same way the Axe's melee swing makes them.
+        this->collider.elem.atDmgInfo.dmgFlags = DMG_GORON_PUNCH;
+        this->collider.elem.atDmgInfo.damage = 4;
+    }
+
     EnBoom_SetupAction(this, func_808A2918);
 }
 
@@ -226,12 +240,19 @@ void func_808A2918(EnBoom* this, PlayState* play) {
 
     Actor_SetSpeeds(&this->actor, 12.0f);
     Actor_MoveWithGravity(&this->actor);
-    func_808A24DC(this, play);
+    // Skijer's NEI: the water bubble/splash/ripple FX are MM Zora-fin flavor; OoT's En_Boom (and the
+    // IK axe) have none.
+    if (!EN_BOOM_IS_OOT_STYLE(this->actor.params)) {
+        func_808A24DC(this, play);
+    }
     Actor_PlaySfx_Flagged(&this->actor, NA_SE_IT_BOOMERANG_FLY - SFX_FLAG);
 
+    // Skijer's NEI: OoT's boomerang grabs ANY EnItem00 (heart pieces/containers included) — the
+    // exclusions below are an MM Zora-fin restriction, so they only apply to the fin variants.
     if ((this->collider.base.atFlags & AT_HIT) && (((this->collider.base.at->id == ACTOR_EN_ITEM00) &&
-                                                    (this->collider.base.at->params != ITEM00_HEART_CONTAINER) &&
-                                                    (this->collider.base.at->params != ITEM00_HEART_PIECE)) ||
+                                                    (EN_BOOM_IS_OOT_STYLE(this->actor.params) ||
+                                                     ((this->collider.base.at->params != ITEM00_HEART_CONTAINER) &&
+                                                      (this->collider.base.at->params != ITEM00_HEART_PIECE)))) ||
                                                    (this->collider.base.at->id == ACTOR_EN_SI))) {
         this->unk_1C8 = this->collider.base.at;
         if (this->collider.base.at->id == ACTOR_EN_SI) {
@@ -266,7 +287,9 @@ void func_808A2918(EnBoom* this, PlayState* play) {
         distXYZ = Math_Vec3f_DistXYZ(&this->actor.world.pos, &player->actor.focus.pos);
 
         if (&player->actor != this->moveTo) {
-            if (this->moveTo == 0) {
+            // Skijer's NEI: the 8-frame outward return curve is MM Zora-fin flavor; OoT's boomerang
+            // (and the IK axe) turn straight back to Link (OoT z_en_boom.c just sets moveTo).
+            if ((this->moveTo == 0) && !EN_BOOM_IS_OOT_STYLE(this->actor.params)) {
                 this->unk_1CE = 8;
             }
             this->moveTo = &player->actor;
@@ -313,7 +336,9 @@ void EnBoom_Update(Actor* thisx, PlayState* play) {
             Actor_SetFocus(&this->actor, 0.0f);
         }
 
-        if (this->actor.params != ZORA_BOOMERANG_LEFT) {
+        // Skijer's NEI: the OoT boomerang spins like OoT's (activeTimer++ → RotateY(+12000/frame)),
+        // matching the LEFT fin's direction. Only the RIGHT fin spins the other way.
+        if (this->actor.params == ZORA_BOOMERANG_RIGHT) {
             this->unk_1CD--;
         } else {
             this->unk_1CD++;
@@ -330,13 +355,32 @@ typedef struct {
 EnBoomStruct D_808A3078[] = {
     { gameplay_keep_DL_06FE20, { -960.0f, 0.0f, 0.0f }, { 960.0f, 0.0f, 0.0f } },
     { gameplay_keep_DL_06FF68, { -960.0f, 0.0f, 0.0f }, { 960.0f, 0.0f, 0.0f } },
+    // Skijer's NEI: OOT_BOOMERANG — same sweep endpoints as OoT's En_Boom (±960 on local X); the
+    // model is resolved at runtime from the companion oot.o2r (gBoomerangRefDL, what OoT draws).
+    { NULL, { -960.0f, 0.0f, 0.0f }, { 960.0f, 0.0f, 0.0f } },
+    // Skijer's NEI: IKAXE_TOMAHAWK — same trail endpoints; the model (gIKAxeInlineDL) is drawn
+    // directly in EnBoom_Draw, so unk_00 stays NULL.
+    { NULL, { -960.0f, 0.0f, 0.0f }, { 960.0f, 0.0f, 0.0f } },
 };
+
+// Skijer's NEI: cached companion DL for the OoT boomerang model (NULL if oot.o2r is absent —
+// the flight/trail/collision still run; only the mesh is skipped).
+extern void* OotAssets_LoadGfx(const char* otrPath);
+static Gfx* EnBoom_GetOotBoomerangDL(void) {
+    static Gfx* sOotBoomerangDL = NULL;
+
+    if (sOotBoomerangDL == NULL) {
+        sOotBoomerangDL = (Gfx*)OotAssets_LoadGfx("__OTR__objects/gameplay_keep/gBoomerangRefDL");
+    }
+    return sOotBoomerangDL;
+}
 
 void EnBoom_Draw(Actor* thisx, PlayState* play) {
     EnBoom* this = (EnBoom*)thisx;
     EnBoomStruct* sp58 = &D_808A3078[this->actor.params];
     Vec3f sp4C;
     Vec3f sp40;
+    Gfx* modelDL = sp58->unk_00;
 
     OPEN_DISPS(play->state.gfxCtx);
 
@@ -350,11 +394,28 @@ void EnBoom_Draw(Actor* thisx, PlayState* play) {
         EffectBlure_AddVertex(Effect_GetByIndex(this->effectIndex), &sp4C, &sp40);
     }
 
-    Gfx_SetupDL25_Opa(play->state.gfxCtx);
-    Matrix_RotateYS(this->unk_1CD * 0x2EE0, MTXMODE_APPLY);
+    // Skijer's NEI: OoT boomerang draws the companion model (same fast spin: unk_1CD * 0x2EE0
+    // == OoT's activeTimer * 12000, and the +0x1F40 Z tilt above == OoT's fixed blade tilt).
+    if (this->actor.params == OOT_BOOMERANG) {
+        modelDL = EnBoom_GetOotBoomerangDL();
+    }
 
-    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, play->state.gfxCtx);
-    gSPDisplayList(POLY_OPA_DISP++, sp58->unk_00);
+    if (this->actor.params == IKAXE_TOMAHAWK) {
+        // Skijer's NEI: the flying Iron Knuckle's Axe draws its own inline DL (a slower spin than the
+        // boomerang, scaled to hand-model size) instead of the boomerang mesh.
+        Gfx_SetupDL25_Opa(play->state.gfxCtx);
+        Matrix_RotateYS(this->unk_1CD * 0x1000, MTXMODE_APPLY);
+        Matrix_Scale(0.15f, 0.15f, 0.15f, MTXMODE_APPLY);
+
+        MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, play->state.gfxCtx);
+        gSPDisplayList(POLY_OPA_DISP++, gIKAxeInlineDL);
+    } else if (modelDL != NULL) {
+        Gfx_SetupDL25_Opa(play->state.gfxCtx);
+        Matrix_RotateYS(this->unk_1CD * 0x2EE0, MTXMODE_APPLY);
+
+        MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, play->state.gfxCtx);
+        gSPDisplayList(POLY_OPA_DISP++, modelDL);
+    }
 
     CLOSE_DISPS(play->state.gfxCtx);
 }

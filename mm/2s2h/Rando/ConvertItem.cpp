@@ -1,6 +1,7 @@
 #include "Rando/Rando.h"
 #include "Rando/ActorBehavior/Souls.h"
 #include "Rando/MiscBehavior/ClockShuffle.h"
+#include "mods/nei_save.h" // ootHookshotLevel (FC 3-level hookshot chain obtainability)
 #include "2s2h/ShipUtils.h"
 #include "2s2h/ShipInit.hpp"
 #include <cassert>
@@ -160,9 +161,15 @@ static RegisterShipInitFunc refreshInitFunc(
     { "IS_RANDO" });
 
 RandoItemId Rando::CurrentJunkItem(RandoCheckId randoCheckId) {
+    if (obtainableJunkItems.size() == 0) {
+        return RI_RUPEE_SILVER; // no junk pool registered — safe stand-in (matches CurrentTrapItem)
+    }
     if (CVarGetInteger("gRando.JunkItems", 0) == 0) {
-        Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId +
-                         (gPlayState->gameplayFrames / 30));
+        // gPlayState is NULL when the combo oracle resolves items on the title/file-select screen
+        // (FleetOracle GiveOneItem). Dereferencing it there crashed seed generation — fall back to 0
+        // for the frame component instead of reading gPlayState->gameplayFrames.
+        uint32_t frameSeed = (gPlayState != NULL) ? (gPlayState->gameplayFrames / 30) : 0;
+        Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId + frameSeed);
         return obtainableJunkItems[Ship_Random(0, obtainableJunkItems.size() - 1)];
     } else {
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
@@ -377,6 +384,17 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
                 return false;
             }
             break;
+        case RI_HOOKSHOT: {
+            // FC 3-level chain (FCI_HOOKSHOT, count 3): copies stay obtainable until Ultrashot
+            // (ootHookshotLevel 3). Without this, the vanilla GIFIELD_20 dedupe below junks every
+            // copy after the first (the native hookshot item exists from copy 1 on) and the
+            // Longshot/Ultrashot tiers would be unreachable in MM.
+            int hookLvl = Nei_Save()->ootHookshotLevel;
+            if (hookLvl == 0 && INV_CONTENT(ITEM_HOOKSHOT) == ITEM_HOOKSHOT) {
+                hookLvl = 1; // pre-chain native hookshot with no level recorded
+            }
+            return hookLvl < 3;
+        }
         case RI_SHIELD_HERO:
             if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) != EQUIP_VALUE_SHIELD_NONE) {
                 return false;

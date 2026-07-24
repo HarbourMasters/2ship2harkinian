@@ -8,6 +8,7 @@
 #include "objects/gameplay_field_keep/gameplay_field_keep.h"
 
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/FleetShipCombo/FleetSync.h" // Fleet Ship Combo cross-game hole intercept
 
 #define FLAGS (ACTOR_FLAG_UPDATE_DURING_OCARINA)
 
@@ -128,6 +129,22 @@ void DoorAna_WaitClosed(DoorAna* this, PlayState* play) {
 void DoorAna_WaitOpen(DoorAna* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
     s32 grottoType = DOORANA_GET_TYPE(&this->actor);
+
+    // Fleet Ship Combo: the cross-game hole. Falling in (Link steps over it -> floor disabled ->
+    // he SINKS into the hole = the "entering a grotto" feel) triggers the cross-game fade + flip
+    // (FleetSync_OnHoleFall). It NEVER runs the vanilla grotto warp (that reloaded the scene and
+    // trapped the player). The flip happens under the fade; the arrival is owned by FleetWarpArrival.
+    if (this->actor.params & FLEET_HOLE_PARAM) {
+        Math_StepToF(&this->actor.scale.x, 0.01f, 0.001f);
+        if (!Play_InCsMode(play) && !(player->stateFlags1 & (PLAYER_STATE1_8000000 | PLAYER_STATE1_800000)) &&
+            (this->actor.xzDistToPlayer <= 20.0f) && (this->actor.playerHeightRel >= -50.0f) &&
+            (this->actor.playerHeightRel <= 15.0f)) {
+            player->stateFlags1 |= PLAYER_STATE1_80000000; // sink into the hole
+            FleetSync_OnHoleFall();
+        }
+        Actor_SetScale(&this->actor, this->actor.scale.x);
+        return;
+    }
 
     if (Math_StepToF(&this->actor.scale.x, 0.01f, 0.001f)) {
         if ((this->actor.attentionRangeType != ATTENTION_RANGE_0) && (play->transitionTrigger == TRANS_TRIGGER_OFF) &&

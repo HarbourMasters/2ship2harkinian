@@ -1,4 +1,5 @@
 #include "StaticData.h"
+#include <cstring>
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "2s2h/ShipUtils.h"
 #include "2s2h/Rando/Rando.h"
@@ -6,6 +7,8 @@
 
 extern "C" {
 extern s16 D_801CFF94[250];
+// 2S2H [Rando] z_message.c — stages a custom rgba32 textbox icon consumed by sentinel icon byte 0xF5
+void Message_StageCustomItemIcon(void* tex, s16 size);
 #include "assets/interface/parameter_static/parameter_static.h"
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "interface/icon_item_field_static/icon_item_field_static.h"
@@ -58,11 +61,15 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_DEKU_NUT,                   "a",    "Deku Nut",                   RITYPE_JUNK,            ITEM_DEKU_NUT,                   GI_DEKU_NUTS_1,              GID_DEKU_NUTS),
     RI(RI_DEKU_NUTS_10,               "",     "10 Deku Nuts",               RITYPE_JUNK,            ITEM_DEKU_NUTS_10,               GI_DEKU_NUTS_10,             GID_DEKU_NUTS),
     RI(RI_DEKU_NUTS_5,                "",     "5 Deku Nuts",                RITYPE_JUNK,            ITEM_DEKU_NUTS_5,                GI_DEKU_NUTS_5,              GID_DEKU_NUTS),
+    RI(RI_DEKU_SEEDS,                 "",     "Deku Seeds",                 RITYPE_JUNK,            ITEM_NONE,                       GI_NONE,                     GID_NONE), // OoT slingshot ammo (custom draw/give) — Skijer's NEI
     RI(RI_DEKU_STICK,                 "a",    "Deku Stick",                 RITYPE_JUNK,            ITEM_DEKU_STICK,                 GI_DEKU_STICKS_1,            GID_DEKU_STICK),
     RI(RI_DEKU_STICKS_5,              "",     "5 Deku Sticks",              RITYPE_JUNK,            ITEM_DEKU_STICKS_5,              GI_NONE,                     GID_DEKU_STICK),
     RI(RI_DOUBLE_DEFENSE,             "",     "Double Defense",             RITYPE_HEALTH,          ITEM_NONE,                       GI_NONE,                     GID_HEART_CONTAINER),
     RI(RI_DOUBLE_MAGIC,               "a",    "Magic Upgrade",              RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_MAGIC_JAR_BIG),
     RI(RI_FAIRY_REFILL,               "a",    "Fairy",                      RITYPE_JUNK,            ITEM_FAIRY,                      GI_FAIRY,                    GID_FAIRY_2),
+    RI(RI_FAIRY_SLINGSHOT,            "a",    "Fairy Slingshot",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // OoT Fairy Slingshot (custom draw/give) — Skijer's NEI
+    RI(RI_NET,                        "the",  "Bug-Catching Net",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // Bottle rando Net (custom draw/give) — Skijer's NEI
+    RI(RI_BOTTOMLESS_BOTTLE,          "the",  "Bottomless Bottle",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // Bottle rando Bottomless (custom draw/give) — Skijer's NEI
     RI(RI_FROG_BLUE,                  "a",    "Blue Frog",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_MASK_DON_GERO,            GID_NONE),
     RI(RI_FROG_CYAN,                  "a",    "Cyan Frog",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_MASK_DON_GERO,            GID_NONE),
     RI(RI_FROG_PINK,                  "a",    "Pink Frog",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_MASK_DON_GERO,            GID_NONE),
@@ -80,7 +87,8 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_GS_TOKEN_SWAMP,             "a",    "Swamp Gold Skulltula Token", RITYPE_SKULLTULA_TOKEN, ITEM_SKULL_TOKEN,                GI_SKULL_TOKEN,              GID_SKULL_TOKEN_2),
     RI(RI_HEART_CONTAINER,            "a",    "Heart Container",            RITYPE_HEALTH,          ITEM_HEART_CONTAINER,            GI_HEART_CONTAINER,          GID_HEART_CONTAINER),
     RI(RI_HEART_PIECE,                "a",    "Heart Piece",                RITYPE_HEALTH,          ITEM_HEART_PIECE,                GI_HEART_PIECE,              GID_HEART_PIECE),
-    RI(RI_HOOKSHOT,                   "the",  "Hookshot",                   RITYPE_MAJOR,           ITEM_HOOKSHOT,                   GI_HOOKSHOT,                 GID_HOOKSHOT),
+    RI(RI_HOOKSHOT,                   "the",  "Hookshot",                   RITYPE_MAJOR,           ITEM_HOOKSHOT,                   GI_HOOKSHOT,                 GID_HOOKSHOT), // kept "Hookshot": this token = OoT progressive-chain tier 1 (FCI_HOOKSHOT). The MM kaleido cell for the native item reads "Clawshot" (extended_inventory.c name override); RI_CLAWSHOT below owns the "Clawshot" rando name (FCI_CLAWSHOT)
+    RI(RI_CLAWSHOT,                   "the",  "Clawshot",                   RITYPE_MAJOR,           ITEM_HOOKSHOT,                   GI_HOOKSHOT,                 GID_HOOKSHOT),
     RI(RI_JUNK,                       "",     "Junk",                       RITYPE_JUNK,            ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_LENS,                       "the",  "Lens of Truth",              RITYPE_MAJOR,           ITEM_LENS_OF_TRUTH,              GI_LENS_OF_TRUTH,            GID_LENS),
     RI(RI_LETTER_TO_KAFEI,            "the",  "Letter to Kafei",            RITYPE_MAJOR,           ITEM_LETTER_TO_KAFEI,            GI_LETTER_TO_KAFEI,          GID_LETTER_TO_KAFEI),
@@ -122,6 +130,165 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_OCARINA_BUTTON_C_LEFT,      "the",  "C Left Button",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OCARINA_BUTTON_C_UP,        "the",  "C Up Button",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OCARINA,                    "the",  "Ocarina of Time",            RITYPE_MAJOR,           ITEM_OCARINA_OF_TIME,            GI_OCARINA_OF_TIME,          GID_OCARINA),
+    // Skijer's NEI — OoT (SoH) per-dungeon items ported into MM as get-items (custom OoT-model draw, no-op give).
+    // Distinct token+name per (dungeon,type); model shared per type. Names are the exact OoT English names.
+    // Second wave (gear/spells/masks + NEI page-2 + ext equipment + NEI songs) is interleaved alphabetically.
+    // Third wave (final cross items): SoH abilities / jabber nuts / GS token / bottled contents.
+    RI(RI_OOT_ABILITY_CLIMB,          "",     "Climb",                      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // SoH RG_CLIMB — ladder model draw
+    RI(RI_OOT_ABILITY_CRAWL,          "",     "Crawl",                      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // SoH RG_CRAWL — knee-pads (2 deku shields)
+    RI(RI_OOT_BOMBCHU_BAG,            "a",    "Bombchu Bag",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_BOOMERANG,              "the",  "Boomerang",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_BOSS_KEY_FIRE_TEMPLE,   "the",  "Fire Temple Boss Key",       RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_BOSS_KEY_FOREST_TEMPLE, "the",  "Forest Temple Boss Key",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_BOSS_KEY_GANONS_CASTLE, "the",  "Ganon's Castle Boss Key",    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_BOSS_KEY_SHADOW_TEMPLE, "the",  "Shadow Temple Boss Key",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_BOSS_KEY_SPIRIT_TEMPLE, "the",  "Spirit Temple Boss Key",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_BOSS_KEY_WATER_TEMPLE,  "the",  "Water Temple Boss Key",      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    // OoT bottled contents (SoH names). Where MM ships the same content the row carries MM's native
+    // GID (DrawItem default GetItem_Draw path) and the give routes through MM's own bottle system.
+    RI(RI_OOT_BOTTLE_BIG_POE,         "a",    "Bottle with Big Poe",        RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_BIG_POE),
+    RI(RI_OOT_BOTTLE_BLUE_FIRE,       "a",    "Bottle with Blue Fire",      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // no MM analog — OoT blue-fire model (custom draw)
+    RI(RI_OOT_BOTTLE_BLUE_POTION,     "a",    "Bottle with Blue Potion",    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_POTION_BLUE),
+    RI(RI_OOT_BOTTLE_BUGS,            "a",    "Bottle with Bugs",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_BUG),
+    RI(RI_OOT_BOTTLE_FAIRY,           "a",    "Bottle with Fairy",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_FAIRY),
+    RI(RI_OOT_BOTTLE_FISH,            "a",    "Bottle with Fish",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_FISH),
+    RI(RI_OOT_BOTTLE_GREEN_POTION,    "a",    "Bottle with Green Potion",   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_POTION_GREEN),
+    RI(RI_OOT_BOTTLE_MAGIC_MUSHROOM,  "a",    "Bottle with Magic Mushroom", RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_MUSHROOM),
+    RI(RI_OOT_BOTTLE_POE,             "a",    "Bottle with Poe",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_POE),
+    RI(RI_OOT_COMPASS_BOTTOM_OF_THE_WELL, "the", "Bottom of the Well Compass", RITYPE_LESSER,       ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_COMPASS_DEKU_TREE,      "the",  "Great Deku Tree Compass",    RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_COMPASS_DODONGOS_CAVERN,"the",  "Dodongo's Cavern Compass",   RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_COMPASS_FIRE_TEMPLE,    "the",  "Fire Temple Compass",        RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_COMPASS_FOREST_TEMPLE,  "the",  "Forest Temple Compass",      RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_COMPASS_ICE_CAVERN,     "the",  "Ice Cavern Compass",         RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_COMPASS_JABU_JABUS_BELLY,"the", "Jabu-Jabu's Belly Compass",  RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_COMPASS_SHADOW_TEMPLE,  "the",  "Shadow Temple Compass",      RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_COMPASS_SPIRIT_TEMPLE,  "the",  "Spirit Temple Compass",      RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_COMPASS_WATER_TEMPLE,   "the",  "Water Temple Compass",       RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_DEKU_SHIELD,            "the",  "Deku Shield",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // OoT Deku Shield (FC_SHIELD_DEKU); real object_gi_shield_1 mesh via direct load
+    RI(RI_OOT_DINS_FIRE,              "",     "Din's Fire",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_CANE_OF_BYRNA,      "the",  "Cane of Byrna",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_CHAMPIONS_TUNIC,    "the",  "Champion's Tunic",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_DIVINE_SHIELD,      "the",  "Divine Shield",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_FOUR_SWORD,         "the",  "Four Sword",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_MAGIC_CAPE,         "the",  "Magic Cape",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_PEGASUS_ANKLET,     "the",  "Pegasus Anklet",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_SHEIKAH_SHIELD,     "the",  "Sheikah Shield",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_SPIRIT_BREASTPLATE, "the",  "Spirit Breastplate",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_WATER_DRAGON_SCALE, "the",  "Water Dragon Scale",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_FARORES_WIND,           "",     "Farore's Wind",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_FISHING_POLE,           "the",  "Fishing Pole",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_GERUDO_MEMBERSHIP_CARD, "the",  "Gerudo Membership Card",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_GORON_TUNIC,            "the",  "Goron Tunic",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_GREG,                   "",     "Greg the Green Rupee",       RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_GS_TOKEN,               "a",    "Gold Skulltula Token",       RITYPE_SKULLTULA_TOKEN, ITEM_NONE,                       GI_NONE,                     GID_NONE), // real OoT object_gi_sutaru mesh (direct load; MM shadows the path)
+    RI(RI_OOT_HOVER_BOOTS,            "the",  "Hover Boots",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_IRON_BOOTS,             "the",  "Iron Boots",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_BOTTOM_OF_THE_WELL, "the", "Bottom of the Well Key Ring", RITYPE_MAJOR,      ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_FIRE_TEMPLE,   "the",  "Fire Temple Key Ring",       RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_FOREST_TEMPLE, "the",  "Forest Temple Key Ring",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_GANONS_CASTLE, "the",  "Ganon's Castle Key Ring",    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_GERUDO_FORTRESS, "the", "Gerudo Fortress Key Ring",  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_GERUDO_TRAINING_GROUND, "the", "Training Ground Key Ring", RITYPE_MAJOR,     ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_SHADOW_TEMPLE, "the",  "Shadow Temple Key Ring",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_SPIRIT_TEMPLE, "the",  "Spirit Temple Key Ring",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_TREASURE_GAME, "the",  "Chest Game Key Ring",        RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_KEY_RING_WATER_TEMPLE,  "the",  "Water Temple Key Ring",      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_BOTTOM_OF_THE_WELL, "the",  "Bottom of the Well Map",     RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_DEKU_TREE,          "the",  "Great Deku Tree Map",        RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_DODONGOS_CAVERN,    "the",  "Dodongo's Cavern Map",       RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_FIRE_TEMPLE,        "the",  "Fire Temple Map",            RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_FOREST_TEMPLE,      "the",  "Forest Temple Map",          RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_ICE_CAVERN,         "the",  "Ice Cavern Map",             RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_JABU_JABUS_BELLY,   "the",  "Jabu-Jabu's Belly Map",      RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_SHADOW_TEMPLE,      "the",  "Shadow Temple Map",          RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_SPIRIT_TEMPLE,      "the",  "Spirit Temple Map",          RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MAP_WATER_TEMPLE,       "the",  "Water Temple Map",           RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MASK_GERUDO,            "the",  "Gerudo Mask",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MASK_SKULL,             "the",  "Skull Mask",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MASK_SPOOKY,            "the",  "Spooky Mask",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    // Skijer's NEI — OoT (SoH) medallions, warp songs, and spiritual stones ported into MM as get-items
+    // (custom OoT-model draw, no-op give). The 6 non-warp OoT songs already exist as MM's native RI_SONG_*.
+    RI(RI_OOT_MEDALLION_FIRE,         "the",  "Fire Medallion",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MEDALLION_FOREST,       "the",  "Forest Medallion",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MEDALLION_LIGHT,        "the",  "Light Medallion",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MEDALLION_SHADOW,       "the",  "Shadow Medallion",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MEDALLION_SPIRIT,       "the",  "Spirit Medallion",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MEDALLION_WATER,        "the",  "Water Medallion",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MIRROR_SHIELD,          "the",  "Mirror Shield",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // OoT Mirror Shield (FC "Mirror Shield (OoT)"); draws MM's mirror shield model per FC vanillaShieldSkin note
+    RI(RI_OOT_NAYRUS_LOVE,            "",     "Nayru's Love",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_BALL_AND_CHAIN,     "the",  "Ball and Chain",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_BEETLE,             "the",  "Beetle",                     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_BOMB_ARROWS,        "",     "Bomb Arrows",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_OF_SOMARIA,    "the",  "Cane of Somaria",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_DEKU_LEAF,          "the",  "Deku Leaf",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_DEMISE_DESTRUCTION, "",     "Demise Destruction",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_DESIRE_SENSOR,      "the",  "Desire Sensor",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_DOMINION_ROD,       "the",  "Dominion Rod",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_FIRE_ROD,           "the",  "Fire Rod",                   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_GUST_JAR,           "the",  "Gust Jar",                   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_HYLIAS_GRACE,       "",     "Hylia's Grace",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_ICE_ROD,            "the",  "Ice Rod",                    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_LANTERN,            "the",  "Lantern",                    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_LIGHT_ROD,          "the",  "Light Rod",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_MINISH_CAP,         "",     "The Minish Cap",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_MOGMA_MITTS,        "the",  "Mogma Mitts",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_POKE_BALL,          "a",    "Poke Ball",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // soh English is "Poké Ball"; é dropped (MM charmap-safe)
+    RI(RI_OOT_NEI_SHOVEL,             "the",  "Shovel",                     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_SPINNER,            "the",  "Spinner",                    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_SWITCH_HOOK,        "the",  "Switch Hook",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_TIME_GATE,          "the",  "Time Gate",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_WHIP,               "the",  "Whip",                       RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_ZONAI_PERMAFROST,   "",     "Zonai Permafrost",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_PROGRESSIVE_HAMMER,     "a",    "Progressive Hammer",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_PROGRESSIVE_MASTER_SWORD, "a",  "Progressive Master Sword",   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_PROGRESSIVE_ROC,        "a",    "Progressive Roc",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_RUTOS_LETTER,           "a",    "Bottle with Ruto's Letter",  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // OoT object_gi_bottle_letter (custom draw)
+    RI(RI_OOT_SKELETON_KEY,           "the",  "Skeleton Key",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_BOTTOM_OF_THE_WELL, "a", "Bottom of the Well Small Key", RITYPE_MAJOR,      ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_FIRE_TEMPLE,  "a",    "Fire Temple Small Key",      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_FOREST_TEMPLE,"a",    "Forest Temple Small Key",    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_GANONS_CASTLE,"a",    "Ganon's Castle Small Key",   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_GERUDO_FORTRESS, "a", "Gerudo Fortress Small Key",  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_GERUDO_TRAINING_GROUND, "a", "Training Ground Small Key", RITYPE_MAJOR,     ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_SHADOW_TEMPLE,"a",    "Shadow Temple Small Key",    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_SPIRIT_TEMPLE,"a",    "Spirit Temple Small Key",    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_TREASURE_GAME,"a",    "Chest Game Small Key",       RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SMALL_KEY_WATER_TEMPLE, "a",    "Water Temple Small Key",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SONG_BALLAD_OF_THE_HERO,"the",  "Ballad of the Hero",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // NEI custom song
+    RI(RI_OOT_SONG_BOLERO_OF_FIRE,    "the",  "Bolero of Fire",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SONG_COMMAND_MELODY,    "the",  "Command Melody",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // NEI custom song
+    RI(RI_OOT_SONG_FUGUE_OF_HOME,     "the",  "Fugue of Home",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // NEI custom song
+    RI(RI_OOT_SONG_MINUET_OF_FOREST,  "the",  "Minuet of Forest",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SONG_NOCTURNE_OF_SHADOW,"the",  "Nocturne of Shadow",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SONG_PRELUDE_OF_LIGHT,  "the",  "Prelude of Light",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SONG_REQUIEM_OF_SPIRIT, "the",  "Requiem of Spirit",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SONG_SERENADE_OF_WATER, "the",  "Serenade of Water",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    // SoH Skijer jabber nuts (exact SoH English names) — per-race nut mesh from soh.o2r (direct load).
+    RI(RI_OOT_SPEAK_DEKU,             "a",    "Deku Jabber Nut",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SPEAK_GERUDO,           "a",    "Gerudo Jabber Nut",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SPEAK_GORON,            "a",    "Goron Jabber Nut",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SPEAK_HYLIAN,           "a",    "Hylian Jabber Nut",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SPEAK_KOKIRI,           "a",    "Kokiri Jabber Nut",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SPEAK_ZORA,             "a",    "Zora Jabber Nut",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_STONE_GORON_RUBY,       "the",  "Goron's Ruby",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_STONE_KOKIRI_EMERALD,   "the",  "Kokiri's Emerald",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_STONE_OF_AGONY,         "the",  "Stone of Agony",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_STONE_ZORA_SAPPHIRE,    "the",  "Zora's Sapphire",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    // Skijer's NEI — OoT (SoH) trade-chain items ported into MM as get-items (custom OoT-model draw, no-op give).
+    RI(RI_OOT_TRADE_BROKEN_GORONS_SWORD, "the", "Broken Goron's Sword",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_CLAIM_CHECK,      "the",  "Claim Check",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_COJIRO,           "",     "Cojiro",                     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_EYEBALL_FROG,     "the",  "Eyeball Frog",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_EYEDROPS,         "the",  "World's Finest Eyedrops",    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_ODD_MUSHROOM,     "the",  "Odd Mushroom",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_ODD_POTION,       "the",  "Odd Potion",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_POACHERS_SAW,     "the",  "Poacher's Saw",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_POCKET_EGG,       "the",  "Pocket Egg",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_PRESCRIPTION,     "the",  "Prescription",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_WEIRD_EGG,        "the",  "Weird Egg",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRADE_ZELDAS_LETTER,    "",     "Zelda's Letter",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_ZORA_TUNIC,             "the",  "Zora Tunic",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OWL_CLOCK_TOWN_SOUTH,       "the",  "Clock Town Owl Statue",      RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OWL_GREAT_BAY_COAST,        "the",  "Great Bay Coast Owl Statue", RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OWL_IKANA_CANYON,           "the",  "Ikana Canyon Owl Statue",    RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -157,7 +324,7 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_RUPEE_RED,                  "a",    "Red Rupee",                  RITYPE_JUNK,            ITEM_RUPEE_RED,                  GI_RUPEE_RED,                GID_RUPEE_RED),
     RI(RI_RUPEE_SILVER,               "a",    "Silver Rupee",               RITYPE_JUNK,            ITEM_RUPEE_SILVER,               GI_RUPEE_SILVER,             GID_RUPEE_SILVER),
     RI(RI_SHIELD_HERO,                "the",  "Hero's Shield",              RITYPE_MAJOR,           ITEM_SHIELD_HERO,                GI_SHIELD_HERO,              GID_SHIELD_HERO),
-    RI(RI_SHIELD_MIRROR,              "the",  "Mirror Shield",              RITYPE_MAJOR,           ITEM_SHIELD_MIRROR,              GI_SHIELD_MIRROR,            GID_SHIELD_MIRROR),
+    RI(RI_SHIELD_MIRROR,              "the",  "Shield of Ikana",            RITYPE_MAJOR,           ITEM_SHIELD_MIRROR,              GI_SHIELD_MIRROR,            GID_SHIELD_MIRROR), // MM's vanilla Mirror Shield — displays "Shield of Ikana" (RI_OOT_MIRROR_SHIELD keeps "Mirror Shield"); spoiler name (RI_SHIELD_MIRROR) untouched
     RI(RI_SINGLE_MAGIC,               "the",  "Power of Magic",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_MAGIC_JAR_SMALL),
     RI(RI_SNOWHEAD_BOSS_KEY,          "the",  "Snowhead Boss Key",          RITYPE_BOSS_KEY,        ITEM_KEY_BOSS,                   GI_KEY_BOSS,                 GID_KEY_BOSS),
     RI(RI_SNOWHEAD_COMPASS,           "the",  "Snowhead Compass",           RITYPE_LESSER,          ITEM_COMPASS,                    GI_COMPASS,                  GID_COMPASS),
@@ -231,6 +398,28 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_SOUL_ENEMY_WART,            "the",  "Soul of Warts",              RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_ENEMY_WIZROBE,         "the",  "Soul of Wizrobes",           RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_SOUL_ENEMY_WOLFOS,          "the",  "Soul of Wolfos",             RITYPE_LESSER,          ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    // Skijer's NEI — OoT (SoH) rando souls ported as MM get-items. Custom OoT-drawn (no MM native model),
+    // no MM gameplay effect (give is a no-op). Bean souls draw the OoT bean sprout; boss souls draw the
+    // OoT tinted blue-fire flame — see DrawItem.cpp DrawOotBeanSoul/DrawOotBossSoul.
+    RI(RI_SOUL_OOT_BEAN_DEATH_MOUNTAIN_CRATER, "the", "Death Mountain Crater Bean Soul", RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BEAN_DEATH_MOUNTAIN_TRAIL,  "the", "Death Mountain Trail Bean Soul",  RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BEAN_DESERT_COLOSSUS,       "the", "Desert Colossus Bean Soul",       RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BEAN_GERUDO_VALLEY,         "the", "Gerudo Valley Bean Soul",         RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BEAN_GRAVEYARD,             "the", "Graveyard Bean Soul",             RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BEAN_KOKIRI_FOREST,         "the", "Kokiri Forest Bean Soul",         RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BEAN_LAKE_HYLIA,            "the", "Lake Hylia Bean Soul",            RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BEAN_LOST_WOODS,            "the", "Lost Woods Bean Soul",            RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BEAN_LOST_WOODS_BRIDGE,     "the", "Lost Woods Bridge Bean Soul",     RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BEAN_ZORAS_RIVER,           "the", "Zora's River Bean Soul",          RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BOSS_BARINADE,              "",    "Barinade's Soul",                 RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BOSS_BONGO_BONGO,           "",    "Bongo Bongo's Soul",              RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BOSS_GANON,                 "",    "Ganon's Soul",                    RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BOSS_GOHMA,                 "",    "Gohma's Soul",                    RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BOSS_KING_DODONGO,          "",    "King Dodongo's Soul",             RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BOSS_MORPHA,                "",    "Morpha's Soul",                   RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BOSS_PHANTOM_GANON,         "",    "Phantom Ganon's Soul",            RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BOSS_TWINROVA,              "",    "Twinrova's Soul",                 RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
+    RI(RI_SOUL_OOT_BOSS_VOLVAGIA,              "",    "Volvagia's Soul",                 RITYPE_MAJOR, ITEM_NONE,          GI_NONE,                     GID_NONE),
     RI(RI_STONE_TOWER_BOSS_KEY,       "the",  "Stone Tower Boss Key",       RITYPE_BOSS_KEY,        ITEM_KEY_BOSS,                   GI_KEY_BOSS,                 GID_KEY_BOSS),
     RI(RI_STONE_TOWER_COMPASS,        "the",  "Stone Tower Compass",        RITYPE_LESSER,          ITEM_COMPASS,                    GI_COMPASS,                  GID_COMPASS),
     RI(RI_STONE_TOWER_MAP,            "the",  "Stone Tower Map",            RITYPE_LESSER,          ITEM_DUNGEON_MAP,                GI_MAP,                      GID_DUNGEON_MAP),
@@ -349,12 +538,77 @@ u8 GetIconForZMessage(RandoItemId randoItemId) {
             return GI_MAGIC_JAR_BIG;
         case RI_GREAT_SPIN_ATTACK:
             return GI_SWORD_KOKIRI;
+        // 2S2H [Rando] Stray fairies use sentinel icon bytes 0xF1-0xF4 so z_message.c knows WHICH
+        // fairy icon/colors to draw. The vanilla path picks the texture from
+        // gSaveContext.dungeonSceneSharedIndex, which is garbage outside the four dungeons and
+        // rendered a corrupted textbox icon (e.g. a Woodfall Stray Fairy found in the overworld).
+        // Clock Town's fairy shares Stone Tower's icon (parity with GetIconTexturePath below).
+        case RI_WOODFALL_STRAY_FAIRY:
+            return 0xF1;
+        case RI_SNOWHEAD_STRAY_FAIRY:
+            return 0xF2;
+        case RI_GREAT_BAY_STRAY_FAIRY:
+            return 0xF3;
+        case RI_STONE_TOWER_STRAY_FAIRY:
+        case RI_CLOCK_TOWN_STRAY_FAIRY:
+            return 0xF4;
         default:
             break;
     }
 
-    if (Rando::StaticData::Items[randoItemId].getItemId != GI_NONE) {
-        return (u8)Rando::StaticData::Items[randoItemId].getItemId;
+    // The icon byte indexes D_801CFF94[250] in z_message.c, and 0xF1+ are our sentinels — only pass
+    // through getItemIds that stay inside the vanilla-meaningful range AND map to a real native icon
+    // (9999 == z_message.c's MESSAGE_ITEM_NONE). Anything else (custom items with GI_NONE, extended
+    // GIs, GIs in unused table slots) falls through to the custom-texture path below instead of
+    // producing an OOB/garbage native icon.
+    {
+        s16 getItemId = Rando::StaticData::Items[randoItemId].getItemId;
+        if (getItemId != GI_NONE && getItemId > 0 && getItemId < 0xF1 && D_801CFF94[getItemId] != 9999) {
+            return (u8)getItemId;
+        }
+    }
+
+    // 2S2H [Rando] Textbox-only overrides for items whose toast texture is format-unsafe for the
+    // textbox blit: enemy + OoT boss souls (toast uses gDungeonMapSkullTex, a map-screen texture)
+    // get the Captain's Hat keeta-skull icon; clock items (toast uses the HUD sun/moon hour texes)
+    // get the Moon's Tear icon. Both are rgba32 32x32 gItemIcons — the toast keeps its themed art
+    // via GetIconTexturePath. MM boss souls already stage their remains icons (safe family).
+    if ((randoItemId >= RI_SOUL_ENEMY_ALIEN && randoItemId <= RI_SOUL_ENEMY_WOLFOS) ||
+        (randoItemId >= RI_SOUL_OOT_BOSS_BARINADE && randoItemId <= RI_SOUL_OOT_BOSS_VOLVAGIA)) {
+        Message_StageCustomItemIcon((void*)gItemIcons[ITEM_MASK_CAPTAIN], 32);
+        return 0xF5;
+    }
+    switch (randoItemId) {
+        case RI_TIME_DAY_1:
+        case RI_TIME_DAY_2:
+        case RI_TIME_DAY_3:
+        case RI_TIME_NIGHT_1:
+        case RI_TIME_NIGHT_2:
+        case RI_TIME_NIGHT_3:
+        case RI_TIME_PROGRESSIVE:
+            Message_StageCustomItemIcon((void*)gItemIcons[ITEM_MOONS_TEAR], 32);
+            return 0xF5;
+        default:
+            break;
+    }
+
+    // 2S2H [Rando] Items with no native MM get-item icon (Net, Bottomless Bottle, the RI_OOT_* waves,
+    // NEI customs, ...): reuse their notification icon in the textbox when it belongs to a family with
+    // a known rgba32 square layout, staged for the 0xF5 sentinel handled in z_message.c. Textures with
+    // other formats/sizes (song notes, owl face, clock sun/moon, ...) safely show no icon instead.
+    const char* texturePath = GetIconTexturePath(randoItemId);
+    if (texturePath != nullptr) {
+        s16 size = 0;
+        if (strstr(texturePath, "icon_item_24_static") != nullptr) {
+            size = 24; // OoT + MM 24x24 rgba32 quest icons
+        } else if (strstr(texturePath, "icon_item_custom") != nullptr ||
+                   strstr(texturePath, "/gItemIcon") != nullptr) {
+            size = 32; // custom (2ship.o2r) + OoT/MM native item icons, rgba32 32x32
+        }
+        if (size != 0) {
+            Message_StageCustomItemIcon((void*)texturePath, size);
+            return 0xF5;
+        }
     }
 
     return 0xFE;
@@ -464,7 +718,29 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_SOUL_ENEMY_WART:
         case RI_SOUL_ENEMY_WIZROBE:
         case RI_SOUL_ENEMY_WOLFOS:
+        // Skijer's NEI — OoT boss souls reuse the generic skull soul icon (like MM's own souls above).
+        case RI_SOUL_OOT_BOSS_BARINADE:
+        case RI_SOUL_OOT_BOSS_BONGO_BONGO:
+        case RI_SOUL_OOT_BOSS_GANON:
+        case RI_SOUL_OOT_BOSS_GOHMA:
+        case RI_SOUL_OOT_BOSS_KING_DODONGO:
+        case RI_SOUL_OOT_BOSS_MORPHA:
+        case RI_SOUL_OOT_BOSS_PHANTOM_GANON:
+        case RI_SOUL_OOT_BOSS_TWINROVA:
+        case RI_SOUL_OOT_BOSS_VOLVAGIA:
             return (const char*)gDungeonMapSkullTex;
+        // Skijer's NEI — OoT bean souls use MM's native magic-bean item icon.
+        case RI_SOUL_OOT_BEAN_DEATH_MOUNTAIN_CRATER:
+        case RI_SOUL_OOT_BEAN_DEATH_MOUNTAIN_TRAIL:
+        case RI_SOUL_OOT_BEAN_DESERT_COLOSSUS:
+        case RI_SOUL_OOT_BEAN_GERUDO_VALLEY:
+        case RI_SOUL_OOT_BEAN_GRAVEYARD:
+        case RI_SOUL_OOT_BEAN_KOKIRI_FOREST:
+        case RI_SOUL_OOT_BEAN_LAKE_HYLIA:
+        case RI_SOUL_OOT_BEAN_LOST_WOODS:
+        case RI_SOUL_OOT_BEAN_LOST_WOODS_BRIDGE:
+        case RI_SOUL_OOT_BEAN_ZORAS_RIVER:
+            return (const char*)gItemIcons[ITEM_MAGIC_BEANS];
         case RI_FROG_BLUE:
         case RI_FROG_CYAN:
         case RI_FROG_PINK:
@@ -517,6 +793,273 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return (const char*)gItemIcons[ITEM_SONG_TIME];
         case RI_SONG_SARIA:
             return (const char*)gItemIcons[ITEM_SONG_SARIA];
+        // Skijer's NEI — OoT-only items with no MM native item icon. Deku Seeds pulls the OoT
+        // slingshot-ammo icon from oot.o2r; the Fairy Slingshot uses MM's own slingshot icon.
+        case RI_DEKU_SEEDS:
+            return "__OTR__textures/icon_item_static/gItemIconDekuSeedsTex";
+        case RI_FAIRY_SLINGSHOT:
+            return (const char*)gItemIconSlingshotTex;
+        // Skijer's NEI bottle rando — Net + Bottomless Bottle custom icons (2ship.o2r icon_item_custom).
+        case RI_NET:
+            return "__OTR__textures/icon_item_custom/gItemIconNetTex";
+        case RI_BOTTOMLESS_BOTTLE:
+            return "__OTR__textures/icon_item_custom/gItemIconBottomlessBottleTex";
+        // Skijer's NEI — OoT (SoH) trade-chain items pull their icons from oot.o2r (no MM native icon).
+        case RI_OOT_TRADE_BROKEN_GORONS_SWORD:
+            return "__OTR__textures/icon_item_static/gItemIconBrokenGoronsSwordTex";
+        case RI_OOT_TRADE_CLAIM_CHECK:
+            return "__OTR__textures/icon_item_static/gItemIconClaimCheckTex";
+        case RI_OOT_TRADE_COJIRO:
+            return "__OTR__textures/icon_item_static/gItemIconCojiroTex";
+        case RI_OOT_TRADE_EYEBALL_FROG:
+            return "__OTR__textures/icon_item_static/gItemIconEyeballFrogTex";
+        case RI_OOT_TRADE_EYEDROPS:
+            return "__OTR__textures/icon_item_static/gItemIconEyeDropsTex";
+        case RI_OOT_TRADE_ODD_MUSHROOM:
+            return "__OTR__textures/icon_item_static/gItemIconOddMushroomTex";
+        case RI_OOT_TRADE_ODD_POTION:
+            return "__OTR__textures/icon_item_static/gItemIconOddPotionTex";
+        case RI_OOT_TRADE_POACHERS_SAW:
+            return "__OTR__textures/icon_item_static/gItemIconPoachersSawTex";
+        case RI_OOT_TRADE_POCKET_EGG:
+            return "__OTR__textures/icon_item_static/gItemIconPocketEggTex";
+        case RI_OOT_TRADE_PRESCRIPTION:
+            return "__OTR__textures/icon_item_static/gItemIconPrescriptionTex";
+        case RI_OOT_TRADE_WEIRD_EGG:
+            return "__OTR__textures/icon_item_static/gItemIconWeirdEggTex";
+        case RI_OOT_TRADE_ZELDAS_LETTER:
+            return "__OTR__textures/icon_item_static/gItemIconZeldasLetterTex";
+        // Skijer's NEI — OoT (SoH) per-dungeon items share one OoT 24x24 quest icon per type (all pulled from
+        // oot.o2r by OTR path). Key rings reuse the small-key icon (OoT has no distinct key-ring quest icon).
+        case RI_OOT_SMALL_KEY_BOTTOM_OF_THE_WELL:
+        case RI_OOT_SMALL_KEY_FIRE_TEMPLE:
+        case RI_OOT_SMALL_KEY_FOREST_TEMPLE:
+        case RI_OOT_SMALL_KEY_GANONS_CASTLE:
+        case RI_OOT_SMALL_KEY_GERUDO_FORTRESS:
+        case RI_OOT_SMALL_KEY_GERUDO_TRAINING_GROUND:
+        case RI_OOT_SMALL_KEY_SHADOW_TEMPLE:
+        case RI_OOT_SMALL_KEY_SPIRIT_TEMPLE:
+        case RI_OOT_SMALL_KEY_TREASURE_GAME:
+        case RI_OOT_SMALL_KEY_WATER_TEMPLE:
+        case RI_OOT_KEY_RING_BOTTOM_OF_THE_WELL:
+        case RI_OOT_KEY_RING_FIRE_TEMPLE:
+        case RI_OOT_KEY_RING_FOREST_TEMPLE:
+        case RI_OOT_KEY_RING_GANONS_CASTLE:
+        case RI_OOT_KEY_RING_GERUDO_FORTRESS:
+        case RI_OOT_KEY_RING_GERUDO_TRAINING_GROUND:
+        case RI_OOT_KEY_RING_SHADOW_TEMPLE:
+        case RI_OOT_KEY_RING_SPIRIT_TEMPLE:
+        case RI_OOT_KEY_RING_TREASURE_GAME:
+        case RI_OOT_KEY_RING_WATER_TEMPLE:
+            return "__OTR__textures/icon_item_24_static/gQuestIconSmallKeyTex";
+        case RI_OOT_BOSS_KEY_FIRE_TEMPLE:
+        case RI_OOT_BOSS_KEY_FOREST_TEMPLE:
+        case RI_OOT_BOSS_KEY_GANONS_CASTLE:
+        case RI_OOT_BOSS_KEY_SHADOW_TEMPLE:
+        case RI_OOT_BOSS_KEY_SPIRIT_TEMPLE:
+        case RI_OOT_BOSS_KEY_WATER_TEMPLE:
+            return "__OTR__textures/icon_item_24_static/gQuestIconDungeonBossKeyTex";
+        case RI_OOT_MAP_BOTTOM_OF_THE_WELL:
+        case RI_OOT_MAP_DEKU_TREE:
+        case RI_OOT_MAP_DODONGOS_CAVERN:
+        case RI_OOT_MAP_FIRE_TEMPLE:
+        case RI_OOT_MAP_FOREST_TEMPLE:
+        case RI_OOT_MAP_ICE_CAVERN:
+        case RI_OOT_MAP_JABU_JABUS_BELLY:
+        case RI_OOT_MAP_SHADOW_TEMPLE:
+        case RI_OOT_MAP_SPIRIT_TEMPLE:
+        case RI_OOT_MAP_WATER_TEMPLE:
+            return "__OTR__textures/icon_item_24_static/gQuestIconDungeonMapTex";
+        case RI_OOT_COMPASS_BOTTOM_OF_THE_WELL:
+        case RI_OOT_COMPASS_DEKU_TREE:
+        case RI_OOT_COMPASS_DODONGOS_CAVERN:
+        case RI_OOT_COMPASS_FIRE_TEMPLE:
+        case RI_OOT_COMPASS_FOREST_TEMPLE:
+        case RI_OOT_COMPASS_ICE_CAVERN:
+        case RI_OOT_COMPASS_JABU_JABUS_BELLY:
+        case RI_OOT_COMPASS_SHADOW_TEMPLE:
+        case RI_OOT_COMPASS_SPIRIT_TEMPLE:
+        case RI_OOT_COMPASS_WATER_TEMPLE:
+            return "__OTR__textures/icon_item_24_static/gQuestIconDungeonCompassTex";
+        // Skijer's NEI — OoT (SoH) medallions/stones use the OoT 24x24 quest icons; warp songs share the OoT
+        // ocarina-note icon. All pulled from oot.o2r by OTR path (no MM native icon).
+        case RI_OOT_MEDALLION_FIRE:
+            return "__OTR__textures/icon_item_24_static/gQuestIconMedallionFireTex";
+        case RI_OOT_MEDALLION_FOREST:
+            return "__OTR__textures/icon_item_24_static/gQuestIconMedallionForestTex";
+        case RI_OOT_MEDALLION_LIGHT:
+            return "__OTR__textures/icon_item_24_static/gQuestIconMedallionLightTex";
+        case RI_OOT_MEDALLION_SHADOW:
+            return "__OTR__textures/icon_item_24_static/gQuestIconMedallionShadowTex";
+        case RI_OOT_MEDALLION_SPIRIT:
+            return "__OTR__textures/icon_item_24_static/gQuestIconMedallionSpiritTex";
+        case RI_OOT_MEDALLION_WATER:
+            return "__OTR__textures/icon_item_24_static/gQuestIconMedallionWaterTex";
+        case RI_OOT_STONE_GORON_RUBY:
+            return "__OTR__textures/icon_item_24_static/gQuestIconGoronRubyTex";
+        case RI_OOT_STONE_KOKIRI_EMERALD:
+            return "__OTR__textures/icon_item_24_static/gQuestIconKokiriEmeraldTex";
+        case RI_OOT_STONE_ZORA_SAPPHIRE:
+            return "__OTR__textures/icon_item_24_static/gQuestIconZoraSapphireTex";
+        case RI_OOT_SONG_BOLERO_OF_FIRE:
+        case RI_OOT_SONG_MINUET_OF_FOREST:
+        case RI_OOT_SONG_NOCTURNE_OF_SHADOW:
+        case RI_OOT_SONG_PRELUDE_OF_LIGHT:
+        case RI_OOT_SONG_REQUIEM_OF_SPIRIT:
+        case RI_OOT_SONG_SERENADE_OF_WATER:
+        // Skijer's NEI — the 3 NEI custom songs share the same OoT note icon (no icon of their own anywhere).
+        case RI_OOT_SONG_BALLAD_OF_THE_HERO:
+        case RI_OOT_SONG_COMMAND_MELODY:
+        case RI_OOT_SONG_FUGUE_OF_HOME:
+            return "__OTR__textures/icon_item_static/gSongNoteTex";
+        // Skijer's NEI — OoT vanilla gear/spells/masks: OoT item/quest icons pulled from oot.o2r (symbols
+        // only exist there; same pattern as the trade/medallion icons above).
+        case RI_OOT_BOOMERANG:
+            return "__OTR__textures/icon_item_static/gItemIconBoomerangTex";
+        case RI_OOT_DINS_FIRE:
+            return "__OTR__textures/icon_item_static/gItemIconDinsFireTex";
+        case RI_OOT_FARORES_WIND:
+            return "__OTR__textures/icon_item_static/gItemIconFaroresWindTex";
+        case RI_OOT_NAYRUS_LOVE:
+            return "__OTR__textures/icon_item_static/gItemIconNayrusLoveTex";
+        case RI_OOT_IRON_BOOTS:
+            return "__OTR__textures/icon_item_static/gItemIconBootsIronTex";
+        case RI_OOT_HOVER_BOOTS:
+            return "__OTR__textures/icon_item_static/gItemIconBootsHoverTex";
+        case RI_OOT_GORON_TUNIC:
+            return "__OTR__textures/icon_item_static/gItemIconTunicGoronTex";
+        case RI_OOT_ZORA_TUNIC:
+            return "__OTR__textures/icon_item_static/gItemIconTunicZoraTex";
+        case RI_OOT_DEKU_SHIELD: // OoT's own deku-shield icon (oot.o2r; OoT-unique symbol, same pattern as below)
+            return "__OTR__textures/icon_item_static/gItemIconShieldDekuTex";
+        case RI_OOT_MIRROR_SHIELD: // OoT's own mirror-shield icon (distinct from MM's RI_SHIELD_MIRROR icon)
+            return "__OTR__textures/icon_item_static/gItemIconShieldMirrorTex";
+        case RI_OOT_PROGRESSIVE_HAMMER:
+            return "__OTR__textures/icon_item_static/gItemIconHammerTex";
+        case RI_OOT_PROGRESSIVE_MASTER_SWORD:
+            return "__OTR__textures/icon_item_static/gItemIconSwordMasterTex";
+        case RI_OOT_MASK_SKULL:
+            return "__OTR__textures/icon_item_static/gItemIconMaskSkullTex";
+        case RI_OOT_MASK_SPOOKY:
+            return "__OTR__textures/icon_item_static/gItemIconMaskSpookyTex";
+        case RI_OOT_MASK_GERUDO:
+            return "__OTR__textures/icon_item_static/gItemIconMaskGerudoTex";
+        case RI_OOT_STONE_OF_AGONY:
+            return "__OTR__textures/icon_item_24_static/gQuestIconStoneOfAgonyTex";
+        case RI_OOT_GERUDO_MEMBERSHIP_CARD:
+            return "__OTR__textures/icon_item_24_static/gQuestIconGerudosCardTex";
+        case RI_OOT_SKELETON_KEY: // SoH's skeleton-key icon is custom (soh.o2r only) — reuse the OoT small-key quest icon
+            return "__OTR__textures/icon_item_24_static/gQuestIconSmallKeyTex";
+        case RI_OOT_BOMBCHU_BAG: // SoH's bombchu-bag icon is custom — MM's native bombchu icon stands in
+            return (const char*)gItemIcons[ITEM_BOMBCHU];
+        case RI_OOT_FISHING_POLE: // SoH's fishing-pole icon is custom — MM's native fishing-rod icon stands in
+            return (const char*)gItemIconFishingRodTex;
+        case RI_OOT_GREG: // parity with SoH, which hides Greg behind the Goron Mask icon (MM's own goron mask here)
+            return (const char*)gItemIcons[ITEM_MASK_GORON];
+        // Third wave (final cross items) — icons:
+        case RI_OOT_GS_TOKEN: // OoT's own 24x24 GS quest icon (oot.o2r)
+            return "__OTR__textures/icon_item_24_static/gQuestIconGoldSkulltulaTex";
+        case RI_OOT_RUTOS_LETTER: // OoT bottle-with-letter icon (oot.o2r)
+            return "__OTR__textures/icon_item_static/gItemIconBottleRutosLetterTex";
+        // OoT bottled contents — OoT's own bottle icons (oot.o2r; OoT-unique symbols).
+        case RI_OOT_BOTTLE_BIG_POE:
+            return "__OTR__textures/icon_item_static/gItemIconBottleBigPoeTex";
+        case RI_OOT_BOTTLE_BLUE_FIRE:
+            return "__OTR__textures/icon_item_static/gItemIconBottleBlueFireTex";
+        case RI_OOT_BOTTLE_BLUE_POTION:
+            return "__OTR__textures/icon_item_static/gItemIconBottlePotionBlueTex";
+        case RI_OOT_BOTTLE_BUGS:
+            return "__OTR__textures/icon_item_static/gItemIconBottleBugTex";
+        case RI_OOT_BOTTLE_FAIRY:
+            return "__OTR__textures/icon_item_static/gItemIconBottleFairyTex";
+        case RI_OOT_BOTTLE_FISH:
+            return "__OTR__textures/icon_item_static/gItemIconBottleFishTex";
+        case RI_OOT_BOTTLE_GREEN_POTION:
+            return "__OTR__textures/icon_item_static/gItemIconBottlePotionGreenTex";
+        case RI_OOT_BOTTLE_POE:
+            return "__OTR__textures/icon_item_static/gItemIconBottlePoeTex";
+        case RI_OOT_BOTTLE_MAGIC_MUSHROOM: // SoH's icon is soh.o2r-custom — MM's native mushroom icon stands in
+            return (const char*)gItemIcons[ITEM_MUSHROOM];
+        // Jabber nuts: SoH has no dedicated icons either — MM's native deku-nut icon stands in for all 6.
+        case RI_OOT_SPEAK_DEKU:
+        case RI_OOT_SPEAK_GERUDO:
+        case RI_OOT_SPEAK_GORON:
+        case RI_OOT_SPEAK_HYLIAN:
+        case RI_OOT_SPEAK_KOKIRI:
+        case RI_OOT_SPEAK_ZORA:
+            return (const char*)gItemIcons[ITEM_DEKU_NUT];
+        case RI_OOT_ABILITY_CLIMB: // no icon exists anywhere (SoH included) — MM hookshot icon stands in (climbing aid)
+            return (const char*)gItemIcons[ITEM_HOOKSHOT];
+        case RI_OOT_ABILITY_CRAWL: // parity with SoH's knee-pads draw (two deku shields) — OoT deku-shield icon
+            return "__OTR__textures/icon_item_static/gItemIconShieldDekuTex";
+        // Skijer's NEI — NEI page-2 / ext-equipment icons: 2ship carries its OWN copies of these custom
+        // textures (mm/assets/custom/textures/icon_item_custom → 2ship.o2r), so they always resolve natively.
+        case RI_OOT_NEI_BALL_AND_CHAIN:
+            return "__OTR__textures/icon_item_custom/gItemIconBallAndChainTex";
+        case RI_OOT_NEI_BEETLE:
+            return "__OTR__textures/icon_item_custom/gItemIconBeetleTex";
+        case RI_OOT_NEI_BOMB_ARROWS:
+            return "__OTR__textures/icon_item_custom/gItemIconBombArrowsTex";
+        case RI_OOT_NEI_CANE_OF_SOMARIA:
+            return "__OTR__textures/icon_item_custom/gItemIconCaneOfSomariaTex";
+        case RI_OOT_NEI_DEKU_LEAF:
+            return "__OTR__textures/icon_item_custom/gItemIconDekuLeafTex";
+        case RI_OOT_NEI_DEMISE_DESTRUCTION:
+            return "__OTR__textures/icon_item_custom/gItemIconDemiseDestructionTex";
+        case RI_OOT_NEI_DESIRE_SENSOR:
+            return "__OTR__textures/icon_item_custom/gItemIconDesireSensorTex";
+        case RI_OOT_NEI_DOMINION_ROD:
+            return "__OTR__textures/icon_item_custom/gItemIconDominionRodTex";
+        case RI_OOT_NEI_FIRE_ROD:
+            return "__OTR__textures/icon_item_custom/gItemIconFireRodTex";
+        case RI_OOT_NEI_GUST_JAR:
+            return "__OTR__textures/icon_item_custom/gItemIconGustJarTex";
+        case RI_OOT_NEI_HYLIAS_GRACE:
+            return "__OTR__textures/icon_item_custom/gItemIconHyliaGraceTex";
+        case RI_OOT_NEI_ICE_ROD:
+            return "__OTR__textures/icon_item_custom/gItemIconIceRodTex";
+        case RI_OOT_NEI_LANTERN:
+            return "__OTR__textures/icon_item_custom/gItemIconLanternTex";
+        case RI_OOT_NEI_LIGHT_ROD:
+            return "__OTR__textures/icon_item_custom/gItemIconLightRodTex";
+        case RI_OOT_NEI_MINISH_CAP:
+            return "__OTR__textures/icon_item_custom/gItemIconMinishCapTex";
+        case RI_OOT_NEI_MOGMA_MITTS:
+            return "__OTR__textures/icon_item_custom/gItemIconMogmaMittsTex";
+        case RI_OOT_NEI_POKE_BALL:
+            return "__OTR__textures/icon_item_custom/gItemIconPokeballTex";
+        case RI_OOT_NEI_SHOVEL:
+            return "__OTR__textures/icon_item_custom/gItemIconShovelTex";
+        case RI_OOT_NEI_SPINNER:
+            return "__OTR__textures/icon_item_custom/gItemIconSpinnerTex";
+        case RI_OOT_NEI_SWITCH_HOOK:
+            return "__OTR__textures/icon_item_custom/gItemIconSwitchHookTex";
+        case RI_OOT_NEI_TIME_GATE:
+            return "__OTR__textures/icon_item_custom/gItemIconTimeGateTex";
+        case RI_OOT_NEI_WHIP:
+            return "__OTR__textures/icon_item_custom/gItemIconWhipTex";
+        case RI_OOT_NEI_ZONAI_PERMAFROST:
+            return "__OTR__textures/icon_item_custom/gItemIconZonaiPermafrostTex";
+        case RI_OOT_PROGRESSIVE_ROC:
+            return "__OTR__textures/icon_item_custom/gItemIconRocsFeatherTex";
+        case RI_OOT_EXT_CANE_OF_BYRNA:
+            return "__OTR__textures/icon_item_custom/gItemIconCaneOfByrnaTex";
+        case RI_OOT_EXT_CHAMPIONS_TUNIC:
+            return "__OTR__textures/icon_item_custom/gItemIconChampionsTunicTex";
+        case RI_OOT_EXT_DIVINE_SHIELD:
+            return "__OTR__textures/icon_item_custom/gItemIconDivineShieldTex";
+        case RI_OOT_EXT_FOUR_SWORD:
+            return "__OTR__textures/icon_item_custom/gItemIconFourSwordTex";
+        case RI_OOT_EXT_MAGIC_CAPE:
+            return "__OTR__textures/icon_item_custom/gItemIconMagicCapeTex";
+        case RI_OOT_EXT_PEGASUS_ANKLET:
+            return "__OTR__textures/icon_item_custom/gItemIconPegasusAnkletTex";
+        case RI_OOT_EXT_SHEIKAH_SHIELD: // parity with SoH item_list, which uses the Gerudo Scimitar icon as its stand-in
+            return "__OTR__textures/icon_item_custom/gItemIconGerudoScimitarTex";
+        case RI_OOT_EXT_SPIRIT_BREASTPLATE: // parity with SoH/2ship ext-equip page (Pending4 placeholder icon)
+            return "__OTR__textures/icon_item_custom/gItemIconPending4Tex";
+        case RI_OOT_EXT_WATER_DRAGON_SCALE:
+            return "__OTR__textures/icon_item_custom/gItemIconWaterDragonScaleTex";
         default:
             break;
     }

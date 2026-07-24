@@ -23,6 +23,85 @@ void func_8088ACE0(EnArrow* this, PlayState* play);
 void func_8088B630(EnArrow* this, PlayState* play);
 void func_8088B6B0(EnArrow* this, PlayState* play);
 
+// ─── Skijer's NEI: SW97 elemental glow actors ────────────────────────────────────────────────
+// The six charge-glow actors (fire/ice/light/dark/soul/wind) live in expansions/sw97/actors/
+// arrows/*.inc.c, compiled into the z_player.c TU via sw97_router.c with Sw97_-prefixed external
+// names. 2ship has no ActorDB, so instead of a registered actor id we HIJACK a donor EnArrow
+// (sizeof(EnArrow) 0x278 >= every glow struct, object GAMEPLAY_KEEP, ACTORCAT_ITEMACTION — the
+// same category/object the fork registered the glows with) and rewire its lifecycle in place.
+extern void Sw97_ArrowFire_Init(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowFire_Destroy(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowFire_Update(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowFire_Draw(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowIce_Init(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowIce_Destroy(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowIce_Update(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowIce_Draw(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowLight_Init(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowLight_Destroy(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowLight_Update(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowLight_Draw(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowDark_Init(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowDark_Destroy(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowDark_Update(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowDark_Draw(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowSoul_Init(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowSoul_Destroy(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowSoul_Update(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowSoul_Draw(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowWind_Init(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowWind_Destroy(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowWind_Update(Actor* thisx, PlayState* play);
+extern void Sw97_ArrowWind_Draw(Actor* thisx, PlayState* play);
+
+// element: 0=fire 1=ice 2=light 3=dark 4=soul 5=wind. Returns the glow (child of `this`) or NULL.
+static Actor* EnArrow_SpawnSw97Glow(EnArrow* this, PlayState* play, s32 element) {
+    static void (*const sGlowInitFns[6])(Actor*, PlayState*) = {
+        Sw97_ArrowFire_Init, Sw97_ArrowIce_Init,  Sw97_ArrowLight_Init,
+        Sw97_ArrowDark_Init, Sw97_ArrowSoul_Init, Sw97_ArrowWind_Init,
+    };
+    static void (*const sGlowDestroyFns[6])(Actor*, PlayState*) = {
+        Sw97_ArrowFire_Destroy, Sw97_ArrowIce_Destroy,  Sw97_ArrowLight_Destroy,
+        Sw97_ArrowDark_Destroy, Sw97_ArrowSoul_Destroy, Sw97_ArrowWind_Destroy,
+    };
+    static void (*const sGlowUpdateFns[6])(Actor*, PlayState*) = {
+        Sw97_ArrowFire_Update, Sw97_ArrowIce_Update,  Sw97_ArrowLight_Update,
+        Sw97_ArrowDark_Update, Sw97_ArrowSoul_Update, Sw97_ArrowWind_Update,
+    };
+    static void (*const sGlowDrawFns[6])(Actor*, PlayState*) = {
+        Sw97_ArrowFire_Draw, Sw97_ArrowIce_Draw,  Sw97_ArrowLight_Draw,
+        Sw97_ArrowDark_Draw, Sw97_ArrowSoul_Draw, Sw97_ArrowWind_Draw,
+    };
+    // Donor: an inert deku-nut EnArrow (no skeleton, no blure effect, no heap allocs in Init),
+    // spawned as OUR child so the glow's `actor.parent` is this projectile — exactly the
+    // relationship the glow's Charge/Fly/Draw code expects.
+    Actor* glow = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_ARROW,
+                                     this->actor.world.pos.x, this->actor.world.pos.y, this->actor.world.pos.z, 0, 0,
+                                     0, ARROW_TYPE_DEKU_NUT);
+
+    if (glow == NULL) {
+        return NULL;
+    }
+
+    // Wipe the donor's EnArrow payload (its quad collider holds no allocations and was never
+    // registered this frame) and run the glow actor's real lifecycle over the instance.
+    {
+        u8* p = (u8*)glow + sizeof(Actor);
+        s32 n = (s32)(sizeof(EnArrow) - sizeof(Actor));
+
+        while (n-- > 0) {
+            *p++ = 0;
+        }
+    }
+    glow->init = NULL;
+    glow->destroy = sGlowDestroyFns[element];
+    glow->update = sGlowUpdateFns[element];
+    glow->draw = sGlowDrawFns[element];
+    sGlowInitFns[element](glow, play);
+    return glow;
+}
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+
 ActorProfile En_Arrow_Profile = {
     /**/ ACTOR_EN_ARROW,
     /**/ ACTORCAT_ITEMACTION,
@@ -120,6 +199,53 @@ void EnArrow_Init(Actor* thisx, PlayState* play) {
         { 255, 255, 170, 255 },
         { 255, 255, 0, 0 },
     };
+    // Skijer's NEI: SW97 dark/soul/wind arrow trails (fork z_en_arrow.c blureSw97Dark/Soul/Wind).
+    // Fire/ice/light SW97 arrows reuse the vanilla elemental trails above.
+    static EffectBlureInit2 sBlureSw97Dark = {
+        0,
+        EFFECT_BLURE_ELEMENT_FLAG_4,
+        0,
+        { 0, 255, 200, 255 },
+        { 0, 255, 255, 255 },
+        { 0, 255, 200, 0 },
+        { 0, 255, 255, 0 },
+        16,
+        0,
+        EFF_BLURE_DRAW_MODE_SIMPLE_ALT_COLORS,
+        0,
+        { 80, 0, 80, 255 },
+        { 40, 0, 40, 0 },
+    };
+    static EffectBlureInit2 sBlureSw97Soul = {
+        0,
+        EFFECT_BLURE_ELEMENT_FLAG_4,
+        0,
+        { 0, 255, 200, 255 },
+        { 0, 255, 255, 255 },
+        { 0, 255, 200, 0 },
+        { 0, 255, 255, 0 },
+        16,
+        0,
+        EFF_BLURE_DRAW_MODE_SIMPLE_ALT_COLORS,
+        0,
+        { 255, 255, 170, 255 },
+        { 200, 200, 0, 0 },
+    };
+    static EffectBlureInit2 sBlureSw97Wind = {
+        0,
+        EFFECT_BLURE_ELEMENT_FLAG_4,
+        0,
+        { 0, 255, 200, 255 },
+        { 0, 255, 255, 255 },
+        { 0, 255, 200, 0 },
+        { 0, 255, 255, 0 },
+        16,
+        0,
+        EFF_BLURE_DRAW_MODE_SIMPLE_ALT_COLORS,
+        0,
+        { 170, 255, 170, 255 },
+        { 0, 180, 0, 0 },
+    };
     EnArrow* this = (EnArrow*)thisx;
 
     Actor_ProcessInitChain(&this->actor, sInitChain);
@@ -138,12 +264,18 @@ void EnArrow_Init(Actor* thisx, PlayState* play) {
                 D_8088C234.elemDuration = 16;
             }
             Effect_Add(play, &this->unk_240, EFFECT_BLURE2, 0, 0, &D_8088C234);
-        } else if (this->actor.params == ARROW_TYPE_FIRE) {
+        } else if ((this->actor.params == ARROW_TYPE_FIRE) || (this->actor.params == ARROW_TYPE_SW97_FIRE)) {
             Effect_Add(play, &this->unk_240, EFFECT_BLURE2, 0, 0, &D_8088C258);
-        } else if (this->actor.params == ARROW_TYPE_ICE) {
+        } else if ((this->actor.params == ARROW_TYPE_ICE) || (this->actor.params == ARROW_TYPE_SW97_ICE)) {
             Effect_Add(play, &this->unk_240, EFFECT_BLURE2, 0, 0, &D_8088C27C);
-        } else if (this->actor.params == ARROW_TYPE_LIGHT) {
+        } else if ((this->actor.params == ARROW_TYPE_LIGHT) || (this->actor.params == ARROW_TYPE_SW97_LIGHT)) {
             Effect_Add(play, &this->unk_240, EFFECT_BLURE2, 0, 0, &D_8088C2A0);
+        } else if (this->actor.params == ARROW_TYPE_SW97_DARK) { // Skijer's NEI: SW97 trails
+            Effect_Add(play, &this->unk_240, EFFECT_BLURE2, 0, 0, &sBlureSw97Dark);
+        } else if (this->actor.params == ARROW_TYPE_SW97_SOUL) {
+            Effect_Add(play, &this->unk_240, EFFECT_BLURE2, 0, 0, &sBlureSw97Soul);
+        } else if (this->actor.params == ARROW_TYPE_SW97_WIND) {
+            Effect_Add(play, &this->unk_240, EFFECT_BLURE2, 0, 0, &sBlureSw97Wind);
         }
     }
 
@@ -221,6 +353,14 @@ void func_8088A594(EnArrow* this, PlayState* play) {
 
         switch (this->actor.params) {
             case ARROW_TYPE_SLINGSHOT:
+            // Skijer's NEI: elemental seeds keep the slingshot release sound (fork parity:
+            // soh z_en_arrow.c "Normal seed or elemental seed" -> NA_SE_IT_SLING_SHOT).
+            case ARROW_TYPE_SEED_FIRE:
+            case ARROW_TYPE_SEED_ICE:
+            case ARROW_TYPE_SEED_LIGHT:
+            case ARROW_TYPE_SEED_DARK:
+            case ARROW_TYPE_SEED_SOUL:
+            case ARROW_TYPE_SEED_WIND:
                 Player_PlaySfx(player, NA_SE_IT_SLING_SHOT);
                 break;
 
@@ -228,6 +368,17 @@ void func_8088A594(EnArrow* this, PlayState* play) {
             case ARROW_TYPE_NORMAL_HORSE:
             case ARROW_TYPE_NORMAL:
                 Player_PlaySfx(player, NA_SE_IT_ARROW_SHOT);
+                break;
+
+            // Skijer's NEI: SW97 medallion arrows — magic arrow release (fork parity, WITH break;
+            // the vanilla FIRE/ICE/LIGHT fallthrough below is an MM quirk kept untouched).
+            case ARROW_TYPE_SW97_FIRE:
+            case ARROW_TYPE_SW97_ICE:
+            case ARROW_TYPE_SW97_LIGHT:
+            case ARROW_TYPE_SW97_DARK:
+            case ARROW_TYPE_SW97_SOUL:
+            case ARROW_TYPE_SW97_WIND:
+                Player_PlaySfx(player, NA_SE_IT_MAGIC_ARROW_SHOT);
                 break;
 
             case ARROW_TYPE_FIRE:
@@ -409,7 +560,9 @@ void func_8088ACE0(EnArrow* this, PlayState* play) {
         return;
     }
 
-    sp50 = (this->actor.params != ARROW_TYPE_NORMAL_LIT) && (this->actor.params < ARROW_TYPE_DEKU_NUT) &&
+    // Skijer's NEI: was `params < ARROW_TYPE_DEKU_NUT` — widened to `!= ARROW_TYPE_DEKU_NUT` so the
+    // elemental seeds (9-14) and SW97 arrows (15-20) register AT hits; identical for params 0-7.
+    sp50 = (this->actor.params != ARROW_TYPE_NORMAL_LIT) && (this->actor.params != ARROW_TYPE_DEKU_NUT) &&
            (this->collider.base.atFlags & AT_HIT);
 
     if (sp50 || (this->unk_262 != 0)) {
@@ -461,8 +614,8 @@ void func_8088ACE0(EnArrow* this, PlayState* play) {
                 } else {
                     this->unk_260 = 20;
                 }
-                if (ARROW_IS_MAGICAL(this->actor.params)) {
-                    this->actor.draw = NULL;
+                if (ARROW_IS_MAGICAL(this->actor.params) || ARROW_IS_SW97_ARROW(this->actor.params)) {
+                    this->actor.draw = NULL; // Skijer's NEI: SW97 arrows hide when stuck, like magic arrows
                 }
                 Actor_PlaySfx(&this->actor, NA_SE_IT_ARROW_STICK_OBJ);
                 this->unk_261 |= 1;
@@ -606,6 +759,18 @@ void EnArrow_Update(Actor* thisx, PlayState* play) {
             Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, sp44[ARROW_GET_MAGIC_FROM_TYPE(this->actor.params)],
                                this->actor.world.pos.x, this->actor.world.pos.y, this->actor.world.pos.z, 0, 0, 0, 0);
         }
+    } else if (ARROW_IS_SW97_ARROW(this->actor.params)) {
+        // Skijer's NEI: SW97 medallion arrow — attach the element's charge glow (fork
+        // z_en_arrow.c:534-565, using the real SW97 glow actors via the hijack helper).
+        if (this->actor.child == NULL) {
+            EnArrow_SpawnSw97Glow(this, play, ARROW_GET_ELEMENT_FROM_SW97(this->actor.params));
+        }
+    } else if ((this->actor.params >= ARROW_TYPE_SEED_FIRE) && (this->actor.params <= ARROW_TYPE_SEED_WIND)) {
+        // Skijer's NEI: elemental slingshot seed — same glow attachment (fork z_en_arrow.c:567-588;
+        // all six elements use their REAL SW97 glow, user decision — no fire fallback).
+        if (this->actor.child == NULL) {
+            EnArrow_SpawnSw97Glow(this, play, ARROW_GET_ELEMENT_FROM_SEED(this->actor.params));
+        }
     } else if (this->actor.params == ARROW_TYPE_NORMAL_LIT) {
         func_800B0EB0(play, &this->unk_234, &sVelocity, &sAccel, &sPrimColor, &sEnvColor, 100, 0, 8);
     }
@@ -634,7 +799,9 @@ void func_8088B88C(PlayState* play, EnArrow* this, EnArrowUnkStruct* arg2) {
         }
         Matrix_MultVec3f(&sp4C[0], &sp40);
         Matrix_MultVec3f(&sp4C[1], &sp34);
-        if (this->actor.params < ARROW_TYPE_DEKU_NUT) {
+        // Skijer's NEI: elemental seeds / SW97 arrows must also refresh the AT quad (func_80126440),
+        // otherwise the new params never deal damage. Blure vertices stay arrows-only (sp30).
+        if ((this->actor.params < ARROW_TYPE_DEKU_NUT) || (this->actor.params >= ARROW_TYPE_SEED_FIRE)) {
             sp30 = ARROW_IS_ARROW(this->actor.params);
             if (this->unk_264 == NULL) {
                 sp30 &= func_80126440(play, &this->collider, &this->unk_244, &sp40, &sp34);
@@ -774,7 +941,7 @@ void EnArrow_Draw(Actor* thisx, PlayState* play) {
 
         gSPClearGeometryMode(POLY_XLU_DISP++, G_FOG | G_LIGHTING);
 
-        if (this->actor.params == ARROW_TYPE_SLINGSHOT) {
+        if (ARROW_IS_SEED(this->actor.params)) { // Skijer's NEI: elemental seeds share the seed sparkle
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, 255);
             gDPSetEnvColor(POLY_XLU_DISP++, 0, 255, 255, sp63);
             sp5C = 50.0f;

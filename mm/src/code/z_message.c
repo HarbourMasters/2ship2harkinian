@@ -18,6 +18,7 @@
 
 #include "2s2h_assets.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "mods/nei_save.h" // Skijer's NEI: OoT warp-song ownership (free-play recognition bits 24-29)
 
 const char* gBombersNotebookPhotos[] = {
     gBombersNotebookPhotoAnjuTex,
@@ -1063,6 +1064,27 @@ static Color_RGB8 sStrayFairyIconEnvColors[] = {
     { 225, 170, 0 },
 };
 
+// #region 2S2H [Rando] Custom textbox icon support — Skijer's NEI
+// The vanilla textbox header icon byte can only reference native MM icons (via D_801CFF94).
+// Rando items without a native icon stage an OTR texture path here (see
+// Rando::StaticData::GetIconForZMessage) and use sentinel icon bytes that are unused
+// MESSAGE_ITEM_NONE slots in vanilla messages:
+//   0xF1-0xF4 = stray fairy Woodfall/Snowhead/Great Bay/Stone Tower. This also fixes the garbled
+//               textbox icon when a fairy is obtained outside a dungeon: the vanilla draw indexes
+//               sStrayFairyIconTextures[gSaveContext.dungeonSceneSharedIndex], which is only valid
+//               inside the four dungeons.
+//   0xF5      = staged custom texture (rgba32, square; size staged alongside the pointer).
+#define MESSAGE_CUSTOM_ICON_ITEM 0xFD
+static TexturePtr sMsgCustomIconTex = NULL;
+static s16 sMsgCustomIconSize = 32;
+static s16 sMsgStrayFairyIndex = -1;
+
+void Message_StageCustomItemIcon(void* tex, s16 size) {
+    sMsgCustomIconTex = tex;
+    sMsgCustomIconSize = size;
+}
+// #endregion
+
 void Message_DrawItemIcon(PlayState* play, Gfx** gfxP) {
     MessageContext* msgCtx = &play->msgCtx;
     Gfx* gfx = *gfxP;
@@ -1093,23 +1115,31 @@ void Message_DrawItemIcon(PlayState* play, Gfx** gfxP) {
         gDPLoadTextureBlock(gfx++, gRupeeCounterIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     } else if (msgCtx->itemId == ITEM_STRAY_FAIRIES) {
+        // 2S2H [Rando] Prefer the per-message fairy index (sentinel icon bytes 0xF1-0xF4); the vanilla
+        // dungeonSceneSharedIndex (u16) is garbage outside the four dungeons, so clamp it as a fallback.
+        index = (sMsgStrayFairyIndex >= 0) ? sMsgStrayFairyIndex
+                                           : ((gSaveContext.dungeonSceneSharedIndex < 4)
+                                                  ? ((void)0, gSaveContext.dungeonSceneSharedIndex)
+                                                  : 0);
         msgCtx->unk12016 = 0x18;
         gDPPipeSync(gfx++);
-        gDPSetPrimColor(gfx++, 0, 0, sStrayFairyIconPrimColors[((void)0, gSaveContext.dungeonSceneSharedIndex)].r,
-                        sStrayFairyIconPrimColors[((void)0, gSaveContext.dungeonSceneSharedIndex)].g,
-                        sStrayFairyIconPrimColors[((void)0, gSaveContext.dungeonSceneSharedIndex)].b,
-                        msgCtx->textColorAlpha);
-        gDPSetEnvColor(gfx++, sStrayFairyIconEnvColors[((void)0, gSaveContext.dungeonSceneSharedIndex)].r,
-                       sStrayFairyIconEnvColors[((void)0, gSaveContext.dungeonSceneSharedIndex)].g,
-                       sStrayFairyIconEnvColors[((void)0, gSaveContext.dungeonSceneSharedIndex)].b, 0);
+        gDPSetPrimColor(gfx++, 0, 0, sStrayFairyIconPrimColors[index].r, sStrayFairyIconPrimColors[index].g,
+                        sStrayFairyIconPrimColors[index].b, msgCtx->textColorAlpha);
+        gDPSetEnvColor(gfx++, sStrayFairyIconEnvColors[index].r, sStrayFairyIconEnvColors[index].g,
+                       sStrayFairyIconEnvColors[index].b, 0);
         gDPLoadTextureBlock_4b(gfx++, gStrayFairyGlowingCircleIconTex, G_IM_FMT_I, 32, 24, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSPTextureRectangle(gfx++, msgCtx->unk12010 << 2, msgCtx->unk12012 << 2,
                             (msgCtx->unk12010 + msgCtx->unk12014) << 2, (msgCtx->unk12012 + msgCtx->unk12016) << 2,
                             G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
         gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, msgCtx->textColorAlpha);
-        gDPLoadTextureBlock(gfx++, sStrayFairyIconTextures[((void)0, gSaveContext.dungeonSceneSharedIndex)],
-                            G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 24, 0, G_TX_NOMIRROR | G_TX_WRAP,
+        gDPLoadTextureBlock(gfx++, sStrayFairyIconTextures[index], G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 24, 0,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                            G_TX_NOLOD);
+    } else if ((msgCtx->itemId == MESSAGE_CUSTOM_ICON_ITEM) && (sMsgCustomIconTex != NULL)) {
+        // 2S2H [Rando] Staged custom icon: rgba32 square texture (32x32 item icons or 24x24 quest icons)
+        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_RGBA, G_IM_SIZ_32b,
+                            sMsgCustomIconSize, sMsgCustomIconSize, 0, G_TX_NOMIRROR | G_TX_WRAP,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     } else if ((msgCtx->itemId >= ITEM_SONG_SONATA) && (msgCtx->itemId <= ITEM_SONG_SUN)) {
         index = msgCtx->itemId - ITEM_SONG_SONATA;
@@ -2006,6 +2036,31 @@ void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
     MessageContext* msgCtx = &play->msgCtx;
     u16* new_var2 = &itemId;
 
+    // 2S2H [Rando] Staged custom icon — must be handled before the vanilla >= ITEM_B8 /
+    // <= ITEM_REMAINS_TWINMOLD range checks, which would index native icon tables OOB with 0xFD.
+    if ((itemId == MESSAGE_CUSTOM_ICON_ITEM) && (sMsgCustomIconTex != NULL)) {
+        if (sMsgCustomIconSize == 24) {
+            // 24x24 quest-icon metrics (same as the ITEM_SKULL_TOKEN branch)
+            msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF7C[gSaveContext.options.language]);
+            msgCtx->unk12012 = (arg2 + 0xA);
+            msgCtx->unk12014 = 0x18;
+        } else {
+            // 32x32 item-icon metrics (same as the <= ITEM_REMAINS_TWINMOLD branch)
+            msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
+            msgCtx->unk12012 = (arg2 + 6);
+            msgCtx->unk12014 = 0x20;
+        }
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = sMsgCustomIconTex;
+
+        if (play->pauseCtx.bombersNotebookOpen) {
+            msgCtx->unk12010 = ((msgCtx->unk12010 * 1.4f) + 2.0f);
+            msgCtx->unk12014 = (msgCtx->unk12014 * 1.4f);
+        }
+
+        msgCtx->choiceNum = 1;
+        return;
+    }
+
     if (itemId == ITEM_RECOVERY_HEART) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF88[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 0xA);
@@ -2154,6 +2209,8 @@ void Message_DecodeHeader(PlayState* play) {
 
     font = &msgCtx->font;
     if (msgCtx->msgBufPos == 0) {
+        // 2S2H [Rando] Reset the per-message stray fairy icon override (see sMsgStrayFairyIndex)
+        sMsgStrayFairyIndex = -1;
         if (((u8)font->msgBuf.schar[msgCtx->msgBufPos + 2]) != 0xFE) {
             msgCtx->unk11F18 = 0;
             if ((msgCtx->currentTextId == 0x176F) || (msgCtx->currentTextId == 0x1770) ||
@@ -2162,8 +2219,16 @@ void Message_DecodeHeader(PlayState* play) {
                 msgCtx->msgBufPos += 2;
             } else {
                 msgCtx->msgBufPos += 2;
-                if ((((u8)font->msgBuf.schar[msgCtx->msgBufPos]) < 0xC8) ||
-                    (((u8)font->msgBuf.schar[msgCtx->msgBufPos]) >= 0xD8)) {
+                // #region 2S2H [Rando] Sentinel icon bytes for custom items (see sMsgCustomIconTex above)
+                if ((((u8)font->msgBuf.schar[msgCtx->msgBufPos]) >= 0xF1) &&
+                    (((u8)font->msgBuf.schar[msgCtx->msgBufPos]) <= 0xF4)) {
+                    sMsgStrayFairyIndex = ((u8)font->msgBuf.schar[msgCtx->msgBufPos]) - 0xF1;
+                    msgCtx->itemId = ITEM_STRAY_FAIRIES;
+                } else if (((u8)font->msgBuf.schar[msgCtx->msgBufPos]) == 0xF5) {
+                    msgCtx->itemId = MESSAGE_CUSTOM_ICON_ITEM;
+                    // #endregion
+                } else if ((((u8)font->msgBuf.schar[msgCtx->msgBufPos]) < 0xC8) ||
+                           (((u8)font->msgBuf.schar[msgCtx->msgBufPos]) >= 0xD8)) {
                     msgCtx->itemId = D_801CFF94[(u8)font->msgBuf.schar[msgCtx->msgBufPos]];
                 } else {
                     msgCtx->itemId = 0xFE;
@@ -2186,7 +2251,9 @@ void Message_DecodeHeader(PlayState* play) {
         msgCtx->unk12074 |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
         msgCtx->msgBufPos++;
-        if (msgCtx->itemId != 0xFE) {
+        // 2S2H [Port] Also skip MESSAGE_ITEM_NONE (9999): it would hit the >= ITEM_B8 branch in
+        // Message_LoadItemIcon and index gBombersNotebookPhotos out of bounds.
+        if ((msgCtx->itemId != 0xFE) && (msgCtx->itemId != MESSAGE_ITEM_NONE)) {
             Message_LoadItemIcon(play, msgCtx->itemId, msgCtx->textboxY + 10);
         }
     }
@@ -3719,6 +3786,50 @@ void Message_DisplayOcarinaStaffImpl(PlayState* play, u16 ocarinaAction) {
         msgCtx->ocarinaAvailableSongs |= 0x800000;
     }
 
+    // Skijer's NEI: expose the OoT warp songs' dedicated ocarina slots (bits 24-29) to free play,
+    // gated on their NEI quest ownership — so hand-playing Minuet/Bolero/... on the ocarina is
+    // recognized (and the quest page's Pause Play flows through the same recognition).
+    {
+        // NEI OoT-page song ownership → free-play recognition. Quest rows 12..17 are (in order):
+        // Lullaby, Epona, Saria, Sun, Time, Storms — but the 3 truly-doubled ones (Epona row 13,
+        // Time row 16, Storms row 17) are REPLACED by the NEI custom songs (MM already provides
+        // those songs natively via the MM save). So: rows 12/14/15 unlock the shared MM slots
+        // (Lullaby/Saria/Sun), rows 13/16/17 unlock the custom songs' side mask (slots 30-32 have
+        // no bitmask bits — see gNeiCustomSongsAvailable).
+        uint32_t ootSongs = Nei_Save()->ootQuestItems;
+
+        gNeiCustomSongsAvailable = 0;
+        for (i = 0; i < 6; i++) {
+            if (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + i))) {
+                msgCtx->ocarinaAvailableSongs |= (1 << (OCARINA_SONG_OOT_MINUET + i));
+            }
+        }
+        if (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + 6))) { // row 12: Zelda's Lullaby
+            msgCtx->ocarinaAvailableSongs |= (1 << OCARINA_SONG_ZELDAS_LULLABY);
+        }
+        if (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + 8))) { // row 14: Saria's Song
+            msgCtx->ocarinaAvailableSongs |= (1 << OCARINA_SONG_SARIAS);
+        }
+        if (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + 9))) { // row 15: Sun's Song
+            msgCtx->ocarinaAvailableSongs |= (1 << OCARINA_SONG_SUNS);
+        }
+        if (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + 7))) { // row 13: Fugue of Home
+            gNeiCustomSongsAvailable |= (1 << 0);
+        }
+        if (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + 10))) { // row 16: Command Melody
+            gNeiCustomSongsAvailable |= (1 << 1);
+        }
+        if (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + 11))) { // row 17: Ballad of Hero
+            gNeiCustomSongsAvailable |= (1 << 2);
+        }
+        // NEI-DBG: pause-play tracing (remove after diagnosis)
+        {
+            extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
+            lusprintf(__FILE__, __LINE__, 2, "NEI-PP: staff open action=%d availSongs=0x%08X custom=0x%X ootQuest=0x%08X",
+                      ocarinaAction, msgCtx->ocarinaAvailableSongs, gNeiCustomSongsAvailable, ootSongs);
+        }
+    }
+
     msgCtx->ocarinaStaff = AudioOcarina_GetRecordingStaff();
 
     if ((ocarinaAction == OCARINA_ACTION_PROMPT_EVAN_PART1_SECOND_HALF) ||
@@ -4055,6 +4166,39 @@ void Message_SpawnSongEffect(PlayState* play) {
 
     //! FAKE:
     if (1) {}
+    // Skijer's NEI: OoT warp songs (slots 24-29) — success ring VFX. OoT's warp visuals belong to the
+    // warp cutscene itself (not wired yet), so show MM's WIPE4 ring as the played-successfully flash.
+    if ((msgCtx->songPlayed >= OCARINA_SONG_OOT_WARP_FIRST) && (msgCtx->songPlayed <= OCARINA_SONG_OOT_WARP_LAST)) {
+        msgCtx->ocarinaSongEffectActive = true;
+        Actor_Spawn(&play->actorCtx, play, ACTOR_OCEFF_WIPE4, player->actor.world.pos.x, player->actor.world.pos.y,
+                    player->actor.world.pos.z, 0, 0, 0, 0);
+        return;
+    }
+    // Skijer's NEI: custom songs (slots 30-32) — their own ring effect, param = which song
+    // (0 Fugue amber, 1 Command magenta, 2 Ballad gold).
+    if ((msgCtx->songPlayed >= OCARINA_SONG_NEI_CUSTOM_FIRST) && (msgCtx->songPlayed <= OCARINA_SONG_NEI_CUSTOM_LAST)) {
+        msgCtx->ocarinaSongEffectActive = true;
+        Actor_Spawn(&play->actorCtx, play, ACTOR_OCEFF_NEI, player->actor.world.pos.x, player->actor.world.pos.y,
+                    player->actor.world.pos.z, 0, 0, 0, msgCtx->songPlayed - OCARINA_SONG_NEI_CUSTOM_FIRST);
+        return;
+    }
+    // Skijer's NEI: Zelda's Lullaby (slot 21) — indexing sOcarinaEffectActorIds (15 entries) with 21
+    // would read OOB. OoT's effect table (soh z_message_PAL.c: SARIAS→WIPE3, EPONAS→WIPE2,
+    // LULLABY→WIPE p0, SUNS→SPOT, TIME→WIPE p1, STORMS→STORM) gives Lullaby OCEFF_WIPE param 0.
+    if (msgCtx->songPlayed == OCARINA_SONG_ZELDAS_LULLABY) {
+        msgCtx->ocarinaSongEffectActive = true;
+        Actor_Spawn(&play->actorCtx, play, ACTOR_OCEFF_WIPE, player->actor.world.pos.x, player->actor.world.pos.y,
+                    player->actor.world.pos.z, 0, 0, 0, 0);
+        return;
+    }
+    // Skijer's NEI: Saria's Song (slot 5) — MM's native table[5] is WIPE5 (Sonata's effect). OoT 1:1 is
+    // OCEFF_WIPE3 (MM even ships it named "Saria's Song Ocarina Effect (OoT)", actor 0x0E0).
+    if (msgCtx->songPlayed == OCARINA_SONG_SARIAS) {
+        msgCtx->ocarinaSongEffectActive = true;
+        Actor_Spawn(&play->actorCtx, play, ACTOR_OCEFF_WIPE3, player->actor.world.pos.x, player->actor.world.pos.y,
+                    player->actor.world.pos.z, 0, 0, 0, 0);
+        return;
+    }
     if ((msgCtx->songPlayed <= OCARINA_SONG_SCARECROW_SPAWN) &&
         (msgCtx->songPlayed != OCARINA_SONG_GORON_LULLABY_INTRO) &&
         !((msgCtx->ocarinaAction >= OCARINA_ACTION_PROMPT_WIND_FISH_HUMAN) &&
@@ -4604,6 +4748,27 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
             case MSGMODE_OCARINA_PLAYING:
                 msgCtx->ocarinaStaff = AudioOcarina_GetPlayingStaff();
 
+                // Skijer's NEI "Pause Play": deterministic forced-success handoff. The audio-side
+                // played-song latch survives only one AudioOcarina_Update tick and Audio_Update runs
+                // more than once per frame, so this poll usually missed it — instead the quest page
+                // hands the song here directly and we stamp it into the staff state, which the code
+                // below consumes synchronously (same invocation, no timing window).
+                {
+                    extern s16 gNeiPausePlayForcedSong; // z_kaleido_collect.c
+                    extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
+                    if ((gNeiPausePlayForcedSong >= 0) && (msgCtx->ocarinaAction == OCARINA_ACTION_FREE_PLAY)) {
+                        lusprintf(__FILE__, __LINE__, 2, "NEI-PP: handoff consumed, stamping state=%d",
+                                  gNeiPausePlayForcedSong);
+                        msgCtx->ocarinaStaff->state = (u8)gNeiPausePlayForcedSong;
+                        gNeiPausePlayForcedSong = -1;
+                    }
+                    // NEI-DBG: any recognized song reaching this poll (state < 0xFE = a real song)
+                    if (msgCtx->ocarinaStaff->state < 0xFE) {
+                        lusprintf(__FILE__, __LINE__, 2, "NEI-PP: poll sees state=%d action=%d",
+                                  msgCtx->ocarinaStaff->state, msgCtx->ocarinaAction);
+                    }
+                }
+
                 if ((u32)msgCtx->ocarinaStaff->pos != 0) {
                     if ((msgCtx->ocarinaStaff->pos == 1) && (sOcarinaButtonIndexBufPos == 8)) {
                         sOcarinaButtonIndexBufPos = 0;
@@ -4621,6 +4786,29 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
 
                 GameInteractor_Should(VB_OVERRIDE_OCARINA_STAFF_STATE, false, msgCtx->ocarinaStaff);
 
+                // Skijer's NEI: OoT warp songs (slots 24-29) + NEI custom songs (30-32). The vanilla
+                // chain below only knows songs <= SCARECROW_SPAWN (and its owned-check would index
+                // CHECK_QUEST_ITEM(QUEST_SONG_SONATA + 24..) out of the song bits), so run the same
+                // FREE_PLAY success path for them here — correct-played textbox + MSGMODE_SONG_PLAYED,
+                // which then replays the melody + spawns the song VFX like any other song.
+                if ((msgCtx->ocarinaAction == OCARINA_ACTION_FREE_PLAY) &&
+                    (msgCtx->ocarinaStaff->state >= OCARINA_SONG_OOT_WARP_FIRST) &&
+                    (msgCtx->ocarinaStaff->state < OCARINA_SONG_MAX)) {
+                    {
+                        extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
+                        lusprintf(__FILE__, __LINE__, 2, "NEI-PP: WARP SUCCESS state=%d",
+                                  msgCtx->ocarinaStaff->state); // NEI-DBG
+                    }
+                    sLastPlayedSong = msgCtx->ocarinaStaff->state;
+                    msgCtx->lastPlayedSong = msgCtx->ocarinaStaff->state;
+                    Message_ContinueTextbox(play, 0x1B5B);
+                    msgCtx->msgMode = MSGMODE_SONG_PLAYED;
+                    msgCtx->textBoxType = TEXTBOX_TYPE_3;
+                    msgCtx->stateTimer = 10;
+                    Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
+                    break;
+                }
+
                 bool vanillaOwnedSongCheck = (msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN) ||
                                              (msgCtx->ocarinaStaff->state == OCARINA_SONG_INVERTED_TIME) ||
                                              (msgCtx->ocarinaStaff->state == OCARINA_SONG_DOUBLE_TIME) ||
@@ -4632,6 +4820,24 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                 if (msgCtx->ocarinaStaff->state != 0xFE && msgCtx->ocarinaStaff->state != 0xFF) {
                     vanillaOwnedSongCheck =
                         vanillaOwnedSongCheck || CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+
+                    // Skijer's NEI: the 3 songs shared with OoT that MM does NOT grant natively
+                    // (Lullaby row 12, Saria row 14, Sun row 15) also count as owned when the NEI OoT
+                    // quest store grants them — otherwise pause play / free play of an OoT-owned
+                    // shared song hits the error beep here. (Epona/Time/Storms rows 13/16/17 are now
+                    // the NEI custom songs — MM's own versions stay MM-save-owned only.)
+                    if (!vanillaOwnedSongCheck) {
+                        uint32_t ootSongs = Nei_Save()->ootQuestItems;
+
+                        if (((msgCtx->ocarinaStaff->state == OCARINA_SONG_ZELDAS_LULLABY) &&
+                             (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + 6)))) ||
+                            ((msgCtx->ocarinaStaff->state == OCARINA_SONG_SARIAS) &&
+                             (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + 8)))) ||
+                            ((msgCtx->ocarinaStaff->state == OCARINA_SONG_SUNS) &&
+                             (ootSongs & (1u << (OOT_QUEST_SONG_MINUET + 9))))) {
+                            vanillaOwnedSongCheck = true;
+                        }
+                    }
                 }
 
                 if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_SCARECROW_SPAWN) {
@@ -4820,10 +5026,21 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                 } else {
                     AudioOcarina_SetInstrument(sPlayerFormOcarinaInstruments[CUR_FORM]);
                     AudioOcarina_SetPlaybackSong((u8)msgCtx->songPlayed + 1, 1);
-                    if (msgCtx->songPlayed != OCARINA_SONG_SCARECROW_SPAWN) {
+                    // Skijer's NEI: songs without a REAL MM fanfare must not play one — Zelda's Lullaby
+                    // (21) + OoT warp slots (24-29) would index sOcarinaSongFanfares (17 entries) OOB,
+                    // and Saria's slot (5) holds NA_BGM_MAJORAS_LAIR (Majora's Lair music, not a Saria
+                    // jingle). Their melody still plays via the ocarina playback started just above
+                    // ("incomplete" version); NeiAudio_PlayOotSongFanfare is the MOD WINDOW for a
+                    // full/streamed arrangement to layer on top later.
+                    if ((msgCtx->songPlayed != OCARINA_SONG_SCARECROW_SPAWN) &&
+                        (msgCtx->songPlayed != OCARINA_SONG_SARIAS) &&
+                        (msgCtx->songPlayed < ARRAY_COUNT(sOcarinaSongFanfares))) {
                         Audio_PlayFanfareWithPlayerIOPort7((u16)sOcarinaSongFanfares[msgCtx->songPlayed],
                                                            (u8)sOcarinaSongFanfareIoData[CUR_FORM]);
                         AudioSfx_MuteBanks(0x20);
+                    } else if ((msgCtx->songPlayed >= ARRAY_COUNT(sOcarinaSongFanfares)) ||
+                               (msgCtx->songPlayed == OCARINA_SONG_SARIAS)) {
+                        NeiAudio_PlayOotSongFanfare((u8)msgCtx->songPlayed);
                     }
                 }
                 play->msgCtx.ocarinaMode = OCARINA_MODE_ACTIVE;
@@ -4840,6 +5057,11 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
             case MSGMODE_DISPLAY_SONG_PLAYED_TEXT_BEGIN:
                 if (msgCtx->songPlayed == OCARINA_SONG_SCARECROW_SPAWN) {
                     Message_ContinueTextbox(play, 0x1B6B);
+                } else if ((msgCtx->songPlayed >= OCARINA_SONG_OOT_WARP_FIRST) ||
+                           (msgCtx->songPlayed == OCARINA_SONG_ZELDAS_LULLABY)) {
+                    // Skijer's NEI: OoT warp songs + Zelda's Lullaby have no 0x1B72+n "You played..."
+                    // message — reuse the generic staff box (a custom named text is a later pass).
+                    Message_ContinueTextbox(play, 0x1B5B);
                 } else {
                     Message_ContinueTextbox(play, 0x1B72 + msgCtx->songPlayed);
                 }

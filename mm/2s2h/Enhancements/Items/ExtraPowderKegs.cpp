@@ -5,7 +5,7 @@
 
 #define CVAR_NAME "gEnhancements.Items.ExtraPowderKegs"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
-#define MAX_POWDER_KEGS 3
+#define MAX_POWDER_KEGS 5
 
 void RegisterExtraPowderKegs() {
     // When giving a powder keg, increment ammo instead of setting to 1
@@ -31,7 +31,7 @@ void RegisterExtraPowderKegs() {
         *should = (AMMO(ITEM_POWDER_KEG) >= MAX_POWDER_KEGS) || (gPlayState->actorCtx.flags & ACTORCTX_FLAG_0);
     });
 
-    // Show green ammo text only when at max capacity (3), not at 1
+    // Show green ammo text only when at max capacity (5), not at 1
     COND_VB_SHOULD(VB_POWDER_KEG_AMMO_AT_CAPACITY, CVAR, { *should = (AMMO(ITEM_POWDER_KEG) >= MAX_POWDER_KEGS); });
 
     // Update Goron dialogue to reflect the higher max carry count
@@ -42,7 +42,7 @@ void RegisterExtraPowderKegs() {
         CustomMessage::Entry entry;
         entry.msg = "\x1e\x3a\xbb%rPowder Kegs%w are extremely\n"
                     "dangerous. You are limited to carrying\n"
-                    "%rthree%w at any given time.\n"
+                    "%rfive%w at any given time.\n"
                     "\x12If an %rarrow%w hits one, it will %rexplode%w\n"
                     "on the spot, so use caution.";
         CustomMessage::LoadCustomMessageIntoFont(entry);
@@ -58,10 +58,10 @@ void RegisterExtraPowderKegs() {
     });
     COND_ID_HOOK(OnOpenText, 0x0673, CVAR, [](u16*, bool* loadFromMessageTable) {
         CustomMessage::Entry entry;
-        entry.msg = "\x1e\x38\xfcHold on, you already got %rthree%w!\n"
+        entry.msg = "\x1e\x38\xfcHold on, you already got %rfive%w!\n"
                     "\x12%rPowder Kegs%w are hazardous\n"
                     "explosives, so you may carry only\n"
-                    "%rthree%w at a time!";
+                    "%rfive%w at a time!";
         CustomMessage::LoadCustomMessageIntoFont(entry);
         *loadFromMessageTable = false;
     });

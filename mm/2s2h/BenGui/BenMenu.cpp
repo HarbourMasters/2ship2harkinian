@@ -8,6 +8,9 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/PresetManager/PresetManager.h"
+#include "2s2h/Network/Harpoon/Harpoon.h"
+#include "2s2h/Network/Harpoon/HarpoonSkinSync.h"
+#include "2s2h/FleetShipCombo/FleetShipCombo.h"
 #include "HudEditor.h"
 #include "Notification.h"
 #include "2s2h/Enhancements/Trackers/DisplayOverlay.h"
@@ -1141,6 +1144,31 @@ void BenMenu::AddEnhancements() {
         .CVar("gModes.MirroredWorld.StoneTowerTempleFix")
         .Options(CheckboxOptions().Tooltip(
             "Mirrors (or unmirrors) the inverted Stone Tower Temple to make its layout consistent."));
+    AddWidget(path, "SM64 Mario Mode", WIDGET_CVAR_CHECKBOX)
+        .CVar("gSm64Mario")
+        .Options(CheckboxOptions().Tooltip(
+            "Replaces Link with Mario from Super Mario 64, driven by libsm64. Mario keeps SM64 "
+            "physics and animations.\n\n"
+            "Requires sm64.dll next to 2ship.exe (shipped automatically) and a valid SM64 US "
+            "Z64 ROM (sm64.z64) placed next to 2ship.exe or pointed to via the gSm64RomPath CVar.\n\n"
+            "C-Left = Cappy, C-Right = Roll; these override equipped MM items in those slots.\n"
+            "C-Down keeps its equipped item. D-pad controls Wing, Metal, Vanish, and Fire caps."));
+    AddWidget(path, "Mario Mask C-Down Toggle", WIDGET_CVAR_CHECKBOX)
+        .CVar("gSm64MarioMaskForce")
+        .Options(CheckboxOptions().Tooltip(
+            "When enabled, the Mario Mask icon appears in the C-Down slot and pressing C-Down "
+            "toggles Mario Mode on/off. The press is consumed so the equipped C-Down item "
+            "doesn't fire on the same frame.\n\n"
+            "Useful for transforming back to Link without opening the menu."));
+    AddWidget(path, "Mario Master Volume", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gSm64MasterVolume")
+        .Options(FloatSliderOptions()
+                     .Min(0.0f).Max(1.0f).DefaultValue(0.8f).Step(0.05f).Format("%.2f")
+                     .Tooltip("Volume multiplier for Mario voice samples and SFX (jumps, "
+                              "punches, coin pickups, death sounds). 0 mutes Mario; 1 is full "
+                              "volume. Default 0.8 to blend with MM's BGM.\n\n"
+                              "Place your SM64 US Z64 ROM as `sm64.z64` next to 2ship.exe to "
+                              "enable Mario Mode."));
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.CremiaHugs")
@@ -1164,7 +1192,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Extra Powder Kegs", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Items.ExtraPowderKegs")
         .Options(CheckboxOptions().Tooltip(
-            "Allows carrying up to 3 Powder Kegs at once instead of the vanilla limit of 1."));
+            "Allows carrying up to 5 Powder Kegs at once instead of the vanilla limit of 1."));
     AddWidget(path, "Extended Projectile Interaction Distance", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Gameplay.ExtendedProjectileInteractionDistance")
         .Options(CheckboxOptions().Tooltip(
@@ -2125,6 +2153,493 @@ void BenMenu::AddDevTools() {
         .WindowName("Message Viewer");
 }
 
+// -----------------------------------------------------------------------------
+// Network — Harpoon multiplayer. Ported 1:1 from SoH's HarpoonMenu.cpp
+// (single raw-ImGui panel) instead of the project's widget system, so the
+// layout matches Shipwright. The geoguessr/display toggles at the bottom are
+// the 2ship-specific additions the user asked for.
+// -----------------------------------------------------------------------------
+static const char* HARPOON_OFFICIAL_HOST = "54.209.53.9";
+static const int HARPOON_OFFICIAL_PORT = 8765;
+
+static void HarpoonMainMenu() {
+    auto* harpoon = Harpoon::Instance();
+
+    bool isConnected = harpoon->IsConnected();
+    bool isConnecting = harpoon->IsConnecting();
+    bool isReady = harpoon->IsReady();
+    bool inputLocked = isConnected || isConnecting;
+    bool inRoom = harpoon->State() == HarpoonConnState::InRoom;
+
+    ImGui::Text("Harpoon - Multiplayer");
+    ImGui::Separator();
+
+    static char hostBuf[128];
+    static char nameBuf[64];
+    static bool initialized = false;
+    static bool useOfficial = false;
+    if (!initialized) {
+        std::string h = CVarGetString("gNetwork.Harpoon.Host", "54.209.53.9");
+        std::string n = CVarGetString("gNetwork.Harpoon.Name", "Player");
+        snprintf(hostBuf, sizeof(hostBuf), "%s", h.c_str());
+        snprintf(nameBuf, sizeof(nameBuf), "%s", n.c_str());
+        initialized = true;
+    }
+
+    ImGui::BeginDisabled(inputLocked || useOfficial);
+    ImGui::Text("Host:");
+    ImGui::SameLine();
+    if (ImGui::InputText("##HarpoonHost", hostBuf, sizeof(hostBuf))) {
+        CVarSetString("gNetwork.Harpoon.Host", hostBuf);
+    }
+    int port = CVarGetInteger("gNetwork.Harpoon.Port", 8765);
+    ImGui::Text("Port:");
+    ImGui::SameLine();
+    if (ImGui::InputInt("##HarpoonPort", &port)) {
+        CVarSetInteger("gNetwork.Harpoon.Port", port);
+    }
+    ImGui::EndDisabled();
+
+    ImGui::BeginDisabled(inputLocked);
+    if (ImGui::Button(useOfficial ? "Custom Server" : "Official Remote")) {
+        useOfficial = !useOfficial;
+        if (useOfficial) {
+            snprintf(hostBuf, sizeof(hostBuf), "%s", HARPOON_OFFICIAL_HOST);
+            CVarSetString("gNetwork.Harpoon.Host", HARPOON_OFFICIAL_HOST);
+            CVarSetInteger("gNetwork.Harpoon.Port", HARPOON_OFFICIAL_PORT);
+        }
+    }
+    if (useOfficial) {
+        ImGui::SameLine();
+        ImGui::TextColored(ImVec4(0.3f, 0.7f, 1.0f, 1.0f), "Official");
+    }
+    ImGui::EndDisabled();
+
+    ImGui::Separator();
+
+    ImGui::BeginDisabled(inputLocked);
+    ImGui::Text("Name:");
+    ImGui::SameLine();
+    if (ImGui::InputText("##HarpoonName", nameBuf, sizeof(nameBuf))) {
+        CVarSetString("gNetwork.Harpoon.Name", nameBuf);
+    }
+    ImGui::EndDisabled();
+
+    Color_RGBA8 color = CVarGetColor("gNetwork.Harpoon.Color.Value", { 100, 255, 100, 255 });
+    float colorF[3] = { color.r / 255.0f, color.g / 255.0f, color.b / 255.0f };
+    if (ImGui::ColorEdit3("Color", colorF)) {
+        color.r = (u8)(colorF[0] * 255);
+        color.g = (u8)(colorF[1] * 255);
+        color.b = (u8)(colorF[2] * 255);
+        CVarSetColor("gNetwork.Harpoon.Color.Value", color);
+    }
+
+    ImGui::Separator();
+
+    // Connect / Disconnect
+    if (!isConnected && !isConnecting) {
+        if (ImGui::Button("Connect")) {
+            harpoon->Enable();
+        }
+    } else if (isConnecting) {
+        ImGui::BeginDisabled(true);
+        ImGui::Button("Connecting...");
+        ImGui::EndDisabled();
+        ImGui::SameLine();
+        ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Connecting...");
+    } else {
+        if (ImGui::Button("Disconnect")) {
+            harpoon->Disable();
+        }
+        ImGui::SameLine();
+        ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Connected");
+    }
+
+    {
+        std::string err = harpoon->LastError();
+        if (!err.empty()) {
+            ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "Error: %s", err.c_str());
+        }
+    }
+
+    // Waiting for handshake ACK
+    if (isConnected && !isReady) {
+        ImGui::Separator();
+        ImGui::TextColored(ImVec4(1.0f, 0.9f, 0.2f, 1.0f), "Waiting for handshake ACK...");
+        ImGui::TextWrapped("The server hasn't issued our client id yet. Room creation and "
+                           "joining will be enabled once HARPOON.SERVER_INFO arrives.");
+    }
+
+    // Room browser (ready, not in a room)
+    if (isReady && !inRoom) {
+        ImGui::Separator();
+        ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "Rooms");
+
+        static char roomIdBuf[64] = "";
+        static char roomPassBuf[64] = "";
+        static char roomNameBuf[64] = "";
+        static char gameModeBuf[64] = "";
+
+        std::vector<std::string> gamemodes = HarpoonSkinSync::GetInstalledGamemodes();
+        bool hasGamemodes = !gamemodes.empty();
+        if (gameModeBuf[0] == '\0' && hasGamemodes) {
+            snprintf(gameModeBuf, sizeof(gameModeBuf), "%s", gamemodes.front().c_str());
+        }
+
+        ImGui::Text("Room Name:");
+        ImGui::SameLine();
+        if (roomNameBuf[0] == '\0') {
+            snprintf(roomNameBuf, sizeof(roomNameBuf), "%s's Room", nameBuf);
+        }
+        ImGui::InputText("##RoomName", roomNameBuf, sizeof(roomNameBuf));
+
+        ImGui::Text("Game Mode:");
+        ImGui::SameLine();
+        ImGui::BeginDisabled(!hasGamemodes);
+        const char* preview = hasGamemodes ? gameModeBuf : "(none installed)";
+        if (ImGui::BeginCombo("##GameMode", preview)) {
+            for (const auto& gm : gamemodes) {
+                bool isSelected = (gm == gameModeBuf);
+                if (ImGui::Selectable(gm.c_str(), isSelected)) {
+                    snprintf(gameModeBuf, sizeof(gameModeBuf), "%s", gm.c_str());
+                }
+                if (isSelected) ImGui::SetItemDefaultFocus();
+            }
+            ImGui::EndCombo();
+        }
+        ImGui::EndDisabled();
+
+        if (!hasGamemodes) {
+            ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "No gamemodes installed.");
+            ImGui::TextWrapped("Drop pack folders into harpoon/gamemodes/ (each must contain "
+                               "gamemode.yaml).");
+        }
+
+        ImGui::Text("Password:");
+        ImGui::SameLine();
+        ImGui::InputText("##RoomPass", roomPassBuf, sizeof(roomPassBuf));
+
+        ImGui::BeginDisabled(!hasGamemodes);
+        if (ImGui::Button("Create Room")) {
+            harpoon->SetGameMode(gameModeBuf);
+            harpoon->CreateRoom(roomNameBuf, roomPassBuf);
+        }
+        ImGui::EndDisabled();
+
+        ImGui::Separator();
+
+        ImGui::Text("Room ID:");
+        ImGui::SameLine();
+        ImGui::InputText("##RoomId", roomIdBuf, sizeof(roomIdBuf));
+        if (ImGui::Button("Join Room")) {
+            harpoon->JoinRoom(roomIdBuf, roomPassBuf);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Refresh")) {
+            harpoon->RequestRoomList();
+        }
+
+        auto rooms = harpoon->GetRoomListSnapshot();
+        if (!rooms.empty()) {
+            ImGui::Separator();
+            ImGui::Text("Available Rooms:");
+            for (auto& room : rooms) {
+                ImGui::PushID(room.roomId.c_str());
+                ImGui::Text("  %s (%s) [%d/%d] %s%s", room.name.c_str(), room.gameMode.c_str(),
+                            room.playerCount, room.maxPlayers, room.state.c_str(),
+                            room.hasPassword ? " [PASS]" : "");
+                ImGui::SameLine();
+                if (ImGui::SmallButton("Join")) {
+                    snprintf(roomIdBuf, sizeof(roomIdBuf), "%s", room.roomId.c_str());
+                    harpoon->JoinRoom(room.roomId, roomPassBuf);
+                }
+                ImGui::PopID();
+            }
+        }
+    }
+
+    // In-room view
+    if (inRoom) {
+        ImGui::Separator();
+        ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "Room: %s", harpoon->CurrentRoomId().c_str());
+        ImGui::Text("Mode: %s", harpoon->GameMode().c_str());
+        if (ImGui::Button("Leave Room")) {
+            harpoon->LeaveRoom();
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Players:");
+        ImGui::TextColored(ImVec4(0.6f, 0.9f, 0.6f, 1.0f), "  %s (You)",
+                           CVarGetString("gNetwork.Harpoon.Name", "Player"));
+        for (auto& c : harpoon->GetClientsSnapshot()) {
+            ImVec4 nameColor = ImVec4(((c.colorRgba >> 24) & 0xFF) / 255.0f,
+                                      ((c.colorRgba >> 16) & 0xFF) / 255.0f,
+                                      ((c.colorRgba >> 8) & 0xFF) / 255.0f, 1.0f);
+            ImGui::TextColored(nameColor, "  %s", c.name.c_str());
+            if (c.sceneId >= 0) {
+                ImGui::SameLine();
+                ImGui::TextColored(ImVec4(0.6f, 0.6f, 0.6f, 1.0f), "[Scene %d]", c.sceneId);
+            }
+        }
+    }
+
+    // Active gamemode effects — read-only. The room's gamemode.yaml decides
+    // these (no manual toggles): geoguessr => PvP on, nametags + minimap hidden.
+    if (inRoom) {
+        ImGui::Separator();
+        ImGui::TextColored(ImVec4(1.0f, 0.84f, 0.0f, 1.0f), "Active mode: %s", harpoon->GameMode().c_str());
+        if (harpoon->IsGeoguessr()) {
+            ImGui::TextColored(ImVec4(0.6f, 0.9f, 0.6f, 1.0f),
+                               "PvP ON  -  nametags & minimap HIDDEN (find each other by sight)");
+        } else {
+            ImGui::Text("PvP %s  -  nametags/minimap %s",
+                        harpoon->IsPvpActive() ? "ON" : "OFF",
+                        harpoon->NametagsVisible() ? "shown" : "hidden");
+        }
+    }
+}
+
+void BenMenu::AddNetwork() {
+    AddMenuEntry("Network", "gSettings.Menu.NetworkSidebarSection");
+    AddSidebarEntry("Network", "Harpoon", 1);
+    WidgetPath path = { "Network", "Harpoon", SECTION_COLUMN_1 };
+    AddWidget(path, "Harpoon", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { HarpoonMainMenu(); });
+}
+
+// "Skijer's NEI" — mirror of the same menu in Ship (Shipwright). For now only the
+// Randomizer tab exists with the Fleet Ship Combo switch; the rest of NEI will be
+// ported into MM here over time.
+// NEI weapon-upgrade bit plumbing (mods/items/logic/weapon_upgrades.c, z_player TU)
+extern "C" {
+uint8_t WeaponUpgrade_HasHammerAxe(void);
+uint8_t WeaponUpgrade_HasRazor(void);
+uint8_t WeaponUpgrade_HasGilded(void);
+uint8_t WeaponUpgrade_HasTrueMaster(void);
+uint8_t WeaponUpgrade_HasGreatFairy(void);
+void WeaponUpgrade_SetHammerAxe(uint8_t on);
+void WeaponUpgrade_SetRazor(uint8_t on);
+void WeaponUpgrade_SetGilded(uint8_t on);
+void WeaponUpgrade_SetTrueMaster(uint8_t on);
+void WeaponUpgrade_SetGreatFairy(uint8_t on);
+void WeaponUpgrade_GrantAll(void);
+}
+
+void BenMenu::AddNEI() {
+    AddMenuEntry("Skijer's NEI", "gSettings.Menu.SkijerNEISidebarSection");
+
+    // --- Custom Items: 1:1 with Ship > Skijer's NEI > Custom Items ---
+    AddSidebarEntry("Skijer's NEI", "Custom Items", 1);
+    WidgetPath itemsPath = { "Skijer's NEI", "Custom Items", SECTION_COLUMN_1 };
+    AddWidget(itemsPath, "Custom Items", WIDGET_SEPARATOR_TEXT);
+    AddWidget(itemsPath, "Custom Items Page", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.CustomItems.Enabled")
+        .Options(CheckboxOptions()
+                     .Tooltip("Second item-kaleido page with the NEI custom items.\nPress L on the item page to "
+                              "cycle pages.")
+                     .DefaultValue(true));
+    AddWidget(itemsPath, "Give All Custom Items (one-shot)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.CustomItems.GiveAll")
+        .Options(CheckboxOptions().Tooltip("Grants every NEI custom item on the next gameplay frame, then clears."));
+    AddWidget(itemsPath, "Weapon Upgrade Appearance", WIDGET_SEPARATOR_TEXT);
+    AddWidget(itemsPath, "Gilded Sword: use Gilded look", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.SkijerNEI.GildedUsesGildedLook")
+        .Options(CheckboxOptions().Tooltip("Kokiri chain shows the Gilded model/icon at level 2.").DefaultValue(true));
+    AddWidget(itemsPath, "Biggoron Upgrade: use Great Fairy's Sword look", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.SkijerNEI.BgsUsesGfsLook")
+        .Options(CheckboxOptions().Tooltip("BGS upgrade shows the GFS model/icon.").DefaultValue(true));
+    AddWidget(itemsPath, "Enable Extra Equipment", WIDGET_CVAR_CHECKBOX)
+        .CVar("gCheats.ExtEquip.Enabled")
+        .Options(CheckboxOptions().Tooltip("Extended equipment (ext swords/shields/tunics/boots) systems."));
+    AddWidget(itemsPath, "Roc's Items Use MM Animations", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.RocsItemsUseMmAnims")
+        .Options(CheckboxOptions().Tooltip("Roc's Feather/Cape jump uses the MM anim set."));
+    AddWidget(itemsPath, "Invert Roc's Items Animations", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.RocsItems.InvertAnims")
+        .Options(CheckboxOptions().Tooltip("Swap which anim plays on jump vs double-jump."));
+    AddWidget(itemsPath, "NEI Aim Cycle (R/L while aiming)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.NeiAimCycle")
+        .Options(CheckboxOptions().Tooltip("Cycle projectile items while aiming."));
+    AddWidget(itemsPath, "Bomb Arrows: Auto-grant with Bomb Bag", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.BombArrows.AutoGrantOnBag")
+        .Options(CheckboxOptions().Tooltip("Owning a bomb bag grants Bomb Arrows."));
+
+    AddWidget(itemsPath, "Weapon Upgrade Bits", WIDGET_SEPARATOR_TEXT);
+    static bool sWuHammer, sWuRazor, sWuGilded, sWuMaster, sWuGfs;
+    AddWidget(itemsPath, "Hammer: Iron Knuckle's Axe", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) { sWuHammer = WeaponUpgrade_HasHammerAxe() != 0; info.valuePointer = &sWuHammer; })
+        .Callback([](WidgetInfo& info) { WeaponUpgrade_SetHammerAxe(sWuHammer ? 1 : 0); })
+        .Options(CheckboxOptions().Tooltip("Hammer upgrade bit."));
+    AddWidget(itemsPath, "Kokiri: Razor Sword", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) { sWuRazor = WeaponUpgrade_HasRazor() != 0; info.valuePointer = &sWuRazor; })
+        .Callback([](WidgetInfo& info) { WeaponUpgrade_SetRazor(sWuRazor ? 1 : 0); })
+        .Options(CheckboxOptions().Tooltip("Kokiri progressive level 1."));
+    AddWidget(itemsPath, "Kokiri: Gilded Sword", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) { sWuGilded = WeaponUpgrade_HasGilded() != 0; info.valuePointer = &sWuGilded; })
+        .Callback([](WidgetInfo& info) { WeaponUpgrade_SetGilded(sWuGilded ? 1 : 0); })
+        .Options(CheckboxOptions().Tooltip("Kokiri progressive level 2."));
+    AddWidget(itemsPath, "Master: True Master Sword", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) { sWuMaster = WeaponUpgrade_HasTrueMaster() != 0; info.valuePointer = &sWuMaster; })
+        .Callback([](WidgetInfo& info) { WeaponUpgrade_SetTrueMaster(sWuMaster ? 1 : 0); })
+        .Options(CheckboxOptions().Tooltip("Master Sword upgrade bit."));
+    AddWidget(itemsPath, "Biggoron: Great Fairy's Sword", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) { sWuGfs = WeaponUpgrade_HasGreatFairy() != 0; info.valuePointer = &sWuGfs; })
+        .Callback([](WidgetInfo& info) { WeaponUpgrade_SetGreatFairy(sWuGfs ? 1 : 0); })
+        .Options(CheckboxOptions().Tooltip("BGS upgrade bit (GFS look via the appearance cheat)."));
+    AddWidget(itemsPath, "Grant All Weapon Upgrades", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { WeaponUpgrade_GrantAll(); })
+        .Options(ButtonOptions().Tooltip("Sets every weapon-upgrade bit."));
+
+    // --- Masks: 1:1 with Ship > Skijer's NEI > Masks ---
+    AddSidebarEntry("Skijer's NEI", "Masks", 1);
+    WidgetPath masksPath = { "Skijer's NEI", "Masks", SECTION_COLUMN_1 };
+    AddWidget(masksPath, "MM Masks", WIDGET_SEPARATOR_TEXT);
+    AddWidget(masksPath, "MM Masks Page (Inventory + Effects)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.MmMasks.InventoryEnabled")
+        .Options(CheckboxOptions().Tooltip("Third item-kaleido page listing the MM masks.").DefaultValue(true));
+    AddWidget(masksPath, "Mask Transformations", WIDGET_SEPARATOR_TEXT);
+    AddWidget(masksPath, "Kafei Mask Transform", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.KafeiMaskTransform")
+        .Options(CheckboxOptions().Tooltip("Kafei mask transforms the player."));
+    AddWidget(masksPath, "Gerudo Mask Transform", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.GerudoMaskTransform")
+        .Options(CheckboxOptions().Tooltip("Gerudo mask transforms the player."));
+    AddWidget(masksPath, "Garo Mask Transform", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.GaroMaskTransform")
+        .Options(CheckboxOptions().Tooltip("Garo mask transforms the player."));
+    AddWidget(masksPath, "Enable Transformation Masks", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.TransformMasks.Enabled")
+        .Options(CheckboxOptions().Tooltip("Deku/Goron/Zora/FD transformation-mask systems.").DefaultValue(true));
+    AddWidget(masksPath, "Instant Transform", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.TransformMasks.InstantTransform")
+        .Options(CheckboxOptions().Tooltip("Skip the transformation cutscene."));
+    AddWidget(masksPath, "Instant Blast Mask", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.BlastMask.Instant")
+        .Options(CheckboxOptions().Tooltip("Blast Mask detonates instantly."));
+    AddWidget(masksPath, "Mute MM Audio", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.SkijerNEI.MuteMmAudio")
+        .Options(CheckboxOptions().Tooltip("Mutes the ported MM sound effects."));
+
+    // --- Boss Remains (wearable masks) ---
+    AddWidget(masksPath, "Boss Remains", WIDGET_SEPARATOR_TEXT);
+    AddWidget(masksPath, "Enable Boss Remains Masks", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.BossRemains.Enabled")
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "The 4 boss remains (Odolwa/Goht/Gyorg/Twinmold) become wearable masks. Equip one to a C or "
+            "D-pad button from the quest page (hover it + C-left/down/right, or a D-pad slot with DpadEquips), "
+            "then press that button in-game to don/doff it on Link's face. While worn, A does a custom action."));
+
+    // (Odolwa sword/shield in-hand placement is tuned + baked in boss_remains.cpp — sliders removed.)
+
+    // (Gyorg whirlpool funnel placement/size is tuned + baked in boss_remains.cpp — temp sliders removed.)
+
+    // --- Spells ---
+    AddSidebarEntry("Skijer's NEI", "Spells", 1);
+    WidgetPath spellsPath = { "Skijer's NEI", "Spells", SECTION_COLUMN_1 };
+    AddWidget(spellsPath, "Spells & Spiritual Stones", WIDGET_SEPARATOR_TEXT);
+    AddWidget(spellsPath, "SW97 Medallion Spells", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.SkijerNEI.SW97Medallions")
+        .Options(CheckboxOptions().Tooltip("Spaceworld '97 medallion spells + elemental arrows (bow wheel) & "
+                                           "elemental slingshot bullets (slingshot wheel)."));
+    AddWidget(spellsPath, "Enable Spiritual Stones", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.SpiritualStones.Enabled")
+        .Options(CheckboxOptions().Tooltip("Spiritual stone items."));
+
+    // --- OoT Quest Status page (kaleido-collect L-flip pass) ---
+    AddWidget(spellsPath, "OoT Quest Page", WIDGET_SEPARATOR_TEXT);
+    AddWidget(spellsPath, "Interact With OoT Quest Page", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.SkijerNEI.QuestPageInteract")
+        .Options(CheckboxOptions()
+                     .DefaultValue(true)
+                     .Tooltip(
+                         "On the pause quest page, press L to flip to OoT's Quest Status layout. While on (the "
+                         "default), a cursor (stick/DPad) lets you EQUIP a medallion to a C button (hover it + "
+                         "C-left/down/right) and toggle a spiritual stone's passive buff (hover it + A)."));
+    // Song A-behavior on the OoT Quest page. By DEFAULT, A on a learned song runs the learn-it
+    // minigame (auto-playback -> reveal notes -> play it yourself). Turn this ON to instead play the
+    // song overworld-style (quick playback + its effect) — requires holding an ocarina.
+    AddWidget(spellsPath, "Songs: Pause Play (skip minigame)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.SkijerNEI.PausePlay")
+        .Options(CheckboxOptions().Tooltip(
+            "On the OoT Quest Status page, if you hold an ocarina (Ocarina of Time or, once added, the "
+            "Fairy Ocarina), pressing A on a learned song plays it overworld-style — a quick playback + "
+            "its effect (the song event is latched for the warp/effect pass) — INSTEAD of the learn-it "
+            "minigame. OFF (default) = the learn-it minigame. Requires 'Interact With OoT Quest Page'."));
+
+    // --- Modes: Broken Modes form selector ---
+    AddSidebarEntry("Skijer's NEI", "Modes", 1);
+    WidgetPath modesPath = { "Skijer's NEI", "Modes", SECTION_COLUMN_1 };
+    AddWidget(modesPath, "Broken Modes", WIDGET_SEPARATOR_TEXT);
+    AddWidget(modesPath, "Enable Broken Modes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gBrokenItems.Enabled")
+        .Options(CheckboxOptions().Tooltip(
+            "Form selector (Link / Mario / Pikachu) on the equipment page's transform sub-page (L cycles)."));
+
+    AddSidebarEntry("Skijer's NEI", "Randomizer", 1);
+    WidgetPath path = { "Skijer's NEI", "Randomizer", SECTION_COLUMN_1 };
+
+    // Fleet Ship Combo: live MM <-> OoT switch (mirrors Ship > Skijer's NEI > Randomizer).
+    // CVar namespace ("isFleetShipCombo[X]"):
+    //   isFleetShipCombo.Enabled - master toggle / launcher bootstrap (see FleetShipCombo.cpp)
+    //   isPlayerIn2Ship          - persistent "where is the player": 1 = Majora's Mask (2ship),
+    //                              0 = Ocarina of Time (Ship). Single source of truth for the
+    //                              active game; also drives auto-start on next launch.
+    // For now this only flips & persists isPlayerIn2Ship. Frente B wires the real seamless
+    // hand-off (pause the inactive game's session + cross-process shared-texture compositing).
+    AddWidget(path, "Fleet Ship Combo (MM <-> OoT)", WIDGET_SEPARATOR_TEXT);
+
+    AddWidget(path, "Enable Fleet Ship Combo", WIDGET_CVAR_CHECKBOX)
+        .CVar("isFleetShipCombo.Enabled")
+        .Options(CheckboxOptions().Tooltip(
+            "Master switch for running OoT (Ship) and MM (2ship) together.\n\n"
+            "RESTART REQUIRED after toggling: the second game is launched at boot.\n"
+            "Place 2ship.exe in a '2ship' folder next to soh.exe (Ship/2ship/2ship.exe)."));
+
+    // Live status so you always know which game you're in (and whether the combo is up).
+    AddWidget(path, "Combo Status", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        int32_t active = FleetShipCombo_GetActiveGame();
+        if (active < 0) {
+            ImGui::TextColored(ImVec4(0.95f, 0.7f, 0.3f, 1.0f), "Combo NOT running (single game).");
+            ImGui::TextWrapped("Enable above + restart, and put 2ship.exe under Ship/2ship/.");
+        } else {
+            ImGui::TextColored(ImVec4(0.6f, 0.9f, 0.6f, 1.0f), "Active game: %s",
+                               active == 1 ? "Majora's Mask (2ship)" : "Ocarina of Time (Ship)");
+        }
+    });
+
+    AddWidget(path, "Switch Active Game", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) {
+            // Use shared memory as the source of truth for the CURRENT active game so
+            // the toggle stays correct no matter which process last switched.
+            int32_t cur = FleetShipCombo_GetActiveGame();
+            if (cur < 0) {
+                // No shared region -> the combo isn't actually running two games.
+                Notification::Emit({
+                    .message = "Combo not running - enable it and restart (need 2ship.exe under Ship/2ship/).",
+                });
+                return;
+            }
+            int32_t next = cur ? 0 : 1; // 1 = MM (2ship), 0 = OoT (Ship)
+            CVarSetInteger("isPlayerIn2Ship", next);
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+            // Publish to shared memory so BOTH processes freeze/unfreeze + show/hide in sync.
+            FleetShipCombo_SetActiveGame(next);
+            FleetShipCombo_SetUiFocus(next); // front window follows the newly-active game
+            Notification::Emit({
+                .message = next ? "Switching to Majora's Mask..." : "Switching to Ocarina of Time...",
+            });
+        })
+        .Options(ButtonOptions().Tooltip(
+            "Toggle the active game between Ocarina of Time and Majora's Mask at any time.\n"
+            "Both games stay loaded and running; the inactive one's session is paused (seamless).\n\n"
+            "Persists 'isPlayerIn2Ship' so the combo remembers which game you're in and can\n"
+            "auto-start there next launch.\n\n"
+            "NOTE: the runtime hand-off (session pause + cross-process compositing) is still\n"
+            "being wired up. For now this just flips and remembers the active game."));
+
+    // The "Back to Ship UI" switch moved to the menu's top tab row (DrawFleetShipComboTabs):
+    // selecting the "Ship of Harkinian" tab parks 2ship off-screen and returns to Ship.
+}
+
 BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name)
     : Menu(consoleVariable, name, 0, UIWidgets::Colors::LightBlue) {
 }
@@ -2134,6 +2649,8 @@ void BenMenu::InitElement() {
     AddSettings();
     AddEnhancements();
     AddDevTools();
+    AddNetwork();
+    AddNEI();
 
     if (CVarGetInteger("gSettings.Menu.SidebarSearch", 0)) {
         InsertSidebarSearch();

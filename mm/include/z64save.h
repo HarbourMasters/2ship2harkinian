@@ -364,6 +364,14 @@ typedef struct DpadSaveInfo {
     u8 dpadSlots[4][4];
 } DpadSaveInfo;
 
+// Extended-button storage — parallels DpadSaveInfo, but holds the u16 REAL item id per
+// [form][button]. Only meaningful where equips.buttonItems[form][button] == ITEM_EXT_BUTTON
+// (the reserved u8 marker in z64item.h); everywhere else this stays 0. Serialized alongside
+// dpadEquips (BenJsonConversions.hpp) and tolerant of old saves (defaults to all-zero).
+typedef struct ExtButtonSaveInfo {
+    u16 items[4][4]; // real (u16) item id per [form][button]; only meaningful where buttonItems==ITEM_EXT_BUTTON
+} ExtButtonSaveInfo;
+
 typedef enum {
     SAVETYPE_VANILLA,
     SAVETYPE_RANDO,
@@ -390,10 +398,14 @@ typedef struct RandoSaveInfo {
     u16 foundTriforcePieces;
 } RandoSaveInfo;
 
+#include "mods/nei_save.h" // Skijer's NEI — embedded per-save custom state (NeiSaveData)
+#include "mods/spiritual_stones/spiritual_stones_save.h" // Spiritual Stones — embedded per-save state (SpiritualStonesSaveData)
+
 // These are values added by 2S2H that we need to be persisted to the save file
 // See `ShipSaveContext` for values on the SaveContext that aren't persisted.
 typedef struct ShipSaveInfo {
     DpadSaveInfo dpadEquips;
+    ExtButtonSaveInfo extButtons; // real u16 ids for buttons marked ITEM_EXT_BUTTON (extended-button infra)
     s32 pauseSaveEntrance;
     SaveType saveType;
     uint64_t fileCreatedAt;
@@ -403,6 +415,8 @@ typedef struct ShipSaveInfo {
     char commitHash[8];
     RandoSaveInfo rando;
     u8 bombArrowsEquipped;
+    NeiSaveData nei; // Skijer's NEI custom-item / ext-equip / bottle / wheel state
+    SpiritualStonesSaveData spiritualStones; // Spiritual Stones passive + per-stone warp state
 } ShipSaveInfo;
 // #endregion
 
@@ -656,6 +670,9 @@ typedef enum {
 #define DPAD_BUTTON(btn) (btn) // Translates between equip slot enum and button, in case we change how enum works
 
 #define DPAD_BUTTON_ITEM_EQUIP(form, btn) (gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[form][DPAD_BUTTON(btn)])
+
+// Extended-button real (u16) id for a [form][btn] slot marked ITEM_EXT_BUTTON in buttonItems.
+#define EXT_BUTTON_ITEM(form, btn) (gSaveContext.save.shipSaveInfo.extButtons.items[form][btn])
 #define DPAD_CUR_FORM_EQUIP(btn) BUTTON_ITEM_EQUIP(CUR_FORM, DPAD_BUTTON(btn)) // Unused
 
 #define DPAD_SLOT_EQUIP(form, btn) (gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[form][DPAD_BUTTON(btn)])

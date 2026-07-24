@@ -114,6 +114,8 @@ AnimatedMaterial* ResourceMgr_LoadAnimatedMatByName(const char* path);
 char* ResourceMgr_LoadTexOrDListByName(const char* filePath);
 char* ResourceMgr_LoadIfDListByName(const char* filePath);
 char* ResourceMgr_LoadPlayerAnimByName(const char* animPath);
+// Wraps a raw SOH_PlayerAnimation payload in a real header (cached). Skijer's NEI
+PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeader(const char* animPath);
 AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
 char* ResourceMgr_GetNameByCRC(uint64_t crc, char* alloc);
 Gfx* ResourceMgr_LoadGfxByCRC(uint64_t crc);

@@ -23,6 +23,76 @@ static const ALIGN_ASSET(2) char gTriforcePieceTex[] = dgTriforcePiece;
 #define dgFlippers "__OTR__textures/parameter_static/gFlippers"
 static const ALIGN_ASSET(2) char gFlippersTex[] = dgFlippers;
 
+// SM64 Mario Mode icons (copied from Shipwright/soh/assets/custom/textures/icon_item_custom/).
+// Used by the C-Down slot when gSm64MarioMaskForce is on (Mario Mask) and by
+// the D-pad slot icon overlays when gSm64Mario is on (Wing/Metal/Vanish caps).
+#define dgItemIconMarioMaskTex "__OTR__textures/icon_item_custom/gItemIconMarioMaskTex"
+static const ALIGN_ASSET(2) char gItemIconMarioMaskTex[] = dgItemIconMarioMaskTex;
+
+#define dgItemIconWingCapTex "__OTR__textures/icon_item_custom/gItemIconWingCapTex"
+static const ALIGN_ASSET(2) char gItemIconWingCapTex[] = dgItemIconWingCapTex;
+
+#define dgItemIconMetalCapTex "__OTR__textures/icon_item_custom/gItemIconMetalCapTex"
+static const ALIGN_ASSET(2) char gItemIconMetalCapTex[] = dgItemIconMetalCapTex;
+
+#define dgItemIconVanishCapTex "__OTR__textures/icon_item_custom/gItemIconVanishCapTex"
+static const ALIGN_ASSET(2) char gItemIconVanishCapTex[] = dgItemIconVanishCapTex;
+
+// ─── Skijer's NEI custom item icons (from mm/assets/custom/textures/icon_item_custom/).
+// Used as OTR-path char[] by sNeiItems[].icon in extended_player.c / extended_inventory.c.
+#define dgItemIconRocsFeatherTex "__OTR__textures/icon_item_custom/gItemIconRocsFeatherTex"
+static const ALIGN_ASSET(2) char gItemIconRocsFeatherTex[] = dgItemIconRocsFeatherTex;
+#define dgItemIconRocsCapeTex "__OTR__textures/icon_item_custom/gItemIconRocsCapeTex"
+static const ALIGN_ASSET(2) char gItemIconRocsCapeTex[] = dgItemIconRocsCapeTex;
+#define dgItemIconDesireSensorTex "__OTR__textures/icon_item_custom/gItemIconDesireSensorTex"
+static const ALIGN_ASSET(2) char gItemIconDesireSensorTex[] = dgItemIconDesireSensorTex;
+#define dgItemIconHyliaGraceTex "__OTR__textures/icon_item_custom/gItemIconHyliaGraceTex"
+static const ALIGN_ASSET(2) char gItemIconHyliaGraceTex[] = dgItemIconHyliaGraceTex;
+#define dgItemIconZonaiPermafrostTex "__OTR__textures/icon_item_custom/gItemIconZonaiPermafrostTex"
+static const ALIGN_ASSET(2) char gItemIconZonaiPermafrostTex[] = dgItemIconZonaiPermafrostTex;
+#define dgItemIconDemiseDestructionTex "__OTR__textures/icon_item_custom/gItemIconDemiseDestructionTex"
+static const ALIGN_ASSET(2) char gItemIconDemiseDestructionTex[] = dgItemIconDemiseDestructionTex;
+#define dgItemIconDekuLeafTex "__OTR__textures/icon_item_custom/gItemIconDekuLeafTex"
+static const ALIGN_ASSET(2) char gItemIconDekuLeafTex[] = dgItemIconDekuLeafTex;
+#define dgItemIconSwitchHookTex "__OTR__textures/icon_item_custom/gItemIconSwitchHookTex"
+static const ALIGN_ASSET(2) char gItemIconSwitchHookTex[] = dgItemIconSwitchHookTex;
+#define dgItemIconMogmaMittsTex "__OTR__textures/icon_item_custom/gItemIconMogmaMittsTex"
+static const ALIGN_ASSET(2) char gItemIconMogmaMittsTex[] = dgItemIconMogmaMittsTex;
+#define dgItemIconGustJarTex "__OTR__textures/icon_item_custom/gItemIconGustJarTex"
+static const ALIGN_ASSET(2) char gItemIconGustJarTex[] = dgItemIconGustJarTex;
+#define dgItemIconBallAndChainTex "__OTR__textures/icon_item_custom/gItemIconBallAndChainTex"
+static const ALIGN_ASSET(2) char gItemIconBallAndChainTex[] = dgItemIconBallAndChainTex;
+#define dgItemIconWhipTex "__OTR__textures/icon_item_custom/gItemIconWhipTex"
+static const ALIGN_ASSET(2) char gItemIconWhipTex[] = dgItemIconWhipTex;
+#define dgItemIconSpinnerTex "__OTR__textures/icon_item_custom/gItemIconSpinnerTex"
+static const ALIGN_ASSET(2) char gItemIconSpinnerTex[] = dgItemIconSpinnerTex;
+#define dgItemIconCaneOfSomariaTex "__OTR__textures/icon_item_custom/gItemIconCaneOfSomariaTex"
+static const ALIGN_ASSET(2) char gItemIconCaneOfSomariaTex[] = dgItemIconCaneOfSomariaTex;
+#define dgItemIconDominionRodTex "__OTR__textures/icon_item_custom/gItemIconDominionRodTex"
+static const ALIGN_ASSET(2) char gItemIconDominionRodTex[] = dgItemIconDominionRodTex;
+#define dgItemIconTimeGateTex "__OTR__textures/icon_item_custom/gItemIconTimeGateTex"
+static const ALIGN_ASSET(2) char gItemIconTimeGateTex[] = dgItemIconTimeGateTex;
+#define dgItemIconBombArrowsTex "__OTR__textures/icon_item_custom/gItemIconBombArrowsTex"
+static const ALIGN_ASSET(2) char gItemIconBombArrowsTex[] = dgItemIconBombArrowsTex;
+#define dgItemIconFireRodTex "__OTR__textures/icon_item_custom/gItemIconFireRodTex"
+static const ALIGN_ASSET(2) char gItemIconFireRodTex[] = dgItemIconFireRodTex;
+#define dgItemIconIceRodTex "__OTR__textures/icon_item_custom/gItemIconIceRodTex"
+static const ALIGN_ASSET(2) char gItemIconIceRodTex[] = dgItemIconIceRodTex;
+#define dgItemIconLightRodTex "__OTR__textures/icon_item_custom/gItemIconLightRodTex"
+static const ALIGN_ASSET(2) char gItemIconLightRodTex[] = dgItemIconLightRodTex;
+#define dgItemIconBeetleTex "__OTR__textures/icon_item_custom/gItemIconBeetleTex"
+static const ALIGN_ASSET(2) char gItemIconBeetleTex[] = dgItemIconBeetleTex;
+#define dgItemIconShovelTex "__OTR__textures/icon_item_custom/gItemIconShovelTex"
+static const ALIGN_ASSET(2) char gItemIconShovelTex[] = dgItemIconShovelTex;
+#define dgItemIconMinishCapTex "__OTR__textures/icon_item_custom/gItemIconMinishCapTex"
+static const ALIGN_ASSET(2) char gItemIconMinishCapTex[] = dgItemIconMinishCapTex;
+#define dgItemIconPokeballTex "__OTR__textures/icon_item_custom/gItemIconPokeballTex"
+static const ALIGN_ASSET(2) char gItemIconPokeballTex[] = dgItemIconPokeballTex;
+#define dgItemIconNetTex "__OTR__textures/icon_item_custom/gItemIconNetTex"
+static const ALIGN_ASSET(2) char gItemIconNetTex[] = dgItemIconNetTex;
+#define dgItemIconBottomlessBottleTex "__OTR__textures/icon_item_custom/gItemIconBottomlessBottleTex"
+static const ALIGN_ASSET(2) char gItemIconBottomlessBottleTex[] = dgItemIconBottomlessBottleTex;
+
 #define dgThreeDayClockHour13Tex "__OTR__textures/parameter_static/gThreeDayClockHour13Tex"
 static const ALIGN_ASSET(2) char gThreeDayClockHour13Tex[] = dgThreeDayClockHour13Tex;
 
@@ -406,3 +476,106 @@ static const ALIGN_ASSET(2) char gOcarinaCRightButtonDL[] = dgOcarinaCRightButto
 
 #define dgOcarinaCUpButtonDL "__OTR__objects/object_ocarina_c_up_button/gOcarinaCUpButtonDL"
 static const ALIGN_ASSET(2) char gOcarinaCUpButtonDL[] = dgOcarinaCUpButtonDL;
+
+// ─── NEI item icons/names ported from Shipwright soh_assets.h (Skijer's NEI) ───
+#define dgBallAndChainNameTex "__OTR__textures/item_name_custom/gBallAndChainNameTex"
+static const ALIGN_ASSET(2) char gBallAndChainNameTex[] = dgBallAndChainNameTex;
+// Skijer's NEI: custom ocarina song name-box textures (OoT quest page).
+#define dgFugueOfHomeNameTex "__OTR__textures/item_name_custom/gFugueOfHomeNameTex"
+static const ALIGN_ASSET(2) char gFugueOfHomeNameTex[] = dgFugueOfHomeNameTex;
+#define dgCommandMelodyNameTex "__OTR__textures/item_name_custom/gCommandMelodyNameTex"
+static const ALIGN_ASSET(2) char gCommandMelodyNameTex[] = dgCommandMelodyNameTex;
+#define dgBalladOfHeroNameTex "__OTR__textures/item_name_custom/gBalladOfHeroNameTex"
+static const ALIGN_ASSET(2) char gBalladOfHeroNameTex[] = dgBalladOfHeroNameTex;
+#define dgBeetleNameTex "__OTR__textures/item_name_custom/gBeetleNameTex"
+static const ALIGN_ASSET(2) char gBeetleNameTex[] = dgBeetleNameTex;
+#define dgBombArrowsNameTex "__OTR__textures/item_name_custom/gBombArrowsNameTex"
+static const ALIGN_ASSET(2) char gBombArrowsNameTex[] = dgBombArrowsNameTex;
+#define dgBottomlessBottleNameTex "__OTR__textures/item_name_custom/gBottomlessBottleNameTex"
+static const ALIGN_ASSET(2) char gBottomlessBottleNameTex[] = dgBottomlessBottleNameTex;
+#define dgCaneOfSomariaNameTex "__OTR__textures/item_name_custom/gCaneOfSomariaNameTex"
+static const ALIGN_ASSET(2) char gCaneOfSomariaNameTex[] = dgCaneOfSomariaNameTex;
+#define dgDekuLeafNameTex "__OTR__textures/item_name_custom/gDekuLeafNameTex"
+static const ALIGN_ASSET(2) char gDekuLeafNameTex[] = dgDekuLeafNameTex;
+#define dgDemiseDestructionNameTex "__OTR__textures/item_name_custom/gDemiseDestructionNameTex"
+static const ALIGN_ASSET(2) char gDemiseDestructionNameTex[] = dgDemiseDestructionNameTex;
+#define dgDesireSensorNameTex "__OTR__textures/item_name_custom/gDesireSensorNameTex"
+static const ALIGN_ASSET(2) char gDesireSensorNameTex[] = dgDesireSensorNameTex;
+#define dgDominionRodNameTex "__OTR__textures/item_name_custom/gDominionRodNameTex"
+static const ALIGN_ASSET(2) char gDominionRodNameTex[] = dgDominionRodNameTex;
+#define dgFireRodNameTex "__OTR__textures/item_name_custom/gFireRodNameTex"
+static const ALIGN_ASSET(2) char gFireRodNameTex[] = dgFireRodNameTex;
+#define dgGustJarNameTex "__OTR__textures/item_name_custom/gGustJarNameTex"
+static const ALIGN_ASSET(2) char gGustJarNameTex[] = dgGustJarNameTex;
+#define dgHyliaGraceNameTex "__OTR__textures/item_name_custom/gHyliaGraceNameTex"
+static const ALIGN_ASSET(2) char gHyliaGraceNameTex[] = dgHyliaGraceNameTex;
+#define dgIceRodNameTex "__OTR__textures/item_name_custom/gIceRodNameTex"
+static const ALIGN_ASSET(2) char gIceRodNameTex[] = dgIceRodNameTex;
+#define dgItemIconClawshotTex "__OTR__textures/icon_item_custom/gItemIconClawshotTex"
+static const ALIGN_ASSET(2) char gItemIconClawshotTex[] = dgItemIconClawshotTex;
+#define dgItemIconDrillshaftTex "__OTR__textures/icon_item_custom/gItemIconDrillshaftTex"
+static const ALIGN_ASSET(2) char gItemIconDrillshaftTex[] = dgItemIconDrillshaftTex;
+#define dgItemIconFireFlowerTex "__OTR__textures/icon_item_custom/gItemIconFireFlowerTex"
+static const ALIGN_ASSET(2) char gItemIconFireFlowerTex[] = dgItemIconFireFlowerTex;
+#define dgItemIconGaleBoomerangTex "__OTR__textures/icon_item_custom/gItemIconGaleBoomerangTex"
+static const ALIGN_ASSET(2) char gItemIconGaleBoomerangTex[] = dgItemIconGaleBoomerangTex;
+#define dgItemIconLanternBlueTex "__OTR__textures/icon_item_custom/gItemIconLanternBlueTex"
+static const ALIGN_ASSET(2) char gItemIconLanternBlueTex[] = dgItemIconLanternBlueTex;
+#define dgItemIconLanternFireTex "__OTR__textures/icon_item_custom/gItemIconLanternFireTex"
+static const ALIGN_ASSET(2) char gItemIconLanternFireTex[] = dgItemIconLanternFireTex;
+#define dgItemIconLanternGreenTex "__OTR__textures/icon_item_custom/gItemIconLanternGreenTex"
+static const ALIGN_ASSET(2) char gItemIconLanternGreenTex[] = dgItemIconLanternGreenTex;
+#define dgItemIconLanternPoeTex "__OTR__textures/icon_item_custom/gItemIconLanternPoeTex"
+static const ALIGN_ASSET(2) char gItemIconLanternPoeTex[] = dgItemIconLanternPoeTex;
+#define dgItemIconLanternTex "__OTR__textures/icon_item_custom/gItemIconLanternTex"
+static const ALIGN_ASSET(2) char gItemIconLanternTex[] = dgItemIconLanternTex;
+#define dgItemIconPropHuntChangeTex "__OTR__textures/icon_item_custom/gItemIconPropHuntChangeTex"
+static const ALIGN_ASSET(2) char gItemIconPropHuntChangeTex[] = dgItemIconPropHuntChangeTex;
+#define dgItemIconPropHuntEnemyTex  "__OTR__textures/icon_item_custom/gItemIconPropHuntEnemyTex"
+#define dgItemIconPropHuntNextTex   "__OTR__textures/icon_item_custom/gItemIconPropHuntNextTex"
+#define dgItemIconPropHuntNpcTex    "__OTR__textures/icon_item_custom/gItemIconPropHuntNpcTex"
+#define dgItemIconPropHuntPotTex    "__OTR__textures/icon_item_custom/gItemIconPropHuntPotTex"
+#define dgItemIconPropHuntPrevTex   "__OTR__textures/icon_item_custom/gItemIconPropHuntPrevTex"
+#define dgLanternNameTex "__OTR__textures/item_name_custom/gLanternNameTex"
+static const ALIGN_ASSET(2) char gLanternNameTex[] = dgLanternNameTex;
+#define dgLightRodNameTex "__OTR__textures/item_name_custom/gLightRodNameTex"
+static const ALIGN_ASSET(2) char gLightRodNameTex[] = dgLightRodNameTex;
+#define dgMinishCapNameTex "__OTR__textures/item_name_custom/gMinishCapNameTex"
+static const ALIGN_ASSET(2) char gMinishCapNameTex[] = dgMinishCapNameTex;
+#define dgMogmaMittsNameTex "__OTR__textures/item_name_custom/gMogmaMittsNameTex"
+static const ALIGN_ASSET(2) char gMogmaMittsNameTex[] = dgMogmaMittsNameTex;
+#define dgNetNameTex "__OTR__textures/item_name_custom/gNetNameTex"
+static const ALIGN_ASSET(2) char gNetNameTex[] = dgNetNameTex;
+#define dgPokeballNameTex "__OTR__textures/item_name_custom/gPokeballNameTex"
+static const ALIGN_ASSET(2) char gPokeballNameTex[] = dgPokeballNameTex;
+#define dgRocsCapeNameTex "__OTR__textures/item_name_custom/gRocsCapeNameTex"
+static const ALIGN_ASSET(2) char gRocsCapeNameTex[] = dgRocsCapeNameTex;
+#define dgRocsFeatherNameTex "__OTR__textures/item_name_custom/gRocsFeatherNameTex"
+static const ALIGN_ASSET(2) char gRocsFeatherNameTex[] = dgRocsFeatherNameTex;
+#define dgShovelNameTex "__OTR__textures/item_name_custom/gShovelNameTex"
+static const ALIGN_ASSET(2) char gShovelNameTex[] = dgShovelNameTex;
+#define dgSpinnerNameTex "__OTR__textures/item_name_custom/gSpinnerNameTex"
+static const ALIGN_ASSET(2) char gSpinnerNameTex[] = dgSpinnerNameTex;
+#define dgSwitchHookNameTex "__OTR__textures/item_name_custom/gSwitchHookNameTex"
+static const ALIGN_ASSET(2) char gSwitchHookNameTex[] = dgSwitchHookNameTex;
+// Skijer's NEI hookshot overhaul: Clawshot (MM-native hookshot renamed) + Ultrashot (Longshot L3).
+#define dgClawshotNameTex "__OTR__textures/item_name_custom/gClawshotNameTex"
+static const ALIGN_ASSET(2) char gClawshotNameTex[] = dgClawshotNameTex;
+#define dgUltrashotNameTex "__OTR__textures/item_name_custom/gUltrashotNameTex"
+static const ALIGN_ASSET(2) char gUltrashotNameTex[] = dgUltrashotNameTex;
+#define dgTimeGateNameTex "__OTR__textures/item_name_custom/gTimeGateNameTex"
+static const ALIGN_ASSET(2) char gTimeGateNameTex[] = dgTimeGateNameTex;
+#define dgWhipNameTex "__OTR__textures/item_name_custom/gWhipNameTex"
+static const ALIGN_ASSET(2) char gWhipNameTex[] = dgWhipNameTex;
+#define dgZonaiPermafrostNameTex "__OTR__textures/item_name_custom/gZonaiPermafrostNameTex"
+static const ALIGN_ASSET(2) char gZonaiPermafrostNameTex[] = dgZonaiPermafrostNameTex;
+#define dgItemIconPropHuntEnemyTex  "__OTR__textures/icon_item_custom/gItemIconPropHuntEnemyTex"
+static const ALIGN_ASSET(2) char gItemIconPropHuntEnemyTex[]  = dgItemIconPropHuntEnemyTex;
+#define dgItemIconPropHuntNextTex   "__OTR__textures/icon_item_custom/gItemIconPropHuntNextTex"
+static const ALIGN_ASSET(2) char gItemIconPropHuntNextTex[]   = dgItemIconPropHuntNextTex;
+#define dgItemIconPropHuntNpcTex    "__OTR__textures/icon_item_custom/gItemIconPropHuntNpcTex"
+static const ALIGN_ASSET(2) char gItemIconPropHuntNpcTex[]    = dgItemIconPropHuntNpcTex;
+#define dgItemIconPropHuntPotTex    "__OTR__textures/icon_item_custom/gItemIconPropHuntPotTex"
+static const ALIGN_ASSET(2) char gItemIconPropHuntPotTex[]    = dgItemIconPropHuntPotTex;
+#define dgItemIconPropHuntPrevTex   "__OTR__textures/icon_item_custom/gItemIconPropHuntPrevTex"
+static const ALIGN_ASSET(2) char gItemIconPropHuntPrevTex[]   = dgItemIconPropHuntPrevTex;

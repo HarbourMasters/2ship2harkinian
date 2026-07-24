@@ -104,15 +104,24 @@ void EnWaterEffect_Init(Actor* thisx, PlayState* play) {
                (this->actor.params == ENWATEREFFECT_TYPE_GYORG_SHOCKWAVE)) {
         this->actor.update = func_80A5A534;
         this->actor.draw = func_80A5A6B8;
-        this->actor.shape.rot.y = Rand_ZeroFloat(0x10000);
+        // Boss Remains (Gyorg mask whirlpool): a caller that spawns this with a NONZERO rot.x is AIMING
+        // the funnel (rot.x tips the normally-vertical spout, rot.y turns it) so it reads as a spout
+        // fired out of the worn mask's mouth. Keep that orientation instead of the vanilla random spin;
+        // vanilla Gyorg always spawns with rot.x == 0, so it still gets its random yaw.
+        if (this->actor.shape.rot.x == 0) {
+            this->actor.shape.rot.y = Rand_ZeroFloat(0x10000);
+        }
         Actor_SetScale(&this->actor, this->actor.shape.rot.z * 0.0002f);
 
         if (this->actor.params == ENWATEREFFECT_TYPE_GYORG_RIPPLES) {
+            // Pass the aim (rot.x/rot.y) down: the two spray funnels ARE the big visible cones, so they
+            // have to inherit the orientation or only the ripple ring would be aimed.
             Actor_Spawn(&play->actorCtx, play, ACTOR_EN_WATER_EFFECT, this->actor.world.pos.x, this->actor.world.pos.y,
-                        this->actor.world.pos.z, 0, 0, this->actor.shape.rot.z, ENWATEREFFECT_TYPE_GYORG_PRIMARY_SPRAY);
+                        this->actor.world.pos.z, this->actor.shape.rot.x, this->actor.shape.rot.y,
+                        this->actor.shape.rot.z, ENWATEREFFECT_TYPE_GYORG_PRIMARY_SPRAY);
             Actor_Spawn(&play->actorCtx, play, ACTOR_EN_WATER_EFFECT, this->actor.world.pos.x, this->actor.world.pos.y,
-                        this->actor.world.pos.z, 0, 0, this->actor.shape.rot.z,
-                        ENWATEREFFECT_TYPE_GYORG_SECONDARY_SPRAY);
+                        this->actor.world.pos.z, this->actor.shape.rot.x, this->actor.shape.rot.y,
+                        this->actor.shape.rot.z, ENWATEREFFECT_TYPE_GYORG_SECONDARY_SPRAY);
         } else if (this->actor.params == ENWATEREFFECT_TYPE_GYORG_PRIMARY_SPRAY) {
             this->unk_DC4 = -3;
         } else if (this->actor.params == ENWATEREFFECT_TYPE_GYORG_SECONDARY_SPRAY) {
@@ -628,6 +637,9 @@ void func_80A5A6B8(Actor* thisx, PlayState* play2) {
 
     Matrix_Translate(this->actor.world.pos.x, this->actor.world.pos.y, this->actor.world.pos.z, MTXMODE_NEW);
     Matrix_RotateYS(this->actor.shape.rot.y, MTXMODE_APPLY);
+    // Boss Remains (Gyorg mask whirlpool): honor rot.x so the funnel can be tipped out of the vertical
+    // (see EnWaterEffect_Init). Vanilla Gyorg spawns leave rot.x == 0, so this is a no-op for them.
+    Matrix_RotateXS(this->actor.shape.rot.x, MTXMODE_APPLY);
     Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
     Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 

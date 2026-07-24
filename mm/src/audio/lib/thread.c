@@ -7,6 +7,12 @@
 #include "audio/effects.h"
 #include "audio/load.h"
 
+// SM64 Mario audio: libsm64's generated PCM (produced by sm64_audio_tick on
+// the game thread, queued in a ring buffer, drained here on the audio
+// thread). Stub returns a no-op until phase 2 wires the real implementation
+// in sm64_mario.c — safe to call unconditionally.
+extern void Sm64Audio_MixInto(int16_t* outBuf, uint32_t numSamples);
+
 AudioTask* AudioThread_UpdateImpl(void);
 void AudioThread_SetFadeOutTimer(s32 seqPlayerIndex, s32 fadeTimer);
 void AudioThread_SetFadeInTimer(s32 seqPlayerIndex, s32 fadeTimer);
@@ -65,6 +71,9 @@ void AudioMgr_CreateNextAudioBuffer(s16* samples, u32 num_samples) {
     }
     s32 writtenCmds;
     AudioSynth_Update(gAudioCtx.curAbiCmdBuf, &writtenCmds, samples, num_samples);
+    // Mix libsm64 Mario audio (jumps, punches, coins, death, etc.) on top
+    // of the synth output. No-op while gSm64Mario is off.
+    Sm64Audio_MixInto(samples, num_samples);
     gAudioCtx.audioRandom = (gAudioCtx.audioRandom + gAudioCtx.totalTaskCount) * osGetCount();
 }
 

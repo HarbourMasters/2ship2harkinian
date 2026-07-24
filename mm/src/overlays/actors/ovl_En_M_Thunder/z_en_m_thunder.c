@@ -131,9 +131,14 @@ void EnMThunder_Init(Actor* thisx, PlayState* play) {
     this->isCharging = false;
 
     if (player->stateFlags2 & PLAYER_STATE2_20000) {
-        if (!gSaveContext.save.saveInfo.playerData.isMagicAcquired || (gSaveContext.magicState != MAGIC_STATE_IDLE) ||
-            ((ENMTHUNDER_GET_MAGIC_COST(&this->actor) != 0) &&
-             !Magic_Consume(play, ENMTHUNDER_GET_MAGIC_COST(&this->actor), MAGIC_CONSUME_NOW))) {
+        // Skijer's NEI: the free OoT Master Sword full-HP beam bypasses the magic-acquired /
+        // magic-state self-kill gate (it costs no magic and needs no magic meter). z_player.c sets
+        // gNeiMasterBeamFree true for exactly this spawn.
+        extern u8 gNeiMasterBeamFree;
+        if (!gNeiMasterBeamFree &&
+            (!gSaveContext.save.saveInfo.playerData.isMagicAcquired || (gSaveContext.magicState != MAGIC_STATE_IDLE) ||
+             ((ENMTHUNDER_GET_MAGIC_COST(&this->actor) != 0) &&
+              !Magic_Consume(play, ENMTHUNDER_GET_MAGIC_COST(&this->actor), MAGIC_CONSUME_NOW)))) {
             AudioSfx_PlaySfx(NA_SE_IT_ROLLING_CUT, &player->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale,
                              &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
             AudioSfx_PlaySfx(NA_SE_IT_SWORD_SWING_HARD, &player->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale,

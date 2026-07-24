@@ -28,9 +28,39 @@ typedef enum OcarinaSongId {
     /* 21 */ OCARINA_SONG_ZELDAS_LULLABY,
     /* 22 */ OCARINA_SONG_SCARECROW_SPAWN,
     /* 23 */ OCARINA_SONG_TERMINA_WALL,
-    /* 24 */ OCARINA_SONG_MAX,
-    /* 24 */ OCARINA_SONG_SCARECROW_LONG = OCARINA_SONG_MAX // anything larger than 24 is considered the long scarecrow's song
+    // Skijer's NEI: dedicated slots for the OoT warp songs so the OoT quest page plays + song-checks
+    // them through MM's real ocarina machinery — no slot reuse, nothing repeated. Room for more custom
+    // songs after these. NOTE: any code that treats the ocarina-song array as fixed-24 must use
+    // OCARINA_SONG_MAX (it now == 30), and the play-check reset loop in AudioOcarina_Start covers them.
+    /* 24 */ OCARINA_SONG_OOT_MINUET,
+    /* 25 */ OCARINA_SONG_OOT_BOLERO,
+    /* 26 */ OCARINA_SONG_OOT_SERENADE,
+    /* 27 */ OCARINA_SONG_OOT_REQUIEM,
+    /* 28 */ OCARINA_SONG_OOT_NOCTURNE,
+    /* 29 */ OCARINA_SONG_OOT_PRELUDE,
+    // Skijer's NEI: the 3 CUSTOM songs. They replace the 3 truly-doubled songs on the OoT quest page
+    // (Epona's/Song of Time/Song of Storms rows — MM already provides those natively). These slots are
+    // BEYOND the 30-bit song-flag bitmask (bits 30-31 are mode flags; bit 32 doesn't exist), so they
+    // are NEVER given bitmask bits: the vanilla recognition loops are clamped to < OCARINA_SONG_NEI_CUSTOM_FIRST
+    // and a SIDE recognition path (gNeiCustomSongsAvailable in code_8019AF00.c) handles hand-play.
+    // Playback (SetPlaybackSong / the pause quest page) works normally — it's index-, not bit-, based.
+    /* 30 */ OCARINA_SONG_NEI_FUGUE_OF_HOME,  // warp song (like Soaring) — effect later
+    /* 31 */ OCARINA_SONG_NEI_COMMAND_MELODY, // change-character song — effect later
+    /* 32 */ OCARINA_SONG_NEI_BALLAD_OF_HERO, // zone-dependent (like Lullaby) — effect later
+    /* 33 */ OCARINA_SONG_MAX,
+    /* 33 */ OCARINA_SONG_SCARECROW_LONG = OCARINA_SONG_MAX // anything larger than MAX is the long scarecrow's song
 } OcarinaSongId;
+
+#define OCARINA_SONG_NEI_CUSTOM_FIRST OCARINA_SONG_NEI_FUGUE_OF_HOME
+#define OCARINA_SONG_NEI_CUSTOM_LAST OCARINA_SONG_NEI_BALLAD_OF_HERO
+
+// Side availability mask for the custom songs (bit 0 = Fugue, 1 = Command, 2 = Ballad) — set by the
+// free-play staff open (NEI ownership) / the quest-page prompt; read by the side recognition loop.
+extern u8 gNeiCustomSongsAvailable;
+
+// First / last OoT warp-song slot (contiguous), for the reset loop + the quest page's mapping.
+#define OCARINA_SONG_OOT_WARP_FIRST OCARINA_SONG_OOT_MINUET
+#define OCARINA_SONG_OOT_WARP_LAST OCARINA_SONG_OOT_PRELUDE
 
 typedef enum OcarinaSongActionId {
     /* 0x00 */ OCARINA_ACTION_0, // acts like free play but never set
@@ -277,6 +307,9 @@ void AudioOcarina_ResetAndReadInput(void);
 void AudioOcarina_SetOcarinaDisableTimer(u8 unused, u8 timer);
 void AudioOcarina_SetInstrument(u8 ocarinaInstrumentId);
 void AudioOcarina_SetPlaybackSong(s8 songIndexPlusOne, u8 playbackState);
+void AudioOcarina_PlayCustomSong(OcarinaNote* song); // Skijer's NEI: play an arbitrary note sequence (OoT songs)
+void AudioOcarina_ForceSongPlayed(u8 songIndex);     // Skijer's NEI: mark a song as just-played (native effect flow)
+void NeiAudio_PlayOotSongFanfare(u8 songIndex);      // Skijer's NEI: MOD WINDOW — full/streamed song arrangement (default no-op)
 void AudioOcarina_SetRecordingState(u8 recordingState);
 OcarinaStaff* AudioOcarina_GetRecordingStaff(void);
 OcarinaStaff* AudioOcarina_GetPlayingStaff(void);

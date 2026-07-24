@@ -12,6 +12,10 @@
 extern "C" {
 #include "functions.h"
 #include "variables.h"
+// NEI extended-equipment ownership (mods/extended_equipment.c). Used by the weapon/shield logic so a
+// cross-game item stored as extended equipment (Four Sword, ext shields) is seen as "a sword/shield"
+// by the combo reachability oracle. Reads gSaveContext.save.shipSaveInfo.nei.extEquipOwnedBits.
+unsigned char ExtEquip_HasItem(short equipType, unsigned char index);
 }
 
 namespace Rando {
@@ -186,11 +190,23 @@ void ValidateRegionTimeOwnership(RandoRegionId regionId, RandoCheckId checkId, u
 #define HAS_MAGIC (gSaveContext.save.saveInfo.playerData.isMagicAcquired)
 #define CAN_HOOK_SCARECROW \
     (HAS_ITEM(ITEM_OCARINA_OF_TIME) && HAS_ITEM(ITEM_HOOKSHOT) && canPlaySong(OCARINA_SONG_SCARECROW_SPAWN))
+// Any equipped shield the combo can grant — the native equip nibble (Hero/Mirror) OR an NEI
+// extended-equipment shield (Divine = ext slot 1, Sheikah/Kite = ext slot 2), which the combo can
+// place from OoT but which never touch the native nibble. Only the "any shield" gate uses this;
+// the Mirror-shield-specific light puzzles keep their explicit `>= EQUIP_VALUE_SHIELD_MIRROR`.
+#define HAS_ANY_SHIELD                                        \
+    (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) > EQUIP_VALUE_SHIELD_NONE || ExtEquip_HasItem(EQUIP_TYPE_SHIELD, 1) || \
+     ExtEquip_HasItem(EQUIP_TYPE_SHIELD, 2))
 #define CAN_USE_EXPLOSIVE                             \
-    (HAS_ITEM(ITEM_BOMB) || HAS_ITEM(ITEM_BOMBCHU) || \
-     (HAS_ITEM(ITEM_MASK_BLAST) && GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) > EQUIP_VALUE_SHIELD_NONE))
+    (HAS_ITEM(ITEM_BOMB) || HAS_ITEM(ITEM_BOMBCHU) || (HAS_ITEM(ITEM_MASK_BLAST) && HAS_ANY_SHIELD))
 #define CAN_USE_HUMAN_SWORD (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) >= EQUIP_VALUE_SWORD_KOKIRI)
-#define CAN_USE_SWORD (CAN_USE_HUMAN_SWORD || HAS_ITEM(ITEM_SWORD_GREAT_FAIRY) || CAN_BE_DEITY)
+// A usable melee sword from ANY source the combo can grant: native equipped sword (Kokiri/Razor/
+// Gilded), Great Fairy's Sword, Fierce Deity form, or the NEI extended Four Sword (ext sword slot 2).
+// The combo places OoT/ext swords into MM, and without this the reachability oracle wouldn't count
+// them as "a sword". (Cane of Byrna, ext sword slot 1, is a protective barrier, not a melee weapon —
+// deliberately NOT counted here.)
+#define CAN_USE_EXT_SWORD (ExtEquip_HasItem(EQUIP_TYPE_SWORD, 2))
+#define CAN_USE_SWORD (CAN_USE_HUMAN_SWORD || HAS_ITEM(ITEM_SWORD_GREAT_FAIRY) || CAN_BE_DEITY || CAN_USE_EXT_SWORD)
 // Be careful here, as some checks require you to play the song as a specific form
 #define CAN_PLAY_SONG(song)                                                   \
     (HAS_ITEM(ITEM_OCARINA_OF_TIME) && CHECK_QUEST_ITEM(QUEST_SONG_##song) && \

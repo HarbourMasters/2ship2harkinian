@@ -1,0 +1,121 @@
+# Randomizer (cooperative) — players share save flags, items, dungeon keys.
+#
+# Anchor-style coop where progression syncs across the party. PvP is off;
+# SAVE.* and INVENTORY.* flow freely.
+
+gamemode_id: randomizer
+name: "Randomizer Coop"
+version: "1.0.0"
+description: "Shared randomizer save. Items, flags, keys, entrances all sync."
+author: "Anchor / Harpoon"
+license: "MIT"
+
+min_players: 1
+max_players: 8
+recommended_players: 2
+
+save_preset: null
+
+default_config:
+  sync_items: true
+  pvp_enabled: false
+  share_dungeon_keys: true
+  share_entrance_discovery: true
+
+phases: [lobby, playing]
+
+permissions:
+  player:
+    - primitive: PLAYER.UPDATE_TRANSFORM
+      scope: self
+      rate_limit: 30/sec
+    - primitive: PLAYER.UPDATE_SKELETON
+      scope: self
+      rate_limit: 30/sec
+    - primitive: PLAYER.UPDATE_ANIMATION_FLAGS
+      scope: self
+      rate_limit: 30/sec
+    - primitive: PLAYER.UPDATE_VISUAL_STATE
+      scope: self
+      rate_limit: 5/sec
+    - primitive: PLAYER.SET_TRANSFORMATION
+      scope: self
+      rate_limit: 5/sec
+    - primitive: SAVE.SET_FLAG
+      scope: room
+      rate_limit: 30/sec
+    - primitive: SAVE.UNSET_FLAG
+      scope: room
+      rate_limit: 30/sec
+    - primitive: SAVE.SET_QUEST_STATE
+      scope: room
+      rate_limit: 30/sec
+    - primitive: SAVE.GAME_COMPLETE
+      scope: room
+      rate_limit: 1/sec
+    - primitive: AUDIO.OCARINA_SFX
+      scope: room
+      rate_limit: 60/sec
+    - primitive: INVENTORY.GIVE_ITEM
+      scope: room
+      rate_limit: 30/sec
+    - primitive: INVENTORY.SET_DUNGEON_ITEMS
+      scope: room
+      rate_limit: 10/sec
+    - primitive: INVENTORY.SET_AMMO
+      scope: room
+      rate_limit: 10/sec
+    - primitive: MAP.ENTRANCE_DISCOVERED
+      scope: room
+      rate_limit: 30/sec
+    - primitive: WORLD.TRANSPORT_SCENE
+      scope: any_in_room
+      rate_limit: 1/sec
+    - primitive: APPEARANCE.SKIN_SYNC.ANNOUNCE_CATALOG
+      scope: room
+      rate_limit: 1/10sec
+    - primitive: APPEARANCE.SKIN_SYNC.UPDATE_SLOTS
+      scope: room
+      rate_limit: 5/sec
+    - primitive: AUDIO.PLAY_SFX
+      scope: self
+      rate_limit: 30/sec
+    - primitive: ROOM.BROADCAST_EVENT
+      scope: room
+      rate_limit: 5/sec
+    - primitive: CHAT.MESSAGE
+      scope: room
+      rate_limit: 5/sec
+    - primitive: CHAT.PING
+      scope: room
+      rate_limit: 5/sec
+
+  admin:
+    - inherits: player
+    - primitive: ROOM.SET_PHASE
+      scope: room
+      rate_limit: 2/sec
+    - primitive: ROOM.SET_GAMEMODE_CONFIG
+      scope: room
+      rate_limit: 1/sec
+    - primitive: ADMIN.PROMOTE
+      scope: any_in_room
+      rate_limit: 1/sec
+    - primitive: ADMIN.DEMOTE
+      scope: any_in_room
+      rate_limit: 1/sec
+
+  host:
+    - inherits: admin
+    - primitive: ROOM.START_GAME
+      scope: room
+      rate_limit: 1/sec
+    - primitive: ROOM.SET_GAMEMODE_ID
+      scope: room
+      rate_limit: 1/sec
+    - primitive: ADMIN.SET_HOST
+      scope: any_in_room
+      rate_limit: 1/sec
+    - primitive: ADMIN.KICK
+      scope: any_in_room
+      rate_limit: 1/sec

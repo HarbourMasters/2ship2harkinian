@@ -745,6 +745,13 @@ void Sram_ResetSave(void) {
     memset(&gSaveContext.save.saveInfo, 0, sizeof(SaveInfo));
     // 2S2H
     memset(&gSaveContext.save.shipSaveInfo, 0, sizeof(ShipSaveInfo));
+    // Skijer's NEI: the zeroed NeiSaveData is NOT a valid empty state — custom slots / bottle slots /
+    // bottomlessContent use 0xFF as their "empty" sentinel (0x00 is a real item id). Without this a
+    // brand-new save starts with 4+4 phantom bottles (bottleSlots all 0x00) and 0x00-filled ownedItems.
+    {
+        extern void Nei_InitNewSave(void);
+        Nei_InitNewSave();
+    }
 }
 
 /**

@@ -72,3 +72,5 @@ _packages/
 /clang-format.exe
 
 build/
+/references
+rebuild_2ship_otr.bat

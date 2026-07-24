@@ -339,7 +339,8 @@ void EffectBlure_GetComputedValues(EffectBlure* this, s32 index, f32 ratio, Vec3
                         cosmeticId = COSMETIC_ID("Trails.KokiriSwordTrail");
                     else if (player->heldItemAction == PLAYER_IA_SWORD_RAZOR)
                         cosmeticId = COSMETIC_ID("Trails.RazorSwordTrail");
-                    else if (player->heldItemAction == PLAYER_IA_SWORD_GILDED)
+                    else if (player->heldItemAction == PLAYER_IA_SWORD_GILDED ||
+                             player->heldItemAction == PLAYER_IA_SWORD_MASTER) // NEI: Master reuses Gilded trail
                         cosmeticId = COSMETIC_ID("Trails.GildedSwordTrail");
                     else if (player->heldItemAction == PLAYER_IA_SWORD_TWO_HANDED)
                         cosmeticId = COSMETIC_ID("Trails.GreatFairySwordTrail");

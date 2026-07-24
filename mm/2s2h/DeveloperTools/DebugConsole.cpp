@@ -4,6 +4,7 @@
 #include <ship/window/Window.h>
 #include <ship/window/gui/ConsoleWindow.h>
 #include "2s2h/BenPort.h"
+#include "2s2h/FleetShipCombo/FleetShipCombo.h"
 #include <vector>
 #include <string>
 
@@ -120,16 +121,23 @@ static bool SetPosHandler(std::shared_ptr<Ship::Console> Console, const std::vec
     return 0;
 }
 
+// The raw reset, callable WITHOUT signaling the combo (used by the responder pump so a paired reset
+// never ping-pongs). extern "C" so FleetSync's cross-game restart pump can call it.
+extern "C" void FleetCombo_DoLocalReset(void) {
+    if (gGameState == nullptr) {
+        return;
+    }
+    STOP_GAMESTATE(gGameState);
+    SET_NEXT_GAMESTATE(gGameState, ConsoleLogo_Init, sizeof(ConsoleLogoState));
+}
+
 static bool ResetHandler(std::shared_ptr<Ship::Console> Console, std::vector<std::string> args, std::string* output) {
     if (gGameState == nullptr) {
         ERROR_MESSAGE("gGameState == nullptr");
         return 1;
     }
-
-    STOP_GAMESTATE(gGameState);
-    SET_NEXT_GAMESTATE(gGameState, ConsoleLogo_Init, sizeof(ConsoleLogoState));
-    // GI-TODO
-    // GameInteractor::Instance->ExecuteHooks<GameInteractor::OnExitGame>(gSaveContext.fileNum);
+    FleetCombo_DoLocalReset();
+    FleetShipCombo_SignalRestart(); // combo: restart the paired game too (no-op outside the combo)
     return 0;
 }
 

@@ -2690,6 +2690,10 @@ SceneEntranceTableEntry sSceneEntranceTable[] = {
 /**
  * Returns a pointer to an entrance table from a given entrance index.
  */
+// 2S2H [Port] Fleet Ship Combo: real extent of sSceneEntranceTable for entrance validation
+// (Entrance_GetTableEntry below walks raw pointers with NO bounds checks).
+s32 gSceneEntranceTableCount = ARRAY_COUNT(sSceneEntranceTable);
+
 EntranceTableEntry* Entrance_GetTableEntry(u16 entrance) {
     u32 entranceIndex = entrance;
     EntranceTableEntry** tableEntryP = sSceneEntranceTable[entranceIndex >> 9].table;

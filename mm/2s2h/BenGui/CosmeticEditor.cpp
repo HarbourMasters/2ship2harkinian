@@ -6,6 +6,7 @@
 
 extern "C" {
 #include "macros.h"
+#include "mods/nei_save.h" // Skijer's NEI: equipment-driven tunic color (Nei_Save()->vanillaTunic)
 
 void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction);
 void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName);
@@ -1044,6 +1045,71 @@ static RegisterShipInitFunc humanTunicColor(
         humanTunic[0] = gsDPSetPrimColor(0, 0, changedColor.r, changedColor.g, changedColor.b, 255);
     },
     { kHumanTunicOption.colorCvar });
+
+// Skijer's NEI: equipment-driven tunic color. MM has no native tunic-color system, but 2ship
+// recolors the human tunic by GFX-patching the body DLs' setPrim -> a tiny Gfx that sets the prim
+// color (see humanTunic / humanTunicPatch above). We reuse that exact mechanism, driven by the
+// equipped OoT tunic (Nei_Save()->vanillaTunic): 1 Goron = red, 2 Zora = blue, 0 Kokiri = restore
+// the player's HumanTunic cosmetic (or the baked green).
+Gfx neiEquipTunic[] = {
+    gsDPSetPrimColor(0, 0, 0, 0, 0, 0),
+    gsDPPipeSync(),
+    gsSPEndDisplayList(),
+};
+
+static int8_t sNeiLastTunic = -1;
+
+static void NeiTunic_UpdateEquipmentColor() {
+    struct NeiTunicPatch {
+        const char* path;
+        const char* name;
+        int index;
+    };
+    static const NeiTunicPatch kPatches[] = {
+        { "objects/object_link_child/gLinkHumanWaistDL", "setPrim", 5 },
+        { "objects/object_link_child/gLinkHumanRightThighDL", "setPrim", 10 },
+        { "objects/object_link_child/gLinkHumanLeftThighDL", "setPrim", 10 },
+        { "objects/object_link_child/gLinkHumanHeadDL", "setPrim", 92 },
+        { "objects/object_link_child/gLinkHumanHatDL", "setPrim", 10 },
+        { "objects/object_link_child/gLinkHumanCollarDL", "setPrim", 5 },
+        { "objects/object_link_child/gLinkHumanLeftShoulderDL", "setPrim1", 10 },
+        { "objects/object_link_child/gLinkHumanLeftShoulderDL", "setPrim2", 65 },
+        { "objects/object_link_child/gLinkHumanRightShoulderDL", "setPrim1", 10 },
+        { "objects/object_link_child/gLinkHumanRightShoulderDL", "setPrim2", 65 },
+        { "objects/object_link_child/gLinkHumanTorsoDL", "setPrim", 5 },
+    };
+
+    uint8_t tunic = Nei_Save()->vanillaTunic;
+
+    if (tunic == 1 || tunic == 2) {
+        // Goron / Zora: (re)apply every frame so it survives scene reloads that drop the patch. The
+        // patch + color are idempotent, so re-applying is cheap.
+        Color_RGBA8 c = (tunic == 1) ? ColorRGBA8(180, 55, 35, 255)    // Goron: red
+                                     : ColorRGBA8(35, 85, 195, 255);   // Zora: blue
+        neiEquipTunic[0] = gsDPSetPrimColor(0, 0, c.r, c.g, c.b, 255);
+        for (const auto& p : kPatches) {
+            ResourceMgr_PatchGfxByName(p.path, p.name, p.index, gsSPDisplayList(neiEquipTunic));
+        }
+        sNeiLastTunic = (int8_t)tunic;
+    } else if (sNeiLastTunic != 0) {
+        // Transitioned to Kokiri: restore ONCE — re-apply the HumanTunic cosmetic if it's active,
+        // otherwise remove the patch so the baked-green tunic shows.
+        sNeiLastTunic = 0;
+        bool cosmeticActive = !IsCustomHumanModelActive() && CVarGetInteger(kHumanTunicOption.colorChangedCvar, 0);
+        for (const auto& p : kPatches) {
+            if (cosmeticActive) {
+                ResourceMgr_PatchGfxByName(p.path, p.name, p.index, gsSPDisplayList(humanTunic));
+            } else {
+                ResourceMgr_UnpatchGfxByName(p.path, p.name);
+            }
+        }
+    }
+}
+
+static RegisterShipInitFunc neiEquipTunicColorHook([]() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>(
+        []() { NeiTunic_UpdateEquipmentColor(); });
+});
 
 // Player.HumanHair
 

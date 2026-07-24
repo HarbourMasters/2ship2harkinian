@@ -17,12 +17,36 @@ typedef enum ArrowType {
     /* 5 */ ARROW_TYPE_LIGHT,
     /* 6 */ ARROW_TYPE_SLINGSHOT,
     /* 7 */ ARROW_TYPE_DEKU_BUBBLE,
-    /* 8 */ ARROW_TYPE_DEKU_NUT
+    /* 8 */ ARROW_TYPE_DEKU_NUT,
+    // Skijer's NEI — SW97 elemental system, 1:1 with the SoH fork's EnArrow extension
+    // (soh z_en_arrow.h ARROW_SEED_FIRE..0E / ARROW_SW97_FIRE..0E). Elemental SEEDS are
+    // slingshot pellets carrying an elemental damage bit + a charge-glow child actor;
+    // SW97 arrows are the six medallion bow arrows (incl. dark/soul/wind).
+    /*  9 */ ARROW_TYPE_SEED_FIRE,
+    /* 10 */ ARROW_TYPE_SEED_ICE,
+    /* 11 */ ARROW_TYPE_SEED_LIGHT,
+    /* 12 */ ARROW_TYPE_SEED_DARK,
+    /* 13 */ ARROW_TYPE_SEED_SOUL,
+    /* 14 */ ARROW_TYPE_SEED_WIND,
+    /* 15 */ ARROW_TYPE_SW97_FIRE,
+    /* 16 */ ARROW_TYPE_SW97_ICE,
+    /* 17 */ ARROW_TYPE_SW97_LIGHT,
+    /* 18 */ ARROW_TYPE_SW97_DARK,
+    /* 19 */ ARROW_TYPE_SW97_SOUL,
+    /* 20 */ ARROW_TYPE_SW97_WIND
 } ArrowType;
 
 #define ARROW_IS_MAGICAL(arrowType) (((arrowType) >= ARROW_TYPE_FIRE) && ((arrowType) <= ARROW_TYPE_LIGHT))
 #define ARROW_GET_MAGIC_FROM_TYPE(arrowType) (s32)((arrowType) - ARROW_TYPE_FIRE)
-#define ARROW_IS_ARROW(arrowType) ((arrowType) < ARROW_TYPE_SLINGSHOT)
+// Skijer's NEI: SW97 bow arrows behave as real arrows (skeleton, blure, stick-on-hit, 150 speed);
+// elemental seeds behave as seed pellets (sparkle billboard, 80 speed, Stone1 + SLING_REFLECT kill).
+#define ARROW_IS_SW97_ARROW(arrowType) (((arrowType) >= ARROW_TYPE_SW97_FIRE) && ((arrowType) <= ARROW_TYPE_SW97_WIND))
+#define ARROW_IS_SEED(arrowType) \
+    (((arrowType) == ARROW_TYPE_SLINGSHOT) || (((arrowType) >= ARROW_TYPE_SEED_FIRE) && ((arrowType) <= ARROW_TYPE_SEED_WIND)))
+#define ARROW_IS_ARROW(arrowType) (((arrowType) < ARROW_TYPE_SLINGSHOT) || ARROW_IS_SW97_ARROW(arrowType))
+// Element index (0=fire 1=ice 2=light 3=dark 4=soul 5=wind) for glow-child / dmg-flag dispatch.
+#define ARROW_GET_ELEMENT_FROM_SEED(arrowType) ((arrowType) - ARROW_TYPE_SEED_FIRE)
+#define ARROW_GET_ELEMENT_FROM_SW97(arrowType) ((arrowType) - ARROW_TYPE_SW97_FIRE)
 
 typedef enum ArrowMagic {
     /* -1 */ ARROW_MAGIC_INVALID = -1,

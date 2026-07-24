@@ -289,6 +289,14 @@ void func_80B84610(BgDblueWaterfall* this, PlayState* play) {
     s32 pad;
     Player* player = GET_PLAYER(play);
     Vec3f sp34;
+    // Skijer's NEI: OoT Iron Boots resist environmental water forces (Bg_Haka_Trap gates its wind push
+    // on boots != IRON; Bg_Mizu_Uzu disables its pull) — the Great Bay Temple waterfall current can't
+    // shove the iron-booted human.
+    extern u8 VanillaTB_IsIronBoots(void);
+
+    if (VanillaTB_IsIronBoots() && (player->transformation == PLAYER_FORM_HUMAN)) {
+        return;
+    }
 
     if (this->unk_1A7 <= 0) {
         this->unk_1A7 = 16;

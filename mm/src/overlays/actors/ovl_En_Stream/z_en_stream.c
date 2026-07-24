@@ -86,6 +86,13 @@ void EnStream_SuckPlayer(EnStream* this, PlayState* play) {
     f32 xzDist;
     f32 yDistWithOffset;
     s32 pad30[2];
+    // Skijer's NEI: OoT Iron Boots ignore water vortices entirely (Bg_Mizu_Uzu disables the whirlpool
+    // pull when currentBoots == PLAYER_BOOTS_IRON) — the iron-booted human is too heavy to be sucked.
+    extern u8 VanillaTB_IsIronBoots(void);
+
+    if (VanillaTB_IsIronBoots() && (player->transformation == PLAYER_FORM_HUMAN)) {
+        return;
+    }
 
     if (EnStream_PlayerIsInRange(&this->actor.world.pos, &player->actor.world.pos, &posDifference,
                                  this->actor.scale.y) != EN_STREAM_PLAYER_OUTSIDE_RANGE) {

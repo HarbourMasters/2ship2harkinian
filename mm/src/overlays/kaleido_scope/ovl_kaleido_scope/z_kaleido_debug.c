@@ -324,6 +324,12 @@ void KaleidoScope_DrawInventoryEditorText(Gfx** gfxP) {
 extern const char* sCounterTextures[];
 
 void KaleidoScope_DrawDigit(PlayState* play, s32 digit, s32 rectLeft, s32 rectTop) {
+    // 2S2H [Port] Clamp: a corrupt/out-of-range value must never index past sCounterTextures[10]
+    // (a garbage texture-path pointer crashes the resource lookup). Draw 9 so bad data is VISIBLE.
+    if (digit < 0 || digit > 9) {
+        digit = 9;
+    }
+
     OPEN_DISPS(play->state.gfxCtx);
 
     gDPLoadTextureBlock(POLY_OPA_DISP++, sCounterTextures[digit], G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0,

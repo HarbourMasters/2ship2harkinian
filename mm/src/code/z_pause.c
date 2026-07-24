@@ -24,6 +24,7 @@
 #include "controller.h"
 #include "padutils.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include "2s2h/FleetShipCombo/FleetShipCombo.h"
 
 void FrameAdvance_Init(FrameAdvanceContext* frameAdvCtx) {
     frameAdvCtx->timer = 0;
@@ -34,6 +35,13 @@ void FrameAdvance_Init(FrameAdvanceContext* frameAdvCtx) {
  * Returns true when frame advance is not active (game will run normally)
  */
 s32 FrameAdvance_Update(FrameAdvanceContext* frameAdvCtx, Input* input) {
+    // Fleet Ship Combo: while this game is the inactive one, freeze it completely
+    // (never advance) so Link, the day/night clock and the Moon stay put in the
+    // background and the player can't die / trigger the Moon crash.
+    if (!FleetShipCombo_IsThisGameActive()) {
+        return false;
+    }
+
     if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
         if (CHECK_BTN_ALL(input->cur.button, BTN_R) && CHECK_BTN_ALL(input->press.button, BTN_DDOWN)) {
             frameAdvCtx->enabled = !frameAdvCtx->enabled;

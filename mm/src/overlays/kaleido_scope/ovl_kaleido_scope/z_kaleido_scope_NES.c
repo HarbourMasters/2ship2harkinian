@@ -18,6 +18,10 @@
 #include <libultraship/bridge/gfxdebuggerbridge.h>
 #include "archives/item_name_static/item_name_static.h"
 #include "archives/map_name_static/map_name_static.h"
+
+// NEI: equipment page replaces the mask page (masks live on item-kaleido page 2)
+void KaleidoScope_DrawEquipment(PlayState* play);
+void KaleidoScope_UpdateEquipmentCursor(PlayState* play);
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/Enhancements/Saving/SavingEnhancements.h"
 
@@ -53,6 +57,41 @@ TexturePtr sMaskPageBgTextures[] = {
     gPauseMasks23Tex,
     gPauseMasks24Tex,
 };
+
+// NEI: OoT's EQUIPMENT page background (same kaleido tile system: 15x IA8 80x32, column-major,
+// EQUIPMENT title baked into the row-0 tiles). Loaded from the OoT companion archive (oot.o2r
+// in mods/ or nei/); when absent, the mask page keeps its vanilla MM background.
+static TexturePtr sNeiEquipmentPageBgTextures[] = {
+    // Column 0
+    "__OTR__textures/icon_item_static/gPauseEquipment00Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment01Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment02Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment03Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment04Tex",
+    // Column 1 (row 0 carries the localized EQUIPMENT title)
+    "__OTR__textures/icon_item_nes_static/gPauseEquipment10ENGTex",
+    "__OTR__textures/icon_item_static/gPauseEquipment11Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment12Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment13Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment14Tex",
+    // Column 2
+    "__OTR__textures/icon_item_static/gPauseEquipment20Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment21Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment22Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment23Tex",
+    "__OTR__textures/icon_item_static/gPauseEquipment24Tex",
+};
+
+// Picks the OoT equipment background when the companion archive provides it (cached probe).
+static TexturePtr* KaleidoNei_GetMaskPageBgTextures(void) {
+    extern u8 ResourceMgr_FileExists(const char* resName);
+    static s8 sHasOotBg = -1;
+    if (sHasOotBg == -1) {
+        sHasOotBg = ResourceMgr_FileExists("__OTR__textures/icon_item_static/gPauseEquipment00Tex") ? 1 : 0;
+    }
+    return sHasOotBg ? sNeiEquipmentPageBgTextures : sMaskPageBgTextures;
+}
+
 TexturePtr sItemPageBgTextures[] = {
     // Column 0
     gPauseSelectItem00ENGTex,
@@ -113,6 +152,46 @@ TexturePtr sQuestPageBgTextures[] = {
     gPauseQuestStatus23Tex,
     gPauseQuestStatus24Tex,
 };
+
+// NEI: OoT's QUEST STATUS page background (companion oot.o2r). Same tile system as MM's array
+// above (15x IA8 80x32, column-major, ENG title in the row-0 tiles), but from OoT's own parchment
+// so the L-flipped OoT quest page renders 1:1. MM's own tiles live under icon_item_static_yar/*
+// (a different OTR path), so these textures/icon_item_static/* paths resolve uniquely to OoT and
+// are NOT shadowed by MM. Used only while the OoT quest page toggle is on and the companion loads.
+static TexturePtr sNeiOotQuestPageBgTextures[] = {
+    // Column 0 (row 0 carries the localized QUEST STATUS title)
+    "__OTR__textures/icon_item_nes_static/gPauseQuestStatus00ENGTex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus01Tex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus02Tex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus03Tex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus04Tex",
+    // Column 1
+    "__OTR__textures/icon_item_nes_static/gPauseQuestStatus10ENGTex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus11Tex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus12Tex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus13Tex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus14Tex",
+    // Column 2
+    "__OTR__textures/icon_item_nes_static/gPauseQuestStatus20ENGTex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus21Tex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus22Tex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus23Tex",
+    "__OTR__textures/icon_item_static/gPauseQuestStatus24Tex",
+};
+
+// Picks the OoT quest-page parchment when the OoT quest page is toggled on (L) and the companion
+// provides it (cached probe); otherwise MM's own quest background. Skijer's NEI.
+static TexturePtr* KaleidoNei_GetQuestPageBgTextures(void) {
+    extern u8 ResourceMgr_FileExists(const char* resName);
+    static s8 sHasOotQuestBg = -1;
+    if (sHasOotQuestBg == -1) {
+        sHasOotQuestBg = ResourceMgr_FileExists("__OTR__textures/icon_item_static/gPauseQuestStatus01Tex") ? 1 : 0;
+    }
+    if (sHasOotQuestBg && CVarGetInteger("gEnhancements.Kaleido.OotQuestPage", 0)) {
+        return sNeiOotQuestPageBgTextures;
+    }
+    return sQuestPageBgTextures;
+}
 
 s16 gVtxPageMapWorldQuadsWidth[VTX_PAGE_MAP_WORLD_QUADS] = {
     80,  // mapPageVtx[60]  clouds Clock Town 1
@@ -413,6 +492,22 @@ void Kaleido_LoadItemNameStatic(void** segment, u32 texIndex) {
         gItemNameStrayFairiesENGTex,
     };
 
+    // Skijer's NEI: custom + OoT-ported items have IDs >= 0x78 (the vanilla gItemNameStatics ends at
+    // 0x77), so they'd fall to gEmptyTexture and show a blank name. Route them to the custom
+    // name-texture table first (mirrors SoH z_kaleido_scope_PAL.c's ExtInv_GetCustomItemNameTex
+    // branch). Returns an OTR path string usable directly as the name segment; NULL when the id
+    // isn't registered → fall back to the vanilla array / empty texture.
+    {
+        extern void* ExtInv_GetCustomItemNameTex(uint16_t itemId, uint8_t language);
+        // ExtInv_GetCustomItemNameTex ignores the language arg (MM has a single item_name_static
+        // language set); pass 0 (MM's SaveContext has no `language` field like OoT's).
+        void* customNameTex = ExtInv_GetCustomItemNameTex((uint16_t)texIndex, 0);
+        if (customNameTex != NULL) {
+            *segment = customNameTex;
+            return;
+        }
+    }
+
     // 2S2H [Port] Bounds check texture to load to prevent crashes
     if (texIndex < ARRAY_COUNTU(gItemNameStatics)) {
         *segment = gItemNameStatics[texIndex];
@@ -530,10 +625,29 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
     PauseContext* pauseCtx = &play->pauseCtx;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
+    // Skijer's NEI: on the mask(equipment) page, L cycles the equipment sub-pages
+    // (vanilla / extended / transform — handled in KaleidoScope_UpdateEquipmentCursor).
+    // Consume it BEFORE the debug-editor check so the same press doesn't also open the
+    // inventory editor when DebugEnabled is on (open the editor from another page).
+    if ((pauseCtx->pageIndex == PAUSE_MASK) && (pauseCtx->debugEditor == DEBUG_EDITOR_NONE) &&
+        !pauseCtx->itemDescriptionOn && CHECK_BTN_ALL(input->press.button, BTN_L)) {
+        return;
+    }
+
     // 2S2H [Debug] Restoring input check for debug inventory editor based on OOT debug
     if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0) && (pauseCtx->debugEditor == DEBUG_EDITOR_NONE) &&
         CHECK_BTN_ALL(input->press.button, BTN_L)) {
         pauseCtx->debugEditor = DEBUG_EDITOR_INVENTORY_INIT;
+        return;
+    }
+
+    // Skijer's NEI: on the quest page, L flips between MM's and OoT's collect layouts (each reads
+    // its own quest store). Sits after the debug-editor L check (that only fires with DebugEnabled,
+    // like the item-page ExtInv_SwitchPage flip) and before the page-scroll handling below.
+    if ((pauseCtx->pageIndex == PAUSE_QUEST) && (pauseCtx->debugEditor == DEBUG_EDITOR_NONE) &&
+        !pauseCtx->itemDescriptionOn && CHECK_BTN_ALL(input->press.button, BTN_L)) {
+        CVarSetInteger("gEnhancements.Kaleido.OotQuestPage", !CVarGetInteger("gEnhancements.Kaleido.OotQuestPage", 0));
+        Audio_PlaySfx(NA_SE_SY_HP_RECOVER);
         return;
     }
 
@@ -544,7 +658,15 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
         return;
     }
 
-    if (CHECK_BTN_ALL(input->cur.button, BTN_DRIGHT) || CHECK_BTN_ALL(input->press.button, BTN_R)) {
+    // Skijer's NEI: while interacting with the OoT quest page, left/right (DPad or the stick-at-edge
+    // scroll) drives OUR cursor, NOT page switching — otherwise moving the cursor sideways also flips
+    // the kaleido page. The dedicated BTN_R / BTN_Z still switch pages so the player can leave.
+    u8 sOotQuestInteract = (pauseCtx->pageIndex == PAUSE_QUEST) &&
+                           CVarGetInteger("gEnhancements.Kaleido.OotQuestPage", 0) &&
+                           CVarGetInteger("gEnhancements.SkijerNEI.QuestPageInteract", 1);
+
+    if ((CHECK_BTN_ALL(input->cur.button, BTN_DRIGHT) && !sOotQuestInteract) ||
+        CHECK_BTN_ALL(input->press.button, BTN_R)) {
         if (!GameInteractor_Should(VB_KALEIDO_SWITCH_PAGE_WITH_DPAD, true, BTN_DRIGHT)) {
             return;
         }
@@ -556,7 +678,8 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
         return;
     }
 
-    if (CHECK_BTN_ALL(input->cur.button, BTN_DLEFT) || CHECK_BTN_ALL(input->press.button, BTN_Z)) {
+    if ((CHECK_BTN_ALL(input->cur.button, BTN_DLEFT) && !sOotQuestInteract) ||
+        CHECK_BTN_ALL(input->press.button, BTN_Z)) {
         if (!GameInteractor_Should(VB_KALEIDO_SWITCH_PAGE_WITH_DPAD, true, BTN_DLEFT)) {
             return;
         }
@@ -568,7 +691,7 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
         return;
     }
 
-    if (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT) {
+    if (!sOotQuestInteract && pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT) {
         if (pauseCtx->stickAdjX < -30) {
             pauseCtx->pageSwitchInputTimer++;
             // Switch the page to the left after a certain number of frames with held input or after a second press
@@ -579,7 +702,7 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
             // stickAdjX is no longer held, so that the next input to the left will immediately switch pages
             pauseCtx->pageSwitchInputTimer = -1;
         }
-    } else if (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_RIGHT) {
+    } else if (!sOotQuestInteract && pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_RIGHT) {
         if (pauseCtx->stickAdjX > 30) {
             pauseCtx->pageSwitchInputTimer++;
             // Switch the page to the right after a certain number of frames with held input or after a second press
@@ -801,7 +924,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
             MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gfxCtx);
 
-            POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx, sQuestPageBgTextures);
+            POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx, KaleidoNei_GetQuestPageBgTextures());
 
             GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_QUEST);
             KaleidoScope_DrawQuestStatus(play);
@@ -825,10 +948,10 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
             MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gfxCtx);
 
-            POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx, sMaskPageBgTextures);
+            POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx, KaleidoNei_GetMaskPageBgTextures());
 
             GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_MASK);
-            KaleidoScope_DrawMaskSelect(play);
+            KaleidoScope_DrawEquipment(play); // NEI: was KaleidoScope_DrawMaskSelect
             GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, PAUSE_MASK);
         }
 
@@ -926,7 +1049,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
                 MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gfxCtx);
 
                 POLY_OPA_DISP =
-                    KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx, sQuestPageBgTextures);
+                    KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx, KaleidoNei_GetQuestPageBgTextures());
 
                 GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, pauseCtx->pageIndex);
                 KaleidoScope_DrawQuestStatus(play);
@@ -949,10 +1072,10 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
                 MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gfxCtx);
 
                 POLY_OPA_DISP =
-                    KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx, sMaskPageBgTextures);
+                    KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx, KaleidoNei_GetMaskPageBgTextures());
 
                 GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, pauseCtx->pageIndex);
-                KaleidoScope_DrawMaskSelect(play);
+                KaleidoScope_DrawEquipment(play); // NEI: was KaleidoScope_DrawMaskSelect
                 GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, pauseCtx->pageIndex);
                 break;
         }
@@ -2992,6 +3115,18 @@ void KaleidoScope_UpdateCursorSize(PlayState* play) {
             case PAUSE_MASK:
                 pauseCtx->cursorX = sItemMaskCursorsX[pauseCtx->cursorXIndex[PAUSE_MASK]];
                 pauseCtx->cursorY = sItemMaskCursorsY[pauseCtx->cursorYIndex[PAUSE_MASK]];
+                // Skijer's NEI: the equipment page's upgrade column sits on its own shifted vertices
+                // (page x -112, left-edge sockets) which the shared table above can't express — let
+                // the equipment page override the cursor X for that column. Runs right before
+                // KaleidoScope_DrawCursor, so nothing stomps it afterwards.
+                {
+                    f32 upgradeCursorX;
+                    extern s32 KaleidoEquip_GetUpgradeCursorX(f32* outX);
+
+                    if (KaleidoEquip_GetUpgradeCursorX(&upgradeCursorX)) {
+                        pauseCtx->cursorX = upgradeCursorX;
+                    }
+                }
                 pauseCtx->cursorWidth = 15.0f;
                 pauseCtx->cursorHeight = 15.0f;
                 break;
@@ -3042,6 +3177,15 @@ void KaleidoScope_UpdateCursorSize(PlayState* play) {
 void KaleidoScope_DrawCursor(PlayState* play) {
     PauseContext* pauseCtx = &play->pauseCtx;
     s16 i;
+
+    // Skijer's NEI: the OoT quest page (L-flip) draws its OWN cursor inside
+    // KaleidoScope_DrawOotQuestStatus, in the page's view/projection (same as the icons) so it stays
+    // aligned. MM's cursor is drawn in a different flat view (SetView 0,0,64 above), so it must not
+    // also draw here.
+    if ((pauseCtx->pageIndex == PAUSE_QUEST) && CVarGetInteger("gEnhancements.Kaleido.OotQuestPage", 0) &&
+        CVarGetInteger("gEnhancements.SkijerNEI.QuestPageInteract", 1)) {
+        return;
+    }
 
     // #region 2S2H [Port] Track cursor position so we can skip interpolation for one frame whenever it moves
     static f32 prevX = 0;
@@ -3172,6 +3316,10 @@ void KaleidoScope_Draw(PlayState* play) {
             if (!IS_PAUSE_STATE_GAMEOVER(pauseCtx)) {
                 KaleidoScope_DrawInfoPanel(play);
             }
+
+            // Skijer's NEI: the OoT quest page's hovered-item name box, in this same flat info-panel
+            // view (the perspective page view would project it off-screen).
+            KaleidoScope_DrawOotQuestName(play);
 
             KaleidoScope_UpdateCursorSize(play);
 
@@ -4273,7 +4421,7 @@ void KaleidoScope_Update(PlayState* play) {
                     break;
 
                 case PAUSE_MASK:
-                    KaleidoScope_UpdateMaskCursor(play);
+                    KaleidoScope_UpdateEquipmentCursor(play); // NEI: was KaleidoScope_UpdateMaskCursor
                     break;
             }
 

@@ -7,6 +7,7 @@
 #include "BenJsonConversions.hpp"
 #include "BenPort.h"
 #include <ship/window/Window.h>
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 extern "C" {
 #include "z64save.h"
@@ -307,6 +308,25 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
     std::string fileName = SaveManager_GetFileNameFromFlashSave(flashSave);
 
     bool isBackup = false;
+    // FleetSync: 0-based slot of the file being written (matches gSaveContext.fileNum), for the
+    // OnSaveFile hook fired after a successful full (non-backup) save write.
+    s16 hookFileNum = -1;
+    switch (flashSave) {
+        case FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE:
+        case FLASH_SAVE_FILE_1_OWL_SAVE:
+            hookFileNum = 0;
+            break;
+        case FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE:
+        case FLASH_SAVE_FILE_2_OWL_SAVE:
+            hookFileNum = 1;
+            break;
+        case FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE:
+        case FLASH_SAVE_FILE_3_OWL_SAVE:
+            hookFileNum = 2;
+            break;
+        default:
+            break;
+    }
 
     if (flashSave == FLASH_SAVE_UNAVAILABLE) {
         return;
@@ -366,6 +386,9 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
                 j["type"] = "2S2H_SAVE";
 
                 SaveManager_WriteSaveFile(fileName, j);
+                if (hookFileNum >= 0) {
+                    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSaveFile>(hookFileNum);
+                }
             } else {
                 // If IS_VALID_FILE fails, we should delete the save file, even if there is an owl save in it, because
                 // they just deleted the new cycle save
@@ -405,6 +428,9 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
                 j["type"] = "2S2H_SAVE";
 
                 SaveManager_WriteSaveFile(fileName, j);
+                if (hookFileNum >= 0) {
+                    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSaveFile>(hookFileNum);
+                }
             } else {
                 // If IS_VALID_FILE fails, and there is still a new cycle save present, we just want to only remove the
                 // owl save and write the new cycle save back

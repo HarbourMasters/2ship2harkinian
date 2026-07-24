@@ -379,7 +379,24 @@ static DrawItemTableEntry sDrawItemTable[] = {
  * Draw "Get Item" Model
  * Calls the corresponding draw function for the given draw ID
  */
+// Resolve an O2R display list by its __OTR__ path (defined in BenPort.cpp). Used to verify a get-item
+// model actually loaded before we feed it to the interpreter.
+extern Gfx* ResourceMgr_LoadGfxByName(const char* path);
+
 void GetItem_Draw(PlayState* play, s16 drawId) {
+    // Guard against an out-of-range drawId and a get-item whose model resource does NOT resolve (a
+    // missing/incompatible o2r, a missing asset, a rando/combo item without a resident object). Feeding
+    // gSPDisplayList a display list the Fast3D interpreter can't resolve dereferences a bad address and
+    // crashes 2ship with a 0xC0000005 access violation (this crashed in GetItem_DrawRecoveryHeart ->
+    // object_gi_heart/gGiRecoveryHeartDL). Skip the draw instead of crashing — the item just doesn't
+    // render, which is recoverable; a crash is not.
+    if (drawId < 0 || drawId >= (s32)ARRAY_COUNT(sDrawItemTable) || sDrawItemTable[drawId].drawFunc == NULL) {
+        return;
+    }
+    void* primaryDL = sDrawItemTable[drawId].drawResources[0];
+    if (primaryDL != NULL && ResourceMgr_LoadGfxByName((const char*)primaryDL) == NULL) {
+        return; // primary model didn't load -> don't hand the interpreter a bad DL
+    }
     sDrawItemTable[drawId].drawFunc(play, drawId);
 }
 

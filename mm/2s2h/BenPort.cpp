@@ -4,6 +4,7 @@
 #include <filesystem>
 #include <fstream>
 #include <chrono>
+#include <thread>
 
 #include <ship/resource/ResourceManager.h>
 #include <fast/Fast3dWindow.h>
@@ -49,6 +50,7 @@ CrowdControl* CrowdControl::Instance;
 #include <libultraship/controller/controldeck/ControlDeck.h>
 #include <fast/resource/ResourceType.h>
 #include <BenGui/BenGui.hpp>
+#include "FleetShipCombo/FleetShipCombo.h"
 #include <BenGui/BenMenu.h>
 
 #include "2s2h/GameInteractor/GameInteractor.h"
@@ -140,6 +142,11 @@ static bool VerifyArchiveVersion(ArchiveVersion version);
 std::string portArchivePath = "";
 static bool shipArchiveVersionMatch = false;
 
+// Stashed from InitOTR so the OTRGlobals ctor can run the Fleet Ship Combo bootstrap
+// (which needs argc/argv) before the window/resource manager are created.
+static int sFleetArgc = 0;
+static char** sFleetArgv = nullptr;
+
 OTRGlobals::OTRGlobals() {
     context = Ship::Context::CreateUninitializedInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json");
 
@@ -151,6 +158,12 @@ OTRGlobals::OTRGlobals() {
 
     context->InitConfiguration();
     context->InitConsoleVariables();
+
+    // Fleet Ship Combo (Frente A): if enabled, hand off to host Ship and exit before
+    // we create the window/resource manager (so no 2ship window flashes on the bounce).
+    if (FleetShipCombo_BootstrapMaybeRelaunch(sFleetArgc, sFleetArgv)) {
+        exit(0);
+    }
 
     auto controlDeck = std::make_shared<LUS::ControlDeck>(std::vector<CONTROLLERBUTTONS_T>({
         BTN_CUSTOM_MODIFIER1,
@@ -165,7 +178,9 @@ OTRGlobals::OTRGlobals() {
         BTN_CUSTOM_OCARINA_PITCH_DOWN,
     }));
     context->InitControlDeck(controlDeck);
-    context->InitResourceManager({ portArchivePath }, {}, 3, true);
+    {
+        context->InitResourceManager({ portArchivePath }, {}, 3, true);
+    }
     context->InitConsole();
 
     auto benInputEditorWindow = std::make_shared<BenInputEditorWindow>("gWindows.BenInputEditor", "2S2H Input Editor");
@@ -270,6 +285,11 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
     std::vector<std::string> args;
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
+            // Skip command-line flags (e.g. Fleet Ship Combo's --fleet-child) so the ROM
+            // extractor doesn't treat them as a ROM path. ROM paths never start with '-'.
+            if (argv[i] != nullptr && argv[i][0] == '-') {
+                continue;
+            }
             args.push_back(argv[i]);
         }
     }
@@ -724,6 +744,11 @@ void OTRGlobals::Initialize() {
     // gSaveStateMgr = std::make_shared<SaveStateMgr>();
     // gRandomizer = std::make_shared<Randomizer>();
 
+    // Skijer's NEI archive split: SoH's CUSTOM content is baked into 2ship.o2r (asset folder ->
+    // asset folder), while ROM-data archives stay external. oot.o2r (the player's extracted OoT
+    // ROM data) is an optional companion NEXT TO 2ship.o2r. It must be mounted AFTER the
+    // game-version validation below runs its course — it carries an OoT ROM hash that the
+    // MM-only validHashes check would reject (Invalid O2R -> exit). See the mount at the end.
     auto versions = context->GetResourceManager()->GetArchiveManager()->GetGameVersions();
     for (uint32_t version : versions) {
         if (!validHashes.contains(version)) {
@@ -737,6 +762,57 @@ void OTRGlobals::Initialize() {
             SPDLOG_ERROR("Invalid O2R File!");
 #endif
             exit(1);
+        }
+    }
+
+    // Skijer's NEI: mount the optional OoT companion archive (the player's extracted OoT ROM
+    // data) now that the MM version check passed — it carries an OoT ROM hash the MM-only
+    // validHashes check would reject, so it must NEVER be part of InitResourceManager.
+    // Search order: nei/oot.o2r, mods/oot.o2r (2ship layouts), then ../oot.o2r (Fleet Ship
+    // Combo layout: Ship/2ship/2ship.exe with oot.o2r in the Ship root). With it mounted, the
+    // OoT vanilla texture paths (__OTR__textures/icon_item_static/... — equipment-page icons,
+    // page backgrounds, titles) resolve directly; every use is FileExists-gated, so its
+    // absence just falls back to the MM art.
+    //
+    // The companion is mounted at LOWEST priority (front of the archive list). LUS resolves files
+    // last-added-wins, so every MM archive (mm.o2r + 2ship.o2r) wins ALL shared paths — the audio
+    // font/sample/sequence tables stay 100% MM (this is what fixes the intermittent async-audio
+    // AudioLoad_GetFontSample crash), while only OoT-UNIQUE paths (icon_item_static equipment
+    // icons, icon_item_24_static medallions) resolve to the companion. This is the EXACT pattern
+    // SoH uses to mount MM's mm.o2r alongside OoT (mm_asset_loader.cpp LoadMmO2r).
+    {
+        const char* companionCandidates[] = { "nei/oot.o2r", "mods/oot.o2r", "../oot.o2r" };
+        std::string ootPath;
+        for (const char* candidate : companionCandidates) {
+            std::string p = Ship::Context::LocateFileAcrossAppDirs(candidate, appShortName);
+            if (p.empty() || !std::filesystem::exists(p)) {
+                p = candidate; // plain relative (parent-dir / working-dir case)
+            }
+            if (std::filesystem::exists(p)) {
+                ootPath = p;
+                break;
+            }
+        }
+        if (!ootPath.empty()) {
+            auto archiveManager = context->GetResourceManager()->GetArchiveManager();
+            auto ootArchive = archiveManager->AddArchive(ootPath);
+            if (ootArchive != nullptr) {
+                // Reorder: OoT companion FIRST (lowest priority), all MM archives after (they win
+                // shared paths). SetArchives → ResetVirtualFileSystem rebuilds the index in order.
+                auto currentArchives = archiveManager->GetArchives();
+                if (currentArchives && currentArchives->size() > 1) {
+                    auto reordered = std::make_shared<std::vector<std::shared_ptr<Ship::Archive>>>();
+                    reordered->push_back(ootArchive);
+                    for (auto& existing : *currentArchives) {
+                        if (existing != ootArchive) {
+                            reordered->push_back(existing);
+                        }
+                    }
+                    archiveManager->SetArchives(reordered);
+                }
+                SPDLOG_INFO("Skijer's NEI: mounted OoT companion {} at lowest priority (MM wins shared paths)",
+                            ootPath);
+            }
         }
     }
 }
@@ -818,6 +894,13 @@ static struct {
     bool processing;
 } audio;
 
+// Fleet Ship Combo: when this game is the INACTIVE one in the combo, silence ALL of its audio
+// by zeroing the final mixed PCM buffer (covers BGM, fanfare, ambience, SFX and the SM64 mix).
+// Written by the gfx thread just before it wakes the audio worker, read by the worker right
+// before it sends the buffer out — lock-free, no torn reads, changes no volume CVar, and fully
+// reversible (sequence/note state keeps advancing, so audio resumes bit-exactly on switch-back).
+static std::atomic<bool> gFscAudioMuted{ false };
+
 void OTRAudio_Thread() {
     while (audio.running) {
         {
@@ -848,6 +931,14 @@ void OTRAudio_Thread() {
         for (int i = 0; i < AUDIO_FRAMES_PER_UPDATE; i++) {
             AudioMgr_CreateNextAudioBuffer(audio_buffer + i * (num_audio_samples * NUM_AUDIO_CHANNELS),
                                            num_audio_samples);
+        }
+
+        // Fleet Ship Combo: silence this game's output while it's the inactive one. The buffer
+        // already holds the FULL mix (BGM + fanfare + ambience + SFX + SM64), so zeroing the used
+        // span here mutes everything without stopping any sequence (positions keep advancing).
+        if (gFscAudioMuted.load(std::memory_order_relaxed)) {
+            memset(audio_buffer, 0,
+                   num_audio_samples * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE * sizeof(int16_t));
         }
 
         AudioPlayer_Play((u8*)audio_buffer,
@@ -967,8 +1058,19 @@ bool VerifyArchiveVersion(ArchiveVersion version) {
 }
 
 extern "C" void InitOTR(int argc, char* argv[]) {
+    // Stash for the Fleet Ship Combo bootstrap inside the OTRGlobals ctor.
+    sFleetArgc = argc;
+    sFleetArgv = argv;
     OTRGlobals::Instance = new OTRGlobals();
+
+    // Fleet Ship Combo child: hide our window NOW (right after it was created in the ctor),
+    // before the extractor/boot run, so only Ship's single window is ever visible.
+    if (FleetShipCombo_GetActiveGame() >= 0) {
+        FleetShipCombo_HideGuestWindow();
+    }
+    FleetShipCombo_ProvisionO2rBothDirs(); // pull a sibling-extracted o2r in BEFORE the presence check
     OTRGlobals::Instance->RunExtract(argc, argv);
+    FleetShipCombo_ProvisionO2rBothDirs(); // push our freshly-extracted o2r out to the sibling dir
 
     OTRGlobals::Instance->Initialize();
 
@@ -1184,6 +1286,30 @@ void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>
     // Process window events for resize, mouse, keyboard events
     wnd->HandleEvents();
 
+    // Render-gating (Fleet Ship Combo): when this game is the INACTIVE one in the combo and
+    // the user isn't viewing its BenGui, skip the 3D scene render (the bulk of the combo's GPU
+    // cost). With the UI overlay enabled (default) we still run the frame with an EMPTY display
+    // list instead of returning: ImGui keeps rendering, so 2ship's floating windows (trackers)
+    // stay live and get published to Ship as the UI-overlay texture even while OoT is active.
+    // With the overlay disabled, keep the old full skip (inactive game nearly free). Window
+    // events were already pumped above, so it stays responsive and resumes instantly when it
+    // becomes active again. (Standalone: IsThisGameActive() is always true, so this never
+    // triggers.)
+    static Gfx sFleetEmptyDL[] = { gsSPEndDisplayList() };
+    if (!FleetShipCombo_IsThisGameActive() && FleetShipCombo_GetUiFocus() != 1) {
+        if (!CVarGetInteger("gFleetShipCombo.UiOverlay", 1)) {
+            return;
+        }
+        Commands = sFleetEmptyDL;
+    }
+
+    // Fleet arrival blackout: while warping IN, paint black (empty DL) so this game's stale frame and
+    // the scene-load aren't shown during a flip (the player never sees the teleport / the other game).
+    // Unlike the gate above we do NOT return -> a black frame is still drawn + published to the PiP.
+    if (FleetShipCombo_ArrivalBlackoutActive()) {
+        Commands = sFleetEmptyDL;
+    }
+
     auto intp = wnd->GetInterpreterWeak().lock().get();
     intp->mInterpolationIndex = 0;
 
@@ -1202,9 +1328,29 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     {
         std::unique_lock<std::mutex> Lock(audio.mutex);
         audio.processing = true;
+        // Set the combo audio-mute flag BEFORE waking the worker so THIS frame's buffer is
+        // (un)muted correctly; storing it after the notify would race the worker by a frame.
+        gFscAudioMuted.store(!FleetShipCombo_IsThisGameActive(), std::memory_order_relaxed);
     }
 
     audio.cv_to_thread.notify_one();
+
+    // Fleet Ship Combo: the INACTIVE game must ignore controller input — both processes poll the same
+    // SDL gamepad, so without this the pad drives BOTH games at once. Block/unblock THIS process's
+    // game input by active state (UI/ImGui input is unaffected, so the menu still works). Standalone:
+    // IsThisGameActive() is always true -> always unblocked.
+    {
+        constexpr int32_t kFleetInputBlockId = 0x46534302; // 'FSC\2'
+        auto controlDeck = Ship::Context::GetInstance()->GetControlDeck();
+        if (controlDeck != nullptr) {
+            if (FleetShipCombo_IsThisGameActive()) {
+                controlDeck->UnblockGameInput(kFleetInputBlockId);
+            } else {
+                controlDeck->BlockGameInput(kFleetInputBlockId);
+            }
+        }
+    }
+
     std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
     int target_fps = OTRGlobals::Instance->GetInterpolationFPS();
     static int last_fps;
@@ -1246,7 +1392,41 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
         mtx_replacements.emplace_back();
     }
 
-    RunCommands(commands, mtx_replacements);
+    // Frame-level guard: a C++ exception thrown anywhere in the game frame (a render call on a bad
+    // texture/model from the just-obtained check item, an ImGui/map .at(), a cross-item grant) would
+    // be UNCAUGHT and std::terminate the WHOLE 2ship process with no traceback — i.e. "2ship silently
+    // closes on leaving MM after a check" (it STOPS the process instead of skipping the frame). Catch +
+    // log so the process survives (the frame is skipped) and the exact exception is recorded.
+    try {
+        RunCommands(commands, mtx_replacements);
+    } catch (const std::exception& e) {
+        SPDLOG_ERROR("[FrameGuard] render/frame threw: {} — frame skipped (would have terminated 2ship)",
+                     e.what());
+    } catch (...) {
+        SPDLOG_ERROR("[FrameGuard] render/frame threw a non-std exception — frame skipped");
+    }
+
+    // Host-death watchdog must run EVERY frame, independent of the render gating below: an
+    // inactive 2ship skips ProducerPublishFrame (which also carries this check), so without an
+    // unconditional poll here an idle 2ship would never notice Ship closed and would orphan.
+    // Cheap no-op when not a hosted child / while Ship is alive.
+    FleetShipCombo_PollHostAlive();
+
+    // Fleet Ship Combo: only when this game actually rendered (it's active, its BenGui is
+    // being viewed, or the UI overlay keeps ImGui alive with an empty DL) do we capture/publish
+    // its image. When fully skipped, RunCommands rendered nothing — instead throttle this
+    // process to ~30 Hz so the idle game costs almost nothing (skipping the render also removed
+    // the vsync pacing).
+    if (FleetShipCombo_IsThisGameActive() || FleetShipCombo_GetUiFocus() == 1 ||
+        CVarGetInteger("gFleetShipCombo.UiOverlay", 1)) {
+        FleetShipCombo_ProducerPublishFrame();
+    } else {
+        // Inactive game with uiFocus==0: ProducerPublishFrame is skipped, but the guest-window
+        // park/hide lives inside it. Call it here so 2ship's window re-hides when focus returns to
+        // Ship (else the BenGui stays on top of Ship's config).
+        FleetShipCombo_UpdateGuestWindow();
+        std::this_thread::sleep_for(std::chrono::milliseconds(33));
+    }
 
     last_fps = fps;
     last_update_rate = R_UPDATE_RATE;
@@ -1484,6 +1664,47 @@ extern "C" char* ResourceMgr_LoadPlayerAnimByName(const char* animPath) {
     auto anim = std::static_pointer_cast<SOH::PlayerAnimation>(GetResourceByName(animPath));
 
     return (char*)&anim->limbRotData[0];
+}
+
+// A SOH_PlayerAnimation resource is a RAW s16 payload, NOT a PlayerAnimationHeader. Casting the raw
+// pointer to a header would read frame-0 data as frameCount/segment → garbage → OOB memcpy in
+// AnimationContext_SetLoadFrame. This wraps the payload in a real header (frameCount = totalS16 / 67,
+// segment = data) and caches it persistently, so the returned pointer stays valid for the whole
+// session. Mirrors SoH's ResourceMgr_LoadPlayerAnimAsHeader. Skijer's NEI
+extern "C" PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeader(const char* animPath) {
+    if (animPath == nullptr) {
+        return nullptr;
+    }
+    auto res = GetResourceByName(animPath);
+    if (res == nullptr) {
+        return nullptr;
+    }
+    // MUST verify the type before casting: static_pointer_cast is unchecked, so a resource of any
+    // other type would be reinterpreted as a PlayerAnimation and hand back a garbage data pointer.
+    // AnimTaskQueue_AddLoadPlayerFrame then memcpys from it and crashes. Mirrors SoH's check.
+    if (res->GetInitData()->Type != static_cast<uint32_t>(SOH::ResourceType::SOH_PlayerAnimation)) {
+        return nullptr;
+    }
+    auto playerAnim = std::static_pointer_cast<SOH::PlayerAnimation>(res);
+    if (playerAnim == nullptr || playerAnim->GetPointer() == nullptr || playerAnim->GetPointerSize() == 0) {
+        return nullptr;
+    }
+
+    constexpr size_t kS16PerFrame = 67; // sizeof(Vec3s) * PLAYER_LIMB_MAX + 2
+
+    size_t totalS16 = playerAnim->GetPointerSize() / sizeof(int16_t);
+    size_t frameCount = totalS16 / kS16PerFrame;
+
+    // A payload shorter than one frame would make the caller read past the end of the data.
+    if (frameCount == 0) {
+        return nullptr;
+    }
+
+    static std::unordered_map<std::string, PlayerAnimationHeader> sPlayerAnimWrappers;
+    PlayerAnimationHeader& wrapper = sPlayerAnimWrappers[animPath];
+    wrapper.common.frameCount = (s16)frameCount;
+    wrapper.segmentVoid = (void*)playerAnim->GetPointer();
+    return &wrapper;
 }
 
 extern "C" void ResourceMgr_PushCurrentDirectory(char* path) {

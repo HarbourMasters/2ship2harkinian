@@ -77,6 +77,28 @@ f32 CollisionCheck_GetDamageAndEffectOnElementAC(Collider* atCol, ColliderElemen
             damage *= sDamageMultipliers[acCol->actor->colChkInfo.damageTable->attack[i] & 0xF];
         }
 
+        // SoH z_collision_check.c:3660-3675 — when an Ivan-style entity is
+        // the active "player" (Ivan companion, possess mode, or SM64 Mario),
+        // scale damage by Player.ivanDamageMultiplier. EnPartner (in SoH)
+        // sets the multiplier per attack; MM has no EnPartner so the field
+        // initializes to 1 in Player_Init and the multiply is a no-op
+        // unless something explicitly drops it. Preserves the SoH path
+        // verbatim so Mario punch/kick/dive damage routes through the same
+        // hook in both ports.
+        {
+            extern u8 gIvanPossessActive;
+            extern u8 Sm64Mario_IsReady(void);
+            // MM doesn't define CVAR_ENHANCEMENT() as a macro (SoH-only
+            // convention). Use the literal CVar name — equivalent expansion.
+            if (CVarGetInteger("gEnhancements.IvanCoopModeEnabled", 0) || gIvanPossessActive ||
+                Sm64Mario_IsReady()) {
+                // CollisionCheck_GetDamageAndEffectOnElementAC takes no
+                // PlayState* — use the global gPlayState (variables.h:298)
+                // to reach the active Player.
+                damage *= GET_PLAYER(gPlayState)->ivanDamageMultiplier;
+            }
+        }
+
         if ((GameInteractor_Should(VB_DAMAGE_EFFECT, true, i, acCol->actor->colChkInfo.damageTable, effect,
                                    acCol->actor))) {
             *effect = (acCol->actor->colChkInfo.damageTable->attack[i] >> 4) & 0xF;
@@ -3532,6 +3554,22 @@ void CollisionCheck_ApplyDamage(struct PlayState* play, CollisionCheckContext* c
         if (!(col->acFlags & AC_HARD) || ((col->acFlags & AC_HARD) && (atElem->atDmgInfo.dmgFlags == 0x20000000))) {
             if (col->actor->colChkInfo.damage < finalDamage) {
                 col->actor->colChkInfo.damage = finalDamage;
+            }
+        }
+
+        // SoH z_collision_check.c:3037-3044 — apply Ivan/Mario damage scale
+        // to the final assigned damage (mirror of the multiplier hook in
+        // CollisionCheck_GetDamageAndEffectOnElementAC above). Same gate
+        // and same field; this path covers ApplyDamage callers that flow
+        // through finalDamage assignment instead of the +=.
+        {
+            extern u8 gIvanPossessActive;
+            extern u8 Sm64Mario_IsReady(void);
+            // MM doesn't define CVAR_ENHANCEMENT() as a macro (SoH-only
+            // convention). Use the literal CVar name — equivalent expansion.
+            if (CVarGetInteger("gEnhancements.IvanCoopModeEnabled", 0) || gIvanPossessActive ||
+                Sm64Mario_IsReady()) {
+                col->actor->colChkInfo.damage *= GET_PLAYER(play)->ivanDamageMultiplier;
             }
         }
     }

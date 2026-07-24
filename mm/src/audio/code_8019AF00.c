@@ -1,5 +1,6 @@
 #include "global.h"
 #include "z64voice.h"
+#include <string.h> // Skijer's NEI: strcmp (NeiAudio_PlayOotSongFanfare custom-music lookup)
 
 #include "GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
@@ -1475,6 +1476,83 @@ OcarinaNote sOcarinaSongNotes[OCARINA_SONG_MAX][20] = {
         { OCARINA_PITCH_D4, 3, 0, 0, 0, 0 },
         { OCARINA_PITCH_NONE, 0, 255, 0, 0, 0 },
     },
+
+    // Skijer's NEI: OoT warp songs get dedicated ocarina slots (24-29) so the OoT quest page can play
+    // AND song-check them through MM's own machinery. Real OoT note data (rhythm + rests + dynamics).
+    // OCARINA_SONG_OOT_MINUET
+    {
+        { OCARINA_PITCH_D4, 18, 86, 0, 0, 0 },  { OCARINA_PITCH_D5, 18, 92, 0, 0, 0 },
+        { OCARINA_PITCH_B4, 72, 86, 0, 0, 0 },  { OCARINA_PITCH_A4, 18, 80, 0, 0, 0 },
+        { OCARINA_PITCH_B4, 18, 88, 0, 0, 0 },  { OCARINA_PITCH_A4, 144, 86, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 0, 86, 0, 0, 0 },
+    },
+    // OCARINA_SONG_OOT_BOLERO
+    {
+        { OCARINA_PITCH_F4, 15, 80, 0, 0, 0 },  { OCARINA_PITCH_D4, 15, 72, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 15, 84, 0, 0, 0 },  { OCARINA_PITCH_D4, 15, 76, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 15, 84, 0, 0, 0 },  { OCARINA_PITCH_F4, 15, 74, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 15, 78, 0, 0, 0 },  { OCARINA_PITCH_F4, 135, 66, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 0, 66, 0, 0, 0 },
+    },
+    // OCARINA_SONG_OOT_SERENADE
+    {
+        { OCARINA_PITCH_D4, 36, 60, 0, 0, 0 },  { OCARINA_PITCH_F4, 36, 78, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 33, 82, 0, 0, 0 },  { OCARINA_PITCH_NONE, 3, 82, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 36, 84, 0, 0, 0 },  { OCARINA_PITCH_B4, 144, 90, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
+    },
+    // OCARINA_SONG_OOT_REQUIEM
+    {
+        { OCARINA_PITCH_D4, 45, 88, 0, 0, 0 },  { OCARINA_PITCH_F4, 23, 86, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 22, 84, 0, 0, 0 },  { OCARINA_PITCH_A4, 45, 86, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 45, 94, 0, 0, 0 },  { OCARINA_PITCH_D4, 180, 94, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 0, 94, 0, 0, 0 },
+    },
+    // OCARINA_SONG_OOT_NOCTURNE
+    {
+        { OCARINA_PITCH_B4, 36, 88, 0, 0, 0 },  { OCARINA_PITCH_A4, 33, 84, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 3, 84, 0, 0, 0 }, { OCARINA_PITCH_A4, 18, 82, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 18, 60, 0, 0, 0 },  { OCARINA_PITCH_B4, 18, 90, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 18, 88, 0, 0, 0 },  { OCARINA_PITCH_F4, 144, 96, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 0, 96, 0, 0, 0 },
+    },
+    // OCARINA_SONG_OOT_PRELUDE
+    {
+        { OCARINA_PITCH_D5, 15, 84, 0, 0, 0 },  { OCARINA_PITCH_A4, 45, 88, 0, 0, 0 },
+        { OCARINA_PITCH_D5, 15, 88, 0, 0, 0 },  { OCARINA_PITCH_A4, 15, 82, 0, 0, 0 },
+        { OCARINA_PITCH_B4, 15, 86, 0, 0, 0 },  { OCARINA_PITCH_D5, 60, 90, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 75, 90, 0, 0, 0 }, { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
+    },
+
+    // Skijer's NEI custom songs (slots 30-32; pitches = sButtonToPitchMap of the fingering).
+    // OCARINA_SONG_NEI_FUGUE_OF_HOME — A,Cd,Cr,Cu,Cr,Cl all sixteenths (10), played 3 cycles, each
+    // cycle transposed a whole tone up (+2 semitones): cycle2/3 pitches climb past the staff range,
+    // which only affects the (cosmetic) staff button mapping — the audio plays them fine.
+    {
+        { 2, 10, 86, 0, 0, 0 },  { 5, 10, 86, 0, 0, 0 },  { 9, 10, 88, 0, 0, 0 },
+        { 14, 10, 88, 0, 0, 0 }, { 9, 10, 88, 0, 0, 0 },  { 11, 10, 90, 0, 0, 0 },
+        { 4, 10, 86, 0, 0, 0 },  { 7, 10, 86, 0, 0, 0 },  { 11, 10, 88, 0, 0, 0 },
+        { 16, 10, 88, 0, 0, 0 }, { 11, 10, 88, 0, 0, 0 }, { 13, 10, 90, 0, 0, 0 },
+        { 6, 10, 88, 0, 0, 0 },  { 9, 10, 88, 0, 0, 0 },  { 13, 10, 90, 0, 0, 0 },
+        { 18, 10, 90, 0, 0, 0 }, { 13, 10, 90, 0, 0, 0 }, { 15, 40, 92, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
+    },
+    // OCARINA_SONG_NEI_COMMAND_MELODY — A,Cl,A,Cr ×2; quarters (40) except the C-rights = halves (80),
+    // at 90 BPM (quarter = 40 ticks, matching Song of Time's tempo).
+    {
+        { 2, 40, 86, 0, 0, 0 },  { 11, 40, 86, 0, 0, 0 }, { 2, 40, 86, 0, 0, 0 },
+        { 9, 80, 90, 0, 0, 0 },  { 2, 40, 86, 0, 0, 0 },  { 11, 40, 86, 0, 0, 0 },
+        { 2, 40, 86, 0, 0, 0 },  { 9, 80, 90, 0, 0, 0 },  { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
+    },
+    // OCARINA_SONG_NEI_BALLAD_OF_HERO — fingering A,Cd,Cu,Cl,Cr,Cl,Cr but the PLAYBACK ornaments the
+    // 4th note as two eighths (C5 grace → B4): A, Cd, Cu, [Cl#, Cl], Cr, Cl, Cr. 185 BPM (quarter=19,
+    // eighth=10, half=39, dotted-half=58): quarter, quarter, dotted-half, [eighth, eighth], half,
+    // quarter, dotted-half. The UI still shows only the 7 fingering notes (staff pos clamp).
+    {
+        { 2, 19, 86, 0, 0, 0 },  { 5, 19, 86, 0, 0, 0 },  { 14, 58, 90, 0, 0, 0 },
+        { 12, 10, 88, 0, 0, 0 }, { 11, 10, 88, 0, 0, 0 }, { 9, 39, 90, 0, 0, 0 },
+        { 11, 19, 88, 0, 0, 0 }, { 9, 58, 92, 0, 0, 0 },  { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
+    },
 };
 
 OcarinaNote sOoTOcarinaSongNotes[9][20] = {
@@ -2022,6 +2100,29 @@ OcarinaSongButtons gOcarinaSongButtons[OCARINA_SONG_MAX] = {
             OCARINA_BTN_C_DOWN,
         },
     },
+
+    // Skijer's NEI: OoT warp-song button fingerings (slots 24-29) — match the note pitches above.
+    { 6, { OCARINA_BTN_A, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT,
+           OCARINA_BTN_C_RIGHT } }, // Minuet
+    { 8, { OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT,
+           OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN } }, // Bolero
+    { 5, { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT,
+           OCARINA_BTN_C_LEFT } }, // Serenade
+    { 6, { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN,
+           OCARINA_BTN_A } }, // Requiem
+    { 7, { OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A, OCARINA_BTN_C_LEFT,
+           OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN } }, // Nocturne
+    { 6, { OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT,
+           OCARINA_BTN_C_UP } }, // Prelude
+
+    // Skijer's NEI custom songs (slots 30-32). Fugue's RECOGNITION fingering is the 6-note base cycle
+    // (playback plays 3 rising cycles of it).
+    { 6, { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT,
+           OCARINA_BTN_C_LEFT } }, // Fugue of Home
+    { 8, { OCARINA_BTN_A, OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A,
+           OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT } }, // Command Melody
+    { 7, { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT,
+           OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT } }, // Ballad of Hero
 };
 
 const u16 gAudioEnvironmentalSfx[] = {
@@ -2063,7 +2164,22 @@ const u8 sIsOcarinaSongReserved[OCARINA_SONG_MAX] = {
     false, // OCARINA_SONG_ZELDAS_LULLABY
     true,  // OCARINA_SONG_SCARECROW_SPAWN
     false, // OCARINA_SONG_TERMINA_WALL
+    false, // OCARINA_SONG_OOT_MINUET   (Skijer's NEI warp slots — not MM-reserved)
+    false, // OCARINA_SONG_OOT_BOLERO
+    false, // OCARINA_SONG_OOT_SERENADE
+    false, // OCARINA_SONG_OOT_REQUIEM
+    false, // OCARINA_SONG_OOT_NOCTURNE
+    false, // OCARINA_SONG_OOT_PRELUDE
+    false, // OCARINA_SONG_NEI_FUGUE_OF_HOME  (Skijer's NEI custom slots)
+    false, // OCARINA_SONG_NEI_COMMAND_MELODY
+    false, // OCARINA_SONG_NEI_BALLAD_OF_HERO
 };
+
+// Skijer's NEI: side availability mask for the custom songs (slots 30-32 have no bitmask bits — bits
+// 30/31 are mode flags). bit 0 = Fugue of Home, 1 = Command Melody, 2 = Ballad of Hero. Set by
+// Message_DisplayOcarinaStaffImpl (free play, NEI ownership) and the quest page's prompt; consumed by
+// the side loop in AudioOcarina_CheckSongsWithoutMusicStaff.
+u8 gNeiCustomSongsAvailable = 0;
 
 const char sAudioOcarinaUnusedText0[] = "key step is too long !!! %d:%d>%d\n";
 const char sAudioOcarinaUnusedText1[] = "You played %d Melody !!! (last step:%d)\n";
@@ -2228,10 +2344,20 @@ void AudioOcarina_Start(u32 ocarinaFlags) {
     }
 
     if (ocarinaFlags != 0xFFFF) {
+        // NEI-DBG: pause-play tracing (remove after diagnosis)
+        {
+            extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
+            lusprintf(__FILE__, __LINE__, 2, "NEI-PP: AudioOcarina_Start flags=0x%08X", ocarinaFlags);
+        }
         sOcarinaFlags = 0x80000000 + ocarinaFlags;
         sFirstOcarinaSongIndex = 0;
-        sLastOcarinaSongIndex = OCARINA_SONG_MAX;
-        sOcarinaAvailableSongFlags = ocarinaFlags & 0xFFFFFF;
+        // Skijer's NEI: clamp the vanilla recognition loops BELOW the custom slots (30-32). Their
+        // bit test would hit the mode-flag bits (1<<30/31) and `1 << 32` is UB; the side loop in
+        // CheckSongsWithoutMusicStaff (gNeiCustomSongsAvailable) recognizes them instead.
+        sLastOcarinaSongIndex = OCARINA_SONG_NEI_CUSTOM_FIRST;
+        // Skijer's NEI: was & 0xFFFFFF (24 song bits, 0..23). Widened to 0x3FFFFFFF so the OoT warp-song
+        // slots (bits 24..29) survive the mask and can be recognized; bits 30-31 stay the mode flags.
+        sOcarinaAvailableSongFlags = ocarinaFlags & 0x3FFFFFFF;
         sMusicStaffNumNotesPerTest = 8; // Ocarina Check
         sOcarinaHasStartedSong = false;
         sPlayedOcarinaSongIndexPlusOne = 0;
@@ -2242,6 +2368,28 @@ void AudioOcarina_Start(u32 ocarinaFlags) {
 
         // Reset music staff song check
         for (songIndex = OCARINA_SONG_SONATA; songIndex <= OCARINA_SONG_EVAN_PART2; songIndex++) {
+            for (sMusicStaffPos[songIndex] = 0;
+                 sOcarinaSongNotes[songIndex][sMusicStaffPos[songIndex]].pitch == OCARINA_PITCH_NONE;) {
+                sMusicStaffPos[songIndex]++;
+            }
+
+            sMusicStaffCurHeldLength[songIndex] = 0;
+            sMusicStaffExpectedLength[songIndex] = 0;
+            sMusicStaffExpectedPitch[songIndex] = 0;
+
+            if (D_801D8530) {
+                if ((1 << songIndex) & ocarinaFlags) {
+                    D_801FD518[songIndex] = 0;
+                } else {
+                    D_801FD518[songIndex] = 0xFF;
+                }
+            }
+        }
+
+        // Skijer's NEI: the vanilla loop above stops at EVAN_PART2 to skip the special songs 21-23, so
+        // it misses our OoT warp-song slots (24-29). Reset their music-staff state the same way so they
+        // can be recognized in the OoT quest page's "play it yourself" prompt.
+        for (songIndex = OCARINA_SONG_OOT_WARP_FIRST; songIndex <= OCARINA_SONG_OOT_WARP_LAST; songIndex++) {
             for (sMusicStaffPos[songIndex] = 0;
                  sOcarinaSongNotes[songIndex][sMusicStaffPos[songIndex]].pitch == OCARINA_PITCH_NONE;) {
                 sMusicStaffPos[songIndex]++;
@@ -2589,6 +2737,38 @@ void AudioOcarina_CheckSongsWithoutMusicStaff(void) {
 
                 // This conditional is true if songIndex = i is detected
                 if (j == gOcarinaSongButtons[songIndex].numButtons) {
+                    // NEI-DBG: pause-play tracing (remove after diagnosis)
+                    {
+                        extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
+                        lusprintf(__FILE__, __LINE__, 2, "NEI-PP: audio recognized song=%d (hand-played)", songIndex);
+                    }
+                    sPlayedOcarinaSongIndexPlusOne = songIndex + 1;
+                    sIsOcarinaInputEnabled = false;
+                    sOcarinaFlags = 0;
+                }
+            }
+        }
+
+        // Skijer's NEI: SIDE recognition for the custom songs (slots 30-32, no bitmask bits — see
+        // gNeiCustomSongsAvailable). Identical note-history compare as the vanilla loop above.
+        for (songIndex = OCARINA_SONG_NEI_CUSTOM_FIRST; songIndex <= OCARINA_SONG_NEI_CUSTOM_LAST; songIndex++) {
+            if (gNeiCustomSongsAvailable & (1 << (songIndex - OCARINA_SONG_NEI_CUSTOM_FIRST))) {
+                for (j = 0, k = 0; (j < gOcarinaSongButtons[songIndex].numButtons) && (k == 0) &&
+                                   (sOcarinaWithoutMusicStaffPos >= gOcarinaSongButtons[songIndex].numButtons);) {
+                    pitch = sCurOcarinaSongWithoutMusicStaff[(sOcarinaWithoutMusicStaffPos -
+                                                              gOcarinaSongButtons[songIndex].numButtons) +
+                                                             j];
+                    if (pitch == sButtonToPitchMap[gOcarinaSongButtons[songIndex].buttonIndex[j]]) {
+                        j++;
+                    } else {
+                        k++;
+                    }
+                }
+                if (j == gOcarinaSongButtons[songIndex].numButtons) {
+                    {
+                        extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
+                        lusprintf(__FILE__, __LINE__, 2, "NEI-PP: audio recognized CUSTOM song=%d", songIndex);
+                    }
                     sPlayedOcarinaSongIndexPlusOne = songIndex + 1;
                     sIsOcarinaInputEnabled = false;
                     sOcarinaFlags = 0;
@@ -2846,6 +3026,94 @@ void AudioOcarina_SetPlaybackSong(s8 songIndexPlusOne, u8 playbackState) {
             sPlaybackNotePos++;
         }
     }
+}
+
+// Skijer's NEI: play a caller-supplied ocarina note sequence. The OoT quest-page warp songs (Minuet,
+// Bolero, ...) aren't in sOcarinaSongNotes, so the quest page builds a note array from their button
+// sequences and hands it here. Same setup as AudioOcarina_SetPlaybackSong's plain (no-flag) path, but
+// points sPlaybackSong at `song` — which MUST end with an OCARINA_PITCH_NONE, length-0 terminator.
+void AudioOcarina_PlayCustomSong(OcarinaNote* song) {
+    if (song == NULL) {
+        sPlaybackState = 0;
+        AudioSfx_StopById(NA_SE_OC_OCARINA);
+        return;
+    }
+    AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_DEFAULT);
+    sPlaybackSong = song;
+    sPlaybackNotePos = 0;
+    sPlaybackState = 1;
+    sPlaybackStaffStopPos = 0xFF;
+    sPlaybackStaffStartPos = 0xFF;
+    sPlaybackNoteTimer = 0;
+    sPlaybackPitch = OCARINA_PITCH_NONE;
+    sPlaybackStaffPos = 0;
+}
+
+// Skijer's NEI — MOD WINDOW: full/streamed arrangement for songs that have no usable MM fanfare
+// (Saria's slot 5 = Majora's Lair music, Zelda's Lullaby slot 21 + OoT warp slots 24-29 = none).
+// Called from the success flow (z_message.c MSGMODE_SETUP_DISPLAY_SONG_PLAYED) right where MM songs
+// get their Audio_PlayFanfareWithPlayerIOPort7.
+//
+// HOW TO ADD THE SOUND: drop any .o2r in the mods/ folder (auto-mounted) containing a custom-music
+// entry named EXACTLY one of the canonical names below (standard 2ship custom/streamed music format —
+// same tooling as any custom track; streamed songs resolve their soundfont by hash). The audio boot
+// pass (audio/lib/load.c) assigns it a free seq id and registers it in gSequenceMap under its path;
+// we find it by name here and play it as the song's fanfare. If absent: silence (the ocarina note
+// playback started just before this call already carries the melody — the "incomplete" version).
+// NOTE: the companion oot.o2r's own OoT sequences (audio/sequences/052_Minuet_of_Forest etc.) canNOT
+// be pointed at directly — their font indices refer to OoT's soundfonts, which collide with MM's font
+// table (wrong instruments). Re-author as custom/music (main melody + one instrument, per design).
+void NeiAudio_PlayOotSongFanfare(u8 songIndex) {
+    static const struct {
+        u8 song;
+        const char* name;
+    } sNeiOotFanfareNames[] = {
+        { OCARINA_SONG_SARIAS, "custom/music/NEI_Sarias_Song" },
+        { OCARINA_SONG_ZELDAS_LULLABY, "custom/music/NEI_Zeldas_Lullaby" },
+        { OCARINA_SONG_OOT_MINUET, "custom/music/NEI_Minuet_of_Forest" },
+        { OCARINA_SONG_OOT_BOLERO, "custom/music/NEI_Bolero_of_Fire" },
+        { OCARINA_SONG_OOT_SERENADE, "custom/music/NEI_Serenade_of_Water" },
+        { OCARINA_SONG_OOT_REQUIEM, "custom/music/NEI_Requiem_of_Spirit" },
+        { OCARINA_SONG_OOT_NOCTURNE, "custom/music/NEI_Nocturne_of_Shadow" },
+        { OCARINA_SONG_OOT_PRELUDE, "custom/music/NEI_Prelude_of_Light" },
+        { OCARINA_SONG_NEI_FUGUE_OF_HOME, "custom/music/NEI_Fugue_of_Home" },
+        { OCARINA_SONG_NEI_COMMAND_MELODY, "custom/music/NEI_Command_Melody" },
+        { OCARINA_SONG_NEI_BALLAD_OF_HERO, "custom/music/NEI_Ballad_of_Hero" },
+    };
+    extern char** gSequenceMap;   // audio/lib/load.c — seq id -> otr path
+    extern size_t gSequenceMapSize;
+    void Audio_PlayFanfare(u16 seqId); // defined below in this file
+    const char* wanted = NULL;
+    size_t i;
+
+    for (i = 0; i < ARRAY_COUNT(sNeiOotFanfareNames); i++) {
+        if (sNeiOotFanfareNames[i].song == songIndex) {
+            wanted = sNeiOotFanfareNames[i].name;
+            break;
+        }
+    }
+    if (wanted == NULL) {
+        return;
+    }
+
+    for (i = 0; i < gSequenceMapSize; i++) {
+        if ((gSequenceMap[i] != NULL) && (strcmp(gSequenceMap[i], wanted) == 0)) {
+            Audio_PlayFanfare((u16)i);
+            return;
+        }
+    }
+    // Not provided by any mod — notes-only ("incomplete") version stands.
+}
+
+// Skijer's NEI: mark `songIndex` as just-played, exactly like the success case in
+// AudioOcarina_CheckSongsWithMusicStaff. AudioOcarina_GetPlayingState then hands it to the message
+// system's MSGMODE_OCARINA_PLAYING poll, which runs the song's NATIVE recognition/effect flow. Used by
+// the quest page's "Pause Play": after the auto-playback of a song finishes in-world, this makes the
+// game react as if the player had played it by hand.
+void AudioOcarina_ForceSongPlayed(u8 songIndex) {
+    sPlayedOcarinaSongIndexPlusOne = songIndex + 1;
+    sIsOcarinaInputEnabled = false;
+    sOcarinaFlags = 0;
 }
 
 /**
@@ -3145,7 +3413,26 @@ void AudioOcarina_UpdatePlaybackStaff(void) {
 
     sPlaybackStaff.state = sPlaybackState;
 
-    if (sPlaybackSong != sScarecrowsLongSongNotes) {
+    // Skijer's NEI: custom songs may PLAY more notes than their fingering (Fugue's 18-note rising
+    // cycles, Ballad's ornament eighths) — the UI must only ever show the song's OWN fingering notes;
+    // the extras are just the sound playing in the background. CLAMP the staff pos at the fingering
+    // length: the fingering reveals once, then pos freezes so the message-side recorder stops (also
+    // keeps sOcarinaButtonIndexBuf[12] in bounds).
+    if ((sPlaybackSong == sOcarinaSongNotes[OCARINA_SONG_NEI_FUGUE_OF_HOME]) ||
+        (sPlaybackSong == sOcarinaSongNotes[OCARINA_SONG_NEI_BALLAD_OF_HERO])) {
+        u8 neiSongIdx = (sPlaybackSong == sOcarinaSongNotes[OCARINA_SONG_NEI_FUGUE_OF_HOME])
+                            ? OCARINA_SONG_NEI_FUGUE_OF_HOME
+                            : OCARINA_SONG_NEI_BALLAD_OF_HERO;
+        u8 neiLen = gOcarinaSongButtons[neiSongIdx].numButtons;
+
+        sPlaybackStaff.pos = (sPlaybackStaffPos < neiLen) ? sPlaybackStaffPos : neiLen;
+        // Drive the SHOWN button straight from the fingering at the clamped position — not from the
+        // pitch currently sounding — so the on-screen staff (in-world replay + minigame reveal) is
+        // always the song's own notes (A,C↓,...) even while extra ornament/cycle pitches play.
+        if (sPlaybackStaff.pos >= 1) {
+            sPlaybackStaff.buttonIndex = gOcarinaSongButtons[neiSongIdx].buttonIndex[sPlaybackStaff.pos - 1];
+        }
+    } else if (sPlaybackSong != sScarecrowsLongSongNotes) {
         sPlaybackStaff.pos = sPlaybackStaffPos;
     } else if (sPlaybackStaffPos == 0) {
         sPlaybackStaff.pos = 0;

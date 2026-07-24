@@ -226,7 +226,7 @@ std::vector<TimesplitObject> splitObjectList = {
     { ITEM_SONG_LULLABY_INTRO, 	"Goron Lullaby Intro" },
     { ITEM_SWORD_RAZOR, 	    "Razor Sword" },
     { ITEM_SWORD_GILDED, 	    "Gilded Sword" },
-    { ITEM_SHIELD_MIRROR, 	    "Mirror Shield" },
+    { ITEM_SHIELD_MIRROR, 	    "Shield of Ikana" }, // display rename (MM's vanilla Mirror Shield)
     { ITEM_WALLET_GIANT, 	    "Giant Wallet" },
     { SPLIT_DOUBLE_MAGIC,       "Double Magic" },
 

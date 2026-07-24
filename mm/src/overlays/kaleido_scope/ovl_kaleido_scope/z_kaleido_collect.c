@@ -7,8 +7,941 @@
 #include "z_kaleido_scope.h"
 #include "interface/parameter_static/parameter_static.h"
 #include "archives/icon_item_static/icon_item_static_yar.h"
+#include <libultraship/bridge/consolevariablebridge.h> // CVarGetInteger (OoT quest-page L-flip toggle)
 
 s32 KaleidoScope_UpdateQuestStatusPoint(PauseContext* pauseCtx, s16 point);
+
+// ============================================================================
+// Skijer's NEI — OoT quest-status page (L-flip alternate of MM's quest page).
+//
+// A faithful port of OoT's KaleidoScope_DrawQuestStatus collect layout, reading a PARALLEL
+// quest store (NeiSaveData.ootQuestItems / ootGsCount, OoT bit layout) so it never collides
+// with MM's own gSaveContext.inventory.questItems. All icons come from the companion oot.o2r
+// (textures/icon_item_24_static/gQuestIcon*Tex), loaded on demand. Toggled with L on the quest
+// page (KaleidoScope_HandlePageToggles), persisted in a CVar. Self-contained: its own local
+// Vtx grid (MM's pauseCtx->questVtx is sized for MM's 39-quad layout, too small for OoT's).
+// ============================================================================
+#include "mods/nei_save.h"
+#include "mods/extended_inventory.h"
+#include "mods/spiritual_stones/spiritual_stones.h" // SpiritualStone_IsPassiveActive (stone dimming)
+
+extern void* OotAssets_LoadTexOrDList(const char* otrPath);
+extern const char* sCounterTextures[]; // GS-count digit textures (I8 8x16), shared with MM's page
+
+// CVar-persisted view toggle: 0 = MM quest page, 1 = OoT quest page.
+#define CVAR_OOT_QUEST_PAGE "gEnhancements.Kaleido.OotQuestPage"
+
+// OoT song-note colors — EXACT (soh z_kaleido_collect.c D_8082A164/17C/194).
+static const s16 sOotSongR[12] = { 150, 255, 100, 255, 255, 255, 255, 255, 255, 255, 255, 255 };
+static const s16 sOotSongG[12] = { 255, 80, 150, 160, 100, 240, 255, 255, 255, 255, 255, 255 };
+static const s16 sOotSongB[12] = { 100, 40, 255, 0, 255, 100, 255, 255, 255, 255, 255, 255 };
+
+// OoT medallion glow — env-color cycle targets (soh D_8082A090). Phase 0 = index sp218 (all 0 =
+// no glow), phase 2 = index sp218+6 (the colored halo). Phases 1/3 hold. The env lerps toward the
+// active phase's target each frame, giving the rotating colored glow behind the medallions.
+static const s16 sOotMedGlowTargets[12][3] = {
+    { 0, 0, 0 },  { 0, 0, 0 },  { 0, 0, 0 },    { 0, 0, 0 },   { 0, 0, 0 },   { 0, 0, 0 },
+    { 0, 60, 0 }, { 90, 0, 0 }, { 0, 40, 110 }, { 80, 40, 0 }, { 70, 0, 90 }, { 90, 90, 0 },
+};
+
+// OoT quest-vertex layout tables (soh z_kaleido_scope_PAL.c D_8082B138 = X, D_8082B198 = Y,
+// D_8082B1F8 = size). 47 quads: 0-5 medallions, 6-17 songs, 18-20 stones, 21 agony, 22 gerudo,
+// 23 skulltula, 24 GS medal (48px), 25-40 ocarina staff, 41-46 GS-count digits.
+static const s16 sOotVtxX[47] = {
+    74,  74,  46,  18,  18,  46,  -108, -90, -72, -54, -36, -18, -108, -90, -72, -54,
+    -36, -18, 20,  46,  72,  -110, -86,  -110, -54, -98, -86, -74, -62,  -50, -38, -26,
+    -14, -98, -86, -74, -62, -50,  -38,  -26,  -14, -88, -81, -72, -90,  -83, -74,
+};
+static const s16 sOotVtxY[47] = {
+    38, 6,   -12, 6,   38,  56,  -20, -20, -20, -20, -20, -20, 2,   2,   2,   2,   2,   2,  -46, -46, -46, 58, 58, 34,
+    58, -52, -52, -52, -52, -52, -52, -52, -52, -52, -52, -52, -52, -52, -52, -52, -52, 34, 34,  34,  36,  36, 36,
+};
+static const s16 sOotVtxSize[47] = {
+    24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24,
+    48, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+};
+
+static const char* sOotMedallionIconPaths[6] = {
+    "__OTR__textures/icon_item_24_static/gQuestIconMedallionForestTex",
+    "__OTR__textures/icon_item_24_static/gQuestIconMedallionFireTex",
+    "__OTR__textures/icon_item_24_static/gQuestIconMedallionWaterTex",
+    "__OTR__textures/icon_item_24_static/gQuestIconMedallionSpiritTex",
+    "__OTR__textures/icon_item_24_static/gQuestIconMedallionShadowTex",
+    "__OTR__textures/icon_item_24_static/gQuestIconMedallionLightTex",
+};
+static const char* sOotStoneIconPaths[3] = {
+    "__OTR__textures/icon_item_24_static/gQuestIconKokiriEmeraldTex",
+    "__OTR__textures/icon_item_24_static/gQuestIconGoronRubyTex",
+    "__OTR__textures/icon_item_24_static/gQuestIconZoraSapphireTex",
+};
+static const char* sOotAgonyIconPath = "__OTR__textures/icon_item_24_static/gQuestIconStoneOfAgonyTex";
+static const char* sOotGerudoIconPath = "__OTR__textures/icon_item_24_static/gQuestIconGerudosCardTex";
+static const char* sOotSkulltulaIconPath = "__OTR__textures/icon_item_24_static/gQuestIconGoldSkulltulaTex";
+
+// Companion item-name textures (IA4 128x16) for the hovered slot — shown in the bottom name box, so
+// hovering a song tells you WHICH song it is (its "preview"). Indexed by quest point 0..23. Skijer's NEI.
+static const char* sOotNamePaths[24] = {
+    "__OTR__textures/item_name_static/gForestMedallionItemNameENGTex", // 0 Forest
+    "__OTR__textures/item_name_static/gFireMedallionItemNameENGTex",   // 1 Fire
+    "__OTR__textures/item_name_static/gWaterMedallionItemNameENGTex",  // 2 Water
+    "__OTR__textures/item_name_static/gSpiritMedallionItemNameENGTex", // 3 Spirit
+    "__OTR__textures/item_name_static/gShadowMedallionItemNameENGTex", // 4 Shadow
+    "__OTR__textures/item_name_static/gLightMedallionItemNameENGTex",  // 5 Light
+    "__OTR__textures/item_name_static/gMinuetOfForestItemNameENGTex",  // 6 Minuet
+    "__OTR__textures/item_name_static/gBoleroOfFireItemNameENGTex",    // 7 Bolero
+    "__OTR__textures/item_name_static/gSerenadeOfWaterItemNameENGTex", // 8 Serenade
+    "__OTR__textures/item_name_static/gRequiemOfSpiritItemNameENGTex", // 9 Requiem
+    "__OTR__textures/item_name_static/gNocturneOfShadowItemNameENGTex",// 10 Nocturne
+    "__OTR__textures/item_name_static/gPreludeOfLightItemNameENGTex",  // 11 Prelude
+    "__OTR__textures/item_name_static/gZeldasLullabyItemNameENGTex",   // 12 Lullaby
+    "__OTR__textures/item_name_custom/gFugueOfHomeNameTex",            // 13 Fugue of Home (custom)
+    "__OTR__textures/item_name_static/gSariasSongItemNameENGTex",      // 14 Saria
+    "__OTR__textures/item_name_static/gSunsSongItemNameENGTex",        // 15 Sun
+    "__OTR__textures/item_name_custom/gCommandMelodyNameTex",          // 16 Command Melody (custom)
+    "__OTR__textures/item_name_custom/gBalladOfHeroNameTex",           // 17 Ballad of Hero (custom)
+    "__OTR__textures/item_name_static/gKokiriEmeraldItemNameENGTex",   // 18 Kokiri Emerald
+    "__OTR__textures/item_name_static/gGoronsRubyItemNameENGTex",      // 19 Goron's Ruby
+    "__OTR__textures/item_name_static/gZorasSapphireItemNameENGTex",   // 20 Zora's Sapphire
+    "__OTR__textures/item_name_static/gStoneofAgonyItemNameENGTex",    // 21 Stone of Agony
+    "__OTR__textures/item_name_static/gGerudosCardItemNameENGTex",     // 22 Gerudo's Card
+    "__OTR__textures/item_name_static/gGoldSkulltulaItemNameENGTex",   // 23 Gold Skulltula
+};
+
+// Cache one companion texture per unique path (small fixed set; loaded once).
+static void* OotQuest_Tex(const char* path) {
+    return OotAssets_LoadTexOrDList(path);
+}
+
+// OoT-page song fingerings (OCARINA_BTN_* per note), song index 0..11 == quest point 6..17
+// (Minuet, Bolero, Serenade, Requiem, Nocturne, Prelude, Lullaby, FUGUE OF HOME, Saria, Sun,
+// COMMAND MELODY, BALLAD OF HERO). The 3 truly-doubled songs (Epona/Time/Storms — MM grants them
+// natively) are REPLACED by the NEI custom songs on this page. Used to draw the notes on hover.
+static const u8 sOotSongButtons[12][8] = {
+    { OCARINA_BTN_A, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT },
+    { OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT,
+      OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN }, // Bolero (real OoT: Cd,A,Cd,A,Cr,Cd,Cr,Cd)
+    { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT },
+    { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN, OCARINA_BTN_A },
+    { OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A, OCARINA_BTN_C_LEFT,
+      OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN },
+    { OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_UP },
+    { OCARINA_BTN_C_LEFT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT },
+    { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT,
+      OCARINA_BTN_C_LEFT }, // Fugue of Home (replaces Epona's row)
+    { OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT,
+      OCARINA_BTN_C_LEFT },
+    { OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP },
+    { OCARINA_BTN_A, OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A,
+      OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT }, // Command Melody (replaces Song of Time's row)
+    { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT,
+      OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT }, // Ballad of Hero (replaces Song of Storms' row)
+};
+static const u8 sOotSongButtonCount[12] = { 6, 8, 5, 6, 7, 6, 6, 6, 6, 6, 8, 7 };
+
+// OoT quest song (0..11) -> MM OCARINA_SONG slot. The 6 warp songs have dedicated slots (24-29);
+// Lullaby/Saria/Sun reuse the MM slots holding the same melody; the 3 doubled rows are the NEI custom
+// songs (slots 30-32 — playback + side recognition; no repeats anywhere).
+static const s8 sOotSongToMmOcarina[12] = {
+    OCARINA_SONG_OOT_MINUET,     OCARINA_SONG_OOT_BOLERO,         OCARINA_SONG_OOT_SERENADE,
+    OCARINA_SONG_OOT_REQUIEM,    OCARINA_SONG_OOT_NOCTURNE,       OCARINA_SONG_OOT_PRELUDE,
+    OCARINA_SONG_ZELDAS_LULLABY, OCARINA_SONG_NEI_FUGUE_OF_HOME,  OCARINA_SONG_SARIAS,
+    OCARINA_SONG_SUNS,           OCARINA_SONG_NEI_COMMAND_MELODY, OCARINA_SONG_NEI_BALLAD_OF_HERO,
+};
+
+// Note-button textures (IA8 16x16), OCARINA_BTN_* order — the same art MM's own quest-song staff uses.
+static TexturePtr sOotOcarinaNoteTex[5] = {
+    gOcarinaATex, gOcarinaCDownTex, gOcarinaCRightTex, gOcarinaCLeftTex, gOcarinaCUpTex,
+};
+
+// MM's own quest-song played-note accumulator + fade alphas (defined lower in this file, used by MM's
+// vanilla quest draw) — reused by our OoT minigame's note-reveal + play-it-yourself.
+extern s16 sQuestSongPlayedOcarinaButtonsNum;
+extern u8 sQuestSongPlayedOcarinaButtons[];
+extern s16 sQuestSongPlayedOcarinaButtonsAlpha[];
+
+// ---- Interaction (cursor + equip + play-song), gated by the menu enhancements ----
+#define CVAR_QUEST_INTERACT "gEnhancements.SkijerNEI.QuestPageInteract"
+// "Pause Play": when ON (and the player holds an ocarina), A on a learned song plays it overworld-style
+// (quick play + latched effect) INSTEAD of the learn-it minigame. OFF (default) = the minigame.
+#define CVAR_PAUSE_PLAY "gEnhancements.SkijerNEI.PausePlay"
+
+extern void SpiritualStone_TogglePassive(s32 stone); // A on a stone: flip its passive buff
+void Interface_LoadItemIconImpl(PlayState* play, u8 btn);                    // refresh a C-button icon
+void Interface_Dpad_LoadItemIcon(PlayState* play, u8 btn);                   // refresh a D-pad-button icon
+Gfx* Gfx_DrawTexQuad4b(Gfx* gfx, TexturePtr texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 point);
+Gfx* Gfx_DrawTexQuadIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, u16 point); // note buttons
+
+// OoT medallion item IDs, in quest-point order (0..5). NOT contiguous in MM's item enum
+// (Shadow=0xF9, Light=0xFA skip 0xF7/0xF8), so equip must index this table, never do arithmetic.
+static const u8 sOotMedallionItemIds[6] = {
+    ITEM_MEDALLION_FOREST, ITEM_MEDALLION_FIRE,   ITEM_MEDALLION_WATER,
+    ITEM_MEDALLION_SPIRIT, ITEM_MEDALLION_SHADOW, ITEM_MEDALLION_LIGHT,
+};
+
+// OoT quest cursor point (0..0x19: 0-5 medallions, 6-0x11 songs, 0x12-0x14 stones, 0x15 agony,
+// 0x16 gerudo, 0x17 skulltula, 0x18 heart-piece). Drives the highlight + selection on the OoT page.
+// The cursor itself is MM's gPauseMenuCursorTex (from the included icon_item_static_yar.h) drawn as
+// 4 spinning circles in the PAGE view (Math_SinS/CosS from z64math.h) so it aligns with the icons —
+// MM's own DrawCursor runs in a different flat view (SetView 0,0,64) and can't be aligned blind.
+static s16 sOotQuestCursorPoint = 0;
+
+// ---- "Pause Play": close the pause menu and auto-play the selected song on the REAL ocarina ----
+// Works for ALL songs (MM's quest page + the OoT page). Phase machine driven from Player_Update
+// (NeiPausePlay_Update): the menu closes, Link pulls out the ocarina (Player_UseItem — same as
+// pressing its item button), the free-play staff opens, the song auto-plays, and for MM songs
+// AudioOcarina_ForceSongPlayed hands it to the NATIVE recognition flow → the song's real effect
+// (Soaring menu, Song of Time prompt, Storms rain, ...). OoT warp songs (slots 24-29) skip the force
+// (the message handler only knows songs <= SCARECROW_SPAWN); their effect stays latched in
+// gOotQuestSongToPlay for the warp/effect pass. Skijer's NEI.
+void Player_UseItem(PlayState* play, Player* player, ItemId item); // z_player.c:4778 (no header decl)
+
+static s16 sNeiPausePlaySong = -1; // MM ocarina slot to auto-play in-world, or -1
+static u8 sNeiPausePlayPhase = 0;  // 0 idle, 1 pull ocarina, 2 wait free-play staff (then instant success)
+static s16 sNeiPausePlayTimer = 0; // watchdog so a blocked state (cutscene, water...) can't wedge it
+
+// Deterministic forced-success handoff, consumed by z_message.c's MSGMODE_OCARINA_PLAYING handler.
+// NEEDED because the audio-side played-song latch (sPlayedOcarinaSongIndexPlusOne → playing staff)
+// only survives ONE AudioOcarina_Update tick, and Audio_Update runs more than once per game frame
+// (game.c:252 + graph.c:249) — the message's poll usually missed it. The message reads THIS instead,
+// synchronously, so the success can never be dropped. -1 = none pending.
+s16 gNeiPausePlayForcedSong = -1;
+
+static void NeiPausePlay_Start(PlayState* play, s16 mmSongIndex) {
+    PauseContext* pauseCtx = &play->pauseCtx;
+    extern f32 sPauseMenuVerticalOffset; // z_kaleido_scope_NES.c:322 (file-global, not static)
+
+    sNeiPausePlaySong = mmSongIndex;
+    sNeiPausePlayPhase = 1;
+    sNeiPausePlayTimer = 200; // ~10s of gameplay frames
+    gNeiPausePlayForcedSong = -1;
+
+    // Close the pause menu exactly like the B/Start close path (z_kaleido_scope_NES.c:3609-3621).
+    AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
+    Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
+    pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
+    sPauseMenuVerticalOffset = -6240.0f;
+    Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
+    pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
+}
+
+// NEI-DBG: pause-play tracing (remove after diagnosis)
+extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
+
+// Called every frame from Player_Update (gameplay only). Skijer's NEI.
+void NeiPausePlay_Update(PlayState* play, Player* player) {
+    MessageContext* msgCtx = &play->msgCtx;
+
+    if (sNeiPausePlayPhase == 0) {
+        return;
+    }
+    if (--sNeiPausePlayTimer <= 0) {
+        lusprintf(__FILE__, __LINE__, 2, "NEI-PP: WATCHDOG abort phase=%d song=%d msgMode=%d action=%d",
+                  sNeiPausePlayPhase, sNeiPausePlaySong, msgCtx->msgMode, msgCtx->ocarinaAction);
+        sNeiPausePlayPhase = 0;
+        sNeiPausePlaySong = -1;
+        return;
+    }
+
+    switch (sNeiPausePlayPhase) {
+        case 1: // gameplay resumed → pull out the ocarina (same pipeline as pressing its item button)
+            if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (msgCtx->msgMode == MSGMODE_NONE)) {
+                lusprintf(__FILE__, __LINE__, 2, "NEI-PP: phase1 UseItem(ocarina) song=%d", sNeiPausePlaySong);
+                Player_UseItem(play, player, ITEM_OCARINA_OF_TIME);
+                sNeiPausePlayPhase = 2;
+            }
+            break;
+
+        case 2: // the free-play staff is up → INSTANT success: count the song as played right away.
+            // The native success flow then does everything itself — correct-chime textbox, the melody
+            // replay (SetPlaybackSong in MSGMODE_SETUP_DISPLAY_SONG_PLAYED), the song-effect VFX, and
+            // the real effect (Soaring menu, etc.). No slow note-by-note pre-play.
+            if ((msgCtx->ocarinaAction == OCARINA_ACTION_FREE_PLAY) && (msgCtx->msgMode == MSGMODE_OCARINA_PLAYING)) {
+                lusprintf(__FILE__, __LINE__, 2, "NEI-PP: phase2 staff up, forcing song=%d", sNeiPausePlaySong);
+                // Deterministic handoff consumed by z_message.c (see gNeiPausePlayForcedSong); the
+                // ForceSongPlayed call just shuts the ocarina input/flags down cleanly.
+                gNeiPausePlayForcedSong = sNeiPausePlaySong;
+                AudioOcarina_ForceSongPlayed((u8)sNeiPausePlaySong);
+                sNeiPausePlayPhase = 0;
+                sNeiPausePlaySong = -1;
+            }
+            break;
+
+        default:
+            sNeiPausePlayPhase = 0;
+            break;
+    }
+}
+
+// OoT quest cursor navigation (soh z_kaleido_collect.c D_8082A1AC): [point][dir] dir 0=up 1=down
+// 2=left 3=right; 0xFF = no neighbor, walk stops. Faithful hexagon/grid navigation.
+static const s8 sOotQuestNav[26][4] = {
+    { 0x05, 0x01, 0x05, 0xFF }, { 0x00, 0x02, 0x02, 0xFF }, { 0xFF, 0x13, 0x03, 0x01 }, { 0x04, 0x02, 0x11, 0x02 },
+    { 0x05, 0x03, 0x18, 0x05 }, { 0xFF, 0xFF, 0x04, 0x00 }, { 0x0C, 0xFF, 0xFF, 0x07 }, { 0x0D, 0xFF, 0x06, 0x08 },
+    { 0x0E, 0xFF, 0x07, 0x09 }, { 0x0F, 0xFF, 0x08, 0x0A }, { 0x10, 0xFF, 0x09, 0x0B }, { 0x11, 0xFF, 0x0A, 0x12 },
+    { 0x17, 0x06, 0xFF, 0x0D }, { 0x17, 0x07, 0x0C, 0x0E }, { 0x17, 0x08, 0x0D, 0x0F }, { 0x18, 0x09, 0x0E, 0x10 },
+    { 0x18, 0x0A, 0x0F, 0x11 }, { 0x18, 0x0B, 0x10, 0x03 }, { 0x02, 0xFF, 0x0B, 0x13 }, { 0x02, 0xFF, 0x12, 0x14 },
+    { 0x02, 0xFF, 0x13, 0xFF }, { 0xFF, 0x17, 0xFF, 0x16 }, { 0xFF, 0x17, 0x15, 0x18 }, { 0x15, 0x0C, 0xFF, 0x18 },
+    { 0xFF, 0x10, 0x16, 0x04 }, { 0x00, 0x00, 0x00, 0x00 },
+};
+
+static s32 OotQuest_Has(s32 bit); // defined below
+
+// Is this OoT quest point currently owned/selectable? (medallions/stones/agony/gerudo via bits;
+// songs via the song bit range; skulltula icon selectable if any GS.)
+static s32 OotQuest_PointOwned(s16 point) {
+    if (point <= 0x17) {
+        return OotQuest_Has(point); // ootQuestItems bit index == quest point for 0..0x17
+    }
+    return 0; // 0x18 heart-piece area / others: not selectable
+}
+
+static s32 OotQuest_Has(s32 bit) {
+    return (Nei_Save()->ootQuestItems & (1u << bit)) != 0;
+}
+
+// Build the 47-quad (188-vertex) OoT quest layout — 1:1 port of soh KaleidoScope_InitVertices'
+// quest portion (D_8082B138/198/1F8). Medallions/upgrades keep the size table; songs + the middle
+// icons (6..40) shrink by 4 and songs force width 16 (the note-shaped slot), which is why they must
+// NOT be drawn as plain 24px squares.
+static void OotQuest_SetupVtx(Vtx* vtx, s16 offsetY, u8 alpha, s16 cursorQuad) {
+    s16 i;
+    s16 j;
+    for (i = 0, j = 0; i < 47; i++, j += 4) {
+        s16 w = sOotVtxSize[i]; // texture-S width (tc), differs from the on-screen quad below
+        if ((i < 6) || (i >= 41)) {
+            vtx[j + 0].v.ob[0] = vtx[j + 2].v.ob[0] = sOotVtxX[i];
+            vtx[j + 1].v.ob[0] = vtx[j + 3].v.ob[0] = vtx[j + 0].v.ob[0] + sOotVtxSize[i];
+            vtx[j + 0].v.ob[1] = vtx[j + 1].v.ob[1] = sOotVtxY[i] + offsetY;
+            vtx[j + 2].v.ob[1] = vtx[j + 3].v.ob[1] = vtx[j + 0].v.ob[1] - sOotVtxSize[i];
+            if (i >= 41) { // GS-count digits: 8 wide, 16 tall
+                vtx[j + 1].v.ob[0] = vtx[j + 3].v.ob[0] = vtx[j + 0].v.ob[0] + 8;
+                vtx[j + 0].v.ob[1] = vtx[j + 1].v.ob[1] = sOotVtxY[i] + offsetY - 6;
+                vtx[j + 2].v.ob[1] = vtx[j + 3].v.ob[1] = vtx[j + 0].v.ob[1] - 16;
+                w = 8;
+            }
+        } else {
+            if ((i >= 6) && (i <= 17)) {
+                w = 16; // songs: force the note-texture width
+            }
+            vtx[j + 0].v.ob[0] = vtx[j + 2].v.ob[0] = sOotVtxX[i] + 2;
+            vtx[j + 1].v.ob[0] = vtx[j + 3].v.ob[0] = vtx[j + 0].v.ob[0] + w - 4;
+            vtx[j + 0].v.ob[1] = vtx[j + 1].v.ob[1] = sOotVtxY[i] + offsetY - 2;
+            vtx[j + 2].v.ob[1] = vtx[j + 3].v.ob[1] = vtx[j + 0].v.ob[1] - sOotVtxSize[i] + 4;
+        }
+        vtx[j + 0].v.ob[2] = vtx[j + 1].v.ob[2] = vtx[j + 2].v.ob[2] = vtx[j + 3].v.ob[2] = 0;
+        vtx[j + 0].v.flag = vtx[j + 1].v.flag = vtx[j + 2].v.flag = vtx[j + 3].v.flag = 0;
+        vtx[j + 0].v.tc[0] = vtx[j + 0].v.tc[1] = vtx[j + 1].v.tc[1] = vtx[j + 2].v.tc[0] = 0;
+        vtx[j + 1].v.tc[0] = vtx[j + 3].v.tc[0] = w << 5;
+        vtx[j + 2].v.tc[1] = vtx[j + 3].v.tc[1] = sOotVtxSize[i] << 5;
+        for (s16 k = 0; k < 4; k++) {
+            vtx[j + k].v.cn[0] = vtx[j + k].v.cn[1] = vtx[j + k].v.cn[2] = 255;
+            vtx[j + k].v.cn[3] = alpha;
+        }
+        // Skijer's NEI: grow the hovered quad a few px so it reads as "selected" (OoT scales the
+        // cursor'd item up). tc is left alone → the texture just stretches to fill the bigger quad.
+        if ((cursorQuad >= 0) && (i == cursorQuad)) {
+            vtx[j + 0].v.ob[0] -= 3;
+            vtx[j + 2].v.ob[0] -= 3;
+            vtx[j + 1].v.ob[0] += 3;
+            vtx[j + 3].v.ob[0] += 3;
+            vtx[j + 0].v.ob[1] += 3;
+            vtx[j + 1].v.ob[1] += 3;
+            vtx[j + 2].v.ob[1] -= 3;
+            vtx[j + 3].v.ob[1] -= 3;
+        }
+    }
+}
+
+// Draw one texture quad (RGBA32 icon) at a computed quad index — binds its 4 verts then draws.
+static void OotQuest_DrawIcon(GraphicsContext* gfxCtx, Vtx* vtx, s16 quad, void* tex, u16 w, u16 h) {
+    OPEN_DISPS(gfxCtx);
+    gSPVertex(POLY_OPA_DISP++, &vtx[quad * 4], 4, 0);
+    KaleidoScope_DrawTexQuadRGBA32(gfxCtx, tex, w, h, 0);
+    CLOSE_DISPS(gfxCtx);
+}
+
+static void OotQuest_DrawSongStaff(PlayState* play); // hovered song's notes, on the staff (phased)
+
+void KaleidoScope_DrawOotQuestStatus(PlayState* play) {
+    // Medallion glow cycle state (soh D_8082A0D8/E4/F0 current RGB + D_8082A0FC timer + D_8082A100
+    // phase). The env color lerps toward the active phase's target each frame → rotating halo.
+    static s16 sMedR[6] = { 255, 255, 255, 255, 255, 255 };
+    static s16 sMedG[6] = { 255, 255, 255, 255, 255, 255 };
+    static s16 sMedB[6] = { 150, 150, 150, 150, 150, 150 };
+    static s16 sMedTimer = 20;
+    static s16 sMedPhase = 0;
+
+    PauseContext* pauseCtx = &play->pauseCtx;
+    GraphicsContext* gfxCtx = play->state.gfxCtx;
+    Vtx* vtx = GRAPH_ALLOC(gfxCtx, 188 * sizeof(Vtx));
+    s16 i;
+
+    OPEN_DISPS(gfxCtx);
+
+    // Hovered quad grows when interaction is on (point 0..0x17 maps 1:1 to quad index 0..23).
+    s16 cursorQuad = (CVarGetInteger(CVAR_QUEST_INTERACT, 1) && (sOotQuestCursorPoint <= 0x17)) ? sOotQuestCursorPoint
+                                                                                                 : -1;
+    OotQuest_SetupVtx(vtx, pauseCtx->offsetY, pauseCtx->alpha, cursorQuad);
+
+    // Suppress MM's own info-panel name at draw time too (this runs before DrawInfoPanel this frame),
+    // so its stale item-page name never bleeds under our name box regardless of update ordering.
+    // itemDescriptionOn OR namedItem!=NONE both trigger MM's name draw (z_kaleido_scope_NES.c:1395), so
+    // clear both.
+    pauseCtx->namedItem = PAUSE_ITEM_NONE;
+    pauseCtx->itemDescriptionOn = false;
+
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                      ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+
+    // Medallions (0..5) — env-color glow lerp (soh loop), skip the hold phases 1 & 3.
+    sMedTimer--;
+    for (i = 0; i < 6; i++) {
+        if ((sMedPhase != 1) && (sMedPhase != 3)) {
+            s16 t = (sMedPhase != 0) ? (i + 6) : i; // phase 0 → black target, phase 2 → colored halo
+            if (sMedTimer != 0) {
+                sMedR[i] += (ABS_ALT(sMedR[i] - sOotMedGlowTargets[t][0]) / sMedTimer) *
+                            ((sMedR[i] >= sOotMedGlowTargets[t][0]) ? -1 : 1);
+                sMedG[i] += (ABS_ALT(sMedG[i] - sOotMedGlowTargets[t][1]) / sMedTimer) *
+                            ((sMedG[i] >= sOotMedGlowTargets[t][1]) ? -1 : 1);
+                sMedB[i] += (ABS_ALT(sMedB[i] - sOotMedGlowTargets[t][2]) / sMedTimer) *
+                            ((sMedB[i] >= sOotMedGlowTargets[t][2]) ? -1 : 1);
+            } else {
+                sMedR[i] = sOotMedGlowTargets[t][0];
+                sMedG[i] = sOotMedGlowTargets[t][1];
+                sMedB[i] = sOotMedGlowTargets[t][2];
+            }
+        }
+        if (OotQuest_Has(OOT_QUEST_MEDALLION_FOREST + i)) {
+            void* tex = OotQuest_Tex(sOotMedallionIconPaths[i]);
+            if (tex != NULL) {
+                gDPPipeSync(POLY_OPA_DISP++);
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+                gDPSetEnvColor(POLY_OPA_DISP++, sMedR[i], sMedG[i], sMedB[i], 0);
+                OotQuest_DrawIcon(gfxCtx, vtx, i, tex, 24, 24);
+            }
+        }
+    }
+    if (sMedTimer == 0) {
+        sMedTimer = 20;
+        if (++sMedPhase >= 4) {
+            sMedPhase = 0;
+        }
+    }
+
+    // Songs (6..17) — the note texture, one per learned song, tinted with its OoT color.
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+    gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+    gDPLoadTextureBlock(POLY_OPA_DISP++, gItemIconSongNoteTex, G_IM_FMT_IA, G_IM_SIZ_8b, 16, 24, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
+    for (i = 0; i < 12; i++) {
+        if (OotQuest_Has(OOT_QUEST_SONG_MINUET + i)) {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, sOotSongR[i], sOotSongG[i], sOotSongB[i], pauseCtx->alpha);
+            gSPVertex(POLY_OPA_DISP++, &vtx[(6 + i) * 4], 4, 0);
+            gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
+        }
+    }
+
+    // Spiritual stones (18..20) — dim to 50% when the passive buff is off.
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+    gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+    for (i = 0; i < 3; i++) {
+        if (OotQuest_Has(OOT_QUEST_KOKIRI_EMERALD + i)) {
+            void* tex = OotQuest_Tex(sOotStoneIconPaths[i]);
+            if (tex != NULL) {
+                u8 a = SpiritualStone_IsPassiveActive(i) ? pauseCtx->alpha : (pauseCtx->alpha >> 1);
+                gDPPipeSync(POLY_OPA_DISP++);
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, a);
+                OotQuest_DrawIcon(gfxCtx, vtx, 18 + i, tex, 24, 24);
+            }
+        }
+    }
+
+    // Stone of Agony (21) + Gerudo Card (22) + Gold Skulltula icon (23).
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+    if (OotQuest_Has(OOT_QUEST_STONE_OF_AGONY)) {
+        void* tex = OotQuest_Tex(sOotAgonyIconPath);
+        if (tex != NULL) {
+            OotQuest_DrawIcon(gfxCtx, vtx, 21, tex, 24, 24);
+        }
+    }
+    if (OotQuest_Has(OOT_QUEST_GERUDO_CARD)) {
+        void* tex = OotQuest_Tex(sOotGerudoIconPath);
+        if (tex != NULL) {
+            OotQuest_DrawIcon(gfxCtx, vtx, 22, tex, 24, 24);
+        }
+    }
+    if (OotQuest_Has(OOT_QUEST_SKULL_TOKEN)) {
+        void* tex = OotQuest_Tex(sOotSkulltulaIconPath);
+        if (tex != NULL) {
+            OotQuest_DrawIcon(gfxCtx, vtx, 23, tex, 24, 24);
+        }
+
+        // GS-count digits — soh 1:1: bind the 6 digit quads at vtx[164] (quads 41-46), shadow pass
+        // then colored pass, leading zeros suppressed. Digit textures are I8 8x16 (sCounterTextures).
+        s16 c = Nei_Save()->ootGsCount;
+        s16 digits[3];
+        digits[0] = digits[1] = 0;
+        digits[2] = c;
+        while (digits[2] >= 100) {
+            digits[0]++;
+            digits[2] -= 100;
+        }
+        while (digits[2] >= 10) {
+            digits[1]++;
+            digits[2] -= 10;
+        }
+
+        gDPPipeSync(POLY_OPA_DISP++);
+        gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
+        gSPVertex(POLY_OPA_DISP++, &vtx[164], 24, 0); // quads 41..46 (3 shadow + 3 colored)
+        for (s32 pass = 0, base = 0; pass < 2; pass++) {
+            s32 drawn = 0;
+            if (pass == 0) {
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, pauseCtx->alpha);
+            } else {
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, (c == 100) ? 200 : 255, (c == 100) ? 50 : 255,
+                                (c == 100) ? 50 : 255, pauseCtx->alpha);
+            }
+            for (s32 d = 0; d < 3; d++, base += 4) {
+                if ((d >= 2) || (digits[d] != 0) || drawn) {
+                    gDPLoadTextureBlock(POLY_OPA_DISP++, sCounterTextures[digits[d]], G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0,
+                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                        G_TX_NOLOD, G_TX_NOLOD);
+                    gSP1Quadrangle(POLY_OPA_DISP++, base, base + 2, base + 3, base + 1, 0);
+                    drawn = 1;
+                }
+            }
+        }
+    }
+
+    // Hovered song's OoT note fingering, drawn on the parchment's music staff (bottom-left).
+    OotQuest_DrawSongStaff(play);
+
+    // Cursor — MM's spinning-circles cursor, drawn HERE in the page view (same as the icons) so it
+    // stays aligned. 4 copies of gPauseMenuCursorTex orbit the selected slot's exact center, exactly
+    // like KaleidoScope_DrawCursor (Math_SinS/CosS(spin + i*0x4000) * radius) but in our space.
+    if (CVarGetInteger(CVAR_QUEST_INTERACT, 1) && (sOotQuestCursorPoint <= 0x17)) {
+        static s16 sSpin = 0;
+        s16 q = sOotQuestCursorPoint * 4;
+        f32 cx = (vtx[q].v.ob[0] + vtx[q + 1].v.ob[0]) * 0.5f;
+        f32 cy = (vtx[q].v.ob[1] + vtx[q + 2].v.ob[1]) * 0.5f;
+        f32 rx = 14.0f; // orbit radii (a touch wider than the icon)
+        f32 ry = 14.0f;
+
+        sSpin += 0x300;
+        gDPPipeSync(POLY_OPA_DISP++);
+        gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+        gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, gPauseMenuCursorTex, G_IM_FMT_IA, G_IM_SIZ_8b, 16, 16, 0,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                            G_TX_NOLOD);
+        for (i = 0; i < 4; i++) {
+            s16 ccx = (s16)(cx + Math_SinS(sSpin + i * 0x4000) * rx);
+            s16 ccy = (s16)(cy + Math_CosS(sSpin + i * 0x4000) * ry);
+            Vtx* cv = GRAPH_ALLOC(gfxCtx, 4 * sizeof(Vtx));
+            cv[0].v.ob[0] = cv[2].v.ob[0] = ccx - 8;
+            cv[1].v.ob[0] = cv[3].v.ob[0] = ccx + 8;
+            cv[0].v.ob[1] = cv[1].v.ob[1] = ccy + 8;
+            cv[2].v.ob[1] = cv[3].v.ob[1] = ccy - 8;
+            cv[0].v.tc[0] = cv[2].v.tc[0] = 0;
+            cv[1].v.tc[0] = cv[3].v.tc[0] = 16 << 5;
+            cv[0].v.tc[1] = cv[1].v.tc[1] = 0;
+            cv[2].v.tc[1] = cv[3].v.tc[1] = 16 << 5;
+            for (s32 k = 0; k < 4; k++) {
+                cv[k].v.ob[2] = 0;
+                cv[k].v.flag = 0;
+                cv[k].v.cn[0] = cv[k].v.cn[1] = cv[k].v.cn[2] = cv[k].v.cn[3] = 255;
+            }
+            gSPVertex(POLY_OPA_DISP++, cv, 4, 0);
+            gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
+        }
+        // The hovered item's NAME (its "preview") is drawn separately in KaleidoScope_DrawOotQuestName,
+        // in the flat info-panel view at the bottom of the screen — the page perspective view here
+        // projects a bottom name box off-screen, which is why it never showed.
+    }
+
+    CLOSE_DISPS(gfxCtx);
+}
+
+// Bottom name box (companion item_name_static IA4 128x16) for the hovered slot — its "preview", so
+// hovering a song shows WHICH song. Drawn in the FLAT info-panel view (SetView 0,0,64), 1:1 with how
+// MM draws pauseCtx->nameSegment (z_kaleido_scope_NES.c:1854): same infoPanelVtx position + combiner +
+// Gfx_DrawTexQuad4b. Called from KaleidoScope_Draw right after KaleidoScope_DrawInfoPanel. Skijer's NEI.
+void KaleidoScope_DrawOotQuestName(PlayState* play) {
+    PauseContext* pauseCtx = &play->pauseCtx;
+    GraphicsContext* gfxCtx = play->state.gfxCtx;
+    void* nameTex;
+    Vtx* nv;
+    s16 y;
+
+    if (!CVarGetInteger(CVAR_OOT_QUEST_PAGE, 0) || !CVarGetInteger(CVAR_QUEST_INTERACT, 1) ||
+        (pauseCtx->pageIndex != PAUSE_QUEST) || (sOotQuestCursorPoint > 0x17)) {
+        return;
+    }
+    nameTex = OotQuest_Tex(sOotNamePaths[sOotQuestCursorPoint]);
+    if (nameTex == NULL) {
+        return;
+    }
+
+    OPEN_DISPS(gfxCtx);
+
+    nv = GRAPH_ALLOC(gfxCtx, 4 * sizeof(Vtx));
+    y = pauseCtx->infoPanelOffsetY - 80; // same bottom strip MM uses for the item name
+    nv[0].v.ob[0] = nv[2].v.ob[0] = -63;
+    nv[1].v.ob[0] = nv[3].v.ob[0] = -63 + 128;
+    nv[0].v.ob[1] = nv[1].v.ob[1] = y;
+    nv[2].v.ob[1] = nv[3].v.ob[1] = y - 16;
+    nv[0].v.tc[0] = nv[2].v.tc[0] = 0;
+    nv[1].v.tc[0] = nv[3].v.tc[0] = 128 << 5;
+    nv[0].v.tc[1] = nv[1].v.tc[1] = 0;
+    nv[2].v.tc[1] = nv[3].v.tc[1] = 16 << 5;
+    for (s32 k = 0; k < 4; k++) {
+        nv[k].v.ob[2] = 0;
+        nv[k].v.flag = 0;
+        nv[k].v.cn[0] = nv[k].v.cn[1] = nv[k].v.cn[2] = nv[k].v.cn[3] = 255;
+    }
+
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                      ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetEnvColor(POLY_OPA_DISP++, 20, 30, 40, 0);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+    gSPVertex(POLY_OPA_DISP++, nv, 4, 0);
+    POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, nameTex, G_IM_FMT_IA, 128, 16, 0);
+
+    CLOSE_DISPS(gfxCtx);
+}
+
+// Draw the hovered song's OoT note fingering ON the music staff baked into the OoT parchment (bottom
+// left). Drawn in the PAGE (perspective) view so it lands on the staff, using MM's per-pitch staff
+// heights (soh ocarinaButtonsY) + soh's staff-slot X. Phased like MM's own quest-song staff:
+//   • hovering (IDLE)      -> the whole fingering, full brightness (read the song).
+//   • SONG_PLAYBACK        -> notes reveal one-by-one as ocarinaStaff->pos advances (auto-play).
+//   • SONG_PROMPT          -> the whole fingering dimmed (the target), the notes you've played lit.
+// A button is blue, C buttons yellow. Skijer's NEI.
+static void OotQuest_DrawSongStaff(PlayState* play) {
+    // Per-button vertical position on the staff (soh z_kaleido_collect.c:1576 ocarinaButtonsY).
+    static const s16 sStaffNoteY[5] = { -62, -56, -49, -46, -41 }; // A, Cdown, Cright, Cleft, Cup
+    PauseContext* pauseCtx = &play->pauseCtx;
+    GraphicsContext* gfxCtx = play->state.gfxCtx;
+    u16 mainState = pauseCtx->mainState;
+    s16 song;
+    u8 n;
+    u8 revealed; // notes drawn bright (progressive during play)
+    u8 dimAll;   // also draw the not-yet-revealed notes, dimmed (prompt target)
+    u8 bi;
+
+    if ((sOotQuestCursorPoint < 6) || (sOotQuestCursorPoint > 0x11)) {
+        return;
+    }
+    song = sOotQuestCursorPoint - 6;
+    n = sOotSongButtonCount[song];
+
+    if ((mainState == PAUSE_MAIN_STATE_SONG_PLAYBACK) || (mainState == PAUSE_MAIN_STATE_SONG_PROMPT)) {
+        revealed = (pauseCtx->ocarinaStaff != NULL) ? pauseCtx->ocarinaStaff->pos : 0;
+        if (revealed > n) {
+            revealed = n;
+        }
+        dimAll = (mainState == PAUSE_MAIN_STATE_SONG_PROMPT); // show the whole target while you play
+    } else {
+        revealed = n; // hovering: show the full fingering
+        dimAll = false;
+    }
+
+    OPEN_DISPS(gfxCtx);
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+    for (bi = 0; bi < n; bi++) {
+        u8 btn = sOotSongButtons[song][bi];
+        u8 bright = (bi < revealed);
+        u8 a;
+        s16 nx, ny;
+        Vtx* bv;
+
+        if (!bright && !dimAll) {
+            continue; // not revealed yet and not in the prompt -> don't draw it
+        }
+        a = bright ? pauseCtx->alpha : (pauseCtx->alpha >> 2); // dim target = quarter alpha
+
+        nx = sOotVtxX[25 + bi]; // exact soh staff-slot X positions (quads 25..32 = -98..-14)
+        ny = sStaffNoteY[btn];
+        bv = GRAPH_ALLOC(gfxCtx, 4 * sizeof(Vtx));
+        bv[0].v.ob[0] = bv[2].v.ob[0] = nx;
+        bv[1].v.ob[0] = bv[3].v.ob[0] = nx + 14;
+        bv[0].v.ob[1] = bv[1].v.ob[1] = ny;
+        bv[2].v.ob[1] = bv[3].v.ob[1] = ny - 12;
+        bv[0].v.tc[0] = bv[2].v.tc[0] = 0;
+        bv[1].v.tc[0] = bv[3].v.tc[0] = 16 << 5;
+        bv[0].v.tc[1] = bv[1].v.tc[1] = 0;
+        bv[2].v.tc[1] = bv[3].v.tc[1] = 16 << 5;
+        for (s32 kk = 0; kk < 4; kk++) {
+            bv[kk].v.ob[2] = 0;
+            bv[kk].v.flag = 0;
+            bv[kk].v.cn[0] = bv[kk].v.cn[1] = bv[kk].v.cn[2] = bv[kk].v.cn[3] = 255;
+        }
+        if (btn == OCARINA_BTN_A) {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 80, 150, 255, a); // A = blue
+        } else {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 50, a); // C = yellow
+        }
+        gSPVertex(POLY_OPA_DISP++, bv, 4, 0);
+        POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, sOotOcarinaNoteTex[btn], 16, 16, 0);
+    }
+    CLOSE_DISPS(gfxCtx);
+}
+
+// ---------------------------------------------------------------------------
+// Interaction — isolated cursor layer, invoked from KaleidoScope_UpdateQuestCursor with an early
+// return so MM's own quest cursor logic never runs on the OoT page. Skijer's NEI.
+// ---------------------------------------------------------------------------
+static void OotQuest_MoveCursor(PlayState* play, s16 dir) {
+    s16 point = sOotQuestCursorPoint;
+    s16 next = (s16)(u8)sOotQuestNav[point][dir];
+
+    // Walk the nav chain to the first owned/selectable neighbor (skip empty slots like OoT).
+    while ((next != 0xFF) && (next < 26)) {
+        if (OotQuest_PointOwned(next)) {
+            if (next != sOotQuestCursorPoint) {
+                sOotQuestCursorPoint = next;
+                Audio_PlaySfx(NA_SE_SY_CURSOR);
+            }
+            return;
+        }
+        next = (s16)(u8)sOotQuestNav[next][dir];
+    }
+}
+
+// Play a learned song from the pause menu. For now: SFX confirmation + a latched request the
+// in-world / combo-rando warp pass will consume later (per the design). Skijer's NEI.
+s16 gOotQuestSongToPlay = -1; // song index 0..11 requested this pause, or -1
+
+static void OotQuest_HandleSelect(PlayState* play, Input* input) {
+    s16 point = sOotQuestCursorPoint;
+
+    // Medallions (0..5): equip to a C button (C-left/down/right), or to a D-pad slot when the
+    // DpadEquips enhancement is on. Item id comes from the table (medallions are NOT contiguous).
+    if (point <= 5 && OotQuest_Has(point)) {
+        u8 item = sOotMedallionItemIds[point];
+
+        // C-button items live at form index 0 (shared across forms; only B differs per form) — same
+        // idiom as the item page's BUTTON_ITEM_EQUIP(0, i) + Interface_LoadItemIconImpl.
+        s16 cBtn = -1;
+        if (CHECK_BTN_ALL(input->press.button, BTN_CLEFT)) {
+            cBtn = EQUIP_SLOT_C_LEFT;
+        } else if (CHECK_BTN_ALL(input->press.button, BTN_CDOWN)) {
+            cBtn = EQUIP_SLOT_C_DOWN;
+        } else if (CHECK_BTN_ALL(input->press.button, BTN_CRIGHT)) {
+            cBtn = EQUIP_SLOT_C_RIGHT;
+        }
+        if (cBtn != -1) {
+            BUTTON_ITEM_EQUIP(0, cBtn) = item;
+            C_SLOT_EQUIP(0, cBtn) = 0xFF; // not from an inventory slot
+            Interface_LoadItemIconImpl(play, (u8)cBtn);
+            Audio_PlaySfx(NA_SE_SY_DECIDE);
+            return;
+        }
+
+        // D-pad equip (same DPAD_BUTTON_ITEM_EQUIP(0, ...) + Interface_Dpad_LoadItemIcon idiom the
+        // item page uses). Only when the enhancement is enabled, so the D-pad keeps its normal role
+        // otherwise. On this page the D-pad no longer switches kaleido pages (HandlePageToggles gate).
+        if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+            s16 dBtn = -1;
+            if (CHECK_BTN_ALL(input->press.button, BTN_DRIGHT)) {
+                dBtn = EQUIP_SLOT_D_RIGHT;
+            } else if (CHECK_BTN_ALL(input->press.button, BTN_DLEFT)) {
+                dBtn = EQUIP_SLOT_D_LEFT;
+            } else if (CHECK_BTN_ALL(input->press.button, BTN_DDOWN)) {
+                dBtn = EQUIP_SLOT_D_DOWN;
+            } else if (CHECK_BTN_ALL(input->press.button, BTN_DUP)) {
+                dBtn = EQUIP_SLOT_D_UP;
+            }
+            if (dBtn != -1) {
+                DPAD_BUTTON_ITEM_EQUIP(0, dBtn) = item;
+                Interface_Dpad_LoadItemIcon(play, (u8)dBtn);
+                Audio_PlaySfx(NA_SE_SY_DECIDE);
+                return;
+            }
+        }
+    }
+
+    // Spiritual stones (0x12..0x14): A toggles the passive buff (swim/climb/walk speed);
+    // C-left/down/right (or a D-pad slot with DpadEquips) equips the stone to a button, so the
+    // in-game hold=summon / tap=warp path (SpiritualStone_TickHold) can read the held button.
+    // The equip idiom mirrors the medallion block above 1:1.
+    if (point >= 0x12 && point <= 0x14 && OotQuest_Has(point)) {
+        // Extended (u16) sentinel ids (indexed by point - 0x12: 0=Kokiri, 1=Goron, 2=Zora). These are
+        // above the u8 item space, so they can't live in buttonItems directly: they're equipped via
+        // the extended-button infra — ExtButton_SetItem parks ITEM_EXT_BUTTON in buttonItems and the
+        // real u16 in extButtons, and the ext-aware icon sites (Interface_LoadItemIconImpl / the HUD
+        // draw) resolve it. Stones are C-button-only: the D-pad's dpadItems array is u8 and can't hold
+        // a u16 ext id, so the D-pad equip branch (present in the medallion block above) is omitted.
+        extern void ExtButton_SetItem(s32 form, s32 btn, u16 extId);
+        static const u16 sSpiritualStoneItemIds[3] = {
+            EXT_ITEM_SPIRITUAL_STONE_KOKIRI,
+            EXT_ITEM_SPIRITUAL_STONE_GORON,
+            EXT_ITEM_SPIRITUAL_STONE_ZORA,
+        };
+        u16 item = sSpiritualStoneItemIds[point - 0x12];
+
+        s16 cBtn = -1;
+        if (CHECK_BTN_ALL(input->press.button, BTN_CLEFT)) {
+            cBtn = EQUIP_SLOT_C_LEFT;
+        } else if (CHECK_BTN_ALL(input->press.button, BTN_CDOWN)) {
+            cBtn = EQUIP_SLOT_C_DOWN;
+        } else if (CHECK_BTN_ALL(input->press.button, BTN_CRIGHT)) {
+            cBtn = EQUIP_SLOT_C_RIGHT;
+        }
+        if (cBtn != -1) {
+            ExtButton_SetItem(0, cBtn, item);
+            C_SLOT_EQUIP(0, cBtn) = 0xFF; // not from an inventory slot
+            Interface_LoadItemIconImpl(play, (u8)cBtn);
+            Audio_PlaySfx(NA_SE_SY_DECIDE);
+            return;
+        }
+
+        if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
+            SpiritualStone_TogglePassive(point - 0x12); // 0=Kokiri 1=Goron 2=Zora
+            Audio_PlaySfx(NA_SE_SY_DECIDE);
+        }
+        return;
+    }
+
+    // Songs (6..0x11): press A to play the melody, driven through MM's REAL ocarina playback minigame
+    // (same path the vanilla quest page uses), so it actually sounds + the staff can animate. The 6
+    // songs shared with MM (Lullaby/Epona/Saria/Sun/Time/Storms) use MM's own note data via
+    // AudioOcarina_SetPlaybackSong; the 6 OoT-only warp songs use our custom note buffer. mainState is
+    // set to SONG_PLAYBACK exactly like vanilla; HandleCursor pulls it back to IDLE once it finishes.
+    if (point >= 6 && point <= 0x11 && OotQuest_Has(point)) {
+        if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
+            PauseContext* pauseCtx = &play->pauseCtx;
+            s16 song = point - 6; // 0..11
+            s8 mmIdx = sOotSongToMmOcarina[song];
+            // "Pause play": with the enhancement on AND an ocarina in the ocarina slot (OoT or Fairy),
+            // pressing A plays the song like the overworld — a quick playback + its latched effect —
+            // instead of the learn-it minigame. The in-world / combo warp pass consumes gOotQuestSongToPlay.
+            u8 pausePlay = CVarGetInteger(CVAR_PAUSE_PLAY, 0) && (INV_CONTENT(ITEM_OCARINA_OF_TIME) != ITEM_NONE);
+
+            // Reset the played-note accumulator so the staff redraws the notes one-by-one this play.
+            sQuestSongPlayedOcarinaButtonsNum = 0;
+            for (u8 z = 0; z < 8; z++) {
+                sQuestSongPlayedOcarinaButtons[z] = OCARINA_BTN_INVALID;
+                sQuestSongPlayedOcarinaButtonsAlpha[z] = 0;
+            }
+
+            gOotQuestSongToPlay = song;
+
+            if (pausePlay) {
+                // "Pause Play": leave the menu — Link pulls out the ocarina and the song auto-plays
+                // in-world (NeiPausePlay_Update drives it; MM songs fire their native effect).
+                NeiPausePlay_Start(play, mmIdx);
+                return;
+            }
+
+            // Learn-it minigame (default): auto-playback in the menu, then "play it yourself".
+            // Every OoT song now has a real MM ocarina slot, so all 12 play through MM's own playback.
+            AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_DEFAULT);
+            pauseCtx->ocarinaSongIndex = mmIdx;
+            AudioOcarina_SetPlaybackSong(mmIdx + 1, 1);
+            pauseCtx->mainState = PAUSE_MAIN_STATE_SONG_PLAYBACK;
+            pauseCtx->ocarinaStaff = AudioOcarina_GetPlaybackStaff();
+            pauseCtx->ocarinaStaff->pos = 0;
+        }
+    }
+}
+
+// Returns true if the OoT quest page owns input this frame (caller must skip MM's cursor logic).
+s32 OotQuest_HandleCursor(PlayState* play) {
+    PauseContext* pauseCtx = &play->pauseCtx;
+    Input* input = &play->state.input[0];
+
+    // Cursor works whenever the OoT quest page is shown and interaction is enabled (DEFAULT ON —
+    // the earlier default-off was why the cursor "didn't move"). A on a song runs the learn-it minigame
+    // by default; the "Pause Play" enhancement switches that to overworld-style play (with an ocarina).
+    if (!CVarGetInteger(CVAR_OOT_QUEST_PAGE, 0) || !CVarGetInteger(CVAR_QUEST_INTERACT, 1) ||
+        (pauseCtx->pageIndex != PAUSE_QUEST)) {
+        return false;
+    }
+
+    // Suppress MM's own info-panel name on this page: its quest cursor is frozen here, so its
+    // namedItem is left pointing at whatever was last hovered on the item page — which then bleeds
+    // under our own name box. Force it to NONE so only KaleidoScope_DrawOotQuestName's name shows.
+    pauseCtx->namedItem = PAUSE_ITEM_NONE;
+
+    // --- Song minigame states -------------------------------------------------------------------
+    // MM's own quest-page handler for these is skipped on our page, so we run the bits we need; the
+    // top-level pause switch (z_kaleido_scope_NES.c:3589) still drives PLAYBACK->finish and the
+    // PROMPT check/done for us. While a song is auto-playing or being played back, the ocarina engine
+    // owns the controller — we must NOT run nav/equip/select (which would grab A / the C buttons).
+    if (pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PROMPT_INIT) {
+        // Auto-playback finished. Every OoT song now has a real MM ocarina slot (warp songs included),
+        // so start the "play it yourself" prompt for all of them (1:1 with vanilla's SONG_PROMPT_INIT).
+        if ((sOotQuestCursorPoint >= 6) && (sOotQuestCursorPoint <= 0x11)) {
+            u8 z;
+            for (z = 0; z < 8; z++) {
+                sQuestSongPlayedOcarinaButtons[z] = OCARINA_BTN_INVALID;
+                sQuestSongPlayedOcarinaButtonsAlpha[z] = 0;
+            }
+            sQuestSongPlayedOcarinaButtonsNum = 0;
+            AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_DEFAULT);
+            if (pauseCtx->ocarinaSongIndex >= OCARINA_SONG_NEI_CUSTOM_FIRST) {
+                // Custom songs (slots 30-32) have no bitmask bit (1<<30+ hits the mode flags) — use
+                // the without-staff mode + the side availability mask instead (side recognition in
+                // AudioOcarina_CheckSongsWithoutMusicStaff detects them).
+                gNeiCustomSongsAvailable = (1 << (pauseCtx->ocarinaSongIndex - OCARINA_SONG_NEI_CUSTOM_FIRST));
+                AudioOcarina_StartDefault(0xC0000000);
+            } else {
+                AudioOcarina_StartDefault((1 << pauseCtx->ocarinaSongIndex) | 0x80000000);
+            }
+            pauseCtx->ocarinaStaff = AudioOcarina_GetPlaybackStaff();
+            pauseCtx->ocarinaStaff->pos = 0;
+            pauseCtx->ocarinaStaff->state = 0xFE;
+            pauseCtx->mainState = PAUSE_MAIN_STATE_SONG_PROMPT;
+        } else {
+            pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
+        }
+        return true;
+    }
+    if ((pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PLAYBACK) ||
+        (pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PROMPT) ||
+        (pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PROMPT_DONE)) {
+        return true;
+    }
+
+    // Snap onto the first owned slot if the cursor landed on an empty one (e.g. page just opened).
+    if (!OotQuest_PointOwned(sOotQuestCursorPoint)) {
+        for (s16 p = 0; p <= 0x17; p++) {
+            if (OotQuest_PointOwned(p)) {
+                sOotQuestCursorPoint = p;
+                break;
+            }
+        }
+    }
+
+    // Stick / DPad navigation (thresholds + directions match MM's kaleido cursor).
+    if (pauseCtx->stickAdjX < -30) {
+        OotQuest_MoveCursor(play, 2);
+    } else if (pauseCtx->stickAdjX > 30) {
+        OotQuest_MoveCursor(play, 3);
+    }
+    if (pauseCtx->stickAdjY < -30) {
+        OotQuest_MoveCursor(play, 1);
+    } else if (pauseCtx->stickAdjY > 30) {
+        OotQuest_MoveCursor(play, 0);
+    }
+
+    OotQuest_HandleSelect(play, input);
+    return true;
+}
 
 s16 sQuestRemainsColorTimerInit[] = { 120, 60, 2, 80 };
 s16 sQuestHpColorTimerInits[] = { 20, 4, 20, 10 };
@@ -63,7 +996,15 @@ s16 sQuestRemainsEnvBlue[] = {
 // 2S2H [Port] (and in the function) don't do pointer math and access the list of digits directly.
 extern const char* sCounterTextures[];
 
+void KaleidoScope_DrawOotQuestStatus(PlayState* play);
+
 void KaleidoScope_DrawQuestStatus(PlayState* play) {
+    // Skijer's NEI: L on the quest page flips to the OoT collect layout (its own quest store).
+    if (CVarGetInteger(CVAR_OOT_QUEST_PAGE, 0)) {
+        KaleidoScope_DrawOotQuestStatus(play);
+        return;
+    }
+
     static s16 sQuestRemainsColorTimer = 20;
     static s16 sQuestRemainsColorTimerIndex = 0;
     static s16 sQuestHpPrimRed = 0;
@@ -606,6 +1547,12 @@ void KaleidoScope_UpdateQuestCursor(PlayState* play) {
     u16 cursor;
     u16 cursorItem;
 
+    // Skijer's NEI: on the OoT quest page (L-flip) with interaction enabled, our own cursor layer
+    // fully owns input — MM's quest cursor logic below never runs (no state bleed on the OoT page).
+    if (OotQuest_HandleCursor(play)) {
+        return;
+    }
+
     pauseCtx->nameColorSet = PAUSE_NAME_COLOR_SET_WHITE;
     pauseCtx->cursorColorSet = PAUSE_CURSOR_COLOR_SET_WHITE;
 
@@ -851,6 +1798,15 @@ void KaleidoScope_UpdateQuestCursor(PlayState* play) {
                             Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
                         }
 
+                        // Skijer's NEI: if the cursor is on a boss remains, C-left/down/right (or a
+                        // D-pad slot with DpadEquips) equips it to that button as a wearable "mask".
+                        // No-op for any other quest item; C/D-pad presses don't collide with the A
+                        // (info/decide) handling just below.
+                        {
+                            extern s32 BossRemains_TryEquipAtCursor(PlayState * play, Input * input);
+                            BossRemains_TryEquipAtCursor(play, CONTROLLER1(&play->state));
+                        }
+
                         if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A) && (msgCtx->msgLength == 0)) {
                             if (pauseCtx->cursorPoint[PAUSE_QUEST] == QUEST_BOMBERS_NOTEBOOK) {
                                 play->pauseCtx.bombersNotebookOpen = true;
@@ -888,8 +1844,16 @@ void KaleidoScope_UpdateQuestCursor(PlayState* play) {
             } else if ((pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG) &&
                        CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A) && (msgCtx->msgLength == 0) &&
                        (cursor >= QUEST_SONG_SONATA) && (cursor <= QUEST_SONG_SUN)) {
-                pauseCtx->mainState = PAUSE_MAIN_STATE_SONG_PLAYBACK_INIT;
-                sQuestSongPlaybackDelayTimer = 10;
+                // Skijer's NEI "Pause Play": with the enhancement on and an ocarina owned, A leaves the
+                // menu and auto-plays the song on the real ocarina (native effect flow), instead of the
+                // in-menu playback. Applies to MM's songs here just like the OoT page's.
+                if (CVarGetInteger("gEnhancements.SkijerNEI.PausePlay", 0) &&
+                    (INV_CONTENT(ITEM_OCARINA_OF_TIME) != ITEM_NONE)) {
+                    NeiPausePlay_Start(play, pauseCtx->ocarinaSongIndex);
+                } else {
+                    pauseCtx->mainState = PAUSE_MAIN_STATE_SONG_PLAYBACK_INIT;
+                    sQuestSongPlaybackDelayTimer = 10;
+                }
             }
 
             if (pauseCtx->cursorSpecialPos == 0) {

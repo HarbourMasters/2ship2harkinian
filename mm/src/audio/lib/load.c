@@ -1256,7 +1256,11 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     char** seqList = ResourceMgr_ListFiles("audio/sequences*", &seqListSize);
     char** customSeqList = ResourceMgr_ListFiles("custom/music/*", &customSeqListSize);
     gSequenceMapSize = (size_t)(seqListSize + customSeqListSize);
-    gSequenceMap = malloc(gSequenceMapSize * sizeof(char*));
+    // Skijer's NEI: was malloc — but the map has HOLES (e.g. seq 0x7A missing, and companion-archive
+    // sequences share seqNumbers with the base game's, leaving high slots unwritten), so unfilled
+    // entries were garbage non-NULL pointers. calloc makes them NULL so name lookups (load.c:~525,
+    // NeiAudio_PlayOotSongFanfare's scan) can safely skip them.
+    gSequenceMap = calloc(gSequenceMapSize, sizeof(char*));
     gAudioCtx.seqLoadStatus = calloc(gSequenceMapSize, sizeof(u8));
 
     memset(&gAudioCtx.seqLoadStatus[seqListSize], LOAD_STATUS_PERMANENT, customSeqListSize);

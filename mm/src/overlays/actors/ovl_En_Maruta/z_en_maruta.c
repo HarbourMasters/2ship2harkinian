@@ -86,6 +86,8 @@ s32 D_80B386CC[] = {
     0, // PLAYER_MWA_ZORA_PUNCH_LEFT
     0, // PLAYER_MWA_ZORA_PUNCH_COMBO
     0, // PLAYER_MWA_ZORA_PUNCH_KICK
+    5, // PLAYER_MWA_HAMMER_FORWARD (Skijer's NEI — table is MWA-indexed, keep in sync with the enum)
+    7, // PLAYER_MWA_HAMMER_SIDE (Skijer's NEI)
     7, // PLAYER_MWA_SPIN_ATTACK_1H
     7, // PLAYER_MWA_SPIN_ATTACK_2H
     7, // PLAYER_MWA_BIG_SPIN_1H

@@ -703,3 +703,43 @@
 /* 0x2AF */ DEFINE_ACTOR(         En_Invisible_Ruppe,  ACTOR_EN_INVISIBLE_RUPPE,  ALLOCTYPE_NORMAL,    "En_Invisible_Ruppe",  "Invisible Ruppe")
 /* 0x2B0 */ DEFINE_ACTOR(         Obj_Ending,          ACTOR_OBJ_ENDING,          ALLOCTYPE_NORMAL,    "Obj_Ending",          "Stump/Lighting (credits end)")
 /* 0x2B1 */ DEFINE_ACTOR(         En_Rsn,              ACTOR_EN_RSN,              ALLOCTYPE_NORMAL,    "En_Rsn",              "Bomb Shop Man (credits)")
+// Skijer's NEI: SW97/OoT magic-spell actors (mm/expansions/sw97/actors/spells/*.inc.c, compiled
+// into the z_player.c TU via sw97_router.c; profiles defined at the end of sw97_router.c).
+// Din's Fire = SW97_MAGIC_FIRE, Farore's Wind = SW97_MAGIC_WIND, Nayru's Love = SW97_MAGIC_DARK;
+// the six SW97 medallions map 0..5 = Wind/Soul/Dark/Ice/Light/Fire (Sw97_TrySpawnMagicSpell).
+/* 0x2B2 */ DEFINE_ACTOR(         Sw97_MagicWind,      ACTOR_SW97_MAGIC_WIND,     ALLOCTYPE_NORMAL,    "Sw97_MagicWind",      "Farore's Wind / Forest Medallion Spell")
+/* 0x2B3 */ DEFINE_ACTOR(         Sw97_MagicSoul,      ACTOR_SW97_MAGIC_SOUL,     ALLOCTYPE_NORMAL,    "Sw97_MagicSoul",      "Spirit Medallion Spell")
+/* 0x2B4 */ DEFINE_ACTOR(         Sw97_MagicDark,      ACTOR_SW97_MAGIC_DARK,     ALLOCTYPE_NORMAL,    "Sw97_MagicDark",      "Nayru's Love / Shadow Medallion Spell")
+/* 0x2B5 */ DEFINE_ACTOR(         Sw97_MagicIce,       ACTOR_SW97_MAGIC_ICE,      ALLOCTYPE_NORMAL,    "Sw97_MagicIce",       "Water Medallion Spell (Ice)")
+/* 0x2B6 */ DEFINE_ACTOR(         Sw97_MagicLight,     ACTOR_SW97_MAGIC_LIGHT,    ALLOCTYPE_NORMAL,    "Sw97_MagicLight",     "Light Medallion Spell")
+/* 0x2B7 */ DEFINE_ACTOR(         Sw97_MagicFire,      ACTOR_SW97_MAGIC_FIRE,     ALLOCTYPE_NORMAL,    "Sw97_MagicFire",      "Din's Fire / Fire Medallion Spell")
+// Skijer's NEI: Ivan the Fairy partner (SoH EnPartner port, mm/mods/actors/z_en_partner.inc.c,
+// unity-included via custom_items.c). Spawned by Hylia's Grace HGRACE_STATE_IVAN (Soul Medallion).
+/* 0x2B8 */ DEFINE_ACTOR(         En_Partner,          ACTOR_EN_PARTNER,          ALLOCTYPE_NORMAL,    "En_Partner",          "Ivan the Fairy (partner)")
+// Skijer's NEI: the THREE vanilla OoT spells as their OWN actors (separate from the 6 SW97
+// medallion actors above). Their profiles (sw97_router.c) reuse the medallion actors' functions
+// which branch on actor id: Din's Fire == the Fire dome (identical to the medallion); Nayru's Love
+// == blue diamond + full invincibility (vs Shadow's black diamond + Stone-Mask stealth); Farore's
+// Wind == the cosmetic wind swirl with NO tornado (vs the Forest Medallion's tornado).
+/* 0x2B9 */ DEFINE_ACTOR(         Oot_DinsFire,        ACTOR_OOT_DINS_FIRE,       ALLOCTYPE_NORMAL,    "Oot_DinsFire",        "Din's Fire (vanilla spell)")
+/* 0x2BA */ DEFINE_ACTOR(         Oot_NayrusLove,      ACTOR_OOT_NAYRUS_LOVE,     ALLOCTYPE_NORMAL,    "Oot_NayrusLove",      "Nayru's Love (vanilla spell)")
+/* 0x2BB */ DEFINE_ACTOR(         Oot_FaroresWind,     ACTOR_OOT_FARORES_WIND,    ALLOCTYPE_NORMAL,    "Oot_FaroresWind",     "Farore's Wind (vanilla spell)")
+// Skijer's NEI: ocarina song effect for the 3 custom songs (params 0=Fugue of Home amber,
+// 1=Command Melody magenta, 2=Ballad of Hero gold). mm/mods/actors/z_oceff_nei.inc.c, unity-included
+// via custom_items.c; spawned by Message_SpawnSongEffect for ocarina slots 30-32.
+/* 0x2BC */ DEFINE_ACTOR(         Oceff_Nei,           ACTOR_OCEFF_NEI,           ALLOCTYPE_ABSOLUTE,  "Oceff_Nei",           "NEI Custom Song Ocarina Effect")
+// Skijer's NEI: Spiritual Stone warp-point statue (recolored owl). params 0=Kokiri 1=Goron 2=Zora.
+// Real MM actor (the OoT En_Lightbox hijack never spawns here — 0x7F16 is an OOB sentinel).
+// Draws object_sek owl DL + the matching jewel companion DL. mm/mods/actors/spiritual_stone_statue.c.
+/* 0x2BD */ DEFINE_ACTOR(         SpiritualStoneStatue, ACTOR_SPIRITUAL_STONE_STATUE, ALLOCTYPE_NORMAL, "SpiritualStoneStatue", "Spiritual Stone warp statue")
+// Skijer's NEI: boss-remains SUMMON allies. Each worn boss remains summons a FRIENDLY ally
+// (ACTORCAT_MISC; AT_TYPE_PLAYER collider so it damages enemies and can never hit Link).
+// Authored per-boss in mm/mods/boss_remains/actors/*.c and unity-#included into
+// boss_remains.cpp (like spiritual_stone_statue.c), so each *_Profile gets C linkage there.
+// objectId is GAMEPLAY_KEEP; the real model/skel/anim load by OTR path at runtime. 0x2C1 (Twinmold's
+// Dark Link companion) drives the REAL player skeleton + player-animation system, and fights with
+// whatever weapons the save says Link owns.
+/* 0x2BE */ DEFINE_ACTOR(         RemainsAllyBug,      ACTOR_REMAINS_ALLY_BUG,    ALLOCTYPE_NORMAL,    "RemainsAllyBug",      "Odolwa remains bug ally")
+/* 0x2BF */ DEFINE_ACTOR(         RemainsAllyChu,      ACTOR_REMAINS_ALLY_CHU,    ALLOCTYPE_NORMAL,    "RemainsAllyChu",      "Goht remains bombchu ally")
+/* 0x2C0 */ DEFINE_ACTOR(         RemainsAllyFish,     ACTOR_REMAINS_ALLY_FISH,   ALLOCTYPE_NORMAL,    "RemainsAllyFish",     "Gyorg remains fish ally")
+/* 0x2C1 */ DEFINE_ACTOR(         RemainsAllyLink,     ACTOR_REMAINS_ALLY_LINK,   ALLOCTYPE_NORMAL,    "RemainsAllyLink",     "Twinmold remains dark-link ally")

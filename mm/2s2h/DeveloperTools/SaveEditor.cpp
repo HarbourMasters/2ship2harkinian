@@ -1608,7 +1608,7 @@ void DrawPlayerTab() {
         ImGui::Text("Link's Current Equipment");
         if (GET_PLAYER_FORM == PLAYER_FORM_HUMAN) {
             static const char* weaponCombo[] = { "Kokiri Sword", "Razor Sword", "Gilded Sword" };
-            static const char* shieldCombo[] = { "Hero's Shield", "Mirror Shield" };
+            static const char* shieldCombo[] = { "Hero's Shield", "Shield of Ikana" }; // display rename (item = ITEM_SHIELD_MIRROR)
             static int currentWeapon = 0;
             static int currentShield = 0;
 
@@ -2329,6 +2329,250 @@ void DrawRandoTab() {
     ImGui::EndChild();
 }
 
+// --- Skijer's NEI: custom items / masks / extended equipment grants ---
+#include "mods/nei_save.h"             // NeiSaveData, Nei_Save, bullet-bag helpers (Skijer's NEI slingshot pass)
+#include "mods/items/custom_bottles.h" // Bottle Randomizer editor (bottleSlots grid + Net/Bottomless)
+extern "C" {
+void ExtInv_DebugGiveAll(void);
+uint8_t Nei_GetOwnedItem(uint8_t slot);
+void Nei_SetOwnedItem(uint8_t slot, uint8_t v);
+void ExtEquip_GiveItem(int16_t equipType, uint8_t index);
+uint8_t ExtEquip_HasItem(int16_t equipType, uint8_t index);
+void Nei_GiveAllOotItems(void);
+}
+
+static void DrawNeiTab() {
+    ImGui::SeparatorText("Custom Items (inventory slots 24-47)");
+    if (ImGui::Button("Give All Custom Items")) {
+        ExtInv_DebugGiveAll();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Clear Custom Items")) {
+        for (uint8_t s = 24; s < 48; s++) {
+            Nei_SetOwnedItem(s, 0xFF); // ITEM_NONE
+        }
+    }
+    // NOTE: visual slots 48..71 now map to the REAL MM mask inventory (items[24..47]) — no
+    // separate NEI mask storage to clear anymore; edit masks from the Items & Masks tab.
+
+    ImGui::SeparatorText("OoT Page-0 Items (Din's/Farore's/Nayru's, Slingshot, Boomerang, Hookshot chain)");
+    if (ImGui::Button("Give All OoT Items")) {
+        Nei_GiveAllOotItems();
+    }
+    // Skijer's NEI slingshot pass: seed ammo + bullet-bag upgrade level (0/30/40/50 capacities)
+    {
+        NeiSaveData* nei = Nei_Save();
+        bool slingOwned = nei->slingshotOwned != 0;
+        if (ImGui::Checkbox("Fairy Slingshot Owned", &slingOwned)) {
+            nei->slingshotOwned = slingOwned ? 1 : 0;
+            if (!slingOwned) {
+                nei->slingshotWheel = 0;
+            }
+        }
+        static const char* sBulletBagNames[4] = { "None (0)", "Bullet Bag (30)", "Big Bullet Bag (40)",
+                                                  "Biggest Bullet Bag (50)" };
+        int bagLevel = Nei_BulletBagLevel();
+        if (ImGui::Combo("Bullet Bag", &bagLevel, sBulletBagNames, 4)) {
+            nei->ootUpgrades = (uint16_t)((nei->ootUpgrades & ~0x7) | (bagLevel & 0x7));
+            if (nei->slingshotSeeds > Nei_SlingshotCapacity()) {
+                nei->slingshotSeeds = Nei_SlingshotCapacity(); // clamp like OoT bag downgrades
+            }
+        }
+        int seeds = nei->slingshotSeeds;
+        if (ImGui::SliderInt("Deku Seeds", &seeds, 0, 50)) {
+            uint8_t cap = Nei_SlingshotCapacity();
+            nei->slingshotSeeds = (uint8_t)((seeds > cap) ? cap : (seeds < 0 ? 0 : seeds));
+        }
+    }
+
+    // ── Bottle Randomizer (Skijer's NEI): bottleSlots[8] 4x2 grid + Net/Bottomless ─────────────────
+    ImGui::SeparatorText("Bottle Randomizer (Wheel A = 0-3, Wheel B = 4-7)");
+    {
+        // Combo entries: none / empty bottle / every BottleContent (order matches the enum).
+        static const char* sBottleContentNames[] = {
+            "Ruto's Letter", "Big Poe",       "Blue Fire",   "Blue Potion",  "Red Potion",  "Green Potion",
+            "Fairy",         "Fish",          "Bug",         "Poe",          "Milk",        "Gold Dust",
+            "Hot Spr. Water", "Deku Princess", "Seahorse",   "Spring Water", "Zora Egg",    "Hylian Loach",
+            "Obaba's Drink", "Chateau",       "Magic Mushroom",
+        };
+        auto bottleComboIndex = [](uint8_t item) -> int {
+            if (item == BOTTLE_SLOT_EMPTY) {
+                return 0; // "Empty (no bottle)"
+            }
+            BottleContent c = Bottle_ContentFromItemId(item);
+            if (c < BOTTLE_C_COUNT) {
+                return 2 + (int)c;
+            }
+            return 1; // ITEM_BOTTLE / unknown -> "Empty Bottle"
+        };
+        for (int col = 0; col < 2; col++) {
+            ImGui::Text(col == 0 ? "Wheel A" : "Wheel B");
+            for (int row = 0; row < 4; row++) {
+                int slotIndex = col * 4 + row;
+                ImGui::PushID(7200 + slotIndex);
+                int sel = bottleComboIndex(Bottle_GetSlot((uint8_t)slotIndex));
+                // Build the combo list: [Empty (no bottle), Empty Bottle, ...contents]
+                std::string preview = (sel == 0)   ? "Empty (no bottle)"
+                                      : (sel == 1) ? "Empty Bottle"
+                                                   : sBottleContentNames[sel - 2];
+                char label[16];
+                snprintf(label, sizeof(label), "Slot %d", slotIndex);
+                if (ImGui::BeginCombo(label, preview.c_str())) {
+                    if (ImGui::Selectable("Empty (no bottle)", sel == 0)) {
+                        Bottle_SetSlot((uint8_t)slotIndex, BOTTLE_SLOT_EMPTY);
+                    }
+                    if (ImGui::Selectable("Empty Bottle", sel == 1)) {
+                        Bottle_SetSlot((uint8_t)slotIndex, (uint8_t)ITEM_BOTTLE);
+                    }
+                    for (int c = 0; c < BOTTLE_C_COUNT; c++) {
+                        if (ImGui::Selectable(sBottleContentNames[c], sel == 2 + c)) {
+                            Bottle_SetSlot((uint8_t)slotIndex, (uint8_t)Bottle_ContentItemId((BottleContent)c));
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+                ImGui::PopID();
+            }
+        }
+
+        bool netOwned = Bottle_NetOwned() != 0;
+        if (ImGui::Checkbox("Net (owned)", &netOwned)) {
+            Bottle_SetNetOwned(netOwned ? 1 : 0);
+            if (!netOwned) {
+                gSaveContext.save.saveInfo.inventory.items[SLOT_BOTTLE_3] = ITEM_NONE;
+            }
+        }
+        bool bbOwned = Bottle_BottomlessOwned() != 0;
+        if (ImGui::Checkbox("Bottomless Bottle (owned)", &bbOwned)) {
+            Bottle_SetBottomlessOwned(bbOwned ? 1 : 0);
+            if (!bbOwned) {
+                // Clear the slot too, or the leftover reads as residue -> migrated ("free bottle").
+                gSaveContext.save.saveInfo.inventory.items[SLOT_BOTTLE_4] = ITEM_NONE;
+            }
+        }
+        if (bbOwned) {
+            int bbSel = bottleComboIndex(Bottle_BottomlessContent());
+            std::string bbPreview = (bbSel <= 1) ? "Empty" : sBottleContentNames[bbSel - 2];
+            if (ImGui::BeginCombo("Bottomless Content", bbPreview.c_str())) {
+                if (ImGui::Selectable("Empty", bbSel <= 1)) {
+                    Bottle_BottomlessEmpty();
+                    gSaveContext.save.saveInfo.inventory.items[SLOT_BOTTLE_4] = ITEM_BOTTLE;
+                }
+                for (int c = 0; c < BOTTLE_C_COUNT; c++) {
+                    if (ImGui::Selectable(sBottleContentNames[c], bbSel == 2 + c)) {
+                        uint8_t cItem = (uint8_t)Bottle_ContentItemId((BottleContent)c);
+                        Bottle_BottomlessFill(cItem);
+                        // Write the slot NOW too, or the enforcer's adopt logic sees old-slot !=
+                        // new-content and reverts the change (same fix as the SoH editor).
+                        gSaveContext.save.saveInfo.inventory.items[SLOT_BOTTLE_4] = cItem;
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            int bbCnt = Bottle_BottomlessCount();
+            if (ImGui::SliderInt("Uses left", &bbCnt, 0, 20)) {
+                Bottle_BottomlessSetCount((uint8_t)bbCnt);
+            }
+        }
+    }
+
+    // Skijer's NEI: OoT quest-status page (L on the quest page flips MM <-> OoT collect layout).
+    // Reads NeiSaveData.ootQuestItems (OoT bit layout) + ootGsCount. Give-All fills these too.
+    ImGui::SeparatorText("OoT Quest Page (L on the quest page to flip MM <-> OoT collect)");
+    {
+        NeiSaveData* nei = Nei_Save();
+        static const struct {
+            const char* name;
+            uint8_t bit;
+        } sOotQuestFlags[] = {
+            { "Forest Medallion", OOT_QUEST_MEDALLION_FOREST }, { "Fire Medallion", OOT_QUEST_MEDALLION_FIRE },
+            { "Water Medallion", OOT_QUEST_MEDALLION_WATER },   { "Spirit Medallion", OOT_QUEST_MEDALLION_SPIRIT },
+            { "Shadow Medallion", OOT_QUEST_MEDALLION_SHADOW }, { "Light Medallion", OOT_QUEST_MEDALLION_LIGHT },
+            { "Kokiri Emerald", OOT_QUEST_KOKIRI_EMERALD },     { "Goron Ruby", OOT_QUEST_GORON_RUBY },
+            { "Zora Sapphire", OOT_QUEST_ZORA_SAPPHIRE },       { "Stone of Agony", OOT_QUEST_STONE_OF_AGONY },
+            { "Gerudo Card", OOT_QUEST_GERUDO_CARD },           { "Gold Skulltulas", OOT_QUEST_SKULL_TOKEN },
+        };
+        for (int i = 0; i < (int)(sizeof(sOotQuestFlags) / sizeof(sOotQuestFlags[0])); i++) {
+            bool has = (nei->ootQuestItems & (1u << sOotQuestFlags[i].bit)) != 0;
+            if (ImGui::Checkbox(sOotQuestFlags[i].name, &has)) {
+                if (has) {
+                    nei->ootQuestItems |= (1u << sOotQuestFlags[i].bit);
+                } else {
+                    nei->ootQuestItems &= ~(1u << sOotQuestFlags[i].bit);
+                }
+            }
+            if ((i % 2) == 0) {
+                ImGui::SameLine(220.0f);
+            }
+        }
+        ImGui::NewLine();
+        int gs = nei->ootGsCount;
+        if (ImGui::SliderInt("Gold Skulltula Count", &gs, 0, 100)) {
+            nei->ootGsCount = (uint16_t)((gs < 0) ? 0 : (gs > 100 ? 100 : gs));
+        }
+        int songBits = (int)((nei->ootQuestItems >> OOT_QUEST_SONG_MINUET) & 0xFFF);
+        bool allSongs = (songBits == 0xFFF);
+        if (ImGui::Checkbox("All 12 Songs", &allSongs)) {
+            if (allSongs) {
+                nei->ootQuestItems |= (0xFFFu << OOT_QUEST_SONG_MINUET);
+            } else {
+                nei->ootQuestItems &= ~(0xFFFu << OOT_QUEST_SONG_MINUET);
+            }
+        }
+    }
+
+    ImGui::SeparatorText("Extended Equipment (equipment page, L to reach ext sub-page)");
+    static const char* sNeiEquipTypeNames[4] = { "Sword", "Shield", "Tunic", "Boots" };
+    // Per-piece labels (Skijer 2026-07-16): Cape/Pendant grant OWNERSHIP for the upgrade-column
+    // passives (they no longer occupy grid slots); Boots 3 is the deleted Water Dragon Scale.
+    static const char* sNeiEquipPieceNames[4][3] = {
+        { "Byrna", "Four Sword", "Drillshaft" },
+        { "Divine", "Scimitar", "Ikana" },
+        { "Magic Cape", "Breastplate", "Champion" },
+        { "Pegasus", "Pendant", "(removed)" },
+    };
+    for (int16_t type = 0; type < 4; type++) {
+        ImGui::PushID(type);
+        ImGui::Text("%s:", sNeiEquipTypeNames[type]);
+        for (uint8_t idx = 1; idx <= 3; idx++) {
+            ImGui::SameLine();
+            ImGui::PushID(idx);
+            bool deadCell = (type == 3 && idx == 3); // Water Dragon Scale deleted (Zora Tunic swim)
+            bool owned = ExtEquip_HasItem(type, idx);
+            ImGui::BeginDisabled(deadCell || owned);
+            if (ImGui::Button(deadCell ? "(removed)" : sNeiEquipPieceNames[type][idx - 1]) && !owned) {
+                ExtEquip_GiveItem(type, idx);
+            }
+            ImGui::EndDisabled();
+            if (owned && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled)) {
+                ImGui::SetTooltip("Owned");
+            }
+            ImGui::PopID();
+        }
+        ImGui::PopID();
+    }
+
+    // Upgrade-column passive toggles (same state the kaleido A-press flips; per-save fields).
+    ImGui::SeparatorText("Upgrade-column passives (equipment page, left column)");
+    {
+        NeiSaveData* neiUp = Nei_Save();
+        ImGui::BeginDisabled(!ExtEquip_HasItem(2, 1)); // Magic Cape owned (TUNIC 1)
+        bool capeVisible = neiUp->capeHidden == 0;
+        if (ImGui::Checkbox("Magic Cape visible on Link (half-cost is always active when owned)",
+                            &capeVisible)) {
+            neiUp->capeHidden = capeVisible ? 0 : 1;
+        }
+        ImGui::EndDisabled();
+
+        ImGui::BeginDisabled(!ExtEquip_HasItem(3, 2)); // Pendant owned (BOOTS 2)
+        bool pendantOn = neiUp->pendantEffectOff == 0;
+        if (ImGui::Checkbox("Pendant of Memories moveset enabled", &pendantOn)) {
+            neiUp->pendantEffectOff = pendantOn ? 0 : 1;
+        }
+        ImGui::EndDisabled();
+    }
+}
+
 void SaveEditorWindow::DrawElement() {
     UIWidgets::PushStyleTabs(UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", 5)));
     if (ImGui::BeginTabBar("SaveContextTabBar", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
@@ -2354,6 +2598,11 @@ void SaveEditorWindow::DrawElement() {
 
         if (ImGui::BeginTabItem("Reg Editor")) {
             DrawRegEditorTab();
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Skijer's NEI")) {
+            DrawNeiTab();
             ImGui::EndTabItem();
         }
 

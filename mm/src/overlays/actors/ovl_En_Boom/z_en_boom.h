@@ -5,8 +5,15 @@
 
 typedef enum {
     /* 0 */ ZORA_BOOMERANG_LEFT,
-    /* 1 */ ZORA_BOOMERANG_RIGHT
+    /* 1 */ ZORA_BOOMERANG_RIGHT,
+    /* 2 */ OOT_BOOMERANG,  // Skijer's NEI: OoT single boomerang (human Link) — OoT En_Boom behavior 1:1
+    /* 3 */ IKAXE_TOMAHAWK  // Skijer's NEI: Iron Knuckle's Axe throw — flies/returns like OOT_BOOMERANG
+                            // but draws the axe DL (EnBoom_Draw) + deals Goron-punch damage (EnBoom_Init)
 } EnBoomType;
+
+// Both single-projectile variants (OoT boomerang + IK axe) share OoT's straight-fly/return flight
+// and item-grab, differing only in model + damage. The Zora fins (LEFT/RIGHT) keep the MM behavior.
+#define EN_BOOM_IS_OOT_STYLE(params) (((params) == OOT_BOOMERANG) || ((params) == IKAXE_TOMAHAWK))
 
 struct EnBoom;
 

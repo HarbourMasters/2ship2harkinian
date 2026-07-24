@@ -154,6 +154,15 @@ void func_80B9C5E8(ObjHunsui* this, PlayState* play) {
                 EffectSsGSplash_Spawn(play, &sp40, NULL, NULL, 1, 1);
             }
 
+            // Skijer's NEI: the water spout can't lift/carry the iron-booted human — OoT Iron Boots
+            // resist environmental water forces (Bg_Haka_Trap / Bg_Mizu_Uzu pattern). The heavy diver
+            // keeps his own gravity and just stands in the jet.
+            extern u8 VanillaTB_IsIronBoots(void);
+
+            if (VanillaTB_IsIronBoots() && (player->transformation == PLAYER_FORM_HUMAN)) {
+                this->unk_1A0 = 0.0f;
+                this->unk_19C = 0.0f;
+            } else {
             sp3E = BINANG_ROT180(player->actor.world.rot.y - this->dyna.actor.yawTowardsPlayer);
             player->actor.gravity = 0.0f;
             player->actor.velocity.y = 0.0f;
@@ -189,6 +198,7 @@ void func_80B9C5E8(ObjHunsui* this, PlayState* play) {
             }
             player->pushedYaw = this->unk_1A4;
             player->pushedSpeed = this->unk_19C;
+            }
         }
     } else {
         if (this->unk_172 & 8) {

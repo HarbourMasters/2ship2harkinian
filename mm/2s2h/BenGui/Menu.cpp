@@ -5,6 +5,7 @@
 #include <ship/window/gui/GuiElement.h>
 #include "BenModals.h"
 #include "Notification.h"
+#include "2s2h/FleetShipCombo/FleetShipCombo.h"
 #include <variant>
 #include <spdlog/fmt/fmt.h>
 #include "variables.h"
@@ -533,6 +534,90 @@ void Menu::Draw() {
 }
 
 static bool freshOpen = true;
+// Fleet Ship Combo unified game-switch tab row — IDENTICAL helper in both apps' menus (Ship's
+// SohGui and 2ship's BenGui), so the two render the same. Full-width 3-up strip
+// [ Shared | Ship of Harkinian | 2 Ship 2 Harkinian ] styled like the existing header tabs
+// (selected = theme fill, others transparent). The tab whose game's GUI is currently in front
+// (FleetShipCombo uiFocus) is highlighted; clicking a game tab flips uiFocus so that game's
+// window/menu comes forward for config. "Shared" is a disabled placeholder. Drawn only when the
+// combo is running (GetUiFocus() >= 0), so standalone menus look exactly as before.
+static float DrawFleetShipComboTabs(float rowWidth) {
+    const int focus = FleetShipCombo_GetUiFocus();
+    if (focus < 0) {
+        return 0.0f; // combo not running -> draw nothing (standalone menu unchanged)
+    }
+    ImGuiStyle& style = ImGui::GetStyle();
+    const auto themeIndex =
+        static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.Menu.Theme", UIWidgets::Colors::LightBlue));
+    const float segW = (rowWidth - style.ItemSpacing.x * 2.0f) / 3.0f;
+
+    struct Tab {
+        const char* label;
+        int targetFocus; // -1 = Shared (pide a Ship abrir su ventana Fleet Shared); 0 = Ship; 1 = 2ship
+    };
+    const Tab tabs[3] = {
+        { "Shared##fsctab", -1 },
+        { "Ship of Harkinian##fsctab", 0 },
+        { "2 Ship 2 Harkinian##fsctab", 1 },
+    };
+
+    for (int i = 0; i < 3; i++) {
+        if (i != 0) {
+            ImGui::SameLine();
+        }
+        const bool isShared = tabs[i].targetFocus < 0;
+        const bool selected = !isShared && tabs[i].targetFocus == focus;
+
+        UIWidgets::PushStyleButton(themeIndex);
+        if (!selected) {
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0)); // unselected = transparent fill
+        }
+        if (ImGui::Button(tabs[i].label, ImVec2(segW, 0.0f))) {
+            if (isShared) {
+                // La ventana Fleet Shared vive en el proceso Ship: trae su GUI al frente y pídele
+                // por shared memory que la abra (reservedU[6]).
+                FleetShipCombo_RequestSharedWindowOpen();
+                FleetShipCombo_SetUiFocus(0);
+            } else if (tabs[i].targetFocus != focus) {
+                FleetShipCombo_SetUiFocus(tabs[i].targetFocus); // flip which game's GUI is in front
+            }
+        }
+        if (!selected) {
+            ImGui::PopStyleColor();
+        }
+        UIWidgets::PopStyleButton();
+    }
+    return ImGui::GetFrameHeight() + style.ItemSpacing.y; // vertical space the row consumed
+}
+
+// Fleet Ship Combo: quick ACTIVE-game switch drawn next to the search bar (combo only).
+// Unlike the tab row above (which only flips whose GUI is in FRONT for config), this flips
+// which game is actually RUNNING — same behavior as NEI's "Switch Active Game" button.
+// Identical helper in Ship's SohGui Menu.cpp.
+static const char* FleetMenu_SwitchGameLabel() {
+    return FleetShipCombo_GetActiveGame() == 1 ? ICON_FA_EXCHANGE " Play OoT##fscswitch"
+                                               : ICON_FA_EXCHANGE " Play MM##fscswitch";
+}
+static void FleetMenu_DrawSwitchGameButton(UIWidgets::Colors themeIndex) {
+    const int32_t cur = FleetShipCombo_GetActiveGame();
+    if (cur < 0) {
+        return; // combo not running
+    }
+    UIWidgets::PushStyleButton(themeIndex);
+    if (ImGui::Button(FleetMenu_SwitchGameLabel())) {
+        // Ship persists isPlayerIn2Ship when it sees the shared active game change
+        // (FleetShipShareConsumer watcher), so flipping shared memory here is enough.
+        const int32_t next = cur ? 0 : 1;
+        FleetShipCombo_SetActiveGame(next);
+        FleetShipCombo_SetUiFocus(next); // front window follows the newly-active game
+    }
+    if (ImGui::IsItemHovered()) {
+        ImGui::SetTooltip("Switch the ACTIVE game (the one actually running).\n"
+                          "Both games stay loaded; the inactive one pauses.");
+    }
+    UIWidgets::PopStyleButton();
+}
+
 void Menu::DrawElement() {
     if (OTRGlobals::Instance->fontStandardLargest == nullptr) {
         return;
@@ -614,6 +699,11 @@ void Menu::DrawElement() {
     if (headerSearch) {
         headerWidth += 200.0f + style.ItemSpacing.x + style.FramePadding.x;
     }
+    // Fleet Ship Combo: reserve room for the active-game switch button next to the search bar.
+    if (FleetShipCombo_GetUiFocus() >= 0) {
+        headerWidth += ImGui::CalcTextSize(FleetMenu_SwitchGameLabel(), nullptr, true).x + style.FramePadding.x * 2 +
+                       style.ItemSpacing.x;
+    }
     for (auto& label : menuOrder) {
         ImVec2 size = ImGui::CalcTextSize(label.c_str());
         headerSizes.push_back(size);
@@ -638,6 +728,11 @@ void Menu::DrawElement() {
                       ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 
+    // Fleet Ship Combo: game-switch tab row at the very top of the menu (only when the combo is
+    // running). Identical row to Ship's; replaces the old NEI "Back to Ship UI" button. Returns its
+    // height so the manual `pos`-based layout reserves space for it (else the content overlaps it).
+    float fscTabRowH = DrawFleetShipComboTabs(menuSize.x);
+
     std::unordered_map<std::string, SidebarEntry>* sidebar;
     float headerHeight = headerSizes.at(0).y + style.FramePadding.y * 2;
     ImVec2 buttonSize = ImGui::CalcTextSize(ICON_FA_TIMES_CIRCLE) + style.FramePadding * 2;
@@ -646,7 +741,10 @@ void Menu::DrawElement() {
         headerHeight += style.ScrollbarSize;
         scrollbar = true;
     }
-    ImGui::SameLine();
+    // (Removed a stray ImGui::SameLine() here: it was a no-op originally, but the new game-switch
+    // tab row above leaves the cursor on its line, so the SameLine glued the category header
+    // (Settings/Enhancements/...) to the right of the tabs and pushed it off-screen. Ship's menu
+    // never had this SameLine; removing it makes the category row render on its own line.)
     ImGui::SetNextWindowSizeConstraints({ 0, headerHeight }, { headerWidth, headerHeight });
     ImVec2 headerSelSize = { menuSize.x - buttonSize.x * 3 - style.ItemSpacing.x * 3, headerHeight };
     if (scrollbar) {
@@ -686,6 +784,11 @@ void Menu::DrawElement() {
             headerIndex = nextIndex;
         }
         curIndex++;
+    }
+    // Fleet Ship Combo: quick active-game switch, right before/next to the search bar.
+    if (FleetShipCombo_GetUiFocus() >= 0) {
+        ImGui::SameLine();
+        FleetMenu_DrawSwitchGameButton(menuThemeIndex);
     }
     std::string menuSearchText = "";
     if (headerSearch) {
@@ -762,12 +865,12 @@ void Menu::DrawElement() {
         }
     }
 
-    pos.y += headerHeight + style.ItemSpacing.y;
+    pos.y += headerHeight + style.ItemSpacing.y + fscTabRowH; // + the game-switch tab row height
     pos.x = centerX - menuSize.x / 2 + (style.ItemSpacing.x * (menuEntries.size() + 1));
     window->DrawList->AddRectFilled(pos, pos + ImVec2{ menuSize.x, 4 }, ImGui::GetColorU32({ 255, 255, 255, 255 }),
                                     true, style.WindowRounding);
     pos.y += style.ItemSpacing.y;
-    float sectionHeight = menuSize.y - headerHeight - 4 - style.ItemSpacing.y * 2;
+    float sectionHeight = menuSize.y - headerHeight - 4 - style.ItemSpacing.y * 2 - fscTabRowH;
     float columnHeight = sectionHeight - style.ItemSpacing.y * 4;
     ImGui::SetNextWindowPos(pos + style.ItemSpacing * 2);
     float sidebarWidth = 200 - style.ItemSpacing.x;

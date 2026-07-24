@@ -327,6 +327,7 @@ typedef enum ItemId {
     /* 0xB2 */ ITEM_MAP_POINT_MILK_ROAD,
     /* 0xB3 */ ITEM_MAP_POINT_ZORA_CAPE,
     /* 0xB4 */ ITEM_SHIP, // 2S2H [Enhancement] Added to enable custom item gives
+    /* 0xB5 */ ITEM_MARIO_MASK = 0xB5, // 2S2H [SM64 Mario Mode] C-Down slot toggle, gated by gSm64MarioMaskForce
     /* 0xB8 */ ITEM_B8 = 0xB8,
     /* 0xB9 */ ITEM_B9,
     /* 0xBA */ ITEM_BA,
@@ -356,6 +357,246 @@ typedef enum ItemId {
     /* 0xFE */ ITEM_FE,
     /* 0xFF */ ITEM_NONE = 0xFF
 } ItemId;
+
+// ─── Skijer's NEI custom item IDs ────────────────────────────────────────────
+// Defined as #defines (not enum entries) so the ItemId enum and z_message.c's
+// custom-item plumbing (>= ITEM_B8 renders a 32x32 RGBA icon) stay untouched.
+// Re-homed into MM's free 0xB6-0xF8 range (the SoH values 0x9E.. collided with
+// MM map-points/masks). Referenced by name across mm/mods — the value is free to
+// differ from SoH since nothing stores it positionally except Nei_Save (u8).
+// Page-2 inventory custom items (0xB6-0xCF):
+#define ITEM_ROCS_FEATHER_SKIJER 0xB6
+#define ITEM_ROCS_CAPE           0xB7
+#define ITEM_DESIRE_SENSOR       0xB8
+#define ITEM_HYLIAS_GRACE        0xB9
+#define ITEM_ZONAI_PERMAFROST    0xBA
+#define ITEM_DEMISE_DESTRUCTION  0xBB
+#define ITEM_DEKU_LEAF           0xBC
+#define ITEM_SWITCH_HOOK         0xBD
+#define ITEM_MOGMA_MITTS         0xBE
+#define ITEM_GUST_JAR            0xBF
+#define ITEM_BALL_AND_CHAIN      0xC0
+#define ITEM_WHIP                0xC1
+#define ITEM_SPINNER             0xC2
+#define ITEM_CANE_OF_SOMARIA     0xC3
+#define ITEM_DOMINION_ROD        0xC4
+#define ITEM_TIME_GATE           0xC5
+#define ITEM_BOMB_ARROWS         0xC6
+#define ITEM_ROD_FIRE            0xC7
+#define ITEM_ROD_ICE             0xC8
+#define ITEM_ROD_LIGHT           0xC9
+#define ITEM_BEETLE              0xCA
+#define ITEM_SHOVEL              0xCB
+#define ITEM_MINISH_CAP          0xCC
+#define ITEM_LANTERN             0xCD
+#define ITEM_CHATEAU_ROMANI      0xCE
+#define ITEM_POKEBALL            0xCF
+// SW97 medallion arrow items (0xD0-0xD5):
+#define ITEM_SW97_ARROW_FIRE     0xD0
+#define ITEM_SW97_ARROW_ICE      0xD1
+#define ITEM_SW97_ARROW_LIGHT    0xD2
+#define ITEM_SW97_ARROW_DARK     0xD3
+#define ITEM_SW97_ARROW_SOUL     0xD4
+#define ITEM_SW97_ARROW_WIND     0xD5
+// SW97 elemental BULLETS (slingshot-side twins of the arrow items, 0xA7-0xAC). Same
+// precedent as the NEI OoT ids 0xA0-0xA6: these shadow native map-point enum entries
+// (never equippable/held), and are only ever produced by the NEI slingshot wheel.
+// Equipping one to a C button = "Fairy Slingshot loaded with that element" (fires
+// ARROW_TYPE_SEED_* from EnArrow). Arrows and bullets coexist on separate buttons.
+#define ITEM_SW97_BULLET_FIRE    0xA7
+#define ITEM_SW97_BULLET_ICE     0xA8
+#define ITEM_SW97_BULLET_LIGHT   0xA9
+#define ITEM_SW97_BULLET_DARK    0xAA
+#define ITEM_SW97_BULLET_SOUL    0xAB
+#define ITEM_SW97_BULLET_WIND    0xAC
+// Prop Hunt render-hint icons (Harpoon multiplayer) (0xD6-0xDB):
+#define ITEM_PH_ICON_POT         0xD6
+#define ITEM_PH_ICON_ENEMY       0xD7
+#define ITEM_PH_ICON_NPC         0xD8
+#define ITEM_PH_ICON_CHANGE      0xD9
+#define ITEM_PH_ICON_PREV        0xDA
+#define ITEM_PH_ICON_NEXT        0xDB
+// Magic Mushroom (0xDC-0xDD):
+#define ITEM_MAGIC_MUSHROOM             0xDC
+#define ITEM_BOTTLE_WITH_MAGIC_MUSHROOM 0xDD
+// (0xE0-0xEB reserved for ITEM_EXT_* extended equipment in extended_equipment.h)
+// NOTE: MM's bottle contents are NATIVE ItemId enum constants — do NOT #define them.
+// A #define shadows the enum with an int macro and breaks native code that uses the
+// names (CuriosityShopRefills, Rando StaticData, etc.). The NEI bottle code uses the
+// native values directly: ITEM_DEKU_PRINCESS 0x17, ITEM_SPRING_WATER 0x1F,
+// ITEM_HOT_SPRING_WATER 0x20, ITEM_ZORA_EGG 0x21, ITEM_GOLD_DUST 0x22,
+// ITEM_MUSHROOM 0x23, ITEM_SEAHORSE 0x24, ITEM_CHATEAU 0x25, ITEM_HYLIAN_LOACH 0x26,
+// ITEM_OBABA_DRINK 0x27 — all already in the enum above.
+// Only genuinely-custom bottle items (no MM-native equivalent) get an ID here:
+#define ITEM_NET                 0xF7
+#define ITEM_BOTTOMLESS_BOTTLE   0xF8
+
+// ─── Skijer's NEI — OoT-only item-name compat (centralized here from
+// extended_inventory.h so EVERY mod TU sees them; extended_player.c / equip_helper.c /
+// weapon_upgrades.h / sw97 reference these and are compiled before extended_inventory.h.
+// Guarded #ifndef so a real definition always wins, like _nei_dmg_compat.h). ──
+// (a) Names that ARE real MM items — alias to the native:
+#ifndef ITEM_LENS
+#define ITEM_LENS             ITEM_LENS_OF_TRUTH
+#endif
+#ifndef ITEM_MM_MOONS_TEAR
+#define ITEM_MM_MOONS_TEAR    ITEM_MOONS_TEAR
+#endif
+#ifndef ITEM_MM_DEED_LAND
+#define ITEM_MM_DEED_LAND     ITEM_DEED_LAND
+#endif
+#ifndef ITEM_MM_DEED_SWAMP
+#define ITEM_MM_DEED_SWAMP    ITEM_DEED_SWAMP
+#endif
+#ifndef ITEM_MM_DEED_MOUNTAIN
+#define ITEM_MM_DEED_MOUNTAIN ITEM_DEED_MOUNTAIN
+#endif
+#ifndef ITEM_MM_DEED_OCEAN
+#define ITEM_MM_DEED_OCEAN    ITEM_DEED_OCEAN
+#endif
+#ifndef ITEM_MM_ROOM_KEY
+#define ITEM_MM_ROOM_KEY      ITEM_ROOM_KEY
+#endif
+#ifndef ITEM_MM_LETTER_KAFEI
+#define ITEM_MM_LETTER_KAFEI  ITEM_LETTER_TO_KAFEI
+#endif
+#ifndef ITEM_MM_SPECIAL_DELIVERY
+#define ITEM_MM_SPECIAL_DELIVERY ITEM_LETTER_MAMA
+#endif
+// (b) Genuinely OoT-only (no MM analog) — sentinel IDs in verified-free enum gaps
+// (0xCD-0xEF and 0xF3-0xFB are not in the native ItemId enum). Used only as equality
+// sentinels for ext-equipment icon overrides; never granted as real MM items.
+#ifndef ITEM_SWORD_MASTER
+#define ITEM_SWORD_MASTER     0xDE
+#endif
+#ifndef ITEM_SWORD_BGS
+#define ITEM_SWORD_BGS        0xDF
+#endif
+#ifndef ITEM_SWORD_KNIFE
+#define ITEM_SWORD_KNIFE      0xEC
+#endif
+#ifndef ITEM_HAMMER
+#define ITEM_HAMMER           0xED
+#endif
+#ifndef ITEM_BOOMERANG
+#define ITEM_BOOMERANG        0xEE
+#endif
+#ifndef ITEM_SOLD_OUT
+#define ITEM_SOLD_OUT         0xEF
+#endif
+#ifndef ITEM_MEDALLION_FOREST
+#define ITEM_MEDALLION_FOREST 0xF3
+#endif
+#ifndef ITEM_MEDALLION_FIRE
+#define ITEM_MEDALLION_FIRE   0xF4
+#endif
+#ifndef ITEM_MEDALLION_WATER
+#define ITEM_MEDALLION_WATER  0xF5
+#endif
+#ifndef ITEM_MEDALLION_SPIRIT
+#define ITEM_MEDALLION_SPIRIT 0xF6
+#endif
+#ifndef ITEM_MEDALLION_SHADOW
+#define ITEM_MEDALLION_SHADOW 0xF9
+#endif
+#ifndef ITEM_MEDALLION_LIGHT
+#define ITEM_MEDALLION_LIGHT  0xFA
+#endif
+
+// ── Extended-button infrastructure ──────────────────────────────────────────
+// The vanilla per-form C/B button array `equips.buttonItems[form][slot]` is u8, and the
+// full u8 ItemId space is essentially exhausted (only ~1 free slot left). To C-equip custom
+// items beyond the u8 id space, one reserved u8 acts as a MARKER: when a button slot holds
+// ITEM_EXT_BUTTON, the REAL (u16) id lives in the parallel array
+// shipSaveInfo.extButtons.items[form][slot] (mirrors the DpadSaveInfo/dpadEquips pattern).
+// Vanilla code that reads the u8 sees ITEM_EXT_BUTTON as a harmless non-action item (exactly
+// like the medallion sentinels: no item action, `false` in the usable/restriction tables); only
+// the icon sites and owner-mod code resolve the real u16 (see ExtButton_GetItem / z_parameter.c).
+//   0xFB — the free gap in the medallion sentinel range (ITEM_FB, unreferenced). Now the marker.
+#ifndef ITEM_EXT_BUTTON
+#define ITEM_EXT_BUTTON 0xFB
+#endif
+
+// Spiritual Stones (Kokiri Emerald / Goron's Ruby / Zora's Sapphire) — the first consumer of the
+// extended-button infra. They are equality-only, non-inventoried sentinel item ids (equipped to a C
+// button + icon lookup + held-button detection), like the medallions, but now use u16 EXT ids that
+// sit clearly above the u8 item space (and above any RandomizerGet lows). When a stone is C-equipped
+// the button's u8 holds ITEM_EXT_BUTTON and the u16 EXT id lives in extButtons.items[form][slot].
+// (The old u8 slots 0x71/0x72 are freed back to bare ITEM_71/ITEM_72 placeholders.)
+#ifndef EXT_ITEM_SPIRITUAL_STONE_KOKIRI
+#define EXT_ITEM_SPIRITUAL_STONE_KOKIRI 0x0201
+#endif
+#ifndef EXT_ITEM_SPIRITUAL_STONE_GORON
+#define EXT_ITEM_SPIRITUAL_STONE_GORON  0x0202
+#endif
+#ifndef EXT_ITEM_SPIRITUAL_STONE_ZORA
+#define EXT_ITEM_SPIRITUAL_STONE_ZORA   0x0203
+#endif
+// Back-compat aliases (same u16 values) so existing consumers keep their names; all > 0xFF now.
+#ifndef ITEM_SPIRITUAL_STONE_KOKIRI
+#define ITEM_SPIRITUAL_STONE_KOKIRI EXT_ITEM_SPIRITUAL_STONE_KOKIRI
+#endif
+#ifndef ITEM_SPIRITUAL_STONE_GORON
+#define ITEM_SPIRITUAL_STONE_GORON  EXT_ITEM_SPIRITUAL_STONE_GORON
+#endif
+#ifndef ITEM_SPIRITUAL_STONE_ZORA
+#define ITEM_SPIRITUAL_STONE_ZORA   EXT_ITEM_SPIRITUAL_STONE_ZORA
+#endif
+
+// (c) Pikachu-form item handlers (mm_player_form.cpp) — OoT names → MM natives.
+// The OoT magic spells / OoT-only trade items (Farore's Wind, Din's Fire, Nayru's
+// Love, Gerudo Mask, Ruto's Letter, Weird Egg, Claim Check) have NO MM item and no
+// free ItemId gap left — their dead handler-table entries are removed in-file
+// instead of aliased.
+#ifndef ITEM_BOW_ARROW_FIRE
+#define ITEM_BOW_ARROW_FIRE   ITEM_ARROW_FIRE
+#endif
+#ifndef ITEM_BOW_ARROW_ICE
+#define ITEM_BOW_ARROW_ICE    ITEM_ARROW_ICE
+#endif
+#ifndef ITEM_BOW_ARROW_LIGHT
+#define ITEM_BOW_ARROW_LIGHT  ITEM_ARROW_LIGHT
+#endif
+#ifndef ITEM_NUT
+#define ITEM_NUT              ITEM_DEKU_NUT
+#endif
+#ifndef ITEM_SHIELD_HYLIAN
+#define ITEM_SHIELD_HYLIAN    ITEM_SHIELD_HERO
+#endif
+#ifndef ITEM_NONE_FE
+#define ITEM_NONE_FE          ITEM_FE
+#endif
+
+// ─── MM mask items (ITEM_MM_MASK_*) ──────────────────────────────────────────
+// In 2ship the masks are NATIVE, so these alias MM's own ITEM_MASK_* (the
+// transformation_masks form engine triggers Garo/Gerudo/etc. by item id). The
+// native masks are CONTIGUOUS at 0x32-0x49, so any form-engine range check of
+// the form `item >= ITEM_MM_MASK_POSTMAN && <= ITEM_MM_MASK_FIERCE_DEITY` must be
+// rewritten to the native range `>= ITEM_MASK_DEKU && <= ITEM_MASK_GIANT`.
+#define ITEM_MM_MASK_POSTMAN       ITEM_MASK_POSTMAN
+#define ITEM_MM_MASK_ALL_NIGHT     ITEM_MASK_ALL_NIGHT
+#define ITEM_MM_MASK_BLAST         ITEM_MASK_BLAST
+#define ITEM_MM_MASK_STONE         ITEM_MASK_STONE
+#define ITEM_MM_MASK_GREAT_FAIRY   ITEM_MASK_GREAT_FAIRY
+#define ITEM_MM_MASK_DEKU          ITEM_MASK_DEKU
+#define ITEM_MM_MASK_KEATON        ITEM_MASK_KEATON
+#define ITEM_MM_MASK_BREMEN        ITEM_MASK_BREMEN
+#define ITEM_MM_MASK_BUNNY         ITEM_MASK_BUNNY
+#define ITEM_MM_MASK_DON_GERO      ITEM_MASK_DON_GERO
+#define ITEM_MM_MASK_SCENTS        ITEM_MASK_SCENTS
+#define ITEM_MM_MASK_GORON         ITEM_MASK_GORON
+#define ITEM_MM_MASK_ROMANI        ITEM_MASK_ROMANI
+#define ITEM_MM_MASK_CIRCUS_LEADER ITEM_MASK_CIRCUS_LEADER
+#define ITEM_MM_MASK_KAFEI         ITEM_MASK_KAFEIS_MASK
+#define ITEM_MM_MASK_COUPLE        ITEM_MASK_COUPLE
+#define ITEM_MM_MASK_TRUTH         ITEM_MASK_TRUTH
+#define ITEM_MM_MASK_ZORA          ITEM_MASK_ZORA
+#define ITEM_MM_MASK_KAMARO        ITEM_MASK_KAMARO
+#define ITEM_MM_MASK_GIBDO         ITEM_MASK_GIBDO
+#define ITEM_MM_MASK_GARO          ITEM_MASK_GARO
+#define ITEM_MM_MASK_CAPTAIN       ITEM_MASK_CAPTAIN
+#define ITEM_MM_MASK_GIANT         ITEM_MASK_GIANT
+#define ITEM_MM_MASK_FIERCE_DEITY  ITEM_MASK_FIERCE_DEITY
 
 #define BOTTLE_FIRST 0
 #define BOTTLE_MAX 6

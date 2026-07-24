@@ -193,6 +193,49 @@ typedef enum PlayerItemAction {
     /* 0x53 */ PLAYER_IA_MAX
 } PlayerItemAction;
 
+// Skijer's NEI: OoT Megaton Hammer item action. A custom value (0x7C) past MM's native range and
+// the NEI custom-item IAs (0x63..0x7F, extended_player.h) so it never collides with the
+// [PLAYER_IA_MAX]-sized native tables. Defined here (not just nei_oot_compat.h, which is
+// z_player.c-TU-only) so z_player_lib.c and the equipment mods see the SAME real value — this is
+// what finally lets Player_MeleeWeaponFromIA / the IK-Axe code detect the hammer.
+#define PLAYER_IA_HAMMER 0x7C
+
+// Skijer's NEI: OoT Boomerang item action (human Link). 0x62 sits in the gap between MM's
+// PLAYER_IA_MAX (0x53) and the NEI custom-item band (0x63..0x7F, all taken) — safe because the
+// ExtPlayer_* getters route by exact match and never index the [PLAYER_IA_MAX]-sized native
+// tables for values >= 0x53. Defined here (like PLAYER_IA_HAMMER) so z_player_lib.c and the
+// equipment mods all see the same real value.
+#define PLAYER_IA_BOOMERANG 0x62
+
+// Skijer's NEI: OoT Fairy Slingshot item action — REAL IA (was an alias of PLAYER_IA_DEKU_NUT in
+// nei_oot_compat.h). 0x54 sits in the same free gap (PLAYER_IA_MAX 0x53 .. 0x61) as the boomerang
+// above; the ExtPlayer_* getters route it by exact match, never indexing the [PLAYER_IA_MAX]-sized
+// native tables. Defined here (like PLAYER_IA_HAMMER) so z_player_lib.c (held/first-person DLs,
+// slingshot string) and the HUD/kaleido code all see the same real value as the z_player.c TU.
+#define PLAYER_IA_SLINGSHOT 0x54
+
+// Skijer's NEI: OoT magic-spell item actions (Din's Fire / Farore's Wind / Nayru's Love + the six
+// SW97 medallion spells that share the same cast pipeline). MUST stay CONTIGUOUS in this exact
+// OoT order — Player_ActionToMagicSpell computes (ia - PLAYER_IA_MAGIC_SPELL_15) and expects 0..5.
+// Values fill the free gap 0x55..0x5A (0x54 = slingshot, 0x62 = boomerang; the ExtPlayer getters
+// route >= 0x53 by exact match, never indexing the native tables).
+#define PLAYER_IA_MAGIC_SPELL_15 0x55 // Forest Medallion (SW97)
+#define PLAYER_IA_MAGIC_SPELL_16 0x56 // Spirit Medallion (SW97)
+#define PLAYER_IA_MAGIC_SPELL_17 0x57 // Shadow Medallion (SW97)
+#define PLAYER_IA_FARORES_WIND 0x58   // + Water Medallion (SW97)
+#define PLAYER_IA_NAYRUS_LOVE 0x59    // + Light Medallion (SW97)
+#define PLAYER_IA_DINS_FIRE 0x5A      // + Fire Medallion (SW97)
+
+// Skijer's NEI: OoT Master Sword — a REAL item action (was an #ifndef alias of
+// PLAYER_IA_SWORD_GILDED in nei_oot_compat.h; z64player.h is included first, so this real value
+// wins and the alias is skipped). Mechanically identical to the Gilded sword (one-handed: same
+// damage/reach/anims/model-group — resolved by reusing the Gilded table entries in the
+// ExtPlayer_* getters and mapping to PLAYER_MELEEWEAPON_SWORD_GILDED), but distinguishable by IA
+// so it can draw the OoT master-sword blade and fire a full-HP beam (True Master upgrade). 0x5B
+// sits in the free gap (0x5B..0x61) past PLAYER_IA_MAX (0x53); the ExtPlayer_* getters route it by
+// exact match and never index the [PLAYER_IA_MAX]-sized native tables.
+#define PLAYER_IA_SWORD_MASTER 0x5B
+
 // Relies on B swords related item actions to be contiguous
 #define GET_B_SWORD_FROM_IA(itemAction) ((itemAction) - PLAYER_IA_SWORD_MIN + 1)
 
@@ -335,11 +378,17 @@ typedef enum PlayerMeleeWeaponAnimation {
     /* 27 */ PLAYER_MWA_ZORA_PUNCH_LEFT,       // Zora punch
     /* 28 */ PLAYER_MWA_ZORA_PUNCH_COMBO,      // Second Zora punch
     /* 29 */ PLAYER_MWA_ZORA_PUNCH_KICK,       // Zora kick
-    /* 30 */ PLAYER_MWA_SPIN_ATTACK_1H,        // Half-charged one-handed spin
-    /* 31 */ PLAYER_MWA_SPIN_ATTACK_2H,        // Half-charged two-handed spin
-    /* 32 */ PLAYER_MWA_BIG_SPIN_1H,           // Fully-charged one-handed spin
-    /* 33 */ PLAYER_MWA_BIG_SPIN_2H,           // Fully-charged two-handed spin
-    /* 34 */ PLAYER_MWA_MAX
+    // Skijer's NEI: OoT Megaton Hammer attacks. Placed BEFORE the spin attacks like OoT does
+    // (hammer 22/23 < spin 24) so every open-ended `>= PLAYER_MWA_SPIN_ATTACK_1H` "is spin
+    // attack" check in the game keeps excluding the hammer. MWA-indexed positional tables
+    // (sMeleeAttackAnimInfo, En_Maruta D_80B386CC) carry matching inserted rows.
+    /* 30 */ PLAYER_MWA_HAMMER_FORWARD,        // Overhead hammer smash (floor shockwave)
+    /* 31 */ PLAYER_MWA_HAMMER_SIDE,           // Side hammer swing
+    /* 32 */ PLAYER_MWA_SPIN_ATTACK_1H,        // Half-charged one-handed spin
+    /* 33 */ PLAYER_MWA_SPIN_ATTACK_2H,        // Half-charged two-handed spin
+    /* 34 */ PLAYER_MWA_BIG_SPIN_1H,           // Fully-charged one-handed spin
+    /* 35 */ PLAYER_MWA_BIG_SPIN_2H,           // Fully-charged two-handed spin
+    /* 36 */ PLAYER_MWA_MAX
 } PlayerMeleeWeaponAnimation;
 
 typedef enum PlayerMeleeWeaponState {
@@ -1356,7 +1405,17 @@ typedef struct Player {
     /* 0xD6A */ s8 unk_D6A;
     /* 0xD6B */ u8 unk_D6B;
     /* 0xD6C */ Vec3f unk_D6C; // previous body part 0 position
-} Player; // size = 0xD78
+    // SoH SM64 Mario / Ivan companion compat fields. MM doesn't have an
+    // Ivan companion or hover-boots-as-item, but the SoH SM64 expansion
+    // reads these inside Player_PlaySteppingSfx / Player_UpdateHoverBoots /
+    // Player_Draw branches that gate hover-flight behavior. Default-zero
+    // means the branches collapse to vanilla MM unless something inside
+    // sm64_mario.c writes them — which mirrors SoH's gameplay where Ivan
+    // sets ivanFloating during fairy flight.
+    /* 0xD78 */ u8 ivanFloating;
+    /* 0xD79 */ s8 hoverBootsTimer;
+    /* 0xD7C */ s32 ivanDamageMultiplier;
+} Player; // size = 0xD80 (was 0xD78 in vanilla; SoH compat fields appended)
 #ifdef __cplusplus
 }
 #undef this
