@@ -118,10 +118,11 @@ void DrawVoyage3Description() {
 	    }
 		ImGui::EndTable();
 	}
-	ImGui::Text("If an item has already been acquired, it will not be considered when the song is played.");
+	ImGui::Text("You should not get a hint for an item you already have in your inventory. Once you have a prioritized item, it will not be\n"
+		"hinted when Saria's song is played.");
 	ImGui::Text("If none of the items listed above are logically accessible, you will instead get a hint for a major item "
 		"or a mask.");	
-	ImGui::Text("The song has a once time use, so use it wisely.");
+	ImGui::Text("The song can only be used one time, so use it wisely.");
 	ImGui::Separator();
 	//---
 
