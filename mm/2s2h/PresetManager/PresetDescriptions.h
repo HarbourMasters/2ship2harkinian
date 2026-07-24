@@ -62,7 +62,7 @@ std::vector<std::pair<std::string, std::string>> voyage3ForcedJunk = {
 };
 //---
 // New Addition for Saria's Hint information
-std::vector<std::pair<std::string, std::string>> voyage3SariasPriorityItemHints = {
+std::vector<std::string> voyage3SariasPriorityItemHints = {
     "Bow", "Blast Mask", "First Bomb Bag", "First Magic Upgrade", "Fire Arrow", "Ice Arrow", "Light Arrow",
 	"Sonata of Awakening", "Goron Lullaby", "New Wave Bossa Nova", "Elegy of Emptiness", "Fierce Diety Mask",
 };
