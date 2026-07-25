@@ -68,11 +68,15 @@ s32 EnGirlA_RandoCanBuyFunc(PlayState* play, EnGirlA* enGirlA) {
 
 void EnGirlA_RandoBuyFunc(PlayState* play, EnGirlA* enGirlA) {
     auto& randoSaveCheck = RANDO_SAVE_CHECKS[enGirlA->actor.world.rot.z];
-    RandoItemId randoItemId = Rando::ConvertItem(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z);
+    RandoCheckId randoCheckId = (RandoCheckId)enGirlA->actor.world.rot.z;
+    RandoItemId randoItemId = Rando::ConvertItem(randoSaveCheck.randoItemId, randoCheckId);
     randoSaveCheck.obtained = true;
+    randoSaveCheck.cycleObtained = true;
     Rupees_ChangeBy(-play->msgCtx.unk1206C);
     if (randoItemId == RI_TRAP) {
         RollTrapType();
+    } else if (randoItemId == RI_JUNK) {
+        randoItemId = Rando::CurrentJunkItem(randoCheckId);
     }
     Rando::GiveItem(randoItemId);
 }
