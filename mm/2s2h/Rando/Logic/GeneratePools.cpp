@@ -75,8 +75,18 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
                 continue;
             }
 
+            if (randoStaticCheck.randoCheckType == RCTYPE_BEEHIVE &&
+                saveInfo.randoSaveOptions[RO_SHUFFLE_HIVE_DROPS] == RO_GENERIC_NO) {
+                continue;
+            }
+
             if (randoStaticCheck.randoCheckType == RCTYPE_TREE &&
                 saveInfo.randoSaveOptions[RO_SHUFFLE_TREE_DROPS] == RO_GENERIC_NO) {
+                continue;
+            }
+
+            if (randoStaticCheck.randoCheckType == RCTYPE_BUTTERFLY &&
+                saveInfo.randoSaveOptions[RO_SHUFFLE_BUTTERFLIES] == RO_GENERIC_NO) {
                 continue;
             }
 

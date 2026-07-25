@@ -14,6 +14,8 @@ extern "C" {
 #include "overlays/actors/ovl_En_Sth/z_en_sth.h"
 }
 
+#include <fast/Fast3dGui.h>
+
 // TODO: This block should come from elsewhere, tied to data in Rando::StaticData::Options
 std::unordered_map<int32_t, const char*> logicOptions = {
     { RO_LOGIC_GLITCHLESS, "Glitchless" },
@@ -156,7 +158,7 @@ void SaveExcludedChecks() {
         excludedString += ",";
     }
     CVarSetString("gRando.ExcludedChecks", excludedString.c_str());
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     ShipInit::Init("gRando.ExcludedChecks");
 }
 
@@ -259,6 +261,7 @@ static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
                                                                    "gRando.Options.RO_SHUFFLE_FROGS",
                                                                    "gRando.Options.RO_SHUFFLE_GOLD_SKULLTULAS",
                                                                    "gRando.Options.RO_SHUFFLE_GRASS_DROPS",
+                                                                   "gRando.Options.RO_SHUFFLE_HIVE_DROPS",
                                                                    "gRando.Options.RO_SHUFFLE_TRAPS",
                                                                    "gRando.Options.RO_SHUFFLE_OCARINA_BUTTONS",
                                                                    "gRando.Options.RO_SHUFFLE_OWL_STATUES",
@@ -538,9 +541,9 @@ static void DrawShufflesTab() {
     CVarCheckbox("Shuffle Snowball Drops", Rando::StaticData::Options[RO_SHUFFLE_SNOWBALL_DROPS].cvar);
     CVarCheckbox("Shuffle Grass Drops", Rando::StaticData::Options[RO_SHUFFLE_GRASS_DROPS].cvar);
     CVarCheckbox("Shuffle Tree Drops", Rando::StaticData::Options[RO_SHUFFLE_TREE_DROPS].cvar);
+    CVarCheckbox("Shuffle Butterflies", Rando::StaticData::Options[RO_SHUFFLE_BUTTERFLIES].cvar);
     CVarCheckbox("Shuffle Frogs", Rando::StaticData::Options[RO_SHUFFLE_FROGS].cvar);
-    CVarCheckbox("Shuffle Hive Drops", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Shuffle Hive Drops", Rando::StaticData::Options[RO_SHUFFLE_HIVE_DROPS].cvar);
     CVarCheckbox("Shuffle Freestanding Items", Rando::StaticData::Options[RO_SHUFFLE_FREESTANDING_ITEMS].cvar);
     CVarCheckbox("Shuffle Wonder Items", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
@@ -610,7 +613,8 @@ static void DrawPriorityItemsPopup() {
                 ImGui::TableNextColumn();
                 const char* texturePath = Rando::StaticData::GetIconTexturePath(itemId);
                 ImTextureID textureId =
-                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
+                    std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())
+                        ->GetTextureByName(texturePath);
                 float iconOffsetY = (ImGui::GetFrameHeight() - PRIORITY_BUTTON_SIZE) * 0.5f;
                 if (iconOffsetY > 0.0f) {
                     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + iconOffsetY);
@@ -746,6 +750,9 @@ static void DrawItemsTab() {
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Infinite Upgrades", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
+    CVarCheckbox("Purchase Infinite Rupees", Rando::StaticData::Options[RO_PURCHASE_INFINITE_RUPEES].cvar,
+                 CheckboxOptions({ { .tooltip = "Rupees in shops can be purchased any number of times "
+                                                "within a cycle." } }));
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoItemsColumn2", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
@@ -941,7 +948,9 @@ static void DrawStartingItemsTab() {
 
         Rando::StaticData::RandoStaticItem randoStaticItem = Rando::StaticData::Items[startingItem];
         const char* texturePath = Rando::StaticData::GetIconTexturePath(startingItem);
-        ImTextureID textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
+        ImTextureID textureId =
+            std::dynamic_pointer_cast<Fast::Fast3dGui>(Ship::Context::GetRawInstance()->GetWindow()->GetGui())
+                ->GetTextureByName(texturePath);
 
         ImVec4 tintColor =
             Ship_GetItemColorTint(startingItem == RI_PROGRESSIVE_LULLABY ? ITEM_SONG_LULLABY : randoStaticItem.itemId);
@@ -1006,8 +1015,9 @@ static void DrawStartingItemsTab() {
 
                     Rando::StaticData::RandoStaticItem randoStaticItem = Rando::StaticData::Items[item];
                     const char* texturePath = Rando::StaticData::GetIconTexturePath(item);
-                    ImTextureID textureId =
-                        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
+                    ImTextureID textureId = std::dynamic_pointer_cast<Fast::Fast3dGui>(
+                                                Ship::Context::GetRawInstance()->GetWindow()->GetGui())
+                                                ->GetTextureByName(texturePath);
 
                     // Force new row for Song of Time, first frog, and first time item
                     if (item == RI_SONG_TIME || item == RI_FROG_BLUE || item == RI_TIME_DAY_1) {
