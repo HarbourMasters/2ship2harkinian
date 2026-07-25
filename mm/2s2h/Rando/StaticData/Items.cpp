@@ -691,11 +691,14 @@ std::string GetItemName(RandoItemId randoItemId, bool includeArticle, RandoCheck
         if (fakeNames != fakeItemNames.end()) {
             fakeItemName = fakeNames->second[Ship_Random(0, fakeNames->second.size())];
         } else {
-            // Fallback: Double a random letter
-            fakeItemName = GetItemName(trappedItemId, false);
-            // Pick a random letter in the item name, and double it to fool the player
+            // Fallback: Double a random letter to fool the player
             auto letterIndex = Ship_Random(0, fakeItemName.length());
             char letterToDouble = fakeItemName[letterIndex];
+            // But not spaces
+            if (letterToDouble == ' ') {
+                letterIndex++;
+                letterToDouble = fakeItemName[letterIndex];
+            }
             fakeItemName.insert(letterIndex, 1, letterToDouble);
         }
 
