@@ -209,7 +209,7 @@ OTRGlobals::OTRGlobals() {
     }
 
     previousImGuiScaleIndex = -1;
-    previousImGuiScale = defaultImGuiScale;
+    previousImGuiScale = 1.0f; // the scale the style is currently at, NOT an index
     ScaleImGui();
 }
 
@@ -779,14 +779,21 @@ struct ExtensionEntry {
 
 void OTRGlobals::ScaleImGui() {
     int32_t imGuiScaleIndex = CVarGetInteger("gSettings.ImGuiScale", defaultImGuiScale);
-    if (imGuiScaleIndex == previousImGuiScaleIndex) {
-        return;
+    const float userScale = imguiScaleOptionToValue[imGuiScaleIndex];
+    // Single owner of ImGui style scaling. Gui::Init no longer scales anything, so this
+    // composes with the platform chrome scale instead of compounding on top of it.
+    const float scale = userScale * Ship::Context::GetInstance()->GetWindow()->GetGui()->GetUiScale();
+    if (scale == previousImGuiScale) {
+        return; // guard on the computed total, not the index, so gSettings.UIScale is live
     }
 
-    float scale = imguiScaleOptionToValue[imGuiScaleIndex];
-    float newScale = scale / previousImGuiScale;
-    ImGui::GetStyle().ScaleAllSizes(newScale);
-    ImGui::GetIO().FontGlobalScale = scale;
+    ImGui::GetStyle().ScaleAllSizes(scale / previousImGuiScale);
+    // Fonts are real TTFs at authored point sizes; only the user's own multiplier applies.
+    ImGui::GetIO().FontGlobalScale = userScale;
+#if defined(__IOS__) || defined(__ANDROID__)
+    // The slider grab is the one widget where the floor must be absolute, not proportional.
+    ImGui::GetStyle().GrabMinSize = std::max(ImGui::GetStyle().GrabMinSize, 44.0f);
+#endif
     previousImGuiScale = scale;
     previousImGuiScaleIndex = imGuiScaleIndex;
 }

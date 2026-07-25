@@ -57,7 +57,14 @@ class Menu : public GuiWindow {
     };
 
   private:
+#if defined(__IOS__) || defined(__ANDROID__)
+    // PortNote: no OS viewports and no room for a 1280x800 popout — enabling it strands the
+    // player, because both the close button and the checkbox that got them there end up
+    // off-screen and the choice persists to a CVar across relaunches.
+    bool allowPopout = false;
+#else
     bool allowPopout = true; // PortNote: should be set to false on small screen ports
+#endif
     bool popped;
     ImVec2 poppedSize;
     ImVec2 poppedPos;

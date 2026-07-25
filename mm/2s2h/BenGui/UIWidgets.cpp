@@ -117,7 +117,7 @@ void PushStyleButton(const ImVec4& color, const ImVec2 padding) {
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(color.x, color.y, color.z, 0.6f));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.3f));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ScaleTouch(padding.x, padding.y));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 5.0f);
 }
 
@@ -139,7 +139,7 @@ void PushStyleInput(const ImVec4& color) {
     ImGui::PushStyleColor(ImGuiCol_FrameBgActive, ImVec4(color.x, color.y, color.z, 0.6f));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.3f));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ScaleTouch(10.0f, 8.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 5.0f);
 }
 
@@ -236,7 +236,7 @@ void PushStyleCheckbox(const ImVec4& color, ImVec2 padding) {
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.3f));
     ImGui::PushStyleColor(ImGuiCol_CheckMark, ImVec4(1.0f, 1.0f, 1.0f, 0.7f));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, padding);
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ScaleTouch(padding.x, padding.y));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 5.0f);
 }
 
@@ -584,7 +584,7 @@ void PushStyleCombobox(const ImVec4& color) {
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 6.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ScaleTouch(10.0f, 6.0f));
 }
 
 void PushStyleCombobox(Colors color) {
@@ -606,7 +606,7 @@ void PushStyleTabs(const ImVec4& color) {
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_PopupRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_PopupBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 6.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ScaleTouch(10.0f, 6.0f));
 }
 
 void PushStyleTabs(Colors color) {
@@ -628,7 +628,7 @@ void PushStyleSlider(Colors color_) {
     ImGui::PushStyleColor(ImGuiCol_SliderGrabActive, ImVec4(1.0, 1.0, 1.0, 0.5f));
     ImGui::PushStyleVar(ImGuiStyleVar_GrabRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ScaleTouch(10.0f, 8.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.0f);
 }
 

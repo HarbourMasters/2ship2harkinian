@@ -19,6 +19,20 @@
 
 namespace UIWidgets {
 
+// Scales an authored FramePadding into touch space and guarantees the resulting frame meets the
+// platform minimum touch target, whatever the current font or user scale happens to be. On
+// desktop GetUiScale() is exactly 1.0f and the ImMax is unreachable, so this is the identity.
+inline ImVec2 ScaleTouch(float x, float y) {
+    const float s = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetUiScale();
+    ImVec2 p(x * s, y * s);
+#if defined(__IOS__) || defined(__ANDROID__)
+    // GetFontSize() is the effective displayed size, so this self-corrects under any font or
+    // user scale — no second constant to keep in sync.
+    p.y = ImMax(p.y, (44.0f - ImGui::GetFontSize()) * 0.5f);
+#endif
+    return p;
+}
+
 using SectionFunc = void (*)();
 
 struct TextFilters {

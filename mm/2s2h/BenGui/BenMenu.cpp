@@ -381,6 +381,12 @@ void BenMenu::AddSettings() {
         .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.2f).Max(3.0f).Tooltip(
             "How strongly device tilt affects aiming."));
 #ifdef __IOS__
+    AddWidget(touchPath, "UI Scale", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gSettings.UIScale")
+        .Callback([](WidgetInfo& info) { OTRGlobals::Instance->ScaleImGui(); })
+        .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.7f).Max(1.6f).Tooltip(
+            "Size of menu chrome (padding, buttons, sliders). Defaults are tuned so every "
+            "control meets the minimum comfortable touch size."));
     AddWidget(touchPath, "Native Resolution", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.NativeResolution")
         .Options(CheckboxOptions().DefaultValue(true).Tooltip(

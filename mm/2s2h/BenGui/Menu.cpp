@@ -143,9 +143,14 @@ bool ModernMenuSidebarEntry(std::string label) {
     ImVec2 pos = window->DC.CursorPos;
     const ImGuiID sidebarId = window->GetID(std::string(label + "##Sidebar").c_str());
     ImVec2 labelSize = ImGui::CalcTextSize(label.c_str(), ImGui::FindRenderedTextEnd(label.c_str()), true);
-    pos.y += style.FramePadding.y;
+    // The hit rect used to be only as wide as the centred label (~65pt) inside a much wider
+    // sidebar, and shorter than the platform minimum touch target. Widen it to the full row and
+    // floor its height; the label still draws at `pos`, which is unchanged.
+    const float rowPadY = ImMax(style.FramePadding.y, (44.0f - labelSize.y) * 0.5f);
+    pos.y += rowPadY;
     pos.x = window->WorkRect.GetCenter().x - labelSize.x / 2;
-    ImRect bb = { pos - style.FramePadding, pos + labelSize + style.FramePadding };
+    ImRect bb = { ImVec2(window->WorkRect.Min.x, pos.y - rowPadY),
+                  ImVec2(window->WorkRect.Max.x, pos.y + labelSize.y + rowPadY) };
     ImGui::ItemSize(bb, style.FramePadding.y);
     ImGui::ItemAdd(bb, sidebarId);
     bool hovered, held;
@@ -566,7 +571,12 @@ void Menu::DrawElement() {
     auto windowCond = ImGuiCond_Always;
     if (!popout) {
         ImGui::SetNextWindowSize({ static_cast<float>(windowWidth), static_cast<float>(windowHeight) }, windowCond);
-        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), windowCond, { 0.5f, 0.5f });
+        // GetCenter() is Pos + Size*0.5 (raw), which ignores the safe-area insets published in
+        // Gui::StartFrame; centre on the work area instead.
+        const ImGuiViewport* mainVp = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(ImVec2(mainVp->WorkPos.x + mainVp->WorkSize.x * 0.5f,
+                                       mainVp->WorkPos.y + mainVp->WorkSize.y * 0.5f),
+                                windowCond, { 0.5f, 0.5f });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     }
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, CVarGetFloat("gSettings.Menu.BackgroundOpacity", 0.85f)));
@@ -600,7 +610,7 @@ void Menu::DrawElement() {
     windowHeight = window->WorkRect.GetHeight();
     windowWidth = window->WorkRect.GetWidth();
 
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, UIWidgets::ScaleTouch(10.0f, 8.0f));
     const char* headerCvar = "gSettings.Menu.ActiveHeader";
     std::string headerIndex = CVarGetString(headerCvar, "Settings");
     if (GetVectorIndexOf(menuOrder, headerIndex) == menuOrder.size()) {
@@ -770,7 +780,9 @@ void Menu::DrawElement() {
     float sectionHeight = menuSize.y - headerHeight - 4 - style.ItemSpacing.y * 2;
     float columnHeight = sectionHeight - style.ItemSpacing.y * 4;
     ImGui::SetNextWindowPos(pos + style.ItemSpacing * 2);
-    float sidebarWidth = 200 - style.ItemSpacing.x;
+    float sidebarWidth =
+        std::fminf(200.0f * Ship::Context::GetInstance()->GetWindow()->GetGui()->GetUiScale(), menuSize.x * 0.32f) -
+        style.ItemSpacing.x;
 
     const char* sidebarCvar = menuEntries.at(headerIndex).sidebarCvar;
 
@@ -781,9 +793,12 @@ void Menu::DrawElement() {
     }
     float sectionCenterX = pos.x + (sidebarWidth / 2);
     float topY = pos.y;
+    // Give the child a real size so ImGui adds a scrollbar. With AlwaysAutoResize the scrollbar
+    // is suppressed and every entry past the columnHeight clamp is drawn outside the clip rect:
+    // invisible AND unclickable (on a phone that hid HUD Editor, Save Editor, Actor Viewer...).
     ImGui::SetNextWindowSizeConstraints({ sidebarWidth, 0 }, { sidebarWidth, columnHeight });
-    ImGui::BeginChild((menuEntries.at(headerIndex).label + " Section").c_str(), { sidebarWidth, columnHeight * 3 },
-                      ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar);
+    ImGui::BeginChild((menuEntries.at(headerIndex).label + " Section").c_str(), { sidebarWidth, columnHeight },
+                      ImGuiChildFlags_None, ImGuiWindowFlags_NoTitleBar);
     for (auto& sidebarLabel : menuEntries.at(headerIndex).sidebarOrder) {
         std::string nextIndex = "";
         UIWidgets::PushStyleButton(menuThemeIndex);
@@ -818,9 +833,13 @@ void Menu::DrawElement() {
     std::string sectionMenuId = sectionIndex + " Settings";
     int columns = sidebar->at(sectionIndex).columnCount;
     size_t columnFuncs = sidebar->at(sectionIndex).columnWidgets.size();
-    if (windowWidth < 800) {
-        columns = 1;
-    }
+    // A label + control needs roughly 320pt at touch scale. Derive the column count from the
+    // available width instead of a fixed 800px breakpoint (which never fires on a 932pt phone,
+    // leaving three columns of ~200pt that clip every long label). Only ever reduces columns,
+    // so it is algebraically neutral on desktop.
+    const float minColumnWidth = 320.0f * Ship::Context::GetInstance()->GetWindow()->GetGui()->GetUiScale();
+    const int maxColumns = (int)std::floor(sectionWidth / minColumnWidth);
+    columns = std::clamp(maxColumns, 1, columns);
     float columnWidth = (sectionWidth - style.ItemSpacing.x * columns) / columns;
     bool useColumns = columns > 1;
     if (!useColumns || (headerSearch && menuSearchText.length() > 0)) {

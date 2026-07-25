@@ -37,12 +37,21 @@ void BenModalWindow::DrawElement() {
             modals.erase(modals.begin());
             closePopup = false;
         }
-        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+        const ImGuiViewport* modalVp = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(ImVec2(modalVp->WorkPos.x + modalVp->WorkSize.x * 0.5f,
+                                       modalVp->WorkPos.y + modalVp->WorkSize.y * 0.5f),
+                                ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+        ImGui::SetNextWindowSizeConstraints(ImVec2(0, 0), modalVp->WorkSize);
         if (ImGui::BeginPopupModal(curModal.title_.c_str(), NULL,
                                    ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoResize |
                                        ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
                                        ImGuiWindowFlags_NoSavedSettings)) {
-            ImGui::Text("%s", curModal.message_.c_str());
+            // Wrap: this popup is AlwaysAutoResize|NoResize|NoMove|NoScrollbar, so an unwrapped
+            // long message (e.g. the first-run "needs game data" text) clips on both edges with
+            // no way to scroll or move it.
+            ImGui::PushTextWrapPos(ImGui::GetMainViewport()->WorkSize.x * 0.8f);
+            ImGui::TextUnformatted(curModal.message_.c_str());
+            ImGui::PopTextWrapPos();
             UIWidgets::PushStyleButton(THEME_COLOR);
             if (ImGui::Button(curModal.button1_.c_str())) {
                 if (curModal.button1callback_ != nullptr) {

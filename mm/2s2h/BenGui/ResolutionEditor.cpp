@@ -520,20 +520,29 @@ void UpdateResolutionVars() {
     }
 
     // Initialise integer scale bounds.
-    short max_integerScaleFactor = default_maxIntegerScaleFactor; // default value, which may or may not get
+    // NOTE: these deliberately assign to the file-scope statics — declaring locals here (the
+    // previous behavior) shadowed them, so everything computed below was discarded at function
+    // exit and integerScale_maximumBounds stayed 1 forever: the "Window exceeded." warning fired
+    // for any factor > 1 and Pixel Perfect Mode was stuck at 1x with a false error.
+    max_integerScaleFactor = default_maxIntegerScaleFactor; // default value, which may or may not get
     // overridden depending on viewport res
 
-    short integerScale_maximumBounds = 1; // can change when window is resized
+    integerScale_maximumBounds = 1; // can change when window is resized
     // This is mostly just for UX purposes, as Fit Automatically logic is part of LUS.
     auto gfx_current_game_window_viewport = GetInterpreter().get()->mGameWindowViewport;
     auto gfx_current_dimensions = GetInterpreter().get()->mCurDimensions;
+    // The viewport is in ImGui POINTS while mCurDimensions is the scene target in native PIXELS
+    // (identical off iOS), so convert before dividing or these truncate to 0.
+    const float nativeScale = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetNativePixelScale();
+    const uint32_t curW = std::max(1u, (uint32_t)(gfx_current_dimensions.width / nativeScale));
+    const uint32_t curH = std::max(1u, (uint32_t)(gfx_current_dimensions.height / nativeScale));
     if (((float)gfx_current_game_window_viewport.width / gfx_current_game_window_viewport.height) >
-        ((float)gfx_current_dimensions.width / gfx_current_dimensions.height)) {
+        ((float)curW / curH)) {
         // Scale to window height
-        integerScale_maximumBounds = gfx_current_game_window_viewport.height / gfx_current_dimensions.height;
+        integerScale_maximumBounds = gfx_current_game_window_viewport.height / curH;
     } else {
         // Scale to window width
-        integerScale_maximumBounds = gfx_current_game_window_viewport.width / gfx_current_dimensions.width;
+        integerScale_maximumBounds = gfx_current_game_window_viewport.width / curW;
     }
     // Lower-clamping maximum bounds value to 1 is no-longer necessary as that's accounted for in LUS.
     // Letting it go below 1 in this Editor will even allow for checking if screen bounds are being exceeded.
