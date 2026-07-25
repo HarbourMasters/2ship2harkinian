@@ -380,6 +380,19 @@ void BenMenu::AddSettings() {
         .CVar("gTouch.GyroSensitivity")
         .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.2f).Max(3.0f).Tooltip(
             "How strongly device tilt affects aiming."));
+#ifdef __IOS__
+    AddWidget(touchPath, "Native Resolution", WIDGET_CVAR_CHECKBOX)
+        .CVar("gSettings.NativeResolution")
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Renders the game at the screen's true pixel resolution instead of a third of it. "
+            "Much sharper, but costs frame rate — turn off (or lower Internal Resolution) to "
+            "trade sharpness back for speed."));
+    AddWidget(touchPath, "Frame Drop Catch-Up", WIDGET_CVAR_CHECKBOX)
+        .CVar("gSettings.FrameDropCatchUp")
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Skips interpolated frames when the device cannot keep up, so the game runs at the "
+            "correct speed instead of in slow motion. Turn off to restore the old behavior."));
+#endif
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_IMGUI_CONTROLLER_NAV)

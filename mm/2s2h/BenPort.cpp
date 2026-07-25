@@ -572,15 +572,18 @@ void OTRGlobals::RunExtract(int argc, char* argv[]) {
         }
         // Process window events for resize, mouse, keyboard events
         wnd->HandleEvents();
+
+        // Skip dropped frames. This MUST come before the PushStyleColor calls below: the
+        // `continue` bypasses the matching ImGui::PopStyleColor(2) at the bottom of this loop,
+        // so every dropped frame would otherwise leak two entries on ImGui's style-color stack.
+        if (!wnd->IsFrameReady()) {
+            continue;
+        }
+
         UIWidgets::Colors themeColor =
             static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.Menu.Theme", UIWidgets::Colors::LightBlue));
         ImGui::PushStyleColor(ImGuiCol_TitleBgActive, UIWidgets::ColorValues.at(themeColor));
         ImGui::PushStyleColor(ImGuiCol_ModalWindowDimBg, UIWidgets::ColorValues.at(UIWidgets::Colors::DarkGray));
-
-        // Skip dropped frames
-        if (!wnd->IsFrameReady()) {
-            continue;
-        }
         gui->StartDraw();
         benFast3dWindow->StartFrame();
         benFast3dWindow->RunGuiOnly();
