@@ -1438,6 +1438,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Goron Rolling Fast Spikes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.GoronRollingFastSpikes")
         .Options(CheckboxOptions().Tooltip("Speeds up the wind-up towards spiky rolling to be near instant."));
+    AddWidget(path, "Goron Rolling Spikes Require Shield Button Press", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Masks.GoronRollingSpikesRequireShield")
+        .Options(CheckboxOptions().Tooltip("Goron rolling will only use spikes if the Shield button is pressed, "
+                                           "similar to Zora Link's swimming magic shield."));
 
     // Song Enhancements
     path.column = SECTION_COLUMN_2;
