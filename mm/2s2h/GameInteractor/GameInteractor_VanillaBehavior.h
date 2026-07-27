@@ -1422,6 +1422,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // CHECK_BTN_ALL(controller->press.button, BTN_A) || ...
+    // ```
+    // #### `args`
+    // - None
+    VB_MSG_ADVANCE,
+
+    // #### `result`
+    // ```c
     // false
     // ```
     // #### `args`
