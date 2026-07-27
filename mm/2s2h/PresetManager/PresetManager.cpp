@@ -307,7 +307,15 @@ nlohmann::json voyage3PresetJ = R"(
                 "Mode": 0
             }
         },
+        "gDisplayOverlay": {
+            "Mode": 1
+        },
         "gEnhancements": {
+            "Camera": {
+                "DebugCam": {
+                    "Enable": 0
+                }
+            },
             "Cutscenes": {
                 "HideTitleCards": 1,
                 "SkipEnemyCutscenes": 1,
@@ -321,12 +329,17 @@ nlohmann::json voyage3PresetJ = R"(
                 "SkipToFileSelect": 1
             },
             "Cycle": {
+                "DoNotResetBottleContent": 0,
                 "DoNotResetChateau": 0,
                 "DoNotResetConsumables": 0,
                 "DoNotResetRazorSword": 0,
                 "DoNotResetRupees": 0,
+                "DoNotResetScarecrowSong": 0,
                 "DoNotResetTimeSpeed": 0,
+                "KeepExpressMail": 0,
+                "OceansideWalletAnyDay": 0,
                 "SaveOnMoonCrash": 0,
+                "StopOceansideSpiderHouseSquatter": 0,
                 "TingleAlwaysInClockTown": 0
             },
             "Dialogue": {
@@ -336,6 +349,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "SkipBottlePickupMessages": 1
             },
             "DifficultyOptions": {
+                "BossHealthMultiplier": 0,
                 "DamageMultiplier": 0,
                 "DekuGuardSearchBalls": 0,
                 "DeleteFileOnDeath": 0,
@@ -347,7 +361,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "HyperEnemies": 0,
                 "JinxedTimer": 60,
                 "LowerBankRewardThresholds": 1,
-				"NoHeartDrops": 0,
+                "NoHeartDrops": 0,
                 "NoRandomDrops": 0,
                 "PermanentHeartLoss": 0
             },
@@ -367,6 +381,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "CompletedHeartContainerAudio": 1,
                 "ConsoleCrashes": 1,
                 "ControlCharacters": 1,
+                "DekuButlerFixShockLoopAnimation": 0,
                 "FierceDeityZTargetMovement": 1,
                 "FixTexturesOOB": 1
             },
@@ -375,8 +390,10 @@ nlohmann::json voyage3PresetJ = R"(
             },
             "Graphics": {
                 "3DItemDrops": 1,
+                "ActorCullingAccountsForWidescreen": 0,
                 "AuthenticLogo": 1,
                 "DisableBlackBars": 1,
+                "DisableSceneGeometryDistanceCheck": 0,
                 "FixSceneGeometrySeams": 0,
                 "IncreaseActorDrawDistance": 3,
                 "MotionBlur": {
@@ -393,7 +410,7 @@ nlohmann::json voyage3PresetJ = R"(
             "Masks": {
                 "3DSMaskEquip": 1,
                 "BlastMaskCooldown": 3.0,
-                "BlastMaskKeg": 1,
+                "BlastMaskKeg": 0,
                 "FastTransformation": 1,
                 "FierceDeitysAnywhere": 1,
                 "GoronRollingFastSpikes": 0,
@@ -415,7 +432,9 @@ nlohmann::json voyage3PresetJ = R"(
                 "HoneyAndDarlingDay1": 8,
                 "HoneyAndDarlingDay2": 8,
                 "HoneyAndDarlingDay3": 16,
+                "RandomizeShootingGalleryOctoroks": 0,
                 "RomaniTargetPractice": 10,
+                "SkipHorseRace": 0,
                 "SkipLittleBeaver": 1,
                 "SwampArcheryScore": 2120,
                 "SwordsmanSchoolScore": 30,
@@ -450,10 +469,13 @@ nlohmann::json voyage3PresetJ = R"(
             "Restorations": {
                 "BonkCollision": 0,
                 "ConstantFlipsHops": 0,
+                "DayTelopDuration": 0,
                 "JPGrottos": 0,
                 "OoTFasterSwim": 0,
+                "PauseBufferWindow": 0,
                 "PowerCrouchStab": 2,
                 "SideRoll": 0,
+                "SoilPatch": 1,
                 "TatlISG": 1,
                 "WoodfallMountainAppearance": 1
             },
@@ -479,6 +501,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "AutoBankDeposit": 0,
                 "DampeDiggingSkip": 1,
                 "FastChests": 1,
+                "FasterBottles": 0,
                 "FasterRupeeAccumulator": 1,
                 "FasterSceneTransitions": 1,
                 "GalleryTwofer": 1,
@@ -496,13 +519,13 @@ nlohmann::json voyage3PresetJ = R"(
         },
         "gForceCursorVisibility": 1,
         "gMatchRefreshRate": 0,
-		"gModes": {
-			"MirroredWorld": {
+        "gModes": {
+            "MirroredWorld": {
                 "Mode": 0,
                 "StoneTowerTempleFix": 0
             },
-			"TimeMovesWhenYouMove": 0
-		},
+            "TimeMovesWhenYouMove": 0
+        },
         "gRando": {
             "CSMC": 1,
             "Enabled": 1,
@@ -571,7 +594,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "RO_HINTS_TRANSFORMATIONS": 1,
                 "RO_MINIMUM_STRAY_FAIRIES": 5,
                 "RO_PLENTIFUL_ITEMS": 0,
-				"RO_PLACEMENT_BOSS_KEYS": 1,
+                "RO_PLACEMENT_BOSS_KEYS": 1,
                 "RO_PLACEMENT_SMALL_KEYS": 0,
                 "RO_PLACEMENT_STRAY_FAIRIES": 0,
                 "RO_SHUFFLE_BOSS_REMAINS": 1,
@@ -581,6 +604,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "RO_SHUFFLE_GRASS_DROPS": 0,
                 "RO_SHUFFLE_OWL_STATUES": 0,
                 "RO_SHUFFLE_SHOPS": 1,
+                "RO_SHUFFLE_SKELETON_KEY": 1,
                 "RO_SHUFFLE_SONG_SARIA": 1,
                 "RO_SHUFFLE_TINGLE_SHOPS": 1,
                 "RO_SHUFFLE_TRAPS": 1,
@@ -617,6 +641,12 @@ nlohmann::json voyage3PresetJ = R"(
                 "Freeze": 1,
                 "Shock": 1
             }
+        },
+        "gSettings": {
+            "Menu": {
+                "Popout": 0
+            },
+            "SimulatedInputLag": 0
         }
     },
     "type": "2S2H_PRESET",
