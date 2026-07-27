@@ -788,8 +788,10 @@ void OTRGlobals::ScaleImGui() {
     }
 
     ImGui::GetStyle().ScaleAllSizes(scale / previousImGuiScale);
-    // Fonts are real TTFs at authored point sizes; only the user's own multiplier applies.
-    ImGui::GetIO().FontGlobalScale = userScale;
+    // Fonts are real TTFs at authored point sizes; only the user's own multiplier applies —
+    // divided by the raster scale, since the atlas is rasterized that much larger to stay sharp.
+    ImGui::GetIO().FontGlobalScale =
+        userScale / Ship::Context::GetInstance()->GetWindow()->GetGui()->GetFontRasterScale();
 #if defined(__IOS__) || defined(__ANDROID__)
     // The slider grab is the one widget where the floor must be absolute, not proportional.
     ImGui::GetStyle().GrabMinSize = std::max(ImGui::GetStyle().GrabMinSize, 44.0f);
@@ -1946,6 +1948,10 @@ extern "C" s32* ResourceMgr_LoadCSByName(const char* path) {
 ImFont* OTRGlobals::CreateFontWithSize(float size, std::string fontPath) {
     auto mImGuiIo = &ImGui::GetIO();
     ImFont* font;
+    // Rasterize at device pixel density; ScaleImGui divides FontGlobalScale by the same factor,
+    // so the displayed size is unchanged but the glyphs are sharp instead of upscaled. 1.0f off
+    // iOS, so this is the identity there.
+    size *= Ship::Context::GetInstance()->GetWindow()->GetGui()->GetFontRasterScale();
     if (fontPath == "") {
         ImFontConfig fontCfg = ImFontConfig();
         fontCfg.OversampleH = fontCfg.OversampleV = 1;

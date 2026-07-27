@@ -387,6 +387,11 @@ void BenMenu::AddSettings() {
         .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.7f).Max(1.6f).Tooltip(
             "Size of menu chrome (padding, buttons, sliders). Defaults are tuned so every "
             "control meets the minimum comfortable touch size."));
+    AddWidget(touchPath, "Crisp Fonts (restart)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gSettings.CrispFonts")
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Renders menu text at the screen's real pixel density instead of upscaling a smaller "
+            "font. Much sharper; uses more memory. Takes effect after restarting the app."));
     AddWidget(touchPath, "Native Resolution", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.NativeResolution")
         .Options(CheckboxOptions().DefaultValue(true).Tooltip(
