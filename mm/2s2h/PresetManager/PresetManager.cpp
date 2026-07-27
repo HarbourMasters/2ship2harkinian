@@ -7,6 +7,7 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/BenGui/Notification.h"
 #include <ship/window/FileDropMgr.h>
+#include <ship/config/Config.h>
 
 std::unordered_map<std::string, std::string> tagMap = {
     { "gEventLog", "Developer Tools" },
@@ -505,7 +506,53 @@ nlohmann::json voyage3PresetJ = R"(
         "gRando": {
             "CSMC": 1,
             "Enabled": 1,
-            "ExcludedChecks": "6,20,24,55,57,76,98,99,100,101,102,103,104,105,106,138,139,140,141,142,143,144,146,242,243,244,245,246,247,248,249,258,374,375,376,377,378,379,380,381,382,383,384,385,1195,",
+            "ExcludedChecks": [
+                "RC_BENEATH_THE_GRAVEYARD_DAMPE_CHEST",
+                "RC_CLOCK_TOWN_EAST_HONEY_DARLING_ALL_DAYS",
+                "RC_CLOCK_TOWN_EAST_SHOOTING_GALLERY_PERFECT_SCORE",
+                "RC_DEKU_PLAYGROUND_ALL_DAYS",
+                "RC_DEKU_SHRINE_MASK_OF_SCENTS",
+                "RC_GREAT_BAY_COAST_FISHERMAN_MINIGAME",
+                "RC_GREAT_BAY_TEMPLE_SF_CENTRAL_ROOM_BARREL",
+                "RC_GREAT_BAY_TEMPLE_SF_CENTRAL_ROOM_UNDERWATER_POT",
+                "RC_GREAT_BAY_TEMPLE_SF_COMPASS_ROOM_TUNNEL_POT",
+                "RC_GREAT_BAY_TEMPLE_SF_GREEN_PIPE_3_BARREL",
+                "RC_GREAT_BAY_TEMPLE_SF_MAP_ROOM_POT",
+                "RC_GREAT_BAY_TEMPLE_SF_PRE_BOSS_ABOVE_WATER",
+                "RC_GREAT_BAY_TEMPLE_SF_PRE_BOSS_UNDERWATER",
+                "RC_GREAT_BAY_TEMPLE_SF_WATER_WHEEL_PLATFORM",
+                "RC_GREAT_BAY_TEMPLE_SF_WATER_WHEEL_SKULLTULA",
+                "RC_MOON_FIERCE_DEITY_MASK",
+                "RC_MOON_TRIAL_DEKU_PIECE_OF_HEART",
+                "RC_MOON_TRIAL_GORON_PIECE_OF_HEART",
+                "RC_MOON_TRIAL_LINK_GARO_MASTER_CHEST",
+                "RC_MOON_TRIAL_LINK_IRON_KNUCKLE_CHEST",
+                "RC_MOON_TRIAL_LINK_PIECE_OF_HEART",
+                "RC_MOON_TRIAL_ZORA_PIECE_OF_HEART",
+                "RC_MOUNTAIN_VILLAGE_FROG_CHOIR",
+                "RC_SNOWHEAD_TEMPLE_SF_BRIDGE_PILLAR",
+                "RC_SNOWHEAD_TEMPLE_SF_BRIDGE_UNDER_PLATFORM",
+                "RC_SNOWHEAD_TEMPLE_SF_COMPASS_ROOM_CRATE",
+                "RC_SNOWHEAD_TEMPLE_SF_DINOLFOS_01",
+                "RC_SNOWHEAD_TEMPLE_SF_DINOLFOS_02",
+                "RC_SNOWHEAD_TEMPLE_SF_DUAL_SWITCHES",
+                "RC_SNOWHEAD_TEMPLE_SF_MAP_ROOM",
+                "RC_SNOWHEAD_TEMPLE_SF_SNOW_ROOM",
+                "RC_STOCK_POT_INN_COUPLES_MASK",
+                "RC_WOODFALL_TEMPLE_SF_ENTRANCE",
+                "RC_WOODFALL_TEMPLE_SF_MAIN_BUBBLE",
+                "RC_WOODFALL_TEMPLE_SF_MAIN_DEKU_BABA",
+                "RC_WOODFALL_TEMPLE_SF_MAIN_POT",
+                "RC_WOODFALL_TEMPLE_SF_MAZE_BEEHIVE",
+                "RC_WOODFALL_TEMPLE_SF_MAZE_BUBBLE",
+                "RC_WOODFALL_TEMPLE_SF_MAZE_SKULLTULA",
+                "RC_WOODFALL_TEMPLE_SF_PRE_BOSS_BOTTOM_RIGHT",
+                "RC_WOODFALL_TEMPLE_SF_PRE_BOSS_LEFT",
+                "RC_WOODFALL_TEMPLE_SF_PRE_BOSS_PILLAR",
+                "RC_WOODFALL_TEMPLE_SF_PRE_BOSS_TOP_RIGHT",
+                "RC_WOODFALL_TEMPLE_SF_WATER_ROOM_BEEHIVE",
+                "RC_WATERFALL_RAPIDS_BEAVER_RACE_02"
+            ],
             "GenerateSpoiler": 0,
             "JunkItems": 0,
             "Options": {
@@ -635,6 +682,51 @@ void PresetManager_RefreshPresets() {
     }
 }
 
+static void EnsureConfigPathExists(const std::string& key) {
+    auto config = Ship::Context::GetRawInstance()->GetConfig();
+    nlohmann::json configJson = config->GetNestedJson();
+    nlohmann::json* node = &configJson;
+    std::string ancestorPath = "";
+    size_t start = 0;
+
+    while (start < key.size()) {
+        size_t nextDot = key.find('.', start);
+        std::string part = key.substr(start, nextDot == std::string::npos ? key.size() - start : nextDot - start);
+        start = nextDot == std::string::npos ? key.size() : nextDot + 1;
+        ancestorPath = ancestorPath.empty() ? part : ancestorPath + "." + part;
+
+        if (!node->is_object() || !node->contains(part) || !(*node)[part].is_object()) {
+            config->SetBlock(ancestorPath, nlohmann::json::object());
+            (*node)[part] = nlohmann::json::object();
+        }
+
+        node = &(*node)[part];
+    }
+}
+
+// Walks a preset's CVars block, setting each value it finds. This is the descent flatten() used to do for us, but
+// flattening also turns a list into "StartingItems.0", "StartingItems.1"... leaves, which write over whatever list the
+// user already had one index at a time, leaving the tail of a longer list in place and producing a list that is
+// neither theirs nor the preset's. Walking it here is what lets a list be caught one level up and set whole.
+static void ApplyPresetCVars(const std::string& path, const nlohmann::json& value) {
+    if (value.is_object()) {
+        for (auto& [key, nestedValue] : value.items()) {
+            ApplyPresetCVars(path.empty() ? key : path + "." + key, nestedValue);
+        }
+    } else if (value.is_array()) {
+        // Lists live in the config rather than in a CVar, same as when the menus write them
+        std::string key = "CVars." + path;
+        EnsureConfigPathExists(key.substr(0, key.find_last_of('.')));
+        Ship::Context::GetRawInstance()->GetConfig()->SetBlock(key, value);
+    } else if (value.is_string()) {
+        CVarSetString(path.c_str(), value.get<std::string>().c_str());
+    } else if (value.is_number_integer()) {
+        CVarSetInteger(path.c_str(), value.get<int>());
+    } else if (value.is_number_float()) {
+        CVarSetFloat(path.c_str(), value.get<float>());
+    }
+}
+
 void PresetManager_ApplyPreset(nlohmann::json j) {
     if (!j.contains("type") || j["type"] != "2S2H_PRESET") {
         throw std::runtime_error("Invalid preset");
@@ -656,23 +748,7 @@ void PresetManager_ApplyPreset(nlohmann::json j) {
     }
 
     if (j.contains("CVars")) {
-        auto cvars = j["CVars"].flatten();
-
-        for (auto& [key, value] : cvars.items()) {
-            // Replace slashes with dots in key, and remove leading dot
-            std::string path = key;
-            std::replace(path.begin(), path.end(), '/', '.');
-            if (path[0] == '.') {
-                path.erase(0, 1);
-            }
-            if (value.is_string()) {
-                CVarSetString(path.c_str(), value.get<std::string>().c_str());
-            } else if (value.is_number_integer()) {
-                CVarSetInteger(path.c_str(), value.get<int>());
-            } else if (value.is_number_float()) {
-                CVarSetFloat(path.c_str(), value.get<float>());
-            }
-        }
+        ApplyPresetCVars("", j["CVars"]);
     }
 
     Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
