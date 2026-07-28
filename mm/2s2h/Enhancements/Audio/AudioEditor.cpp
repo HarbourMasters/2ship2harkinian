@@ -35,6 +35,7 @@ static WidgetInfo voicePitch;
 static WidgetInfo voicePitchEnable;
 static WidgetInfo randoMusicOnSceneChange;
 static WidgetInfo randomAudioOnSeedGen;
+static WidgetInfo useSongCategories;
 
 namespace AudioPreview {
 
@@ -187,7 +188,7 @@ void UpdateCurrentBGM(u16 seqKey, SeqType seqType) {
 }
 
 void RandomizeGroup(SeqType type) {
-    // bool useCategories = CVarGetInteger("gAudioEditor.UseSongCategories", 0);
+    bool useCategories = CVarGetInteger("gAudioEditor.UseSongCategories", 0);
     std::vector<std::shared_ptr<SequenceReplacement>> uncategorized;
 
     // An empty IncludedSequences set means that the AudioEditor window has never been drawn
@@ -222,45 +223,48 @@ void RandomizeGroup(SeqType type) {
     std::map<int, std::vector<std::shared_ptr<SequenceReplacement>>> seqPools = {};
     std::map<int, std::vector<std::shared_ptr<SequenceReplacement>>> seqIdPools = {};
     std::vector<int> includedCategories;
-    // if (useCategories) {
-    // If this group matches *any* fanfare groups
-    if (type & SEQ_BGM_CUSTOM_FANFARE) {
-        includedCategories = { SEQ_CAT_FAN_GETITEM, SEQ_CAT_FAN_GAMEOVER, SEQ_CAT_FAN_CLEAR, SEQ_CAT_ID_REPLACEMENT };
-    } else {
-        includedCategories = { SEQ_CAT_FIELD,  SEQ_CAT_TOWN, SEQ_CAT_DUNGEON, SEQ_CAT_INDOOR, SEQ_CAT_MINIGAME,
-                               SEQ_CAT_ACTION, SEQ_CAT_CALM, SEQ_CAT_BOSS,    SEQ_CAT_TITLE,  SEQ_CAT_ID_REPLACEMENT };
-    }
-    for (auto& category : includedCategories) {
-        seqPools.insert({ category, std::vector<std::shared_ptr<SequenceReplacement>>{} });
-    }
-    // Sort into vectors by component categories
-    for (auto& rep : uncategorized) {
-        const int filter = rep->seq->categoryFlags;
-        std::shared_ptr<std::vector<int>> seqIdReps = rep->seq->seqIdReplacements;
-        // Check for sequence specific replacements
-        if (seqIdReps != nullptr) {
-            for (auto& seqId : *seqIdReps) {
-                if (!seqIdPools.contains(seqId)) {
-                    seqIdPools.insert({ seqId, std::vector<std::shared_ptr<SequenceReplacement>>{} });
-                }
-                seqIdPools[seqId].push_back(rep);
-            }
+    if (useCategories) {
+        // If this group matches *any* fanfare groups
+        if (type & SEQ_BGM_CUSTOM_FANFARE) {
+            includedCategories = { SEQ_CAT_FAN_GETITEM, SEQ_CAT_FAN_GAMEOVER, SEQ_CAT_FAN_CLEAR,
+                                   SEQ_CAT_ID_REPLACEMENT };
+        } else {
+            includedCategories = {
+                SEQ_CAT_FIELD,  SEQ_CAT_TOWN, SEQ_CAT_DUNGEON, SEQ_CAT_INDOOR, SEQ_CAT_MINIGAME,
+                SEQ_CAT_ACTION, SEQ_CAT_CALM, SEQ_CAT_BOSS,    SEQ_CAT_TITLE,  SEQ_CAT_ID_REPLACEMENT
+            };
         }
-        // Check for generic categories
-        if (filter != SEQ_CAT_NONE) {
-            int compositeCategory = SEQ_CAT_NONE;
-            for (auto& category : includedCategories) {
-                if (filter & category) {
-                    seqPools[category].push_back(rep);
-                    // All applicable categories have been seen.
-                    if ((compositeCategory |= category) == filter) {
-                        break;
+        for (auto& category : includedCategories) {
+            seqPools.insert({ category, std::vector<std::shared_ptr<SequenceReplacement>>{} });
+        }
+        // Sort into vectors by component categories
+        for (auto& rep : uncategorized) {
+            const int filter = rep->seq->categoryFlags;
+            std::shared_ptr<std::vector<int>> seqIdReps = rep->seq->seqIdReplacements;
+            // Check for sequence specific replacements
+            if (seqIdReps != nullptr) {
+                for (auto& seqId : *seqIdReps) {
+                    if (!seqIdPools.contains(seqId)) {
+                        seqIdPools.insert({ seqId, std::vector<std::shared_ptr<SequenceReplacement>>{} });
+                    }
+                    seqIdPools[seqId].push_back(rep);
+                }
+            }
+            // Check for generic categories
+            if (filter != SEQ_CAT_NONE) {
+                int compositeCategory = SEQ_CAT_NONE;
+                for (auto& category : includedCategories) {
+                    if (filter & category) {
+                        seqPools[category].push_back(rep);
+                        // All applicable categories have been seen.
+                        if ((compositeCategory |= category) == filter) {
+                            break;
+                        }
                     }
                 }
             }
         }
     }
-    // }
     // Checking through a permutation of the categories allows for a sequence slot to pull from any component category,
     // instead of just the first in numerical order.
     std::shuffle(includedCategories.begin(), includedCategories.end(), g);
@@ -285,9 +289,9 @@ void RandomizeGroup(SeqType type) {
             }
             std::vector<std::shared_ptr<SequenceReplacement>>* chosenSeqPool = nullptr;
             // If category matching is disabled, always use the uncategorized pool.
-            // if (!useCategories) {
-            //     chosenSeqPool = &uncategorized;
-            // }
+            if (!useCategories) {
+                chosenSeqPool = &uncategorized;
+            }
             // Used to check if every applicable category has been seen.
             int compositeCategory = SEQ_CAT_NONE;
             // Even if a sequence pool has been selected, it could've been emptied by the end of the loop. Double check.
@@ -698,6 +702,7 @@ void AudioEditor::DrawElement() {
                 BenGui::mBenMenu->MenuDrawItem(randoMusicOnSceneChange, ImGui::GetContentRegionAvail().x, THEME_COLOR);
                 BenGui::mBenMenu->MenuDrawItem(randomAudioOnSeedGen, ImGui::GetContentRegionAvail().x, THEME_COLOR);
                 BenGui::mBenMenu->MenuDrawItem(displaySeqName, ImGui::GetContentRegionAvail().x, THEME_COLOR);
+                BenGui::mBenMenu->MenuDrawItem(useSongCategories, ImGui::GetContentRegionAvail().x, THEME_COLOR);
                 BenGui::mBenMenu->MenuDrawItem(ovlDuration, ImGui::GetContentRegionAvail().x, THEME_COLOR);
                 BenGui::mBenMenu->MenuDrawItem(voicePitchEnable, ImGui::GetContentRegionAvail().x, THEME_COLOR);
                 BenGui::mBenMenu->MenuDrawItem(voicePitch, ImGui::GetContentRegionAvail().x, THEME_COLOR);
@@ -1028,6 +1033,14 @@ void RegisterAudioWidgets() {
                               "sequence "
                               "is loaded to the main sequence player (does not apply to fanfares or enemy BGM)."));
     AddAudioSearchWidget(displaySeqName);
+
+    useSongCategories = { .name = "Use Song Categories", .type = WidgetType::WIDGET_CVAR_CHECKBOX };
+    useSongCategories.CVar(CVAR_AUDIO("UseSongCategories"))
+        .Options(CheckboxOptions()
+                     .Color(THEME_COLOR)
+                     .Tooltip("Tries to better match replaced sequences using categories, instead of any background "
+                              "sequence being a valid replacement for any other background sequence."));
+    AddAudioSearchWidget(useSongCategories);
 
     ovlDuration = { .name = "Overlay Duration: %d seconds", .type = WidgetType::WIDGET_CVAR_SLIDER_INT };
     ovlDuration.CVar(CVAR_AUDIO("SeqNameNotificationDuration"))
