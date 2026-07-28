@@ -107,16 +107,39 @@ int SaveManager_MigrateSave(nlohmann::json& j) {
 
 void SaveManager_WriteSaveFile(const std::filesystem::path& fileName, nlohmann::json j) {
     const std::filesystem::path filePath = savesFolderPath / fileName;
+    // Write-temp-then-rename so a mid-write kill (iOS jetsam, power loss, full disk) can never
+    // leave a truncated save behind: the rename is atomic on APFS/NTFS/ext4, so the real file
+    // is always either the old complete save or the new complete save. Keep one .bak
+    // generation as a second line of defence, and SAY SO on screen when a write fails —
+    // the old code swallowed the failure silently and the player found out hours later.
+    const std::filesystem::path tmpPath = filePath.string() + ".tmp";
+    const std::filesystem::path bakPath = filePath.string() + ".bak";
 
     if (!std::filesystem::exists(savesFolderPath)) {
         std::filesystem::create_directory(savesFolderPath);
     }
 
     try {
-        std::ofstream o(filePath);
-        o << std::setw(4) << j << std::endl;
-        o.close();
-    } catch (...) { SPDLOG_ERROR("Failed to write save file"); }
+        {
+            std::ofstream o(tmpPath, std::ios::trunc);
+            o << std::setw(4) << j << std::endl;
+            // ofstream reports failure through state bits, not exceptions.
+            if (!o.good()) {
+                throw std::runtime_error("stream failed (device full?)");
+            }
+        }
+        std::error_code ec;
+        if (std::filesystem::exists(filePath)) {
+            std::filesystem::copy_file(filePath, bakPath, std::filesystem::copy_options::overwrite_existing, ec);
+        }
+        std::filesystem::rename(tmpPath, filePath);
+    } catch (const std::exception& e) {
+        SPDLOG_ERROR("Failed to write save file: {}", e.what());
+        Notification::Emit({ .message = "SAVE FAILED - check free storage. Previous save kept." });
+    } catch (...) {
+        SPDLOG_ERROR("Failed to write save file");
+        Notification::Emit({ .message = "SAVE FAILED - check free storage. Previous save kept." });
+    }
 }
 
 void SaveManager_DeleteSaveFile(const std::filesystem::path& fileName) {

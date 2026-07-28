@@ -9,6 +9,11 @@
 #include <fast/Fast3dWindow.h>
 #include <ship/resource/File.h>
 #include <ship/window/Window.h>
+#ifdef __IOS__
+#include <ship/utils/AppleFolderManager.h> // FolderManager::getMainBundlePath, the REAL .app path
+#include <ctime>
+extern "C" int64_t IOSGetSignatureExpiryUnix(void); // engine IOSCertInfo.mm
+#endif
 
 #include "z64animation.h"
 #include "z64bgcheck.h"
@@ -1031,18 +1036,29 @@ static void IOS_PrepareAppDirectory() {
     std::error_code ec;
     std::filesystem::create_directories(dataPath, ec);
     chdir(dataPath.c_str());
-    std::string bundlePath = Ship::Context::GetAppBundlePath();
+    // The REAL .app bundle, not Context::GetAppBundlePath() — on iOS that helper returns the
+    // Documents directory, which made this copy Documents-onto-Documents: a silent no-op. The
+    // bundled 2ship.o2r never actually left the app; installs only worked because the player
+    // copied it in by hand, and app updates could never refresh it.
+    Ship::FolderManager folderManager;
+    const std::string bundlePath = folderManager.getMainBundlePath();
     // Refresh the port archive only when the bundled copy actually differs (app update);
     // a byte-identical clobber is pointless and a size check is cheap and safe.
     const std::string bundleO2r = bundlePath + "/2ship.o2r";
     const std::string dataO2r = dataPath + "/2ship.o2r";
     std::error_code sizeEc;
-    if (!std::filesystem::exists(dataO2r) ||
-        std::filesystem::file_size(dataO2r, sizeEc) != std::filesystem::file_size(bundleO2r, sizeEc)) {
+    if (std::filesystem::exists(bundleO2r) &&
+        (!std::filesystem::exists(dataO2r) ||
+         std::filesystem::file_size(dataO2r, sizeEc) != std::filesystem::file_size(bundleO2r, sizeEc))) {
         std::filesystem::copy_file(bundleO2r, dataO2r, std::filesystem::copy_options::overwrite_existing, ec);
     }
-    if (!std::filesystem::exists(dataPath + "/gamecontrollerdb.txt")) {
-        std::filesystem::copy_file(bundlePath + "/gamecontrollerdb.txt", dataPath + "/gamecontrollerdb.txt", ec);
+    // Same size-mismatch refresh for the controller database, so app updates propagate it.
+    const std::string bundleDb = bundlePath + "/gamecontrollerdb.txt";
+    const std::string dataDb = dataPath + "/gamecontrollerdb.txt";
+    if (std::filesystem::exists(bundleDb) &&
+        (!std::filesystem::exists(dataDb) ||
+         std::filesystem::file_size(dataDb, sizeEc) != std::filesystem::file_size(bundleDb, sizeEc))) {
+        std::filesystem::copy_file(bundleDb, dataDb, std::filesystem::copy_options::overwrite_existing, ec);
     }
 }
 #endif
@@ -1065,6 +1081,21 @@ extern "C" void InitOTR(int argc, char* argv[]) {
     AudioCollection::Instance = new AudioCollection();
     LoadGuiTextures();
     BenGui::SetupGuiElements();
+#ifdef __IOS__
+    // Surface an on-screen warning while there is still time to act: a free-Apple-ID
+    // signature that lapses turns into "the app won't open" with no explanation.
+    {
+        const int64_t expiry = IOSGetSignatureExpiryUnix();
+        if (expiry > 0) {
+            const int64_t hoursLeft = (expiry - (int64_t)time(nullptr)) / 3600;
+            if (hoursLeft >= 0 && hoursLeft < 48) {
+                Notification::Emit(
+                    { .message = "App signature expires in under 2 days - re-install from Sideloadly. Saves are kept.",
+                      .remainingTime = 15.0f });
+            }
+        }
+    }
+#endif
     ShipInit::InitAll();
     Rando::Init();
     GfxPatcher_ApplyNecessaryAuthenticPatches();

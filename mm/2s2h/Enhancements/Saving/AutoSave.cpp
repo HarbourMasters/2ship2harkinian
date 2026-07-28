@@ -1,6 +1,9 @@
 #include "SavingEnhancements.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "BenPort.h"
+#if defined(__IOS__) || defined(__ANDROID__)
+#include <ship/port/mobile/MobileImpl.h> // ConsumeBackgroundSaveRequest
+#endif
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/CustomMessage/CustomMessage.h"
@@ -38,6 +41,15 @@ void HandleAutoSave() {
     // Check if the interval has passed in minutes.
     autosaveInterval = CVarGetInteger("gEnhancements.Saving.AutosaveInterval", 5) * 60000;
     currentTimestamp = GetUnixTimestamp();
+#if defined(__IOS__) || defined(__ANDROID__)
+    // Backgrounding is a save trigger of its own: the OS may jetsam the app at any moment
+    // after the switch-away, so "user left" must mean "progress is on disk" regardless of how
+    // recently the timer fired. This runs on the game thread — the lifecycle callback only
+    // sets a flag — and the CanSave/pause gates below still apply.
+    if (Ship::Mobile::ConsumeBackgroundSaveRequest()) {
+        lastSaveTimestamp = 0; // fall through to the save below regardless of interval
+    }
+#endif
     if ((currentTimestamp - lastSaveTimestamp) < autosaveInterval) {
         return;
     }
