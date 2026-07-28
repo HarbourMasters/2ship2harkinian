@@ -309,13 +309,13 @@ nlohmann::json voyage3PresetJ = R"(
             }
 		    },
 		    "gDisplayOverlay": {
-            "Mode": 1
+            	"Mode": 1
         },
         "gDisplayOverlay": {
             "Mode": 1
         },
         "gEnhancements": {
-			      "Camera": {
+            "Camera": {
                 "DebugCam": {
                     "Enable": 0
                 }
@@ -353,7 +353,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "SkipBottlePickupMessages": 1
             },
             "DifficultyOptions": {
-				        "BossHealthMultiplier": 0,
+                "BossHealthMultiplier": 0,
                 "DamageMultiplier": 0,
                 "DekuGuardSearchBalls": 0,
                 "DeleteFileOnDeath": 0,
@@ -365,7 +365,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "HyperEnemies": 0,
                 "JinxedTimer": 60,
                 "LowerBankRewardThresholds": 1,
-				        "NoHeartDrops": 0,
+                "NoHeartDrops": 0,
                 "NoRandomDrops": 0,
                 "PermanentHeartLoss": 0
             },
@@ -385,7 +385,7 @@ nlohmann::json voyage3PresetJ = R"(
                 "CompletedHeartContainerAudio": 1,
                 "ConsoleCrashes": 1,
                 "ControlCharacters": 1,
-				        "DekuButlerFixShockLoopAnimation": 0,
+                "DekuButlerFixShockLoopAnimation": 0,
                 "FierceDeityZTargetMovement": 1,
                 "FixTexturesOOB": 1
             },
@@ -436,9 +436,9 @@ nlohmann::json voyage3PresetJ = R"(
                 "HoneyAndDarlingDay1": 8,
                 "HoneyAndDarlingDay2": 8,
                 "HoneyAndDarlingDay3": 16,
-				        "RandomizeShootingGalleryOctoroks": 0,
+                "RandomizeShootingGalleryOctoroks": 0,
                 "RomaniTargetPractice": 10,
-				        "SkipHorseRace": 0,
+                "SkipHorseRace": 0,
                 "SkipLittleBeaver": 1,
                 "SwampArcheryScore": 2120,
                 "SwordsmanSchoolScore": 30,
@@ -598,7 +598,8 @@ nlohmann::json voyage3PresetJ = R"(
                 "RO_HINTS_TRANSFORMATIONS": 1,
                 "RO_MINIMUM_STRAY_FAIRIES": 5,
                 "RO_PLENTIFUL_ITEMS": 0,
-		        		"RO_PLACEMENT_BOSS_KEYS": 1,
+				"RO_PURCHASE_INFINITE_RUPEES": 1,
+                "RO_PLACEMENT_BOSS_KEYS": 1,
                 "RO_PLACEMENT_SMALL_KEYS": 0,
                 "RO_PLACEMENT_STRAY_FAIRIES": 0,
                 "RO_SHUFFLE_BOSS_REMAINS": 1,
