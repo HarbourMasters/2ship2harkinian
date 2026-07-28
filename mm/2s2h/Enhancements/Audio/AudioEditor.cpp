@@ -198,7 +198,7 @@ void RandomizeGroup(SeqType type) {
     while (values.size() < AudioCollection::Instance->CountSequencesByType(type)) {
         size_t initialSize = values.size();
         for (const auto& seqData : AudioCollection::Instance->GetIncludedSequences()) {
-            if (seqData->category & type && seqData->canBeUsedAsReplacement) {
+            if (seqData->type & type && seqData->canBeUsedAsReplacement) {
                 values.push_back(seqData->sequenceId);
             }
         }
@@ -220,9 +220,9 @@ void RandomizeGroup(SeqType type) {
         const std::string cvarKey = AudioCollection::Instance->GetCvarKey(seqData.sfxKey);
         const std::string cvarLockKey = AudioCollection::Instance->GetCvarLockKey(seqData.sfxKey);
         // don't randomize locked entries
-        if ((seqData.category & type) && CVarGetInteger(cvarLockKey.c_str(), 0) == 0) {
+        if ((seqData.type & type) && CVarGetInteger(cvarLockKey.c_str(), 0) == 0) {
             // Only save authentic sequence CVars
-            if ((((seqData.category & SEQ_BGM_CUSTOM) || seqData.category == SEQ_FANFARE) &&
+            if ((((seqData.type & SEQ_BGM_CUSTOM) || seqData.type == SEQ_FANFARE) &&
                  seqData.sequenceId >= MAX_AUTHENTIC_SEQID) ||
                 seqData.canBeReplaced == false) {
                 continue;
@@ -238,9 +238,9 @@ void RandomizeGroup(SeqType type) {
 
 void ResetGroup(const std::map<u16, SequenceInfo>& map, SeqType type) {
     for (const auto& [defaultValue, seqData] : map) {
-        if (seqData.category == type) {
+        if (seqData.type == type) {
             // Only save authentic sequence CVars
-            if (seqData.category == SEQ_FANFARE && defaultValue >= MAX_AUTHENTIC_SEQID) {
+            if (seqData.type == SEQ_FANFARE && defaultValue >= MAX_AUTHENTIC_SEQID) {
                 continue;
             }
             const std::string cvarKey = AudioCollection::Instance->GetCvarKey(seqData.sfxKey);
@@ -254,9 +254,9 @@ void ResetGroup(const std::map<u16, SequenceInfo>& map, SeqType type) {
 
 void LockGroup(const std::map<u16, SequenceInfo>& map, SeqType type) {
     for (const auto& [defaultValue, seqData] : map) {
-        if (seqData.category == type) {
+        if (seqData.type == type) {
             // Only save authentic sequence CVars
-            if (seqData.category == SEQ_FANFARE && defaultValue >= MAX_AUTHENTIC_SEQID) {
+            if (seqData.type == SEQ_FANFARE && defaultValue >= MAX_AUTHENTIC_SEQID) {
                 continue;
             }
             const std::string cvarKey = AudioCollection::Instance->GetCvarKey(seqData.sfxKey);
@@ -268,9 +268,9 @@ void LockGroup(const std::map<u16, SequenceInfo>& map, SeqType type) {
 
 void UnlockGroup(const std::map<u16, SequenceInfo>& map, SeqType type) {
     for (const auto& [defaultValue, seqData] : map) {
-        if (seqData.category == type) {
+        if (seqData.type == type) {
             // Only save authentic sequence CVars
-            if (seqData.category == SEQ_FANFARE && defaultValue >= MAX_AUTHENTIC_SEQID) {
+            if (seqData.type == SEQ_FANFARE && defaultValue >= MAX_AUTHENTIC_SEQID) {
                 continue;
             }
             const std::string cvarKey = AudioCollection::Instance->GetCvarKey(seqData.sfxKey);
@@ -363,17 +363,17 @@ void Draw_SfxTab(const std::string& tabId, SeqType type) {
     // Cache valid replacements for this group
     std::unordered_map<u16, const char*> baseFilteredMap;
     for (const auto& [value, seqData] : map) {
-        if ((seqData.category & type) && seqData.canBeUsedAsReplacement) {
+        if ((seqData.type & type) && seqData.canBeUsedAsReplacement) {
             baseFilteredMap[value] = seqData.label.c_str();
         }
     }
 
     for (const auto& [defaultValue, seqData] : map) {
-        if (~(seqData.category) & type) {
+        if (~(seqData.type) & type) {
             continue;
         }
         // Do not display custom sequences in the list
-        if ((((seqData.category & SEQ_BGM_CUSTOM) || seqData.category == SEQ_BGM_CUSTOM_FANFARE) &&
+        if ((((seqData.type & SEQ_BGM_CUSTOM) || seqData.type == SEQ_BGM_CUSTOM_FANFARE) &&
              defaultValue >= MAX_AUTHENTIC_SEQID) ||
             seqData.canBeReplaced == false) {
             continue;
@@ -404,7 +404,7 @@ void Draw_SfxTab(const std::string& tabId, SeqType type) {
         // Ensures they remain visible in the dropdown.
         if (!baseFilteredMap.contains(initialValue) && map.contains(initialValue)) {
             const auto& currentSeqData = map.at(initialValue);
-            if (currentSeqData.category & type) {
+            if (currentSeqData.type & type) {
                 tempMap = baseFilteredMap;
                 tempMap[initialValue] = currentSeqData.label.c_str();
                 mapToUse = &tempMap;
@@ -434,7 +434,7 @@ void Draw_SfxTab(const std::string& tabId, SeqType type) {
             CVarClear(cvarKey.c_str());
             CVarClear(cvarLockKey.c_str());
             Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-            UpdateCurrentBGM(defaultValue, seqData.category);
+            UpdateCurrentBGM(defaultValue, seqData.type);
         }
         UIWidgets::Tooltip("Reset to default");
         ImGui::SameLine();
@@ -442,7 +442,7 @@ void Draw_SfxTab(const std::string& tabId, SeqType type) {
         if (ImGui::Button(randomizeButton.c_str())) {
             std::vector<SequenceInfo*> validSequences = {};
             for (const auto seqInfo : AudioCollection::Instance->GetIncludedSequences()) {
-                if (seqInfo->category & type) {
+                if (seqInfo->type & type) {
                     validSequences.push_back(seqInfo);
                 }
             }
@@ -683,7 +683,7 @@ void AudioEditor::DrawElement() {
             UIWidgets::PushStyleButton(THEME_COLOR);
             if (ImGui::Button("Exclude All")) {
                 for (auto seqInfo : AudioCollection::Instance->GetIncludedSequences()) {
-                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->category]) {
+                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->type]) {
                         seqsToExclude.insert(seqInfo);
                     }
                 }
@@ -691,7 +691,7 @@ void AudioEditor::DrawElement() {
             ImGui::SameLine();
             if (ImGui::Button("Include All")) {
                 for (auto seqInfo : AudioCollection::Instance->GetExcludedSequences()) {
-                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->category]) {
+                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->type]) {
                         seqsToInclude.insert(seqInfo);
                     }
                 }
@@ -760,15 +760,15 @@ void AudioEditor::DrawElement() {
                 ImGui::BeginChild("ChildIncludedSequences", ImVec2(0, -8));
                 UIWidgets::PushStyleButton(THEME_COLOR, ImVec2(10.0f, 6.0f));
                 for (auto seqInfo : AudioCollection::Instance->GetIncludedSequences()) {
-                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->category]) {
+                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->type]) {
                         ImGui::PushID(seqInfo->sfxKey.c_str());
                         if (ImGui::Button(std::string(ICON_FA_TIMES "##" + seqInfo->sfxKey).c_str())) {
                             seqsToExclude.insert(seqInfo);
                         }
                         ImGui::SameLine();
-                        DrawPreviewButton(seqInfo->sequenceId, seqInfo->sfxKey, seqInfo->category);
+                        DrawPreviewButton(seqInfo->sequenceId, seqInfo->sfxKey, seqInfo->type);
                         ImGui::SameLine();
-                        DrawTypeChip(seqInfo->category);
+                        DrawTypeChip(seqInfo->type);
                         ImGui::SameLine();
                         ImGui::Text("%s", seqInfo->label.c_str());
                         ImGui::PopID();
@@ -788,15 +788,15 @@ void AudioEditor::DrawElement() {
                 ImGui::BeginChild("ChildExcludedSequences", ImVec2(0, -8));
                 UIWidgets::PushStyleButton(THEME_COLOR, ImVec2(10.0f, 6.0f));
                 for (auto seqInfo : AudioCollection::Instance->GetExcludedSequences()) {
-                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->category]) {
+                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->type]) {
                         ImGui::PushID(seqInfo->sfxKey.c_str());
                         if (ImGui::Button(std::string(ICON_FA_PLUS "##" + seqInfo->sfxKey).c_str())) {
                             seqsToInclude.insert(seqInfo);
                         }
                         ImGui::SameLine();
-                        DrawPreviewButton(seqInfo->sequenceId, seqInfo->sfxKey, seqInfo->category);
+                        DrawPreviewButton(seqInfo->sequenceId, seqInfo->sfxKey, seqInfo->type);
                         ImGui::SameLine();
-                        DrawTypeChip(seqInfo->category);
+                        DrawTypeChip(seqInfo->type);
                         ImGui::SameLine();
                         ImGui::Text("%s", seqInfo->label.c_str());
                         ImGui::PopID();
