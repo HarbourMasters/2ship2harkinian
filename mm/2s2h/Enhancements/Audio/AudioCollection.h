@@ -41,6 +41,8 @@ enum SeqCategory {
     SEQ_CAT_FAN = SEQ_CAT_FAN_GETITEM | SEQ_CAT_FAN_GAMEOVER | SEQ_CAT_FAN_CLEAR,
 };
 
+#define SEQUENCE_ID_REPLACEMENT_OFFSET 0x100
+
 #define INSTRUMENT_OFFSET 0x81
 
 struct SequenceInfo {
@@ -96,6 +98,7 @@ class AudioCollection {
     std::string GetCvarLockKey(std::string sfxKey);
     size_t CountSequencesByType(SeqType type);
     uint16_t GetMaxOriginalSeqId() const;
+    void ParseSequenceCategory(std::string category, int& compositeCategory, std::vector<int>& seqIds);
 };
 #else
 void AudioCollection_AddToCollection(char* otrPath, uint16_t seqNum);

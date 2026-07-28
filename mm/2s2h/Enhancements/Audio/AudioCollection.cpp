@@ -315,6 +315,10 @@ void AudioCollection::AddToCollection(char* otrPath, uint16_t seqNum) {
     std::string fileName = std::filesystem::path(otrPath).filename().string();
     size_t underscorePos = fileName.find_last_of('_') + 1;
     SeqType type = SEQ_BGM_CUSTOM;
+    // Generic category placement
+    int compositeCategory = SEQ_CAT_BGM;
+    // More specific placement by sequence ID.
+    std::vector<int> seqIdReplacements;
     if (underscorePos != std::string::npos) {
         std::string typeString = fileName.substr(underscorePos);
         std::locale loc;
@@ -323,16 +327,46 @@ void AudioCollection::AddToCollection(char* otrPath, uint16_t seqNum) {
         }
         if (typeString == "fanfare") {
             type = SEQ_BGM_CUSTOM_FANFARE;
+            // Selects categories 7, 8, and 9
+            compositeCategory = SEQ_CAT_FAN;
+        } else if (typeString != "bgm") {
+            compositeCategory = SEQ_CAT_NONE;
+            size_t dashPos;
+            std::string category;
+            // typeString can be assumed to be dash separated list of categories
+            while ((dashPos = typeString.find('-')) != std::string::npos) {
+                category = typeString.substr(0, dashPos);
+                ParseSequenceCategory(category, compositeCategory, seqIdReplacements);
+                typeString = typeString.substr(dashPos + 1);
+            }
+            ParseSequenceCategory(typeString, compositeCategory, seqIdReplacements);
+            // If any fanfare categories are used, make this a fanfare sequence
+            if (compositeCategory & SEQ_CAT_FAN) {
+                type = SEQ_BGM_CUSTOM_FANFARE;
+            }
         }
     }
     std::string sequenceName = fileName.substr(0, underscorePos - 1);
+    std::shared_ptr<std::vector<int>> sirPtr = nullptr;
+    if (!seqIdReplacements.empty()) {
+        // Catch fanfares that lack generic categories
+        if (compositeCategory == SEQ_CAT_NONE) {
+            for (int& seqId : seqIdReplacements) {
+                if (mSequenceMap[seqId].type & SEQ_BGM_CUSTOM_FANFARE) {
+                    type = SEQ_BGM_CUSTOM_FANFARE;
+                    break;
+                }
+            }
+        }
+        sirPtr = std::make_shared<std::vector<int>>(seqIdReplacements);
+    }
     SequenceInfo info = { seqNum,
                           sequenceName,
                           StringHelper::Replace(
                               StringHelper::Replace(StringHelper::Replace(sequenceName, " ", "_"), "~", "-"), ".", ""),
                           type,
-                          SEQ_CAT_NONE,
-                          nullptr,
+                          compositeCategory,
+                          sirPtr,
                           false,
                           true };
     mSequenceMap.emplace(seqNum, info);
@@ -451,4 +485,14 @@ uint16_t AudioCollection::GetMaxOriginalSeqId() const {
     //     }
     // }
     // return maxId;
+}
+
+void AudioCollection::ParseSequenceCategory(std::string token, int& compositeCategory, std::vector<int>& seqIds) {
+    int numCategory = std::stoi(token, 0, token.length() == 2 ? 10 : 16);
+    // Quietly omits categories in the range [0x11, 0xff]
+    if (numCategory >= SEQUENCE_ID_REPLACEMENT_OFFSET) {
+        seqIds.push_back(numCategory - SEQUENCE_ID_REPLACEMENT_OFFSET);
+    } else if (numCategory <= 16) {
+        compositeCategory |= 1 << numCategory;
+    }
 }
