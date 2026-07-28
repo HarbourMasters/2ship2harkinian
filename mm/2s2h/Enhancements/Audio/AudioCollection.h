@@ -56,6 +56,11 @@ struct SequenceInfo {
     bool canBeUsedAsReplacement;
 };
 
+struct SequenceReplacement {
+    SequenceInfo* seq;
+    bool hasBeenUsed;
+};
+
 class AudioCollection {
   private:
     // All Loaded Audio

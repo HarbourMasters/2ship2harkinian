@@ -187,7 +187,8 @@ void UpdateCurrentBGM(u16 seqKey, SeqType seqType) {
 }
 
 void RandomizeGroup(SeqType type) {
-    std::vector<u16> values;
+    // bool useCategories = CVarGetInteger("gAudioEditor.UseSongCategories", 0);
+    std::vector<std::shared_ptr<SequenceReplacement>> uncategorized;
 
     // An empty IncludedSequences set means that the AudioEditor window has never been drawn
     if (AudioCollection::Instance->GetIncludedSequences().empty()) {
@@ -195,27 +196,75 @@ void RandomizeGroup(SeqType type) {
     }
 
     // use a while loop to add duplicates if we don't have enough included sequences
-    while (values.size() < AudioCollection::Instance->CountSequencesByType(type)) {
-        size_t initialSize = values.size();
+    while (uncategorized.size() < AudioCollection::Instance->CountSequencesByType(type)) {
+        size_t initialSize = uncategorized.size();
         for (const auto& seqData : AudioCollection::Instance->GetIncludedSequences()) {
             if (seqData->type & type && seqData->canBeUsedAsReplacement) {
-                values.push_back(seqData->sequenceId);
+                SequenceReplacement rep = { seqData, false };
+                uncategorized.push_back(std::make_shared<SequenceReplacement>(rep));
             }
         }
 
         // if we didn't add any new values, return early to prevent an infinite loop
-        if (values.size() == initialSize) {
+        if (uncategorized.size() == initialSize) {
             return;
         }
     }
 
-    if (values.empty()) {
+    if (uncategorized.empty()) {
         return;
     }
+
     std::random_device rd;
     std::mt19937 g(rd());
+    std::shuffle(uncategorized.begin(), uncategorized.end(), g);
 
-    std::shuffle(values.begin(), values.end(), g);
+    std::map<int, std::vector<std::shared_ptr<SequenceReplacement>>> seqPools = {};
+    std::map<int, std::vector<std::shared_ptr<SequenceReplacement>>> seqIdPools = {};
+    std::vector<int> includedCategories;
+    // if (useCategories) {
+    // If this group matches *any* fanfare groups
+    if (type & SEQ_BGM_CUSTOM_FANFARE) {
+        includedCategories = { SEQ_CAT_FAN_GETITEM, SEQ_CAT_FAN_GAMEOVER, SEQ_CAT_FAN_CLEAR, SEQ_CAT_ID_REPLACEMENT };
+    } else {
+        includedCategories = { SEQ_CAT_FIELD,  SEQ_CAT_TOWN, SEQ_CAT_DUNGEON, SEQ_CAT_INDOOR, SEQ_CAT_MINIGAME,
+                               SEQ_CAT_ACTION, SEQ_CAT_CALM, SEQ_CAT_BOSS,    SEQ_CAT_TITLE,  SEQ_CAT_ID_REPLACEMENT };
+    }
+    for (auto& category : includedCategories) {
+        seqPools.insert({ category, std::vector<std::shared_ptr<SequenceReplacement>>{} });
+    }
+    // Sort into vectors by component categories
+    for (auto& rep : uncategorized) {
+        const int filter = rep->seq->categoryFlags;
+        std::shared_ptr<std::vector<int>> seqIdReps = rep->seq->seqIdReplacements;
+        // Check for sequence specific replacements
+        if (seqIdReps != nullptr) {
+            for (auto& seqId : *seqIdReps) {
+                if (!seqIdPools.contains(seqId)) {
+                    seqIdPools.insert({ seqId, std::vector<std::shared_ptr<SequenceReplacement>>{} });
+                }
+                seqIdPools[seqId].push_back(rep);
+            }
+        }
+        // Check for generic categories
+        if (filter != SEQ_CAT_NONE) {
+            int compositeCategory = SEQ_CAT_NONE;
+            for (auto& category : includedCategories) {
+                if (filter & category) {
+                    seqPools[category].push_back(rep);
+                    // All applicable categories have been seen.
+                    if ((compositeCategory |= category) == filter) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    // }
+    // Checking through a permutation of the categories allows for a sequence slot to pull from any component category,
+    // instead of just the first in numerical order.
+    std::shuffle(includedCategories.begin(), includedCategories.end(), g);
+    std::vector<int>::iterator randomCategory = includedCategories.begin();
     for (const auto& [seqId, seqData] : AudioCollection::Instance->GetAllSequences()) {
         const std::string cvarKey = AudioCollection::Instance->GetCvarKey(seqData.sfxKey);
         const std::string cvarLockKey = AudioCollection::Instance->GetCvarLockKey(seqData.sfxKey);
@@ -227,10 +276,50 @@ void RandomizeGroup(SeqType type) {
                 seqData.canBeReplaced == false) {
                 continue;
             }
-            if (!values.empty()) {
-                const int randomValue = values.back();
+            int targetFilter = seqData.categoryFlags;
+            if (seqIdPools.contains(seqId) && !seqIdPools[seqId].empty()) {
+                // Category selection now checks for sequences targeting specific seqIds.
+                // There's probably a better way to do this, though.
+                targetFilter |= SEQ_CAT_ID_REPLACEMENT;
+                seqPools[SEQ_CAT_ID_REPLACEMENT] = seqIdPools[seqId];
+            }
+            std::vector<std::shared_ptr<SequenceReplacement>>* chosenSeqPool = nullptr;
+            // If category matching is disabled, always use the uncategorized pool.
+            // if (!useCategories) {
+            //     chosenSeqPool = &uncategorized;
+            // }
+            // Used to check if every applicable category has been seen.
+            int compositeCategory = SEQ_CAT_NONE;
+            // Even if a sequence pool has been selected, it could've been emptied by the end of the loop. Double check.
+            while (!uncategorized.empty() && (chosenSeqPool == nullptr || chosenSeqPool->empty())) {
+                int currentCategory, matchFlag = SEQ_CAT_NONE;
+                // Stop looking for a valid category after all applicable ones have been seen, or when one is found.
+                while (compositeCategory != targetFilter && (!matchFlag || seqPools[currentCategory].empty())) {
+                    if (randomCategory == includedCategories.end()) {
+                        std::shuffle(includedCategories.begin(), includedCategories.end(), g);
+                        randomCategory = includedCategories.begin();
+                    }
+                    currentCategory = *randomCategory++;
+                    matchFlag = targetFilter & currentCategory;
+                    compositeCategory |= matchFlag;
+                }
+                // A valid, matching category was found.
+                if (matchFlag && !seqPools[currentCategory].empty()) {
+                    chosenSeqPool = &seqPools[currentCategory];
+                } else {
+                    chosenSeqPool = &uncategorized;
+                }
+                // Remove trailing replacement entries that were already used in other pools.
+                while (!chosenSeqPool->empty() && chosenSeqPool->back()->hasBeenUsed) {
+                    chosenSeqPool->pop_back();
+                }
+            }
+            if (chosenSeqPool != nullptr && !chosenSeqPool->empty()) {
+                SequenceReplacement& rep = *chosenSeqPool->back();
+                const int randomValue = rep.seq->sequenceId;
                 CVarSetInteger(cvarKey.c_str(), randomValue);
-                values.pop_back();
+                rep.hasBeenUsed = true;
+                chosenSeqPool->pop_back();
             }
         }
     }
