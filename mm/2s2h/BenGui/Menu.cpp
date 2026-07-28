@@ -146,7 +146,14 @@ bool ModernMenuSidebarEntry(std::string label) {
     // The hit rect used to be only as wide as the centred label (~65pt) inside a much wider
     // sidebar, and shorter than the platform minimum touch target. Widen it to the full row and
     // floor its height; the label still draws at `pos`, which is unchanged.
-    const float rowPadY = ImMax(style.FramePadding.y, (44.0f - labelSize.y) * 0.5f);
+#if defined(__IOS__) || defined(__ANDROID__)
+    // Exactly 44pt, and touch-only. Taking the max against an already-1.5x-scaled FramePadding
+    // produced 48pt rows, and on desktop the floor beat FramePadding outright -- silently
+    // making desktop sidebar rows 44pt tall too, which was never intended.
+    const float rowPadY = std::max(0.0f, (44.0f - labelSize.y) * 0.5f);
+#else
+    const float rowPadY = style.FramePadding.y;
+#endif
     pos.y += rowPadY;
     pos.x = window->WorkRect.GetCenter().x - labelSize.x / 2;
     ImRect bb = { ImVec2(window->WorkRect.Min.x, pos.y - rowPadY),
@@ -212,7 +219,8 @@ uint32_t Menu::DrawSearchResults(std::string& menuSearchText) {
                     std::transform(widgetStr.begin(), widgetStr.end(), widgetStr.begin(), ::tolower);
                     widgetStr.erase(std::remove(widgetStr.begin(), widgetStr.end(), ' '), widgetStr.end());
                     if (widgetStr.find(menuSearchText) != std::string::npos) {
-                        MenuDrawItem(info, 90 / sidebar.columnCount, menuThemeIndex);
+                        // Search results are always drawn single-column, so wrap at full width.
+                        MenuDrawItem(info, 90, menuThemeIndex);
                         ImGui::PushStyleColor(ImGuiCol_Text, UIWidgets::ColorValues.at(UIWidgets::Colors::Gray));
                         std::string origin = fmt::format("  ({} -> {}, Col {})", menuEntry.label, sidebarLabel, i + 1);
                         ImGui::Text("%s", origin.c_str());
@@ -658,13 +666,17 @@ void Menu::DrawElement() {
     }
     ImGui::SameLine();
     ImGui::SetNextWindowSizeConstraints({ 0, headerHeight }, { headerWidth, headerHeight });
+    // headerHeight already gained ScrollbarSize above when the strip overflows; adding it a
+    // second time here spent another gutter's worth of a menu that is only ~385pt tall on a
+    // phone, and mis-sized the section/column heights derived from it.
     ImVec2 headerSelSize = { menuSize.x - buttonSize.x * 3 - style.ItemSpacing.x * 3, headerHeight };
-    if (scrollbar) {
-        headerSelSize.y += style.ScrollbarSize;
-    }
     bool autoFocus = CVarGetInteger("gSettings.Menu.SearchAutofocus", 0);
-    ImGui::BeginChild("Header Selection", headerSelSize,
-                      ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
+    // Deliberately no AutoResizeX: with it, Begin overwrote the width computed above with the
+    // full tab-strip width, so on a phone the strip ran underneath the close/quit buttons and
+    // the red Quit button won the tap. The horizontal scrollbar handles the overflow instead --
+    // and with drag-to-scroll landed, the strip is now swipeable. The max-width constraint
+    // still shrinks the child to the content on desktop, so nothing changes there.
+    ImGui::BeginChild("Header Selection", headerSelSize, ImGuiChildFlags_AutoResizeY,
                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_HorizontalScrollbar);
     uint8_t curIndex = 0;
     for (auto& label : menuOrder) {
@@ -839,7 +851,11 @@ void Menu::DrawElement() {
     // so it is algebraically neutral on desktop.
     const float minColumnWidth = 320.0f * Ship::Context::GetInstance()->GetWindow()->GetGui()->GetUiScale();
     const int maxColumns = (int)std::floor(sectionWidth / minColumnWidth);
-    columns = std::clamp(maxColumns, 1, columns);
+    // All-or-nothing, not a clamp: the draw loop below iterates the AUTHORED column count but
+    // only calls SameLine() while i < columns - 1, so an intermediate value (2 where 3 were
+    // authored) drops the trailing column onto a new line inside a NoScrollbar parent, where
+    // it is invisible and unreachable. Full width or single column, nothing in between.
+    columns = (maxColumns >= columns) ? columns : 1;
     float columnWidth = (sectionWidth - style.ItemSpacing.x * columns) / columns;
     bool useColumns = columns > 1;
     if (!useColumns || (headerSearch && menuSearchText.length() > 0)) {
@@ -882,7 +898,11 @@ void Menu::DrawElement() {
             }
             // for (auto& entryName : sidebar->at(sectionIndex).sidebarOrder) {
             for (auto& entry : sidebar->at(sectionIndex).columnWidgets.at(i)) {
-                MenuDrawItem(entry, 90 / sidebar->at(sectionIndex).columnCount, menuThemeIndex);
+                // Wrap against the columns actually drawn, not the authored count. When the
+                // layout collapses to one column on a phone, the old divisor still wrapped
+                // labels at 30 characters inside a column that fits ~60, so every checkbox
+                // took two or three lines and the list you had to scroll doubled in length.
+                MenuDrawItem(entry, 90 / (uint32_t)columns, menuThemeIndex);
             }
             //}
             if (useColumns) {

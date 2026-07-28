@@ -787,14 +787,28 @@ void OTRGlobals::ScaleImGui() {
         return; // guard on the computed total, not the index, so gSettings.UIScale is live
     }
 
+#if defined(__IOS__) || defined(__ANDROID__)
+    // Undo the floors before rescaling. ScaleAllSizes multiplies the CURRENT value, so an
+    // absolute floor applied last time gets re-multiplied every time the UI Scale slider
+    // moves, and the gutter creeps wider on every drag.
+    static float sGrabPreFloor = -1.0f, sScrollbarPreFloor = -1.0f;
+    if (sGrabPreFloor > 0.0f) {
+        ImGui::GetStyle().GrabMinSize = sGrabPreFloor;
+        ImGui::GetStyle().ScrollbarSize = sScrollbarPreFloor;
+    }
+#endif
     ImGui::GetStyle().ScaleAllSizes(scale / previousImGuiScale);
     // Fonts are real TTFs at authored point sizes; only the user's own multiplier applies —
     // divided by the raster scale, since the atlas is rasterized that much larger to stay sharp.
     ImGui::GetIO().FontGlobalScale =
         userScale / Ship::Context::GetInstance()->GetWindow()->GetGui()->GetFontRasterScale();
 #if defined(__IOS__) || defined(__ANDROID__)
-    // The slider grab is the one widget where the floor must be absolute, not proportional.
+    sGrabPreFloor = ImGui::GetStyle().GrabMinSize;
+    sScrollbarPreFloor = ImGui::GetStyle().ScrollbarSize;
+    // Absolute, not proportional. GrabMinSize is the grab's LENGTH; ScrollbarSize is the bar's
+    // WIDTH, and the bar is the fallback scroll target a finger has to be able to hit.
     ImGui::GetStyle().GrabMinSize = std::max(ImGui::GetStyle().GrabMinSize, 44.0f);
+    ImGui::GetStyle().ScrollbarSize = std::max(ImGui::GetStyle().ScrollbarSize, 32.0f);
 #endif
     previousImGuiScale = scale;
     previousImGuiScaleIndex = imGuiScaleIndex;
