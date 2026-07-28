@@ -385,6 +385,20 @@ void BenMenu::AddSettings() {
         .CVar("gTouch.GyroSensitivity")
         .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.2f).Max(3.0f).Tooltip(
             "How strongly device tilt affects aiming."));
+    AddWidget(touchPath, "Button Haptics", WIDGET_CVAR_CHECKBOX)
+        .CVar("gTouch.Haptics")
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "A small physical tap under the glass whenever an on-screen button is pressed."));
+    AddWidget(touchPath, "Game Rumble", WIDGET_CVAR_CHECKBOX)
+        .CVar("gTouch.GameRumble")
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Routes the game's Rumble Pak to this device's vibration motor during touch play — "
+            "bomb blasts, Goron rolling, the Stone of Agony. A connected controller uses its "
+            "own rumble instead."));
+    AddWidget(touchPath, "Rumble Strength", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gTouch.GameRumbleStrength")
+        .Options(FloatSliderOptions().DefaultValue(0.75f).Min(0.2f).Max(1.0f).IsPercentage().Tooltip(
+            "How strong Game Rumble feels."));
 #ifdef __IOS__
     AddWidget(touchPath, "UI Scale", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gSettings.UIScale")
@@ -435,6 +449,41 @@ void BenMenu::AddSettings() {
         }
         ImGui::PopStyleColor();
     });
+
+    // How to Play: none of the touch surfaces are labelled, and a phone player has no manual.
+    AddSidebarEntry("Settings", "Help", 1);
+    WidgetPath helpPath = { "Settings", "Help", SECTION_COLUMN_1 };
+    AddWidget(helpPath, "How to Play (Touch)", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        auto section = [](const char* title, const char* body) {
+            ImGui::SeparatorText(title);
+            ImGui::TextWrapped("%s", body);
+            ImGui::Spacing();
+        };
+        section("Moving",
+                "Touch anywhere in the LOWER-LEFT area and drag - the analog stick appears under your finger. "
+                "(Settings > Touch Controls > Fixed Stick Base anchors it in one place instead.)");
+        section("Camera", "Drag anywhere on the RIGHT half of the screen that is not a button.");
+        section("Buttons",
+                "A, B and the four C buttons sit on the right; Z, L and R at the top corners. Multi-touch works - "
+                "hold Z while moving and pressing A, like a real controller.");
+        section("The four small pills (top centre)",
+                "start: pause menu.   menu: opens THIS settings menu.   song: switches the buttons into an ocarina "
+                "piano - five keys, low D to high C-up - tap song again to switch back.   hide: hides the controls; "
+                "a faint dot stays where the hide pill was, tap it to bring everything back.");
+        section("Gyro aiming",
+                "Settings > Touch Controls > Gyro Aiming. Works in first person only: C-up look, bow, hookshot, "
+                "Zora fins. If an axis feels inverted: Enhancements > Camera > First Person > Invert Gyro X / Y.");
+        section("Bluetooth controllers",
+                "Pair in iOS Settings and just play - the on-screen controls hide themselves while a controller is "
+                "connected and return when it disconnects.");
+        section("Long-press for help",
+                "Hold a finger on any setting for half a second to read what it does - including greyed-out ones, "
+                "which explain why they are disabled.");
+        section("Your files",
+                "mm.o2r, saves and mods live in this app's folder: Files app > On My iPhone > 2Ship (or Settings > "
+                "General > Open App Files Folder). Everything there survives app updates and re-installs - "
+                "including the 7-day re-sideload.");
+    });
 #endif
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
@@ -443,6 +492,8 @@ void BenMenu::AddSettings() {
             "Allows controller navigation of the 2Ship menu (Settings, Enhancements,...)\nCAUTION: "
             "This will disable game inputs while the menu is visible.\n\nD-pad to move between "
             "items, A to select, B to move up in scope."));
+#if !defined(__IOS__) && !defined(__ANDROID__)
+    // There is no cursor on a phone; the checkbox would be pure noise.
     AddWidget(path, "Cursor Always Visible", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.CursorVisibility")
         .Callback([](WidgetInfo& info) {
@@ -450,6 +501,7 @@ void BenMenu::AddSettings() {
                 CVarGetInteger("gSettings.CursorVisibility", 0));
         })
         .Options(CheckboxOptions().Tooltip("Makes the cursor always visible, even in full screen."));
+#endif
 #endif
     AddWidget(path, "Search In Sidebar", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.Menu.SidebarSearch")
@@ -466,19 +518,31 @@ void BenMenu::AddSettings() {
         .CVar("gSettings.Menu.SearchAutofocus")
         .Options(CheckboxOptions().Tooltip(
             "Search input box gets autofocus when visible. Does not affect using other widgets."));
+#if !defined(__IOS__) && !defined(__ANDROID__)
+    // The Tab key does not exist on a phone; the toggle would configure nothing.
     AddWidget(path, "Alt Assets Tab hotkey", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Mods.AlternateAssetsHotkey")
         .Options(
             CheckboxOptions().Tooltip("Allows pressing the Tab key to toggle alternate assets.").DefaultValue(true));
+#endif
     AddWidget(path, "Reset Button Combination:", WIDGET_CVAR_BTN_SELECTOR)
         .CVar("gSettings.ResetBtn")
         .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER2));
     AddWidget(path, "Open App Files Folder", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) {
             std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
+#ifdef __IOS__
+            // file:/// URLs open nothing on iOS. shareddocuments:// is the Files app's scheme;
+            // combined with the file-sharing plist keys it jumps straight to this app's folder,
+            // where mm.o2r, saves and mods live. The most useful button on the device.
+            SDL_OpenURL(
+                std::string("shareddocuments://" + std::filesystem::absolute(filesPath).string()).c_str());
+#else
             SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
+#endif
         })
-        .Options(ButtonOptions().Tooltip("Opens the folder that contains the save and mods folders, etc."));
+        .Options(ButtonOptions().Tooltip("Opens this app's folder in the Files app - mm.o2r, saves and mods live "
+                                         "here, and everything in it survives app updates and re-installs."));
 
     AddWidget(path, "ImGui Menu Scaling", WIDGET_CVAR_COMBOBOX)
         .CVar("gSettings.ImGuiScale")
@@ -612,9 +676,12 @@ void BenMenu::AddSettings() {
     path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Graphics", 3);
     AddWidget(path, "Graphics Options", WIDGET_SEPARATOR_TEXT);
+#if !defined(__IOS__) && !defined(__ANDROID__)
+    // Mobile is always fullscreen; the button either no-ops or leaves the window in a bad state.
     AddWidget(path, "Toggle Fullscreen", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) { Ship::Context::GetInstance()->GetWindow()->ToggleFullscreen(); })
         .Options(ButtonOptions().Tooltip("Toggles Fullscreen On/Off."));
+#endif
     AddWidget(path, "Internal Resolution: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_INTERNAL_RESOLUTION)
         .Callback([](WidgetInfo& info) {

@@ -57,6 +57,12 @@ std::string WrappedText(const std::string& text, unsigned int charactersPerLine 
 void PaddedSeparator(bool padTop = true, bool padBottom = true, float extraVerticalTopPadding = 0.0f,
                      float extraVerticalBottomPadding = 0.0f);
 void Tooltip(const char* text);
+// True when this item's tooltip should show. Desktop: plain hover. Touch: a stationary
+// long-press (~0.45s, under 8pt of travel), which also works on DISABLED controls — the only
+// way a phone player can ever read a disabledTooltip explaining why something is greyed out.
+bool TooltipRequested(ImGuiHoveredFlags flags = ImGuiHoveredFlags_None);
+// SetTooltip, but placed above the finger on touch so the thumb doesn't cover the text.
+void ShowTooltip(const char* text);
 
 // mostly in order for colors usable by the menu without custom text color
 enum Colors {

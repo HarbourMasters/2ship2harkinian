@@ -1,6 +1,7 @@
 #include "BenGui.hpp"
 
 #include <spdlog/spdlog.h>
+#include <libultraship/bridge/consolevariablebridge.h>
 #include <imgui.h>
 #include <imgui_internal.h>
 #include "UIWidgets.hpp"
@@ -182,6 +183,18 @@ void SetupGuiElements() {
     mInputViewerSettings = std::make_shared<InputViewerSettingsWindow>("gWindows.InputViewerSettings",
                                                                        "Input Viewer Settings", ImVec2(500, 525));
     gui->AddGuiWindow(mInputViewerSettings);
+
+#ifdef __IOS__
+    // First-hour orientation: nothing on screen says what the little top pills do. Shown on
+    // the first three launches only, then never again.
+    const int32_t menuHints = CVarGetInteger("gPort.MenuHintShown", 0);
+    if (menuHints < 3) {
+        gui->GetGameOverlay()->TextDrawNotification(12.0f, true,
+                                                    "Tap the gear pill (top centre) for the menu - Settings > Help "
+                                                    "explains the touch controls");
+        CVarSetInteger("gPort.MenuHintShown", menuHints + 1);
+    }
+#endif
 }
 
 void Destroy() {

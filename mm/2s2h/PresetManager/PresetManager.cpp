@@ -750,11 +750,19 @@ bool PresetManager_HandleFileDropped(char* filePath) {
 void PresetManager_Draw() {
     ImGui::BeginChild("PresetManager", ImVec2(500, 0));
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, 1, 1, 0.5f));
+#if defined(__IOS__) || defined(__ANDROID__)
+    ImGui::TextWrapped("Add preset files with the Files app (Open Presets Folder below), then refresh the list.");
+#else
     ImGui::TextWrapped("Drag and drop a preset file into the window to load it, or drop it into the presets folder and "
                        "refresh the list.");
+#endif
     ImGui::PopStyleColor();
     if (UIWidgets::Button("Open Presets Folder", { .size = ImVec2(ImGui::GetContentRegionAvail().x - 42, 0) })) {
+#ifdef __IOS__
+        std::string path = "shareddocuments://" + std::filesystem::absolute(presetsFolderPath).string();
+#else
         std::string path = "file:///" + std::filesystem::absolute(presetsFolderPath).string();
+#endif
         SDL_OpenURL(path.c_str());
     }
     ImGui::SameLine();

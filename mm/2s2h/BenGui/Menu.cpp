@@ -735,6 +735,9 @@ void Menu::DrawElement() {
     options.color = UIWidgets::Colors::Red;
     options.size = UIWidgets::Sizes::Inline;
     options.tooltip = "Quit 2S2H";
+#if !defined(__IOS__) && !defined(__ANDROID__)
+    // No Quit button on mobile: apps are closed from the app switcher, exit(0) reads as a
+    // crash, and this red button sits exactly where an overshooting tab-strip tap lands.
     if (UIWidgets::Button(ICON_FA_POWER_OFF, options)) {
         BenGui::mModalWindow->RegisterPopup(
             "Quit 2S2H", "Are you sure you want to quit 2S2H?", "Quit", "Cancel",
@@ -748,13 +751,16 @@ void Menu::DrawElement() {
             },
             nullptr);
     }
+#endif
     ImGui::PopStyleVar();
     ImGui::SameLine();
     UIWidgets::ButtonOptions options2 = {};
     options2.color = UIWidgets::Colors::Red;
     options2.size = UIWidgets::Sizes::Inline;
     options2.tooltip = "Reset"
-#ifdef __APPLE__
+#if defined(__IOS__) || defined(__ANDROID__)
+                       "" // no keyboard: the hotkey hint would be a lie
+#elif defined(__APPLE__)
                        " (Command-R)"
 #elif !defined(__SWITCH__) && !defined(__WIIU__)
                        " (Ctrl+R)"
@@ -770,7 +776,11 @@ void Menu::DrawElement() {
     ImGui::SameLine();
     UIWidgets::ButtonOptions options3 = {};
     options3.size = UIWidgets::Sizes::Inline;
+#if defined(__IOS__) || defined(__ANDROID__)
+    options3.tooltip = "Close Menu (or tap the gear button)";
+#else
     options3.tooltip = "Close Menu (Esc)";
+#endif
     if (UIWidgets::Button(ICON_FA_TIMES_CIRCLE, options3)) {
         ToggleVisibility();
 

@@ -34,7 +34,9 @@ void DrawMenuBarIcon() {
 void DrawBenMenu() {
     if (UIWidgets::BeginMenu("2Ship")) {
         if (UIWidgets::MenuItem("Hide Menu Bar",
-#if !defined(__SWITCH__) && !defined(__WIIU__)
+#if defined(__IOS__) || defined(__ANDROID__)
+                                "" // no keyboard on a phone
+#elif !defined(__SWITCH__) && !defined(__WIIU__)
                                 "F1"
 #else
                                 "[-]"
@@ -48,7 +50,9 @@ void DrawBenMenu() {
         }
 #endif
         if (UIWidgets::MenuItem("Reset",
-#ifdef __APPLE__
+#if defined(__IOS__) || defined(__ANDROID__)
+                                ""
+#elif defined(__APPLE__)
                                 "Command-R"
 #elif !defined(__SWITCH__) && !defined(__WIIU__)
                                 "Ctrl+R"
@@ -95,7 +99,12 @@ void BenMenuBar::DrawElement() {
             ImGui::SeparatorText("NOTICE");
             ImGui::PopStyleColor();
             ImGui::Text(
+#if defined(__IOS__) || defined(__ANDROID__)
+                "All settings have now been moved to the new menu,\nwhich can be accessed with the on-screen gear "
+                "button.");
+#else
                 "All settings have now been moved to the new menu,\nwhich can be accessed with the Esc button.");
+#endif
             ImGui::EndMenu();
         }
 
