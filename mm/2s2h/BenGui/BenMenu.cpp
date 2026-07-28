@@ -373,9 +373,10 @@ void BenMenu::AddSettings() {
         .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.2f).Max(3.0f).Tooltip(
             "How fast dragging on the screen moves the camera."));
     AddWidget(touchPath, "Gyro Aiming", WIDGET_CVAR_CHECKBOX)
-        .CVar("gTouch.GyroEnabled")
+        .CVar("gEnhancements.Camera.FirstPerson.GyroEnabled")
         .Options(CheckboxOptions().Tooltip(
-            "Tilt the device to aim in first-person and while targeting."));
+            "Tilt the device to aim while in first person (C-Up look, bow, hookshot, Zora fins). "
+            "Does not affect the normal or Z-targeted camera."));
     AddWidget(touchPath, "Gyro Sensitivity", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gTouch.GyroSensitivity")
         .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.2f).Max(3.0f).Tooltip(

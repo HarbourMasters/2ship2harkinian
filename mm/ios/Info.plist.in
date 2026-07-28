@@ -67,6 +67,8 @@
 	<true/>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.games</string>
+	<key>NSMotionUsageDescription</key>
+	<string>2Ship uses the gyroscope for optional motion aiming in first person. Motion data never leaves the device.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
