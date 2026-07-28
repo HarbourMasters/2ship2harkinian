@@ -1027,6 +1027,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `ObjDora*`
+    VB_GONG_DROP_COLLECTIBLE,
+
+    // #### `result`
+    // ```c
     // phi_f0 > 0.0f
     // ```
     // #### `args`
