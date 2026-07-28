@@ -129,6 +129,7 @@ std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_FROG*/ gItemIconDonGeroMaskTex,
     /*RCTYPE_GRASS*/ gameplay_keep_Tex_053140,
     /*RCTYPE_HEART*/ gQuestIconPieceOfHeartTex,
+    /*RCTYPE_BEEHIVE*/ gArcheryScoreIconTex,
     /*RCTYPE_MINIGAME*/ gArcheryScoreIconTex,
     /*RCTYPE_NPC*/ gItemIconBombersNotebookTex,
     /*RCTYPE_OWL*/ gWorldMapOwlFaceTex,
@@ -141,6 +142,7 @@ std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_STRAY_FAIRY*/ gStrayFairyGreatBayIconTex,
     /*RCTYPE_TINGLE_SHOP*/ gItemIconAdultsWalletTex,
     /*RCTYPE_TREE*/ gItemIconDekuStickTex,
+    /*RCTYPE_WONDER_ITEM*/ gPauseUnusedCursorTex,
 };
 
 static constexpr ImVec4 tintColor = {};
