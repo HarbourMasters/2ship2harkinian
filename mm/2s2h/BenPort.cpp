@@ -1076,6 +1076,18 @@ static void IOS_PrepareAppDirectory() {
          std::filesystem::file_size(dataDb, sizeEc) != std::filesystem::file_size(bundleDb, sizeEc))) {
         std::filesystem::copy_file(bundleDb, dataDb, std::filesystem::copy_options::overwrite_existing, ec);
     }
+
+    // Files shared to this app ("Open in ...") land in Documents/Inbox; a game archive is
+    // useless there. Sweep any *.o2r into Documents proper so a cold-launched share of the
+    // game data just works. Saves are NOT swept - they go through the validated drop pipeline.
+    const std::filesystem::path inbox = std::filesystem::path(dataPath) / "Inbox";
+    if (std::filesystem::exists(inbox)) {
+        for (auto& entry : std::filesystem::directory_iterator(inbox, ec)) {
+            if (entry.path().extension() == ".o2r") {
+                std::filesystem::rename(entry.path(), std::filesystem::path(dataPath) / entry.path().filename(), ec);
+            }
+        }
+    }
 }
 #endif
 

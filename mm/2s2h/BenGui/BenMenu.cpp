@@ -16,6 +16,7 @@
 #include <spdlog/fmt/fmt.h>
 #ifdef __IOS__
 #include <ctime>
+#include <filesystem>
 extern "C" int64_t IOSGetSignatureExpiryUnix(void); // engine IOSCertInfo.mm
 #endif
 #include "variables.h"
@@ -385,6 +386,11 @@ void BenMenu::AddSettings() {
         .CVar("gTouch.GyroSensitivity")
         .Options(FloatSliderOptions().DefaultValue(1.0f).Min(0.2f).Max(3.0f).Tooltip(
             "How strongly device tilt affects aiming."));
+    AddWidget(touchPath, "Show D-Pad", WIDGET_CVAR_CHECKBOX)
+        .CVar("gTouch.ShowDpad")
+        .Options(CheckboxOptions().Tooltip(
+            "Adds a D-pad on the left side. Needed for D-pad enhancements like D-Pad Equips and "
+            "D-Pad Ocarina - without it those buttons cannot be pressed by touch."));
     AddWidget(touchPath, "Button Haptics", WIDGET_CVAR_CHECKBOX)
         .CVar("gTouch.Haptics")
         .Options(CheckboxOptions().DefaultValue(true).Tooltip(
@@ -543,6 +549,38 @@ void BenMenu::AddSettings() {
         })
         .Options(ButtonOptions().Tooltip("Opens this app's folder in the Files app - mm.o2r, saves and mods live "
                                          "here, and everything in it survives app updates and re-installs."));
+#if defined(__IOS__) || defined(__ANDROID__)
+    AddWidget(path, "Back Up Saves Now", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) {
+            // One tap before resign week: snapshot saves + settings into a Files-app-visible
+            // folder the player can copy anywhere (their own iCloud/Drive included).
+            namespace fs = std::filesystem;
+            std::error_code ec;
+            const fs::path docs = Ship::Context::GetInstance()->GetAppDirectoryPath();
+            char stamp[32];
+            time_t t = time(nullptr);
+            struct tm tmv;
+            localtime_r(&t, &tmv);
+            strftime(stamp, sizeof(stamp), "%Y%m%d-%H%M%S", &tmv);
+            const fs::path dst = docs / "save-backups" / stamp;
+            fs::create_directories(dst, ec);
+            bool ok = !ec;
+            if (ok && fs::exists(docs / "saves")) {
+                fs::copy(docs / "saves", dst / "saves",
+                         fs::copy_options::recursive | fs::copy_options::overwrite_existing, ec);
+                ok = ok && !ec;
+            }
+            if (ok && fs::exists(docs / "2ship2harkinian.json")) {
+                fs::copy_file(docs / "2ship2harkinian.json", dst / "2ship2harkinian.json",
+                              fs::copy_options::overwrite_existing, ec);
+            }
+            Notification::Emit({ .message = ok ? std::string("Saves backed up to save-backups/") + stamp
+                                               : std::string("Backup FAILED - check free storage") });
+        })
+        .Options(ButtonOptions().Tooltip(
+            "Copies your saves and settings into save-backups inside this app's folder. To restore, copy the files "
+            "back with the Files app."));
+#endif
 
     AddWidget(path, "ImGui Menu Scaling", WIDGET_CVAR_COMBOBOX)
         .CVar("gSettings.ImGuiScale")
