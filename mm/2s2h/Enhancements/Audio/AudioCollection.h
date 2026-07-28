@@ -98,7 +98,7 @@ class AudioCollection {
     std::string GetCvarLockKey(std::string sfxKey);
     size_t CountSequencesByType(SeqType type);
     uint16_t GetMaxOriginalSeqId() const;
-    void ParseSequenceCategory(std::string category, int& compositeCategory, std::vector<int>& seqIds);
+    void ParseSequenceCategory(std::string token, int& compositeCategory, std::vector<int>& seqIds);
 };
 #else
 void AudioCollection_AddToCollection(char* otrPath, uint16_t seqNum);
