@@ -17,7 +17,7 @@
 
 AudioCollection::AudioCollection() {
     //                    (originalSequenceId,                  label,                                      sfxKey,
-    //                    type, filter,    seqIdReplacements, canBeReplaced, canBeUsedAsReplacement),
+    //                    type, categoryFlags, seqIdReplacements, canBeReplaced, canBeUsedAsReplacement),
     mSequenceMap = {
         SEQUENCE_MAP_ENTRY(NA_BGM_GENERAL_SFX, "General SFX", "SEQUENCE_MAP_ENTRY", SEQ_SFX, SEQ_CAT_NONE, nullptr,
                            false, false),
