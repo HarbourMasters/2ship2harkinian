@@ -114,8 +114,13 @@ The on-screen controls are designed for the way Majora's Mask actually plays:
 Pair a Bluetooth controller (Xbox, PlayStation, Backbone) in iOS Settings and the overlay
 hides itself automatically; unplug it and the controls come back.
 
+**Hold any setting for half a second** to read what it does — including greyed-out ones,
+which explain why they're disabled. Swipe anywhere in a menu list to scroll it.
+
 Everything is adjustable in **Settings → Touch Controls**: opacity, button size, stick style,
-camera sensitivity, an edge-hugging layout, and optional **gyro aiming** for first-person.
+camera sensitivity, an edge-hugging layout, **haptics** (button taps + the game's Rumble Pak
+on the Taptic Engine), an optional **D-pad** for the D-pad enhancements, and **gyro aiming**
+for first-person. There's a full **How to Play** page under Settings → Help.
 
 ## Performance
 
@@ -131,8 +136,9 @@ other, everything is live in the settings menu — no rebuild:
 
 | Symptom | Fix |
 | --- | --- |
-| **App expired after a week** | Free Apple IDs sign apps for 7 days. Re-run Sideloadly, or let AltStore refresh it automatically over WiFi. A paid Apple Developer account lasts a year. |
-| **"2Ship needs game data"** | `mm.o2r` isn't in the app's folder yet — see step 3. |
+| **App expired after a week** | Free Apple IDs sign apps for 7 days. Settings → Touch Controls shows the exact expiry date. Re-run Sideloadly (install over the top — saves are kept), or let AltStore refresh it automatically over WiFi. A paid Apple Developer account lasts a year. |
+| **"2Ship needs game data"** | `mm.o2r` isn't in the app's folder yet. The app now waits on that screen — tap **Open Files**, paste the file, and it starts by itself. |
+| **Worried about your saves** | Autosave is on by default and also fires when you switch apps. Saves survive re-installs, and **Settings → General → Back Up Saves Now** snapshots them into a Files-visible folder. You can also AirDrop a save `.json` or an `.o2r` straight to the app ("Open in 2Ship"). |
 | **Black screen but music plays** | You're on an old build; grab the newest artifact. |
 | **Everything crashes at launch** | Delete `2ship2harkinian.json` from the app's folder via the Files app. That resets settings only — your saves are untouched. |
 | **No sound** | Check the ringer/silent switch isn't the issue — recent builds play regardless — then Settings → Audio. |
