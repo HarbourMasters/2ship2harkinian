@@ -334,12 +334,14 @@ void AudioCollection::AddToCollection(char* otrPath, uint16_t seqNum) {
             size_t dashPos;
             std::string category;
             // typeString can be assumed to be dash separated list of categories
-            while ((dashPos = typeString.find('-')) != std::string::npos) {
-                category = typeString.substr(0, dashPos);
-                ParseSequenceCategory(category, compositeCategory, seqIdReplacements);
-                typeString = typeString.substr(dashPos + 1);
-            }
-            ParseSequenceCategory(typeString, compositeCategory, seqIdReplacements);
+            try {
+                while ((dashPos = typeString.find('-')) != std::string::npos) {
+                    category = typeString.substr(0, dashPos);
+                    ParseSequenceCategory(category, compositeCategory, seqIdReplacements);
+                    typeString = typeString.substr(dashPos + 1);
+                }
+                ParseSequenceCategory(typeString, compositeCategory, seqIdReplacements);
+            } catch (std::invalid_argument e) { compositeCategory = SEQ_CAT_BGM; }
             // If any fanfare categories are used, make this a fanfare sequence
             if (compositeCategory & SEQ_CAT_FAN) {
                 type = SEQ_BGM_CUSTOM_FANFARE;
