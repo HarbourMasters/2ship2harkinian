@@ -22,7 +22,8 @@ void RegisterGoronRollingIgnoresMagic() {
     // Disable check for if the player has magic to increase spike level
     COND_VB_SHOULD(VB_GORON_ROLL_INCREASE_SPIKE_LEVEL, CVAR || CVAR_R, {
         if (CVAR) {
-            *should = true;
+            Player* player = GET_PLAYER(gPlayState);
+            *should = player->av2.actionVar2 >= 0x36B0;
         }
 
         *should = *should && (!CVAR_R || CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R));
