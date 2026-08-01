@@ -27,7 +27,7 @@ static void RegisterTreasureChestShopFullMaze() {
         }
 
         for (int i = 0; i < TAKARAYA_WALL_ROWS; i++) {
-            f32 targetHeight = 120.0f;
+            f32 targetHeight = TAKARAYA_WALL_BACK_HEIGHT;
             if (CVAR == TREASURE_CHEST_SHOP_MAZE_TIERED) {
                 f32 distanceFromFront = (f32)(TAKARAYA_WALL_ROWS - 1 - i) / (TAKARAYA_WALL_ROWS - 1);
                 targetHeight = TAKARAYA_WALL_FRONT_HEIGHT +
