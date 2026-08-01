@@ -74,6 +74,12 @@ static const std::vector<const char*> cremiaRewardOptions = {
     "Rupee",   // CREMIA_REWARD_ALWAYS_RUPEE
 };
 
+static const std::vector<const char*> treasureChestShopMazeOptions = {
+    "Off",         // TREASURE_CHEST_SHOP_MAZE_OFF
+    "Full Height", // TREASURE_CHEST_SHOP_MAZE_FULL_HEIGHT
+    "Tiered",      // TREASURE_CHEST_SHOP_MAZE_TIERED
+};
+
 static const std::vector<const char*> ammoBuybackOptions = {
     "Vanilla",    // AMMO_BUYBACK_VANILLA
     "Full Price", // AMMO_BUYBACK_FULL_PRICE
@@ -1906,10 +1912,16 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Invincible", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Minigames.BoatArcheryInvincible")
         .Options(CheckboxOptions().Tooltip("Koume's health does not decrease when hit."));
-    AddWidget(path, "Treasure Chest Shop Show Full Maze", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Treasure Chest Shop Maze", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.TreasureChestShopShowFullMaze")
-        .Options(CheckboxOptions().Tooltip("Shows the entire maze layout in the Treasure Chest Shop minigame "
-                                           "instead of only revealing tiles near Link."));
+        .Options(ComboboxOptions()
+                     .Tooltip("Shows the entire maze layout in the Treasure Chest Shop minigame instead of only "
+                              "revealing tiles near Link.\n"
+                              "-Off: Only tiles near Link are revealed\n"
+                              "-Full Height: The whole maze is raised to the same height\n"
+                              "-Tiered: Tiles are raised higher the further back they are, so the front rows "
+                              "don't hide the rest")
+                     .ComboVec(&treasureChestShopMazeOptions));
 
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
