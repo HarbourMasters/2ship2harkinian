@@ -1211,6 +1211,12 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.FileSlot3")
         .Options(CheckboxOptions().Tooltip("Adds a 3rd file slot that can be used for saves").DefaultValue(true));
+    AddWidget(path, "New File Setup Steps", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Saving.NewFileSetup")
+        .Options(CheckboxOptions()
+                     .Tooltip("After picking an empty file, asks whether it should be a randomizer file and lets "
+                              "you apply one of your loaded presets before entering a name.")
+                     .DefaultValue(true));
     AddWidget(path, "Persistent Owl Saves", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.PersistentOwlSaves")
         .Options(CheckboxOptions().Tooltip("Continuing a save will not remove the owl save. Playing Song of "

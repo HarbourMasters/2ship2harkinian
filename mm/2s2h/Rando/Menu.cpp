@@ -372,12 +372,7 @@ static void DrawGeneralTab() {
     UIWidgets::CVarCheckbox("Enable Rando (Randomizes new files upon creation)", "gRando.Enabled");
 
     if (UIWidgets::CVarCombobox("Seed", "gRando.SpoilerFileIndex", Rando::Spoiler::spoilerOptions)) {
-        if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
-            CVarSetString("gRando.SpoilerFile", "");
-        } else {
-            CVarSetString("gRando.SpoilerFile",
-                          Rando::Spoiler::spoilerOptions[CVarGetInteger("gRando.SpoilerFileIndex", 0)].c_str());
-        }
+        Rando::Spoiler::SelectSpoiler(CVarGetInteger("gRando.SpoilerFileIndex", 0));
     }
 
     if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
