@@ -419,7 +419,7 @@ static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
                                                                    "gRando.Options.RO_SHUFFLE_TYCOON_WALLET",
                                                                    "gRando.Options.RO_SHUFFLE_TRIFORCE_PIECES",
                                                                    "gRando.Options.RO_SHUFFLE_WONDER_ITEMS",
-                                                                   "gRando.Options.RO_SKULLTULA_TOKENS_MAX",
+                                                                   "gRando.Options.RO_SKULLTULA_SHUFFLED",
                                                                    "gRando.Options.RO_SKULLTULA_TOKENS_REQUIRED",
                                                                    "gRando.Options.RO_STARTING_CONSUMABLES",
                                                                    "gRando.Options.RO_STARTING_HEALTH",
@@ -470,10 +470,14 @@ static void PoolCountSuffix(int count) {
     ImGui::TextColored(COUNT_TEXT_COLOR, "+%d", count);
 }
 
-static bool CheckPoolCheckbox(const char* label, RandoOptionId optionId, RandoCheckType checkType,
-                              const char* tooltip) {
+static bool CheckPoolCheckbox(const char* label, RandoOptionId optionId, RandoCheckType checkType, const char* tooltip,
+                              int countOverride = -1) {
     bool changed =
         CVarCheckbox(label, Rando::StaticData::Options[optionId].cvar, CheckboxOptions({ { .tooltip = tooltip } }));
+    if (countOverride >= 0) {
+        PoolCountSuffix(countOverride);
+        return changed;
+    }
     auto& counts = GetCheckCountsByType();
     auto it = counts.find(checkType);
     PoolCountSuffix(it != counts.end() ? it->second : 0);
@@ -726,8 +730,10 @@ static void DrawCheckPoolTab() {
                       "Items sitting out in the world (hearts, rupees, arrows, etc.) are checks.");
     CheckPoolCheckbox("Wonder Items", RO_SHUFFLE_WONDER_ITEMS, RCTYPE_WONDER_ITEM,
                       "Invisible touch/shoot triggers scattered around the world are checks.");
+    int32_t skulltulasShuffled =
+        CVarGetInteger(Rando::StaticData::Options[RO_SKULLTULA_SHUFFLED].cvar, SPIDER_HOUSE_TOKENS_REQUIRED);
     CheckPoolCheckbox("Gold Skulltulas", RO_SHUFFLE_GOLD_SKULLTULAS, RCTYPE_SKULL_TOKEN,
-                      "Each Gold Skulltula token in the two Spider Houses is a check.");
+                      "Gold Skulltulas in the two Spider Houses are checks.", skulltulasShuffled * 2);
     if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_GOLD_SKULLTULAS].cvar, RO_GENERIC_OFF)) {
         CVarSliderInt("Required Gold Skulltula Tokens", Rando::StaticData::Options[RO_SKULLTULA_TOKENS_REQUIRED].cvar,
                       IntSliderOptions()
@@ -735,19 +741,17 @@ static void DrawCheckPoolTab() {
                           .LabelPosition(UIWidgets::LabelPosition::None)
                           .Min(1)
                           .Format("%d Tokens Required")
-                          .Max(CVarGetInteger(Rando::StaticData::Options[RO_SKULLTULA_TOKENS_MAX].cvar,
-                                              SPIDER_HOUSE_TOKENS_REQUIRED))
+                          .Max(SPIDER_HOUSE_TOKENS_REQUIRED)
                           .DefaultValue(SPIDER_HOUSE_TOKENS_REQUIRED));
-        if (CVarSliderInt("Gold Skulltula Tokens in Pool", Rando::StaticData::Options[RO_SKULLTULA_TOKENS_MAX].cvar,
-                          IntSliderOptions()
-                              .Tooltip("Maximum Gold Skulltula tokens that can appear in the item pool.")
-                              .LabelPosition(UIWidgets::LabelPosition::None)
-                              .Min(1)
-                              .Format("%d Tokens in Pool")
-                              .Max(SPIDER_HOUSE_TOKENS_REQUIRED)
-                              .DefaultValue(SPIDER_HOUSE_TOKENS_REQUIRED))) {
-            ClampRequiredToMax(RO_SKULLTULA_TOKENS_REQUIRED, RO_SKULLTULA_TOKENS_MAX, SPIDER_HOUSE_TOKENS_REQUIRED);
-        }
+        CVarSliderInt("Shuffled Gold Skulltulas", Rando::StaticData::Options[RO_SKULLTULA_SHUFFLED].cvar,
+                      IntSliderOptions()
+                          .Tooltip("How many Gold Skulltulas in each Spider House are randomized checks. The rest "
+                                   "contain their associated token. The spiders are chosen at random each seed.")
+                          .LabelPosition(UIWidgets::LabelPosition::None)
+                          .Min(1)
+                          .Format("%d of 30 Shuffled Per House")
+                          .Max(SPIDER_HOUSE_TOKENS_REQUIRED)
+                          .DefaultValue(SPIDER_HOUSE_TOKENS_REQUIRED));
     }
     UIWidgets::EndCard();
 
