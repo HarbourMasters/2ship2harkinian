@@ -127,10 +127,10 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
             }
 
             if (randoStaticCheck.randoCheckType == RCTYPE_SHOP) {
-                // We always want shuffle RC_CURIOSITY_SHOP_SPECIAL_ITEM &
+                // We always want shuffle RC_CURIOSITY_SHOP_SPECIAL_ITEM, RC_BOMB_SHOP_ITEM_03 &
                 // RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM
                 if (saveInfo.randoSaveOptions[RO_SHUFFLE_SHOPS] == RO_GENERIC_NO &&
-                    randoCheckId != RC_CURIOSITY_SHOP_SPECIAL_ITEM &&
+                    randoCheckId != RC_CURIOSITY_SHOP_SPECIAL_ITEM && randoCheckId != RC_BOMB_SHOP_ITEM_03 &&
                     randoCheckId != RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM) {
                     continue;
                 } else {
