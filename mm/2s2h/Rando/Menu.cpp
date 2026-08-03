@@ -434,6 +434,7 @@ static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
 // Shop checks that Rando::Logic::GeneratePools always shuffles even with Shops off
 static constexpr RandoCheckId ALWAYS_SHUFFLED_SHOP_CHECKS[] = {
     RC_CURIOSITY_SHOP_SPECIAL_ITEM,
+    RC_BOMB_SHOP_ITEM_03,
     RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM,
 };
 
@@ -705,7 +706,7 @@ static void DrawCheckPoolTab() {
                       "Activating an owl statue is a check. Song of Soaring destinations are unaffected.");
     CheckPoolCheckbox("Shops", RO_SHUFFLE_SHOPS, RCTYPE_SHOP,
                       "Items sold in shops are checks, with randomized prices.\n\nThe Curiosity Shop special item "
-                      "and the Bomb Shop's 4th item are always shuffled, even with this off.");
+                      "and the Bomb Shop's bomb bags are always shuffled, even with this off.");
     CheckPoolCheckbox("Tingle Maps", RO_SHUFFLE_TINGLE_SHOPS, RCTYPE_TINGLE_SHOP,
                       "Maps sold by Tingle are checks, with randomized prices.");
     CheckPoolCheckbox("Boss Remains", RO_SHUFFLE_BOSS_REMAINS, RCTYPE_REMAINS,
