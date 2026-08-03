@@ -52,6 +52,7 @@ std::unordered_map<int32_t, const char*> trapItemsOptions = {
 std::unordered_map<int32_t, const char*> dungeonItemPlacementOptions = {
     { RO_DUNGEON_ITEM_ANYWHERE, "Anywhere" },
     { RO_DUNGEON_ITEM_OWN_DUNGEON, "Own Dungeon" },
+    { RO_DUNGEON_ITEM_START_WITH, "Start With" },
 };
 
 // clang-format off
@@ -384,6 +385,9 @@ static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
                                                                    "gRando.Options.RO_HINTS_SPIDER_HOUSES",
                                                                    "gRando.Options.RO_TRAP_AMOUNT",
                                                                    "gRando.Options.RO_LOGIC",
+                                                                   "gRando.Options.RO_PLACEMENT_BOSS_KEYS",
+                                                                   "gRando.Options.RO_PLACEMENT_SMALL_KEYS",
+                                                                   "gRando.Options.RO_PLACEMENT_STRAY_FAIRIES",
                                                                    "gRando.Options.RO_PLENTIFUL_ITEMS",
                                                                    "gRando.Options.RO_SHUFFLE_BARREL_DROPS",
                                                                    "gRando.Options.RO_SHUFFLE_BOSS_REMAINS",
@@ -627,19 +631,6 @@ static void DrawLogicConditionsTab() {
         "the Moon.\n\n"
         "Vanilla - The items are not shuffled.\n"
         "Not compatible with settings that add items to the pool, like Boss Souls or Plentiful Items.");
-    UIWidgets::CVarCombobox("Small Keys", Rando::StaticData::Options[RO_PLACEMENT_SMALL_KEYS].cvar,
-                            &dungeonItemPlacementOptions);
-    UIWidgets::Tooltip("Where each dungeon's small keys may be placed.");
-    UIWidgets::CVarCombobox("Boss Keys", Rando::StaticData::Options[RO_PLACEMENT_BOSS_KEYS].cvar,
-                            &dungeonItemPlacementOptions);
-    UIWidgets::Tooltip("Where each dungeon's boss key may be placed.");
-    UIWidgets::CVarCombobox("Stray Fairies", Rando::StaticData::Options[RO_PLACEMENT_STRAY_FAIRIES].cvar,
-                            &dungeonItemPlacementOptions);
-    UIWidgets::Tooltip("Where each dungeon's stray fairies may be placed. The Clock Town stray fairy is unaffected.");
-    ImGui::EndChild();
-    ImGui::SameLine();
-    ImGui::BeginChild("randoLogicColumn2", ImVec2(columnWidth, 0));
-
     UIWidgets::CVarCombobox("Dungeon Access", Rando::StaticData::Options[RO_ACCESS_DUNGEONS].cvar,
                             &accessDungeonOptions);
     UIWidgets::Tooltip("Dungeon access requirements:\n\n"
@@ -648,6 +639,11 @@ static void DrawLogicConditionsTab() {
                        "Requires Only Transformation - Requires only the correct form.\n\n"
                        "Requires Only Song - Requires only the correct song.\n\n"
                        "Open - Dungeons will be open with no requirements.");
+    UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, &accessTrialsOptions);
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("randoLogicColumn2", ImVec2(columnWidth, 0));
+
     UIWidgets::CVarSliderInt("Majora Access Remains Required",
                              Rando::StaticData::Options[RO_ACCESS_MAJORA_REMAINS_COUNT].cvar,
                              IntSliderOptions().Min(0).Max(4).DefaultValue(0));
@@ -659,7 +655,6 @@ static void DrawLogicConditionsTab() {
                              IntSliderOptions().Min(0).Max(4).DefaultValue(4));
     UIWidgets::CVarSliderInt("Moon Access Masks Required", Rando::StaticData::Options[RO_ACCESS_MOON_MASKS_COUNT].cvar,
                              IntSliderOptions().Min(0).Max(20).DefaultValue(0));
-    UIWidgets::CVarCombobox("Trials Access", Rando::StaticData::Options[RO_ACCESS_TRIALS].cvar, &accessTrialsOptions);
     ImGui::EndChild();
 }
 
@@ -915,11 +910,15 @@ static void DrawPriorityItemsPopup() {
     ImGui::PopStyleVar(2);
 }
 
-static bool ItemPoolCheckbox(const char* label, RandoOptionId optionId, const char* tooltip, int itemCount = 0) {
-    bool changed = CVarCheckbox(label, Rando::StaticData::Options[optionId].cvar,
-                                CheckboxOptions({ { .tooltip = tooltip,
-                                                    .disabled = IncompatibleWithLogicSetting(optionId),
-                                                    .disabledTooltip = "Incompatible with current Logic Setting" } }));
+static bool ItemPoolCheckbox(const char* label, RandoOptionId optionId, const char* tooltip, int itemCount = 0,
+                             const char* disabledReason = nullptr) {
+    if (disabledReason == nullptr && IncompatibleWithLogicSetting(optionId)) {
+        disabledReason = "Incompatible with current Logic Setting";
+    }
+    bool changed = CVarCheckbox(
+        label, Rando::StaticData::Options[optionId].cvar,
+        CheckboxOptions(
+            { { .tooltip = tooltip, .disabled = disabledReason != nullptr, .disabledTooltip = disabledReason } }));
     PoolCountSuffix(itemCount);
     return changed;
 }
@@ -940,10 +939,15 @@ static void DrawItemPoolTab() {
                      "You will be unable to play a song until you find all\n"
                      "notes for the given melody.",
                      RI_OCARINA_BUTTON_C_UP - RI_OCARINA_BUTTON_A + 1);
+    const char* skeletonKeyDisabledReason =
+        CVarGetInteger(Rando::StaticData::Options[RO_PLACEMENT_SMALL_KEYS].cvar, RO_DUNGEON_ITEM_ANYWHERE) ==
+                RO_DUNGEON_ITEM_START_WITH
+            ? "Small Keys are set to Start With, so the Skeleton Key would have nothing to unlock"
+            : nullptr;
     ItemPoolCheckbox("Skeleton Key", RO_SHUFFLE_SKELETON_KEY,
                      "Adds the Skeleton Key to the item pool. Collecting it immediately grants "
                      "the maximum number of Small Keys for every dungeon.",
-                     1);
+                     1, skeletonKeyDisabledReason);
     ItemPoolCheckbox("Tycoon's Wallet", RO_SHUFFLE_TYCOON_WALLET,
                      "Adds the Tycoon's Wallet (5,000 rupees) to the item pool\n"
                      "as a third progressive wallet upgrade.",
@@ -1086,27 +1090,53 @@ static void DrawItemPoolTab() {
             ClampRequiredToMax(RO_TRIFORCE_PIECES_REQUIRED, RO_TRIFORCE_PIECES_MAX, DEFAULT_TRIFORCE_PIECES_MAX);
         }
     }
-    ImGui::Spacing();
-    ImGui::Text("Stray Fairies");
-    CVarSliderInt(
-        "Required Stray Fairies", Rando::StaticData::Options[RO_STRAY_FAIRIES_REQUIRED].cvar,
-        IntSliderOptions()
-            .Tooltip("Minimum Stray Fairies needed to obtain the corresponding Great Fairy check.\n"
-                     "Does not affect the Clock Town fairy.")
-            .LabelPosition(UIWidgets::LabelPosition::None)
-            .Min(1)
-            .Format("%d Fairies Required")
-            .Max(CVarGetInteger(Rando::StaticData::Options[RO_STRAY_FAIRIES_MAX].cvar, STRAY_FAIRY_SCATTERED_TOTAL))
-            .DefaultValue(STRAY_FAIRY_SCATTERED_TOTAL));
-    if (CVarSliderInt("Stray Fairies in Pool", Rando::StaticData::Options[RO_STRAY_FAIRIES_MAX].cvar,
-                      IntSliderOptions()
-                          .Tooltip("Maximum Stray Fairies that can appear in the item pool, per dungeon.")
-                          .LabelPosition(UIWidgets::LabelPosition::None)
-                          .Min(1)
-                          .Format("%d Fairies in Pool")
-                          .Max(STRAY_FAIRY_SCATTERED_TOTAL)
-                          .DefaultValue(STRAY_FAIRY_SCATTERED_TOTAL))) {
-        ClampRequiredToMax(RO_STRAY_FAIRIES_REQUIRED, RO_STRAY_FAIRIES_MAX, STRAY_FAIRY_SCATTERED_TOTAL);
+    UIWidgets::EndCard();
+
+    UIWidgets::BeginCard("itemPoolDungeonItems");
+    ImGui::SeparatorText("Dungeon Items");
+    UIWidgets::CVarCombobox(
+        "Small Keys", Rando::StaticData::Options[RO_PLACEMENT_SMALL_KEYS].cvar, &dungeonItemPlacementOptions,
+        UIWidgets::ComboboxOptions().Tooltip(
+            "Where each dungeon's small keys may be placed.\n\n"
+            "Anywhere - Small keys can be found anywhere in the world.\n\n"
+            "Own Dungeon - Each dungeon's small keys are only found within that dungeon.\n\n"
+            "Start With - You begin with every dungeon's small keys, and none are added to the item pool."));
+    UIWidgets::CVarCombobox(
+        "Boss Keys", Rando::StaticData::Options[RO_PLACEMENT_BOSS_KEYS].cvar, &dungeonItemPlacementOptions,
+        UIWidgets::ComboboxOptions().Tooltip(
+            "Where each dungeon's boss key may be placed.\n\n"
+            "Anywhere - Boss keys can be found anywhere in the world.\n\n"
+            "Own Dungeon - Each dungeon's boss key is only found within that dungeon.\n\n"
+            "Start With - You begin with every dungeon's boss key, and none are added to the item pool."));
+    UIWidgets::CVarCombobox(
+        "Stray Fairies", Rando::StaticData::Options[RO_PLACEMENT_STRAY_FAIRIES].cvar, &dungeonItemPlacementOptions,
+        UIWidgets::ComboboxOptions().Tooltip(
+            "Where each dungeon's Stray Fairies may be placed. The Clock Town Stray Fairy is unaffected.\n\n"
+            "Anywhere - Stray Fairies can be found anywhere in the world.\n\n"
+            "Own Dungeon - Each dungeon's Stray Fairies are only found within that dungeon.\n\n"
+            "Start With - You begin with every dungeon's Stray Fairies, and none are added to the item pool."));
+    if (CVarGetInteger(Rando::StaticData::Options[RO_PLACEMENT_STRAY_FAIRIES].cvar, RO_DUNGEON_ITEM_ANYWHERE) !=
+        RO_DUNGEON_ITEM_START_WITH) {
+        CVarSliderInt(
+            "Required Stray Fairies", Rando::StaticData::Options[RO_STRAY_FAIRIES_REQUIRED].cvar,
+            IntSliderOptions()
+                .Tooltip("Minimum Stray Fairies needed to obtain the corresponding Great Fairy check.\n"
+                         "Does not affect the Clock Town fairy.")
+                .LabelPosition(UIWidgets::LabelPosition::None)
+                .Min(1)
+                .Format("%d Fairies Required")
+                .Max(CVarGetInteger(Rando::StaticData::Options[RO_STRAY_FAIRIES_MAX].cvar, STRAY_FAIRY_SCATTERED_TOTAL))
+                .DefaultValue(STRAY_FAIRY_SCATTERED_TOTAL));
+        if (CVarSliderInt("Stray Fairies in Pool", Rando::StaticData::Options[RO_STRAY_FAIRIES_MAX].cvar,
+                          IntSliderOptions()
+                              .Tooltip("Maximum Stray Fairies that can appear in the item pool, per dungeon.")
+                              .LabelPosition(UIWidgets::LabelPosition::None)
+                              .Min(1)
+                              .Format("%d Fairies in Pool")
+                              .Max(STRAY_FAIRY_SCATTERED_TOTAL)
+                              .DefaultValue(STRAY_FAIRY_SCATTERED_TOTAL))) {
+            ClampRequiredToMax(RO_STRAY_FAIRIES_REQUIRED, RO_STRAY_FAIRIES_MAX, STRAY_FAIRY_SCATTERED_TOTAL);
+        }
     }
     UIWidgets::EndCard();
 
