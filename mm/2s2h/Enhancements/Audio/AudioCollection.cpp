@@ -341,7 +341,7 @@ void AudioCollection::AddToCollection(char* otrPath, uint16_t seqNum) {
                     typeString = typeString.substr(dashPos + 1);
                 }
                 ParseSequenceCategory(typeString, compositeCategory, seqIdReplacements);
-            } catch (std::invalid_argument e) { compositeCategory = SEQ_CAT_BGM; }
+            } catch (...) { compositeCategory = SEQ_CAT_BGM; }
             // If any fanfare categories are used, make this a fanfare sequence
             if (compositeCategory & SEQ_CAT_FAN) {
                 type = SEQ_BGM_CUSTOM_FANFARE;
@@ -490,10 +490,15 @@ uint16_t AudioCollection::GetMaxOriginalSeqId() const {
 }
 
 void AudioCollection::ParseSequenceCategory(std::string token, int& compositeCategory, std::vector<int>& seqIds) {
+    // Categories 10 -> 16 are written as decimal numbers. Everything else can be read as hexidecimal.
     int numCategory = std::stoi(token, 0, token.length() == 2 ? 10 : 16);
     // Quietly omits categories in the range [0x11, 0xff]
     if (numCategory >= SEQUENCE_ID_REPLACEMENT_OFFSET) {
-        seqIds.push_back(numCategory - SEQUENCE_ID_REPLACEMENT_OFFSET);
+        int seqId = numCategory - SEQUENCE_ID_REPLACEMENT_OFFSET;
+        // Sequences can't replace custom sequences
+        if (seqId <= GetMaxOriginalSeqId()) {
+            seqIds.push_back(seqId);
+        }
     } else if (numCategory <= 16) {
         compositeCategory |= 1 << numCategory;
     }
