@@ -13,7 +13,31 @@ extern "C" {
 #define DEFAULT_TIME_OFFSET -12345
 static s32 sStoredTimeOffset = DEFAULT_TIME_OFFSET;
 
-void RegisterTimeMovesWhenYouMove() {
+static void UpdateTimeSpeedOffset(PauseContext* pauseCtx) {
+    Player* player = GET_PLAYER(gPlayState);
+
+    // Time is considered to be moving when any of the following is true:
+    // - The player is moving (since that's the basis of this enhancement)
+    // - The player is playing the Ocarina (so that Inverted SoT still works properly)
+    // - The player is in a choice dialog (so that Owl Saving doesn't save the wrong time speed)
+    // - The pause menu save prompt is open (so that Pause Save doesn't either)
+    bool timeShouldMove = (player->stateFlags2 & PLAYER_STATE2_USING_OCARINA) || player->speedXZ != 0.0f ||
+                          Message_GetState(&gPlayState->msgCtx) == TEXT_STATE_CHOICE ||
+                          pauseCtx->state == PAUSE_STATE_SAVEPROMPT;
+
+    if (timeShouldMove && sStoredTimeOffset != DEFAULT_TIME_OFFSET) {
+        gSaveContext.save.timeSpeedOffset = sStoredTimeOffset;
+        sStoredTimeOffset = DEFAULT_TIME_OFFSET;
+
+        // This is for the section above, lets arrows continue flying after they were fired with time frozen
+        // player->unk_D57 = 4;
+    } else if (!timeShouldMove && sStoredTimeOffset == DEFAULT_TIME_OFFSET) {
+        sStoredTimeOffset = gSaveContext.save.timeSpeedOffset;
+        gSaveContext.save.timeSpeedOffset = -R_TIME_SPEED;
+    }
+}
+
+static void RegisterTimeMovesWhenYouMove() {
     if (!CVAR && sStoredTimeOffset != DEFAULT_TIME_OFFSET) {
         gSaveContext.save.timeSpeedOffset = sStoredTimeOffset;
         sStoredTimeOffset = DEFAULT_TIME_OFFSET;
@@ -60,21 +84,11 @@ void RegisterTimeMovesWhenYouMove() {
     //     }
     // });
 
-    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVAR, [](Actor* actor) {
-        Player* player = GET_PLAYER(gPlayState);
-        bool timeShouldMove = (player->stateFlags2 & PLAYER_STATE2_USING_OCARINA) || player->speedXZ != 0.0f;
+    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVAR, [](Actor* actor) { UpdateTimeSpeedOffset(&gPlayState->pauseCtx); });
 
-        if (timeShouldMove && sStoredTimeOffset != DEFAULT_TIME_OFFSET) {
-            gSaveContext.save.timeSpeedOffset = sStoredTimeOffset;
-            sStoredTimeOffset = DEFAULT_TIME_OFFSET;
+    COND_HOOK(OnKaleidoUpdate, CVAR, UpdateTimeSpeedOffset);
 
-            // This is for the section above, lets arrows continue flying after they were fired with time frozen
-            // player->unk_D57 = 4;
-        } else if (!timeShouldMove && sStoredTimeOffset == DEFAULT_TIME_OFFSET) {
-            sStoredTimeOffset = gSaveContext.save.timeSpeedOffset;
-            gSaveContext.save.timeSpeedOffset = -R_TIME_SPEED;
-        }
-    });
+    COND_HOOK(OnSaveLoad, CVAR, [](s16) { sStoredTimeOffset = DEFAULT_TIME_OFFSET; });
 }
 
 static RegisterShipInitFunc initFunc(RegisterTimeMovesWhenYouMove, { CVAR_NAME });
