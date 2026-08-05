@@ -19,11 +19,12 @@ static void UpdateTimeSpeedOffset(PauseContext* pauseCtx) {
     // Time is considered to be moving when any of the following is true:
     // - The player is moving (since that's the basis of this enhancement)
     // - The player is playing the Ocarina (so that Inverted SoT still works properly)
-    // - The player is in a choice dialog (so that Owl Saving doesn't save the wrong time speed)
+    // - The player is choosing whether to save at an Owl Statue (so that it doesn't save the wrong time speed)
     // - The pause menu save prompt is open (so that Pause Save doesn't either)
-    bool timeShouldMove = (player->stateFlags2 & PLAYER_STATE2_USING_OCARINA) || player->speedXZ != 0.0f ||
-                          Message_GetState(&gPlayState->msgCtx) == TEXT_STATE_CHOICE ||
-                          pauseCtx->state == PAUSE_STATE_SAVEPROMPT;
+    bool timeShouldMove =
+        (player->stateFlags2 & PLAYER_STATE2_USING_OCARINA) || player->speedXZ != 0.0f ||
+        (Message_GetState(&gPlayState->msgCtx) == TEXT_STATE_CHOICE && gPlayState->msgCtx.currentTextId == 0xC01) ||
+        pauseCtx->state == PAUSE_STATE_SAVEPROMPT;
 
     if (timeShouldMove && sStoredTimeOffset != DEFAULT_TIME_OFFSET) {
         gSaveContext.save.timeSpeedOffset = sStoredTimeOffset;
