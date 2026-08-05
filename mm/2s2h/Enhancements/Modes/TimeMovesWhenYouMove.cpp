@@ -88,7 +88,12 @@ static void RegisterTimeMovesWhenYouMove() {
 
     COND_HOOK(OnKaleidoUpdate, CVAR, UpdateTimeSpeedOffset);
 
-    COND_HOOK(OnSaveLoad, CVAR, [](s16) { sStoredTimeOffset = DEFAULT_TIME_OFFSET; });
+    COND_HOOK(OnSaveLoad, CVAR, [](s16) {
+        sStoredTimeOffset = DEFAULT_TIME_OFFSET;
+        if (gSaveContext.save.timeSpeedOffset == -R_TIME_SPEED) {
+            gSaveContext.save.timeSpeedOffset = 0;
+        }
+    });
 }
 
 static RegisterShipInitFunc initFunc(RegisterTimeMovesWhenYouMove, { CVAR_NAME });
