@@ -48,7 +48,7 @@ void HandleAutoSave() {
     }
 
     // Time must be moving for autosave to work. Fixes an issue with Time Moves When You Move.
-    if (gSaveContext.save.timeSpeedOffset == -R_TIME_SPEED) {
+    if (gSaveContext.save.timeSpeedOffset == -R_TIME_SPEED && R_TIME_SPEED != 0) {
         return;
     }
 
