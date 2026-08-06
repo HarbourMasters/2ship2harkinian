@@ -89,13 +89,16 @@ static void RegisterTimeMovesWhenYouMove() {
     COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVAR, [](Actor* actor) { UpdateTimeSpeedOffset(&gPlayState->pauseCtx); });
 
     COND_HOOK(OnKaleidoUpdate, CVAR, UpdateTimeSpeedOffset);
+}
 
-    COND_HOOK(OnSaveLoad, CVAR, [](s16) {
+static void RegisterTimeSpeedOffsetRepair() {
+    COND_HOOK(OnSaveLoad, true, [](s16) {
         sStoredTimeOffset = DEFAULT_TIME_OFFSET;
-        if (gSaveContext.save.timeSpeedOffset == -R_TIME_SPEED) {
+        if (gSaveContext.save.timeSpeedOffset < -2) {
             gSaveContext.save.timeSpeedOffset = 0;
         }
     });
 }
 
+static RegisterShipInitFunc initFunc_Repair(RegisterTimeSpeedOffsetRepair);
 static RegisterShipInitFunc initFunc(RegisterTimeMovesWhenYouMove, { CVAR_NAME });
