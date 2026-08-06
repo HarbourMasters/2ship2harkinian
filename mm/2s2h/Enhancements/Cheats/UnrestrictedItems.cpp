@@ -14,22 +14,22 @@ void RegisterUnrestrictedItems() {
     COND_VB_SHOULD(VB_ITEM_BE_RESTRICTED, CVAR, { *should = false; });
 
     // Prevent Deku Hookshot crash from float overflow/failed raycasts
-    COND_VB_SHOULD(VB_DEKU_COMMON_HEAD_OVERRIDE_HELD_ACTOR, CVAR || CONSOLE_CRASH_CVAR, {
+    COND_VB_SHOULD(VB_DEKU_COMMON_HEAD_OVERRIDE_HELD_ACTOR, true, {
         Actor* heldActor = va_arg(args, Actor*);
-        if (CVAR && heldActor != NULL && heldActor->id == ACTOR_ARMS_HOOK) {
+        if (heldActor != NULL && heldActor->id == ACTOR_ARMS_HOOK) {
             *should = false;
-            if (!CONSOLE_CRASH_CVAR) {
+            if (!CVAR && !CONSOLE_CRASH_CVAR) {
                 LUSLOG_WARN("Using Hookshot as Deku crashes on console");
                 Ship_HandleConsoleCrashAsReset();
             }
         }
     });
 
-    COND_VB_SHOULD(VB_DEKU_COMMON_UPPER_LIMB_OVERRIDE_HELD_ACTOR, CVAR || CONSOLE_CRASH_CVAR, {
+    COND_VB_SHOULD(VB_DEKU_COMMON_UPPER_LIMB_OVERRIDE_HELD_ACTOR, true, {
         Actor* heldActor = va_arg(args, Actor*);
-        if (CVAR && heldActor != NULL && heldActor->id == ACTOR_ARMS_HOOK) {
+        if (heldActor != NULL && heldActor->id == ACTOR_ARMS_HOOK) {
             *should = false;
-            if (!CONSOLE_CRASH_CVAR) {
+            if (!CVAR && !CONSOLE_CRASH_CVAR) {
                 LUSLOG_WARN("Using Hookshot as Deku crashes on console");
                 Ship_HandleConsoleCrashAsReset();
             }
