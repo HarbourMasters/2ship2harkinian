@@ -1237,6 +1237,22 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // bubble != NULL
+    // ```
+    // #### `args`
+    // - `*Player`
+    VB_DEKU_COMMON_HEAD_OVERRIDE_HELD_ACTOR,
+
+    // #### `result`
+    // ```c
+    // player->heldActor != NULL
+    // ```
+    // #### `args`
+    // - `*Actor` (player->heldActor)
+    VB_DEKU_COMMON_UPPER_LIMB_OVERRIDE_HELD_ACTOR,
+
+    // #### `result`
+    // ```c
     // true
     // ```
     // #### `args`
