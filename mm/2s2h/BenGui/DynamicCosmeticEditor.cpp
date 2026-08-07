@@ -27,6 +27,7 @@ static constexpr const char* RAINBOW_SYNC_CVAR = "gCosmetics.RainbowSync";
 
 struct CustomCosmeticBinding {
     std::string materialPath;
+    std::shared_ptr<Fast::DisplayList> material;
     size_t commandIndex = 0;
     bool isPrimColor = true;
     uint8_t defaultA = 255;
@@ -68,7 +69,6 @@ static bool customGoronCosmeticsAvailable = false;
 static bool customZoraCosmeticsAvailable = false;
 static bool customFierceDeityCosmeticsAvailable = false;
 static bool customKafeiCosmeticsAvailable = false;
-static std::string sLastDynamicCosmeticsStateSignature;
 
 enum class DynamicCosmeticForm {
     Human = 0,
@@ -235,22 +235,6 @@ static void ClearCustomCosmeticValueCvars(const char* valuesCvar) {
     CVarClear((std::string(valuesCvar) + ".Type").c_str());
 }
 
-static std::string BuildDynamicCosmeticsStateSignature() {
-    auto resourceManager = Ship::Context::GetRawInstance()->GetResourceManager();
-    auto archiveManager = resourceManager->GetArchiveManager();
-    std::string signature = std::to_string(CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0));
-
-    auto archives = archiveManager->GetArchives();
-    if (archives != nullptr) {
-        for (const auto& archive : *archives) {
-            signature += '|';
-            signature += archive != nullptr ? archive->GetPath() : "";
-        }
-    }
-
-    return signature;
-}
-
 static void RefreshBuiltInSuppressedCosmetics() {
     static constexpr const char* kPlayerColorCvars[] = {
         "gCosmetic.Player.HumanTunic.Color", "gCosmetic.Player.HumanHair.Color",  "gCosmetic.Player.DekuTunic.Color",
@@ -326,28 +310,19 @@ bool IsCustomKafeiModelActive() {
 }
 
 void ApplyDynamicCosmetics() {
-    auto resourceManager = Ship::Context::GetRawInstance()->GetResourceManager();
-    auto archiveManager = resourceManager->GetArchiveManager();
-
     for (const auto& entry : customCosmeticEntries) {
         Color_RGBA8 color = GetCustomCosmeticColor(entry);
 
         for (const auto& binding : entry.bindings) {
-            if (!IsCustomArchive(archiveManager->GetArchiveFromFile(binding.materialPath))) {
-                continue;
-            }
-
-            auto material =
-                std::dynamic_pointer_cast<Fast::DisplayList>(resourceManager->LoadResource(binding.materialPath));
-            if (material == nullptr || binding.commandIndex >= material->Instructions.size()) {
+            if (binding.material == nullptr || binding.commandIndex >= binding.material->Instructions.size()) {
                 continue;
             }
 
             if (binding.isPrimColor) {
-                material->Instructions[binding.commandIndex] =
+                binding.material->Instructions[binding.commandIndex] =
                     gsDPSetPrimColor(binding.primM, binding.primL, color.r, color.g, color.b, binding.defaultA);
             } else {
-                material->Instructions[binding.commandIndex] =
+                binding.material->Instructions[binding.commandIndex] =
                     gsDPSetEnvColor(color.r, color.g, color.b, binding.defaultA);
             }
         }
@@ -563,6 +538,9 @@ void ScanDynamicCosmetics() {
 
             CustomCosmeticBinding binding;
             binding.materialPath = materialPath;
+            if (IsCustomArchive(archiveManager->GetArchiveFromFile(materialPath))) {
+                binding.material = material;
+            }
             binding.commandIndex = commandIndex;
             binding.isPrimColor = isPrimColor;
             binding.defaultA = static_cast<uint8_t>(child->IntAttribute("A"));
@@ -661,16 +639,6 @@ bool HasCustomCosmetics() {
     return !customCosmeticEntries.empty();
 }
 
-bool HasCustomCosmeticsRainbowEnabled() {
-    for (const auto& entry : customCosmeticEntries) {
-        if (CVarGetInteger(entry.option.rainbowCvar, 0)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 void DrawDynamicCosmetics() {
     if (customCosmeticEntries.empty()) {
         return;
@@ -700,21 +668,27 @@ void DrawDynamicCosmetics() {
     flushCategory();
 }
 
-void UpdateCustomCosmeticsRainbow(int hue, float rainbowSpeed, int& index) {
+bool UpdateCustomCosmeticsRainbow(int hue, float rainbowSpeed, int& index) {
+    const bool syncRainbow = CVarGetInteger(RAINBOW_SYNC_CVAR, 0);
+    const double frequency = 2 * M_PI / (360 * rainbowSpeed);
+    bool updatedAny = false;
+
     for (const auto& entry : customCosmeticEntries) {
         if (CVarGetInteger(entry.option.rainbowCvar, 0)) {
-            double frequency = 2 * M_PI / (360 * rainbowSpeed);
             Color_RGBA8 newColor;
-            newColor.r = static_cast<uint8_t>(sin(frequency * (hue + index) + 0) * 127) + 128;
-            newColor.g = static_cast<uint8_t>(sin(frequency * (hue + index) + (2 * M_PI / 3)) * 127) + 128;
-            newColor.b = static_cast<uint8_t>(sin(frequency * (hue + index) + (4 * M_PI / 3)) * 127) + 128;
+            newColor.r = static_cast<uint8_t>(sin(frequency * (hue + index) + 0) * 127 + 128);
+            newColor.g = static_cast<uint8_t>(sin(frequency * (hue + index) + (2 * M_PI / 3)) * 127 + 128);
+            newColor.b = static_cast<uint8_t>(sin(frequency * (hue + index) + (4 * M_PI / 3)) * 127 + 128);
             newColor.a = 255;
             CVarSetColor(entry.option.valuesCvar, newColor);
+            updatedAny = true;
         }
-        if (!CVarGetInteger(RAINBOW_SYNC_CVAR, 0)) {
+        if (!syncRainbow) {
             index += static_cast<int>(60 * rainbowSpeed);
         }
     }
+
+    return updatedAny;
 }
 
 void RandomizeAllDynamicCosmetics() {
@@ -771,12 +745,14 @@ void SetAllDynamicCosmeticsRainbow(bool enabled) {
 }
 
 void RefreshDynamicCosmeticsStateIfNeeded() {
-    const std::string signature = BuildDynamicCosmeticsStateSignature();
-    if (signature == sLastDynamicCosmeticsStateSignature) {
+    static int sLastAltAssets = -1;
+
+    const int altAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
+    if (altAssets == sLastAltAssets) {
         return;
     }
 
-    sLastDynamicCosmeticsStateSignature = signature;
+    sLastAltAssets = altAssets;
     ScanDynamicCosmetics();
     RefreshBuiltInSuppressedCosmetics();
 }
