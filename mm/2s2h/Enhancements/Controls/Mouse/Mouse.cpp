@@ -6,8 +6,8 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
-static MouseCoords current;
-static MouseCaptureGameState gameState;
+static MouseCoords current = {};
+static MouseCaptureGameState gameState = {};
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,34 +38,43 @@ bool Mouse_IsCaptured() {
 
 bool InferCaptureFromState(MouseCaptureGameState state) {
     // TODO: forced on app start?
-    bool capture;
     bool inBenMenu = Ship::Context::GetRawInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible();
 
     if (state.isCaptureForced) {
-        capture = state.forcedCaptureState;
+        return state.forcedCaptureValue;
     } else if (inBenMenu || state.inKaleido) {
-        capture = false;
+        return false;
     } else if (!state.gameStarted) {
-        capture = false;
+        return false;
     } else {
-        capture = true;
+        return true;
     }
-    return capture;
+}
+
+void HandleForcing() {
+    if (
+        !gameState.isCaptureForced
+        || !Ship::Context::GetRawInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()
+    ) {
+        gameState.isCaptureForced = true;
+        gameState.forcedCaptureValue = !Ship::Context::GetRawInstance()->GetWindow()->IsMouseCaptured();
+        return;
+    }
+
+    // Detect if we are forcing the opposite of what the game state would normally dictate
+    MouseCaptureGameState unforcedState = gameState;
+    unforcedState.isCaptureForced = false;
+    bool isOppositeForced = (gameState.forcedCaptureValue == InferCaptureFromState(unforcedState));
+
+    if (isOppositeForced) {
+        gameState.forcedCaptureValue = !gameState.forcedCaptureValue;
+    } else {
+        gameState.isCaptureForced = false;
+    }
 }
 
 void Mouse_ForceToggleCapture() {
-    if (gameState.isCaptureForced) {
-        MouseCaptureGameState unforcedState = gameState;
-        unforcedState.isCaptureForced = false;
-        if (gameState.forcedCaptureState == InferCaptureFromState(unforcedState)) {
-            gameState.forcedCaptureState = !gameState.forcedCaptureState;
-        } else {
-            gameState.isCaptureForced = false;
-        }
-    } else {
-        gameState.isCaptureForced = true;
-        gameState.forcedCaptureState = !Ship::Context::GetRawInstance()->GetWindow()->IsMouseCaptured();
-    }
+    HandleForcing();
     Mouse_UpdateCaptureByState();
 }
 
@@ -74,8 +83,8 @@ void Mouse_UpdateCaptureByState() {
 
     if (
         gameState.isCaptureForced
-        || !capture
         || Ship::Context::GetRawInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()
+        || !capture
     ) {
         Ship::Context::GetRawInstance()->GetWindow()->SetMouseCapture(capture);
     }
