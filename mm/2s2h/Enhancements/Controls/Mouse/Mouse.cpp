@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 void Mouse_Update() {
-    Ship::Coords coords = Ship::Context::GetInstance()->GetWindow()->GetMouseDelta();
+    Ship::Coords coords = Ship::Context::GetRawInstance()->GetWindow()->GetMouseDelta();
     current.x = coords.x;
     current.y = coords.y;
 }
@@ -24,22 +24,22 @@ MouseCoords Mouse_GetDelta() {
 }
 
 MouseCoords Mouse_GetPos() {
-    Ship::Coords coords = Ship::Context::GetInstance()->GetWindow()->GetMousePos();
+    Ship::Coords coords = Ship::Context::GetRawInstance()->GetWindow()->GetMousePos();
     return { coords.x, coords.y };
 }
 
 void Mouse_SetCursorPos(s32 x, s32 y) {
-    Ship::Context::GetInstance()->GetWindow()->SetMousePos({ x, y });
+    Ship::Context::GetRawInstance()->GetWindow()->SetMousePos({ x, y });
 }
 
 bool Mouse_IsCaptured() {
-    return Ship::Context::GetInstance()->GetWindow()->IsMouseCaptured();
+    return Ship::Context::GetRawInstance()->GetWindow()->IsMouseCaptured();
 }
 
 bool InferCaptureFromState(MouseCaptureGameState state) {
     // TODO: forced on app start?
     bool capture;
-    bool inBenMenu = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible();
+    bool inBenMenu = Ship::Context::GetRawInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible();
 
     if (state.isCaptureForced) {
         capture = state.forcedCaptureState;
@@ -64,7 +64,7 @@ void Mouse_ForceToggleCapture() {
         }
     } else {
         gameState.isCaptureForced = true;
-        gameState.forcedCaptureState = !Ship::Context::GetInstance()->GetWindow()->IsMouseCaptured();
+        gameState.forcedCaptureState = !Ship::Context::GetRawInstance()->GetWindow()->IsMouseCaptured();
     }
     Mouse_UpdateCaptureByState();
 }
@@ -75,9 +75,9 @@ void Mouse_UpdateCaptureByState() {
     if (
         gameState.isCaptureForced
         || !capture
-        || Ship::Context::GetInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()
+        || Ship::Context::GetRawInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()
     ) {
-        Ship::Context::GetInstance()->GetWindow()->SetMouseCapture(capture);
+        Ship::Context::GetRawInstance()->GetWindow()->SetMouseCapture(capture);
     }
 }
 
