@@ -8550,7 +8550,7 @@ s32 Player_ActionHandler_11(Player* this, PlayState* play) {
                         anim = D_8085BE84[PLAYER_ANIMGROUP_defense][this->modelAnimType];
 
                         // FIXME: cursor reset on shield pull
-                        if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+                        if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
                             u32 width = OTRGetCurrentWidth();
                             u32 height = OTRGetCurrentHeight();
                             Mouse_SetCursorPos(width / 2, height / 2);
@@ -8739,7 +8739,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
 
             s16 mouseX = 0;
             s16 mouseY = 0;
-            if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+            if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
                 MouseCoords mouseDelta = Mouse_GetDelta();
                 mouseX = mouseDelta.x * 12.0f *
                          CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f) *
@@ -10083,7 +10083,7 @@ s32 func_8083E514(Player* this, f32* arg2, s16* arg3, PlayState* play) {
             func_8083C62C(this, true);
         } else {
             // FIXME: additional cvar check for settings
-            if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+            if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
                 MouseCoords mouseDelta = Mouse_GetDelta();
 
                 if (mouseDelta.y != 0) {
@@ -13577,7 +13577,7 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
         stickY += leftStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityY", 1.0f);
     }
 
-    if (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0)) {
+    if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
         MouseCoords mouseDelta = Mouse_GetDelta();
 
         // TODO: gyro?
@@ -15376,7 +15376,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         static bool lastInputIsMouse = false;
         f32 xInput = 0, yInput = 0;
 
-        bool mouseControl = (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) &&
+        bool mouseControl = (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0) &&
                              CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0));
         if (mouseControl) {
             MouseCoords mouseDelta = Mouse_GetDelta();
