@@ -10083,6 +10083,7 @@ s32 func_8083E514(Player* this, f32* arg2, s16* arg3, PlayState* play) {
         if (this->focusActor != NULL) {
             func_8083C62C(this, true);
         } else {
+            // overshoulder aim
             // FIXME: additional cvar check for settings
             if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
                 MouseCoords mouseDelta = Mouse_GetDelta();
