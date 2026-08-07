@@ -16,7 +16,7 @@ typedef struct MouseCaptureGameState {
     bool inKaleido;
     bool gameStarted;
     bool isCaptureForced;
-    bool forcedCaptureState;
+    bool forcedCaptureValue;
 } MouseCaptureGameState;
 
 void Mouse_Update();
