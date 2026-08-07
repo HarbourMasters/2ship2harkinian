@@ -151,7 +151,9 @@ void AudioThread_ProcessGlobalCmd(AudioCmd* cmd) {
             break;
 
         case AUDIOCMD_OP_GLOBAL_SYNC_LOAD_INSTRUMENT:
-            AudioLoad_SyncLoadInstrument(cmd->arg0, cmd->arg1, cmd->arg2);
+            // 2S2H [Custom Audio] the first argument (fontId) was `cmd->arg0` changed to use the ``cmd->asUShort` so it
+            // can be 16 bit.
+            AudioLoad_SyncLoadInstrument(cmd->asUShort, cmd->arg1, cmd->arg2);
             break;
 
         case AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_SAMPLE_BANK:
@@ -159,7 +161,9 @@ void AudioThread_ProcessGlobalCmd(AudioCmd* cmd) {
             break;
 
         case AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_FONT:
-            AudioLoad_AsyncLoadFont(cmd->arg0, cmd->arg1, cmd->arg2, &gAudioCtx.externalLoadQueue);
+            // 2S2H [Custom Audio] the first argument (fontId) was `cmd->arg0` changed to use the ``cmd->asUShort` so it
+            // can be 16 bit.
+            AudioLoad_AsyncLoadFont(cmd->asUShort, cmd->arg1, cmd->arg2, &gAudioCtx.externalLoadQueue);
             break;
 
         case AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_SEQ:
@@ -198,8 +202,10 @@ void AudioThread_ProcessGlobalCmd(AudioCmd* cmd) {
         case AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT:
         case AUDIOCMD_OP_GLOBAL_SET_SFX_FONT:
         case AUDIOCMD_OP_GLOBAL_SET_INSTRUMENT_FONT:
-            if (AudioPlayback_SetFontInstrument(cmd->op - AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT, cmd->arg1, cmd->arg2,
-                                                cmd->asPtr)) {}
+            // 2S2H [Custom Audio] the second argument (fontId) was `cmd->arg1` changed to use both `cmd->arg0` and
+            // `cmd->arg1` so it can be 16 bit.
+            if (AudioPlayback_SetFontInstrument(cmd->op - AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT, ((uint16_t)cmd->arg0 
+                                                | (uint16_t)cmd->arg1 << 8), cmd->arg2, cmd->asPtr)) {}
             break;
 
         case AUDIOCMD_OP_GLOBAL_DISABLE_ALL_SEQPLAYERS: {
