@@ -8742,10 +8742,11 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
                 MouseCoords mouseDelta = Mouse_GetDelta();
                 mouseX = mouseDelta.x * 12.0f *
-                         CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f) *
-                         GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_X);
+                         CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f) *
+                         GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X);
                 mouseY = mouseDelta.y * 12.0f *
-                         CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+                         CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f) *
+                         GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y);
             }
 
             // Pitch:
@@ -10091,8 +10092,8 @@ s32 func_8083E514(Player* this, f32* arg2, s16* arg3, PlayState* play) {
                     this->actor.focus.rot.x = CLAMP(
                         this->actor.focus.rot.x - (
                             mouseDelta.y * 12.0f
-                            * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f)
-                            * -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y)
+                            * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f)
+                            * -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y)
                         ),
                         -60 * 240,
                         60 * 240
@@ -13580,16 +13581,15 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
     if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
         MouseCoords mouseDelta = Mouse_GetDelta();
 
-        // TODO: gyro?
         if (mouseDelta.x != 0) {
             this->actor.focus.rot.y += mouseDelta.x * 12.0f *
-                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f) *
-                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_X);
+                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f) *
+                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X);
         }
         if (mouseDelta.y != 0) {
             this->actor.focus.rot.x -= mouseDelta.y * 12.0f *
-                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f) *
-                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y);
+                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f) *
+                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y);
         }
     }
 
@@ -15383,9 +15383,9 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
             if (mouseDelta.x != 0 || mouseDelta.y != 0) {
                 lastInputIsMouse = true;
                 xInput += ((f32)mouseDelta.x) * 60 *
-                          CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
+                          CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f);
                 yInput -= ((f32)mouseDelta.y) * 60 *
-                          CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+                          CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f);
             }
         }
 
