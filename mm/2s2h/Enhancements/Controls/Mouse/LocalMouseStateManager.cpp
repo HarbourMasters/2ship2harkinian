@@ -10,7 +10,7 @@ void LocalMouseStateManager::ToggleMouseCaptureOverride() {
 
 void LocalMouseStateManager::UpdateMouseCapture() {
     Mouse_UpdateCaptureByState();
-    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetRawInstance()->GetWindow());
     if (wnd->IsMouseCaptured()) {
         ResetCursorVisibilityTimer();
     }

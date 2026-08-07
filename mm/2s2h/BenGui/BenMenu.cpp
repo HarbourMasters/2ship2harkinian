@@ -992,7 +992,7 @@ void BenMenu::AddEnhancements() {
         .Callback(
             [](WidgetInfo& info) {
                 bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
-                Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
+                Ship::Context::GetRawInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
             }
         );
     AddWidget(path, "Auto Capture Mouse Input", WIDGET_CVAR_CHECKBOX)
@@ -1000,7 +1000,7 @@ void BenMenu::AddEnhancements() {
         .Callback(
             [](WidgetInfo& info) {
                 bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
-                Ship::Context::GetInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
+                Ship::Context::GetRawInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
             }
         ).Options(
             CheckboxOptions().Tooltip(
@@ -2449,7 +2449,7 @@ void BenMenu::SetVisibility(bool visible) {
     if (wasVisible == visible) {
         return;
     }
-    std::shared_ptr<Ship::Window> window = Ship::Context::GetInstance()->GetWindow();
+    std::shared_ptr<Ship::Window> window = Ship::Context::GetRawInstance()->GetWindow();
     if (visible) {
         captureBuffer = window->IsMouseCaptured();
         window->SetMouseCapture(false);
