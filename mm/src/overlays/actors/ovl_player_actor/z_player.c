@@ -13578,24 +13578,15 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
         stickY += leftStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityY", 1.0f);
     }
 
-    if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
-        MouseCoords mouseDelta = Mouse_GetDelta();
-
-        if (mouseDelta.x != 0) {
-            this->actor.focus.rot.y += mouseDelta.x * 12.0f *
-                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f) *
-                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X);
-        }
-        if (mouseDelta.y != 0) {
-            this->actor.focus.rot.x -= mouseDelta.y * 12.0f *
-                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f) *
-                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y);
-        }
-    }
-
     if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
         gyroX = sPlayerControlInput->cur.gyro_y * 720; // -40 to 40, avg -4 to 4
         gyroY = sPlayerControlInput->cur.gyro_x * 720; // -20 to 20, avg -2 to 2
+
+        if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
+            MouseCoords mouseDelta = Mouse_GetDelta();
+            gyroX -= mouseDelta.x * 12.0f;
+            gyroY += mouseDelta.y * 12.0f;
+        }
 
         gyroX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X);
         gyroY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y);

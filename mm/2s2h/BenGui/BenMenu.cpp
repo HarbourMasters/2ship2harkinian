@@ -807,7 +807,7 @@ void BenMenu::AddEnhancements() {
                      .IsPercentage()
                      .Min(0.01f)
                      .Max(2.0f));
-    AddWidget(path, "Gyro Aiming", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Gyro/Mouse Aiming", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.FirstPerson.GyroEnabled")
         .Options(CheckboxOptions().Tooltip("Enables Gyro Aiming in First Person Mode."));
     AddWidget(path, "Invert Gyro X Axis", WIDGET_CVAR_CHECKBOX)
