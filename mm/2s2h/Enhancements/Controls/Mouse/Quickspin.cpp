@@ -3,7 +3,7 @@
 #include "ShipInit.hpp"
 #include "Mouse.h"
 
-#define MOUSE_ENABLED (Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0))
+#define MOUSE_ENABLED (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0))
 
 #ifdef __cplusplus
 extern "C" {

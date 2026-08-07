@@ -987,19 +987,19 @@ void BenMenu::AddEnhancements() {
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Mouse", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.Mouse.Enabled")
+        .CVar("gSettings.EnableMouse")
         .Options(CheckboxOptions().DefaultValue(false))
         .Callback(
             [](WidgetInfo& info) {
-                bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
+                bool enabled = CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gSettings.AutoCaptureMouse", 1);
                 Ship::Context::GetRawInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
             }
         );
     AddWidget(path, "Auto Capture Mouse Input", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.Mouse.AutoCapture")
+        .CVar("gSettings.AutoCaptureMouse")
         .Callback(
             [](WidgetInfo& info) {
-                bool enabled = CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && CVarGetInteger("gEnhancements.Camera.Mouse.AutoCapture", 1);
+                bool enabled = CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gSettings.AutoCaptureMouse", 1);
                 Ship::Context::GetRawInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
             }
         ).Options(
@@ -2326,10 +2326,10 @@ void BenMenu::InitElement() {
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
             "Free Look is Disabled" } },
         { DISABLE_FOR_MOUSE_ON,
-          { [](disabledInfo& info) -> bool { return CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0); },
+          { [](disabledInfo& info) -> bool { return CVarGetInteger("gSettings.EnableMouse", 0); },
             "Mouse is Enabled" } },
         { DISABLE_FOR_MOUSE_OFF,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0); },
+          { [](disabledInfo& info) -> bool { return !CVarGetInteger("gSettings.EnableMouse", 0); },
             "Mouse is Disabled" } },
         { DISABLE_FOR_GYRO_OFF,
           { [](disabledInfo& info) -> bool {
