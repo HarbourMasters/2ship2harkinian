@@ -378,7 +378,7 @@ void RegisterModMenuWidgets() {
         .Options(UIWidgets::CheckboxOptions({ { .disabledTooltip = "Temporarily disabled while editing mods list." } })
                      .Color(THEME_COLOR)
                      .Tooltip("Toggle mods. For graphics mods, this means toggling between default and mod graphics.")
-                     .DefaultValue(true))
+                     .DefaultValue(false))
         .PreFunc([](WidgetInfo& info) {
             auto options = std::static_pointer_cast<UIWidgets::CheckboxOptions>(info.options);
             options->disabled = editing;

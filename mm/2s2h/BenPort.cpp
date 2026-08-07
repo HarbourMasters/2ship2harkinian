@@ -620,7 +620,7 @@ void OTRGlobals::Initialize() {
     context->InitFileDropMgr();
 
     // tell LUS to reserve 3 2S2H specific threads (Game, Audio, Save)
-    prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 1);
+    prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
     context->InitCrashHandler();
