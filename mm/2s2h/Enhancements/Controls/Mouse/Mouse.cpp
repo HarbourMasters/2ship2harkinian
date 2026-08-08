@@ -43,7 +43,6 @@ void Mouse_SetForceCapture(bool isEnabled, bool value) {
 }
 
 bool InferCaptureFromState(MouseCaptureGameState state) {
-    // TODO: forced on app start?
     bool inBenMenu = Ship::Context::GetRawInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible();
 
     if (state.isCaptureForced) {
