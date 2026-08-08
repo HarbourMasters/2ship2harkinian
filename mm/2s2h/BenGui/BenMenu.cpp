@@ -1029,8 +1029,8 @@ void BenMenu::AddEnhancements() {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
     AddWidget(path, "Mouse Shielding Rotates Camera", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Mouse.Shielding.CameraRotate")
-        .Options(CheckboxOptions().DefaultValue(false))
+        .CVar("gEnhancements.Mouse.Shielding.CameraControl")
+        .Options(CheckboxOptions().DefaultValue(true))
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active ||
                             !CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0);
