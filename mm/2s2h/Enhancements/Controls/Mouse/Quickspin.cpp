@@ -70,9 +70,8 @@ void CollectMouseVelocity(Input* input) {
     if (sampleCount < QS_WINDOW_SIZE) { sampleCount++; }
 }
 
-bool DetectQuickspin(bool* should, s8* iter2, s8* sp3C) {
-    (void)iter2;
-    (void)sp3C;
+bool DetectQuickspin(bool* should, s8* controlAngles) {
+    (void)controlAngles;
 
     if (!MOUSE_ENABLED || sampleCount < QS_WINDOW_SIZE) {
         return *should = false;
@@ -158,7 +157,7 @@ void RegisterQuickspinFunc() {
     COND_VB_SHOULD(
         VB_SHOULD_QUICKSPIN,
         CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
-        { DetectQuickspin(should, va_arg(args, s8*), va_arg(args, s8*)); }
+        { DetectQuickspin(should, va_arg(args, s8*)); }
     );
     COND_HOOK(
         OnPassPlayerInputs,

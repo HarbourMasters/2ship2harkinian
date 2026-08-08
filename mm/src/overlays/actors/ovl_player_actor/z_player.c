@@ -5631,12 +5631,12 @@ s32 Player_CanSpinAttack(Player* this) {
         return false;
     }
 
-    iter = &this->controlStickSpinAngles[0];
-    iter2 = &sp3C[0];
-
-    if (GameInteractor_Should(VB_SHOULD_QUICKSPIN, false, iter2, sp3C)) {
+    if (GameInteractor_Should(VB_SHOULD_QUICKSPIN, false, sp3C)) {
         return true;
     }
+
+    iter = &this->controlStickSpinAngles[0];
+    iter2 = &sp3C[0];
 
     for (i = 0; i < ARRAY_COUNT(this->controlStickSpinAngles); i++, iter++, iter2++) {
         if ((*iter2 = *iter) < 0) {
@@ -8728,7 +8728,6 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             Message_StartTextbox(play, (play->sceneId == SCENE_AYASHIISHOP) ? 0x2A00 : 0x5E6, NULL);
         }
     } else {
-        // TODO: add mouse
         sPlayerControlInput = play->state.input;
         if (play->view.fovy >= 25.0f) {
             s16 prevFocusX = thisx->focus.rot.x;
@@ -10084,8 +10083,11 @@ s32 func_8083E514(Player* this, f32* arg2, s16* arg3, PlayState* play) {
             func_8083C62C(this, true);
         } else {
             // overshoulder aim
-            // FIXME: additional cvar check for settings
-            if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
+            if (
+                Mouse_IsCaptured()
+                && CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)
+                && CVarGetInteger("gSettings.EnableMouse", 0)
+            ) {
                 MouseCoords mouseDelta = Mouse_GetDelta();
 
                 if (mouseDelta.y != 0) {
@@ -15395,7 +15397,6 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         s16 rotYTarget, rotXTarget;
         if (lastInputIsMouse) {
             // Plain shield movement instead of camera-relative one
-            // TODO: control via cvar?
             rotYTarget = this->upperLimbRot.y + xInput;
             rotXTarget = this->actor.focus.rot.x + yInput;
         } else {
