@@ -38,12 +38,17 @@ void UpdateFreeLookState(Camera* camera) {
         case CAM_MODE_DEKUHIDE:
         case CAM_MODE_CLIMBZ:
         case CAM_MODE_HOOKSHOT:
-        case CAM_MODE_HANGZ:
         case CAM_MODE_DEKUFLYZ:
         case CAM_MODE_BOOMERANG:
         case CAM_MODE_CHARGEZ:
         case CAM_MODE_ZORAFINZ:
             sCanFreeLook = false;
+            break;
+        case CAM_MODE_HANGZ:
+            if (!CVarGetInteger("gEnhancements.Camera.FreeLook.AllowClimb", 0)) {
+                sCanFreeLook = false;
+            }
+            break;
     }
 }
 
@@ -188,6 +193,15 @@ void RegisterCameraFreeLook() {
                 if (Camera_CanFreeLook(camera)) {
                     Camera_FreeLook(camera);
                     *should = false;
+                }
+                break;
+            case CAM_FUNC_PARALLEL1:
+                if (CVarGetInteger("gEnhancements.Camera.FreeLook.AllowClimb", 0) &&
+                    (camera->mode == CAM_MODE_HANG || camera->mode == CAM_MODE_HANGZ)) {
+                    if (Camera_CanFreeLook(camera)) {
+                        Camera_FreeLook(camera);
+                        *should = false;
+                    }
                 }
                 break;
             default:
