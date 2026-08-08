@@ -2,6 +2,7 @@
 #pragma once
 
 #include "ultratypes.h"
+#include "z64camera.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,6 +28,7 @@ bool Mouse_IsCaptured();
 void Mouse_SetForceCapture(bool isEnabled, bool value);
 void Mouse_ForceToggleCapture();
 void Mouse_UpdateCaptureByState();
+void HandleShieldCameraControl(Camera* camera, s16 viewYaw);
 
 #ifdef __cplusplus
 } // extern "C"

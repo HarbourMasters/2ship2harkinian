@@ -12,6 +12,7 @@
 
 static MouseCoords current = {};
 static MouseCaptureGameState gameState = {};
+static bool mPrevShieldHandled = false;
 
 #ifdef __cplusplus
 extern "C" {
@@ -117,11 +118,9 @@ void HandleKaleidoCapture(PauseContext* pauseCtx) {
 }
 
 static void HandleShieldAim(Player* player, PlayState* play, f32* xStick, f32* yStick, bool* handled) {
-    static bool prevHandled = false;
-
     if (!Mouse_IsCaptured() || !CVarGetInteger("gSettings.EnableMouse", 0) ||
         !CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0)) {
-        *handled = prevHandled = false;
+        *handled = mPrevShieldHandled = false;
         return;
     }
 
@@ -129,7 +128,7 @@ static void HandleShieldAim(Player* player, PlayState* play, f32* xStick, f32* y
     bool hasDelta = (mouseDelta.x != 0 || mouseDelta.y != 0);
 
     if (!hasDelta) {
-        *handled = prevHandled = (prevHandled && *xStick == 0 && *yStick == 0);
+        *handled = mPrevShieldHandled = (mPrevShieldHandled && *xStick == 0 && *yStick == 0);
         return;
     }
 
@@ -163,7 +162,20 @@ static void HandleShieldAim(Player* player, PlayState* play, f32* xStick, f32* y
         player->upperLimbRot.y = rotYTarget;
         player->upperLimbRot.x = rotXTarget;
     }
-    *handled = prevHandled = true;
+    *handled = mPrevShieldHandled = true;
+}
+
+void HandleShieldCameraControl(Camera* camera, s16 viewYaw) {
+    if (!mPrevShieldHandled || !CVarGetInteger("gEnhancements.Mouse.Shielding.CameraRotate", 0)) {
+        return;
+    }
+
+    f32 shoulderOffset = CVarGetFloat("gEnhancements.Mouse.Shielding.ShoulderOffset", -12.0f);
+    VecGeo lateral = { .r = shoulderOffset, .pitch = 0, .yaw = viewYaw + 0x4000 };
+    Vec3f offset = OLib_VecGeoToVec3f(&lateral);
+
+    camera->at.x += offset.x;
+    camera->at.z += offset.z;
 }
 
 void RegisterMouseRelatedHooks() {

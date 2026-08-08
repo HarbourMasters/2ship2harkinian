@@ -100,12 +100,15 @@ bool Camera_FreeLook(Camera* camera) {
     f32 yawDiff = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
     f32 pitchDiff = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
 
-    if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)
-        // Disable mouse camera control when holding up a shield
-        && !(
-            CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0)
-            && !CVarGetInteger("gEnhancements.Mouse.Shielding.CameraRotate", 0)
-            && player->stateFlags1 & PLAYER_STATE1_400000
+    // Disable mouse camera control when holding up a shield
+    bool mouseEnabled = Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0);
+    bool inShieldingState = player->stateFlags1 & PLAYER_STATE1_400000;
+    bool mouseShieldingEnabled = CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0);
+    bool mouseShieldingCameraControl = CVarGetInteger("gEnhancements.Mouse.Shielding.CameraRotate", 0);
+    if (
+        mouseEnabled && !(
+            mouseShieldingEnabled && !mouseShieldingCameraControl
+            && inShieldingState && player->focusActor == NULL
         ) && !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0)
     ) {
         MouseCoords mouseDelta = Mouse_GetDelta();
@@ -118,6 +121,15 @@ bool Camera_FreeLook(Camera* camera) {
 
     yaw += yawDiff;
     pitch += pitchDiff;
+
+    if (
+        mouseEnabled
+        && mouseShieldingEnabled
+        && mouseShieldingCameraControl
+        && inShieldingState && player->focusActor == NULL
+    ) {
+        HandleShieldCameraControl(camera, (s16)yaw);
+    }
 
     s16 maxPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f));
     s16 minPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f));
