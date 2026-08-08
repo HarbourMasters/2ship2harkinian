@@ -24,6 +24,7 @@ MouseCoords Mouse_GetDelta();
 MouseCoords Mouse_GetPos();
 void Mouse_SetCursorPos(s32 x, s32 y);
 bool Mouse_IsCaptured();
+void Mouse_SetForceCapture(bool isEnabled, bool value);
 void Mouse_ForceToggleCapture();
 void Mouse_UpdateCaptureByState();
 
