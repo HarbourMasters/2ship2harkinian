@@ -1028,6 +1028,13 @@ void BenMenu::AddEnhancements() {
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
+    AddWidget(path, "Mouse Shielding Rotates Camera", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Mouse.Shielding.CameraRotate")
+        .Options(CheckboxOptions().DefaultValue(false))
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active ||
+                            !CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0);
+        });
     AddWidget(path, "Mouse Quickspin", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Mouse.Quickspin.Enable")
         .Options(CheckboxOptions().DefaultValue(false))
