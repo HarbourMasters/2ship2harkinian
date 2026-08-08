@@ -112,8 +112,8 @@ bool Camera_FreeLook(Camera* camera) {
         ) && !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0)
     ) {
         MouseCoords mouseDelta = Mouse_GetDelta();
-        yawDiff -= mouseDelta.x * 40.0f;
-        pitchDiff -= mouseDelta.y * 40.0f;
+        yawDiff += mouseDelta.x * 40.0f;
+        pitchDiff += mouseDelta.y * 40.0f;
     }
 
     yawDiff *= CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
