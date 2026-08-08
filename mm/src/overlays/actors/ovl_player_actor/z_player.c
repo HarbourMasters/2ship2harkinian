@@ -19521,6 +19521,23 @@ void func_80855F9C(PlayState* play, Player* this) {
     s16 yawTarget;
 
     this->stateFlags2 |= PLAYER_STATE2_20;
+
+    // 2S2H [Enhancement] Mouse aim while charging in the flower
+    if (
+        Mouse_IsCaptured()
+        && CVarGetInteger("gSettings.EnableMouse", 0)
+        && !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0)
+    ) {
+        MouseCoords mouseDelta = Mouse_GetDelta();
+        if (mouseDelta.x != 0) {
+            this->yaw -= (s16)(
+                mouseDelta.x * 40
+                * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f)
+                * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X)
+            );
+        }
+    }
+
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
     Math_ScaledStepToS(&this->yaw, yawTarget, 0x258);
 }
