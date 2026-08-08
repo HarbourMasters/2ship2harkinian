@@ -1008,6 +1008,12 @@ void BenMenu::AddEnhancements() {
                 "hide the cursor and capture mouse input when closing the menu."
             )
         );
+    AddWidget(path, "Force Mouse Capture on Startup", WIDGET_CVAR_CHECKBOX)
+        .CVar("gSettings.ForceMouseCaptureOnStartup")
+        .Options(CheckboxOptions().DefaultValue(false).Tooltip(
+            "This toggles whether the program will automatically "
+            "hide the cursor and force capture mouse input when starting the game.")
+        );
     AddWidget(path, "Disable Third Person Mouse Camera", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.DisableThirdPerson")
         .Options(CheckboxOptions().DefaultValue(false).Tooltip(
