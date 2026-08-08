@@ -2977,11 +2977,10 @@ s32 Camera_Parallel1(Camera* camera) {
         sp72 = true;
     }
 
-    bool isHanging = ((Player*)camera->focalActor)->stateFlags1 & PLAYER_STATE1_4000;
-    bool isLedgeClimbing = ((Player*)camera->focalActor)->stateFlags1 & PLAYER_STATE1_4;
-    bool isInterfaceFlagCond = (roData->interfaceFlags & (PARALLEL1_FLAG_3 | PARALLEL1_FLAG_2 | PARALLEL1_FLAG_1)) ==
-                               (PARALLEL1_FLAG_2 | PARALLEL1_FLAG_1);
-    if (isHanging || isLedgeClimbing || isInterfaceFlagCond) {
+    if ((((Player*)camera->focalActor)->stateFlags1 & PLAYER_STATE1_4000) ||
+        (((Player*)camera->focalActor)->stateFlags1 & PLAYER_STATE1_4) ||
+        ((roData->interfaceFlags & (PARALLEL1_FLAG_3 | PARALLEL1_FLAG_2 | PARALLEL1_FLAG_1)) ==
+         (PARALLEL1_FLAG_2 | PARALLEL1_FLAG_1))) {
         spB0 = spA4;
         spB0.y += ((focalActorHeight * 0.6f) + roData->unk_00);
         Camera_ScaledStepToCeilVec3f(&spB0, at, camera->xzOffsetUpdateRate, camera->yOffsetUpdateRate, 0.0001f);
