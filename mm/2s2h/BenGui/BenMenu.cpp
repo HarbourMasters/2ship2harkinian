@@ -888,11 +888,6 @@ void BenMenu::AddEnhancements() {
                      .Min(-89.0f)
                      .Max(89.0f)
                      .DefaultValue(-49.0f));
-    AddWidget(path, "Allow Camera Control During Climb", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Camera.FreeLook.AllowClimb")
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; })
-        .Options(CheckboxOptions().Tooltip(
-            "Allows free look camera control while climbing onto objects and disables the automatic camera raise."));
     AddWidget(path, "Debug Camera", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.DebugCam.Enable")
         .PreFunc([](WidgetInfo& info) {

@@ -44,11 +44,6 @@ void UpdateFreeLookState(Camera* camera) {
         case CAM_MODE_ZORAFINZ:
             sCanFreeLook = false;
             break;
-        case CAM_MODE_HANGZ:
-            if (!CVarGetInteger("gEnhancements.Camera.FreeLook.AllowClimb", 0)) {
-                sCanFreeLook = false;
-            }
-            break;
     }
 }
 
