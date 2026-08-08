@@ -134,7 +134,7 @@ static void HandleShieldAim(Player* player, PlayState* play, f32* xStick, f32* y
 
     bool hasFocusActor = (player->focusActor != NULL);
     bool camRotate =
-        CVarGetInteger("gEnhancements.Mouse.Shielding.CameraRotate", 0) && !hasFocusActor;
+        CVarGetInteger("gEnhancements.Mouse.Shielding.CameraControl", 1) && !hasFocusActor;
 
     if (camRotate) {
         // Hook shield to camera view
@@ -166,7 +166,7 @@ static void HandleShieldAim(Player* player, PlayState* play, f32* xStick, f32* y
 }
 
 void HandleShieldCameraControl(Camera* camera, s16 viewYaw) {
-    if (!mPrevShieldHandled || !CVarGetInteger("gEnhancements.Mouse.Shielding.CameraRotate", 0)) {
+    if (!mPrevShieldHandled || !CVarGetInteger("gEnhancements.Mouse.Shielding.CameraControl", 1)) {
         return;
     }
 
