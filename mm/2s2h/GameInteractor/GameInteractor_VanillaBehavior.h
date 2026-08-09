@@ -2458,6 +2458,15 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // btn <= EQUIP_SLOT_NONE
+    // ```
+    // #### `args`
+    // - `*Player`
+    // - `*s32` (button)
+    VB_UNEQUIP_MASK_NOT_ON_BUTTON,
+
+    // #### `result`
+    // ```c
     // true
     // ```
     // #### `args`
