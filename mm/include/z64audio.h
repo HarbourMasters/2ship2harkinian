@@ -154,37 +154,38 @@ typedef struct SequencePlayer {
     /* 0x003 */ u8 muteFlags;
     // 2S2H [Custom Audio]. Was originally u8 seqId. Made 16 bit to allow for more than 255 sequences.
     /* 0x004 */ u16 seqId;
-    /* 0x005 */ u8 defaultFont;
-    /* 0x006 */ u8 unk_06[1];
-    /* 0x007 */ s8 playerIndex;
-    /* 0x008 */ u16 tempo; // tatums per minute
-    /* 0x00A */ u16 tempoAcc;
-    /* 0x00C */ s16 tempoChange;
-    /* 0x00E */ s16 transposition;
-    /* 0x010 */ u16 delay;
-    /* 0x012 */ u16 fadeTimer;
-    /* 0x014 */ u16 storedFadeTimer;
-    /* 0x016 */ u16 unk_16;
-    /* 0x018 */ u8* seqData;
-    /* 0x01C */ f32 fadeVolume;
-    /* 0x020 */ f32 fadeVelocity;
-    /* 0x024 */ f32 volume;
-    /* 0x028 */ f32 muteVolumeScale;
-    /* 0x02C */ f32 fadeVolumeScale;
-    /* 0x030 */ f32 appliedFadeVolume;
-    /* 0x034 */ f32 bend;
-    /* 0x038 */ struct SequenceChannel* channels[16];
-    /* 0x078 */ SeqScriptState scriptState;
-    /* 0x094 */ u8* shortNoteVelocityTable;
-    /* 0x098 */ u8* shortNoteGateTimeTable;
-    /* 0x09C */ NotePool notePool;
-    /* 0x0DC */ s32 skipTicks;
-    /* 0x0E0 */ u32 scriptCounter;
-    /* 0x0E4 */ UNK_TYPE1 unk_E4[0x74]; // unused struct members for sequence/sound font dma management, according to sm64 decomp
-    /* 0x158 */ s8 seqScriptIO[8];
+    // 2S2H [Custom Audio]. Was originally u8 defaultFont. Made 16 bit to allow for more than 255 sound fonts.
+    /* 0x005 */ u16 defaultFont;
+    /* 0x007 */ u8 unk_06[1];
+    /* 0x008 */ s8 playerIndex;
+    /* 0x009 */ u16 tempo; // tatums per minute
+    /* 0x00B */ u16 tempoAcc;
+    /* 0x00D */ s16 tempoChange;
+    /* 0x00F */ s16 transposition;
+    /* 0x011 */ u16 delay;
+    /* 0x013 */ u16 fadeTimer;
+    /* 0x015 */ u16 storedFadeTimer;
+    /* 0x017 */ u16 unk_16;
+    /* 0x019 */ u8* seqData;
+    /* 0x01D */ f32 fadeVolume;
+    /* 0x021 */ f32 fadeVelocity;
+    /* 0x025 */ f32 volume;
+    /* 0x029 */ f32 muteVolumeScale;
+    /* 0x02D */ f32 fadeVolumeScale;
+    /* 0x031 */ f32 appliedFadeVolume;
+    /* 0x035 */ f32 bend;
+    /* 0x039 */ struct SequenceChannel* channels[16];
+    /* 0x079 */ SeqScriptState scriptState;
+    /* 0x095 */ u8* shortNoteVelocityTable;
+    /* 0x099 */ u8* shortNoteGateTimeTable;
+    /* 0x09D */ NotePool notePool;
+    /* 0x0DD */ s32 skipTicks;
+    /* 0x0E1 */ u32 scriptCounter;
+    /* 0x0E5 */ UNK_TYPE1 unk_E4[0x74]; // unused struct members for sequence/sound font dma management, according to sm64 decomp
+    /* 0x159 */ s8 seqScriptIO[8];
     // #region 2S2H [Port][Audio]
     /*       */ f32 portVolumeScale; // volume from the sliders in the menubar
-} SequencePlayer; // size = 0x160
+} SequencePlayer; // size = 0x161
 
 typedef union {
     struct {
@@ -235,45 +236,46 @@ typedef struct SequenceChannel {
     /* 0x04 */ u8 targetReverbVol; // or dry/wet mix
     /* 0x05 */ u8 notePriority; // 0-3
     /* 0x06 */ u8 someOtherPriority;
-    /* 0x07 */ u8 fontId;
-    /* 0x08 */ u8 reverbIndex;
-    /* 0x09 */ u8 bookOffset;
-    /* 0x0A */ u8 newPan;
-    /* 0x0B */ u8 panChannelWeight;  // proportion of pan that comes from the channel (0..128)
-    /* 0x0C */ u8 gain; // Increases volume by a multiplicative scaling factor. Represented as a UQ4.4 number
-    /* 0x0D */ u8 velocityRandomVariance;
-    /* 0x0E */ u8 gateTimeRandomVariance;
-    /* 0x0F */ u8 combFilterSize;
-    /* 0x10 */ u8 surroundEffectIndex;
-    /* 0x11 */ u8 channelIndex;
-    /* 0x12 */ VibratoSubStruct vibrato;
-    /* 0x20 */ u16 delay;
-    /* 0x22 */ u16 combFilterGain;
-    /* 0x24 */ u16 unk_22; // Used for indexing data
-    /* 0x26 */ s16 instOrWave; // either 0 (none), instrument index + 1, or
+    // 2S2H [Custom Audio]. Was originally u8 fontId. Made 16 bit to allow for more than 255 sound fonts.
+    /* 0x07 */ u16 fontId;
+    /* 0x09 */ u8 reverbIndex;
+    /* 0x0A */ u8 bookOffset;
+    /* 0x0B */ u8 newPan;
+    /* 0x0C */ u8 panChannelWeight;  // proportion of pan that comes from the channel (0..128)
+    /* 0x0D */ u8 gain; // Increases volume by a multiplicative scaling factor. Represented as a UQ4.4 number
+    /* 0x0E */ u8 velocityRandomVariance;
+    /* 0x0F */ u8 gateTimeRandomVariance;
+    /* 0x10 */ u8 combFilterSize;
+    /* 0x11 */ u8 surroundEffectIndex;
+    /* 0x12 */ u8 channelIndex;
+    /* 0x13 */ VibratoSubStruct vibrato;
+    /* 0x21 */ u16 delay;
+    /* 0x23 */ u16 combFilterGain;
+    /* 0x25 */ u16 unk_22; // Used for indexing data
+    /* 0x27 */ s16 instOrWave; // either 0 (none), instrument index + 1, or
                              // 0x80..0x83 for sawtooth/triangle/sine/square waves.
-    /* 0x28 */ s16 transposition;
-    /* 0x2C */ f32 volumeScale;
-    /* 0x30 */ f32 volume;
-    /* 0x34 */ s32 pan;
-    /* 0x38 */ f32 appliedVolume;
-    /* 0x3C */ f32 freqScale;
-    /* 0x40 */ u8 (*dynTable)[][2];
-    /* 0x44 */ struct Note* noteUnused;
-    /* 0x48 */ struct SequenceLayer* layerUnused;
-    /* 0x4C */ Instrument* instrument;
-    /* 0x50 */ SequencePlayer* seqPlayer;
-    /* 0x54 */ struct SequenceLayer* layers[4];
-    /* 0x64 */ SeqScriptState scriptState;
-    /* 0x80 */ AdsrSettings adsr;
-    /* 0x88 */ NotePool notePool;
-    /* 0xC8 */ s8 seqScriptIO[8]; // bridge between sound script and audio lib, "io ports"
-    /* 0xD0 */ u8* sfxState; // SfxChannelState
-    /* 0xD4 */ s16* filter;
-    /* 0xD8 */ StereoData stereoData;
-    /* 0xDC */ s32 startSamplePos;
-    /* 0xE0 */ s32 unk_E0;
-} SequenceChannel; // size = 0xE4
+    /* 0x29 */ s16 transposition;
+    /* 0x2D */ f32 volumeScale;
+    /* 0x31 */ f32 volume;
+    /* 0x35 */ s32 pan;
+    /* 0x39 */ f32 appliedVolume;
+    /* 0x3D */ f32 freqScale;
+    /* 0x41 */ u8 (*dynTable)[][2];
+    /* 0x45 */ struct Note* noteUnused;
+    /* 0x49 */ struct SequenceLayer* layerUnused;
+    /* 0x4D */ Instrument* instrument;
+    /* 0x51 */ SequencePlayer* seqPlayer;
+    /* 0x55 */ struct SequenceLayer* layers[4];
+    /* 0x65 */ SeqScriptState scriptState;
+    /* 0x81 */ AdsrSettings adsr;
+    /* 0x89 */ NotePool notePool;
+    /* 0xC9 */ s8 seqScriptIO[8]; // bridge between sound script and audio lib, "io ports"
+    /* 0xD1 */ u8* sfxState; // SfxChannelState
+    /* 0xD5 */ s16* filter;
+    /* 0xD9 */ StereoData stereoData;
+    /* 0xDD */ s32 startSamplePos;
+    /* 0xE1 */ s32 unk_E0;
+} SequenceChannel; // size = 0xE5
 
 // Might also be known as a Track, according to sm64 debug strings (?).
 typedef struct SequenceLayer {
@@ -384,24 +386,25 @@ typedef struct {
     /* 0x00 */ u8 priority;
     /* 0x01 */ u8 waveId;
     /* 0x02 */ u8 harmonicIndex; // the harmonic index for the synthetic wave contained in gWaveSamples (also matches the base 2 logarithm of the harmonic order)
-    /* 0x03 */ u8 fontId;
-    /* 0x04 */ u8 status;
-    /* 0x05 */ u8 stereoHeadsetEffects;
-    /* 0x06 */ s16 adsrVolScaleUnused;
-    /* 0x08 */ f32 portamentoFreqScale;
-    /* 0x0C */ f32 vibratoFreqScale;
-    /* 0x18 */ SequenceLayer* wantedParentLayer;
-    /* 0x14 */ SequenceLayer* parentLayer;
-    /* 0x10 */ SequenceLayer* prevParentLayer;
-    /* 0x1C */ NoteAttributes attributes;
-    /* 0x34 */ AdsrState adsr;
-    /* 0x54 */ Portamento portamento;
-    /* 0x60 */ VibratoState vibratoState;
-    /* 0x7C */ UNK_TYPE1 pad7C[0x4];
-    /* 0x80 */ u8 unk_80;
-    /* 0x84 */ u32 startSamplePos;
-    /* 0x88 */ UNK_TYPE1 unk_BC[0x1C]; 
-} NotePlaybackState; // size = 0xA4
+    // 2S2H [Custom Audio]. Was originally u8 fontId. Made 16 bit to allow for more than 255 sound fonts.
+    /* 0x03 */ u16 fontId;
+    /* 0x05 */ u8 status;
+    /* 0x06 */ u8 stereoHeadsetEffects;
+    /* 0x07 */ s16 adsrVolScaleUnused;
+    /* 0x09 */ f32 portamentoFreqScale;
+    /* 0x0D */ f32 vibratoFreqScale;
+    /* 0x19 */ SequenceLayer* wantedParentLayer;
+    /* 0x15 */ SequenceLayer* parentLayer;
+    /* 0x11 */ SequenceLayer* prevParentLayer;
+    /* 0x1D */ NoteAttributes attributes;
+    /* 0x35 */ AdsrState adsr;
+    /* 0x55 */ Portamento portamento;
+    /* 0x61 */ VibratoState vibratoState;
+    /* 0x7D */ UNK_TYPE1 pad7C[0x4];
+    /* 0x81 */ u8 unk_80;
+    /* 0x85 */ u32 startSamplePos;
+    /* 0x89 */ UNK_TYPE1 unk_BC[0x1C]; 
+} NotePlaybackState; // size = 0xA5
 
 typedef struct {
     struct {
@@ -580,7 +583,8 @@ typedef struct {
     /* 0x2854 */ AudioTable* soundFontTable;
     /* 0x2858 */ AudioTable* sampleBankTable;
     /* 0x285C */ char unk_285C[0x4];
-    /* 0x2860 */ u8* sequenceFontTable;
+    // 2S2H [Custom Audio]. Was originally u8* sequenceFontTable. Made 16 bit to allow for more than 255 sound fonts.
+    /* 0x2860 */ u16* sequenceFontTable;
     /* 0x2864 */ u16 numSequences;
     /* 0x2868 */ SoundFont* soundFontList;
     /* 0x286C */ AudioBufferParameters audioBufferParameters;
@@ -693,7 +697,7 @@ typedef struct {
     uint8_t medium;
     uint8_t cachePolicy;
     int32_t numFonts;
-    uint8_t fonts[16];
+    uint16_t fonts[16];
 } SequenceData;
 
 #endif

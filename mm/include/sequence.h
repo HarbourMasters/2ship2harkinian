@@ -324,15 +324,16 @@ typedef struct {
     /* 0x20C */ u16 prevSeqId; // last seqId played on a player
     /* 0x20E */ u16 channelPortMask;
     /* 0x210 */ u8 isWaitingForFonts;
-    /* 0x211 */ u8 fontId;
-    /* 0x212 */ u8 volScales[VOL_SCALE_INDEX_MAX];
-    /* 0x216 */ u8 volFadeTimer;
-    /* 0x217 */ u8 fadeVolUpdate;
-    /* 0x218 */ u8 setupCmdTimer;
-    /* 0x219 */ u8 setupCmdNum; // number of setup commands
-    /* 0x21A */ u8 setupFadeTimer;
-    /* 0x21B */ u8 isSeqPlayerInit;
-} ActiveSequence; // size = 0x21C
+    // 2S2H [Custom Audio]. Was originally u8 fontId. Made 16 bit to allow for more than 255 sound fonts.
+    /* 0x211 */ u16 fontId;
+    /* 0x213 */ u8 volScales[VOL_SCALE_INDEX_MAX];
+    /* 0x217 */ u8 volFadeTimer;
+    /* 0x218 */ u8 fadeVolUpdate;
+    /* 0x219 */ u8 setupCmdTimer;
+    /* 0x21A */ u8 setupCmdNum; // number of setup commands
+    /* 0x21B */ u8 setupFadeTimer;
+    /* 0x21C */ u8 isSeqPlayerInit;
+} ActiveSequence; // size = 0x21D
 
 // 2S2H [Custom Audio]. Was originally u8 seqId. Made 16 bit to allow for more than 255 sequences.
 typedef struct {
