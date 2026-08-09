@@ -204,8 +204,9 @@ void AudioThread_ProcessGlobalCmd(AudioCmd* cmd) {
         case AUDIOCMD_OP_GLOBAL_SET_INSTRUMENT_FONT:
             // 2S2H [Custom Audio] the second argument (fontId) was `cmd->arg1` changed to use both `cmd->arg0` and
             // `cmd->arg1` so it can be 16 bit.
-            if (AudioPlayback_SetFontInstrument(cmd->op - AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT, ((uint16_t)cmd->arg0 
-                                                | (uint16_t)cmd->arg1 << 8), cmd->arg2, cmd->asPtr)) {}
+            if (AudioPlayback_SetFontInstrument(cmd->op - AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT,
+                                                ((uint16_t)cmd->arg0 | (uint16_t)cmd->arg1 << 8), cmd->arg2,
+                                                cmd->asPtr)) {}
             break;
 
         case AUDIOCMD_OP_GLOBAL_DISABLE_ALL_SEQPLAYERS: {

@@ -48,11 +48,11 @@ typedef enum {
 
 #define MAX_CHANNELS_PER_BANK 3
 
-#define MUTE_FLAGS_STOP_SAMPLES (1 << 3)           // prevent further noteSubEus from playing
-#define MUTE_FLAGS_STOP_LAYER (1 << 4)           // stop something in seqLayer scripts
-#define MUTE_FLAGS_SOFTEN (1 << 5)      // lower volume, by default to half
-#define MUTE_FLAGS_STOP_NOTES (1 << 6)  // prevent further notes from playing
-#define MUTE_FLAGS_STOP_SCRIPT (1 << 7) // stop processing sequence/channel scripts
+#define MUTE_FLAGS_STOP_SAMPLES (1 << 3) // prevent further noteSubEus from playing
+#define MUTE_FLAGS_STOP_LAYER (1 << 4)   // stop something in seqLayer scripts
+#define MUTE_FLAGS_SOFTEN (1 << 5)       // lower volume, by default to half
+#define MUTE_FLAGS_STOP_NOTES (1 << 6)   // prevent further notes from playing
+#define MUTE_FLAGS_STOP_SCRIPT (1 << 7)  // stop processing sequence/channel scripts
 
 #define AUDIO_LERPIMP(v0, v1, t) (v0 + ((v1 - v0) * t))
 
@@ -67,7 +67,7 @@ typedef enum {
 // Both left and right channels
 #define DMEM_2CH_SIZE (2 * DMEM_1CH_SIZE)
 
-#define AIBUF_LEN (88 * SAMPLES_PER_FRAME) // number of samples
+#define AIBUF_LEN (88 * SAMPLES_PER_FRAME)   // number of samples
 #define AIBUF_SIZE (AIBUF_LEN * SAMPLE_SIZE) // number of bytes
 
 // Filter sizes
@@ -120,7 +120,7 @@ typedef struct AudioListItem {
     union {
         /* 0x08 */ void* value; // either Note* or SequenceLayer*
         /* 0x08 */ s32 count;
-               } u;
+    } u;
     /* 0x0C */ struct NotePool* pool;
 } AudioListItem; // size = 0x10
 
@@ -181,11 +181,12 @@ typedef struct SequencePlayer {
     /* 0x09D */ NotePool notePool;
     /* 0x0DD */ s32 skipTicks;
     /* 0x0E1 */ u32 scriptCounter;
-    /* 0x0E5 */ UNK_TYPE1 unk_E4[0x74]; // unused struct members for sequence/sound font dma management, according to sm64 decomp
+    /* 0x0E5 */ UNK_TYPE1
+        unk_E4[0x74]; // unused struct members for sequence/sound font dma management, according to sm64 decomp
     /* 0x159 */ s8 seqScriptIO[8];
     // #region 2S2H [Port][Audio]
     /*       */ f32 portVolumeScale; // volume from the sliders in the menubar
-} SequencePlayer; // size = 0x161
+} SequencePlayer;                    // size = 0x161
 
 typedef union {
     struct {
@@ -234,14 +235,14 @@ typedef struct SequenceChannel {
     /* 0x02 */ u8 noteAllocPolicy;
     /* 0x03 */ u8 muteFlags;
     /* 0x04 */ u8 targetReverbVol; // or dry/wet mix
-    /* 0x05 */ u8 notePriority; // 0-3
+    /* 0x05 */ u8 notePriority;    // 0-3
     /* 0x06 */ u8 someOtherPriority;
     // 2S2H [Custom Audio]. Was originally u8 fontId. Made 16 bit to allow for more than 255 sound fonts.
     /* 0x07 */ u16 fontId;
     /* 0x09 */ u8 reverbIndex;
     /* 0x0A */ u8 bookOffset;
     /* 0x0B */ u8 newPan;
-    /* 0x0C */ u8 panChannelWeight;  // proportion of pan that comes from the channel (0..128)
+    /* 0x0C */ u8 panChannelWeight; // proportion of pan that comes from the channel (0..128)
     /* 0x0D */ u8 gain; // Increases volume by a multiplicative scaling factor. Represented as a UQ4.4 number
     /* 0x0E */ u8 velocityRandomVariance;
     /* 0x0F */ u8 gateTimeRandomVariance;
@@ -251,9 +252,9 @@ typedef struct SequenceChannel {
     /* 0x13 */ VibratoSubStruct vibrato;
     /* 0x21 */ u16 delay;
     /* 0x23 */ u16 combFilterGain;
-    /* 0x25 */ u16 unk_22; // Used for indexing data
+    /* 0x25 */ u16 unk_22;     // Used for indexing data
     /* 0x27 */ s16 instOrWave; // either 0 (none), instrument index + 1, or
-                             // 0x80..0x83 for sawtooth/triangle/sine/square waves.
+                               // 0x80..0x83 for sawtooth/triangle/sine/square waves.
     /* 0x29 */ s16 transposition;
     /* 0x2D */ f32 volumeScale;
     /* 0x31 */ f32 volume;
@@ -270,7 +271,7 @@ typedef struct SequenceChannel {
     /* 0x81 */ AdsrSettings adsr;
     /* 0x89 */ NotePool notePool;
     /* 0xC9 */ s8 seqScriptIO[8]; // bridge between sound script and audio lib, "io ports"
-    /* 0xD1 */ u8* sfxState; // SfxChannelState
+    /* 0xD1 */ u8* sfxState;      // SfxChannelState
     /* 0xD5 */ s16* filter;
     /* 0xD9 */ StereoData stereoData;
     /* 0xDD */ s32 startSamplePos;
@@ -283,7 +284,7 @@ typedef struct SequenceLayer {
     /* 0x00 */ u8 finished : 1;
     /* 0x00 */ u8 muted : 1;
     /* 0x00 */ u8 continuousNotes : 1; // keep the same note for consecutive notes with the same sound
-    /* 0x00 */ u8 bit3 : 1; // "loaded"?
+    /* 0x00 */ u8 bit3 : 1;            // "loaded"?
     /* 0x00 */ u8 ignoreDrumPan : 1;
     /* 0x00 */ u8 bit1 : 1; // "has initialized continuous notes"?
     /* 0x00 */ u8 notePropertiesNeedInit : 1;
@@ -385,7 +386,8 @@ typedef enum {
 typedef struct {
     /* 0x00 */ u8 priority;
     /* 0x01 */ u8 waveId;
-    /* 0x02 */ u8 harmonicIndex; // the harmonic index for the synthetic wave contained in gWaveSamples (also matches the base 2 logarithm of the harmonic order)
+    /* 0x02 */ u8 harmonicIndex; // the harmonic index for the synthetic wave contained in gWaveSamples (also matches
+                                 // the base 2 logarithm of the harmonic order)
     // 2S2H [Custom Audio]. Was originally u8 fontId. Made 16 bit to allow for more than 255 sound fonts.
     /* 0x03 */ u16 fontId;
     /* 0x05 */ u8 status;
@@ -403,7 +405,7 @@ typedef struct {
     /* 0x7D */ UNK_TYPE1 pad7C[0x4];
     /* 0x81 */ u8 unk_80;
     /* 0x85 */ u32 startSamplePos;
-    /* 0x89 */ UNK_TYPE1 unk_BC[0x1C]; 
+    /* 0x89 */ UNK_TYPE1 unk_BC[0x1C];
 } NotePlaybackState; // size = 0xA5
 
 typedef struct {
@@ -434,10 +436,10 @@ typedef struct {
     /* 0x0A */ u16 targetVolRight;
     /* 0x0C */ u16 frequencyFixedPoint;
     /* 0x0E */ u16 combFilterGain;
-        union {
-    /* 0x10 */ TunedSample* tunedSample;
-    /* 0x10 */ s16* waveSampleAddr; // used for synthetic waves
-        };
+    union {
+        /* 0x10 */ TunedSample* tunedSample;
+        /* 0x10 */ s16* waveSampleAddr; // used for synthetic waves
+    };
     /* 0x14 */ s16* filter;
     /* 0x18 */ UNK_TYPE1 unk_18;
     /* 0x19 */ u8 surroundEffectIndex;
@@ -454,7 +456,7 @@ typedef struct Note {
 /**
  * The high-level audio specifications requested when initializing or resetting the audio pool.
  * Most often resets during scene transitions, but will highly depend on game play.
- */ 
+ */
 typedef struct {
     /* 0x00 */ u32 samplingFreq; // Target sampling rate in Hz
     /* 0x04 */ u8 unk_04;
@@ -467,15 +469,17 @@ typedef struct {
     /* 0x10 */ u16 sampleDmaBufSize1;
     /* 0x12 */ u16 sampleDmaBufSize2;
     /* 0x14 */ u16 unk_14;
-    /* 0x18 */ size_t persistentSeqCacheSize;        // size of cache on audio pool to store sequences persistently
-    /* 0x1C */ size_t persistentFontCacheSize;       // size of cache on audio pool to store soundFonts persistently
-    /* 0x20 */ size_t persistentSampleBankCacheSize; // size of cache on audio pool to store entire sample banks persistently
-    /* 0x24 */ size_t temporarySeqCacheSize;         // size of cache on audio pool to store sequences temporarily
-    /* 0x28 */ size_t temporaryFontCacheSize;        // size of cache on audio pool to store soundFonts temporarily
-    /* 0x2C */ size_t temporarySampleBankCacheSize;  // size of cache on audio pool to store entire sample banks temporarily
-    /* 0x30 */ size_t persistentSampleCacheSize;     // size of cache on audio pool to store individual samples persistently
-    /* 0x34 */ size_t temporarySampleCacheSize;      // size of cache on audio pool to store individual samples temporarily
-} AudioSpec; // size = 0x38
+    /* 0x18 */ size_t persistentSeqCacheSize;  // size of cache on audio pool to store sequences persistently
+    /* 0x1C */ size_t persistentFontCacheSize; // size of cache on audio pool to store soundFonts persistently
+    /* 0x20 */ size_t
+        persistentSampleBankCacheSize;        // size of cache on audio pool to store entire sample banks persistently
+    /* 0x24 */ size_t temporarySeqCacheSize;  // size of cache on audio pool to store sequences temporarily
+    /* 0x28 */ size_t temporaryFontCacheSize; // size of cache on audio pool to store soundFonts temporarily
+    /* 0x2C */ size_t
+        temporarySampleBankCacheSize;            // size of cache on audio pool to store entire sample banks temporarily
+    /* 0x30 */ size_t persistentSampleCacheSize; // size of cache on audio pool to store individual samples persistently
+    /* 0x34 */ size_t temporarySampleCacheSize;  // size of cache on audio pool to store individual samples temporarily
+} AudioSpec;                                     // size = 0x38
 
 /**
  * The audio buffer stores the fully processed digital audio before it is sent to the audio interface (AI), then to the
@@ -485,21 +489,23 @@ typedef struct {
  */
 typedef struct {
     /* 0x00 */ s16 specUnk4;
-    /* 0x02 */ u16 samplingFreq; // Target sampling rate in Hz
-    /* 0x04 */ u16 aiSamplingFreq; // True sampling rate set to the audio interface (AI) for the audio digital-analog converter (DAC)
+    /* 0x02 */ u16 samplingFreq;   // Target sampling rate in Hz
+    /* 0x04 */ u16 aiSamplingFreq; // True sampling rate set to the audio interface (AI) for the audio digital-analog
+                                   // converter (DAC)
     /* 0x06 */ s16 numSamplesPerFrameTarget;
     /* 0x08 */ s16 numSamplesPerFrameMax;
     /* 0x0A */ s16 numSamplesPerFrameMin;
-    /* 0x0C */ s16 updatesPerFrame; // for each frame of the audio thread (default 60 fps), number of updates to process audio
+    /* 0x0C */ s16
+        updatesPerFrame; // for each frame of the audio thread (default 60 fps), number of updates to process audio
     /* 0x0E */ s16 numSamplesPerUpdate;
     /* 0x10 */ s16 numSamplesPerUpdateMax;
     /* 0x12 */ s16 numSamplesPerUpdateMin;
     /* 0x14 */ s16 numSequencePlayers;
     /* 0x18 */ f32 resampleRate;
-    /* 0x1C */ f32 updatesPerFrameInv; // inverse (reciprocal) of updatesPerFrame
+    /* 0x1C */ f32 updatesPerFrameInv;       // inverse (reciprocal) of updatesPerFrame
     /* 0x20 */ f32 updatesPerFrameInvScaled; // updatesPerFrameInv scaled down by a factor of 256
-    /* 0x24 */ f32 updatesPerFrameScaled; // updatesPerFrame scaled down by a factor of 4
-} AudioBufferParameters; // size = 0x28
+    /* 0x24 */ f32 updatesPerFrameScaled;    // updatesPerFrame scaled down by a factor of 4
+} AudioBufferParameters;                     // size = 0x28
 
 typedef struct {
     union {
@@ -597,17 +603,21 @@ typedef struct {
     /* 0x28B8 */ s32 numNotes;
     /* 0x2898 */ s16 maxTempo;
     /* 0x28BE */ s8 soundMode;
-    /* 0x28C0 */ s32 totalTaskCount; // The total number of times the top-level function on the audio thread is run since the last audio reset
+    /* 0x28C0 */ s32 totalTaskCount; // The total number of times the top-level function on the audio thread is run
+                                     // since the last audio reset
     /* 0x28C4 */ s32 curAudioFrameDmaCount;
     /* 0x28C8 */ s32 rspTaskIndex;
     /* 0x28CC */ s32 curAiBufferIndex;
-    /* 0x28AC */ Acmd* abiCmdBufs[2]; // Pointer to audio heap where the audio binary interface command lists are stored. Two lists that alternative every frame
+    /* 0x28AC */ Acmd* abiCmdBufs[2]; // Pointer to audio heap where the audio binary interface command lists are
+                                      // stored. Two lists that alternative every frame
     /* 0x28B4 */ Acmd* curAbiCmdBuf;
     /* 0x28DC */ AudioTask* curTask;
     /* 0x28C0 */ AudioTask rspTask[2];
     /* 0x2980 */ f32 unk_2960;
     /* 0x2984*/ s32 refreshRate;
-    /* 0x2988 */ s16* aiBuffers[3]; // Pointers to the audio buffer allocated on the initPool contained in the audio heap. Stores fully processed digital audio before transferring to the audio interface (AI)
+    /* 0x2988 */ s16*
+        aiBuffers[3]; // Pointers to the audio buffer allocated on the initPool contained in the audio heap. Stores
+                      // fully processed digital audio before transferring to the audio interface (AI)
     /* 0x2994 */ s16 numSamplesPerFrame[3]; // Number of samples to transfer to the audio interface buffer
     /* 0x299C */ u32 audioRandom;
     /* 0x29A0 */ s32 audioErrorFlags;
@@ -615,27 +625,35 @@ typedef struct {
     /* 0x29A8 */ u32 (*customSeqFunctions[4])(s8 value, SequenceChannel* channel);
     /* 0x29B8 */ s8 unk_29B8;
     /* 0x29BC */ s32 numAbiCmdsMax; // sMaxAbiCmdCnt
-    /* 0x29C0 */ AudioAllocPool sessionPool; // A sub-pool to main pool, contains all sub-pools and data that changes every audio reset
+    /* 0x29C0 */ AudioAllocPool
+        sessionPool; // A sub-pool to main pool, contains all sub-pools and data that changes every audio reset
     /* 0x29D0 */ AudioAllocPool externalPool; // pool allocated on an external device. Never used in game
-    /* 0x29E0 */ AudioAllocPool initPool; // A sub-pool to the main pool, contains all sub-pools and data that persists every audio reset
-    /* 0x29F0 */ AudioAllocPool miscPool; // A sub-pool to the session pool, 
-    /* 0x2A00 */ char unk_29D0[0x20]; // probably two unused pools
+    /* 0x29E0 */ AudioAllocPool
+        initPool; // A sub-pool to the main pool, contains all sub-pools and data that persists every audio reset
+    /* 0x29F0 */ AudioAllocPool miscPool;  // A sub-pool to the session pool,
+    /* 0x2A00 */ char unk_29D0[0x20];      // probably two unused pools
     /* 0x2A20 */ AudioAllocPool cachePool; // The common pool for all cache entries
-    /* 0x2A30 */ AudioAllocPool persistentCommonPool; // A sub-pool to the cache pool, contains all caches for data stored persistently
-    /* 0x2A40 */ AudioAllocPool temporaryCommonPool; // A sub-pool to the cache pool, contains all caches for data stored temporarily
-    /* 0x2A50 */ AudioCache seqCache; // Cache to store sequences
+    /* 0x2A30 */ AudioAllocPool
+        persistentCommonPool; // A sub-pool to the cache pool, contains all caches for data stored persistently
+    /* 0x2A40 */ AudioAllocPool
+        temporaryCommonPool;           // A sub-pool to the cache pool, contains all caches for data stored temporarily
+    /* 0x2A50 */ AudioCache seqCache;  // Cache to store sequences
     /* 0x2B60 */ AudioCache fontCache; // Cache to store soundFonts
     /* 0x2C70 */ AudioCache sampleBankCache; // Cache for loading entire sample banks
-    /* 0x2D80 */ AudioAllocPool permanentPool; // Pool to stores audio data that is always loaded in. Primarily used for sfxs
-    /* 0x2D90 */ AudioCacheEntry permanentEntries[32]; // indificual entries to the permanent pool
+    /* 0x2D80 */ AudioAllocPool
+        permanentPool; // Pool to stores audio data that is always loaded in. Primarily used for sfxs
+    /* 0x2D90 */ AudioCacheEntry permanentEntries[32];   // indificual entries to the permanent pool
     /* 0x3690 */ AudioSampleCache persistentSampleCache; // Stores individual samples persistently
-    /* 0x40A4 */ AudioSampleCache temporarySampleCache; // Stores individual samples temporarily
+    /* 0x40A4 */ AudioSampleCache temporarySampleCache;  // Stores individual samples temporarily
     /* 0x4338 */ AudioSessionPoolSplit sessionPoolSplit; // splits session pool into the cache pool and misc pool
     /* 0x4348 */ AudioCachePoolSplit cachePoolSplit; // splits cache pool into the persistent & temporary common pools
-    /* 0x4350 */ AudioCommonPoolSplit persistentCommonPoolSplit; // splits persistent common pool into caches for sequences, soundFonts, sample banks
-    /* 0x435C */ AudioCommonPoolSplit temporaryCommonPoolSplit; // splits temporary common pool into caches for sequences, soundFonts, sample banks
+    /* 0x4350 */ AudioCommonPoolSplit
+        persistentCommonPoolSplit; // splits persistent common pool into caches for sequences, soundFonts, sample banks
+    /* 0x435C */ AudioCommonPoolSplit
+        temporaryCommonPoolSplit; // splits temporary common pool into caches for sequences, soundFonts, sample banks
     /* 0x4368 */ u8 sampleFontLoadStatus[0x30];
-    /* 0x4398 */ u8* fontLoadStatus; // 2S2H [Port] [Custom Audio] Allow for new soundfonts. Was originally fontLoadStatus[0x30]
+    /* 0x4398 */ u8*
+        fontLoadStatus; // 2S2H [Port] [Custom Audio] Allow for new soundfonts. Was originally fontLoadStatus[0x30]
     /* 0x43C8 */ u8* seqLoadStatus;
     /* 0x4448 */ volatile u8 resetStatus;
     /* 0x4449 */ u8 specId;
@@ -647,13 +665,15 @@ typedef struct {
     /* 0x4460 */ SequencePlayer seqPlayers[5];
     /* 0x4B40 */ SequenceLayer sequenceLayers[80];
     /* 0x7840 */ SequenceChannel sequenceChannelNone;
-    /* 0x7924 */ s32 sampleStateOffset; // Start of the list of sample states for this update. Resets after each audio frame.
+    /* 0x7924 */ s32
+        sampleStateOffset; // Start of the list of sample states for this update. Resets after each audio frame.
     /* 0x7928 */ AudioListItem layerFreeList;
     /* 0x7938 */ NotePool noteFreeLists;
     /* 0x7978 */ u8 threadCmdWritePos;
     /* 0x7979 */ u8 threadCmdReadPos;
     /* 0x797A */ u8 threadCmdQueueFinished;
-    /* 0x797C */ u16 threadCmdChannelMask[5]; // bit-packed for 16 channels. When processing an audio thread channel command on all channels, only process channels with their bit set.
+    /* 0x797C */ u16 threadCmdChannelMask[5]; // bit-packed for 16 channels. When processing an audio thread channel
+                                              // command on all channels, only process channels with their bit set.
     /* 0x7988 */ OSMesgQueue* audioResetQueueP;
     /* 0x798C */ OSMesgQueue* taskStartQueueP;
     /* 0x7990 */ OSMesgQueue* threadCmdProcQueueP;
@@ -663,7 +683,8 @@ typedef struct {
     /* 0x79DC */ OSMesg taskStartMsgs[1];
     /* 0x79E0 */ OSMesg audioResetMesgs[1];
     /* 0x79E4 */ OSMesg threadCmdProcMsgBuf[4];
-    /* 0x79F4 */ AudioCmd threadCmdBuf[0x100]; // Audio commands used to transfer audio requests from the graph thread to the audio thread
+    /* 0x79F4 */ AudioCmd
+        threadCmdBuf[0x100]; // Audio commands used to transfer audio requests from the graph thread to the audio thread
     /* 0x81F4 */ UNK_TYPE1 unk_81F4[4];
     u16 seqToPlay[5];
     u8 seqReplaced[5];

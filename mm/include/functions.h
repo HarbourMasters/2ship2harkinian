@@ -19,7 +19,8 @@ s32 DmaMgr_FindDmaIndex(uintptr_t vrom);
 const char* func_800809F4(uintptr_t param_1);
 void DmaMgr_ProcessMsg(DmaRequest* req);
 void DmaMgr_ThreadEntry(void* arg);
-s32 DmaMgr_SendRequestImpl(DmaRequest* request, void* vramStart, uintptr_t vromStart, size_t size, UNK_TYPE4 unused, OSMesgQueue* queue, OSMesg msg);
+s32 DmaMgr_SendRequestImpl(DmaRequest* request, void* vramStart, uintptr_t vromStart, size_t size, UNK_TYPE4 unused,
+                           OSMesgQueue* queue, OSMesg msg);
 s32 DmaMgr_SendRequest0(void* vramStart, uintptr_t vromStart, size_t size);
 void DmaMgr_Start(void);
 void DmaMgr_Stop(void);
@@ -106,9 +107,12 @@ void FlagSet_Draw(GameState* gameState);
 void Overlay_LoadGameState(GameStateOverlay* overlayEntry);
 void Overlay_FreeGameState(GameStateOverlay* overlayEntry);
 
-// Ideally these two prototypes would be in z64actor.h, but they use PlayerItemAction which would require including z64player.h there.
-s32 Actor_OfferTalkExchange(Actor* actor, struct PlayState* play, f32 xzRange, f32 yRange, PlayerItemAction exchangeItemAction);
-s32 Actor_OfferTalkExchangeEquiCylinder(Actor* actor, struct PlayState* play, f32 radius, PlayerItemAction exchangeItemAction);
+// Ideally these two prototypes would be in z64actor.h, but they use PlayerItemAction which would require including
+// z64player.h there.
+s32 Actor_OfferTalkExchange(Actor* actor, struct PlayState* play, f32 xzRange, f32 yRange,
+                            PlayerItemAction exchangeItemAction);
+s32 Actor_OfferTalkExchangeEquiCylinder(Actor* actor, struct PlayState* play, f32 radius,
+                                        PlayerItemAction exchangeItemAction);
 
 void GetItem_Draw(PlayState* play, s16 drawId);
 
@@ -215,9 +219,11 @@ void Sched_FaultClient(void* param1, void* param2);
 void Sched_ThreadEntry(void* arg);
 void Sched_Init(SchedContext* sched, void* stack, OSPri pri, u8 viModeType, UNK_TYPE arg4, IrqMgr* irqMgr);
 
-void Mtx_SetTranslateScaleMtx(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, f32 translateX, f32 translateY, f32 translateZ);
+void Mtx_SetTranslateScaleMtx(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, f32 translateX, f32 translateY,
+                              f32 translateZ);
 void Mtx_SetRotationMtx(Mtx* mtx, s32 angle, f32 axisX, f32 axisY, f32 axisZ);
-void Mtx_SetTranslationRotationScaleMtx(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, s32 angle, f32 axisX, f32 axisY, f32 axisZ,f32 translateX, f32 translateY, f32 translateZ);
+void Mtx_SetTranslationRotationScaleMtx(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, s32 angle, f32 axisX, f32 axisY,
+                                        f32 axisZ, f32 translateX, f32 translateY, f32 translateZ);
 
 void CmpDma_LoadFile(uintptr_t segmentVrom, s32 id, void* dst, size_t size);
 void CmpDma_LoadAllFiles(uintptr_t segmentVrom, void* dst, size_t size);
