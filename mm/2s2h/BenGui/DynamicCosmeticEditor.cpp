@@ -126,6 +126,11 @@ static bool IsSkeletonOverriddenByCustomArchive(Ship::ArchiveManager* archiveMan
         return false;
     }
 
+    if (Ship::Context::GetRawInstance()->GetResourceManager()->IsAltAssetsEnabled() &&
+        IsCustomArchive(archiveManager->GetArchiveFromFile("alt/" + std::string(path)))) {
+        return true;
+    }
+
     return IsCustomArchive(archiveManager->GetArchiveFromFile(path));
 }
 
@@ -200,11 +205,11 @@ static bool TryLoadCustomDisplayListXml(Ship::ArchiveManager* archiveManager, Sh
     return material != nullptr;
 }
 
-static size_t FindDisplayListInstructionIndex(const Fast::DisplayList& displayList, const Gfx& expected,
-                                              size_t searchStart) {
+static size_t FindDisplayListColorCommandIndex(const Fast::DisplayList& displayList, bool isPrimColor,
+                                               size_t searchStart) {
+    const u8 opcode = isPrimColor ? G_SETPRIMCOLOR : G_SETENVCOLOR;
     for (size_t i = searchStart; i < displayList.Instructions.size(); i++) {
-        const Gfx& current = displayList.Instructions[i];
-        if (current.words.w0 == expected.words.w0 && current.words.w1 == expected.words.w1) {
+        if ((u8)(displayList.Instructions[i].words.w0 >> 24) == opcode) {
             return i;
         }
     }
@@ -474,11 +479,23 @@ void ScanDynamicCosmetics() {
             continue;
         }
 
-        size_t searchStart = 0;
+        size_t primSearchStart = 0;
+        size_t envSearchStart = 0;
         for (auto* child = root->FirstChildElement(); child != nullptr; child = child->NextSiblingElement()) {
             std::string childName = child->Name();
             bool isPrimColor = childName == "SetPrimColor";
-            if ((!isPrimColor && childName != "SetEnvColor") || isPrimColor != manifestEntry.isPrimColor) {
+            if (!isPrimColor && childName != "SetEnvColor") {
+                continue;
+            }
+
+            size_t& searchStart = isPrimColor ? primSearchStart : envSearchStart;
+            size_t commandIndex = FindDisplayListColorCommandIndex(*material, isPrimColor, searchStart);
+            if (commandIndex == SIZE_MAX) {
+                continue;
+            }
+            searchStart = commandIndex + 1;
+
+            if (isPrimColor != manifestEntry.isPrimColor) {
                 continue;
             }
 
@@ -490,22 +507,6 @@ void ScanDynamicCosmetics() {
                                                                              : child->Attribute("CosmeticCategory");
 
             const auto& key = manifestEntry.key;
-
-            Gfx expectedInstruction;
-            if (isPrimColor) {
-                expectedInstruction =
-                    gsDPSetPrimColor(child->IntAttribute("M"), child->IntAttribute("L"), child->IntAttribute("R"),
-                                     child->IntAttribute("G"), child->IntAttribute("B"), child->IntAttribute("A"));
-            } else {
-                expectedInstruction = gsDPSetEnvColor(child->IntAttribute("R"), child->IntAttribute("G"),
-                                                      child->IntAttribute("B"), child->IntAttribute("A"));
-            }
-
-            size_t commandIndex = FindDisplayListInstructionIndex(*material, expectedInstruction, searchStart);
-            if (commandIndex == SIZE_MAX) {
-                continue;
-            }
-            searchStart = commandIndex + 1;
 
             MarkCustomCosmeticsAvailable(materialPath);
 
@@ -746,13 +747,22 @@ void SetAllDynamicCosmeticsRainbow(bool enabled) {
 
 void RefreshDynamicCosmeticsStateIfNeeded() {
     static int sLastAltAssets = -1;
+    static size_t sLastArchiveCount = 0;
 
-    const int altAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
-    if (altAssets == sLastAltAssets) {
+    auto resourceManager = Ship::Context::GetRawInstance()->GetResourceManager();
+    size_t archiveCount = 0;
+    auto archives = resourceManager->GetArchiveManager()->GetArchives();
+    if (archives != nullptr) {
+        archiveCount = archives->size();
+    }
+
+    const int altAssets = resourceManager->IsAltAssetsEnabled();
+    if (altAssets == sLastAltAssets && archiveCount == sLastArchiveCount) {
         return;
     }
 
     sLastAltAssets = altAssets;
+    sLastArchiveCount = archiveCount;
     ScanDynamicCosmetics();
     RefreshBuiltInSuppressedCosmetics();
 }

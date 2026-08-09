@@ -122,6 +122,8 @@ bool IsValidExtension(std::string extension) {
     return false;
 }
 
+static bool archivesAdded = false;
+
 void UpdateModFiles(bool init = false, bool reset = false) {
     if (init || reset) {
         enabledModFiles.clear();
@@ -161,7 +163,8 @@ void UpdateModFiles(bool init = false, bool reset = false) {
                 }
                 tempMods.clear();
             }
-            if (init) {
+            if (init && !archivesAdded) {
+                archivesAdded = true;
                 std::vector<std::string> enabledTemp(enabledModFiles);
                 for (std::string mod : enabledTemp) {
                     if (filePaths.contains(mod)) {
@@ -366,6 +369,10 @@ void ModMenuWindow::DrawElement() {
         ImGui::EndTable();
     }
     ImGui::EndDisabled();
+}
+
+void ModMenu_LoadArchives() {
+    UpdateModFiles(true);
 }
 
 void ModMenuWindow::InitElement() {

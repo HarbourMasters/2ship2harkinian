@@ -146,7 +146,7 @@ struct PaletteTarget {
 
 PaletteTarget ResolvePaletteTarget(const char* path) {
     auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(path);
-    if (res == nullptr) {
+    if (res == nullptr || res->GetInitData()->IsCustom) {
         return {};
     }
 
