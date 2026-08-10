@@ -115,9 +115,8 @@ void Rando::ActorBehavior::InitEnItem00Behavior() {
 
         EnItem00* replacementItem = spawnReplacementItem(actor->world.pos, randoStaticCheck);
 
-        // Wonder Items are supposed to be invisible
         if (randoStaticCheck.randoCheckType == RCTYPE_WONDER_ITEM) {
-            replacementItem->actor.draw = NULL;
+            replacementItem->actor.draw = Rando::ActorBehavior::DrawWonderItemSparkle;
         }
     });
 }
