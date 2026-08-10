@@ -1129,7 +1129,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Equipment.ActiveItemOnB")
         .Options(CheckboxOptions().Tooltip(
             "Press B to use the item currently held by Link (bow, hookshot, hammer, Great Fairy's Sword...). "
-            "Hold B to keep aiming in first person, release to fire."));
+            "Hold B to keep aiming in first person, release to fire. Second C-press unequips."));
 
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
