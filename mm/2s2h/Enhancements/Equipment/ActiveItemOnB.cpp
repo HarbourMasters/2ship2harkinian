@@ -93,10 +93,10 @@ void RestoreBButtonItem(Actor* actor) {
         return;
     }
     // assert(mBButtonState.stored != ITEM_NONE);
-    ItemId* item = (ItemId*)&BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
+    auto* item = &BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
 
-    if (*item != mBButtonState.override && !IsItemInScope(*item)) {
-        mBButtonState.stored = *item;
+    if (*item != mBButtonState.override && !IsItemInScope((ItemId)*item)) {
+        mBButtonState.stored = (ItemId)*item;
     } else {
         *item = mBButtonState.stored;
     }
