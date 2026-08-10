@@ -6,6 +6,7 @@
 extern "C" {
 #include "macros.h"
 #include "functions.h"
+#include "src/overlays/actors/ovl_En_Box/z_en_box.h"
 extern PlayState* gPlayState;
 extern PlayState* sCamPlayState;
 extern f32 Camera_ScaledStepToCeilF(f32 target, f32 cur, f32 stepScale, f32 minDiff);
@@ -162,7 +163,14 @@ bool Camera_CanFreeLook(Camera* camera) {
     }
     // Reset camera during cutscenes
     if (gPlayState != nullptr && Player_InCsMode(gPlayState)) {
-        sCanFreeLook = false;
+        // Unless kicking a chest open
+        Actor* interactRangeActor = GET_PLAYER(gPlayState)->interactRangeActor;
+        if (interactRangeActor != NULL && interactRangeActor->id == ACTOR_EN_BOX &&
+            ((EnBox*)interactRangeActor)->unk_1EC == -1) {
+            sCanFreeLook = true;
+        } else {
+            sCanFreeLook = false;
+        }
     }
     // Disable freecam during bombchu control
     if (IsBombchuFocused()) {
