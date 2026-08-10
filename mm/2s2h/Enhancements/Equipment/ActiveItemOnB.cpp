@@ -9,49 +9,57 @@ extern "C" {
 void Player_UseItem(PlayState* play, Player* player, ItemId item);
 }
 
-constexpr bool IsItemInScope(ItemId item) {
+constexpr bool IsFirstPersonItem(ItemId item) {
     return item != ITEM_NONE && (
         item == ITEM_BOW
         || item == ITEM_BOW_FIRE
         || item == ITEM_BOW_ICE
         || item == ITEM_BOW_LIGHT
         || item == ITEM_HOOKSHOT
-        || item == ITEM_DEKU_STICK
+    );
+}
+
+constexpr bool IsThirdPersonItem(ItemId item) {
+    return item != ITEM_NONE && (
+        item == ITEM_DEKU_STICK
         || item == ITEM_SWORD_GREAT_FAIRY
     );
+}
+
+constexpr bool IsItemInScope(ItemId item) {
+    return item != ITEM_NONE && (IsFirstPersonItem(item) || IsThirdPersonItem(item));
 }
 
 constexpr bool PlayerHoldsItem(Player* player) {
     return (player->heldItemAction != PLAYER_IA_NONE && (ItemId)player->heldItemId != ITEM_NONE);
 }
 
-// constexpr bool IsAiming(Player* player) {
-//     return (
-//         player->unk_AA5 == PLAYER_UNKAA5_3
-//         || (
-//             player->unk_AA5 == PLAYER_UNKAA5_0
-//             && (player->stateFlags1 & PLAYER_STATE1_PARALLEL)
-//             && player->focusActor == NULL
-//         )
-//     );
-// }
+constexpr bool IsAiming(Player* player) {
+    return (
+        player->unk_AA5 == PLAYER_UNKAA5_3
+        || (  // overshoulder
+            player->unk_AA5 == PLAYER_UNKAA5_0
+            && (player->stateFlags1 & PLAYER_STATE1_PARALLEL)
+            && player->focusActor == NULL
+        )
+    );
+}
 
 constexpr bool IsHoldingScoped(Player* player) {
-    return PlayerHoldsItem(player) && IsItemInScope((ItemId)player->heldItemId);
+    return (
+        PlayerHoldsItem(player)
+        && (
+            IsThirdPersonItem((ItemId)player->heldItemId)
+            || (IsFirstPersonItem((ItemId)player->heldItemId) && IsAiming(player))
+        )
+    );
 }
 
-static void SwitchButtonIcon(EquipSlot slot, ItemId icon) {
-    if (icon == ITEM_NONE) { return; }
-
-    Interface_LoadItemIconImpl(gPlayState, slot);
-    if (icon < ARRAY_COUNT(gItemIcons)) {
-        gPlayState->interfaceCtx.iconItemSegment[slot] = (char*)gItemIcons[icon];
-    }
-}
-
+// allows to temporary set used item to B button, so camera works correctly
 static struct ButtonState {
     ItemId stored = ITEM_NONE;
     ItemId override = ITEM_NONE;
+    bool frameOverridden = false;
 } mBButtonState;
 
 static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedItem) {
@@ -68,10 +76,20 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
         if (IsHoldingScoped(player)) {
             ItemId heldItem = (ItemId)player->heldItemId;
 
-            mBButtonState.stored = (ItemId)BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
-            mBButtonState.override = heldItem;
-            BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = mBButtonState.override;
+            // fixes camera
+            if (IsFirstPersonItem(heldItem) && IsAiming(player)) {
+                ItemId current = (ItemId)BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
+                if (current != ITEM_NONE) {
+                    if (!IsItemInScope(current)) {
+                        mBButtonState.stored = current;
+                    }
+                    mBButtonState.frameOverridden = true;
+                    mBButtonState.override = heldItem;
+                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = mBButtonState.override;
+                }
+            }
 
+            // actually shoots
             *pressedItem = heldItem;
         }
     } else if (IsItemInScope(*pressedItem)) {
@@ -80,33 +98,38 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
             if (player->heldItemAction > PLAYER_IA_LAST_USED) {
                 Player_UseItem(gPlayState, player, ITEM_NONE);
             }
-            SwitchButtonIcon(EQUIP_SLOT_B, mBButtonState.stored);
             *pressedItem = ITEM_NONE;
-        } else {
-            // view held item on B button
-            SwitchButtonIcon(EQUIP_SLOT_B, *pressedItem);
         }
     }
 }
 
+// keeps EQUIP_SLOT_B integrity
 void RestoreBButtonItem(Actor* actor) {
-    if (mBButtonState.override == ITEM_NONE) { return; }
+    if (!mBButtonState.frameOverridden) { return; }
     // assert(mBButtonState.stored != ITEM_NONE);
     ItemId* item = (ItemId*)&BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
 
-    if (*item != mBButtonState.override) {
+    if (*item != mBButtonState.override && !IsItemInScope(*item)) {
         mBButtonState.stored = *item;
     } else {
         *item = mBButtonState.stored;
     }
+    mBButtonState.frameOverridden = false;
     mBButtonState.override = ITEM_NONE;
 }
 
-void RegisterActiveItemOnB() {
-    if (!CVarGetInteger("gEnhancements.Equipment.ActiveItemOnB", 0)) {
-        SwitchButtonIcon(EQUIP_SLOT_B, mBButtonState.stored);
+void CleanupBButtonSlot() {
+    if (
+        mBButtonState.stored != ITEM_NONE
+        && !CVarGetInteger("gEnhancements.Equipment.ActiveItemOnB", 0)
+    ) {
+        RestoreBButtonItem(nullptr);
         mBButtonState.stored = ITEM_NONE;
     }
+}
+
+void RegisterActiveItemOnB() {
+    CleanupBButtonSlot();
     COND_VB_SHOULD(
         VB_GET_ITEM_ON_BUTTON,
         CVarGetInteger("gEnhancements.Equipment.ActiveItemOnB", 0),
