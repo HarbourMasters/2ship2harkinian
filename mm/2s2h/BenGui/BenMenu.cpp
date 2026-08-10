@@ -2152,7 +2152,7 @@ void BenMenu::AddDevTools() {
         .CVar("gOpenWindows.GfxDebugger")
         .Options(ButtonOptions().Tooltip(
             "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples."))
-        .WindowName("GfxDebuggerWindow");
+        .WindowName("Gfx Debugger");
 
     path = { "Dev Tools", "Hook Debugger", SECTION_COLUMN_1 };
     AddSidebarEntry("Dev Tools", "Hook Debugger", 1);
