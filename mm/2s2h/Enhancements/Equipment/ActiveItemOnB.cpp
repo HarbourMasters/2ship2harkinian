@@ -72,10 +72,10 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
         || player->currentMask == PLAYER_MASK_KAMARO
     ) { return; }
 
+    ItemId heldItem = (ItemId)player->heldItemId;
+
     if (slot == EQUIP_SLOT_B) {
         if (IsHoldingScoped(player)) {
-            ItemId heldItem = (ItemId)player->heldItemId;
-
             // fixes camera
             if (IsFirstPersonItem(heldItem) && IsAiming(player)) {
                 ItemId current = (ItemId)BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
@@ -93,7 +93,7 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
             *pressedItem = heldItem;
         }
     } else if (IsItemInScope(*pressedItem)) {
-        if (IsHoldingScoped(player)) {
+        if (IsHoldingScoped(player) && heldItem == *pressedItem) {
             // put away
             if (player->heldItemAction > PLAYER_IA_LAST_USED) {
                 Player_UseItem(gPlayState, player, ITEM_NONE);
