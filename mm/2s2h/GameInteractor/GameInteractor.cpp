@@ -190,6 +190,7 @@ void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex) {
 
 void GameInteractor_ExecuteOnPlayerReleaseHeldActor(PlayState* play, Player* player, Actor* heldActor) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayerReleaseHeldActor>(play, player, heldActor);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPlayerReleaseHeldActor>(play, player, heldActor);
 }
 
 void GameInteractor_ExecuteOnPlayerShieldControl(Player* player, PlayState* play, f32* xInput, f32* yInput,
