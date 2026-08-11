@@ -118,8 +118,7 @@ void HandleKaleidoCapture(PauseContext* pauseCtx) {
 }
 
 static void HandleShieldAim(Player* player, PlayState* play, f32* xStick, f32* yStick, bool* handled) {
-    if (!Mouse_IsCaptured() || !CVarGetInteger("gSettings.EnableMouse", 0) ||
-        !CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0)) {
+    if (!Mouse_IsCaptured()) {
         *handled = mPrevShieldHandled = false;
         return;
     }
@@ -178,7 +177,49 @@ void HandleShieldCameraControl(Camera* camera, s16 viewYaw) {
     camera->at.z += offset.z;
 }
 
+static void HandleTelescopeAim(s16* inputX, s16* inputY) {
+    if (!Mouse_IsCaptured()) {
+        return;
+    }
+    MouseCoords d = Mouse_GetDelta();
+    *inputX -= (s16)(d.x * 12.0f * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f) *
+                     GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X));
+    *inputY += (s16)(d.y * 12.0f * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f) *
+                     GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y));
+}
+
+static void HandleOvershoulderAim(bool* should, Player* player) {
+    if (!Mouse_IsCaptured()) { return; }
+    MouseCoords d = Mouse_GetDelta();
+    if (d.y != 0) {
+        // FIXME: to remove? Why was it there?
+        // player->actor.focus.rot.x += d.y * 8;
+        f32 yBuf = d.y * 12.0f * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f);
+        yBuf *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y);
+        player->actor.focus.rot.x = CLAMP(player->actor.focus.rot.x - (s16)yBuf, -60 * 240, 60 * 240);
+        *should = false;
+    }
+}
+
+static void HandleDekuCharge(Player* player) {
+    if (!Mouse_IsCaptured()) { return; }
+    MouseCoords d = Mouse_GetDelta();
+    if (d.x != 0) {
+        player->yaw -= (s16)(d.x * 40 *
+                             CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) *
+                             GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X));
+    }
+}
+
 void RegisterMouseRelatedHooks() {
+    {
+        static bool autoCapture = false;
+        bool newAutoCapture = CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gSettings.AutoCaptureMouse", 1);
+        if (autoCapture != newAutoCapture) {
+            autoCapture = newAutoCapture;
+            Ship::Context::GetRawInstance()->GetWindow()->SetAutoCaptureMouse(autoCapture);
+        }
+    }
     COND_HOOK(
         OnKaleidoUpdate,
         true,
@@ -205,12 +246,36 @@ void RegisterMouseRelatedHooks() {
     );
     COND_HOOK(
         OnPlayerShieldControl,
-        CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0),
+        CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0),
         HandleShieldAim
+    );
+    COND_HOOK(
+        OnPlayerTelescopeAim,
+        CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0),
+        HandleTelescopeAim
+    );
+    COND_VB_SHOULD(
+        VB_SHOULD_OVERSHOULDER_AIM,
+        CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0),
+        { HandleOvershoulderAim(should, va_arg(args, Player*)); }
+    );
+    COND_HOOK(
+        OnPlayerDekuCharge,
+        CVarGetInteger("gSettings.EnableMouse", 0) && !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0),
+        HandleDekuCharge
     );
 }
 
-static RegisterShipInitFunc initFunc(RegisterMouseRelatedHooks, {});
+static RegisterShipInitFunc initFunc(
+    RegisterMouseRelatedHooks,
+    {
+        "gSettings.EnableMouse",
+        "gSettings.AutoCaptureMouse",
+        "gEnhancements.Mouse.Shielding.Enabled",
+        "gEnhancements.Camera.FirstPerson.GyroEnabled",
+        "gEnhancements.Camera.Mouse.DisableThirdPerson"
+    }
+);
 
 #ifdef __cplusplus
 } // extern "C"
