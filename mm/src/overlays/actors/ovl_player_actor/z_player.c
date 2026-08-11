@@ -15342,12 +15342,10 @@ void Player_Action_18(Player* this, PlayState* play) {
         yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
 
         bool shieldHandled = false;
-        GameInteractor_ExecuteOnPlayerShieldControl(
-            this, play,
-            &xStick, &yStick,
-            &shieldHandled
-        );
-        if (shieldHandled) { goto skipShieldAim; }
+        GameInteractor_ExecuteOnPlayerShieldControl(this, play, &xStick, &yStick, &shieldHandled);
+        if (shieldHandled) {
+            goto skipShieldAim;
+        }
 
         var_a1 = (yStick * Math_CosS(temp_a0)) + (Math_SinS(temp_a0) * xStick);
         temp_ft5 = (xStick * Math_CosS(temp_a0)) - (Math_SinS(temp_a0) * yStick);
@@ -15363,7 +15361,7 @@ void Player_Action_18(Player* this, PlayState* play) {
         this->upperLimbRot.x = this->actor.focus.rot.x;
         Math_ScaledStepToS(&this->upperLimbRot.y, temp_ft5, var_a3);
 
-skipShieldAim:
+    skipShieldAim:
         if (this->av1.actionVar1 != 0) {
             if (!func_808401F4(play, this)) {
                 if (this->skelAnime.curFrame < 2.0f) {
