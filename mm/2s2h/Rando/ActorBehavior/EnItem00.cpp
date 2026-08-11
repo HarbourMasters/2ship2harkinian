@@ -20,8 +20,9 @@ EnItem00* spawnReplacementItem(Vec3f& pos, Rando::StaticData::RandoStaticCheck& 
     if (randoStaticCheck.randoCheckType == RCTYPE_FREESTANDING) {
         itemParams |= CustomItem::ABLE_TO_ZORA_RANG;
     }
-    // The heart piece in the bio baba grotto beehive needs to be tossed to fall to the ground
-    if (randoStaticCheck.randoCheckId == RC_TERMINA_FIELD_BIO_BABA_GROTTO) {
+    // Beehive contents beehive needs to be tossed to fall to the ground
+    if (randoStaticCheck.randoCheckType == RCTYPE_BEEHIVE ||
+        randoStaticCheck.randoCheckId == RC_TERMINA_FIELD_BIO_BABA_GROTTO) {
         itemParams |= CustomItem::TOSS_ON_SPAWN;
     }
 
