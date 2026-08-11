@@ -988,21 +988,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Mouse", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.EnableMouse")
-        .Options(CheckboxOptions().DefaultValue(false))
-        .Callback(
-            [](WidgetInfo& info) {
-                bool enabled = CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gSettings.AutoCaptureMouse", 1);
-                Ship::Context::GetRawInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
-            }
-        );
+        .Options(CheckboxOptions().DefaultValue(false));
     AddWidget(path, "Auto Capture Mouse Input", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.AutoCaptureMouse")
-        .Callback(
-            [](WidgetInfo& info) {
-                bool enabled = CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gSettings.AutoCaptureMouse", 1);
-                Ship::Context::GetRawInstance()->GetWindow()->SetAutoCaptureMouse(enabled);
-            }
-        ).Options(
+        .Options(
             CheckboxOptions().Tooltip(
                 "When Mouse Controls are enabled, this toggles whether the program will automatically "
                 "hide the cursor and capture mouse input when closing the menu."

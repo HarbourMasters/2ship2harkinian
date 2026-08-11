@@ -8728,21 +8728,12 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             s16 inputX;
             s16 newYaw; // from base position shape.rot.y
 
-            s16 mouseX = 0;
-            s16 mouseY = 0;
-            if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
-                MouseCoords mouseDelta = Mouse_GetDelta();
-                mouseX = mouseDelta.x * 12.0f *
-                         CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f) *
-                         GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X);
-                mouseY = mouseDelta.y * 12.0f *
-                         CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f) *
-                         GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y);
-            }
+            inputY = sPlayerControlInput->rel.stick_y * 4;
+            inputX = sPlayerControlInput->rel.stick_x * -4;
+
+            GameInteractor_ExecuteOnPlayerTelescopeAim(&inputX, &inputY);
 
             // Pitch:
-            inputY = sPlayerControlInput->rel.stick_y * 4;
-            inputY += mouseY;
             inputY *= -GameInteractor_InvertControl(GI_INVERT_TELESCOPE_Y);
             // Add input, clamped to prevent turning too fast
             thisx->focus.rot.x += CLAMP(inputY, -0x12C, 0x12C);
@@ -8750,8 +8741,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             thisx->focus.rot.x = CLAMP(thisx->focus.rot.x, -0x2EE0, 0x2EE0);
 
             // Yaw: shape.rot.y is used as a fixed starting position
-            inputX = sPlayerControlInput->rel.stick_x * -4 * GameInteractor_InvertControl(GI_INVERT_TELESCOPE_X);
-            inputX -= mouseX;
+            inputX *= GameInteractor_InvertControl(GI_INVERT_TELESCOPE_X);
             // Start from current position: no input -> no change
             newYaw = thisx->focus.rot.y - thisx->shape.rot.y;
             // Add input, clamped to prevent turning too fast
@@ -10074,27 +10064,7 @@ s32 func_8083E514(Player* this, f32* arg2, s16* arg3, PlayState* play) {
         if (this->focusActor != NULL) {
             func_8083C62C(this, true);
         } else {
-            // overshoulder aim
-            if (
-                Mouse_IsCaptured()
-                && CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)
-                && CVarGetInteger("gSettings.EnableMouse", 0)
-            ) {
-                MouseCoords mouseDelta = Mouse_GetDelta();
-
-                if (mouseDelta.y != 0) {
-                    this->actor.focus.rot.x += mouseDelta.y * 8;
-                    this->actor.focus.rot.x = CLAMP(
-                        this->actor.focus.rot.x - (
-                            mouseDelta.y * 12.0f
-                            * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f)
-                            * -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y)
-                        ),
-                        -60 * 240,
-                        60 * 240
-                    );
-                }
-            } else {
+            if (GameInteractor_Should(VB_SHOULD_OVERSHOULDER_AIM, true, this)) {
                 Math_SmoothStepToS(&this->actor.focus.rot.x, (sPlayerControlInput->rel.stick_y * 240.0f), 0xE, 0xFA0,
                                    0x1E);
             }
@@ -15362,7 +15332,6 @@ void Player_Action_18(Player* this, PlayState* play) {
     if (this->av2.actionVar2 != 0) {
         f32 yStick = sPlayerControlInput->rel.stick_y * 180;
         f32 xStick = sPlayerControlInput->rel.stick_x * -120;
-
         s16 temp_a0 = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
         s16 var_a1;
         s16 temp_ft5;
@@ -15372,7 +15341,6 @@ void Player_Action_18(Player* this, PlayState* play) {
         xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
         yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
 
-        // #region 2S2H [Enhancement] Mouse Shielding
         bool shieldHandled = false;
         GameInteractor_ExecuteOnPlayerShieldControl(
             this, play,
@@ -15380,7 +15348,6 @@ void Player_Action_18(Player* this, PlayState* play) {
             &shieldHandled
         );
         if (shieldHandled) { goto skipShieldAim; }
-        // #endregion
 
         var_a1 = (yStick * Math_CosS(temp_a0)) + (Math_SinS(temp_a0) * xStick);
         temp_ft5 = (xStick * Math_CosS(temp_a0)) - (Math_SinS(temp_a0) * yStick);
@@ -19389,22 +19356,7 @@ void func_80855F9C(PlayState* play, Player* this) {
 
     this->stateFlags2 |= PLAYER_STATE2_20;
 
-    // #region: [Enhancement] Mouse aim while charging in the flower
-    if (
-        Mouse_IsCaptured()
-        && CVarGetInteger("gSettings.EnableMouse", 0)
-        && !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0)
-    ) {
-        MouseCoords mouseDelta = Mouse_GetDelta();
-        if (mouseDelta.x != 0) {
-            this->yaw -= (s16)(
-                mouseDelta.x * 40
-                * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f)
-                * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X)
-            );
-        }
-    }
-    // #endregion
+    GameInteractor_ExecuteOnPlayerDekuCharge(this);
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
     Math_ScaledStepToS(&this->yaw, yawTarget, 0x258);

@@ -199,6 +199,14 @@ void GameInteractor_ExecuteOnPlayerShieldControl(Player* player, PlayState* play
                                                                                   handled);
 }
 
+void GameInteractor_ExecuteOnPlayerTelescopeAim(s16* inputX, s16* inputY) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayerTelescopeAim>(inputX, inputY);
+}
+
+void GameInteractor_ExecuteOnPlayerDekuCharge(Player* player) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayerDekuCharge>(player);
+}
+
 void GameInteractor_ExecuteOnBossDefeated(s16 actorId) {
     SPDLOG_DEBUG("GameInteractor_ExecuteOnBossDefeated: actorId: {}", actorId);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnBossDefeated>(actorId);
