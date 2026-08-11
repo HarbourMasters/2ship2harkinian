@@ -8730,7 +8730,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
 
             s16 mouseX = 0;
             s16 mouseY = 0;
-            if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)) {
+            if (Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
                 MouseCoords mouseDelta = Mouse_GetDelta();
                 mouseX = mouseDelta.x * 12.0f *
                          CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f) *
