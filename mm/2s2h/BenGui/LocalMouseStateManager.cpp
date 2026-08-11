@@ -2,7 +2,7 @@
 
 #include <fast/Fast3dWindow.h>
 #include "ship/Context.h"
-#include "Mouse.h"
+#include "MouseCapture.h"
 
 void LocalMouseStateManager::ToggleMouseCaptureOverride() {
     Mouse_ForceToggleCapture();

@@ -116,8 +116,8 @@ CrowdControl* CrowdControl::Instance;
 #include <ship/window/gui/resource/FontFactory.h>
 #include "2s2h/Enhancements/Audio/AudioCollection.h"
 #include "BenGui/BenInputEditorWindow.h"
-#include "2s2h/Enhancements/Controls/Mouse/LocalMouseStateManager.h"
-#include "2s2h/Enhancements/Controls/Mouse/Mouse.h"
+#include "BenGui/LocalMouseStateManager.h"
+#include "BenGui/MouseCapture.h"
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;

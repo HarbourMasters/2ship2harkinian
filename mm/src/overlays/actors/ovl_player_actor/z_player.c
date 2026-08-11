@@ -48,7 +48,7 @@
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
-#include "2s2h/Enhancements/Controls/Mouse/Mouse.h"
+#include "2s2h/Mouse.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
 void Player_Init(Actor* thisx, PlayState* play);
