@@ -5,7 +5,7 @@
 
 #include "GameInteractor/GameInteractor.h"
 #include "ShipInit.hpp"
-#include "Mouse.h"
+#include "2s2h/Mouse.h"
 
 // Algorithm Overview:
 // 1. Cross products filter: Checks for consistent curvature (filters straight lines)
