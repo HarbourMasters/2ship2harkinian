@@ -41,10 +41,8 @@ bool InferCaptureFromState(MouseCaptureGameState state) {
 }
 
 void HandleForcing() {
-    if (
-        !gameState.isCaptureForced
-        || !Ship::Context::GetRawInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()
-    ) {
+    if (!gameState.isCaptureForced ||
+        !Ship::Context::GetRawInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()) {
         gameState.isCaptureForced = true;
         gameState.forcedCaptureValue = !Ship::Context::GetRawInstance()->GetWindow()->IsMouseCaptured();
         return;
@@ -70,11 +68,8 @@ void Mouse_ForceToggleCapture() {
 void Mouse_UpdateCaptureByState() {
     bool capture = InferCaptureFromState(gameState);
 
-    if (
-        gameState.isCaptureForced
-        || Ship::Context::GetRawInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse()
-        || !capture
-    ) {
+    if (gameState.isCaptureForced ||
+        Ship::Context::GetRawInstance()->GetWindow()->GetMouseStateManager()->ShouldAutoCaptureMouse() || !capture) {
         Ship::Context::GetRawInstance()->GetWindow()->SetMouseCapture(capture);
     }
 }
@@ -99,45 +94,29 @@ void HandleKaleidoCapture(PauseContext* pauseCtx) {
 void RegisterMouseCaptureHooks() {
     {
         static bool autoCapture = false;
-        bool newAutoCapture = CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gSettings.AutoCaptureMouse", 1);
+        bool newAutoCapture =
+            CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gSettings.AutoCaptureMouse", 1);
         if (autoCapture != newAutoCapture) {
             autoCapture = newAutoCapture;
             Ship::Context::GetRawInstance()->GetWindow()->SetAutoCaptureMouse(autoCapture);
         }
     }
-    COND_HOOK(
-        OnKaleidoUpdate,
-        true,
-        HandleKaleidoCapture
-    );
-    COND_HOOK(
-        OnSaveLoad,
-        true,
-        [](s16 fileNum) {
-            gameState.gameStarted = true;
+    COND_HOOK(OnKaleidoUpdate, true, HandleKaleidoCapture);
+    COND_HOOK(OnSaveLoad, true, [](s16 fileNum) {
+        gameState.gameStarted = true;
+        Mouse_UpdateCaptureByState();
+    });
+    COND_HOOK(OnConsoleLogoUpdate, true, []() {
+        if (gameState.gameStarted) {
+            gameState.gameStarted = false;
+            gameState.inKaleido = false;
             Mouse_UpdateCaptureByState();
         }
-    );
-    COND_HOOK(
-        OnConsoleLogoUpdate,
-        true,
-        []() {
-            if (gameState.gameStarted) {
-                gameState.gameStarted = false;
-                gameState.inKaleido = false;
-                Mouse_UpdateCaptureByState();
-            }
-        }
-    );
+    });
 }
 
-static RegisterShipInitFunc initFunc(
-    RegisterMouseCaptureHooks,
-    {
-        "gSettings.EnableMouse",
-        "gSettings.AutoCaptureMouse"
-    }
-);
+static RegisterShipInitFunc initFunc(RegisterMouseCaptureHooks,
+                                     { "gSettings.EnableMouse", "gSettings.AutoCaptureMouse" });
 
 #ifdef __cplusplus
 } // extern "C"
