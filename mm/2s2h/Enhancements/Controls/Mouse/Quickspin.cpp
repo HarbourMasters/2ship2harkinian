@@ -24,20 +24,20 @@
 #define SENSE_Y CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f)
 
 // Base parameters (tune these)
-#define QS_WINDOW_SIZE 6                     // Number of frames to analyze
-#define QS_CONSISTENCY_RATIO 0.6f            // Ratio of frames needed with consistent curvature (60%)
+#define QS_WINDOW_SIZE 6          // Number of frames to analyze
+#define QS_CONSISTENCY_RATIO 0.6f // Ratio of frames needed with consistent curvature (60%)
 #define QS_MIN_CONSISTENT_CROSSES ((s32)(QS_WINDOW_SIZE * QS_CONSISTENCY_RATIO))
 
-#define QS_ROTATION_COVERAGE 0.75f           // Fraction of full circle needed (75% = 270deg)
-#define QS_MIN_STEP_FRACTION 0.20f           // Min step = fraction of avg step (filters jitter)
-#define QS_MAX_STEP_FRACTION 3.2f            // Max step = factor * avg step (filters reversals)
+#define QS_ROTATION_COVERAGE 0.75f // Fraction of full circle needed (75% = 270deg)
+#define QS_MIN_STEP_FRACTION 0.20f // Min step = fraction of avg step (filters jitter)
+#define QS_MAX_STEP_FRACTION 3.2f  // Max step = factor * avg step (filters reversals)
 #define QS_MIN_ROTATION_RAD (QS_ROTATION_COVERAGE * 2.0f * M_PI)
 #define QS_AVG_STEP_RAD (QS_MIN_ROTATION_RAD / QS_WINDOW_SIZE)
 #define QS_MIN_ANGLE_STEP_RAD (QS_AVG_STEP_RAD * QS_MIN_STEP_FRACTION)
 #define QS_MAX_ANGLE_STEP_RAD (QS_AVG_STEP_RAD * QS_MAX_STEP_FRACTION)
 
-#define QS_BASE_DISPLACEMENT 150.0f          // Base displacement threshold in pixels
-#define QS_CROSS_MAG_FACTOR 0.003f           // Cross threshold = displacement^2 * factor
+#define QS_BASE_DISPLACEMENT 150.0f // Base displacement threshold in pixels
+#define QS_CROSS_MAG_FACTOR 0.003f  // Cross threshold = displacement^2 * factor
 #define QS_MIN_DISPLACEMENT (QS_BASE_DISPLACEMENT * (SENSE_X + SENSE_Y) * 0.5f)
 #define QS_CROSS_MAG_THRESHOLD (QS_MIN_DISPLACEMENT * QS_MIN_DISPLACEMENT * QS_CROSS_MAG_FACTOR)
 
@@ -67,7 +67,9 @@ void CollectMouseVelocity(Input* input) {
     deltaY[writeIndex] = d.y;
 
     writeIndex = (writeIndex + 1) % QS_WINDOW_SIZE;
-    if (sampleCount < QS_WINDOW_SIZE) { sampleCount++; }
+    if (sampleCount < QS_WINDOW_SIZE) {
+        sampleCount++;
+    }
 }
 
 bool DetectQuickspin(bool* should, s8* controlAngles) {
@@ -154,16 +156,9 @@ bool DetectQuickspin(bool* should, s8* controlAngles) {
 }
 
 void RegisterQuickspinFunc() {
-    COND_VB_SHOULD(
-        VB_SHOULD_QUICKSPIN,
-        CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
-        { DetectQuickspin(should, va_arg(args, s8*)); }
-    );
-    COND_HOOK(
-        OnPassPlayerInputs,
-        CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
-        CollectMouseVelocity
-    );
+    COND_VB_SHOULD(VB_SHOULD_QUICKSPIN, CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
+                   { DetectQuickspin(should, va_arg(args, s8*)); });
+    COND_HOOK(OnPassPlayerInputs, CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0), CollectMouseVelocity);
 }
 
 static RegisterShipInitFunc initFunc(RegisterQuickspinFunc, { "gEnhancements.Mouse.Quickspin.Enable" });

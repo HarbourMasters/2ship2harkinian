@@ -23,7 +23,9 @@ static void HandleTelescopeAim(s16* inputX, s16* inputY) {
 }
 
 static void HandleOvershoulderAim(bool* should, Player* player) {
-    if (!Mouse_IsCaptured()) { return; }
+    if (!Mouse_IsCaptured()) {
+        return;
+    }
     MouseCoords d = Mouse_GetDelta();
     if (d.y != 0) {
         // FIXME: to remove? Why was it there?
@@ -36,25 +38,18 @@ static void HandleOvershoulderAim(bool* should, Player* player) {
 }
 
 void RegisterMouseFirstPersonHooks() {
-    COND_HOOK(
-        OnPlayerTelescopeAim,
-        CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0),
-        HandleTelescopeAim
-    );
-    COND_VB_SHOULD(
-        VB_SHOULD_OVERSHOULDER_AIM,
-        CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0),
-        { HandleOvershoulderAim(should, va_arg(args, Player*)); }
-    );
+    COND_HOOK(OnPlayerTelescopeAim,
+              CVarGetInteger("gSettings.EnableMouse", 0) &&
+                  CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0),
+              HandleTelescopeAim);
+    COND_VB_SHOULD(VB_SHOULD_OVERSHOULDER_AIM,
+                   CVarGetInteger("gSettings.EnableMouse", 0) &&
+                       CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0),
+                   { HandleOvershoulderAim(should, va_arg(args, Player*)); });
 }
 
-static RegisterShipInitFunc initFunc(
-    RegisterMouseFirstPersonHooks,
-    {
-        "gSettings.EnableMouse",
-        "gEnhancements.Camera.FirstPerson.GyroEnabled"
-    }
-);
+static RegisterShipInitFunc initFunc(RegisterMouseFirstPersonHooks,
+                                     { "gSettings.EnableMouse", "gEnhancements.Camera.FirstPerson.GyroEnabled" });
 
 #ifdef __cplusplus
 } // extern "C"

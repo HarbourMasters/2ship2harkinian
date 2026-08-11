@@ -106,29 +106,24 @@ bool Camera_FreeLook(Camera* camera) {
     bool inShieldingState = player->stateFlags1 & PLAYER_STATE1_400000;
     bool mouseShieldingEnabled = CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0);
     bool mouseShieldingCameraControl = CVarGetInteger("gEnhancements.Mouse.Shielding.CameraControl", 1);
-    if (
-        mouseEnabled && !(
-            mouseShieldingEnabled && !mouseShieldingCameraControl
-            && inShieldingState && player->focusActor == NULL
-        ) && !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0)
-    ) {
+    if (mouseEnabled &&
+        !(mouseShieldingEnabled && !mouseShieldingCameraControl && inShieldingState && player->focusActor == NULL) &&
+        !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0)) {
         MouseCoords mouseDelta = Mouse_GetDelta();
         yawDiff -= mouseDelta.x * 40.0f;
         pitchDiff -= mouseDelta.y * 40.0f;
     }
 
-    yawDiff *= CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
-    pitchDiff *= CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f) * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
+    yawDiff *= CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) *
+               GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
+    pitchDiff *= CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f) *
+                 -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
 
     yaw += yawDiff;
     pitch += pitchDiff;
 
-    if (
-        mouseEnabled
-        && mouseShieldingEnabled
-        && mouseShieldingCameraControl
-        && inShieldingState && player->focusActor == NULL
-    ) {
+    if (mouseEnabled && mouseShieldingEnabled && mouseShieldingCameraControl && inShieldingState &&
+        player->focusActor == NULL) {
         HandleShieldCameraControl(camera, (s16)yaw);
     }
 
@@ -181,21 +176,19 @@ bool Camera_FreeLook(Camera* camera) {
 }
 
 bool Camera_CanFreeLook(Camera* camera) {
-    if (!sCanFreeLook && Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0)
-        && !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0)) {
+    if (!sCanFreeLook && Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0) &&
+        !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0)) {
         MouseCoords mouseDelta = Mouse_GetDelta();
         Player* player = GET_PLAYER(gPlayState);
         if (mouseDelta.x != 0 || mouseDelta.y != 0) {
             // TODO: why auto? consider
             if (player->autoLockOnActor == NULL) {
                 sCanFreeLook = true;
-            } else if (
-                CVarGetInteger("gEnhancements.Camera.Mouse.ZTargetFreeLookEnabled", 1)
-                && (
-                    abs(mouseDelta.x) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) > 30.0f
-                    || abs(mouseDelta.y) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f) > 30.0f
-                )
-            ) {
+            } else if (CVarGetInteger("gEnhancements.Camera.Mouse.ZTargetFreeLookEnabled", 1) &&
+                       (abs(mouseDelta.x) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) >
+                            30.0f ||
+                        abs(mouseDelta.y) * CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f) >
+                            30.0f)) {
                 sCanFreeLook = true;
             }
         }
