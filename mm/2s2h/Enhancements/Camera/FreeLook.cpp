@@ -199,13 +199,18 @@ void RegisterCameraFreeLook() {
                 }
                 break;
             case CAM_FUNC_PARALLEL1:
-                if (camera->mode == CAM_MODE_HANG) {
-                    if (Camera_CanFreeLook(camera)) {
-                        Camera_FreeLook(camera);
-                        *should = false;
-                    }
+                switch (camera->mode) {
+                    case CAM_MODE_HANG:
+                    case CAM_MODE_FREEFALL:
+                    case CAM_MODE_ZORAFINZ:
+                        if (Camera_CanFreeLook(camera)) {
+                            Camera_FreeLook(camera);
+                            *should = false;
+                        }
+                        break;
+                    default:
+                        break;
                 }
-                break;
             default:
                 break;
         }
