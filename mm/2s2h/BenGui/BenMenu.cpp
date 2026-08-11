@@ -658,6 +658,25 @@ void BenMenu::AddSettings() {
         .WindowName("2S2H Input Editor")
         .Options(ButtonOptions().Tooltip("Enables the separate Bindings Window.").Size(Sizes::Inline));
 
+    AddWidget(path, "Mouse", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
+        .CVar("gSettings.EnableMouse")
+        .Options(CheckboxOptions().DefaultValue(false));
+    AddWidget(path, "Auto Capture Mouse Input", WIDGET_CVAR_CHECKBOX)
+        .CVar("gSettings.AutoCaptureMouse")
+        .Options(
+            CheckboxOptions().Tooltip(
+                "When Mouse Controls are enabled, this toggles whether the program will automatically "
+                "hide the cursor and capture mouse input when closing the menu."
+            )
+        );
+    AddWidget(path, "Force Mouse Capture on Startup", WIDGET_CVAR_CHECKBOX)
+        .CVar("gSettings.ForceMouseCaptureOnStartup")
+        .Options(CheckboxOptions().DefaultValue(false).Tooltip(
+            "This toggles whether the program will automatically "
+            "hide the cursor and force capture mouse input when starting the game.")
+        );
+
     path.sidebarName = "Overlay";
     path.column = SECTION_COLUMN_1;
     AddSidebarEntry("Settings", "Overlay", 2);
@@ -983,50 +1002,11 @@ void BenMenu::AddEnhancements() {
                      .IsPercentage()
                      .Min(0.1f)
                      .Max(3.0f));
-
-    path.column = SECTION_COLUMN_3;
-    AddWidget(path, "Mouse", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.EnableMouse")
-        .Options(CheckboxOptions().DefaultValue(false));
-    AddWidget(path, "Auto Capture Mouse Input", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.AutoCaptureMouse")
-        .Options(
-            CheckboxOptions().Tooltip(
-                "When Mouse Controls are enabled, this toggles whether the program will automatically "
-                "hide the cursor and capture mouse input when closing the menu."
-            )
-        );
-    AddWidget(path, "Force Mouse Capture on Startup", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.ForceMouseCaptureOnStartup")
-        .Options(CheckboxOptions().DefaultValue(false).Tooltip(
-            "This toggles whether the program will automatically "
-            "hide the cursor and force capture mouse input when starting the game.")
-        );
     AddWidget(path, "Disable Third Person Mouse Camera", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.DisableThirdPerson")
         .Options(CheckboxOptions().DefaultValue(false).Tooltip(
             "Prevents the mouse from moving the third-person camera, so only first-person aiming "
             "responds to the mouse."))
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
-        });
-    AddWidget(path, "Mouse Shielding Enabled", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Mouse.Shielding.Enabled")
-        .Options(CheckboxOptions().DefaultValue(false))
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
-        });
-    AddWidget(path, "Mouse Shielding Rotates Camera", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Mouse.Shielding.CameraControl")
-        .Options(CheckboxOptions().DefaultValue(true))
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active ||
-                            !CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0);
-        });
-    AddWidget(path, "Mouse Quickspin", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Mouse.Quickspin.Enable")
-        .Options(CheckboxOptions().DefaultValue(false))
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
@@ -1181,6 +1161,25 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Equipment.InvertShieldY")
         .Options(CheckboxOptions().Tooltip(
             "Invert the Y axis while holding the shield so that it moves up with the left stick."));
+    AddWidget(path, "Mouse Shielding Enabled", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Mouse.Shielding.Enabled")
+        .Options(CheckboxOptions().DefaultValue(false))
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
+        });
+    AddWidget(path, "Mouse Shielding Rotates Camera", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Mouse.Shielding.CameraControl")
+        .Options(CheckboxOptions().DefaultValue(true))
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active ||
+                            !CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0);
+        });
+    AddWidget(path, "Mouse Quickspin", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Mouse.Quickspin.Enable")
+        .Options(CheckboxOptions().DefaultValue(false))
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
+        });
     AddWidget(path, "Great Fairy Sword B-Button Attack", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.GreatFairySwordBButton")
         .Options(CheckboxOptions().Tooltip(
