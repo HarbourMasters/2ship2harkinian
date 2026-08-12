@@ -394,10 +394,8 @@ nlohmann::json voyage3PresetJ = R"(
                 "ExtendedProjectileInteractionDistance": 0
             },
             "Graphics": {
-                "3DItemDrops": 1,
                 "ActorCullingAccountsForWidescreen": 0,
                 "AuthenticLogo": 1,
-                "DisableBlackBars": 1,
                 "DisableSceneGeometryDistanceCheck": 0,
                 "FixSceneGeometrySeams": 0,
                 "IncreaseActorDrawDistance": 3,
@@ -416,10 +414,13 @@ nlohmann::json voyage3PresetJ = R"(
                 "3DSMaskEquip": 1,
                 "BlastMaskCooldown": 3.0,
                 "BlastMaskKeg": 0,
+                "EasyMaskEquip": 0,
+                "EquipWhileSwimming": 0,
                 "FastTransformation": 1,
                 "FierceDeitysAnywhere": 1,
                 "GoronRollingFastSpikes": 0,
                 "GoronRollingIgnoresMagic": 0,
+                "GoronRollingSpikesRequireShield": 0,
                 "NoBlastMaskCooldown": 1,
                 "PersistentBunnyHood": {
                     "Enabled": 1
@@ -446,12 +447,10 @@ nlohmann::json voyage3PresetJ = R"(
                 "TownArcheryScore": 50,
                 "TreasureChestShopShowFullMaze": 0
             },
-            "Mods": {
-                "AlternateAssets": 1
-            },
             "Playback": {
                 "DpadOcarina": 1,
                 "NoDropOcarinaInput": 1,
+                "RightStickOcarina": 0,
                 "SkipScarecrowSong": 1
             },
             "Player": {
@@ -487,6 +486,7 @@ nlohmann::json voyage3PresetJ = R"(
             "Saving": {
                 "Autosave": 0,
                 "FileSlot3": 1,
+				"NewFileSetup": 1,
                 "PauseSave": 1,
                 "PersistentOwlSaves": 0,
                 "RememberSaveLocation": 0
@@ -495,10 +495,14 @@ nlohmann::json voyage3PresetJ = R"(
                 "CuriosityShopRefills": 0
             },
             "Songs": {
+                "BetterOwlWarpMenu": 0,
                 "BetterSongOfDoubleTime": 1,
+                "EnableSunsSong": 0,
                 "FasterSongPlayback": 1,
+                "PauseOwlWarp": 0,
                 "SkipSoTCutscenes": 1,
                 "SkipSoaringCutscene": 1,
+                "SongItems": 0,
                 "ZoraEggCount": 1
             },
             "Timesavers": {
