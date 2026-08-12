@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 
+// Added to allow the preset button to function properly under the custom Races Menu.
+extern nlohmann::json voyage3PresetJ;
+
 bool PresetManager_HandleFileDropped(const std::string& filePath);
 void PresetManager_ApplyPreset(nlohmann::json j);
 void PresetManager_Draw();
