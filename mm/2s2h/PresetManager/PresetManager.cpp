@@ -308,10 +308,7 @@ nlohmann::json voyage3PresetJ = R"(
             "SpeedModifier": {
                 "Mode": 0
             }
-		    },
-		    "gDisplayOverlay": {
-            	"Mode": 1
-        },
+		},
         "gDisplayOverlay": {
             "Mode": 1
         },
