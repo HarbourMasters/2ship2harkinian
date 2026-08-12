@@ -539,6 +539,9 @@ void Menu::DrawElement() {
     if (OTRGlobals::Instance->fontStandardLargest == nullptr) {
         return;
     }
+    if (gRegEditor == nullptr) {
+        return;
+    }
     for (auto& [reason, info] : disabledMap) {
         info.active = info.evaluation(info);
     }
