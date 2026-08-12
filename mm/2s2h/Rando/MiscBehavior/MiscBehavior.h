@@ -28,6 +28,16 @@ void InitTycoonWallet();
 // Attempting to implement Caladius's reload of settings on file load.
 void OnRaceFileInit();
 
+typedef struct {
+    char tex[512];
+    uint16_t width;
+    uint16_t height;
+    uint8_t im_fmt;
+    uint8_t im_siz;
+    uint8_t id;
+} Sprite;
+Sprite* GetSeedTexture(const uint8_t index);
+
 } // namespace MiscBehavior
 
 } // namespace Rando

@@ -3,10 +3,13 @@
 #define PRESET_MANAGER_H
 
 #include <string>
-extern nlohmann::json voyage3PresetJ;
+#include <vector>
 
 bool PresetManager_HandleFileDropped(const std::string& filePath);
 void PresetManager_ApplyPreset(nlohmann::json j);
 void PresetManager_Draw();
+
+std::vector<std::string> PresetManager_GetPresetNames();
+bool PresetManager_ApplyPresetByName(const std::string& name);
 
 #endif // PRESET_MANAGER_H
