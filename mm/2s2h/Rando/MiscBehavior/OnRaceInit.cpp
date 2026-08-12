@@ -5,6 +5,9 @@ extern "C" {
 #include "variables.h"
 }
 
+// Added to allow the preset button to function properly under the custom Races Menu.
+extern nlohmann::json voyage3PresetJ;
+
 static bool isRaceInitialized = false;
 
 void Rando::MiscBehavior::OnRaceFileInit() {
