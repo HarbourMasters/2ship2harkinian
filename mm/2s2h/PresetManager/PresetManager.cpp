@@ -366,7 +366,7 @@ void PresetManager_ApplyPreset(nlohmann::json j) {
         }
     }
 
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     ShipInit::Init("*");
     Notification::Emit({ .message = "Preset Loaded" });
 }
@@ -539,7 +539,7 @@ void PresetManager_Draw() {
 }
 
 void PresetManager_RegisterHooks() {
-    Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(PresetManager_HandleFileDropped);
+    Ship::Context::GetRawInstance()->GetFileDropMgr()->RegisterDropHandler(PresetManager_HandleFileDropped);
     PresetManager_RefreshPresets();
 }
 

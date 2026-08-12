@@ -391,24 +391,18 @@ typedef enum ItemId {
 #define ITEM_LANTERN             0xCD
 #define ITEM_CHATEAU_ROMANI      0xCE
 #define ITEM_POKEBALL            0xCF
-// SW97 medallion arrow items (0xD0-0xD5):
-#define ITEM_SW97_ARROW_FIRE     0xD0
-#define ITEM_SW97_ARROW_ICE      0xD1
-#define ITEM_SW97_ARROW_LIGHT    0xD2
-#define ITEM_SW97_ARROW_DARK     0xD3
-#define ITEM_SW97_ARROW_SOUL     0xD4
-#define ITEM_SW97_ARROW_WIND     0xD5
-// SW97 elemental BULLETS (slingshot-side twins of the arrow items, 0xA7-0xAC). Same
-// precedent as the NEI OoT ids 0xA0-0xA6: these shadow native map-point enum entries
-// (never equippable/held), and are only ever produced by the NEI slingshot wheel.
-// Equipping one to a C button = "Fairy Slingshot loaded with that element" (fires
-// ARROW_TYPE_SEED_* from EnArrow). Arrows and bullets coexist on separate buttons.
-#define ITEM_SW97_BULLET_FIRE    0xA7
-#define ITEM_SW97_BULLET_ICE     0xA8
-#define ITEM_SW97_BULLET_LIGHT   0xA9
-#define ITEM_SW97_BULLET_DARK    0xAA
-#define ITEM_SW97_BULLET_SOUL    0xAB
-#define ITEM_SW97_BULLET_WIND    0xAC
+// Elemental Wand — six rods (Sand / Tornado / Water / Meteor / Storm / Shadow Scepter) in ONE
+// page-2 cell, picked by a kaleido wheel that shows the matching medallion. Takes 0xD0, the first of
+// the twelve ids this refactor freed. Skijer's NEI
+#define ITEM_ELEMENTAL_WAND      0xD0
+// 0xD1-0xD5 were ITEM_SW97_ARROW_FIRE..WIND and 0xA7-0xAC were ITEM_SW97_BULLET_FIRE..WIND. Both
+// sets are GONE: the primed element is a flag (NeiSaveData.sw97BowElement / .sw97SlingElement), so
+// the C-button holds a plain ITEM_BOW / ITEM_FAIRY_SLINGSHOT and the medallion is composited over
+// the icon. This is not just tidying — the bullet block shadowed
+// ITEM_MAP_POINT_DEKU_PALACE..IKANA_CANYON, a live native enum range used by the owl-warp map, and
+// the NEI OoT ids at 0xA0-0xA6 still shadow ITEM_MILK / ITEM_GOLD_DUST_2 / ITEM_HYLIAN_LOACH_2 /
+// ITEM_SEAHORSE_CAUGHT and three more map points. 0xD1-0xD5 and 0xA7-0xAC are free for remapping
+// those; do NOT hand them to a new item without checking that first.
 // Prop Hunt render-hint icons (Harpoon multiplayer) (0xD6-0xDB):
 #define ITEM_PH_ICON_POT         0xD6
 #define ITEM_PH_ICON_ENEMY       0xD7
@@ -517,6 +511,30 @@ typedef enum ItemId {
 #define ITEM_EXT_BUTTON 0xFB
 #endif
 
+// Unified trade wheel placeholder (Skijer 2026-07-29). The wheel on SLOT_TRADE_DEED shows OoT trade
+// items too, but their OoT ids alias to ITEM_NONE in MM (nei_oot_compat.h) and the u8 space has no
+// room for 14 more. So the CELL holds this id and the real identity is nei.tradeAdultCursor, resolved
+// to art by TradeAdult_IconPath(). Like the medallion sentinels it is equality-only: no item action,
+// no usable/restriction table entry. 0xAD is from the free 0xAD-0xB2/0xB4 gap.
+#ifndef ITEM_TRADE_PLACEHOLDER
+#define ITEM_TRADE_PLACEHOLDER 0xAD
+#endif
+// The wheel also draws the two NEIGHBOURS as previews. They need ids distinct from the cell's and
+// from each other, or (a) both previews resolve to the same icon and (b) the draw's own
+// `slotItem != leftItem` guard sees "same item" and hides them. Resolved against cursor±1.
+#ifndef ITEM_TRADE_PREV
+#define ITEM_TRADE_PREV 0xAE
+#define ITEM_TRADE_NEXT 0xAF
+#endif
+// Same three-marker scheme for the OoT child-trade MASK wheel (item cell 4,6 -> VSLOT_OOT_MASKS).
+// OoT's 8 masks have no MM item ids either; ownership is nei->ootMasksOwned and the visible one is
+// nei->ootMaskCursor. Skijer 2026-07-30
+#ifndef ITEM_OOT_MASK_PLACEHOLDER
+#define ITEM_OOT_MASK_PLACEHOLDER 0xB0
+#define ITEM_OOT_MASK_PREV 0xB1
+#define ITEM_OOT_MASK_NEXT 0xB2
+#endif
+
 // Spiritual Stones (Kokiri Emerald / Goron's Ruby / Zora's Sapphire) — the first consumer of the
 // extended-button infra. They are equality-only, non-inventoried sentinel item ids (equipped to a C
 // button + icon lookup + held-button detection), like the medallions, but now use u16 EXT ids that
@@ -531,6 +549,16 @@ typedef enum ItemId {
 #endif
 #ifndef EXT_ITEM_SPIRITUAL_STONE_ZORA
 #define EXT_ITEM_SPIRITUAL_STONE_ZORA   0x0203
+#endif
+// The four page-2 items added by the 2026-08-06 re-layout (cells 39 / 41 / 44 / 47). First real
+// INVENTORY consumers of the EXT u16 id space — the u8 space is down to 5 free bytes, and widening
+// NeiSaveData.ownedItems to u16 was done precisely so new page-2 items could live above 0xFF.
+// Values must stay byte-identical with the soh side (soh/mods/extended_inventory.h). Skijer's NEI
+#ifndef EXT_ITEM_SHEIKAH_SLATE
+#define EXT_ITEM_SHEIKAH_SLATE    0x0220
+#define EXT_ITEM_PHANTOM_HOURGLASS 0x0221
+#define EXT_ITEM_SHADOW_CRYSTAL   0x0222
+#define EXT_ITEM_ROD_OF_SEASONS   0x0223
 #endif
 // Back-compat aliases (same u16 values) so existing consumers keep their names; all > 0xFF now.
 #ifndef ITEM_SPIRITUAL_STONE_KOKIRI

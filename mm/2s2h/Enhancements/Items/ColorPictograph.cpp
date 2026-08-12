@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <cstring>
 #include <png.h>
+#include <spdlog/spdlog.h>
 
 using json = nlohmann::json;
 
@@ -121,6 +122,50 @@ void LoadPictoPNG() {
 
     png_destroy_read_struct(&png, &info, nullptr);
     fclose(fp);
+}
+
+// ── Fleet Ship Combo bridge (Skijer's NEI) ──────────────────────────────────────────────────────
+// The combo shares ONE pictograph, and "one pictograph" has to include its colour: the I5 buffer the
+// two games exchange is greyscale by construction (that is all Majora's Mask ever stored), so the
+// colour print needs its own copy. It is this buffer, raw: 160x112 RGBA16, byte-swapped exactly like
+// Ship's, which makes it a straight byte copy between the games. FleetPicto.cpp does the file I/O.
+extern "C" const void* ColorPictograph_GetBuffer(void) {
+    return pictoPhotoRGBABuffer;
+}
+
+extern "C" unsigned int ColorPictograph_GetBufferSize(void) {
+    return (unsigned int)sizeof(pictoPhotoRGBABuffer);
+}
+
+extern "C" int ColorPictograph_HasImage(void) {
+    for (size_t i = 0; i < PICTO_PHOTO_SIZE; i++) {
+        if (pictoPhotoRGBABuffer[i] != 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Adopt a colour print that came from the other game. Re-saving this slot's PNG is not optional:
+// VB_PICTO_ACTIVATE reloads that PNG over this buffer every time the box comes out, so an import that
+// skipped it would be wiped the moment the player looked at the picture — the picture would arrive in
+// colour and go grey (or black) one button press later. fileNumber is refreshed from the live slot
+// first, because the import can run before this file's own OnSaveLoad hook does. Skijer's NEI
+extern "C" void ColorPictograph_SetBuffer(const void* src) {
+    if (src == nullptr) {
+        return;
+    }
+    if ((gSaveContext.fileNum >= 0) && (gSaveContext.fileNum < 3)) { // 0xFF = no file loaded
+        fileNumber = (s16)(gSaveContext.fileNum + 1);
+    }
+    std::memcpy(pictoPhotoRGBABuffer, src, sizeof(pictoPhotoRGBABuffer));
+    try {
+        SavePictoPng();
+    } catch (const std::exception& e) {
+        SPDLOG_WARN("[FleetPicto] could not re-save the colour PNG: {}", e.what());
+    } catch (...) {
+        SPDLOG_WARN("[FleetPicto] could not re-save the colour PNG");
+    }
 }
 
 void ConvertImage(u16* destI, u16* srcRgba16, s32 rgba16Width, s32 pixelLeft, s32 pixelTop, s32 pixelRight,

@@ -357,6 +357,13 @@ if(MSVC)
 		/wd4101 # unreferenced local variable. Things like stack pads.
 		/wd4133 #incompatible types. Usually caused by passing a c string into a function that takes a pointer.
 		/wd4244 #conversion from [a] to [b]. Used to warn when copying to smaller type without a cast.
+        # z_player.c is a huge unity translation unit (it #includes expansions/sm64, ssbb, sw97,
+        # mods/extended_player.c, extended_inventory.c, items/logic/custom_items.c with every
+        # custom item, extended_equipment.c, transformation_masks...). Without /bigobj an object
+        # is capped at 65,536 sections, and /Gy gives every function its own COMDAT section, so
+        # the cap is reached and the linker fails with LNK1179 "duplicate COMDAT" naming some
+        # arbitrary symbol. Shipwright hit this first and carries the same flag (soh/CMakeLists.txt).
+        /bigobj;
         /sdl-;
         /permissive-;
         /MP;

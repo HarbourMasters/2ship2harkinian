@@ -1,4 +1,5 @@
 #include "Rando/Rando.h"
+#include "2s2h/ShipUtils.h"
 #include "Rando/Spoiler/Spoiler.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "Rando/CheckTracker/CheckTracker.h"
@@ -150,7 +151,7 @@ void SaveExcludedChecks() {
         excludedString += ",";
     }
     CVarSetString("gRando.ExcludedChecks", excludedString.c_str());
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     ShipInit::Init("gRando.ExcludedChecks");
 }
 
@@ -425,6 +426,70 @@ static void DrawShufflesTab() {
     ImGui::BeginChild("randoShufflesColumn1", ImVec2(columnWidth, halfHeight));
     CVarCheckbox("Shuffle Songs", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }).DefaultValue(true));
+    // ── Skijer's NEI custom items ────────────────────────────────────────────────────────────────
+    // Until now NO RI_OOT_NEI_* item could be placed by the generator at all — they had give/draw
+    // plumbing but nothing ever pushed them into the pool. This toggle is that block's gate.
+    CVarCheckbox("Shuffle NEI Custom Items", Rando::StaticData::Options[RO_SHUFFLE_NEI_ITEMS].cvar,
+                 CheckboxOptions({ { .tooltip =
+                                         "Adds Skijer's NEI custom items (the page-2 inventory) to the item pool:\n"
+                                         "Whip, Spinner, the three elemental Rods, Deku Leaf, Time Gate, Beetle,\n"
+                                         "Switch Hook, Mogma Mitts, Gust Jar, Ball and Chain, Dominion Rod, the six\n"
+                                         "Dual Cane skills, and more.\n\n"
+                                         "These are not considered by logic yet." } }));
+    // ── Cross-game categories (2026-08-06): OoT items in a SOLO MM seed, no combo needed ─────────
+    // In combo these come through the combo's own supply, so the checkboxes only affect solo seeds.
+    CVarCheckbox("Add OoT Items", Rando::StaticData::Options[RO_SHUFFLE_OOT_GEAR].cvar,
+                 CheckboxOptions({ { .tooltip =
+                                         "Adds OoT gear to a solo-MM pool: the Master Sword and Biggoron's Sword\n"
+                                         "chains, Stick/Nut Capacity, Open Chests, Progressive Strength and the\n"
+                                         "ship-vanilla Roc's Feather.\n\nNot considered by logic." } }));
+    CVarCheckbox("Add OoT Equipment", Rando::StaticData::Options[RO_SHUFFLE_OOT_EQUIPMENT].cvar,
+                 CheckboxOptions({ { .tooltip =
+                                         "Adds the extended-equipment page to a solo-MM pool: Cane of Byrna, Four\n"
+                                         "Sword, Trident, the three shields, the three tunics, the three boots,\n"
+                                         "the Magic Cape and the progressive Roc.\n\nNot considered by logic." } }));
+    CVarCheckbox("Add OoT Songs & Quest Items", Rando::StaticData::Options[RO_SHUFFLE_OOT_QUEST].cvar,
+                 CheckboxOptions({ { .tooltip =
+                                         "Adds OoT's songs, the six medallions, the three spiritual stones and the\n"
+                                         "Stone of Agony to a solo-MM pool.\n\nNot considered by logic." } }));
+    CVarCheckbox("Add OoT Masks", Rando::StaticData::Options[RO_SHUFFLE_OOT_MASKS].cvar,
+                 CheckboxOptions({ { .tooltip = "Adds the Skull, Spooky and Gerudo masks to a solo-MM pool.\n\n"
+                                                "Not considered by logic." } }));
+    if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_NEI_ITEMS].cvar, RO_GENERIC_OFF)) {
+        // Bomb Arrows have no inventory slot any more — they are the last entry of the bow's
+        // element wheel, so this is purely about how you come by them. The seed-locked value mirrors
+        // into gMods.BombArrows.Mode because the in-game grant logic runs outside seeds too.
+        static std::unordered_map<int32_t, const char*> bombArrowModeOptions = {
+            { RO_BOMB_ARROWS_OFF, "Off" },
+            { RO_BOMB_ARROWS_BOMB_BAG, "Bomb Bag" },
+            { RO_BOMB_ARROWS_SHUFFLED, "Shuffled" },
+        };
+        UIWidgets::CVarCombobox(
+            "Shuffle Bomb Arrows", Rando::StaticData::Options[RO_SHUFFLE_BOMB_ARROWS].cvar, &bombArrowModeOptions,
+            UIWidgets::ComboboxOptions().Tooltip(
+                "How Bomb Arrows are obtained. They sit at the end of the bow's element wheel,\n"
+                "next to the medallion arrows — they have no inventory slot of their own.\n\n"
+                "Off: never granted on their own (the Twilight Upgrade still unlocks them).\n"
+                "Bomb Bag: granted the moment you own any bomb bag.\n"
+                "Shuffled: a real randomizer item."));
+        CVarSetInteger("gMods.BombArrows.Mode",
+                       CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_BOMB_ARROWS].cvar, RO_BOMB_ARROWS_OFF));
+
+        static std::unordered_map<int32_t, const char*> wandModeOptions = {
+            { RO_WAND_MEDALLIONS, "Medallions" },
+            { RO_WAND_SINGLE_ITEM, "Single item" },
+            { RO_WAND_ELEMENTAL_SHUFFLE, "Elemental shuffle" },
+        };
+        UIWidgets::CVarCombobox(
+            "Elemental Wand", Rando::StaticData::Options[RO_ELEMENTAL_WAND_SHUFFLE].cvar, &wandModeOptions,
+            UIWidgets::ComboboxOptions().Tooltip(
+                "Six rods - Sand, Tornado, Water, Meteor, Storm and the Shadow Scepter - share ONE\n"
+                "inventory cell and one wheel (the cell Bomb Arrows vacated).\n\n"
+                "Medallions: one wand in the pool; a rod works once you own its OoT medallion.\n"
+                "Single item: one wand in the pool; finding it unlocks all six rods.\n"
+                "Elemental shuffle: the six rods are separate items; the first found also grants\n"
+                "the wand itself."));
+    }
     CVarCheckbox("Shuffle Owl Statues", Rando::StaticData::Options[RO_SHUFFLE_OWL_STATUES].cvar);
     CVarCheckbox("Shuffle Shops", Rando::StaticData::Options[RO_SHUFFLE_SHOPS].cvar);
     CVarCheckbox("Shuffle Tingle Maps", Rando::StaticData::Options[RO_SHUFFLE_TINGLE_SHOPS].cvar);
@@ -767,7 +832,7 @@ static void DrawStartingItemsTab() {
 
         Rando::StaticData::RandoStaticItem randoStaticItem = Rando::StaticData::Items[startingItem];
         const char* texturePath = Rando::StaticData::GetIconTexturePath(startingItem);
-        ImTextureID textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
+        ImTextureID textureId = Ship_GetFast3dGui()->GetTextureByName(texturePath);
 
         ImVec4 tintColor =
             Ship_GetItemColorTint(startingItem == RI_PROGRESSIVE_LULLABY ? ITEM_SONG_LULLABY : randoStaticItem.itemId);
@@ -833,7 +898,7 @@ static void DrawStartingItemsTab() {
                     Rando::StaticData::RandoStaticItem randoStaticItem = Rando::StaticData::Items[item];
                     const char* texturePath = Rando::StaticData::GetIconTexturePath(item);
                     ImTextureID textureId =
-                        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
+                        Ship_GetFast3dGui()->GetTextureByName(texturePath);
 
                     // Force new row for Song of Time, first frog, and first time item
                     if (item == RI_SONG_TIME || item == RI_FROG_BLUE || item == RI_TIME_DAY_1) {

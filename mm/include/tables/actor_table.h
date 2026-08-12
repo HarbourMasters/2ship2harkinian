@@ -743,3 +743,10 @@
 /* 0x2BF */ DEFINE_ACTOR(         RemainsAllyChu,      ACTOR_REMAINS_ALLY_CHU,    ALLOCTYPE_NORMAL,    "RemainsAllyChu",      "Goht remains bombchu ally")
 /* 0x2C0 */ DEFINE_ACTOR(         RemainsAllyFish,     ACTOR_REMAINS_ALLY_FISH,   ALLOCTYPE_NORMAL,    "RemainsAllyFish",     "Gyorg remains fish ally")
 /* 0x2C1 */ DEFINE_ACTOR(         RemainsAllyLink,     ACTOR_REMAINS_ALLY_LINK,   ALLOCTYPE_NORMAL,    "RemainsAllyLink",     "Twinmold remains dark-link ally")
+// Skijer's NEI: Trutefel's three custom enemies, ported from the modern OoT decomp
+// (soh/mods/actors/trutefel). Actor code in mm/mods/trutefel/actors/*.c, unity-#included into
+// trutefel_enemies.cpp so each *_Profile gets C linkage. objectId is GAMEPLAY_KEEP; the models
+// load standalone by OTR path from trutefel-enemies.o2r (each Init self-kills if it's missing).
+/* 0x2C2 */ DEFINE_ACTOR(         EnMiniblin,          ACTOR_EN_MINIBLIN,         ALLOCTYPE_NORMAL,    "EnMiniblin",          "Trutefel Miniblin (rupee thief)")
+/* 0x2C3 */ DEFINE_ACTOR(         EnHammergeist,       ACTOR_EN_HAMMERGEIST,      ALLOCTYPE_NORMAL,    "EnHammergeist",       "Trutefel Molmauk (fire/ice hammers)")
+/* 0x2C4 */ DEFINE_ACTOR(         EnSbeetle,           ACTOR_EN_SBEETLE,          ALLOCTYPE_NORMAL,    "EnSbeetle",           "Trutefel Scissors Beetle (pincer thrower)")

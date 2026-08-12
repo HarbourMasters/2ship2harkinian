@@ -12,7 +12,7 @@ void ApplyHookshotHint(u16* textId, bool* loadFromMessageTable) {
                       "%y{{location}}%w that can help you reach the unreachable!";
 
     RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_HOOKSHOT);
-    CustomMessage::Replace(&msg, "{{location}}", Rando::StaticData::GetLocationNameForHint(randoCheckId, false));
+    CustomMessage::Replace(&msg, "{{location}}", Rando::GetHintLocationText(RI_HOOKSHOT, randoCheckId));
 
     CustomMessage::Entry entry = {
         .nextMessageID = (u16)0xFFFF,

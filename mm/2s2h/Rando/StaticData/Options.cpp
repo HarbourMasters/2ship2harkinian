@@ -75,6 +75,16 @@ std::map<RandoOptionId, RandoStaticOption> Options = {
     RO(RO_TRAP_AMOUNT,                 5),
     RO(RO_TRIFORCE_PIECES_MAX,         DEFAULT_TRIFORCE_PIECES_MAX),
     RO(RO_TRIFORCE_PIECES_REQUIRED,    DEFAULT_TRIFORCE_PIECES_MAX),
+    // Skijer's NEI. RO_SHUFFLE_NEI_ITEMS defaults OFF because until now NO RI_OOT_NEI_* item was
+    // ever added to the pool — turning it on by default would silently change every existing seed.
+    RO(RO_SHUFFLE_NEI_ITEMS,           RO_GENERIC_OFF),
+    RO(RO_SHUFFLE_BOMB_ARROWS,         RO_BOMB_ARROWS_OFF),
+    RO(RO_ELEMENTAL_WAND_SHUFFLE,      RO_WAND_MEDALLIONS),
+    // 2026-08-06 cross-game categories — all default OFF (turning any on silently changes seeds).
+    RO(RO_SHUFFLE_OOT_GEAR,            RO_GENERIC_OFF),
+    RO(RO_SHUFFLE_OOT_EQUIPMENT,       RO_GENERIC_OFF),
+    RO(RO_SHUFFLE_OOT_QUEST,           RO_GENERIC_OFF),
+    RO(RO_SHUFFLE_OOT_MASKS,           RO_GENERIC_OFF),
 };
 // clang-format on
 

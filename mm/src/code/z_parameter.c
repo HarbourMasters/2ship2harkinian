@@ -6,6 +6,11 @@
 #include "z64view.h"
 #include "z64voice.h"
 extern void Sm64CapsHud_DrawImGui(void);
+// #region 2S2H [Fleet Ship Combo] The combo's single shared pictograph (2s2h/FleetShipCombo/FleetPicto.cpp).
+// No-ops outside a combo session.
+extern void FleetPicto_OnPhotoKept(void);
+extern void FleetPicto_OnPhotoDiscarded(void);
+// #endregion
 
 #include "archives/icon_item_static/icon_item_static_yar.h"
 #include "interface/parameter_static/parameter_static.h"
@@ -34,6 +39,16 @@ extern void Sm64CapsHud_DrawImGui(void);
 #ifndef ITEM_FAIRY_SLINGSHOT
 #define ITEM_FAIRY_SLINGSHOT 0xA3
 #endif
+
+// SW97 primed element — the bow/slingshot HUD icon composites a medallion behind the weapon, driven
+// by a save flag rather than by the button's item id. nei_save.h is light (stdint + the combo ids)
+// so the SW97_ELEM_* constants come from the one place that defines them; only the entry points are
+// forward-declared, keeping to this file's rule of not pulling the whole NEI header in.
+#include "mods/nei_save.h"
+uint8_t Sw97_EffectiveElement(uint8_t isSling);
+uint8_t Sw97_IsBowItem(uint16_t item);
+uint8_t Sw97_IsSlingItem(uint16_t item);
+uint16_t Sw97_ElementIcon(uint8_t elem);
 
 // 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect,
 // z_kaleido_debug, and z_kaleido_draw.
@@ -3371,11 +3386,17 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 //! the status of empty C-buttons - for most forms, the C-buttons are enabled when empty, however for
                 //! Deku Link only, empty C-buttons are disabled.
                 ItemId itemId = GET_CUR_FORM_BTN_ITEM(i);
+                // Boss Remains (0x5D..0x60) are custom C-equippable "masks" — vanilla marks them `false`
+                // (they were quest-only), which would dim the C icon to alpha 70 as if unusable. They're
+                // always usable as Human, so treat them as unrestricted.
+                s32 itemIsRemains = (itemId >= ITEM_REMAINS_ODOLWA) && (itemId <= ITEM_REMAINS_TWINMOLD);
                 // NEI: custom item ids live beyond the 114-entry restriction table → never
                 // form-restricted (also fixes the documented OOB read for empty buttons, 255).
                 if (GameInteractor_Should(VB_ITEM_BE_RESTRICTED,
-                                          ((s32)itemId < 114 ? !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId]
-                                                             : false),
+                                          (itemIsRemains ? false
+                                                         : ((s32)itemId < 114
+                                                                ? !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId]
+                                                                : false)),
                                           &itemId)) {
                     // Item not usable in current playerForm
                     if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
@@ -3522,10 +3543,15 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
                 // Individual D button
                 ItemId itemId = DPAD_GET_CUR_FORM_BTN_ITEM(j);
+                // Boss Remains (0x5D..0x60): always usable as Human — never form-restricted (see the C-button
+                // loop above; otherwise the D-pad icon dims to alpha 70 as if it can't be used).
+                s32 itemIsRemains = (itemId >= ITEM_REMAINS_ODOLWA) && (itemId <= ITEM_REMAINS_TWINMOLD);
                 // NEI: custom item ids beyond the 114-entry table → never form-restricted.
                 if (GameInteractor_Should(VB_ITEM_BE_RESTRICTED,
-                                          ((s32)itemId < 114 ? !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId]
-                                                             : false),
+                                          (itemIsRemains ? false
+                                                         : ((s32)itemId < 114
+                                                                ? !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId]
+                                                                : false)),
                                           &itemId)) {
                     // Item not usable in current playerForm
                     if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
@@ -3928,6 +3954,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
                     sPictoState = PICTO_BOX_STATE_LENS;
                     REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
+                    // #region 2S2H [Fleet Ship Combo] One pictograph for both games: throwing it away
+                    // here has to remove it on the OoT side too, or a reload would hand it back.
+                    FleetPicto_OnPhotoDiscarded();
+                    // #endregion
                 } else {
                     Audio_PlaySfx_MessageDecide();
                     interfaceCtx->bButtonInterfaceDoActionActive = interfaceCtx->bButtonInterfaceDoAction = 0;
@@ -3942,6 +3972,11 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     }
                     play->actorCtx.flags &= ~ACTORCTX_FLAG_PICTO_BOX_ON;
                     SET_QUEST_ITEM(QUEST_PICTOGRAPH);
+                    // #region 2S2H [Fleet Ship Combo] Publish the picture the moment it is kept, so
+                    // the OoT side holds the same one without waiting for a cross-game warp. The I5
+                    // buffer and the subject flags are already final at this point.
+                    FleetPicto_OnPhotoKept();
+                    // #endregion
                     sPictoPhotoBeingTaken = false;
                 }
             }
@@ -5199,10 +5234,26 @@ void Interface_SetBButtonInterfaceDoAction(PlayState* play, s16 bButtonDoAction)
     interfaceCtx->bButtonInterfaceDoActionActive = true;
 }
 
+// Magic Tunic entry points. Breastplate_OnHealthChangeBefore is the direct pre-damage hook, defined
+// in equip_breastplate.c (unity-built into extended_equipment.c), which ships no header of its own;
+// ExtEquip_SpiritHasMoney lives in extended_equipment.h. Forward-declared rather than #included,
+// per this file's rule above of not pulling the whole NEI header in.
+extern void Breastplate_OnHealthChangeBefore(PlayState* play, int16_t* amount);
+extern u8 ExtEquip_SpiritHasMoney(void);
+
 /**
  * @return false if player is out of health
  */
 s32 Health_ChangeBy(PlayState* play, s16 healthChange) {
+    // Pre-damage hook: lets the Magic Tunic intercept damage and zero it out before the engine
+    // applies it. Defined in mods/equipment/behaviors/equip_breastplate.c (unity-built via
+    // extended_equipment.c); called directly rather than through GameInteractor so the build does
+    // not depend on a separate registration TU. Skijer's NEI
+    Breastplate_OnHealthChangeBefore(play, &healthChange);
+    if (healthChange == 0) {
+        return true;
+    }
+
     if (healthChange > 0) {
         Audio_PlaySfx(NA_SE_SY_HP_RECOVER);
     } else if (gSaveContext.save.saveInfo.playerData.doubleDefense && (healthChange < 0)) {
@@ -6177,18 +6228,57 @@ s16 sDpadItemIconTop[] = {
 
 void Interface_Dpad_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 button) {
     static s16 sDpadItemIconWidth[] = { 16, 16, 16, 16 };
-    // Skijer's NEI: 24x24 quest-icon items (SW97 medallions/arrows/bullets) — see
+    // Skijer's NEI: 24x24 quest-icon items (SW97 medallions / spiritual stones) — see
     // Interface_DrawItemIconTexture; loading them as 32x32 shows garbage.
     extern uint8_t ExtInv_GetItemIconSize(unsigned short itemId);
+    extern void* ExtInv_GetItemIcon(unsigned short itemId);
+    u8 dpadBtnItem = DPAD_GET_CUR_FORM_BTN_ITEM(button);
     s16 texSize = 32;
     s16 texScale = sDpadItemIconDD[button];
 
-    if (ExtInv_GetItemIconSize(DPAD_GET_CUR_FORM_BTN_ITEM(button)) == 24) {
+    if (ExtInv_GetItemIconSize(dpadBtnItem) == 24) {
         texSize = 24;
         texScale = (s16)((24.0f / sDpadItemIconWidth[button]) * (1 << 10)) >> 1;
     }
 
     OPEN_DISPS(play->state.gfxCtx);
+
+    // Skijer's NEI: badges on the D-pad too, for EVERY item that has one — a weapon whose element
+    // only showed on a C-button read as elementless the moment you moved it here. Drawn as an
+    // underlay before the item icon (the medallion behind, half alpha) for the SW97 elements, and as
+    // a corner mark after it for Bomb Arrows. The Gust Jar's element rides the same underlay.
+    {
+        u8 dpadIsSling = Sw97_IsSlingItem(dpadBtnItem);
+        u8 dpadElem =
+            (Sw97_IsBowItem(dpadBtnItem) || dpadIsSling) ? Sw97_EffectiveElement(dpadIsSling) : SW97_ELEM_NONE;
+        u16 underlayItem = ITEM_NONE;
+
+        if ((dpadElem >= SW97_ELEM_FIRE) && (dpadElem <= SW97_ELEM_WIND)) {
+            underlayItem = Sw97_ElementIcon(dpadElem);
+        } else if (dpadBtnItem == ITEM_GUST_JAR) {
+            extern uint8_t GustJar_GetElement(void);
+            extern uint16_t GustJar_ElementIcon(uint8_t element);
+            underlayItem = GustJar_ElementIcon(GustJar_GetElement());
+        }
+
+        if (underlayItem != ITEM_NONE) {
+            TexturePtr medTex = (TexturePtr)ExtInv_GetItemIcon(underlayItem);
+            if (medTex != NULL) {
+                s16 medScale = (s16)((24.0f / sDpadItemIconWidth[button]) * (1 << 10)) >> 1;
+                gDPPipeSync(OVERLAY_DISP++);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 128);
+                gDPLoadTextureBlock(OVERLAY_DISP++, medTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 24, 0,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
+                gSPTextureRectangle(OVERLAY_DISP++, sDpadItemIconLeft[button] << 2, sDpadItemIconTop[button] << 2,
+                                    (sDpadItemIconLeft[button] + sDpadItemIconWidth[button]) << 2,
+                                    (sDpadItemIconTop[button] + sDpadItemIconWidth[button]) << 2, G_TX_RENDERTILE, 0,
+                                    0, medScale << 1, medScale << 1);
+                gDPPipeSync(OVERLAY_DISP++);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
+            }
+        }
+    }
 
     gDPLoadTextureBlock(OVERLAY_DISP++, texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, texSize, texSize, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
@@ -6219,6 +6309,25 @@ void Interface_Dpad_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16
                             (sDpadItemIconLeft[button] + sDpadItemIconWidth[button]) << 2,
                             (sDpadItemIconTop[button] + sDpadItemIconWidth[button]) << 2, G_TX_RENDERTILE, 0, 0,
                             texScale << 1, texScale << 1); // Skijer's NEI: honors 24x24 quest-icon items
+    }
+
+    // Bomb Arrows corner mark (Skijer's NEI) — the C-button twin of this lives at the end of
+    // Interface_DrawItemIconTexture. 32x32 source stepped into a 6x6 rect at D-pad scale.
+    if (Sw97_ItemHasBombs(DPAD_GET_CUR_FORM_BTN_ITEM(button))) {
+        TexturePtr bombTex = (TexturePtr)ExtInv_GetItemIcon(ITEM_BOMB_ARROWS);
+        if (bombTex != NULL) {
+            s16 markSize = 6;
+            s16 markLeft = sDpadItemIconLeft[button] + sDpadItemIconWidth[button] - markSize;
+            s16 markTop = sDpadItemIconTop[button];
+            s16 markStep = (s16)(32 * 1024 / markSize);
+
+            gDPPipeSync(OVERLAY_DISP++);
+            gDPLoadTextureBlock(OVERLAY_DISP++, bombTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+            gSPTextureRectangle(OVERLAY_DISP++, markLeft << 2, markTop << 2, (markLeft + markSize) << 2,
+                                (markTop + markSize) << 2, G_TX_RENDERTILE, 0, 0, markStep, markStep);
+        }
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -6255,17 +6364,14 @@ void Interface_Dpad_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
 
     if ((i == ITEM_DEKU_STICK) || (i == ITEM_DEKU_NUT) || (i == ITEM_BOMB) || (i == ITEM_BOW) ||
         ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) || (i == ITEM_BOMBCHU) || (i == ITEM_POWDER_KEG) ||
-        (i == ITEM_MAGIC_BEANS) || (i == ITEM_PICTOGRAPH_BOX) || (i == ITEM_FAIRY_SLINGSHOT) ||
-        ((i >= ITEM_SW97_BULLET_FIRE) && (i <= ITEM_SW97_BULLET_WIND))) { // Skijer's NEI
+        (i == ITEM_MAGIC_BEANS) || (i == ITEM_PICTOGRAPH_BOX) || (i == ITEM_FAIRY_SLINGSHOT)) {
 
         if ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) {
             i = ITEM_BOW;
         }
 
-        // Skijer's NEI: elemental bullets share the seed pouch
-        if ((i >= ITEM_SW97_BULLET_FIRE) && (i <= ITEM_SW97_BULLET_WIND)) {
-            i = ITEM_FAIRY_SLINGSHOT;
-        }
+        // (The elemental-bullet fold is gone — Skijer's NEI. The button holds a plain
+        // ITEM_FAIRY_SLINGSHOT now, so it already matches the seed-pouch arm below.)
 
         if (i == ITEM_FAIRY_SLINGSHOT) {
             ammo = Nei_SlingshotSeeds();
@@ -6357,8 +6463,14 @@ void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 butt
         // icon-size lookup (C-button ext items live at form 0). The SW97 range checks below stay on the
         // raw u8 btnItem — the 0xFB marker never falls in those ranges.
         u16 effBtnItem = (btnItem == ITEM_EXT_BUTTON) ? EXT_BUTTON_ITEM(0, button) : btnItem;
-        s32 isSw97Arrow = (btnItem >= ITEM_SW97_ARROW_FIRE) && (btnItem <= ITEM_SW97_ARROW_WIND);
-        s32 isSw97Bullet = (btnItem >= ITEM_SW97_BULLET_FIRE) && (btnItem <= ITEM_SW97_BULLET_WIND);
+        // Skijer's NEI: the twelve per-element item ids are gone. The button holds a PLAIN
+        // bow/slingshot and the primed element is a flag, so the composite triggers off the flag and
+        // `texture` is already the weapon (it used to be the medallion — hence the layer order in
+        // the block below is the reverse of what it once was). SW97_ELEM_BOMB is excluded here: its
+        // icon is a full 32x32 item, so it draws as a corner badge next to the Ultrashot marker.
+        u8 sw97IsSling = Sw97_IsSlingItem(btnItem);
+        u8 sw97Elem = (Sw97_IsBowItem(btnItem) || sw97IsSling) ? Sw97_EffectiveElement(sw97IsSling) : SW97_ELEM_NONE;
+        s32 isSw97Elemental = (sw97Elem >= SW97_ELEM_FIRE) && (sw97Elem <= SW97_ELEM_WIND);
 
         // Skijer's NEI: Switch Hook grayed out while its charge pool recovers (spent the 5th shot).
         if (btnItem == ITEM_SWITCH_HOOK) {
@@ -6381,12 +6493,12 @@ void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 butt
             }
         }
 
-        if (isSw97Arrow || isSw97Bullet) {
-            // medallion (the loaded icon) behind + weapon icon on top
+        if (isSw97Elemental) {
+            // medallion behind at half alpha + the weapon icon on top
+            layerTex[0] = (TexturePtr)ExtInv_GetItemIcon(Sw97_ElementIcon(sw97Elem));
             layerSize[0] = 24;
-            layerTex[1] = isSw97Bullet ? (TexturePtr)ExtInv_GetItemIcon(ITEM_FAIRY_SLINGSHOT)
-                                       : gItemIcons[ITEM_BOW];
-            layerCount = (layerTex[1] != NULL) ? 2 : 1;
+            layerTex[1] = texture; // whatever the button's item resolved to (bow or slingshot)
+            layerCount = (layerTex[0] != NULL) ? 2 : 1;
 
             switch (button) {
                 case EQUIP_SLOT_C_LEFT:
@@ -6503,6 +6615,51 @@ void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 butt
         }
     }
 
+    // Skijer's NEI — Bomb Arrows: same top-right corner marker as the Ultrashot above. Bomb Arrows
+    // is the 7th value of the bow's element flag and owns no inventory cell, so the button shows a
+    // plain bow; this badge is the only thing that tells the two apart. It is a badge rather than
+    // the half-alpha underlay the medallions use because its icon is a full 32x32 item, which reads
+    // as a second item behind the bow instead of as a tint. Note the texture-coord step: 32x32
+    // source into a 12x12 rect, NOT the 24x24 step the Ultrashot marker hardcodes.
+    if ((button >= EQUIP_SLOT_B) && (button <= EQUIP_SLOT_C_RIGHT)) {
+        u8 bombBtnItem = GET_CUR_FORM_BTN_ITEM(button);
+
+        if (Sw97_ItemHasBombs(bombBtnItem)) {
+            TexturePtr bombTex = (TexturePtr)ExtInv_GetItemIcon(ITEM_BOMB_ARROWS);
+
+            if (bombTex != NULL) {
+                s16 markSize = 12;
+                s16 markLeft = sBCButtonXPositions[button] + sItemIconTextureDimensions[button] - markSize + 2;
+                s16 markTop = sBCButtonYPositions[button] - 2;
+                s16 markStep = (s16)(32 * 1024 / markSize);
+                s16 markAlpha;
+
+                switch (button) {
+                    case EQUIP_SLOT_C_LEFT:
+                        markAlpha = interfaceCtx->cLeftAlpha;
+                        break;
+                    case EQUIP_SLOT_C_DOWN:
+                        markAlpha = interfaceCtx->cDownAlpha;
+                        break;
+                    case EQUIP_SLOT_C_RIGHT:
+                        markAlpha = interfaceCtx->cRightAlpha;
+                        break;
+                    default:
+                        markAlpha = interfaceCtx->bAlpha;
+                        break;
+                }
+
+                gDPPipeSync(OVERLAY_DISP++);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, markAlpha);
+                gDPLoadTextureBlock(OVERLAY_DISP++, bombTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
+                gSPTextureRectangle(OVERLAY_DISP++, markLeft << 2, markTop << 2, (markLeft + markSize) << 2,
+                                    (markTop + markSize) << 2, G_TX_RENDERTILE, 0, 0, markStep, markStep);
+            }
+        }
+    }
+
     if ((btnAlpha >= 0) || (grayAlpha >= 0)) {
         // restore the caller's expected prim state for whatever draws next (ammo digits, etc.)
         gDPPipeSync(OVERLAY_DISP++);
@@ -6567,17 +6724,14 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
     if ((i == ITEM_DEKU_STICK) || (i == ITEM_DEKU_NUT) || (i == ITEM_BOMB) || (i == ITEM_BOW) ||
         ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) || (i == ITEM_BOMBCHU) || (i == ITEM_POWDER_KEG) ||
         (i == ITEM_MAGIC_BEANS) || (i == ITEM_PICTOGRAPH_BOX) || (i == ITEM_FAIRY_SLINGSHOT) ||
-        (i == ITEM_SWITCH_HOOK) || // Skijer's NEI: Switch Hook charge pool (5 shots, carrot-style regen)
-        ((i >= ITEM_SW97_BULLET_FIRE) && (i <= ITEM_SW97_BULLET_WIND))) { // Skijer's NEI: OoT slingshot seeds
+        (i == ITEM_SWITCH_HOOK)) { // Skijer's NEI: Switch Hook charge pool (5 shots, carrot-style regen)
 
         if ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) {
             i = ITEM_BOW;
         }
 
-        // Skijer's NEI: elemental bullets share the seed pouch (like elemental bows share the quiver)
-        if ((i >= ITEM_SW97_BULLET_FIRE) && (i <= ITEM_SW97_BULLET_WIND)) {
-            i = ITEM_FAIRY_SLINGSHOT;
-        }
+        // (The elemental-bullet fold is gone — Skijer's NEI. The button holds a plain
+        // ITEM_FAIRY_SLINGSHOT now, so it already matches the seed-pouch arm below.)
 
         if (i == ITEM_FAIRY_SLINGSHOT) {
             ammo = Nei_SlingshotSeeds(); // NEI seed ammo (0xA3 is outside the vanilla AMMO()/SLOT() tables)
@@ -10053,6 +10207,16 @@ void Interface_Update(PlayState* play) {
         if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_TUNIC) == EQUIP_VALUE_TUNIC_ZORA) {
             sEnvHazard = PLAYER_ENV_HAZARD_NONE;
         }
+    }
+
+    // Magic Tunic: with rupees in the wallet it also acts as Goron+Zora tunic — no hot-room or
+    // underwater-breath countdown. Broke (0 rupees) = no protection (the money gate lives in
+    // ExtEquip_SpiritHasMoney). Clearing sEnvHazard here both stops the timer from ever starting
+    // (below) and forces a running one off, covering fire and water at once. Skijer's NEI
+    if (((sEnvHazard == PLAYER_ENV_HAZARD_HOTROOM) ||
+         ((sEnvHazard >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) && (sEnvHazard <= PLAYER_ENV_HAZARD_UNDERWATER_FREE))) &&
+        ExtEquip_SpiritHasMoney()) {
+        sEnvHazard = PLAYER_ENV_HAZARD_NONE;
     }
 
     LifeMeter_UpdateColors(play);

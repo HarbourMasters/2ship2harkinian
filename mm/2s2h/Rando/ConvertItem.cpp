@@ -215,6 +215,14 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
     switch (randoItemId) {
         case RI_UNKNOWN:
             return false;
+        // Stone of Agony is a 2-level progressive: 1st copy = the stone (quest
+        // bit), 2nd = the Quartz of Motion. A third copy has nothing left to
+        // give, so it degrades to junk like every other maxed progressive.
+        case RI_OOT_STONE_OF_AGONY:
+            if (hasObtainedCheck) {
+                return false;
+            }
+            return !(Nei_Save()->quartzOwned);
         case RI_PROGRESSIVE_WALLET:
             if (hasObtainedCheck) {
                 return false;

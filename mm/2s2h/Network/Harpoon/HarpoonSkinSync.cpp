@@ -18,7 +18,7 @@ namespace HarpoonSkinSync {
 
 namespace {
 std::filesystem::path HarpoonRoot() {
-    auto base = Ship::Context::GetInstance()->GetAppDirectoryPath();
+    auto base = Ship::Context::GetRawInstance()->GetAppDirectoryPath();
     return std::filesystem::path(base) / "harpoon";
 }
 std::filesystem::path SkinsDir() {

@@ -5,6 +5,7 @@
  */
 
 #include "global.h"
+#include <libultraship/log/luslog.h> // 2S2H [Port] lusprintf (LUS 464 exports it via API_EXPORT)
 #include "z64horse.h"
 #include "z64malloc.h"
 #include "z64quake.h"
@@ -2828,6 +2829,13 @@ u8 sFidgetAnimSfxTypes[] = {
  * see `sFidgetAnimations`.
  */
 PlayerAnimationHeader* Player_GetIdleAnim(Player* this) {
+    // Boss Remains (Odolwa): idle stance is Odolwa's "ready" pose (retargeted anim from npc_link_anims.o2r).
+    if ((this->transformation == PLAYER_FORM_HUMAN) && (this->actor.id == ACTOR_PLAYER)) {
+        PlayerAnimationHeader* odolwaIdle = BossRemains_GetOdolwaIdleAnim();
+        if (odolwaIdle != NULL) {
+            return odolwaIdle;
+        }
+    }
     if ((this->transformation == PLAYER_FORM_ZORA) || (this->actor.id != ACTOR_PLAYER)) {
         return &gPlayerAnim_pz_wait;
     }
@@ -4180,47 +4188,37 @@ void Player_UpdateItems(Player* this, PlayState* play) {
     }
 }
 
-// Skijer's NEI: the LIVE item on the button being held — 1:1 with the fork's dispatch
-// (soh func_80834380 reads gSaveContext.equips.buttonItems[this->heldItemButton]).
-// this->heldItemId is NOT usable here: switching between two items that share an item
-// action (plain slingshot <-> SW97 bullets, bow <-> SW97 arrows via the wheels) takes the
-// "same heldItemAction" early-out in Player_UseItem and never refreshes heldItemId.
-static u8 Player_GetHeldButtonItem(Player* this) {
-    if ((this->heldItemButton >= EQUIP_SLOT_B) && (this->heldItemButton <= EQUIP_SLOT_C_RIGHT)) {
-        return GET_CUR_FORM_BTN_ITEM(this->heldItemButton);
-    }
-    return this->heldItemId; // D-pad / no button: best effort
-}
+// (Player_GetHeldButtonItem removed — Skijer's NEI. It existed because the element WAS the item id
+// on the button, and this->heldItemId went stale when two elements shared an item action. The
+// button holds a plain weapon now and the element is a flag read live, so there is nothing to
+// re-read. The reason it existed is still worth knowing: NEVER cache the element inside Player —
+// dark/soul/wind all collapse to PLAYER_IA_BOW in MM, so Player_UseItem's same-action early-out
+// will not re-init when you cycle between them.)
 
 // EN_ARROW ammo related?
 s32 func_808305BC(PlayState* play, Player* this, ItemId* item, ArrowType* typeParam) {
-    u8 heldBtnItem = Player_GetHeldButtonItem(this); // Skijer's NEI
-
     if (this->heldItemAction == PLAYER_IA_SLINGSHOT) {
-        // Skijer's NEI: OoT func_80834380 slingshot branch (soh z_player.c:2884-2899). The plain
-        // slingshot fires ARROW_TYPE_SLINGSHOT (OoT ARROW_SEED); with an SW97 bullet item on the
-        // held button (the slingshot-wheel elemental twins) it fires the matching elemental seed.
+        // Skijer's NEI: the plain slingshot fires ARROW_TYPE_SLINGSHOT; a primed element fires the
+        // matching elemental seed. The slingshot carries its OWN flag, independent of the bow's.
+        u8 elem = Sw97_EffectiveElement(1);
         *item = ITEM_FAIRY_SLINGSHOT;
-        if (SW97_MEDALLIONS_ENABLED() && (heldBtnItem >= ITEM_SW97_BULLET_FIRE) &&
-            (heldBtnItem <= ITEM_SW97_BULLET_WIND)) {
-            *typeParam = ARROW_TYPE_SEED_FIRE + (heldBtnItem - ITEM_SW97_BULLET_FIRE);
-        } else {
-            *typeParam = ARROW_TYPE_SLINGSHOT;
-        }
+        *typeParam = ((elem >= SW97_ELEM_FIRE) && (elem <= SW97_ELEM_WIND))
+                         ? (ARROW_TYPE_SEED_FIRE + (elem - SW97_ELEM_FIRE))
+                         : ARROW_TYPE_SLINGSHOT;
     } else if (this->heldItemAction == PLAYER_IA_DEKU_NUT) {
         *item = ITEM_DEKU_NUT;
         *typeParam = (this->transformation == PLAYER_FORM_DEKU) ? ARROW_TYPE_DEKU_BUBBLE : ARROW_TYPE_SLINGSHOT;
     } else {
+        u8 elem = Sw97_EffectiveElement(0);
         *item = ITEM_BOW;
         *typeParam = (this->stateFlags1 & PLAYER_STATE1_800000)
                          ? ARROW_TYPE_NORMAL_HORSE
                          : (this->heldItemAction - PLAYER_IA_BOW + ARROW_TYPE_NORMAL);
 
-        // Skijer's NEI: SW97 arrow item on the held button — override to the SW97 elemental arrow
-        // params (fork z_player.c:2879-2884: ARROW_SW97_FIRE + (heldItem - ITEM_SW97_ARROW_FIRE)).
-        if (SW97_MEDALLIONS_ENABLED() && (heldBtnItem >= ITEM_SW97_ARROW_FIRE) &&
-            (heldBtnItem <= ITEM_SW97_ARROW_WIND) && !(this->stateFlags1 & PLAYER_STATE1_800000)) {
-            *typeParam = ARROW_TYPE_SW97_FIRE + (heldBtnItem - ITEM_SW97_ARROW_FIRE);
+        // Skijer's NEI: a primed medallion element overrides the arrow params. SW97_ELEM_BOMB never
+        // reaches here — bomb arrows have their own item action and never run this function.
+        if ((elem >= SW97_ELEM_FIRE) && (elem <= SW97_ELEM_WIND) && !(this->stateFlags1 & PLAYER_STATE1_800000)) {
+            *typeParam = ARROW_TYPE_SW97_FIRE + (elem - SW97_ELEM_FIRE);
         }
     }
 
@@ -4292,8 +4290,6 @@ s32 func_808306F8(Player* this, PlayState* play) {
 
             if (!Player_IsHoldingHookshot(this) && (func_808305BC(play, this, &item, &arrowType) > 0)) {
                 if (this->unk_B28 >= 0) {
-                    s32 sw97MagicCost = 0; // Skijer's NEI: SW97 elemental arrows/bullets — flat cost 4 (user)
-
                     magicArrowType = ARROW_GET_MAGIC_FROM_TYPE(arrowType);
 
                     if ((ARROW_GET_MAGIC_FROM_TYPE(arrowType) >= ARROW_MAGIC_FIRE) &&
@@ -4309,15 +4305,11 @@ s32 func_808306F8(Player* this, PlayState* play) {
                         magicArrowType = ARROW_MAGIC_DEKU_BUBBLE;
                     } else if (((arrowType >= ARROW_TYPE_SEED_FIRE) && (arrowType <= ARROW_TYPE_SEED_WIND)) ||
                                ((arrowType >= ARROW_TYPE_SW97_FIRE) && (arrowType <= ARROW_TYPE_SW97_WIND))) {
-                        // Skijer's NEI: SW97 elemental shot. Short on magic -> downgrade to the plain
-                        // projectile (same pattern as the vanilla magic-arrow downgrade above).
-                        // Magic Cape halves the flat cost too (4 -> 2).
-                        if (((void)0, gSaveContext.save.saveInfo.playerData.magic) < MAGIC_REQ(4)) {
-                            arrowType = (arrowType <= ARROW_TYPE_SEED_WIND) ? ARROW_TYPE_SLINGSHOT
-                                                                            : ARROW_TYPE_NORMAL;
-                        } else {
-                            sw97MagicCost = MAGIC_REQ(4);
-                        }
+                        // Skijer's NEI: medallion shots cost NO magic (user decision). This branch
+                        // used to charge a flat 4 MP and downgrade to a plain projectile when you
+                        // were short — both are gone. Note SoH never charged for these either (its
+                        // ARROW_SW97_* params fall outside the magic-cost range), so the two games
+                        // agree now. The VANILLA MM magic arrows above keep their cost untouched.
                         magicArrowType = ARROW_MAGIC_INVALID;
                     } else {
                         magicArrowType = ARROW_MAGIC_INVALID;
@@ -4330,8 +4322,6 @@ s32 func_808306F8(Player* this, PlayState* play) {
                     if ((this->heldActor != NULL) && (magicArrowType > ARROW_MAGIC_INVALID)) {
                         // Skijer's NEI: Magic Cape half-cost (fire/ice 4->2, light 8->4, bubble 2->1)
                         Magic_Consume(play, MAGIC_REQ(sMagicArrowCosts[magicArrowType]), MAGIC_CONSUME_NOW);
-                    } else if ((this->heldActor != NULL) && (sw97MagicCost != 0)) {
-                        Magic_Consume(play, sw97MagicCost, MAGIC_CONSUME_NOW); // Skijer's NEI (pre-halved)
                     }
                 }
             }
@@ -4834,11 +4824,22 @@ void func_80831944(PlayState* play, Player* this) {
 }
 
 void Player_UseItem(PlayState* play, Player* this, ItemId item) {
+    // Skijer's NEI — SHIP-VANILLA Roc's Feather (the one sharing the Nayru's Love cell, NOT Skijer's
+    // page-2 feather). SoH implements it by answering false to VB_CHANGE_HELD_ITEM_AND_USE_ITEM, so
+    // the item never reaches its Player_UseItem at all. MM has no such hook — the C-button dispatch
+    // is unhooked here — so the 1:1 equivalent is this early return: the feather jumps and the press
+    // is consumed before any vanilla use-item handling can see an id it has no meaning for.
+    {
+        extern s32 RocsFeatherVanilla_TryUse(PlayState * play, Player * this, s32 item);
+        if (RocsFeatherVanilla_TryUse(play, this, item)) {
+            return;
+        }
+    }
+
     PlayerItemAction itemAction = Player_ItemToItemAction(this, item);
 
     // NEI-DBG: mask-wear tracing (remove after diagnosis)
     if (item != ITEM_NONE && item != ITEM_FD) {
-        extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
         lusprintf(__FILE__, __LINE__, 2, "NEI-DBG UseItem: item=0x%02X ia=0x%02X held=0x%02X cur=0x%02X form=%d",
                   item, itemAction, this->heldItemAction, this->itemAction, this->transformation);
     }
@@ -4924,7 +4925,6 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
             PlayerMask maskId = GET_MASK_FROM_IA(itemAction);
 
             {
-                extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
                 lusprintf(__FILE__, __LINE__, 2, "NEI-DBG wear-branch: maskId=%d cur=%d", maskId, this->currentMask);
             }
             if (GameInteractor_Should(VB_USE_ITEM_EQUIP_MASK, true, &maskId)) {
@@ -6192,6 +6192,15 @@ void func_80833B18(PlayState* play, Player* this, s32 arg2, f32 speed, f32 veloc
                    s32 invincibilityTimer) {
     PlayerAnimationHeader* anim = NULL;
 
+    if ((arg2 == 3) && ExtEquip_HasSagesResistance(SAGES_RESIST_ICE)) {
+        arg2 = 0;
+        ExtEquip_SagesFlash(SAGES_RESIST_ICE);
+    } else if ((arg2 == 4) && ExtEquip_HasSagesResistance(SAGES_RESIST_THUNDER)) {
+        arg2 = 0;
+        this->bodyShockTimer = 0;
+        ExtEquip_SagesFlash(SAGES_RESIST_THUNDER);
+    }
+
     if (this->stateFlags1 & PLAYER_STATE1_2000) {
         func_80833A64(this);
     }
@@ -6465,6 +6474,21 @@ void func_808345A8(Player* this) {
     }
 }
 
+// Magic Tunic (ext tunic 2): absorb a hit like a shield block. The rupee charge (and the 30% coin
+// spill) happens inside func_808339D4 -> Health_ChangeBy (Breastplate_OnHealthChangeBefore); here
+// we only grant the i-frames a real hit would give and report "handled" so the caller skips the
+// hurt voice, the damage animation and the knockback — Link plants his feet as if the attack
+// bounced off a shield. Mirror of soh's Player_SpiritTunicAbsorbHit. Skijer's NEI
+static s32 Player_SpiritTunicAbsorbHit(PlayState* play, Player* this) {
+    if (!ExtEquip_SpiritHasMoney()) {
+        return false;
+    }
+    func_808339D4(play, this, -this->actor.colChkInfo.damage);
+    Player_RequestRumble(play, this, 180, 20, 100, SQ(0));
+    func_80833998(this, 20);
+    return true;
+}
+
 void func_808345C8(void) {
     if (INV_CONTENT(ITEM_MASK_DEKU) == ITEM_MASK_DEKU) {
         gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
@@ -6502,12 +6526,15 @@ s32 func_80834600(Player* this, PlayState* play) {
         u8 sp6C[] = { 0, 2, 1, 1 };
 
         if (!func_8083456C(play, this)) {
-            if (this->unk_B75 == 4) {
-                this->bodyShockTimer = 40;
-            }
-
+            // Magic Tunic: charge the full hit (base + knockback damage) but stay on our feet.
             this->actor.colChkInfo.damage += this->unk_B74;
-            func_80833B18(play, this, sp6C[this->unk_B75 - 1], this->unk_B78, this->unk_B7C, this->unk_B76, 20);
+            if (!Player_SpiritTunicAbsorbHit(play, this)) {
+                if (this->unk_B75 == 4) {
+                    this->bodyShockTimer = 40;
+                }
+
+                func_80833B18(play, this, sp6C[this->unk_B75 - 1], this->unk_B78, this->unk_B7C, this->unk_B76, 20);
+            }
         }
     } else if ((this->shieldQuad.base.acFlags & AC_BOUNCED) || (this->shieldCylinder.base.acFlags & AC_BOUNCED) ||
                ((this->invincibilityTimer < 0) && (this->cylinder.base.acFlags & AC_HIT) &&
@@ -6548,6 +6575,12 @@ s32 func_80834600(Player* this, PlayState* play) {
     } else if (this->cylinder.base.acFlags & AC_HIT) {
         Actor* sp60 = this->cylinder.base.ac;
         s32 var_a2_2;
+
+        // Magic Tunic: the body hit is absorbed shield-style (no thud sfx, no hurt voice, no
+        // reaction) — same `false` return as the shield-block branch above.
+        if (Player_SpiritTunicAbsorbHit(play, this)) {
+            return false;
+        }
 
         if (sp60->flags & ACTOR_FLAG_SFX_FOR_PLAYER_BODY_HIT) {
             Player_PlaySfx(this, NA_SE_PL_BODY_HIT);
@@ -6601,8 +6634,11 @@ s32 func_80834600(Player* this, PlayState* play) {
             func_80834534(play, this);
         } else {
             this->actor.colChkInfo.damage = 4;
-            func_80833B18(play, this, (var_v1_2 == BGCHECK_SCENE) ? 0 : 1, 4.0f, 5.0f,
-                          var_a1 ? this->actor.wallYaw : this->actor.shape.rot.y, 20);
+            // Magic Tunic: spike walls / hot floors are absorbed too (rupees charged, no stagger).
+            if (!Player_SpiritTunicAbsorbHit(play, this)) {
+                func_80833B18(play, this, (var_v1_2 == BGCHECK_SCENE) ? 0 : 1, 4.0f, 5.0f,
+                              var_a1 ? this->actor.wallYaw : this->actor.shape.rot.y, 20);
+            }
             return true;
         }
     }
@@ -7481,7 +7517,8 @@ s32 func_80836F10(PlayState* play, Player* this) {
     s32 fallDistance;
 
     if ((sPlayerFloorType == FLOOR_TYPE_6) || (sPlayerFloorType == FLOOR_TYPE_9) ||
-        (this->csAction != PLAYER_CSACTION_NONE)) {
+        (this->csAction != PLAYER_CSACTION_NONE) ||
+        !GameInteractor_Should(VB_RECEIVE_FALL_DAMAGE, true, this)) {
         fallDistance = 0;
     } else {
         fallDistance = this->fallDistance;
@@ -7992,7 +8029,15 @@ void func_8083827C(Player* this, PlayState* play) {
         if ((Player_Action_25 == this->actionFunc) || (Player_Action_27 == this->actionFunc) ||
             (Player_Action_28 == this->actionFunc) || (Player_Action_96 == this->actionFunc) ||
             (Player_Action_82 == this->actionFunc) || (Player_Action_83 == this->actionFunc) ||
-            BossRemains_IsGohtCharging()) {
+            BossRemains_IsGohtCharging() || BossRemains_IsOdolwaFlying()) {
+            return;
+        }
+
+        // Same exemption for the aiming action (Player_Action_43). Without it the fall
+        // action below rips the aim off Link every frame, its tail restarts the aim, and
+        // first person flickers on without ever being able to turn.
+        if ((Player_Action_43 == this->actionFunc) &&
+            GameInteractor_Should(VB_PLAYER_ALLOW_MIDAIR_AIM, false, this)) {
             return;
         }
 
@@ -8301,7 +8346,10 @@ s32 Player_ActionHandler_13(Player* this, PlayState* play) {
     PlayerBottle bottleAction;
 
     if (this->unk_AA5 != PLAYER_UNKAA5_0) {
+        // Expose the airborne exception through a generic hook so this actor does not
+        // depend on a specific extended-equipment item.
         if (!(this->actor.bgCheckFlags & (BGCHECKFLAG_GROUND | BGCHECKFLAG_GROUND_TOUCH)) &&
+            !GameInteractor_Should(VB_PLAYER_ALLOW_MIDAIR_AIM, false, this) &&
             !(this->stateFlags1 & PLAYER_STATE1_8000000) && !(this->stateFlags1 & PLAYER_STATE1_800000) &&
             !(this->stateFlags3 & PLAYER_STATE3_8) && !(this->skelAnime.movementFlags & ANIM_FLAG_ENABLE_MOVEMENT)) {
             Player_StopCutscene(this);
@@ -8462,8 +8510,26 @@ s32 Player_ActionHandler_13(Player* this, PlayState* play) {
                     Player_StopCutscene(this);
                     if (!(this->stateFlags1 & PLAYER_STATE1_800000)) {
                         Player_SetAction(play, this, Player_Action_43, 1);
-                        this->av2.actionVar2 = 13;
+                        // Vanilla delays aim-camera control for 13 updates. Bullet Time
+                        // slows those updates and makes the camera appear frozen.
+                        this->av2.actionVar2 =
+                            GameInteractor_Should(VB_PLAYER_ALLOW_MIDAIR_AIM, false, this) ? 0 : 13;
                         func_80836D8C(this);
+                        // Start the airborne aim looking STRAIGHT AHEAD. focus.rot.x
+                        // ACCUMULATES and is clamped at +-14000 (~77 degrees), and the ground
+                        // aim entry is what normally zeroes it. The airborne handoff instead
+                        // inherits whatever pitch the fall/floor-look logic had already steered
+                        // it to, so the aim can begin pinned near that clamp — which reads as
+                        // the arm and upper body rotated ~90 degrees up. How much pitch was
+                        // inherited depends on how Link left the ground, which is exactly why
+                        // it only went wrong some of the time.
+                        if (GameInteractor_Should(VB_PLAYER_ALLOW_MIDAIR_AIM, false, this)) {
+                            this->actor.focus.rot.x = 0;
+                            this->actor.focus.rot.y = this->actor.shape.rot.y;
+                            this->upperLimbRot.x = 0;
+                            this->headLimbRot.x = 0;
+                        }
+
                         if (this->unk_AA5 == PLAYER_UNKAA5_2) {
                             play->actorCtx.flags |= ACTORCTX_FLAG_PICTO_BOX_ON;
                         }
@@ -9536,7 +9602,12 @@ void func_8083BB4C(PlayState* play, Player* this) {
         Audio_SetBaseFilter(0x20);
         // Skijer's NEI (Nei_IsZoraSwim): the ZORA TUNIC removes the drown timer for human Link —
         // he breathes underwater like the Zora form (the OoT-side Zora-tunic swim, ported).
-        if ((this->transformation == PLAYER_FORM_ZORA) || Nei_IsZoraSwim(this) || (sp1C < 10.0f)) {
+        // The Magic Tunic does the same while it has rupees to burn (ExtEquip_SpiritHasMoney). This
+        // is the timer that actually drains hearts; the on-screen countdown is gated separately in
+        // z_parameter.c via sEnvHazard, and both have to agree or the HUD shows a timer that never
+        // hurts (or vice versa).
+        if ((this->transformation == PLAYER_FORM_ZORA) || Nei_IsZoraSwim(this) || ExtEquip_SpiritHasMoney() ||
+            (sp1C < 10.0f)) {
             this->underwaterTimer = 0;
         } else if (this->underwaterTimer < 300) {
             this->underwaterTimer++;
@@ -9783,6 +9854,15 @@ s32 func_8083C62C(Player* this, s32 arg1) {
 Vec3f D_8085D218 = { 0.0f, 100.0f, 40.0f };
 
 void func_8083C6E8(Player* this, PlayState* play) {
+    // Airborne aim (Champion's Tunic) owns focus rot and arm placement — see the aim
+    // control and func_80836AB8/func_80832754. This floor/fall-look upkeep would fight it
+    // on all three counts every frame it runs: it overwrites focus.rot.x with a look-down
+    // pitch (or a huge one on floor type 11), snaps focus.rot.y back to the body yaw, and
+    // re-places the arm using the ORIGINAL weapon test rather than the hook-aware one.
+    if ((this->unk_AA5 == PLAYER_UNKAA5_3) && GameInteractor_Should(VB_PLAYER_ALLOW_MIDAIR_AIM, false, this)) {
+        return;
+    }
+
     if (this->focusActor != NULL) {
         if (func_800B7128(this) || func_8082EF20(this)) {
             func_8083C62C(this, true);
@@ -11260,7 +11340,10 @@ s32 func_808401F4(PlayState* play, Player* this) {
                 func_8083FFEC(play, this);
                 if (this->actor.colChkInfo.atHitEffect == 1) {
                     this->actor.colChkInfo.damage = 8;
-                    func_80833B18(play, this, 4, 0.0f, 0.0f, this->actor.shape.rot.y, 20);
+                    // Magic Tunic: the shock from striking an electrified enemy is absorbed too.
+                    if (!Player_SpiritTunicAbsorbHit(play, this)) {
+                        func_80833B18(play, this, 4, 0.0f, 0.0f, this->actor.shape.rot.y, 20);
+                    }
                     return true;
                 }
             }
@@ -11995,6 +12078,14 @@ void Player_Init(Actor* thisx, PlayState* play) {
     // PLAYER_START_MODE_FARORES_WIND) and Nayru's Love shield re-spawn while
     // gSaveContext.nayrusLoveTimer is running (OoT Player_Init:11994-11998).
     OotSpells_OnPlayerInit(play, this);
+
+    // SW97 LAYOUT MIGRATION (Skijer's NEI). One-shot per save, gated by sw97LayoutVersion: the six
+    // ITEM_SW97_ARROW_*, the six ITEM_SW97_BULLET_* and ITEM_BOMB_ARROWS used to live on C-buttons
+    // and in page-2 slot 27. Those ids are gone and the element is a flag. This sweep is NOT
+    // cosmetic in 2ship — 0xA7..0xAC are live ITEM_MAP_POINT_* values again, so without it a
+    // pre-refactor save reloads with a map point sitting on a C-button. Player_Init is guaranteed
+    // to run once per file load, and ExtEquip_Init (soh's migration hook) has no caller here.
+    Sw97_MigrateLayout(play);
 
     // SM64 Mario (libsm64) — fires on every scene spawn (loading zones,
     // warps, respawns). Drops the previous libsm64 Mario instance + mesh
@@ -12979,8 +13070,17 @@ void func_80844784(PlayState* play, Player* this) {
 
     Actor_UpdateVelocityWithGravity(&this->actor);
     D_80862B3C = 0.0f;
+
+    // Wind is blowing but the Forest Medallion is holding it off — show it on the tunic.
+    if (ExtEquip_HasSagesResistance(SAGES_RESIST_WIND) &&
+        ((this->windSpeed != 0.0f) || (play->envCtx.windSpeed >= 50.0f))) {
+        ExtEquip_SagesFlash(SAGES_RESIST_WIND);
+    }
+
     if ((gSaveContext.save.saveInfo.playerData.health != 0) &&
-        ((this->pushedSpeed != 0.0f) || (this->windSpeed != 0.0f) || (play->envCtx.windSpeed >= 50.0f)) &&
+        ((this->pushedSpeed != 0.0f) ||
+         (!ExtEquip_HasSagesResistance(SAGES_RESIST_WIND) &&
+          ((this->windSpeed != 0.0f) || (play->envCtx.windSpeed >= 50.0f)))) &&
         (!Player_InCsMode(play)) &&
         !(this->stateFlags1 & (PLAYER_STATE1_4 | PLAYER_STATE1_2000 | PLAYER_STATE1_4000 | PLAYER_STATE1_200000)) &&
         !(this->stateFlags3 & PLAYER_STATE3_100) && (Player_Action_33 != this->actionFunc) &&
@@ -12988,7 +13088,7 @@ void func_80844784(PlayState* play, Player* this) {
         this->actor.velocity.x += this->pushedSpeed * Math_SinS(this->pushedYaw);
         this->actor.velocity.z += this->pushedSpeed * Math_CosS(this->pushedYaw);
         temp_fv1_2 = 10.0f - this->actor.velocity.y;
-        if (temp_fv1_2 > 0.0f) {
+        if (temp_fv1_2 > 0.0f && !ExtEquip_HasSagesResistance(SAGES_RESIST_WIND)) {
             sp58 = D_8085D3E0[this->transformation];
             sp54 = this->windSpeed * sp58;
             sp50 = Math_SinS(this->windAngleX) * sp54;
@@ -13102,6 +13202,13 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
     // Boss Remains — per-frame driver: a press on the C/D-pad button holding a remains toggles
     // wearing it as a mask on Link's face. Gated internally by gMods.BossRemains.Enabled.
     BossRemains_TickInput(play, this);
+
+    // Sheikah Slate: C casts the active rune, hold L opens the rune row. Skijer's NEI
+    {
+        extern void Slate_TickInput(PlayState * play, Player * player);
+
+        Slate_TickInput(play, this);
+    }
 
     if (this->unk_D6A < 0) {
         this->unk_D6A++;
@@ -13429,6 +13536,9 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
         // Boss Remains (Goht): per-frame driver AFTER the action func so its speed/anim overrides win —
         // bull charge (A held: 3x + cl_nigeru + powder-keg crash), quake-pound landing, HESS slide.
         BossRemains_GohtPostAction(play, this);
+
+        // Boss Remains (Odolwa): the moth-cloud "Nimbus" flight driver (deku-flower takeoff → free 3D float).
+        BossRemains_OdolwaFlightTick(play, this);
 
         if (!var_v1) {
             Player_UpdateInterface(play, this);
@@ -14293,6 +14403,15 @@ void Player_Destroy(Actor* thisx, PlayState* play) {
 }
 
 s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
+    // Airborne aim (Champion's Tunic). Vanilla decides "is this a WEAPON aim" with
+    // func_800B7128 == (PLAYER_STATE1_8 && unk_ACC). unk_ACC is a timer that only the GROUND
+    // aim entry seeds and only the bow's upper action keeps alive, and other paths zero it —
+    // several inside Player_UpdateUpperBody, which runs between any attempt to seed it and the
+    // moment it is read here. Seeding it therefore worked or not depending on which upper
+    // action happened to be live: the arm would sometimes track the reticle and sometimes snap
+    // to the casual head-look pose. Decide it outright instead.
+    s32 midairWeaponAim = (this->unk_AA5 == PLAYER_UNKAA5_3) &&
+                          GameInteractor_Should(VB_PLAYER_ALLOW_MIDAIR_AIM, false, this);
     s16 var_s0;
     s32 stickX = 0;
     s32 stickY = 0;
@@ -14336,7 +14455,8 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
     stickX = CLAMP(stickX, -60, 60);
     stickY = CLAMP(stickY, -60, 60);
 
-    if (!func_800B7128(this) && !func_8082EF20(this) && !arg2) { // First person without weapon
+    if (!func_800B7128(this) && !func_8082EF20(this) && !midairWeaponAim &&
+        !arg2) { // First person without weapon
         var_s0 = stickY * 0xF0;
         if (CVarGetInteger("gEnhancements.Camera.FirstPerson.DisableFirstPersonAutoCenterView", 0) ||
             CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
@@ -14405,7 +14525,8 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
 
     this->unk_AA6_rotFlags |= UNKAA6_ROT_FOCUS_Y;
 
-    return func_80832754(this, (play->bButtonAmmoPlusOne != 0) || func_800B7128(this) || func_8082EF20(this));
+    return func_80832754(this, (play->bButtonAmmoPlusOne != 0) || func_800B7128(this) ||
+                                   func_8082EF20(this) || midairWeaponAim);
 }
 
 s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
@@ -17210,11 +17331,20 @@ void Player_Action_42(Player* this, PlayState* play) {
 }
 
 void Player_Action_43(Player* this, PlayState* play) {
+    u8 allowMidairAim = GameInteractor_Should(VB_PLAYER_ALLOW_MIDAIR_AIM, false, this);
+
     if (this->stateFlags1 & PLAYER_STATE1_8000000) {
         func_808475B4(this);
         func_8084748C(this, &this->speedXZ, 0.0f, this->actor.shape.rot.y);
     } else {
         Player_DecelerateToZero(this);
+    }
+
+    // The airborne item handoff can transiently clear the vanilla aim subtype
+    // before this action gets its first update. Repair it while the equipment
+    // hook owns the state so upper-body/weapon upkeep cannot be skipped.
+    if (allowMidairAim && (this->unk_AA5 == PLAYER_UNKAA5_0)) {
+        this->unk_AA5 = PLAYER_UNKAA5_3;
     }
 
     if (this->unk_AA5 == PLAYER_UNKAA5_3) {
@@ -17223,22 +17353,35 @@ void Player_Action_43(Player* this, PlayState* play) {
         }
     }
 
+    // Do not combine the hook with bgCheckFlags here. GROUND_TOUCH and GROUND_LEAVE
+    // can remain set during the action handoff even though Link is already airborne.
+    s32 hostileLockOn = Player_UpdateHostileLockOn(this);
+    // Call the camera-mode setter for its SIDE EFFECT every frame and only ignore its
+    // verdict while the hook owns the state. It sits on the right of an || here, so with
+    // allowMidairAim true it was never evaluated at all — and it is what keeps the aim
+    // camera alive frame to frame. Skipping it left Link in first person with a camera
+    // nobody was maintaining, which is why the aim could not be turned.
+    s32 cameraModeOk = (func_8083868C(play, this) != CAM_MODE_NORMAL);
+    s32 aimingCameraReady = allowMidairAim || cameraModeOk;
+
     if (((this->unk_AA5 == PLAYER_UNKAA5_2) && !(play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON)) ||
         ((this->unk_AA5 != PLAYER_UNKAA5_2) &&
          ((((this->csAction != PLAYER_CSACTION_NONE) || ((u32)this->unk_AA5 == PLAYER_UNKAA5_0) ||
-            (this->unk_AA5 >= PLAYER_UNKAA5_5) || Player_UpdateHostileLockOn(this) || (this->focusActor != NULL) ||
-            (func_8083868C(play, this) == CAM_MODE_NORMAL) ||
+            (this->unk_AA5 >= PLAYER_UNKAA5_5) ||
+            (!allowMidairAim && (hostileLockOn || (this->focusActor != NULL))) ||
+            !aimingCameraReady ||
             ((this->unk_AA5 == PLAYER_UNKAA5_3) &&
              (((Player_ItemToItemAction(this, Inventory_GetBtnBItem(play)) != this->heldItemAction) &&
                CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_B)) ||
               (CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_R | BTN_A) &&
                GameInteractor_Should(VB_EXIT_FIRST_PERSON_MODE_FROM_BUTTON, true)) ||
-              Player_FriendlyLockOnOrParallel(this) || (!func_800B7128(this) && !func_8082EF20(this))))) ||
+              (!allowMidairAim &&
+               (Player_FriendlyLockOnOrParallel(this) || (!func_800B7128(this) && !func_8082EF20(this)))))) ||
            ((this->unk_AA5 == PLAYER_UNKAA5_1) &&
             CHECK_BTN_ANY(sPlayerControlInput->press.button,
                           BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_B | BTN_A | BTN_DPAD_EQUIP) &&
             GameInteractor_Should(VB_EXIT_FIRST_PERSON_MODE_FROM_BUTTON, true))) ||
-          Player_ActionHandler_Talk(this, play)))) {
+          Player_ActionHandler_Talk(this, play))))) {
         func_80839ED0(this, play);
         Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_UP);
     } else if ((DECR(this->av2.actionVar2) == 0) || (this->unk_AA5 != PLAYER_UNKAA5_3)) {

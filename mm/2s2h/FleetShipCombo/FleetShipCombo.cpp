@@ -3,8 +3,10 @@
 #include <libultraship/libultraship.h>
 #include <spdlog/spdlog.h>
 
+#include <atomic>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -138,7 +140,23 @@ bool LaunchShip(const std::filesystem::path& shipExe) {
 // THIS_GAME identity for this build: 1 = Majora's Mask (2ship).
 constexpr int kThisGame = 1;
 constexpr uint32_t kFscMagic = 0x46534331u;   // 'FSC1'
-constexpr uint32_t kFscVersion = 1u;
+constexpr uint32_t kFscVersion = 4u;
+
+// ---- Anchor-style packet channel (version 3) ----
+// One JSON message per slot, same shape as an Anchor packet. A slot must hold the LARGEST single
+// thing a delta can carry, and that is a whole array: arrays are sent as one JSON value precisely
+// so they can never be split across packets (a split one unflattens with null gaps and corrupts
+// the save). comboObtainedFc is 512 entries, ~2KB dumped, so 1KB slots were too small -- it would
+// have been silently dropped, taking the cross-game item grants with it. Anything bigger than a
+// delta (a whole save) still goes through the temp file and is only ANNOUNCED here.
+constexpr uint32_t kFscPacketBytes = 4096;
+constexpr uint32_t kFscRingSlots = 256;
+
+struct FscPacket {
+    uint32_t len;                  // bytes used in payload (0 = never written)
+    uint32_t kind;                 // reserved fast-path opcode; 0 = plain JSON
+    char payload[kFscPacketBytes]; // JSON text, NUL-terminated
+};
 
 // Layout shared between Ship and 2ship. MUST stay byte-identical to the Ship copy.
 struct FscShared {
@@ -165,6 +183,25 @@ struct FscShared {
     int32_t sendFadeAlpha;   // 0..255 sending-fade overlay, written by the ACTIVE (sending) game, drawn by the host consumer
     int32_t doorDLIndex;     // DEV: which Lost Woods room-DL the MM door tunnel tool is showing (for the on-screen readout)
     uint64_t reservedU[12];
+    // ---- Anchor-style packet rings (version 3) ----
+    // TWO one-way rings, so neither side ever writes the ring it reads: no lock is needed. The
+    // writer fills slot (head % kFscRingSlots) and THEN bumps head; the reader keeps its own
+    // PRIVATE tail (process-local, not shared) and consumes up to head. If the reader falls more
+    // than kFscRingSlots behind, the oldest packets are overwritten and it jumps forward -- a
+    // stalled or frozen game can drop deltas but can never deadlock the writer. That is exactly
+    // why the periodic hash validation exists: it repairs anything a drop lost.
+    // Appended AFTER reservedU so every version-1 field keeps its old offset.
+    uint32_t ringToMmHead;  // written ONLY by Ship (OoT)
+    uint32_t ringToOotHead; // written ONLY by 2ship (MM)
+    FscPacket ringToMm[kFscRingSlots];
+    FscPacket ringToOot[kFscRingSlots];
+    // ---- Combo seed identity (version 4) ----
+    // The Rando finalSeed OoT generated for this combo. MM compares its paired save's finalSeed
+    // against this and REBUILDS the slot when they disagree -- a save from an older seed silently
+    // loaded next to a new OoT seed is a desync you would only notice hours later, when a check
+    // gives the wrong item. 0 = unset (no combo seed generated yet; validation is skipped).
+    uint32_t comboSeed;
+    uint32_t comboSeedPad; // keeps the struct 8-byte aligned on both sides
 };
 
 #ifdef _WIN32
@@ -214,6 +251,15 @@ void InitFreshRegion() {
     sShared->doorDLIndex = 0;
     for (int i = 0; i < 12; ++i) {
         sShared->reservedU[i] = 0;
+    }
+    sShared->ringToMmHead = 0;
+    sShared->ringToOotHead = 0;
+    sShared->comboSeed = 0;
+    sShared->comboSeedPad = 0;
+    // Only the len/kind headers need clearing; a slot's payload is never read unless its len says so.
+    for (uint32_t i = 0; i < kFscRingSlots; ++i) {
+        sShared->ringToMm[i].len = sShared->ringToMm[i].kind = 0;
+        sShared->ringToOot[i].len = sShared->ringToOot[i].kind = 0;
     }
 }
 
@@ -347,7 +393,7 @@ bool FleetShipCombo_BootstrapMaybeRelaunch(int argc, char** argv) {
         // boot 2ship standalone instead of trapping the user.
         SPDLOG_WARN("[FleetShipCombo] Ship executable not found at top level; disabling combo and booting standalone.");
         CVarSetInteger("isFleetShipCombo.Enabled", 0);
-        Ship::Context::GetInstance()->GetConsoleVariables()->Save();
+        Ship::Context::GetRawInstance()->GetConsoleVariables()->Save();
         return false;
     }
 
@@ -369,7 +415,7 @@ bool FleetShipCombo_BootstrapMaybeRelaunch(int argc, char** argv) {
     // Opening 2ship directly means the player wants MM: remember that so the host
     // (and a future plain Ship launch) resumes into 2ship.
     CVarSetInteger("isPlayerIn2Ship", 1);
-    Ship::Context::GetInstance()->GetConsoleVariables()->Save();
+    Ship::Context::GetRawInstance()->GetConsoleVariables()->Save();
 
     SPDLOG_INFO("[FleetShipCombo] Combo enabled; handing off to host Ship at '{}' (--boot=mm).", shipExe.string());
     if (LaunchShip(shipExe)) {
@@ -495,6 +541,100 @@ int FleetShipCombo_GetDoorDLIndex(void) {
     return s ? s->doorDLIndex : 0;
 }
 
+void FleetShipCombo_SetComboSeed(unsigned int seed) {
+    FscShared* s = LazyOpen();
+    if (s) {
+        s->comboSeed = (uint32_t)seed;
+    }
+}
+
+unsigned int FleetShipCombo_GetComboSeed(void) {
+    FscShared* s = LazyOpen();
+    return (s && s->version >= 4) ? (unsigned int)s->comboSeed : 0u;
+}
+
+// ================== Anchor-style packet channel (version 2) ==================
+// This block is TEXTUALLY IDENTICAL in Ship and 2ship -- kThisGame picks which ring is ours at
+// compile time, so there is no "which side am I" branch to get wrong. We only ever WRITE the ring
+// the other game reads, and only ever READ the ring it writes, so the channel needs no lock.
+
+int FleetShipCombo_PushPacket(const char* json) {
+    FscShared* s = LazyOpen();
+    if (!s || !json || s->version < 2) {
+        return 0; // no combo, or the other exe is an old build without the rings
+    }
+    const size_t len = strlen(json);
+    if (len + 1 > kFscPacketBytes) {
+        SPDLOG_WARN("[FleetNet] packet dropped: {} bytes does not fit the {}-byte slot", len, kFscPacketBytes);
+        return 0;
+    }
+    FscPacket* ring = (kThisGame == 0) ? s->ringToMm : s->ringToOot;
+    uint32_t* head = (kThisGame == 0) ? &s->ringToMmHead : &s->ringToOotHead;
+
+    FscPacket& slot = ring[*head % kFscRingSlots];
+    memcpy(slot.payload, json, len + 1);
+    slot.kind = 0;
+    slot.len = (uint32_t)len;
+    // Publish the head LAST: the reader must never see a bumped head pointing at a half-written slot.
+    std::atomic_thread_fence(std::memory_order_release);
+    ++(*head);
+    return 1;
+}
+
+int FleetShipCombo_PopPacket(char* out, int cap) {
+    FscShared* s = LazyOpen();
+    if (!s || !out || cap <= 0 || s->version < 2) {
+        return 0;
+    }
+    FscPacket* ring = (kThisGame == 0) ? s->ringToOot : s->ringToMm;
+    const uint32_t head = (kThisGame == 0) ? s->ringToOotHead : s->ringToMmHead;
+    std::atomic_thread_fence(std::memory_order_acquire);
+
+    // The tail is PROCESS-LOCAL on purpose: it is ours alone, so the writer can never touch it and
+    // a crashed/restarted peer cannot rewind us.
+    static uint32_t sTail = 0;
+    const uint32_t pending = head - sTail; // unsigned: wraps correctly
+    if (pending == 0) {
+        return 0;
+    }
+    if (pending > kFscRingSlots) {
+        // We fell more than a whole ring behind (frozen game, long scene load) and the oldest
+        // packets were overwritten. Jump to what is still intact; the periodic hash validation is
+        // what repairs the deltas lost here -- that is the whole reason it exists.
+        //
+        // Land TWO slots inside the window, not exactly on head - kFscRingSlots: that slot is the
+        // oldest one, i.e. precisely the one the writer is about to reuse, so reading it is a race
+        // against a slot being rewritten under us. Two slots of margin costs two dropped packets
+        // (already lost anyway) and removes the race.
+        SPDLOG_WARN("[FleetNet] ring overrun: dropped {} packets", pending - kFscRingSlots);
+        sTail = head - (kFscRingSlots - 2);
+    }
+    const FscPacket& slot = ring[sTail % kFscRingSlots];
+    ++sTail;
+
+    // LENGTH VALIDATION — this is a length read out of memory ANOTHER PROCESS writes, so it must be
+    // treated as hostile, not as data. The old test was `slot.len + 1 > (uint32_t)cap`, which
+    // OVERFLOWS: len = 0xFFFFFFFF makes len + 1 == 0, sails past the check, and the memcpy below
+    // copies 4 GB — an instant, untrappable process kill with nothing in the log. That is the
+    // 2026-08-03 tester crash: the trace ends on "frozen frame 0" and never reaches "packet op=",
+    // because the very first drain after the flip hit a slot whose length was garbage (the overrun
+    // path above lands on a slot the peer may be mid-write on).
+    //
+    // Compare without arithmetic, and bound by the payload's REAL size as well as the caller's
+    // buffer: len < kFscPacketBytes keeps us inside the slot, len < cap leaves room for the NUL.
+    const uint32_t len = slot.len;
+    if (len == 0 || len >= kFscPacketBytes || len >= (uint32_t)cap) {
+        if (len != 0) {
+            SPDLOG_WARN("[FleetNet] packet dropped: implausible length {} (payload {} bytes, buffer {})", len,
+                        kFscPacketBytes, cap);
+        }
+        return 0; // empty, corrupt, or too big for the caller's buffer: skip, never truncate JSON
+    }
+    memcpy(out, slot.payload, len);
+    out[len] = '\0';
+    return 1;
+}
+
 bool FleetShipCombo_IsThisGameActive(void) {
     FscShared* s = LazyOpen();
     if (!s) {
@@ -516,7 +656,7 @@ void FleetShipCombo_SetUiFocus(int focus) {
 }
 
 // ---- FleetSync save-sync handshake over reservedU (layout unchanged — MUST match Ship) ----
-// reservedU[0] is reserved (legacy bottles-sync plan). [1] = syncSaveSeq (bumped by the game that
+// reservedU[0] = the guest heartbeat (see BeatHeartbeat below). [1] = syncSaveSeq (bumped by the game that
 // just SAVED), [2] = syncSaveAck (set by the OTHER game once it applied the shared overlay and
 // wrote its own file), [3] = syncSaveSlot.
 void FleetShipCombo_SignalSyncSave(int slot) {
@@ -623,6 +763,37 @@ int FleetShipCombo_ConsumeRestartRequest(void) {
     }
     sRestartSelfSeq = s->reservedU[10];
     return 1;
+}
+
+// MM's title / file select are OoT-driven and must stay UNREACHABLE: a restart drops MM back on its
+// console logo, and if MM were still the active game the player would be sitting on a screen the
+// combo has no business showing (and whose file select would auto-load a slot). So every restart
+// path ends here — MM freezes on that logo off-screen while OoT shows ITS title.
+void FleetShipCombo_YieldToOoT(void) {
+    FscShared* s = LazyOpen();
+    if (!s) {
+        return; // standalone 2ship: nothing to yield to
+    }
+    s->activeGame = 0;
+    s->uiFocus = 0;
+    CVarSetInteger("isPlayerIn2Ship", 0);
+    CVarSave();
+}
+
+// ---- Guest heartbeat over reservedU[0] (layout unchanged — MUST match Ship) ----
+// Bumped every frame from PollHostAlive (which is called unconditionally by the frame loop, so it
+// keeps ticking even when MM is frozen/inactive and skips its whole render path). Ship reads it to
+// tell a hung 2ship apart from an idle one.
+void FleetShipCombo_BeatHeartbeat(void) {
+    FscShared* s = LazyOpen();
+    if (s) {
+        s->reservedU[0] = s->reservedU[0] + 1;
+    }
+}
+
+unsigned long long FleetShipCombo_GetGuestHeartbeat(void) {
+    FscShared* s = LazyOpen();
+    return s ? s->reservedU[0] : 0;
 }
 
 void FleetShipCombo_PublishSharedTexture(unsigned long long handle, unsigned int width, unsigned int height,

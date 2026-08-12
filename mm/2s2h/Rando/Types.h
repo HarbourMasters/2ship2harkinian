@@ -2475,6 +2475,10 @@ typedef enum {
     // Interleaved alphabetically with the wave-1 tokens (serialized by name).
     // Skijer's NEI — third wave (final cross items): SoH abilities, jabber nuts, GS token,
     // Ruto's Letter + OoT bottled contents. Draw + message; give is MM-store-aware (see GiveItem.cpp).
+    // SoH RG_OPEN_CHEST: the "can open chests" skill that gates every OoT chest. Termina has no such
+    // gate, so like Climb/Crawl and the jabber nuts it is a no-op give here and travels back to OoT
+    // through the FC record. Skijer's NEI
+    RI_OOT_ABILITY_CHESTS,
     RI_OOT_ABILITY_CLIMB, // SoH RG_CLIMB (ladder model); no MM system — no-op give, FC record only
     RI_OOT_ABILITY_CRAWL, // SoH RG_CRAWL (knee-pads = two deku shields); no MM system — no-op give
     RI_OOT_BOMBCHU_BAG,
@@ -2561,6 +2565,15 @@ typedef enum {
     RI_OOT_NEI_BEETLE,
     RI_OOT_NEI_BOMB_ARROWS,
     RI_OOT_NEI_CANE_OF_SOMARIA,
+    // Dual Cane skills (Skijer's NEI): six SEPARATE obtainable items that all land on the
+    // Cane of Somaria slot. RI_OOT_NEI_CANE_OF_SOMARIA above is the Statue skill (it keeps
+    // its old id so existing placements still mean "you get the cane"); these are the other
+    // five. Any of them, obtained first, is what puts the cane in the player's hands.
+    RI_OOT_NEI_CANE_SOMARIA_BLOCK,
+    RI_OOT_NEI_CANE_SOMARIA_PLATFORM,
+    RI_OOT_NEI_CANE_PACCI_FLIP,
+    RI_OOT_NEI_CANE_PACCI_STONE,
+    RI_OOT_NEI_CANE_PACCI_ULTRAHAND,
     RI_OOT_NEI_DEKU_LEAF,
     RI_OOT_NEI_DEMISE_DESTRUCTION,
     RI_OOT_NEI_DESIRE_SENSOR,
@@ -2580,9 +2593,31 @@ typedef enum {
     RI_OOT_NEI_TIME_GATE,
     RI_OOT_NEI_WHIP,
     RI_OOT_NEI_ZONAI_PERMAFROST,
+    // Elemental Wand (Skijer's NEI) — six rods sharing ONE page-2 cell (the one Bomb Arrows
+    // vacated). Which of these seven enter the pool depends on the wand's randomizer option:
+    // "Medallions"/"Single item" place only RI_OOT_NEI_ELEMENTAL_WAND, "Elemental shuffle" places
+    // the six rods instead. They all grant the same slot; they differ in which mode they light.
+    RI_OOT_NEI_ELEMENTAL_WAND,
+    RI_OOT_NEI_WAND_SAND_ROD,
+    RI_OOT_NEI_WAND_TORNADO_ROD,
+    RI_OOT_NEI_WAND_WATER_ROD,
+    RI_OOT_NEI_WAND_METEOR_ROD,
+    RI_OOT_NEI_WAND_STORM_ROD,
+    RI_OOT_NEI_WAND_SHADOW_SCEPTER,
+    RI_OOT_PROGRESSIVE_BGS,
     RI_OOT_PROGRESSIVE_HAMMER,
+    RI_OOT_PROGRESSIVE_STRENGTH,
     RI_OOT_PROGRESSIVE_MASTER_SWORD,
+    // Deku stick / nut CAPACITY. MM has UPG_DEKU_STICKS and UPG_DEKU_NUTS natively (z64item.h 47-48,
+    // capacities 10/20/30 and 20/30/40) and its logic already gates on HAS_ITEM(ITEM_DEKU_STICK/NUT),
+    // so nothing had to be invented — the items simply did not exist, which is why those two FC rows
+    // were the last ones left with an empty MM side. Skijer's NEI
+    RI_OOT_PROGRESSIVE_NUT_CAPACITY,
     RI_OOT_PROGRESSIVE_ROC,
+    RI_OOT_PROGRESSIVE_STICK_CAPACITY,
+    // SoH's OTHER feather: the ship-vanilla one that lives in the Nayru's Love slot (RG_ROCS_FEATHER),
+    // a separate check from the progressive Skijer Roc above. Not the same item.
+    RI_OOT_ROCS_FEATHER,
     RI_OOT_RUTOS_LETTER, // OoT Bottle with Ruto's Letter — no MM letter content (custom bottle
                          // system has no letter): draw + message only, no-op give.
     RI_OOT_SKELETON_KEY,
@@ -2605,6 +2640,9 @@ typedef enum {
     RI_OOT_SONG_PRELUDE_OF_LIGHT,
     RI_OOT_SONG_REQUIEM_OF_SPIRIT,
     RI_OOT_SONG_SERENADE_OF_WATER,
+    // Zelda's Lullaby was the ONLY OoT song with no MM counterpart, so it could never cross into
+    // Termina. Storage already existed (OOT_QUEST_SONG_LULLABY); only the item was missing.
+    RI_OOT_SONG_ZELDAS_LULLABY,
     // SoH Skijer jabber nuts (RG_SPEAK_*) — per-race speak items; no MM system, no-op give.
     RI_OOT_SPEAK_DEKU,
     RI_OOT_SPEAK_GERUDO,
@@ -2799,6 +2837,24 @@ typedef enum {
     RI_NET,               // Skijer's NEI bottle rando: Bug-Catching Net (netEquipped / SLOT_BOTTLE_3).
     RI_BOTTOMLESS_BOTTLE, // Skijer's NEI bottle rando: Bottomless Bottle (bottomlessBottleMode /
                           // SLOT_BOTTLE_4). Both appended at the END for RandoItemId stability.
+    // The last three page-2 equipment cells. Playable in both games (mods/equipment behaviours) but
+    // with NO randomizer identity, so they could never be placed in a seed nor synced across games —
+    // the save editor was the only way to own them. Appended at the END for RandoItemId stability,
+    // mirroring RG_EXT_TRIDENT/_CLIMB_BOOTS/_ROC_BOOTS on the OoT side. Skijer's NEI
+    RI_OOT_EXT_TRIDENT,
+    RI_OOT_EXT_CLIMB_BOOTS,
+    RI_OOT_EXT_ROC_BOOTS,
+    // The four page-2 cells opened by the 2026-08-06 re-layout (behaviorless-for-now real items).
+    RI_OOT_NEI_SHEIKAH_SLATE,
+    RI_OOT_NEI_PHANTOM_HOURGLASS,
+    RI_OOT_NEI_SHADOW_CRYSTAL,
+    RI_OOT_NEI_ROD_OF_SEASONS,
+    // Sheikah Slate runes — sibling items over the slate cell (wand idiom: any order, no levels).
+    // Appended at the END for RandoItemId stability, mirroring RG_SLATE_RUNE_* on the OoT side.
+    RI_OOT_NEI_SLATE_RUNE_BOMB,
+    RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE,
+    RI_OOT_NEI_SLATE_RUNE_STASIS,
+    RI_OOT_NEI_SLATE_RUNE_CRYONIS,
     RI_MAX_TRAP, // Just used for ice trap ice cube model
     RI_MAX,
 } RandoItemId;
@@ -3182,8 +3238,38 @@ typedef enum {
     RO_TRAP_AMOUNT,
     RO_TRIFORCE_PIECES_MAX,
     RO_TRIFORCE_PIECES_REQUIRED,
+    // Skijer's NEI — appended (raw values live in seeds, so the list is append-only).
+    RO_SHUFFLE_NEI_ITEMS,          // gate for the whole NEI custom-item pool block
+    RO_SHUFFLE_BOMB_ARROWS,        // RandoOptionBombArrows
+    RO_ELEMENTAL_WAND_SHUFFLE,     // RandoOptionElementalWand
+    // 2026-08-06 — symmetric cross-game pool categories (user requirement #1: each game can offer
+    // the other's items WITHOUT the combo). One checkbox per category; combo mode keeps supplying
+    // these through its own block/FC delegation, so the standalone blocks are combo-gated OFF.
+    RO_SHUFFLE_OOT_GEAR,      // MS/BGS chains, stick/nut capacity, Open Chests, Strength, Roc's Feather
+    RO_SHUFFLE_OOT_EQUIPMENT, // the 12 ext-equipment grid pieces + the progressive Skijer Roc
+    RO_SHUFFLE_OOT_QUEST,     // OoT songs + medallions + spiritual stones + Stone of Agony
+    RO_SHUFFLE_OOT_MASKS,     // Skull / Spooky / Gerudo
     RO_MAX,
 } RandoOptionId;
+
+// Bomb Arrows treatment (Skijer's NEI). Bomb Arrows is the 7th value of the bow's element flag and
+// has no inventory cell; this is only about how you come by it. Values MUST match the
+// BOMB_ARROWS_RANDO_* defines in mods/nei_save.h — the option mirrors into gMods.BombArrows.Mode,
+// which the in-game grant logic reads outside seeds too.
+typedef enum {
+    RO_BOMB_ARROWS_OFF,      // never granted on its own (Twilight Upgrade still works)
+    RO_BOMB_ARROWS_BOMB_BAG, // auto-granted with any bomb bag
+    RO_BOMB_ARROWS_SHUFFLED, // a real randomizer item
+} RandoOptionBombArrows;
+
+// Elemental Wand treatment (Skijer's NEI). All three grant the SAME page-2 slot; they differ only in
+// what unlocks an individual rod and therefore in how many items the pool carries. Values MUST match
+// the WAND_RANDO_* defines in mods/nei_save.h.
+typedef enum {
+    RO_WAND_MEDALLIONS,        // 1 pool item; rod N works iff you own medallion N
+    RO_WAND_SINGLE_ITEM,       // 1 pool item; finding it unlocks all six rods
+    RO_WAND_ELEMENTAL_SHUFFLE, // 6 pool items, one per rod
+} RandoOptionElementalWand;
 
 typedef enum {
     RO_GENERIC_OFF,

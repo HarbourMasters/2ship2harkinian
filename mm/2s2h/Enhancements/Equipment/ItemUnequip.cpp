@@ -29,8 +29,14 @@ void RegisterDpadPageSwitchPrevention() {
         if (CHECK_BTN_ALL(input->cur.button, button)) {
             PauseContext* pauseCtx = &gPlayState->pauseCtx;
 
-            // Prevent page switching with D-pad when on item or mask page
-            if ((pauseCtx->pageIndex == PAUSE_ITEM || pauseCtx->pageIndex == PAUSE_MASK) &&
+            // Prevent page switching with D-pad on every page you can EQUIP from: item, mask, and the
+            // QUEST page (Skijer's NEI equips medallions / spiritual stones / boss remains from there).
+            // Without the quest page here, D-left/D-right flipped the kaleido page instead of reaching
+            // those equip handlers, so D-pad equipping simply never worked on that page. (The OoT quest
+            // layout dodged this via HandlePageToggles' own sOotQuestInteract gate; MM's layout had no
+            // equivalent — hence "the remains can't be equipped like a normal item".)
+            if ((pauseCtx->pageIndex == PAUSE_ITEM || pauseCtx->pageIndex == PAUSE_MASK ||
+                 pauseCtx->pageIndex == PAUSE_QUEST) &&
                 pauseCtx->mainState <= PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG) {
                 *should = false;
             }

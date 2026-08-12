@@ -24,6 +24,7 @@
 // =============================================================================
 
 #include <imgui.h>
+#include "2s2h/ShipUtils.h"
 #include <cmath>
 #include <cfloat>
 #include <memory>
@@ -108,7 +109,7 @@ void EnsureTextures() {
     if (sTexturesLoaded) {
         return;
     }
-    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto gui = Ship_GetFast3dGui();
     for (const auto& slot : kSlots) {
         gui->LoadGuiTexture(slot.texName, slot.resPath, ImVec4(1, 1, 1, 1));
     }
@@ -200,7 +201,8 @@ void Sm64CapsHudWindow::Draw() {
     if (gPlayState == nullptr || gPlayState->pauseCtx.state != 0) {
         return; // hide while paused / in the subscreen
     }
-    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
+    auto fastGui = Ship_GetFast3dGui(); // texture lookups live on Fast3dGui since LUS 1.3.1-464
     if (gui->GetMenuOrMenubarVisible()) {
         return; // don't draw over the port menu
     }
@@ -286,9 +288,9 @@ void Sm64CapsHudWindow::Draw() {
                 // Only draw when the projected point is sanely on-screen.
                 if (sx > -disp.x && sx < disp.x * 2.0f && sy > -disp.y && sy < disp.y * 2.0f) {
                     std::string hpName = "Sm64HP" + std::to_string(wedges);
-                    ImTextureID hpTex = gui->GetTextureByName(hpName);
+                    ImTextureID hpTex = fastGui->GetTextureByName(hpName);
                     if (hpTex != (ImTextureID)0) {
-                        ImVec2 nat = gui->GetTextureSize(hpName);
+                        ImVec2 nat = fastGui->GetTextureSize(hpName);
                         if (nat.y > 0.0f) {
                             float k = (52.0f * s) / nat.y; // target ~52px tall
                             float wpx = nat.x * k;
@@ -332,7 +334,7 @@ void Sm64CapsHudWindow::Draw() {
 
         // Icon (or Mario mask while ACTIVE). Dimmed while recharging.
         const char* texName = isActive ? kMaskTexName : kSlots[slot].texName;
-        ImTextureID tex = gui->GetTextureByName(texName);
+        ImTextureID tex = fastGui->GetTextureByName(texName);
         if (tex != (ImTextureID)0) {
             ImU32 tint = (phase == kPhaseCooldown) ? IM_COL32(120, 120, 120, 255) : IM_COL32(255, 255, 255, 255);
             ImVec2 iconMin(center.x - iconSize * 0.5f, center.y - iconSize * 0.5f);
@@ -345,7 +347,7 @@ void Sm64CapsHudWindow::Draw() {
         // direction) if it loaded; otherwise a crisp vector arrow that always
         // renders (the raw-PNG GUI texture load can silently miss).
         ImVec2 dpadBtnCenter(center.x - radius - btnGap - btnSize * 0.5f, center.y);
-        ImTextureID dpadTex = gui->GetTextureByName(kDpadBtnTexName);
+        ImTextureID dpadTex = fastGui->GetTextureByName(kDpadBtnTexName);
         if (dpadTex != (ImTextureID)0) {
             ImU32 btnTint = (phase == kPhaseCooldown) ? IM_COL32(150, 150, 150, 210) : IM_COL32(255, 255, 255, 255);
             DrawRotatedImage(dl, dpadTex, dpadBtnCenter, btnSize, kSlots[slot].rot, btnTint);
@@ -386,7 +388,7 @@ void Sm64CapsHudWindow::Draw() {
         int cdItem = GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN);
         if (cdItem >= 0 && cdItem < 131 && cdItem != ITEM_NONE) {
             const char* itemTexName = (const char*)gItemIcons[cdItem];
-            ImTextureID itemTex = itemTexName != nullptr ? gui->GetTextureByName(itemTexName) : (ImTextureID)0;
+            ImTextureID itemTex = itemTexName != nullptr ? fastGui->GetTextureByName(itemTexName) : (ImTextureID)0;
             if (itemTex != (ImTextureID)0) {
                 ImVec2 iMin(center.x - iconSize * 0.5f, center.y - iconSize * 0.5f);
                 ImVec2 iMax(center.x + iconSize * 0.5f, center.y + iconSize * 0.5f);
@@ -397,7 +399,7 @@ void Sm64CapsHudWindow::Draw() {
         // C-Down activation button to the LEFT (CDown.png texture, or a yellow
         // C-button vector badge with a down arrow if the texture didn't load).
         ImVec2 cdBtnCenter(center.x - radius - btnGap - btnSize * 0.5f, center.y);
-        ImTextureID cdTex = gui->GetTextureByName(kCDownBtnTexName);
+        ImTextureID cdTex = fastGui->GetTextureByName(kCDownBtnTexName);
         if (cdTex != (ImTextureID)0) {
             dl->AddImage(cdTex, ImVec2(cdBtnCenter.x - btnSize * 0.5f, cdBtnCenter.y - btnSize * 0.5f),
                          ImVec2(cdBtnCenter.x + btnSize * 0.5f, cdBtnCenter.y + btnSize * 0.5f));
@@ -418,7 +420,7 @@ extern "C" void Sm64CapsHud_DrawImGui(void) {
     if (sHudWindow != nullptr) {
         return;
     }
-    auto ctx = Ship::Context::GetInstance();
+    auto ctx = Ship::Context::GetRawInstance();
     if (ctx == nullptr) {
         return;
     }

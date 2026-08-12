@@ -68,6 +68,16 @@ void BossRemains_DrawOdolwaShield(PlayState* play, Player* player);
 // setup (z_player.c func_80833864). Self-guards on Odolwa-worn + available magic.
 void BossRemains_OdolwaSwordMoth(PlayState* play, Player* player);
 
+// Idle stance override: while the Odolwa remains is worn (Human), Link's idle pose is Odolwa's "ready"
+// stance. Call from Player_GetIdleAnim; returns NULL (keep vanilla idle) if the anim isn't loaded.
+PlayerAnimationHeader* BossRemains_GetOdolwaIdleAnim(void);
+// True while Link rides the Odolwa moth-cloud ("Nimbus" flight). Read by the walk-off handler + gravity
+// hooks so the flight driver owns movement (no fall action), like the Goht charge.
+s32 BossRemains_IsOdolwaFlying(void);
+// Per-frame Odolwa flight driver (deku-flower takeoff → moth-summon dance → free 3D float on the cloud).
+// Call from Player_UpdateCommon AFTER the action func so the overrides win.
+void BossRemains_OdolwaFlightTick(PlayState* play, Player* player);
+
 // ── Goht ─────────────────────────────────────────────────────────────────────
 // True while the Goht remains is worn.
 s32 BossRemains_IsGohtWorn(void);

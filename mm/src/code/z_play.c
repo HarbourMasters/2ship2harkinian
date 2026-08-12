@@ -989,6 +989,13 @@ const char D_801DFA34[][4] = {
     "h",   "i",  "f",  "fa", "fb", "fc", "fd", "fe",  "ff",  "fg", "fh", "fi", "fj", "fk",
 };
 
+// Generic hold-button box selector (Sheikah Slate runes, ...). Declared locally rather than via a
+// header: mods/*.h is globbed with CONFIGURE_DEPENDS, so a new header there forces a full CMake
+// regeneration. Definitions live in mods/items/helpers/box_menu.c. Skijer's NEI
+u8 BoxMenu_IsOpen(void);
+void BoxMenu_Update(PlayState* play);
+void BoxMenu_Draw(PlayState* play);
+
 void Play_UpdateMain(PlayState* this) {
     s32 pad;
     Input* input = this->state.input;
@@ -1090,7 +1097,13 @@ void Play_UpdateMain(PlayState* this) {
             Skybox_Update(&this->skyboxCtx);
 
             if (IS_PAUSED(&this->pauseCtx)) {
-                KaleidoScopeCall_Update(this);
+                // Generic hold-button box selector (Sheikah Slate runes, ...) borrows the pause
+                // state the same way, so it must win over the kaleido here. Skijer's NEI
+                if (BoxMenu_IsOpen()) {
+                    BoxMenu_Update(this);
+                } else {
+                    KaleidoScopeCall_Update(this);
+                }
             } else if (this->gameOverCtx.state != GAMEOVER_INACTIVE) {
                 GameOver_Update(this);
             }
@@ -1164,13 +1177,16 @@ void Play_Update(PlayState* this) {
 }
 
 void Play_PostWorldDraw(PlayState* this) {
-    if (IS_PAUSED(&this->pauseCtx)) {
+    if (IS_PAUSED(&this->pauseCtx) && !BoxMenu_IsOpen()) {
         KaleidoScopeCall_Draw(this);
     }
 
     if (gSaveContext.gameMode == GAMEMODE_NORMAL) {
         Interface_Draw(this);
     }
+
+    // Generic box selector — drawn after the HUD so it sits on top. Skijer's NEI
+    BoxMenu_Draw(this);
 
     if (!IS_PAUSED(&this->pauseCtx) || (this->msgCtx.currentTextId != 0xFF)) {
         Message_Draw(this);

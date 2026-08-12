@@ -9,10 +9,76 @@
 extern "C" {
 #endif
 
+// ── SW97 primed element (Skijer's NEI) ───────────────────────────────────────────────────────────
+// The bow's / slingshot's elemental shot used to BE the item id sitting on the C-button: six
+// ITEM_SW97_ARROW_* plus six ITEM_SW97_BULLET_*. That burned twelve inventory ids to express three
+// bits, and the bullets (0xA7-0xAC) collided head-on with ITEM_MAP_POINT_DEKU_PALACE..IKANA_CANYON.
+// The element is a flag now (Gust Jar pattern): the button always holds the plain weapon and the
+// medallion is composited over the icon.
+//
+// The 1..6 ordering is load-bearing: it keeps the existing offset expressions a one-liner
+// (`ARROW_TYPE_SW97_FIRE + (e - SW97_ELEM_FIRE)`, `ARROW_TYPE_SEED_FIRE + (e - SW97_ELEM_FIRE)`) and
+// it is bit-identical to the legacy `slingshotWheel` index, so that field migrates by plain copy.
+#define SW97_ELEM_NONE 0  // plain bow / plain slingshot
+#define SW97_ELEM_FIRE 1  // Fire Medallion
+#define SW97_ELEM_ICE 2   // Water Medallion
+#define SW97_ELEM_LIGHT 3 // Light Medallion
+#define SW97_ELEM_DARK 4  // Shadow Medallion
+#define SW97_ELEM_SOUL 5  // Spirit Medallion
+#define SW97_ELEM_WIND 6  // Forest Medallion
+#define SW97_ELEM_BOMB 7  // Bomb Arrows — BOW ONLY (never rides the slingshot flag)
+#define SW97_ELEM_COUNT 8
+
+// Elemental Wand modes (Skijer's NEI) — six rods in ONE page-2 cell, same wheel idiom. Index order
+// IS the wheel order; the medallion column is what the wheel draws behind the rod icon.
+//   0 Spirit -> Sand Rod      1 Forest -> Tornado Rod   2 Water  -> Water Rod
+//   3 Fire   -> Meteor Rod    4 Light  -> Storm Rod     5 Shadow -> Shadow Scepter
+#define WAND_MODE_SAND 0
+#define WAND_MODE_TORNADO 1
+#define WAND_MODE_WATER 2
+#define WAND_MODE_METEOR 3
+#define WAND_MODE_STORM 4
+#define WAND_MODE_SCEPTER 5
+#define WAND_MODE_COUNT 6
+
+// Randomizer treatment of the wand (all three share the SAME slot flag).
+#define WAND_RANDO_MEDALLIONS 0 // 1 pool item; mode N usable iff you own medallion N
+#define WAND_RANDO_SINGLE 1     // 1 pool item; obtaining it lights all six modes
+#define WAND_RANDO_ELEMENTAL 2  // 6 pool items; each lights its own mode
+
+// Sheikah Slate runes (Skijer's NEI) — four runes in ONE page-2 cell, wand idiom: sibling
+// obtainable items over one slot (each with its own textbox), gettable in any order, no levels.
+// Index order IS the wheel order.
+#define SLATE_RUNE_BOMB 0 // Remote Bomb
+#define SLATE_RUNE_STASIS 1
+#define SLATE_RUNE_CRYONIS 2
+#define SLATE_RUNE_MASTER_CYCLE 3 // Master Cycle Zero
+#define SLATE_RUNE_COUNT 4
+// Future runes with art already staged in icon_item_custom: Magnesis, Camera
+// (gItemIconSlateRuneMagnesisTex / gItemIconSlateRuneCameraTex).
+
+// Randomizer treatment of Bomb Arrows.
+#define BOMB_ARROWS_RANDO_OFF 0      // never granted on their own (Twilight Upgrade still works)
+#define BOMB_ARROWS_RANDO_BOMB_BAG 1 // auto-granted the moment any bomb bag is owned
+#define BOMB_ARROWS_RANDO_SHUFFLED 2 // a real randomizer item
+
 // Skijer's NEI: per-save state, serialized via the "nei" SaveManager section
 // (NOT in the vanilla SaveContext, which is kept 100% upstream).
 typedef struct NeiSaveData {
-    uint8_t ownedItems[48];      // custom inventory slots 24..71 (page-2 items + MM masks)
+    // Custom inventory slots 24..71 (page-2 items + MM masks).
+    // u16, NOT u8: the vanilla u8 item-id space is exhausted — 5 free ids in all of 0x9C-0xFF, and
+    // seven of the ported OoT items (Din's Fire..Roc's Feather, extended_inventory.h) are still
+    // sitting on top of live MM ids (ITEM_MILK, ITEM_GOLD_DUST_2, and three owl-warp map points).
+    // Widening this store is what lets a page-2 item carry an EXT id above 0xFF (the 0x02xx space
+    // the Spiritual Stones already use) instead of competing for those last few bytes.
+    // ITEM_NONE stays 0xFF — the empty marker did NOT become 0xFFFF. Skijer's NEI
+    uint16_t ownedItems[48];
+    // 2026-08-06 page-2 re-layout: Shovel and Dominion Rod share cell 46 behind a wheel, so the cell
+    // value alone cannot say "both owned" — each carries its own flag (Power Keg idiom). The
+    // Pokeball left page 2 for the Broken Items page; its ownership is a flag too. Skijer's NEI
+    uint8_t shovelOwned;
+    uint8_t dominionOwned;
+    uint8_t pokeballOwned;
     uint32_t extEquipOwnedBits;  // ext-equipment ownership (was inventory.equipment high bits)
     uint8_t lanternFireType;
     uint8_t lanternCapturedTypes;
@@ -47,18 +113,14 @@ typedef struct NeiSaveData {
     // MM adult trade-quest items (Skijer's NEI). Bitmask over a NEI trade index: 0-10 = the OoT items
     // (ITEM_POCKET_EGG..ITEM_CLAIM_CHECK), 11 = Moon's Tear, 12-15 = the four Title Deeds, 16 = Room Key,
     // 17 = Letter to Kafei, 18 = Special Delivery to Mama, 19 = Pendant of Memories. The 2D-grid wheel on
-    // SLOT_TRADE_ADULT shows every owned entry. The Pendant's bit is set alongside its combat ownership
-    // (extEquipOwnedBits, Ext Boots 2) — both flags on grant. See trade_items.c.
+    // SLOT_TRADE_ADULT shows every owned entry. This bitmask is the Pendant's ONLY ownership flag
+    // (2026-07-29: the ext BOOTS-2 bit it used to shadow belongs to the Climb Boots). See trade_items.c.
     uint32_t tradeAdultOwned;
-    // Pictograph Box (Skijer's NEI). Stored in Majora's Mask's EXACT save layout so a 2Ship bridge
-    // can consume it: pictoFlags0/1 are the 64 PICTO_VALID_* bits (set by Snap_SetFlag when a mapped
-    // OoT actor is validly photographed), pictoPhotoI5 is the last photo compressed to I5 (160x112).
-    // OoT itself gives no reward for these — they exist only to be read by MM/2Ship. See snap.h.
-    uint8_t pictoboxOwned;          // Pictobox item owned (granted via CVar/menu)
-    uint8_t pictoHasPhoto;          // a photo has been kept (gates the "Replace?" warn before capture)
-    uint32_t pictoFlags0;           // MM pictoFlags0: PICTO_VALID_* bits 0x00..0x1F
-    uint32_t pictoFlags1;           // MM pictoFlags1: PICTO_VALID_* bits 0x20..0x3F
-    uint8_t pictoPhotoI5[11200];    // MM PICTO_PHOTO_COMPRESSED_SIZE = (160*112)*5/8 (I5, last photo)
+    // (The NEI Pictograph Box block lived here — pictoboxOwned / pictoHasPhoto / pictoFlags0/1 /
+    // pictoPhotoI5[11200]. REMOVED in 2ship: MM stores all of it natively, in this very layout, at
+    // gSaveContext.save.saveInfo.pictoFlags0/1 + gSaveContext.pictoPhotoI5. Ownership is the vanilla
+    // SLOT_PICTOGRAPH_BOX inventory slot. Old json saves may still carry the four keys; from_json
+    // reads by name, so they are simply ignored.)
 
     // --- OoT page-0 items (Skijer's NEI, MM port: the OoT item-pause layout on MM's page 0).
     //     Appended at the END so older shipSaveInfo blobs stay readable. ---
@@ -71,11 +133,13 @@ typedef struct NeiSaveData {
     uint8_t ootHookshotLevel; // OoT chain: 0 none, 1 Hookshot, 2 Longshot
     uint8_t ootHookMode;      // hookshot-cell wheel: 0 = Clawshot (MM native, functional), 1 = OoT mode
     uint8_t nayruRocsMode;    // nayru-cell wheel: 0 = Nayru's Love, 1 = Roc's Feather
-    uint8_t lensPictoMode;    // lens-cell wheel: 0 = Lens of Truth, 1 = Pictograph Box shown
     uint16_t ootUpgrades;     // 3 bits each: bulletBag(0) quiver(3) bombBag(6) strength(9) scale(12)
     uint16_t ootMasksOwned;   // OoT child-trade masks bitmask (wheel lands in the per-item pass)
     // Slingshot-cell wheel selection (Skijer's NEI slingshot pass): 0 = plain Fairy Slingshot,
-    // 1..6 = SW97 elemental bullet fire/ice/light/dark/soul/wind (ITEM_SW97_BULLET_*). Appended
+    // LEGACY (Skijer's NEI): superseded by sw97SlingElement, which uses the SAME 1..6 numbering.
+    // Migrated once in Sw97_MigrateLayout and then written 0 forever; kept only because removing a
+    // mid-struct field would shift every field after it. Do not read or write it in new code.
+    // Was: 1..6 = SW97 elemental bullet fire/ice/light/dark/soul/wind. Appended
     // at the END so older shipSaveInfo blobs stay readable.
     uint8_t slingshotWheel;
 
@@ -131,6 +195,9 @@ typedef struct NeiSaveData {
     uint8_t comboObtained[128]; // universal cross-game obtained registry (FC_* index; u8 VALUES:
                                 // flags 0/1, counters raw). Souls/abilities bridge to randoInf here.
     uint16_t comboTriforce;     // shared Triforce-piece count (syncs vs foundTriforcePieces/OoT)
+    uint8_t comboGoalFlags;     // FC_GOAL_*: which bosses are already down, across BOTH games.
+                                // Beat Both Bosses ends only when both bits are set; the first win
+                                // records its bit, saves, and returns you to play on.
     uint8_t comboObtainedFc[FC_COMBO_OBTAINED_FC_SIZE]; // fcId(FcComboItemId)-indexed cross store (counts); synced
     uint8_t comboAppliedFc[FC_COMBO_OBTAINED_FC_SIZE];  // local: copies already materialized here (NOT synced)
 
@@ -161,6 +228,60 @@ typedef struct NeiSaveData {
     // adult_link_model.cpp forces the OoT-adult skeleton/textures over gLinkHumanSkel and grows the
     // body collider; it re-asserts on scene load. Appended at the END so older blobs stay readable.
     uint8_t timeGateAdultMode; // 1 = OoT adult Link model + adult collider forced
+    uint8_t capeOwned;
+    uint8_t extTunicLayoutVersion; // 1 = Champion/Spirit/Sage's
+    // Dual Cane (Somaria / Pacci) — Skijer's NEI. Six SEPARATE obtainable items share one
+    // kaleido slot; each lights its own bit here and they may be obtained in any order.
+    // Appended at the END so older blobs stay readable.
+    uint8_t caneSkills;       // bitmask, CANE_SKILL_BIT(CANE_SKILL_*) — 0 = cane not owned at all
+    uint8_t caneType;         // active cane: CANE_TYPE_SOMARIA / CANE_TYPE_PACCI
+    uint8_t caneSkillSel[2];  // per-cane selected skill SLOT (0..2); index by caneType
+    // Quartz of Motion (2nd level of the progressive Stone of Agony). The tracking
+    // category is chosen by pressing A on the Stone of Agony quest slot in the
+    // kaleido (Bombers'-Notebook-style list); activating spends one heart and runs
+    // the sensor for 5 minutes. Only the SELECTION persists — the countdown itself
+    // is session state in CustomItemState. Appended at the END so older blobs stay
+    // readable.
+    uint8_t quartzOwned;      // 1 = Quartz of Motion obtained (2nd Stone of Agony copy)
+    uint8_t quartzCategory;   // DesireCompassCategory last selected in the kaleido
+    uint8_t quartzSubcat;     // subcategory within that category (0 = any)
+    // Ext BOOTS slots 2/3 became REAL boots (Climb Boots / Roc Boots) on 2026-07-29, so the Pendant
+    // of Memories can no longer use the BOOTS-2 bit as its "combat owned" flag — its single source of
+    // truth is the adult trade wheel (tradeAdultOwned, TRADE_ADULT_PENDANT). Old saves are migrated in
+    // ExtEquip_Init, gated by this version. Appended at the END.
+    uint8_t extBootsLayoutVersion; // 1 = Pegasus / Climb / Roc
+    // Which trade index the unified wheel is currently showing (0..TRADE_ADULT_COUNT-1).
+    // MM cannot identify these items by inventory id: the 14 OoT trade ids alias to ITEM_NONE here
+    // (nei_oot_compat.h) and the u8 ItemId space has no room for 14 more. So the wheel is driven by
+    // this index and the cell holds ITEM_TRADE_PLACEHOLDER; art comes from TradeAdult_Icon/NamePath().
+    // APPENDED AT THE END — it first went in next to tradeAdultOwned, which shifted every field after
+    // it (including pictoPhotoI5[11200]) and crashed on load. Skijer 2026-07-30
+    uint8_t tradeAdultCursor;
+    // Which of the 8 OoT child-trade masks the cell-4,6 wheel is showing (index into ootMasksOwned).
+    // Same reasoning as tradeAdultCursor: those masks have no MM item id. APPENDED AT THE END.
+    uint8_t ootMaskCursor;
+    // Pendant of Memories — EQUIPMENT ownership (Skijer 2026-07-31). Distinct from the trade-wheel
+    // item: holding the pendant in the adult trade slot GRANTS this flag, and it is then permanent —
+    // the trade item can be handed away, the equipment piece cannot. This is the flag the kaleido
+    // equipment upgrade column shows and lets you toggle; pendantEffectOff above is the separate
+    // "moveset on/off" toggle. Mirrors soh's NeiSaveData::pendantOwned so FleetSync can carry it.
+    // APPENDED AT THE END.
+    uint8_t pendantOwned;
+    // SW97 elemental shot + Bomb Arrows + Elemental Wand (Skijer's NEI). The bow and the slingshot
+    // carry INDEPENDENT elements on purpose — you may prime spirit arrows and wind bullets at once.
+    // sw97SlingElement supersedes the old slingshotWheel index (migrated once, see
+    // Sw97_MigrateLayout). APPENDED AT THE END.
+    uint8_t sw97BowElement;    // SW97_ELEM_*
+    uint8_t sw97SlingElement;  // SW97_ELEM_* — never SW97_ELEM_BOMB (bombs are bow-only)
+    uint8_t bombArrowsOwned;   // replaces the old page-2 SLOT_BOMB_ARROWS cell
+    uint8_t wandMode;          // WAND_MODE_* — the rod the page-2 cell is showing
+    uint8_t wandRodsOwned;     // WAND_MODE_* bitmask (six bits)
+    uint8_t sw97LayoutVersion; // 1 = migrated off the per-element item ids
+    // Sheikah Slate — Skijer's NEI. Four runes (Remote Bomb / Stasis / Cryonis / Master Cycle) share
+    // the one SLOT_SHEIKAH_SLATE cell; each pickup grants a RANDOM unowned rune (like the wands,
+    // no levels). APPENDED AT THE END.
+    uint8_t slateMode;       // SLATE_RUNE_* — the rune the cell is showing / the button casts
+    uint8_t slateRunesOwned; // SLATE_RUNE_* bitmask (four bits) — 0 = slate not owned at all
 } NeiSaveData;
 
 // Hookshot-cell variant ids (which item currently fires from SLOT_HOOKSHOT). Returned by
@@ -211,6 +332,21 @@ uint8_t Nei_BulletBagLevel(void);
 uint8_t Nei_SlingshotCapacity(void);
 uint8_t Nei_SlingshotSeeds(void);
 
+// ── OoT strength upgrade (Skijer's NEI) ──────────────────────────────────────────────────────────
+// 0 none / 1 Goron's Bracelet / 2 Silver Gauntlets / 3 Golden Gauntlets. MM has no native strength
+// stat, so the level lives in the NEI parallel OoT-upgrade store (ootUpgrades bits 9-11) — which is
+// per-save (serialized with ShipSaveInfo by BenJsonConversions.hpp), is what the MM kaleido
+// equipment page already draws (z_kaleido_collect.c, QUEST_SHIELD quad), and is what FleetSync
+// publishes to OoT as upgrades["strength"], where it lands as a real Inventory_ChangeUpgrade(
+// UPG_STRENGTH). This is THE strength variable on the MM side: anything that wants to gate on it
+// later (lifting a silver rock, a heavier grab, an MM-side check) reads Nei_StrengthLevel() and
+// gets the same number in both games. Do not add a second field for it. See also the native
+// UPG_STRENGTH copy, which FleetSync keeps in step so its max() export can't walk backwards.
+#define NEI_STRENGTH_SHIFT 9
+#define NEI_STRENGTH_MAX 3
+uint8_t Nei_StrengthLevel(void);
+void Nei_SetStrengthLevel(uint8_t level);
+
 // Which hookshot-cell variant currently fires (NEI_HOOK_VARIANT_*). Clawshot when its wheel mode
 // is active + owned; otherwise the OoT chain by ootHookshotLevel (1/2/3). Used by z_arms_hook.c.
 uint8_t Nei_HookshotVariant(void);
@@ -219,12 +355,29 @@ uint8_t Nei_HookshotVariant(void);
 // NEI headers (z_parameter.c HUD medallion marker).
 uint8_t Nei_HookshotLevel(void);
 
+// ── Dual Cane (Somaria / Pacci) — Skijer's NEI ────────────────────────────────────────────────────
+// Thin wrappers over NeiSaveData.caneSkills/caneType/caneSkillSel so the C item code and the C++ HUD
+// share one source of truth. `skill` is a CANE_SKILL_* index (0..5), `type` a CANE_TYPE_*.
+uint8_t Nei_CaneHasSkill(uint8_t skill);  // does the player own that skill?
+void Nei_CaneGrantSkill(uint8_t skill);   // light its bit (idempotent)
+uint8_t Nei_CaneSkillMask(void);          // the whole 6-bit mask (0 = cane not owned)
+uint8_t Nei_CaneOwned(void);              // any skill owned -> the cane exists
+uint8_t Nei_CaneTypeOwned(uint8_t type);  // is that wheel entry unlocked (4 entries)
+uint8_t Nei_CaneTypeCount(void);          // how many of the four are owned
+uint8_t Nei_CaneNextType(int8_t dir);     // next owned entry, wrapping
+uint8_t Nei_CaneGetType(void);            // active cane (auto-corrected to one the player owns)
+void Nei_CaneSetType(uint8_t type);
+uint8_t Nei_CaneGetSkillSlot(uint8_t type); // selected slot 0..2 for that cane (auto-corrected)
+void Nei_CaneSetSkillSlot(uint8_t type, uint8_t slot);
+uint8_t Nei_CaneActiveSkill(void);        // CANE_SKILL_* the button would cast right now
+
 // Single accessor — returns the live per-save state (never NULL).
 NeiSaveData* Nei_Save(void);
 
 // Custom inventory slot helpers (slot 24..71 -> ownedItems[slot-24]).
-uint8_t Nei_GetOwnedItem(uint8_t slot);
-void Nei_SetOwnedItem(uint8_t slot, uint8_t v);
+// u16 since the page-2 store was widened (see ownedItems above); empty is still 0xFF (ITEM_NONE).
+uint16_t Nei_GetOwnedItem(uint8_t slot);
+void Nei_SetOwnedItem(uint8_t slot, uint16_t v);
 
 // Reset NEI state for a brand-new save (empty custom slots = 0xFF = ITEM_NONE).
 // 2ship port: call from the new-file init path (gSaveContext.save.shipSaveInfo.nei).

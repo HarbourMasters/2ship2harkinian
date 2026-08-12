@@ -658,9 +658,15 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
         return;
     }
 
-    // Skijer's NEI: while interacting with the OoT quest page, left/right (DPad or the stick-at-edge
-    // scroll) drives OUR cursor, NOT page switching — otherwise moving the cursor sideways also flips
-    // the kaleido page. The dedicated BTN_R / BTN_Z still switch pages so the player can leave.
+    // Skijer's NEI: on the OoT quest page the D-pad belongs to OUR cursor/equip layer, not to page
+    // switching — otherwise moving the cursor sideways also flips the kaleido page. BTN_R / BTN_Z
+    // still switch pages.
+    //
+    // Skijer 2026-07-31: this used to gate the stick-at-edge scroll below as well. That made sense
+    // only while sOotQuestNav had every page-switch edge flattened to "no neighbour" — the cursor
+    // could never reach PAUSE_CURSOR_PAGE_LEFT/RIGHT, so the page was a one-way trip unless the
+    // player knew about R/Z. The table is 1:1 with soh again and OotQuest_HandleCursor parks the
+    // cursor on those positions properly, so the normal scroll has to work here too.
     u8 sOotQuestInteract = (pauseCtx->pageIndex == PAUSE_QUEST) &&
                            CVarGetInteger("gEnhancements.Kaleido.OotQuestPage", 0) &&
                            CVarGetInteger("gEnhancements.SkijerNEI.QuestPageInteract", 1);
@@ -691,7 +697,7 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
         return;
     }
 
-    if (!sOotQuestInteract && pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT) {
+    if (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT) {
         if (pauseCtx->stickAdjX < -30) {
             pauseCtx->pageSwitchInputTimer++;
             // Switch the page to the left after a certain number of frames with held input or after a second press
@@ -702,7 +708,7 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
             // stickAdjX is no longer held, so that the next input to the left will immediately switch pages
             pauseCtx->pageSwitchInputTimer = -1;
         }
-    } else if (!sOotQuestInteract && pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_RIGHT) {
+    } else if (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_RIGHT) {
         if (pauseCtx->stickAdjX > 30) {
             pauseCtx->pageSwitchInputTimer++;
             // Switch the page to the right after a certain number of frames with held input or after a second press

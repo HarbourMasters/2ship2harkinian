@@ -1920,7 +1920,7 @@ static bool LoadO2rEquipment(PakModel& model) {
     // We open our own standalone Archive instance below to pull the DLs we
     // want into the equipment cache. Removing the global mount means the .o2r
     // is now ONLY active when the user explicitly selects it in the dropdown.
-    auto rm = Ship::Context::GetInstance()->GetResourceManager();
+    auto rm = Ship::Context::GetRawInstance()->GetResourceManager();
     if (!rm) return false;
     auto archiveManager = rm->GetArchiveManager();
     if (archiveManager) {
@@ -2405,7 +2405,7 @@ static s32 sSavedDListCount = 0;
 static bool MountO2rArchive(PakModel& model) {
     if (model.source != PAK_SOURCE_O2R) return false;
     if (model.o2rArchiveMounted) return true;
-    auto rm = Ship::Context::GetInstance()->GetResourceManager();
+    auto rm = Ship::Context::GetRawInstance()->GetResourceManager();
     if (!rm) return false;
     auto am = rm->GetArchiveManager();
     if (!am) return false;
@@ -4245,7 +4245,7 @@ extern "C" void PakLoader_Init(void) {
         return;
 
     // Don't try to init until Context is ready
-    if (!Ship::Context::GetInstance())
+    if (!Ship::Context::GetRawInstance())
         return;
 
     sInitialized = 1;
@@ -4375,7 +4375,7 @@ extern "C" void PakLoader_Init(void) {
         dirty = true;
     }
     if (dirty) {
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
 
     // Apply persisted CVar selections immediately so the player doesn't have to

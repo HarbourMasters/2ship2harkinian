@@ -1,14 +1,28 @@
 /**
- * item_zonai_permafrost.c - Zonai Permafrost (time freeze)
+ * item_zonai_permafrost.c - Zonai Permafrost (time freeze TOGGLE)
  *
  * Controls:
- *   C Button: Cast time freeze (12 MP cost)
+ *   C Button: toggle the time freeze on / off
  *
  * Features:
- *   - Freezes all actors and day/night cycle for 10 seconds
- *   - Link moves freely during effect
- *   - Din's Fire style cast animation
+ *   - Freezes all actors and the day/night cycle the instant you press the button
+ *   - No cast animation and no fixed duration: it stays on until you press again
+ *     or the magic meter runs dry
+ *   - Link moves and fights freely during the effect
  *   - Green Zonai energy runes visual
+ *   - Deku Nut style white flash on every toggle, plus an ice-green screen wash
+ *     held for as long as the world is stopped
+ *
+ * The freeze itself is delegated to timestop_helper (TIMECTL_OWNER_PERMAFROST,
+ * the HIGHEST priority claim): a hard stop must win over Champion's Tunic bullet
+ * time and over the Phantom Hourglass' rewind scrub. The helper re-applies the
+ * freeze every frame from CustomItems_Update, so actors that spawn mid-effect are
+ * caught too, it keeps frozen enemies hittable, and it restores the day/night
+ * clock on release or scene change.
+ *
+ * Nothing here touches health, rupees or any flag, and it only ever spends its own
+ * magic: damage dealt while the world is stopped, purchases made, and scene flags
+ * set all persist normally.
  */
 
 #include "z64.h"
@@ -16,68 +30,143 @@
 #include "../custom_items.h"
 #include "../helpers/equip_helper.h"
 #include "../helpers/fx_helper.h"
-#include "../helpers/item_voice.h"
+#include "../helpers/timestop_helper.h"
 #include "macros.h"
 #include "functions.h"
 #include "variables.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 
-// Vanilla function: resets player actionFunc to idle (or lock-on variant)
-extern void func_80839FFC(Player* this, PlayState* play);
-
-static s8 sZPermPrevInvinc = 0;
-static s32 sZPermPhaseEnd = 0;
-// MM has no global time-increment control (OoT's gTimeIncrement) — stub it so the
-// time-freeze writes compile; the freeze is inert until adapted to MM's time system.
-s16 gTimeIncrement = 0;
-
-// Actor categories to freeze
-static const u8 sFreezeCats[] = {
-    ACTORCAT_SWITCH,     // 0x00 - buttons, switches
-    ACTORCAT_BG,         // 0x01 - background actors
-    ACTORCAT_EXPLOSIVE,  // 0x03 - bombs
-    ACTORCAT_NPC,        // 0x04 - NPCs
-    ACTORCAT_ENEMY,      // 0x05 - enemies
-    ACTORCAT_ITEMACTION, // 0x07 - projectiles
-    ACTORCAT_MISC,       // 0x08 - misc
-    ACTORCAT_BOSS,       // 0x09 - bosses
-};
-
 // ============================================================================
-// Freeze / Unfreeze Helpers
+// Audio
+//
+// Every cue this item plays is emitted from its OWN position vector rather than
+// straight from Link's. The ice sounds are sustained samples and the ambient one
+// re-triggers while the freeze is held, so they have to be killable in one call
+// when the freeze ends — and stopping by Link's own position pointer would take
+// his footsteps and everything else he is emitting down with them.
 // ============================================================================
 
-/**
- * Set freezeTimer on all actors in target categories.
- * Called EVERY FRAME during ACTIVE to keep actors frozen.
- * DECR() decrements freezeTimer each frame, so we re-set it to
- * ZPERM_FREEZE_REFRESH (3) to stay ahead of the decrement.
- * This also catches newly spawned actors.
- */
-static void ZPerm_FreezeAllTargets(PlayState* play) {
-    ActorContext* actorCtx = &play->actorCtx;
-    for (u32 i = 0; i < ARRAY_COUNT(sFreezeCats); i++) {
-        Actor* actor = actorCtx->actorLists[sFreezeCats[i]].first;
-        while (actor != NULL) {
-            actor->freezeTimer = ZPERM_FREEZE_REFRESH;
-            actor = actor->next;
+static Vec3f sZPermSfxPos;
+
+static void ZPerm_Sfx(Player* p, u16 sfxId) {
+    sZPermSfxPos = p->actor.world.pos;
+    // Every cue here is fired ONCE, so the continuous flag has to come off. Bit 0x800
+    // marks an sfx the caller re-requests every frame; the sound bank only ages those
+    // while they sit in SFX_STATE_QUEUED, and its auto-reclaim path is explicitly gated
+    // on !(sfxId & 0xC00). Fire one with the flag on and never ask again and it parks in
+    // PLAYING forever — which is exactly why the ice sounds outlived the freeze. The
+    // sample is chosen by sfxId & 0x1FF, so clearing 0x800 changes the lifetime, never
+    // which sound you hear. (NA_SE_EV_ICE_FREEZE is 0x28B2, NA_SE_EV_ICE_MELT 0x28A2 —
+    // both carry it.)
+    Audio_PlaySoundGeneral(sfxId - SFX_FLAG, &sZPermSfxPos, 4, &gSfxDefaultFreqAndVolScale,
+                           &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+}
+
+/** Kill every cue this item still has in flight. */
+static void ZPerm_SfxStopAll(void) {
+    AudioSfx_StopByPos(&sZPermSfxPos);
+}
+
+// ----------------------------------------------------------------------------
+// Toggle chime, forwards and "backwards"
+//
+// Both toggles use the pause screen's ice-arrow cue (the one z_kaleido_item.c
+// fires as NA_SE_SY_SET_FIRE_ARROW + 1 when you drop Ice onto the bow), played
+// exactly the way the menu plays it: from gSfxDefaultPos, so it is flat 2D and
+// unattenuated. That also puts it out of reach of ZPerm_SfxStopAll, which only
+// kills what is ringing at our own position vector.
+//
+// The release cue is the same chime running DOWN. A sample cannot literally be
+// played backwards here: the sfx player walks PCM forwards only, and a true
+// reversal would mean shipping a second, mirrored sample as a custom asset.
+// What it does honour is a live pitch — it keeps the f32* it was handed and
+// dereferences it every audio frame (`* entry->freqScale`, sfx bank processing
+// in code_8019AF00.c) — so pointing it at a value we walk downwards bends the
+// cue while it is still ringing. On a short rising chime that glide is what the
+// ear reads as the sound running backwards.
+//
+// The walk is ticked from Handle_ZonaiPermafrost, which runs every frame while
+// the item is equipped. Ending the freeze by UNEQUIPPING is the one case that
+// stops the tick; the cue then simply rings out at its starting pitch.
+// ----------------------------------------------------------------------------
+
+#define ZPERM_REV_FREQ_START 1.45f
+#define ZPERM_REV_FREQ_END 0.55f
+#define ZPERM_REV_FREQ_STEP 0.11f // start to end in ~8 frames (~0.4 s at 20 fps)
+
+static f32 sZPermRevFreq = ZPERM_REV_FREQ_END;
+
+/** The freeze snapping on: the chime at its normal pitch. */
+static void ZPerm_PlayEntryCue(void) {
+    Audio_PlaySoundGeneral(NA_SE_SY_SET_ICE_ARROW, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
+                           &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+}
+
+/** The freeze letting go: same chime, pitch pointer we are about to drag down. */
+static void ZPerm_PlayReleaseCue(void) {
+    sZPermRevFreq = ZPERM_REV_FREQ_START;
+    Audio_PlaySoundGeneral(NA_SE_SY_SET_ICE_ARROW, &gSfxDefaultPos, 4, &sZPermRevFreq,
+                           &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+}
+
+/** Bend the release cue down one step. Cheap no-op once it has bottomed out. */
+static void ZPerm_TickReleaseCue(void) {
+    if (sZPermRevFreq > ZPERM_REV_FREQ_END) {
+        sZPermRevFreq -= ZPERM_REV_FREQ_STEP;
+
+        if (sZPermRevFreq < ZPERM_REV_FREQ_END) {
+            sZPermRevFreq = ZPERM_REV_FREQ_END;
         }
     }
 }
 
-/**
- * Clear freezeTimer on all actors in target categories.
- * Called once when effect ends so actors resume immediately.
- */
-static void ZPerm_UnfreezeAllTargets(PlayState* play) {
-    ActorContext* actorCtx = &play->actorCtx;
-    for (u32 i = 0; i < ARRAY_COUNT(sFreezeCats); i++) {
-        Actor* actor = actorCtx->actorLists[sFreezeCats[i]].first;
-        while (actor != NULL) {
-            actor->freezeTimer = 0;
-            actor = actor->next;
-        }
+// ============================================================================
+// Screen
+//
+// Two separate channels, deliberately:
+//
+//   * The toggle FLASH is the game's own Deku Nut white-out. Writing a negative
+//     value into the transition-fade flash register snaps the fade to full alpha
+//     and z_fbdemo_fade runs it back down on its own (255 -> 0 over ~11 frames).
+//     It is ticked by Play_Update, NOT by this item, so it always finishes even
+//     if the freeze is dropped, the item is unequipped or Link is pulled into a
+//     cutscene on the very next frame. Exactly what the thrown nut writes in
+//     z_en_arrow.c, so it is the same flash, not a lookalike.
+//
+//   * The HELD tint is envCtx.fillScreen, the channel the Champion's Tunic
+//     already uses for its bullet-time wash. That one is plain state: it stays
+//     up until somebody clears it, so it is re-written every frame the freeze is
+//     held and cleared explicitly on release. That also makes it self-healing —
+//     anything that stomps it gets it back on the next frame — and a scene load
+//     clears it for free, since Environment_Init zeroes fillScreen.
+// ============================================================================
+
+// Pale Zonai ice-green. Kept weak on purpose: this sits on screen for as long as
+// the meter lasts, not for the handful of frames a hit flash does.
+#define ZPERM_TINT_R 120
+#define ZPERM_TINT_G 230
+#define ZPERM_TINT_B 210
+#define ZPERM_TINT_ALPHA 26 // base strength
+#define ZPERM_TINT_PULSE 8  // breathes +/- this much, ~2.7 s per cycle at 20 fps
+
+/** Deku Nut white-out. One call and the engine runs the whole fade. */
+static void ZPerm_Flash(void) {
+    R_TRANS_FADE_FLASH_ALPHA_STEP = -1;
+}
+
+/** Ice-green wash held while the world is stopped. alpha 0 clears it. */
+static void ZPerm_SetScreenTint(PlayState* play, u8 alpha) {
+    if (alpha == 0) {
+        play->envCtx.fillScreen = false;
+        play->envCtx.screenFillColor[3] = 0;
+        return;
     }
+
+    play->envCtx.fillScreen = true;
+    play->envCtx.screenFillColor[0] = ZPERM_TINT_R;
+    play->envCtx.screenFillColor[1] = ZPERM_TINT_G;
+    play->envCtx.screenFillColor[2] = ZPERM_TINT_B;
+    play->envCtx.screenFillColor[3] = alpha;
 }
 
 // ============================================================================
@@ -85,17 +174,21 @@ static void ZPerm_UnfreezeAllTargets(PlayState* play) {
 // ============================================================================
 
 /**
- * Green rune particles expanding outward during casting.
- * 8 sparkles in a ring pattern at the given radius.
+ * A ring of 8 green rune particles at the given radius. With the cast animation
+ * gone this is no longer a slow expanding wind-up; it is stacked into a one-shot
+ * flourish (see ZPerm_SpawnBurst) on toggle.
  */
-static void ZPerm_SpawnCastRunes(Player* p, PlayState* play, f32 expandRadius) {
+static void ZPerm_SpawnRuneRing(Player* p, PlayState* play, f32 expandRadius) {
     Vec3f accel = { 0.0f, 0.0f, 0.0f };
     Color_RGBA8 primColor = { 100, 255, 150, 255 }; // Bright Zonai green
     Color_RGBA8 envColor = { 0, 200, 80, 255 };     // Deep green
 
     for (u8 i = 0; i < 8; i++) {
-        f32 angle = (f32)i * (65536.0f / 8.0f);
-        s16 angleS = (s16)angle;
+        // Integer BAM step on purpose. The angle used to be built as a float
+        // (i * 65536/8) and then cast to s16, which is out of s16 range from i=4
+        // on — an undefined float-to-int conversion that wraps on x86 but
+        // SATURATES to 0x7FFF on arm64, collapsing half the ring onto one point.
+        s16 angleS = (s16)(i * (0x10000 / 8));
 
         Vec3f pos;
         pos.x = p->actor.world.pos.x + Math_SinS(angleS) * expandRadius;
@@ -111,9 +204,18 @@ static void ZPerm_SpawnCastRunes(Player* p, PlayState* play, f32 expandRadius) {
     }
 }
 
+/** Toggle flourish: three concentric rings of runes in a single frame. */
+static void ZPerm_SpawnBurst(Player* p, PlayState* play) {
+    ZPerm_SpawnRuneRing(p, play, 40.0f);
+    ZPerm_SpawnRuneRing(p, play, 110.0f);
+    ZPerm_SpawnRuneRing(p, play, 180.0f);
+}
+
 /**
- * Green particles floating frozen in air during active phase.
- * 2 particles per frame at random positions around Link.
+ * Green particles hanging motionless in the air while the freeze is held.
+ * 3 per frame in a wide box around Link. Held for 15 frames each, so the field
+ * is ~45 live particles — dense enough to read as "the air itself is stopped"
+ * without starving the shared EffectSs pool that Link's own hits still need.
  */
 static void ZPerm_SpawnFrozenParticles(Player* p, PlayState* play) {
     Vec3f accel = { 0.0f, 0.0f, 0.0f };
@@ -121,36 +223,40 @@ static void ZPerm_SpawnFrozenParticles(Player* p, PlayState* play) {
     Color_RGBA8 primColor = { 120, 255, 160, 200 };
     Color_RGBA8 envColor = { 0, 180, 60, 150 };
 
-    for (u8 i = 0; i < 2; i++) {
+    for (u8 i = 0; i < 3; i++) {
         Vec3f pos;
-        pos.x = p->actor.world.pos.x + Rand_CenteredFloat(300.0f);
-        pos.y = p->actor.world.pos.y + 20.0f + Rand_ZeroFloat(100.0f);
-        pos.z = p->actor.world.pos.z + Rand_CenteredFloat(300.0f);
+        pos.x = p->actor.world.pos.x + Rand_CenteredFloat(360.0f);
+        pos.y = p->actor.world.pos.y + 20.0f + Rand_ZeroFloat(130.0f);
+        pos.z = p->actor.world.pos.z + Rand_CenteredFloat(360.0f);
 
-        EffectSsKiraKira_SpawnFocused(play, &pos, &vel, &accel, &primColor, &envColor, 400, 15);
+        EffectSsKiraKira_SpawnFocused(play, &pos, &vel, &accel, &primColor, &envColor, 460, 15);
     }
 }
 
 // ============================================================================
-// Stop / Start
+// Toggle On / Off
 // ============================================================================
 
 static void ZPerm_Stop(Player* p, PlayState* play) {
-    if (!zpActive)
+    if (!zpActive) {
         return;
-
-    // If in ACTIVE or ENDING, unfreeze actors and restore time
-    if (zpState == ZPERM_STATE_ACTIVE || zpState == ZPERM_STATE_ENDING) {
-        ZPerm_UnfreezeAllTargets(play);
-        gTimeIncrement = zpSavedTime;
     }
 
-    // If in CASTING, release player lock, reset action, and restore camera
-    if (zpState == ZPERM_STATE_CASTING) {
-        p->stateFlags1 &= ~(PLAYER_STATE1_IN_ITEM_CS | PLAYER_STATE1_INPUT_DISABLED);
-        func_80839FFC(p, play);
-        func_8005B1A4(Play_GetCamera(play, 0));
-    }
+    // Release the world: actors resume on the next frame and the day/night clock
+    // goes back to the speed it had before the freeze.
+    TimeCtl_Release(TIMECTL_OWNER_PERMAFROST);
+
+    ZPerm_SpawnBurst(p, play);
+    // Same white-out as switching on: the toggle reads as one event in both
+    // directions, and it covers the frame where the world snaps back to motion.
+    ZPerm_Flash();
+    ZPerm_SetScreenTint(play, 0);
+    Rumble_Request(200.0f, 100, 15, 40);
+    // Kill the activation cue and every ambient tick still ringing BEFORE starting the
+    // release one-shot, or the stop would swallow the cue we just started.
+    ZPerm_SfxStopAll();
+    ZPerm_Sfx(p, NA_SE_EV_ICE_MELT);
+    ZPerm_PlayReleaseCue();
 
     zpActive = 0;
     zpState = ZPERM_STATE_IDLE;
@@ -160,189 +266,89 @@ static void ZPerm_Stop(Player* p, PlayState* play) {
 }
 
 static void ZPerm_Start(Player* p, PlayState* play) {
-    if (zpActive)
+    if (zpActive) {
         return;
+    }
 
-    if (!ItemMagic_HasEnough(play, ZPERM_MAGIC_COST)) {
+    if (!ItemMagic_HasEnough(play, ZPERM_MAGIC_ACTIVATION)) {
         Audio_PlaySoundGeneral(NA_SE_SY_ERROR, &p->actor.world.pos, 4, &gSfxDefaultFreqAndVolScale,
                                &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         return;
     }
 
-    if (!(p->actor.bgCheckFlags & BGCHECKFLAG_GROUND))
-        return;
+    ItemMagic_Consume(play, ZPERM_MAGIC_ACTIVATION);
 
+    // Straight to ACTIVE — there is no cast state any more. The old version locked
+    // Link into a three-part Din's Fire animation first, which is exactly what the
+    // toggle is meant to remove. Because nothing poses Link now, the freeze also
+    // works in mid-air and in water, where the animation used to forbid it.
     zpActive = 1;
-    zpState = ZPERM_STATE_CASTING;
-    zpSubPhase = ZPERM_CAST_HONOO1;
-    zpTimer = -2;
-    ItemMagic_Consume(play, ZPERM_MAGIC_COST);
+    zpState = ZPERM_STATE_ACTIVE;
+    zpSubPhase = 0;
+    zpTimer = 0;
+
+    TimeCtl_Request(TIMECTL_OWNER_PERMAFROST, 0.0f, 1);
+
+    ZPerm_SpawnBurst(p, play);
+    ZPerm_Flash();
+    ZPerm_SetScreenTint(play, ZPERM_TINT_ALPHA);
+    Rumble_Request(300.0f, 150, 20, 60);
+    ZPerm_SfxStopAll(); // clear anything left over from a previous toggle
+    ZPerm_Sfx(p, NA_SE_EV_ICE_FREEZE);
+    // The kaleido chime instead of a Link grunt: the freeze is a menu-like state
+    // change, not an effort, and a voice clip made him sound like he was casting
+    // something he is not.
+    ZPerm_PlayEntryCue();
 }
 
 // ============================================================================
-// State: Casting (Din's Fire honoo1 -> honoo2 -> honoo3)
-//
-// Uses DEMISE PATTERN for reliable animation handling:
-// 1. LinkAnimation_Change at 0.415f (half vanilla speed)
-// 2. Explicit LinkAnimation_Update call (double-update with vanilla's call)
-//    → effective speed ≈ vanilla's 0.83
-// 3. Timer-based chaining computed from R_UPDATE_RATE (never relies on animDone)
-// ============================================================================
-
-static void ZPerm_ComputePhaseEnd(s32 baseTimer, f32 lastFrame) {
-    f32 rate = ZPERM_ANIM_SPEED * R_UPDATE_RATE;
-    if (rate < 0.1f)
-        rate = 0.415f; // Safety fallback
-    sZPermPhaseEnd = baseTimer + (s32)(lastFrame / rate) + 1;
-}
-
-static void ZPerm_StateCasting(Player* p, PlayState* play) {
-    zpTimer++;
-
-    // Frame -1: Deferred camera setup (Demise pattern)
-    if (zpTimer == -1) {
-        Camera_ChangeSetting(Play_GetCamera(play, 0), CAM_SET_TURN_AROUND);
-        Camera_SetCameraData(Play_GetCamera(play, 0), 4, NULL, NULL, 10, 0);
-        p->stateFlags1 |= PLAYER_STATE1_IN_ITEM_CS | PLAYER_STATE1_INPUT_DISABLED;
-    }
-
-    // Lock player in place every frame
-    p->stateFlags1 |= PLAYER_STATE1_IN_ITEM_CS | PLAYER_STATE1_INPUT_DISABLED;
-    p->linearVelocity = 0.0f;
-    p->actor.speed = 0.0f;
-    p->actor.velocity.x = p->actor.velocity.y = p->actor.velocity.z = 0.0f;
-
-    // Frame 0: Start first animation
-    if (zpTimer == 0) {
-        LinkAnimation_Change(play, &p->skelAnime, &gPlayerAnim_link_magic_honoo1, ZPERM_ANIM_SPEED, 0.0f,
-                             Animation_GetLastFrame(&gPlayerAnim_link_magic_honoo1), ANIMMODE_ONCE, -8.0f);
-        ZPerm_ComputePhaseEnd(zpTimer, Animation_GetLastFrame(&gPlayerAnim_link_magic_honoo1));
-        ItemVoice_PlayId(p, NA_SE_VO_LI_MAGIC_NALE);
-    }
-
-    // Double-update: vanilla calls LinkAnimation_Update once, we call it again (Demise pattern)
-    if (zpTimer >= 0) {
-        LinkAnimation_Update(play, &p->skelAnime);
-    }
-
-    // Timer-based animation chaining (like Demise — does NOT rely on animDone)
-    if (zpTimer > 0 && zpTimer >= sZPermPhaseEnd) {
-        switch (zpSubPhase) {
-            case ZPERM_CAST_HONOO1:
-                LinkAnimation_Change(play, &p->skelAnime, &gPlayerAnim_link_magic_honoo2, ZPERM_ANIM_SPEED, 0.0f,
-                                     Animation_GetLastFrame(&gPlayerAnim_link_magic_honoo2), ANIMMODE_ONCE, 0.0f);
-                ZPerm_ComputePhaseEnd(zpTimer, Animation_GetLastFrame(&gPlayerAnim_link_magic_honoo2));
-                zpSubPhase = ZPERM_CAST_HONOO2;
-                break;
-
-            case ZPERM_CAST_HONOO2:
-                LinkAnimation_Change(play, &p->skelAnime, &gPlayerAnim_link_magic_honoo3, ZPERM_ANIM_SPEED, 0.0f,
-                                     Animation_GetLastFrame(&gPlayerAnim_link_magic_honoo3), ANIMMODE_ONCE, 0.0f);
-                ZPerm_ComputePhaseEnd(zpTimer, Animation_GetLastFrame(&gPlayerAnim_link_magic_honoo3));
-                zpSubPhase = ZPERM_CAST_HONOO3;
-                break;
-
-            case ZPERM_CAST_HONOO3:
-                // Casting complete — transition to ACTIVE
-                // 1. Clear our custom blocking flags
-                p->stateFlags1 &= ~(PLAYER_STATE1_IN_ITEM_CS | PLAYER_STATE1_INPUT_DISABLED);
-
-                // 2. Reset player action to idle (handles action function,
-                //    clears stateFlags, finishes anim movement — same as vanilla spell end)
-                func_80839FFC(p, play);
-
-                // 3. Reset camera
-                func_8005B1A4(Play_GetCamera(play, 0));
-
-                // Save time increment and freeze time
-                zpSavedTime = gTimeIncrement;
-                gTimeIncrement = 0;
-
-                // Initial freeze on all targets
-                ZPerm_FreezeAllTargets(play);
-
-                zpState = ZPERM_STATE_ACTIVE;
-                zpTimer = ZPERM_FREEZE_DURATION;
-
-                // Green screen flash
-                func_800AA000(300.0f, 150, 20, 60);
-
-                // Freeze activation SFX
-                Audio_PlaySoundGeneral(NA_SE_EV_ICE_FREEZE, &p->actor.world.pos, 4, &gSfxDefaultFreqAndVolScale,
-                                       &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
-                break;
-        }
-    }
-
-    // Green rune particles expanding outward during casting
-    if (zpState == ZPERM_STATE_CASTING && zpTimer > 5 && play->gameplayFrames % 3 == 0) {
-        f32 expandRadius = 20.0f + ((f32)(zpTimer - 5)) * 4.0f;
-        if (expandRadius > 200.0f)
-            expandRadius = 200.0f;
-        ZPerm_SpawnCastRunes(p, play, expandRadius);
-    }
-}
-
-// ============================================================================
-// State: Active (freeze maintained, Link moves freely)
+// Upkeep while the freeze is held
 // ============================================================================
 
 static void ZPerm_StateActive(Player* p, PlayState* play) {
-    // Ensure Link stays free to move (defensive: clear in case anything re-sets these)
+    u8 runningLow;
+
+    // Defensive: nothing should be posing Link, but make sure he stays free to act.
     p->stateFlags1 &= ~(PLAYER_STATE1_IN_ITEM_CS | PLAYER_STATE1_INPUT_DISABLED);
 
-    // Re-freeze all targets every frame
-    ZPerm_FreezeAllTargets(play);
+    // The claim is re-applied to every actor each frame by TimeCtl_Update
+    // (CustomItems_Update), which also catches actors that spawn mid-effect.
 
-    // Keep time frozen
-    gTimeIncrement = 0;
+    // Elapsed counter, visuals only. Clamped so it cannot wrap the s16.
+    if (zpTimer < 0x7000) {
+        zpTimer++;
+    }
 
-    // Countdown
-    zpTimer--;
+    // Drain. Testing BEFORE spending means the freeze switches itself off on the
+    // frame the meter can no longer pay, instead of going negative.
+    // Ticked off zpTimer, not play->gameplayFrames: the counter resets on every
+    // activation, so the first drain always lands a full interval after you switch
+    // on rather than on whatever phase the global frame counter happened to be at.
+    if ((zpTimer % ZPERM_DRAIN_INTERVAL) == 0) {
+        if (!ItemMagic_HasEnough(play, ZPERM_DRAIN_COST)) {
+            ZPerm_Stop(p, play);
+            return;
+        }
+        ItemMagic_Consume(play, ZPERM_DRAIN_COST);
+    }
 
-    // Ambient frozen particles (flicker in last 40 frames)
-    u8 flickering = (zpTimer <= ZPERM_FLICKER_START);
-    if (!flickering || (play->gameplayFrames % 4 >= 2)) {
+    // Ambient frozen particles and the screen wash; both flicker once the meter is
+    // nearly out, which is the player's warning that time is about to start moving
+    // again. The tint is re-written every frame rather than set once on activation:
+    // fillScreen is shared state (the Champion's Tunic and the finishing-blow flash
+    // write it too), so owning it per frame is what keeps it from being stolen.
+    runningLow = !ItemMagic_HasEnough(play, ZPERM_FLICKER_MAGIC);
+    if (!runningLow || ((play->gameplayFrames % 4) >= 2)) {
         ZPerm_SpawnFrozenParticles(p, play);
+        ZPerm_SetScreenTint(play, (u8)(ZPERM_TINT_ALPHA + (s32)(Math_SinS((s16)(zpTimer * 1200)) * ZPERM_TINT_PULSE)));
+    } else {
+        ZPerm_SetScreenTint(play, 0);
     }
 
     // Ambient SFX
-    if (play->gameplayFrames % 40 == 0) {
-        Audio_PlaySoundGeneral(NA_SE_EV_ICE_MELT, &p->actor.world.pos, 4, &gSfxDefaultFreqAndVolScale,
-                               &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+    if ((play->gameplayFrames % 40) == 0) {
+        ZPerm_Sfx(p, NA_SE_EV_ICE_MELT);
     }
-
-    // Timer expired
-    if (zpTimer <= 0) {
-        zpState = ZPERM_STATE_ENDING;
-        zpTimer = 0;
-    }
-}
-
-// ============================================================================
-// State: Ending (single cleanup frame)
-// ============================================================================
-
-static void ZPerm_StateEnding(Player* p, PlayState* play) {
-    // Restore time
-    gTimeIncrement = zpSavedTime;
-
-    // Unfreeze all actors
-    ZPerm_UnfreezeAllTargets(play);
-
-    // Screen flash as time resumes
-    func_800AA000(200.0f, 100, 15, 40);
-
-    // Unfreeze SFX
-    Audio_PlaySoundGeneral(NA_SE_EV_ICE_MELT, &p->actor.world.pos, 4, &gSfxDefaultFreqAndVolScale,
-                           &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
-
-    // Reset to idle
-    zpActive = 0;
-    zpState = ZPERM_STATE_IDLE;
-    zpSubPhase = 0;
-    zpTimer = 0;
-    zpSavedTime = 0;
 }
 
 // ============================================================================
@@ -351,48 +357,40 @@ static void ZPerm_StateEnding(Player* p, PlayState* play) {
 
 void Handle_ZonaiPermafrost(Player* p, PlayState* play) {
     ItemInputState in;
+
+    // Before every early return below: the release chime is still bending down
+    // while the freeze itself is already gone.
+    ZPerm_TickReleaseCue();
+
     ItemInput_Update(&in, ITEM_ZONAI_PERMAFROST, p, play);
 
-    // Unequipped: cleanup if active
+    // Unequipped: drop the freeze rather than stranding the world stopped.
     if (!in.wasEquipped) {
-        if (zpActive)
+        if (zpActive) {
             ZPerm_Stop(p, play);
+        }
         return;
     }
 
-    // Damage cancels the spell during CASTING only (magic already consumed, non-cancellable by buttons)
-    if (zpState == ZPERM_STATE_CASTING) {
-        if (ItemInput_CheckDamage(p, &sZPermPrevInvinc)) {
+    if (zpActive) {
+        // Toggle OFF. Handled before the upkeep so the press that ends the freeze
+        // does not also pay a drain tick on its way out.
+        if (in.isPressed) {
             ZPerm_Stop(p, play);
             return;
         }
-    }
-
-    // Cannot use in water
-    if (p->stateFlags1 & PLAYER_STATE1_IN_WATER)
-        return;
-
-    if (!zpActive) {
-        if (ItemInput_IsBlocked(p, play))
-            return;
-        if (in.isPressed)
-            ZPerm_Start(p, play);
+        // No IsBlocked check here on purpose: once time is stopped the freeze must
+        // survive whatever Link gets up to. Ending it is the player's call, or the
+        // magic meter's.
+        ZPerm_StateActive(p, play);
         return;
     }
 
-    switch (zpState) {
-        case ZPERM_STATE_CASTING:
-            ZPerm_StateCasting(p, play);
-            break;
-        case ZPERM_STATE_ACTIVE:
-            ZPerm_StateActive(p, play);
-            break;
-        case ZPERM_STATE_ENDING:
-            ZPerm_StateEnding(p, play);
-            break;
-        default:
-            ZPerm_Stop(p, play);
-            break;
+    if (ItemInput_IsBlocked(p, play)) {
+        return;
+    }
+    if (in.isPressed) {
+        ZPerm_Start(p, play);
     }
 }
 
@@ -401,6 +399,7 @@ void Handle_ZonaiPermafrost(Player* p, PlayState* play) {
 // ============================================================================
 
 void Player_InitZonaiPermafrostIA(PlayState* play, Player* p) {
+    ZPerm_SetScreenTint(play, 0);
     zpActive = 0;
     zpState = ZPERM_STATE_IDLE;
     zpSubPhase = 0;

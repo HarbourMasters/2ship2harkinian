@@ -116,35 +116,9 @@ static s32 Sw97_IsMedallionItem(s32 item) {
     }
 }
 
-/**
- * Check if an item ID is an SW97 arrow variant (arrow mode).
- */
-static s32 Sw97_IsArrowItem(s32 item) {
-    return (item >= ITEM_SW97_ARROW_FIRE && item <= ITEM_SW97_ARROW_WIND);
-}
-
-/**
- * Convert a medallion item to its corresponding SW97 arrow item.
- * Used by L+C swap in z_player.c.
- */
-s32 Sw97_MedallionToArrowItem(s32 medallionItem) {
-    switch (medallionItem) {
-        case ITEM_MEDALLION_FIRE:
-            return ITEM_SW97_ARROW_FIRE;
-        case ITEM_MEDALLION_WATER:
-            return ITEM_SW97_ARROW_ICE;
-        case ITEM_MEDALLION_LIGHT:
-            return ITEM_SW97_ARROW_LIGHT;
-        case ITEM_MEDALLION_SHADOW:
-            return ITEM_SW97_ARROW_DARK;
-        case ITEM_MEDALLION_SPIRIT:
-            return ITEM_SW97_ARROW_SOUL;
-        case ITEM_MEDALLION_FOREST:
-            return ITEM_SW97_ARROW_WIND;
-        default:
-            return ITEM_NONE;
-    }
-}
+// (Sw97_IsArrowItem and Sw97_MedallionToArrowItem removed — Skijer's NEI. Both were already dead
+// code with zero call sites, and both were built on the premise that the primed element is an item
+// id. The element is a flag now: use Sw97_EffectiveElement()/Sw97_ElementIcon() instead.)
 
 /**
  * Returns true while the Shadow Medallion spell (MagicDark) is active.
@@ -449,17 +423,28 @@ static s32 gSw97CuccoLastScene = -1;
 // (no ammo cost), bypasses the bow first-person CS entirely.
 // ───────────────────────────────────────────────────────────────────────
 
-// Map an equipped item ID to an EnArrow `params` value:
-//   - ITEM_SW97_ARROW_FIRE..WIND  → ARROW_SW97_FIRE..0E (elemental)
-//   - ITEM_BOW                    → ARROW_NORMAL (neutral)
-//   - ITEM_SLINGSHOT              → ARROW_SEED (neutral seed)
+// Map an equipped item ID to an EnArrow `params` value. Skijer's NEI: this used to be elemental
+// only when an ITEM_SW97_ARROW_* sat on the button, which meant cucco eggs silently went neutral
+// once the element became a flag. Reading the flag fixes that AND makes the slingshot elemental too,
+// which it never was here.
+//   - bow       → ARROW_SW97_FIRE.. per bowElement, else ARROW_NORMAL
+//   - slingshot → ARROW_TYPE_SEED_FIRE.. per slingElement, else ARROW_SEED
 // Returns -1 if the item isn't fireable in cucco mode.
 static s32 Sw97_CuccoEgg_ItemToParams(u8 item) {
-    if (item >= ITEM_SW97_ARROW_FIRE && item <= ITEM_SW97_ARROW_WIND) {
-        return ARROW_SW97_FIRE + (item - ITEM_SW97_ARROW_FIRE);
+    if (Sw97_IsBowItem(item)) {
+        u8 elem = Sw97_EffectiveElement(0);
+        if ((elem >= SW97_ELEM_FIRE) && (elem <= SW97_ELEM_WIND)) {
+            return ARROW_SW97_FIRE + (elem - SW97_ELEM_FIRE);
+        }
+        return ARROW_NORMAL;
     }
-    if (item == ITEM_BOW)        return ARROW_NORMAL;
-    if (item == ITEM_SLINGSHOT)  return ARROW_SEED;
+    if (Sw97_IsSlingItem(item)) {
+        u8 elem = Sw97_EffectiveElement(1);
+        if ((elem >= SW97_ELEM_FIRE) && (elem <= SW97_ELEM_WIND)) {
+            return ARROW_TYPE_SEED_FIRE + (elem - SW97_ELEM_FIRE);
+        }
+        return ARROW_SEED;
+    }
     return -1;
 }
 

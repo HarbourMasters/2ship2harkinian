@@ -3,6 +3,7 @@
 #include <spdlog/spdlog.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <libultraship/window/gui/GfxDebuggerWindow.h>
 #include "UIWidgets.hpp"
 #include "HudEditor.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
@@ -75,7 +76,7 @@ UIWidgets::Colors GetMenuThemeColor() {
 }
 
 void SetupMenu() {
-    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
     mBenMenu = std::make_shared<BenMenu>("gWindows.Menu", "Settings Menu");
     gui->SetMenu(mBenMenu);
 
@@ -90,7 +91,7 @@ void SetupMenu() {
 }
 
 void SetupGuiElements() {
-    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
 
     mStatsWindow = gui->GetGuiWindow("Stats");
     if (mStatsWindow == nullptr) {
@@ -102,10 +103,12 @@ void SetupGuiElements() {
         SPDLOG_ERROR("Could not find console window");
     }
 
-    mGfxDebuggerWindow = gui->GetGuiWindow("GfxDebuggerWindow");
-    if (mGfxDebuggerWindow == nullptr) {
-        SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
-    }
+    // Up to LUS 1.3.1-397 Ship::Gui built and registered this window itself, so it was enough to
+    // look it up by name. Since 464 the Gui no longer knows about it and the app owns it — the
+    // name has to stay "GfxDebuggerWindow" because BenMenu addresses it through WindowName().
+    mGfxDebuggerWindow =
+        std::make_shared<LUS::GfxDebuggerWindow>("gOpenWindows.GfxDebugger", "GfxDebuggerWindow", ImVec2(820, 630));
+    gui->AddGuiWindow(mGfxDebuggerWindow);
 
     mInputEditorWindow = gui->GetGuiWindow("2S2H Input Editor");
     if (mInputEditorWindow == nullptr) {
@@ -185,7 +188,7 @@ void SetupGuiElements() {
 }
 
 void Destroy() {
-    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
 
     gui->RemoveAllGuiWindows();
     mBenMenuBar = nullptr;
@@ -243,7 +246,7 @@ void SetDisplayOverlayVisibility(bool visible) {
     } else {
         CVarSetInteger("gWindows.DisplayOverlay", visible ? 1 : 0);
     }
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 }
 
 } // namespace BenGui

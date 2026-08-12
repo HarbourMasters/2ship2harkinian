@@ -5,6 +5,7 @@
  */
 
 #include "z_en_wallmas.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "overlays/actors/ovl_En_Encount1/z_en_encount1.h"
 #include "overlays/actors/ovl_Obj_Ice_Poly/z_obj_ice_poly.h"
@@ -282,7 +283,8 @@ void EnWallmas_Drop(EnWallmas* this, PlayState* play) {
 
     if ((player->stateFlags2 & PLAYER_STATE2_80) || (player->actor.freezeTimer > 0)) {
         EnWallmas_SetupReturnToCeiling(this);
-    } else if (!Play_InCsMode(play) && !(player->stateFlags2 & PLAYER_STATE2_10) && (player->invincibilityTimer >= 0) &&
+    } else if (GameInteractor_Should(VB_ENEMY_GRAB_PLAYER, true, this) && !Play_InCsMode(play) &&
+               !(player->stateFlags2 & PLAYER_STATE2_10) && (player->invincibilityTimer >= 0) &&
                (this->actor.xzDistToPlayer < 30.0f) && (this->actor.playerHeightRel < -5.0f) &&
                (-(f32)(player->cylinder.dim.height + 10) < this->actor.playerHeightRel)) {
         EnWallmas_SetupTakePlayer(this, play);

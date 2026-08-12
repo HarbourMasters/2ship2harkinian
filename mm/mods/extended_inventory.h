@@ -81,6 +81,21 @@
 
 uint8_t ExtInv_GetOotSlotItem(int slot);
 void ExtInv_SetOotSlotItem(int slot, uint8_t itemId);
+
+// OoT child-trade mask wheel (item cell 4,6 -> VSLOT_OOT_MASKS). The 8 masks have no MM item id, so
+// ownership is the nei->ootMasksOwned bitmask and the visible one is the nei->ootMaskCursor index —
+// same scheme as the unified trade wheel. Defined in extended_inventory.c but used earlier in that
+// file (ExtInv_GetOotSlotItem), so they need prototypes here. Skijer 2026-07-30
+uint8_t OotMask_IsOwnedIndex(int index);
+void OotMask_SetOwnedIndex(int index, uint8_t on);
+int OotMask_OwnedCount(void);
+int OotMask_OwnedAt(int ordinal);
+int OotMask_CursorIndex(void);
+int OotMask_NeighborIndex(int dir);
+void OotMask_CursorStep(int dir);
+uint8_t OotMask_CellItem(void);
+uint8_t OotMask_NeighborCellItem(int dir);
+const char* OotMask_IconPath(int index);
 uint8_t ExtInv_ItemHasAmmo(uint8_t itemId); // page-0 ammo digits are item-based (layout is remapped)
 uint8_t ExtInv_GetItemIconSize(uint16_t itemId); // 24 for SW97 medallion/arrow quest icons, else 32
 
@@ -133,28 +148,62 @@ extern "C" {
 // vanilla SaveContext, which only has items[0..23]). These dispatch helpers
 // read/write the right backing store by slot index. Use them anywhere a slot
 // could be >= 24.
-static inline uint8_t ExtInv_GetSlotItem(int slot) {
+// u16, not u8: page-2 slots (24..47) live in the widened NeiSaveData.ownedItems and can hold an EXT
+// id above 0xFF. The vanilla-backed ranges (0..23 page 1, 48..71 MM masks) are still u8 values —
+// they read from gSaveContext inventory.items — they just come back widened. Skijer's NEI
+static inline uint16_t ExtInv_GetSlotItem(int slot) {
     extern SaveContext gSaveContext;
     if (slot >= 0 && slot < 24) {
-        uint8_t item = gSaveContext.save.saveInfo.inventory.items[slot]; // 2ship: nested inventory
-        // Pictograph Box shares the Lens of Truth slot: when owned, the slot is selectable AND
-        // equippable even without the real Lens (the in-game C-button routes to the pictobox, and the
-        // icon swaps via ExtInv_GetItemIcon). Without this, an empty Lens slot can't be equipped at all.
-        // Skijer's NEI
-        if (slot == SLOT_LENS_OF_TRUTH && item == ITEM_NONE) {
-            extern unsigned char Picto_IsOwned(void);
-            if (Picto_IsOwned()) {
-                return ITEM_LENS_OF_TRUTH;
-            }
-        }
+        uint16_t item = gSaveContext.save.saveInfo.inventory.items[slot]; // 2ship: nested inventory
+        // (The Pictograph Box used to be synthesized onto the Lens of Truth cell here, back when it
+        // was a NEI custom item. MM has it natively in its own slot, so the Lens cell is just the
+        // Lens again.)
         // Clawshot shares the Hookshot slot and is INDEPENDENT of the base hookshot chain: when the
         // Clawshot is owned but no native hookshot is in the slot, synthesize ITEM_HOOKSHOT so the
         // hookshot cell renders, is cursor-selectable, and equips. Held ITEM_HOOKSHOT + clawshotOwned
-        // fires the clawshot variant (Nei_ArmsHookVariant). Mirrors the Pictograph-Box handling above.
-        // Skijer's NEI
+        // fires the clawshot variant (Nei_ArmsHookVariant). Skijer's NEI
+        // Power Keg shares the Bomb cell. Same reasoning as the Clawshot
+        // below: ownership lives in its own flag, not in this slot, so owning ONLY the keg left the
+        // cell empty — and an empty cell is skipped by the kaleido cursor, which made the keg
+        // unreachable. Every wheel entry has to be obtainable on its own. (Bow, slingshot, lantern
+        // and boomerang are deliberately excluded from this rule: their variants are modes of a
+        // weapon you must own first.) Skijer's NEI
+        if (slot == SLOT_BOMB && item == ITEM_NONE) {
+            if (Nei_Save()->powerKegOwned) {
+                return ITEM_POWDER_KEG;
+            }
+        }
         if (slot == SLOT_HOOKSHOT && item == ITEM_NONE) {
             if (Nei_Save()->clawshotOwned) {
                 return ITEM_HOOKSHOT;
+            }
+        }
+        // Unified trade wheel (cell 4,5). Same synthesis as the two above: ownership lives in the
+        // tradeAdultOwned bitmask, not in this inventory slot, so a trade item earned in OoT — or one
+        // MM put in SLOT_TRADE_KEY_MAMA / SLOT_TRADE_COUPLE instead — left this slot ITEM_NONE. The
+        // kaleido's cursor SKIPS empty cells (z_kaleido_item.c:1320), so the cell was unreachable and
+        // everything in the wheel stayed hidden until a native deed happened to land here. Seeding it
+        // from the wheel handler was too late: the cursor test runs first. Skijer 2026-07-30
+        if (slot == SLOT_TRADE_DEED && item == ITEM_NONE) {
+            extern s32 TradeAdult_OwnedCount(void);
+            extern u8 TradeAdult_CellItem(void);
+            if (TradeAdult_OwnedCount() > 0) {
+                return TradeAdult_CellItem();
+            }
+            // Nothing in the bitmask YET, but MM may have just put a trade item in one of its other
+            // two native homes — SLOT_TRADE_KEY_MAMA (Room Key / Letter to Mama) or SLOT_TRADE_COUPLE
+            // (Letter to Kafei / Pendant). Neither has a cell in the OoT page-0 layout, so without
+            // this the item is invisible AND unreachable: the wheel's fold that would register it runs
+            // after the cursor test. Surface it read-only; the fold sets the bit the same frame.
+            // Skijer 2026-07-30
+            {
+                uint16_t other = gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_KEY_MAMA];
+                if (other == ITEM_NONE) {
+                    other = gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_COUPLE];
+                }
+                if (other != ITEM_NONE) {
+                    return other;
+                }
             }
         }
         return item;
@@ -171,14 +220,17 @@ static inline uint8_t ExtInv_GetSlotItem(int slot) {
     }
     return Nei_GetOwnedItem((uint8_t)slot);
 }
-static inline void ExtInv_SetSlotItem(int slot, uint8_t itemId) {
+// Same widening as the getter. The vanilla-backed ranges still store u8, so an EXT id (>0xFF) can
+// only be put in a page-2 slot; writing one to a vanilla slot truncates, which is why the casts
+// below are explicit rather than implicit. Skijer's NEI
+static inline void ExtInv_SetSlotItem(int slot, uint16_t itemId) {
     extern SaveContext gSaveContext;
     if (slot >= 0 && slot < 24) {
-        gSaveContext.save.saveInfo.inventory.items[slot] = itemId; // 2ship: nested inventory
+        gSaveContext.save.saveInfo.inventory.items[slot] = (uint8_t)itemId; // 2ship: nested inventory
     } else if (slot >= 48 && slot < 72) {
-        gSaveContext.save.saveInfo.inventory.items[slot - 24] = itemId; // real MM mask slots
+        gSaveContext.save.saveInfo.inventory.items[slot - 24] = (uint8_t)itemId; // real MM mask slots
     } else if (slot >= 72 && slot < 80) {
-        ExtInv_SetOotSlotItem(slot, itemId); // OoT page-0 virtual slots
+        ExtInv_SetOotSlotItem(slot, (uint8_t)itemId); // OoT page-0 virtual slots
     } else {
         Nei_SetOwnedItem((uint8_t)slot, itemId);
     }
@@ -231,6 +283,61 @@ typedef struct {
 const NeiItem* Nei_FindByItem(int32_t item);
 const NeiItem* Nei_FindBySlot(uint8_t slot);
 const NeiItem* Nei_FindByRg(int16_t rg); // Skijer's NEI
+
+// ── SW97 primed element (Skijer's NEI) ───────────────────────────────────────
+// The bow/slingshot element is a FLAG, not the item on the button. Everything downstream reads
+// Sw97_EffectiveElement() and nothing else — that is where the CVar gate and the "bombs are
+// bow-only" rule live. `isSling` is 0 for the bow, 1 for the slingshot; the two carry independent
+// elements on purpose (spirit arrows and wind bullets may be primed at the same time).
+uint8_t Sw97_ElementOwned(uint8_t elem);
+uint8_t Sw97_ElementCount(uint8_t isSling);
+uint8_t Sw97_ElementAt(uint8_t isSling, uint8_t index);
+uint8_t Sw97_GetElement(uint8_t isSling);
+void Sw97_SetElement(uint8_t isSling, uint8_t elem);
+uint8_t Sw97_ElementNeighbor(uint8_t isSling, uint8_t elem, int32_t dir);
+uint16_t Sw97_ElementIcon(uint8_t elem);
+uint8_t Sw97_EffectiveElement(uint8_t isSling);
+uint8_t Sw97_IsBowItem(uint16_t item);
+uint8_t Sw97_IsSlingItem(uint16_t item);
+uint8_t Sw97_BombArrowsOwned(void);
+// Nayru's Love <-> Roc's Feather cell ownership. Both the cell getter and the kaleido wheel must
+// ask these, never re-derive them — the two had already drifted apart once.
+uint8_t NayrusWheel_HasRocs(void);
+uint8_t NayrusWheel_HasNayrus(void);
+// Give-path grant for that cell. Give paths MUST use this, never ExtInv_SetSlotItem/SetOotSlotItem:
+// those are the wheel's selection writes and confer no ownership by design.
+void NayrusWheel_Grant(uint8_t itemId);
+
+// True when `item` is a weapon primed with bombs: bomb arrows (bow) or bomb bullets (slingshot).
+uint8_t Sw97_ItemHasBombs(uint16_t item);
+uint8_t Sw97_BombArrowsOnButton(void);
+uint8_t BombArrows_RandoMode(void);
+void Sw97_RefreshButtonIcons(struct PlayState* play);
+void Sw97_MigrateLayout(struct PlayState* play); // one-shot, gated by NeiSaveData.sw97LayoutVersion
+
+// ── Elemental Wand (Skijer's NEI) ────────────────────────────────────────────
+uint8_t Wand_RandoMode(void);
+uint8_t Wand_ModeOwned(uint8_t mode);
+void Wand_GrantMode(uint8_t mode);
+uint8_t Wand_ModeCount(void);
+uint8_t Wand_ModeAt(uint8_t index);
+uint8_t Wand_GetMode(void);
+void Wand_SetMode(uint8_t mode);
+uint8_t Wand_ModeNeighbor(uint8_t mode, int32_t dir);
+uint16_t Wand_ModeMedallion(uint8_t mode);
+void* Wand_ModeIcon(uint8_t mode);
+void* Wand_ModeNameTex(uint8_t mode);
+
+// ── Sheikah Slate runes (Skijer's NEI) — wand idiom over SLOT_SHEIKAH_SLATE ──
+uint8_t Slate_RuneOwned(uint8_t rune);
+void Slate_GrantRune(uint8_t rune); // also hands over the slot on the first rune
+uint8_t Slate_RuneCount(void);      // owned runes
+uint8_t Slate_RuneAt(uint8_t index);
+uint8_t Slate_GetRune(void);        // active rune (self-healing to an owned one)
+void Slate_SetRune(uint8_t rune);
+uint8_t Slate_RuneNeighbor(uint8_t rune, int32_t dir);
+void* Slate_RuneMiniIcon(uint8_t rune); // 24x24 rune glyph (wheel previews / textbox)
+void* Slate_RuneIcon(uint8_t rune);     // 32x32 slate-with-rune-badge (cell / HUD)
 void ExtInv_DebugGiveAll(void);          // NEI debug: grant all custom items to their slots
 
 typedef struct {
@@ -386,7 +493,13 @@ extern const uint8_t gPage2ItemAgeReqs[24];
 #define SLOT_ROCS_CAPE 24           // Now same slot as Feather (upgrade replaces it)
 #define SLOT_WHIP 25
 #define SLOT_SPINNER 26
-#define SLOT_BOMB_ARROWS 27
+// Slot 27 used to be Bomb Arrows. Bomb Arrows are the 7th value of the bow's element flag now
+// (SW97_ELEM_BOMB) and own no cell; the Elemental Wand took the freed cell. SLOT_BOMB_ARROWS is
+// KEPT as a reserved marker because call sites still reference the name — it must never be used to
+// store an item again, and gPage2Items[3] must never be shifted (each index maps to a
+// NeiSaveData::ownedItems byte, so shifting corrupts every existing save).
+#define SLOT_BOMB_ARROWS 27 // RESERVED — do not store into
+#define SLOT_ELEMENTAL_WAND 27
 #define SLOT_FIRE_ROD 28
 #define SLOT_DEMISE_DESTRUCTION 29
 #define SLOT_DEKU_LEAF 30
@@ -398,15 +511,22 @@ extern const uint8_t gPage2ItemAgeReqs[24];
 #define SLOT_MOGMA_MITTS 36
 #define SLOT_GUST_JAR 37
 #define SLOT_BALL_AND_CHAIN 38
-#define SLOT_DESIRE_SENSOR 39
+#define SLOT_DESIRE_SENSOR 39 // RETIRED cell (Desire Sensor -> Quartz of Motion, collect page); 39 is the Sheikah Slate now
 #define SLOT_LIGHT_ROD 40
-#define SLOT_HYLIAS_GRACE 41
+#define SLOT_HYLIAS_GRACE 41 // RETIRED item (2026-08-06); 41 is the Phantom Hourglass now
 #define SLOT_LANTERN 42
 #define SLOT_MINISH_CAP 43
-#define SLOT_POKEBALL 44
+#define SLOT_POKEBALL 44 // moved to the Broken Items equipment page (Pikachu form); 44 is the Shadow Crystal now
 #define SLOT_CANE_OF_SOMARIA 45
-#define SLOT_SHOVEL 46
-#define SLOT_DOMINION_ROD 47
+#define SLOT_SHOVEL 46 // shared cell: Shovel <-> Dominion Rod wheel (ownership = shovelOwned/dominionOwned flags)
+#define SLOT_DOMINION_ROD 47 // RETIRED cell (rod moved onto the shovel wheel); 47 is the Rod of Seasons now
+// 2026-08-06 re-layout — the four cells the moves above freed. These are the USER's canonical page-2
+// layout positions; do not re-shuffle them. Old defines above keep their numbers so existing code
+// compiles, but the CELL belongs to the new item. Skijer's NEI
+#define SLOT_SHEIKAH_SLATE 39
+#define SLOT_PHANTOM_HOURGLASS 41
+#define SLOT_SHADOW_CRYSTAL 44
+#define SLOT_ROD_OF_SEASONS 47
 
 // Page 3: MM Mask slots (48-71)
 #define SLOT_MM_MASK_POSTMAN 48
@@ -461,12 +581,14 @@ static inline void ExtInv_ClearPage2Items(void) { // Skijer's NEI
         Nei_SetOwnedItem((uint8_t)i, ITEM_NONE);
     }
 }
-static inline void ExtInv_GiveItem(uint8_t slot, uint8_t itemId) { // Skijer's NEI
+// itemId is u16 so a page-2 slot can be given an EXT id (>0xFF); the store behind it is u16 too.
+// Skijer's NEI
+static inline void ExtInv_GiveItem(uint8_t slot, uint16_t itemId) {
     if (slot >= 24 && slot < 48) {
         Nei_SetOwnedItem(slot, itemId);
     }
 }
-static inline void ExtInv_SetItemById(uint8_t itemId) { // Skijer's NEI
+static inline void ExtInv_SetItemById(uint16_t itemId) { // Skijer's NEI
     uint8_t slot = ExtInv_GetItemSlot(itemId);
     if (slot != 0xFF) {
         ExtInv_SetSlotItem(slot, itemId);

@@ -17,8 +17,31 @@
 #include "functions.h"
 #include "item_lantern.h"
 #include "../../nei_save.h" // Skijer's NEI
-// OoT object_poh (Poe lantern) has no MM equivalent — gEffFire1DL flame placeholder.
+// MM keeps the Poe's lantern in object_po (gPoeLanternDL), the same model OoT's
+// object_poh has — it is loaded by path at draw time, with gEffFire1DL as the flame.
 #include "objects/gameplay_keep/gameplay_keep.h"
+// Fire sources whose flame COLOUR has to be read off the actor itself (see
+// Lantern_DetectFireType): the Poe sisters' torches and the Poes' lanterns.
+#include "overlays/actors/ovl_En_Po_Sisters/z_en_po_sisters.h"
+#include "overlays/actors/ovl_En_Poh/z_en_poh.h"
+#include "overlays/actors/ovl_En_Po_Composer/z_en_po_composer.h"
+#include "overlays/actors/ovl_Obj_Syokudai/z_obj_syokudai.h"
+#include "overlays/actors/ovl_En_Light/z_en_light.h" // summoned flame: light type + colour params
+
+// object_po is not resident while Link holds the lantern, so its display list is
+// pulled straight out of mm.o2r (same pattern as the Powder Keg barrel).
+extern void* MmAssets_LoadResource(const char* path);
+
+// ── MM player-action plumbing (this file is #included into the z_player TU, but
+// BEFORE z_player declares its own functions, so the ones the swing needs are
+// prototyped here — all of them are non-static in z_player.c). ──────────────
+s32 Player_SetAction(PlayState* play, Player* this, PlayerActionFunc actionFunc, s32 arg3);
+void Player_Anim_PlayOnceAdjusted(PlayState* play, Player* this, PlayerAnimationHeader* anim);
+s32 Player_DecelerateToZero(Player* this);
+void Player_StopCutscene(Player* this);
+bool func_808323C0(Player* this, s16 csId); // start a player cutscene (item show / death / ...)
+void func_80839E74(Player* this, PlayState* play); // drop back to the idle action
+void Player_StartLanternSwing(Player* this, PlayState* play);
 
 // ── Global: catch message pending ──────────────────────────────────────────
 // Set to fire type (1-4) when fire is caught. ItemMessages.cpp reads this
@@ -26,65 +49,175 @@
 u8 gLanternCatchPending = 0;
 
 // ── Catchable fire source table ─────────────────────────────────────────────
+// Only used as the "is this actor a fire source at all" filter. The fire TYPE is
+// resolved from the actor's real flame colour in Lantern_DetectFireType — the
+// table's type is just the fallback for sources with a single fixed colour.
 
 static const LanternCatchEntry sCatchableFires[] = {
-    { ACTOR_OBJ_SYOKUDAI, LANTERN_FIRE_REGULAR }, // Lit torch
-    { ACTOR_EN_BW, LANTERN_FIRE_REGULAR },        // Torch slug
-    { ACTOR_EN_LIGHT, LANTERN_FIRE_REGULAR },     // General flame (orange — default)
-    { ACTOR_EN_ICE_HONO, LANTERN_FIRE_BLUE },     // Blue fire
-    { ACTOR_EN_POH, LANTERN_FIRE_POE },           // Poe enemy flame
-    { ACTOR_BG_PO_SYOKUDAI, LANTERN_FIRE_POE },   // Poe torch (Forest Temple)
+    { ACTOR_OBJ_SYOKUDAI, LANTERN_FIRE_REGULAR },  // Lit torch
+    { ACTOR_EN_BW, LANTERN_FIRE_REGULAR },         // Torch slug
+    { ACTOR_EN_LIGHT, LANTERN_FIRE_REGULAR },      // General flame (colour from params)
+    { ACTOR_EN_ICE_HONO, LANTERN_FIRE_BLUE },      // Blue fire
+    { ACTOR_EN_POH, LANTERN_FIRE_POE },            // Poe lantern
+    { ACTOR_EN_PO_COMPOSER, LANTERN_FIRE_POE },    // Sharp / Flat (composer brothers)
+    { ACTOR_EN_PO_SISTERS, LANTERN_FIRE_POE },     // Poe sister torch
+    { ACTOR_EN_PO_FIELD, LANTERN_FIRE_POE },       // Field Poe
+    { ACTOR_EN_PO_DESERT, LANTERN_FIRE_POE },      // Desert Poe
+    { ACTOR_BG_PO_SYOKUDAI, LANTERN_FIRE_POE },    // Poe torch stand
 };
 #define CATCHABLE_COUNT (sizeof(sCatchableFires) / sizeof(sCatchableFires[0]))
+
+// The four Poe-sister colours, in the order the sisters use them (PoeSisterType).
+// Joelle's red burns as ordinary fire — the lantern has no separate red flame.
+static const u8 sPoeColorToFire[4] = {
+    LANTERN_FIRE_POE,     // 0 purple — Meg
+    LANTERN_FIRE_REGULAR, // 1 red    — Joelle
+    LANTERN_FIRE_BLUE,    // 2 blue   — Beth
+    LANTERN_FIRE_GREEN,   // 3 green  — Amy
+};
+
+// En_Light flame colour per params & 0xF, mirroring D_808666D0 in z_en_light.c.
+static const u8 sEnLightFire[16] = {
+    LANTERN_FIRE_REGULAR, // 0  orange
+    LANTERN_FIRE_REGULAR, // 1  pale orange
+    LANTERN_FIRE_BLUE,    // 2  blue
+    LANTERN_FIRE_GREEN,   // 3  green
+    LANTERN_FIRE_REGULAR, // 4  orange (small)
+    LANTERN_FIRE_REGULAR, // 5  orange
+    LANTERN_FIRE_GREEN,   // 6  green
+    LANTERN_FIRE_BLUE,    // 7  blue
+    LANTERN_FIRE_REGULAR, // 8  deep red
+    LANTERN_FIRE_REGULAR, // 9  red-orange
+    LANTERN_FIRE_REGULAR, // 10 yellow
+    LANTERN_FIRE_GREEN,   // 11 yellow-green
+    LANTERN_FIRE_POE,     // 12 pink
+    LANTERN_FIRE_POE,     // 13 purple
+    LANTERN_FIRE_BLUE,    // 14 blue
+    LANTERN_FIRE_BLUE,    // 15 cyan
+};
 
 // ── Light source statics ────────────────────────────────────────────────────
 
 static LightNode* sLanternLightNode = NULL;
 static LightInfo sLanternLightInfo;
-static u8 sLensFromLantern = 0; // MM ActorContext has no lensFromLantern field
+
+// ── Poe-fire lens flag ──────────────────────────────────────────────────────
+// Read by z_actor.c (Actor_DrawAll / Actor_DrawLensActors) next to
+// actorCtx.lensActive. It is a separate global instead of a field so the Lens of
+// Truth's own state machine is left completely untouched. Skijer's NEI
+u8 gLanternLensActive = 0;
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
-static u8 Lantern_IsGreenFlame(Actor* actor) {
-    if (actor->id != ACTOR_EN_LIGHT)
-        return 0;
-    s16 type = actor->params & 0x000F;
-    // Type 4 = green flame in OOT (Spirit Temple green torches)
-    return (type == 4 || type == 5) ? 1 : 0;
+// Map a live flame colour onto one of the four lantern fires. Poes recolour their
+// lantern as they change state (red while attacking, blue-green while fleeing, pale
+// white while idle), so the colour has to be classified, not looked up.
+static LanternFireType Lantern_ClassifyColor(s32 r, s32 g, s32 b) {
+    s32 max = (r > g) ? ((r > b) ? r : b) : ((g > b) ? g : b);
+    s32 min = (r < g) ? ((r < b) ? r : b) : ((g < b) ? g : b);
+
+    // Near-neutral (white / pale yellow): the Poe's own ghost-fire.
+    if ((max - min) < 60) {
+        return LANTERN_FIRE_POE;
+    }
+    // Magenta / violet: red and blue both strong with green sitting below both.
+    if ((r >= 90) && (b >= 90) && (g < r) && (g < b)) {
+        return LANTERN_FIRE_POE;
+    }
+    if ((g >= r) && (g >= b)) {
+        return LANTERN_FIRE_GREEN;
+    }
+    if ((b > r) && (b > g)) {
+        return LANTERN_FIRE_BLUE;
+    }
+    return LANTERN_FIRE_REGULAR; // red / orange / yellow all burn as regular fire
 }
 
-static LanternFireType Lantern_DetectFireType(Actor* actor) {
-    for (u32 i = 0; i < CATCHABLE_COUNT; i++) {
+static LanternFireType Lantern_DetectFireType(Actor* actor, PlayState* play) {
+    u32 i;
+
+    switch (actor->id) {
+        // Poes: take whatever their lantern is burning right now. unk_194/195/196 is
+        // the lantern's env colour, driven by the Poe's state (func_80B2E6C0):
+        // red while attacking, blue-green while fleeing, warm white while idle.
+        case ACTOR_EN_POH: {
+            EnPoh* poe = (EnPoh*)actor;
+
+            return Lantern_ClassifyColor(poe->unk_194, poe->unk_195, poe->unk_196);
+        }
+
+        // Sharp and Flat carry the same lantern; Flat's burns green, Sharp's red.
+        case ACTOR_EN_PO_COMPOSER:
+            return POE_COMPOSER_IS_FLAT(actor) ? LANTERN_FIRE_GREEN : LANTERN_FIRE_REGULAR;
+
+        // The Poe sisters each carry one of the four coloured torches.
+        case ACTOR_EN_PO_SISTERS: {
+            EnPoSisters* sister = (EnPoSisters*)actor;
+
+            return sPoeColorToFire[sister->type & 3];
+        }
+
+        case ACTOR_EN_LIGHT:
+            return sEnLightFire[actor->params & 0xF];
+
+        // Torches only give fire while actually burning.
+        case ACTOR_OBJ_SYOKUDAI: {
+            ObjSyokudai* torch = (ObjSyokudai*)actor;
+
+            return (torch->snuffTimer != OBJ_SYOKUDAI_SNUFF_OUT) ? LANTERN_FIRE_REGULAR : LANTERN_FIRE_NONE;
+        }
+
+        default:
+            break;
+    }
+
+    for (i = 0; i < CATCHABLE_COUNT; i++) {
         if (actor->id == sCatchableFires[i].actorId) {
-            // Special case: En_Light can be green or regular
-            if (actor->id == ACTOR_EN_LIGHT && Lantern_IsGreenFlame(actor)) {
-                return LANTERN_FIRE_GREEN;
-            }
             return sCatchableFires[i].fireType;
         }
     }
     return LANTERN_FIRE_NONE;
 }
 
+// The lit lantern is a real light source: it burns in the flame's own colour, from
+// the hand that is actually holding it, and flickers like every other flame in the
+// game instead of sitting at a constant brightness.
 static void Lantern_UpdateLight(Player* p, PlayState* play) {
     u8 fireType = gCustomItemState.lanternFireType;
+    f32 flicker;
+    Vec3f lightPos;
+    s16 radius;
+    u8 r;
+    u8 g;
+    u8 b;
 
-    if (fireType != LANTERN_FIRE_NONE && fireType < LANTERN_FIRE_MAX) {
-        u8 r = sLanternLightColors[fireType][0];
-        u8 g = sLanternLightColors[fireType][1];
-        u8 b = sLanternLightColors[fireType][2];
-
-        if (sLanternLightNode == NULL) {
-            Lights_PointNoGlowSetInfo(&sLanternLightInfo, (s16)p->actor.world.pos.x, (s16)(p->actor.world.pos.y + 40),
-                                      (s16)p->actor.world.pos.z, r, g, b, LANTERN_LIGHT_RADIUS);
-            sLanternLightNode = LightContext_InsertLight(play, &play->lightCtx, &sLanternLightInfo);
-        } else {
-            Lights_PointNoGlowSetInfo(&sLanternLightInfo, (s16)p->actor.world.pos.x, (s16)(p->actor.world.pos.y + 40),
-                                      (s16)p->actor.world.pos.z, r, g, b, LANTERN_LIGHT_RADIUS);
+    if ((fireType == LANTERN_FIRE_NONE) || (fireType >= LANTERN_FIRE_MAX)) {
+        if (sLanternLightNode != NULL) {
+            LightContext_RemoveLight(play, &play->lightCtx, sLanternLightNode);
+            sLanternLightNode = NULL;
         }
-    } else if (sLanternLightNode != NULL) {
-        LightContext_RemoveLight(play, &play->lightCtx, sLanternLightNode);
-        sLanternLightNode = NULL;
+        return;
+    }
+
+    // While the lantern is drawn in hand the light comes off the lantern itself;
+    // stowed, it falls back to Link's chest height so the glow does not disappear.
+    if (gCustomItemState.lanternEquipped || gCustomItemState.lanternSwinging) {
+        lightPos = p->bodyPartsPos[PLAYER_BODYPART_L_HAND];
+    } else {
+        lightPos = p->actor.world.pos;
+        lightPos.y += 40.0f;
+    }
+
+    flicker = 0.8f + (Rand_ZeroOne() * 0.2f);
+    r = (u8)(sLanternLightColors[fireType][0] * flicker);
+    g = (u8)(sLanternLightColors[fireType][1] * flicker);
+    b = (u8)(sLanternLightColors[fireType][2] * flicker);
+    radius = (s16)(LANTERN_LIGHT_RADIUS * (0.9f + (flicker * 0.1f)));
+
+    Lights_PointNoGlowSetInfo(&sLanternLightInfo, (s16)lightPos.x, (s16)lightPos.y, (s16)lightPos.z, r, g, b, radius);
+
+    if (sLanternLightNode == NULL) {
+        sLanternLightNode = LightContext_InsertLight(play, &play->lightCtx, &sLanternLightInfo);
     }
 }
 
@@ -117,9 +250,11 @@ u8 Lantern_TryCatch(Player* p, PlayState* play) {
     Vec3f playerPos = p->actor.world.pos;
     s16 playerYaw = p->actor.shape.rot.y;
 
-    static const u8 categories[] = { ACTORCAT_ITEMACTION, ACTORCAT_ENEMY, ACTORCAT_PROP };
+    // BG and MISC are in the list because Poe variants move between categories
+    // (the desert Poe lives in BG, the field Poe switches to MISC while following).
+    static const u8 categories[] = { ACTORCAT_ITEMACTION, ACTORCAT_ENEMY, ACTORCAT_PROP, ACTORCAT_BG, ACTORCAT_MISC };
 
-    for (u32 c = 0; c < 3; c++) {
+    for (u32 c = 0; c < ARRAY_COUNT(categories); c++) {
         Actor* actor = play->actorCtx.actorLists[categories[c]].first;
         while (actor != NULL) {
             if (actor->update != NULL) {
@@ -136,7 +271,7 @@ u8 Lantern_TryCatch(Player* p, PlayState* play) {
                         angleDiff = 0x7FFF - angleDiff;
 
                     if (angleDiff < 0x4000) {
-                        LanternFireType type = Lantern_DetectFireType(actor);
+                        LanternFireType type = Lantern_DetectFireType(actor, play);
                         if (type != LANTERN_FIRE_NONE) {
                             gCustomItemState.lanternFireType = type;
                             Lantern_SyncToSave();
@@ -166,24 +301,36 @@ u8 Lantern_TryCatch(Player* p, PlayState* play) {
 
 // ── Fire Effects (swing while lit) ──────────────────────────────────────────
 
-// En_Light params for fire colors:
-// 0 = orange (regular), 2 = blue, 3 = green, 8 = poe pink
-// En_Ice_Hono params: 1 = dropped blue fire (spreads + melts red ice)
+// En_Light params index the colour table in z_en_light.c (params & 0xF):
+// 0 = orange, 2 = blue, 3 = green, 13 = pink/violet.
 static const s16 sLanternFlameParam[] = {
     0x0000, // NONE — unused
-    0x0000, // REGULAR — orange fire (En_Light param 0)
-    0x0000, // BLUE — uses En_Ice_Hono instead
-    0x0008, // POE — poe pink fire (En_Light param 8)
-    0x0003, // GREEN — green fire (En_Light param 3)
+    0x0000, // REGULAR — orange fire
+    0x0002, // BLUE — icy blue fire
+    0x000D, // POE — pink flame over a violet glow (shadow fire)
+    0x0003, // GREEN — green fire
 };
 
-// Per-fire-type AT damage flags
-static const u32 sLanternDmgFlags[] = {
-    0,               // NONE
-    DMG_FIRE_ARROW,  // REGULAR — lights torches, burns deku shields/cobwebs
-    DMG_ICE_ARROW,   // BLUE — triggers ice/freeze interactions
-    DMG_LIGHT_ARROW, // POE — triggers light-sensitive actors
-    DMG_FIRE_ARROW,  // GREEN — generic fire (MM has no DMG_MAGIC_FIRE; collapses to fire arrow)
+// ── Per-fire-type summoned-flame behaviour ──────────────────────────────────
+// Every fire summons a flame and every fire keeps DMG_FIRE_ARROW so it can light
+// torches; what changes is how long it burns, what else it inflicts and whether it
+// hurts at all. damage 0 still registers the hit (torches, ice) but deals nothing —
+// that is how green fire stays harmless without losing its fire identity.
+typedef struct {
+    s16 lifetime;
+    u32 dmgFlags;
+    u8 damage;
+} LanternFireConfig;
+
+static const LanternFireConfig sFireConfig[] = {
+    /* NONE    */ { 0, 0, 0 },
+    /* REGULAR */ { LANTERN_FLAME_LIFETIME, DMG_FIRE_ARROW, 2 },
+    // BLUE carries the ice-arrow flag so enemies freeze. MM has no En_Ice_Hono actor,
+    // so unlike OoT this flame IS the blue fire — there is nothing else to spawn.
+    /* BLUE    */ { LANTERN_FLAME_LIFETIME, DMG_FIRE_ARROW | DMG_ICE_ARROW, 2 },
+    /* POE     */ { LANTERN_FLAME_LIFETIME, DMG_FIRE_ARROW | DMG_LIGHT_ARROW, 2 },
+    // Green is the healing fire: it burns three times as long and never hurts anything.
+    /* GREEN   */ { LANTERN_FLAME_LIFETIME * 3, DMG_FIRE_ARROW, 0 },
 };
 
 // Swing AT collider (follows lantern arc during swing frames)
@@ -208,7 +355,7 @@ static void Lantern_InitSwingCollider(Player* p, PlayState* play) {
 // Flame tracking + AT collider system (included for readability)
 #include "item_lantern_flames.inc"
 
-// Spawn one fire actor in front of Link (scale *.3 of previous)
+// Summon this fire's flame in front of Link. EVERY fire type summons one now.
 static void Lantern_SpawnFireActor(Player* p, PlayState* play) {
     u8 fireType = gCustomItemState.lanternFireType;
     if (fireType == LANTERN_FIRE_NONE || fireType >= LANTERN_FIRE_MAX)
@@ -220,24 +367,14 @@ static void Lantern_SpawnFireActor(Player* p, PlayState* play) {
     f32 fy = p->actor.world.pos.y; // Floor level
     f32 fz = p->actor.world.pos.z + Math_CosS(yaw) * dist;
 
-    Actor* flame = NULL;
-    if (fireType == LANTERN_FIRE_BLUE) {
-        // Blue fire: spawn En_Ice_Hono (functional blue fire that melts red ice, like bottle)
-        // PLUS a visual En_Light flame on top
-        // params 0 = dropped flame (same as bottle release — melts red ice, spreads)
-        // Don't scale or track — let it behave 100% vanilla (grows, falls, spreads, self-destructs)
-        Actor_Spawn(&play->actorCtx, play, ACTOR_EN_ICE_HONO, fx, fy + 30.0f, fz, 0, 0, 0, 0);
-        return; // Blue fire is self-contained, no extra En_Light needed
-    } else {
-        flame = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHT, fx, fy, fz, 0, 0, 0, sLanternFlameParam[fireType]);
-    }
+    Actor* flame = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHT, fx, fy, fz, 0, 0, 0,
+                               sLanternFlameParam[fireType]);
 
-    // Scale + track for timed despawn
     if (flame != NULL) {
-        flame->scale.x *= 0.33f;
-        flame->scale.y *= 0.33f;
-        flame->scale.z *= 0.33f;
-        Lantern_TrackFlame(flame, fireType, play);
+        // No halo: En_Light asks for a GLOW light, which is the bright disc torches
+        // have around them. A hand-thrown flame just lights the room.
+        ((EnLight*)flame)->lightInfo.type = LIGHT_POINT_NOGLOW;
+        Lantern_TrackFlame(flame, fireType, play); // seeds the size + per-fire collider
     }
 }
 
@@ -302,14 +439,18 @@ void Lantern_UpdateBurning(PlayState* play) {
         sBurning[i].timer--;
 
         // ── Spawn visible flame on grass (first frame only) ──
+        // Burns in the lantern's own colour and grows in, like every other flame.
         if (sBurning[i].timer == LANTERN_BURN_TIME - 1) {
-            Actor* grassFlame = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHT, actor->world.pos.x,
-                                            actor->world.pos.y, actor->world.pos.z, 0, 0, 0, 0x0000);
-            if (grassFlame != NULL) {
-                grassFlame->scale.x *= 0.33f;
-                grassFlame->scale.y *= 0.33f;
-                grassFlame->scale.z *= 0.33f;
-                Lantern_TrackFlame(grassFlame, gCustomItemState.lanternFireType, play);
+            u8 grassFire = gCustomItemState.lanternFireType;
+
+            if ((grassFire != LANTERN_FIRE_NONE) && (grassFire < LANTERN_FIRE_MAX)) {
+                Actor* grassFlame = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHT, actor->world.pos.x,
+                                                actor->world.pos.y, actor->world.pos.z, 0, 0, 0,
+                                                sLanternFlameParam[grassFire]);
+                if (grassFlame != NULL) {
+                    ((EnLight*)grassFlame)->lightInfo.type = LIGHT_POINT_NOGLOW;
+                    Lantern_TrackFlame(grassFlame, grassFire, play);
+                }
             }
         }
 
@@ -363,26 +504,71 @@ static void Lantern_IgniteNearbyGrass(Player* p, PlayState* play) {
     }
 }
 
+// ── In-hand test ────────────────────────────────────────────────────────────
+// "In Link's hand" = the exact condition CustomItems_Draw uses to draw the lantern
+// on him: it is on a button AND it has been taken out (pressing its button sets
+// lanternEquipped; Handle_Lantern drops it again as soon as another item action owns
+// the hand). Anything that gates on the lantern being HELD must use this, so the
+// effect and the model can never disagree.
+static u8 Lantern_IsInHand(void) {
+    if (!IsItemEquipped(ITEM_LANTERN)) {
+        return 0;
+    }
+    return gCustomItemState.lanternEquipped || gCustomItemState.lanternSwinging;
+}
+
 // ── Poe fire: reveal ALL invisible Poes ─────────────────────────────────────
 
-// Poe fire lens — runs from CustomItems_Update (ALWAYS, even unequipped)
+// Poe fire lens — runs from CustomItems_Update (ALWAYS, even unequipped).
+//
+// The lantern owns gLanternLensActive and NOTHING else: it must not touch
+// actorCtx.lensActive, the magic state or the magic meter. Sharing those with the
+// real Lens of Truth is what broke both items — the lantern forced lensActive on,
+// so func_808318C0 (the Lens button) saw it already true and toggled it straight
+// back OFF, and z_parameter tore the magic state down again the next frame.
+// z_actor.c reads this flag alongside lensActive, so the Poe fire and the Lens of
+// Truth are independent and can be on at the same time.
 void Lantern_UpdateLens(PlayState* play) {
-    // Both Poe AND Green fire activate Lens of Truth (no overlay, no magic cost)
-    if (gCustomItemState.lanternFireType == LANTERN_FIRE_POE ||
-        gCustomItemState.lanternFireType == LANTERN_FIRE_GREEN) {
-        if (!play->actorCtx.lensActive) {
-            Magic_RequestChange(play, 0, MAGIC_CONSUME_LENS);
-            play->actorCtx.lensActive = true;
-            sLensFromLantern = 1;
+    // While HOLDING IN HAND — literally: this is the same test CustomItems_Draw uses to
+    // put the lantern in Link's fist, so the shadow lens is on exactly while you can SEE
+    // the lantern being held. Press its button to take it out; it stays out until another
+    // item takes the hand (drawing the sword) or the lantern leaves the buttons.
+    u8 wantLens = (gCustomItemState.lanternFireType == LANTERN_FIRE_POE) && Lantern_IsInHand();
+
+    // Vanilla drops the lens during real cutscenes; match that. Play_InCsMode is NOT used
+    // as the test — it is also true for item cutscenes, textboxes and any state that sets
+    // PLAYER_STATE1_IN_CUTSCENE (the lantern's own catch does), which would blink the lens
+    // off during ordinary play.
+    if (play->csCtx.state != CS_STATE_IDLE) {
+        wantLens = 0;
+    }
+
+    // Actor_DrawAll kills the lens the moment the ocarina comes out; stand down instead of
+    // re-arming it every other frame and strobing the whole screen.
+    if (GET_PLAYER(play)->stateFlags2 & PLAYER_STATE2_USING_OCARINA) {
+        wantLens = 0;
+    }
+
+    // Drive the REAL lens instead of running a lens of our own. A parallel flag had to
+    // re-implement every place the engine consults lensActive/lensMaskSize (collection,
+    // mask ramp, draw gate) and any one of them being missed meant nothing appeared.
+    // Owning actorCtx.lensActive means the shadow fire IS the Lens of Truth, and the only
+    // difference left is the circle overlay, which Actor_DrawLensActors skips while
+    // gLanternLensActive is set.
+    //
+    // The magic meter is still never touched: the drain lives in the MAGIC_STATE_CONSUME_LENS
+    // branch of z_parameter, and that state is only entered by the Lens ITEM (Magic_Consume).
+    // Leaving magicState IDLE is exactly what makes this a free lens.
+    if (wantLens) {
+        play->actorCtx.lensActive = true;
+        gLanternLensActive = 1;
+    } else if (gLanternLensActive) {
+        gLanternLensActive = 0;
+        // Only take the lens down if it is ours — a real Lens of Truth session (the item
+        // holds magicState in CONSUME_LENS) must keep running.
+        if (gSaveContext.magicState != MAGIC_STATE_CONSUME_LENS) {
+            play->actorCtx.lensActive = false;
         }
-        // Keep magic full so lens never turns off
-        if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
-            gSaveContext.save.saveInfo.playerData.magic = gSaveContext.save.saveInfo.playerData.magicLevel * 0x30;
-        }
-    } else if (sLensFromLantern) {
-        // No longer Poe fire — clean up
-        sLensFromLantern = 0;
-        Actor_DisableLens(play);
     }
 }
 
@@ -413,8 +599,9 @@ static void Lantern_UpdateSwing(Player* p, PlayState* play) {
     if (frame >= LANTERN_CATCH_START && frame <= LANTERN_CATCH_END) {
         Lantern_InitSwingCollider(p, play);
 
-        // CRITICAL: Always include DMG_FIRE_ARROW so ALL fire types light torches
-        sSwingCol.elem.atDmgInfo.dmgFlags = sLanternDmgFlags[fireType] | DMG_FIRE_ARROW;
+        // Same per-fire rules as the summoned flames; sFireConfig always keeps
+        // DMG_FIRE_ARROW so every fire type can light a torch.
+        sSwingCol.elem.atDmgInfo.dmgFlags = sFireConfig[fireType].dmgFlags;
         sSwingCol.elem.atDmgInfo.damage = 0;
 
         // Collider follows arc in front of Link
@@ -433,6 +620,9 @@ static void Lantern_UpdateSwing(Player* p, PlayState* play) {
         sSwingCol.dim.pos.z = (s16)tipPos.z;
         CollisionCheck_SetAT(play, &play->colChkCtx, &sSwingCol.base);
 
+        // A torch lit by this swing keeps the lantern's colour
+        Lantern_TintTorchesNear(play, &tipPos, LANTERN_TORCH_TINT_RANGE, fireType);
+
         // Fire trail VFX (scale *.3: was 30, now 9)
         EffectSsEnFire_SpawnVec3f(play, &p->actor, &tipPos, 9, 0, 0, -1);
     }
@@ -440,27 +630,70 @@ static void Lantern_UpdateSwing(Player* p, PlayState* play) {
 
 // ── Green Fire Passive Healing ──────────────────────────────────────────────
 
+// Green fire restores health AND magic while Link stands still.
+//
+// Stillness is measured from how far Link actually MOVED since last frame, not from
+// actor.speed/velocity.y: those read differently depending on the state Link is in
+// (climbing, riding, being pushed, standing on a moving platform), and a single frame
+// of a non-zero reading was enough to reset the counter forever. A position delta
+// cannot lie. The green shimmer plays the whole time the counter is charging, so the
+// regen is visible before the first tick lands.
 static void Lantern_UpdateGreenHeal(Player* p, PlayState* play) {
+    static Color_RGBA8 greenPrim = { 80, 255, 120, 255 };
+    static Color_RGBA8 greenEnv = { 40, 200, 80, 200 };
+    static Vec3f sLastPos = { 0.0f, 0.0f, 0.0f };
+    Vec3f vel = { 0.0f, 2.0f, 0.0f };
+    Vec3f accel = { 0.0f, -0.1f, 0.0f };
+    Vec3f sparkPos;
+    f32 dx = p->actor.world.pos.x - sLastPos.x;
+    f32 dy = p->actor.world.pos.y - sLastPos.y;
+    f32 dz = p->actor.world.pos.z - sLastPos.z;
+    u8 still = ((dx * dx) + (dy * dy) + (dz * dz)) < SQ(LANTERN_GREEN_STILL_EPS);
+
+    sLastPos = p->actor.world.pos;
+
     if (gCustomItemState.lanternFireType != LANTERN_FIRE_GREEN) {
         gCustomItemState.lanternHealTimer = 0;
         return;
     }
 
+    if (!still) {
+        gCustomItemState.lanternHealTimer = 0; // moving — start the count over
+        return;
+    }
+
     gCustomItemState.lanternHealTimer++;
+
+    // Charging shimmer: a spark every few frames while the warmth builds up
+    if ((gCustomItemState.lanternHealTimer % 6) == 0) {
+        sparkPos.x = p->actor.world.pos.x + Rand_CenteredFloat(20.0f);
+        sparkPos.y = p->actor.world.pos.y + 10.0f + Rand_ZeroFloat(30.0f);
+        sparkPos.z = p->actor.world.pos.z + Rand_CenteredFloat(20.0f);
+        EffectSsKiraKira_SpawnFocused(play, &sparkPos, &vel, &accel, &greenPrim, &greenEnv, 400, 12);
+    }
+
     if (gCustomItemState.lanternHealTimer >= LANTERN_GREEN_HEAL_RATE) {
         gCustomItemState.lanternHealTimer = 0;
-        Health_ChangeBy(play, 4); // 1/4 heart
+        Health_ChangeBy(play, 4);             // 1/4 heart
+        Magic_Add(play, LANTERN_GREEN_MAGIC); // and a sliver of magic
 
-        // Green sparkle at player
-        static Color_RGBA8 greenPrim = { 80, 255, 120, 255 };
-        static Color_RGBA8 greenEnv = { 40, 200, 80, 200 };
-        Vec3f sparkPos = { p->actor.world.pos.x + Rand_CenteredFloat(20.0f),
-                           p->actor.world.pos.y + 30.0f + Rand_ZeroFloat(20.0f),
-                           p->actor.world.pos.z + Rand_CenteredFloat(20.0f) };
-        Vec3f vel = { 0.0f, 2.0f, 0.0f };
-        Vec3f accel = { 0.0f, -0.1f, 0.0f };
+        // Bigger burst on the tick itself
+        sparkPos.x = p->actor.world.pos.x + Rand_CenteredFloat(20.0f);
+        sparkPos.y = p->actor.world.pos.y + 30.0f + Rand_ZeroFloat(20.0f);
+        sparkPos.z = p->actor.world.pos.z + Rand_CenteredFloat(20.0f);
         EffectSsKiraKira_SpawnFocused(play, &sparkPos, &vel, &accel, &greenPrim, &greenEnv, 600, 20);
     }
+}
+
+// ── Passive upkeep — runs ALWAYS from CustomItems_Update ────────────────────
+// Light and green-fire healing are properties of the FIRE, not of holding the
+// item: they used to hang off Handle_Lantern, so taking the lantern off every
+// button left a lit light node frozen in mid-air and stopped the healing.
+void Lantern_UpdatePassive(PlayState* play) {
+    Player* p = GET_PLAYER(play);
+
+    Lantern_UpdateLight(p, play);
+    Lantern_UpdateGreenHeal(p, play);
 }
 
 // ── Public API ──────────────────────────────────────────────────────────────
@@ -469,6 +702,22 @@ static void Lantern_UpdateGreenHeal(Player* p, PlayState* play) {
 // without needing to include custom_items.h from the kaleido unity build.
 u8 Lantern_GetFireType(void) {
     return gCustomItemState.lanternFireType;
+}
+
+// Bitmask of every fire type ever captured — the kaleido wheel's entry list.
+u8 Lantern_GetCapturedTypes(void) {
+    // NONE is always selectable (it is "extinguish"), so it is forced on regardless of the save.
+    return Nei_Save()->lanternCapturedTypes | (1 << LANTERN_FIRE_NONE);
+}
+
+// Set from the kaleido fire-type wheel. Writes BOTH stores for the same reason Lantern_CatchFire
+// does: gCustomItemState is authoritative at runtime, NeiSaveData is what survives a reload.
+void Lantern_SetFireType(u8 type) {
+    if (type >= LANTERN_FIRE_MAX) {
+        return;
+    }
+    gCustomItemState.lanternFireType = type;
+    Nei_Save()->lanternFireType = type;
 }
 
 void Player_InitLanternIA(PlayState* play, Player* this) {
@@ -482,16 +731,23 @@ void Handle_Lantern(Player* p, PlayState* play) {
     // Fire type is loaded from save at file load (SaveManager LoadBase).
     // Runtime gCustomItemState.lanternFireType is authoritative after that.
 
-    // lanternEquipped is set by Player_Action_SwingLantern while active.
-    // Clear it when another item takes over (heldItemAction changed away from lantern).
+    // ── Carrying rule ───────────────────────────────────────────────────
+    // A LIT lantern rides in Link's hand for as long as nothing else owns that hand:
+    // it is a burning light source, not something you fish out for one swing. That
+    // makes "in hand" reachable without swinging first, which is what the shadow
+    // fire's lens and the in-hand light both gate on (Lantern_IsInHand) — and in MM it
+    // is the only way to get there at all, since Player_StartLanternSwing is still a stub.
+    // Any other item action — drawing the sword included — puts it away, and so does
+    // taking the lantern off every button (handled by the draw pass).
+    // Handle_Lantern only runs while the lantern IS on a button, so no extra check here.
     if (p->heldItemAction != PLAYER_IA_LANTERN && p->heldItemAction != PLAYER_IA_NONE) {
         gCustomItemState.lanternEquipped = 0;
+    } else if (gCustomItemState.lanternFireType != LANTERN_FIRE_NONE) {
+        gCustomItemState.lanternEquipped = 1;
     }
 
-    // Light + heal + swing collider update (always, even unequipped)
-    // Note: Lantern_UpdateFlames + Lantern_UpdateBurning run from CustomItems_Update (always)
-    Lantern_UpdateLight(p, play);
-    Lantern_UpdateGreenHeal(p, play);
+    // Swing collider/VFX only — the light and the green-fire healing are passive and
+    // run from Lantern_UpdatePassive (CustomItems_Update) so they survive unequipping.
     Lantern_UpdateSwing(p, play);
 
     // Poe lens handled by Lantern_UpdateLens (runs from CustomItems_Update, always)
@@ -502,9 +758,8 @@ void Handle_Lantern(Player* p, PlayState* play) {
         return;
 
     // ── Start swing on C-button press ───────────────────────────────────
-    // Entire swing/catch/message flow handled by Player_Action_SwingLantern in z_player.c
+    // Entire swing/catch/message flow handled by Player_Action_SwingLantern below.
     if (input.isPressed) {
-        extern void Player_StartLanternSwing(Player * this, PlayState * play);
         Player_StartLanternSwing(p, play);
     }
 }
@@ -513,12 +768,112 @@ s32 Player_UpperAction_Lantern(Player* this, PlayState* play) {
     return 0;
 }
 
+// ── Lantern Swing Action (MM port of SoH's Player_Action_SwingLantern) ──────
+//
+// Same shape as MM's own bottle swing (Player_Action_68 / func_8083A6C0): the bottle
+// "miss" animation plays, frames 2..5 are the active window, and a catch swaps to the
+// "in" animation, freezes Link in an item cutscene and shows a textbox. The lantern
+// catches FIRE instead of a creature, so the catch branch calls Lantern_TryCatch and the
+// textbox is built by lantern_message.cpp (MM's message table has no such text).
+//
+// SoH → MM name mapping, no logic change:
+//   Player_SetupAction            → Player_SetAction
+//   Player_AnimPlayOnceAdjusted   → Player_Anim_PlayOnceAdjusted
+//   LinkAnimation_Update          → PlayerAnimation_Update
+//   func_8083C0E8 (back to idle)  → func_80839E74
+//   Player_SetTurnAroundCamera(4) → func_808323C0(this, playerCsIds[PLAYER_CS_ID_ITEM_SHOW])
+//   func_8005B1A4(cam)            → Player_StopCutscene + Camera_SetFinishedFlag
+//   PLAYER_STATE1_IN_ITEM_CS|IN_CUTSCENE → PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000
+//   Message_StartTextbox(0xF9)    → Lantern_OpenCatchTextbox() (CustomMessage)
+// Skijer's NEI
+void Player_Action_SwingLantern(Player* this, PlayState* play) {
+    extern void Lantern_OpenCatchTextbox(void); // lantern_message.cpp
+
+    Player_DecelerateToZero(this);
+
+    if (PlayerAnimation_Update(play, &this->skelAnime)) {
+        // Animation finished
+        if (this->av1.actionVar1 != 0) {
+            // Caught fire — hold it up and show the message (bottle catch flow)
+            if (this->av2.actionVar2 == 0) {
+                func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_ITEM_SHOW]);
+                gLanternCatchPending = Lantern_GetFireType();
+                Lantern_OpenCatchTextbox();
+                Audio_PlayFanfare(NA_BGM_GET_ITEM);
+                this->av2.actionVar2 = 1;
+            } else if (Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING) {
+                this->av1.actionVar1 = 0;
+                gLanternCatchPending = 0;
+                gCustomItemState.lanternSwinging = 0;
+                gCustomItemState.lanternCatchState = 0;
+                Player_StopCutscene(this);
+                Camera_SetFinishedFlag(Play_GetCamera(play, CAM_ID_MAIN));
+                func_80839E74(this, play);
+            }
+        } else {
+            // No catch — return to idle
+            gCustomItemState.lanternSwinging = 0;
+            func_80839E74(this, play);
+        }
+    } else if (this->av1.actionVar1 == 0) {
+        // During the swing — the active window is the same 2..5 the bottle uses
+        s32 activeFrame = (s32)this->skelAnime.curFrame - LANTERN_CATCH_START;
+
+        gCustomItemState.lanternSwingFrame = (s16)this->skelAnime.curFrame;
+
+        if ((activeFrame >= 0) && (activeFrame <= (LANTERN_CATCH_END - LANTERN_CATCH_START))) {
+            if (Lantern_GetFireType() == LANTERN_FIRE_NONE) {
+                // Unlit: try to take fire from whatever is burning in front of Link
+                if (Lantern_TryCatch(this, play)) {
+                    this->av1.actionVar1 = 1; // caught!
+                    this->av2.actionVar2 = 0; // textbox not started yet
+                    this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                    // Stops Lantern_UpdateSwing's collider + trail for the catch cutscene
+                    gCustomItemState.lanternCatchState = 1;
+                    Player_Anim_PlayOnceAdjusted(play, this,
+                                                 (PlayerAnimationHeader*)&gPlayerAnim_link_bottle_bug_in);
+                }
+            } else if (activeFrame == 0) {
+                // Lit: throw the flame ONCE
+                Lantern_ApplyFireEffects(this, play);
+            }
+        }
+    }
+}
+
+void Player_StartLanternSwing(Player* this, PlayState* play) {
+    Player_SetAction(play, this, Player_Action_SwingLantern, 0);
+    Player_Anim_PlayOnceAdjusted(play, this, (PlayerAnimationHeader*)&gPlayerAnim_link_bottle_bug_miss);
+    Player_PlaySfx(this, NA_SE_IT_SWORD_SWING);
+    this->av1.actionVar1 = 0;
+    this->av2.actionVar2 = 0;
+    gCustomItemState.lanternEquipped = 1; // show the lantern in hand during the swing
+    gCustomItemState.lanternSwinging = 1;
+    gCustomItemState.lanternSwingFrame = 0;
+    gCustomItemState.lanternCatchState = 0;
+}
+
 // ── Draw ────────────────────────────────────────────────────────────────────
 
 void CustomItems_DrawLantern(Player* p, PlayState* play) {
     Vec3f handPos = p->bodyPartsPos[PLAYER_BODYPART_L_HAND];
     s16 handYaw = p->actor.shape.rot.y;
     u8 fireType = gCustomItemState.lanternFireType;
+    u8 lit = ((fireType != LANTERN_FIRE_NONE) && (fireType < LANTERN_FIRE_MAX));
+    static u8 sFlameTexScroll = 0;
+    // The Poe's lantern body. Loaded by path (object_po is not resident) exactly like
+    // the Powder Keg's barrel; NULL just means the o2r lacks it, and the lantern falls
+    // back to a bare flame instead of executing a bad pointer as display list.
+    static void* sLanternDL = NULL;
+    static u8 sLanternDLTried = 0;
+    f32 flicker;
+
+    if (!sLanternDLTried) {
+        sLanternDLTried = 1;
+        sLanternDL = MmAssets_LoadResource(dgPoeLanternDL); // object_po.h — never hand-type OTR paths
+    }
+
+    sFlameTexScroll++;
 
     OPEN_DISPS(play->state.gfxCtx);
 
@@ -528,22 +883,43 @@ void CustomItems_DrawLantern(Player* p, PlayState* play) {
     Matrix_RotateX(M_PI, MTXMODE_APPLY);                 // Flip 180° — DL was upside down
     Matrix_Scale(0.004f, 0.004f, 0.004f, MTXMODE_APPLY); // 0.01 * 0.4 = 0.004
 
-    if (fireType != LANTERN_FIRE_NONE && fireType < LANTERN_FIRE_MAX) {
-        // ── LIT: Draw opaque, tinted by fire type color ──
-        u8 r = sLanternLightColors[fireType][0];
-        u8 g = sLanternLightColors[fireType][1];
-        u8 b = sLanternLightColors[fireType][2];
+    if (lit) {
+        // ── LIT: the Poe lantern DL is built to be env-tinted by whatever flame it
+        // holds (that is how En_Poh recolours it), so the glass takes the fire colour
+        // and pulses with the same flicker the point light uses. ──
+        flicker = 0.8f + (Rand_ZeroOne() * 0.2f);
 
-        Gfx_SetupDL_25Opa(play->state.gfxCtx);
-        gDPSetEnvColor(POLY_OPA_DISP++, r, g, b, 255);
-        gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gEffFire1DL);
-    } else {
-        // ── UNLIT: Draw semi-transparent, dark tint ──
-        Gfx_SetupDL_27Xlu(play->state.gfxCtx);
-        gDPSetEnvColor(POLY_XLU_DISP++, 40, 40, 50, 120);
-        gSPMatrix(POLY_XLU_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        if (sLanternDL != NULL) {
+            Gfx_SetupDL25_Opa(play->state.gfxCtx);
+            gDPSetEnvColor(POLY_OPA_DISP++, (u8)(sLanternLightColors[fireType][0] * flicker),
+                           (u8)(sLanternLightColors[fireType][1] * flicker),
+                           (u8)(sLanternLightColors[fireType][2] * flicker), 255);
+            MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, play->state.gfxCtx);
+            gSPDisplayList(POLY_OPA_DISP++, (Gfx*)sLanternDL);
+        }
+
+        // ── Actual flame burning inside the lantern, billboarded at the camera and
+        // scrolling exactly like a torch flame (same DL, same scroll rate). ──
+        Matrix_Translate(handPos.x, handPos.y + LANTERN_FLAME_Y_OFFSET, handPos.z, MTXMODE_NEW);
+        Matrix_RotateYS(BINANG_ROT180(Camera_GetCamDirYaw(GET_ACTIVE_CAM(play)) - handYaw), MTXMODE_APPLY);
+        Matrix_Scale(LANTERN_FLAME_SCALE, LANTERN_FLAME_SCALE, LANTERN_FLAME_SCALE, MTXMODE_APPLY);
+
+        Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+        gSPSegment(POLY_XLU_DISP++, 0x08,
+                   Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, 0, 0, 0x20, 0x40, 1, 0, (sFlameTexScroll * -20) & 0x1FF,
+                                      0x20, 0x80, 0, 0, 0, -20));
+        gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, sLanternFlamePrim[fireType][0], sLanternFlamePrim[fireType][1],
+                        sLanternFlamePrim[fireType][2], 255);
+        gDPSetEnvColor(POLY_XLU_DISP++, sLanternFlameEnv[fireType][0], sLanternFlameEnv[fireType][1],
+                       sLanternFlameEnv[fireType][2], 0);
+        MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, play->state.gfxCtx);
         gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gEffFire1DL);
+    } else if (sLanternDL != NULL) {
+        // ── UNLIT: Draw semi-transparent, dark tint ──
+        Gfx_SetupDL27_Xlu(play->state.gfxCtx);
+        gDPSetEnvColor(POLY_XLU_DISP++, 40, 40, 50, 120);
+        MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, play->state.gfxCtx);
+        gSPDisplayList(POLY_XLU_DISP++, (Gfx*)sLanternDL);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);

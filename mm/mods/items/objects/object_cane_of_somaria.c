@@ -5,6 +5,7 @@
 #include "z64.h"
 #include "../custom_items.h"
 #include "../logic/item_cane_of_somaria.h"
+#include "../../actors/cane_pacci.h"
 #include "macros.h"
 #include "functions.h"
 #include <math.h>
@@ -29,6 +30,12 @@ static Gfx* Somaria_GetHandDL(void) {
 }
 
 void CustomItems_DrawCaneOfSomaria(Player* player, PlayState* play) {
+    Pacci_UltrahandDrawVfx(play, player);
+    // Ultrahand's Zonai weld beads draw before the cane's own early-out: the mode
+    // hides the staff entirely, so anything gated behind shSomariaActive would be
+    // invisible exactly when it is needed.
+    Pacci_FuseDrawPreview(play);
+
     if (!shSomariaActive)
         return;
 
@@ -63,12 +70,36 @@ void CustomItems_DrawCaneOfSomaria(Player* player, PlayState* play) {
 
     Matrix_Scale(0.05f, 0.05f, 0.05f, MTXMODE_APPLY);
 
-    Gfx* handDL = Somaria_GetHandDL();
+    // Ultrahand is empty-handed: no cane in the hand at all. It is a gesture, not a
+    // tool you hold out, so drawing the staff there reads wrong.
+    Gfx* handDL = (Cane_GetType() == CANE_TYPE_ULTRAHAND) ? NULL : Somaria_GetHandDL();
     if (handDL != NULL) {
+        // Both canes share this display list; only the tint tells them apart —
+        // Somaria is red, Pacci is yellow (user-locked).
+        // Components spelled out on purpose: MSVC hands a multi-value #define to a
+        // function-like macro as a SINGLE argument, so gDPSetPrimColor would not expand.
+        if (Cane_GetType() == CANE_TYPE_PACCI) {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 215, 70, 255);
+            gDPSetEnvColor(POLY_OPA_DISP++, 150, 105, 0, 255);
+        } else {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 60, 60, 255);
+            gDPSetEnvColor(POLY_OPA_DISP++, 140, 0, 0, 255);
+        }
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, __FILE__, __LINE__),
                   G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_OPA_DISP++, handDL);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
+
+    // Flip's cast visual (stub — see pacci_flip_vfx.h).
+    PacciFlipVfx_Draw(play, player);
+
+    // Placement ghost for the aimed summons (Block / Platform). Drawn from here
+    // because this is already the cane's per-frame draw hook — no new call site.
+    if (Cane_IsAiming() && !shSomariaAnimating) {
+        u8 skill = Cane_GetActiveSkill();
+        CaneSummonKind kind = (skill == CANE_SKILL_SOMARIA_PLATFORM) ? CANE_SUMMON_PLATFORM : CANE_SUMMON_BLOCK;
+        CaneSummon_DrawPreview(play, kind, &canePreviewPos, canePreviewYaw, canePreviewValid);
+    }
 }

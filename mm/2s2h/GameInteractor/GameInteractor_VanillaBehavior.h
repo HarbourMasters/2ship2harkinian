@@ -2422,6 +2422,21 @@ typedef enum {
     // #### `args`
     // - `*f32` (speed)
     VB_ZTARGET_SPEED_CHECK,
+
+    // Player floor impact may deal fall damage.
+    VB_RECEIVE_FALL_DAMAGE,
+
+    // A Like Like may transition into its player-grab state.
+    VB_LIKE_LIKE_GRAB_PLAYER,
+
+    // A Redead or Gibdo may freeze the player with its gaze or scream.
+    VB_REDEAD_GIBDO_FREEZE_PLAYER,
+
+    // An enemy may transition into a player-grab state.
+    VB_ENEMY_GRAB_PLAYER,
+
+    // An aimable item may enter and remain in its aiming state while the player is airborne.
+    VB_PLAYER_ALLOW_MIDAIR_AIM,
 } GIVanillaBehavior;
 
 #endif

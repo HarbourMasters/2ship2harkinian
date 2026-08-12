@@ -4217,8 +4217,16 @@ WallType SurfaceType_GetWallType(CollisionContext* colCtx, CollisionPoly* poly, 
 // onto every wall poly while the mitts are active. Was a dead flag — nothing read it.
 extern u8 gMogmaMittsClimbActive;
 
+// Skijer's NEI — a body held by the Sheikah Slate's Stasis rune becomes climbable, but ONLY that
+// body: the check is against its own bgId, so nothing else in the scene is affected and the surface
+// reverts by itself the moment the stasis ends. This is deliberately done here rather than by
+// editing surfaceTypeList — collision headers are shared, cached resources, so writing to one would
+// make every instance of that collision climbable for the rest of the session.
+extern u8 Stasis_IsClimbableBgId(s32 bgId);
+
 s32 SurfaceType_GetWallFlags(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    if (gMogmaMittsClimbActive || GameInteractor_Should(VB_BE_CLIMBABLE_SURFACE, false)) {
+    if (gMogmaMittsClimbActive || Stasis_IsClimbableBgId(bgId) ||
+        GameInteractor_Should(VB_BE_CLIMBABLE_SURFACE, false)) {
         return sWallFlags[SurfaceType_GetWallType(colCtx, poly, bgId)] | WALL_FLAG_3;
     }
     return sWallFlags[SurfaceType_GetWallType(colCtx, poly, bgId)];

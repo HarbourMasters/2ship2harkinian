@@ -35,6 +35,20 @@
 #define FCI_F_TRAP (1 << 2)         // trampa: el juego receptor materializa su sabor local
 #define FCI_F_DRAW_ONLY_MM (1 << 3) // sin relative funcional en MM: solo DL + messagebox
 #define FCI_F_DUAL_GRANT (1 << 4)   // Pendant: en MM otorga trade item (check) + equip ext
+// Deliberadamente LOCAL de su juego: no cruza y NO sale en el informe unshared. Para consumibles de
+// relleno (bombchus, flechas...) y items sin sentido cross: el modelo FC es "1 copia global", asi que
+// un item que cada juego reparte a docenas no encaja — le meti fila a los bombchus y la validacion
+// canto "expected 1, got 24". La fila se queda (ids append-only) pero marcada y con peer vacio.
+#define FCI_F_NOT_SHARED (1 << 5)
+// Ocarina song: candidata a los 24 song spots compartidos (opcion gFleetCombo.SharedSongs).
+// Double Time e Inverted Time quedan FUERA a proposito (decision del usuario): si MM las
+// baraja van a su pool general, no ocupan spot compartido. No hay fila de Scarecrow.
+#define FCI_F_SONG (1 << 6)
+// Dungeon reward: OoT's 6 medallions + 3 spiritual stones and MM's 4 boss remains. The shared
+// "Dungeon Rewards" option can bind these 13 items to the 13 boss spots across BOTH games, so
+// beating the Fire Temple can hand you Odolwa's Remains. Same restricted-category machinery as
+// FCI_F_SONG; see gFcCategories in FleetComboRando.cpp. Skijer's NEI
+#define FCI_F_DUNGEON_REWARD (1 << 7)
 
 // X(fcId, chainLen, flags, rgToken, riToken, "Combo Name", "OoT item name", "MM display name")
 //   chainLen: 1 = item único; >1 = cadena progresiva (= copias en el pool v1)
@@ -52,13 +66,13 @@
     X(FCI_MAGIC, 3, FCI_F_NONE, RG_PROGRESSIVE_MAGIC_METER, RI_PROGRESSIVE_MAGIC, "Progressive Magic", "Progressive Magic Meter", "Progressive Magic") \
     X(FCI_WALLET, 4, FCI_F_NONE, RG_PROGRESSIVE_WALLET, RI_PROGRESSIVE_WALLET, "Progressive Wallet", "Progressive Wallet", "Progressive Wallet") /* v1: Adult->Giant->Tycoon->Inf (sin Child) */ \
     X(FCI_SLINGSHOT, 3, FCI_F_NONE, RG_PROGRESSIVE_SLINGSHOT, RI_FAIRY_SLINGSHOT, "Progressive Slingshot", "Progressive Slingshot", "Fairy Slingshot") \
-    X(FCI_STICK_CAPACITY, 2, FCI_F_NONE, RG_PROGRESSIVE_STICK_UPGRADE, FCI_NO_ITEM, "Progressive Stick Capacity", "Progressive Stick Capacity", "") /* v1 sin bag-gate */ \
-    X(FCI_NUT_CAPACITY, 2, FCI_F_NONE, RG_PROGRESSIVE_NUT_UPGRADE, FCI_NO_ITEM, "Progressive Nut Capacity", "Progressive Nut Capacity", "") /* v1 sin bag-gate */ \
-    X(FCI_STRENGTH, 3, FCI_F_NONE, RG_PROGRESSIVE_STRENGTH, FCI_NO_ITEM, "Progressive Strength", "Strength Upgrade", "") /* v1 sin grab-gate */ \
+    X(FCI_STICK_CAPACITY, 2, FCI_F_NONE, RG_PROGRESSIVE_STICK_UPGRADE, RI_OOT_PROGRESSIVE_STICK_CAPACITY, "Progressive Stick Capacity", "Progressive Stick Capacity", "Progressive Stick Capacity") /* v1 sin bag-gate */ \
+    X(FCI_NUT_CAPACITY, 2, FCI_F_NONE, RG_PROGRESSIVE_NUT_UPGRADE, RI_OOT_PROGRESSIVE_NUT_CAPACITY, "Progressive Nut Capacity", "Progressive Nut Capacity", "Progressive Nut Capacity") /* v1 sin bag-gate */ \
+    X(FCI_STRENGTH, 3, FCI_F_NONE, RG_PROGRESSIVE_STRENGTH, RI_OOT_PROGRESSIVE_STRENGTH, "Progressive Strength", "Strength Upgrade", "Progressive Strength Upgrade") /* Bracelet -> Silver -> Gold. The MM peer used to be FCI_NO_ITEM, so the per-game filter saw it in NEITHER pool and it never crossed in any seed. Skijer's NEI */ \
     X(FCI_SCALE, 3, FCI_F_NONE, RG_PROGRESSIVE_SCALE, RI_ABILITY_SWIM, "Progressive Scale", "Progressive Scale", "Ability to Swim") /* L1 Bronze = swim MM */ \
     X(FCI_KOKIRI_SWORD, 3, FCI_F_NONE, RG_PROGRESSIVE_KOKIRI_SWORD, RI_PROGRESSIVE_SWORD, "Progressive Sword", "Progressive Kokiri Sword", "Progressive Sword") /* Kokiri->Razor->Gilded */ \
     X(FCI_MASTER_SWORD, 2, FCI_F_NONE, RG_PROGRESSIVE_MASTER_SWORD, RI_OOT_PROGRESSIVE_MASTER_SWORD, "Progressive Master Sword", "Progressive Master Sword", "Progressive Master Sword") \
-    X(FCI_BIGGORON_SWORD, 2, FCI_F_NONE, RG_PROGRESSIVE_BGS, RI_GREAT_FAIRY_SWORD, "Progressive Biggoron Sword", "Progressive Biggoron's Sword", "Great Fairy's Sword") /* L1 BGS -> L2 GFS (weaponUpgrades bit 4) */ \
+    X(FCI_BIGGORON_SWORD, 2, FCI_F_NONE, RG_PROGRESSIVE_BGS, RI_OOT_PROGRESSIVE_BGS, "Progressive Biggoron Sword", "Progressive Biggoron's Sword", "Progressive Biggoron's Sword") /* L1 BGS -> L2 GFS (weaponUpgrades bit 4). The MM peer is the PROGRESSIVE item, not the bare Great Fairy's Sword: the chain only escalates if both sides hand out the same escalating item. Skijer's NEI */ \
     X(FCI_HAMMER, 2, FCI_F_NONE, RG_PROGRESSIVE_HAMMER, RI_OOT_PROGRESSIVE_HAMMER, "Progressive Hammer", "Progressive Hammer", "Progressive Hammer") /* Hammer->Hammer-Axe */ \
     X(FCI_SKIJER_ROC, 2, FCI_F_NONE, RG_PROGRESSIVE_ROCS, RI_OOT_PROGRESSIVE_ROC, "Progressive Roc", "Progressive Roc", "Progressive Roc") /* Feather SKIJER->Cape; NO es el Roc's Feather regular */ \
     X(FCI_OCARINA, 2, FCI_F_NONE, RG_PROGRESSIVE_OCARINA, RI_OCARINA, "Progressive Ocarina", "Progressive Ocarina", "Ocarina") \
@@ -80,7 +94,7 @@
     X(FCI_SHIELD_OF_IKANA, 1, FCI_F_NONE, RG_EXT_SHIELD_OF_IKANA, RI_SHIELD_MIRROR, "Shield of Ikana", "Shield of Ikana", "Mirror Shield") /* = Mirror Shield vanilla de MM */ \
     X(FCI_HYLIAN_SHIELD, 1, FCI_F_NONE, RG_HYLIAN_SHIELD, RI_SHIELD_HERO, "Hylian Shield", "Hylian Shield", "Hero's Shield") \
     X(FCI_DOUBLE_DEFENSE, 1, FCI_F_NONE, RG_DOUBLE_DEFENSE, RI_DOUBLE_DEFENSE, "Double Defense", "Double Defense", "Double Defense") \
-    X(FCI_STONE_OF_AGONY, 1, FCI_F_NONE, RG_STONE_OF_AGONY, RI_OOT_STONE_OF_AGONY, "Stone of Agony", "Stone of Agony", "Stone of Agony") /* MM: ootQuestItems bit 21 */ \
+    X(FCI_STONE_OF_AGONY, 2, FCI_F_NONE, RG_STONE_OF_AGONY, RI_OOT_STONE_OF_AGONY, "Stone of Agony", "Stone of Agony", "Stone of Agony") /* MM: ootQuestItems bit 21; chain: 1=Stone of Agony, 2=Quartz of Motion */ \
     X(FCI_GERUDO_CARD, 1, FCI_F_NONE, RG_GERUDO_MEMBERSHIP_CARD, RI_OOT_GERUDO_MEMBERSHIP_CARD, "Gerudo Membership Card", "Gerudo Membership Card", "Gerudo Membership Card") /* MM: ootQuestItems bit 22 */ \
     X(FCI_MAGIC_BEAN_PACK, 1, FCI_F_NONE, RG_MAGIC_BEAN_PACK, RI_MAGIC_BEAN, "Magic Bean Pack", "Magic Bean Pack", "Magic Bean") /* capacidad = sitios de AMBOS juegos */ \
     X(FCI_FISHING_POLE, 1, FCI_F_DRAW_ONLY_MM, RG_FISHING_POLE, RI_OOT_FISHING_POLE, "Fishing Pole", "Fishing Pole", "Fishing Pole") /* MM: solo DL+mensaje por ahora */ \
@@ -93,14 +107,14 @@
     X(FCI_TRIFORCE_PIECE, 1, FCI_F_TRIFORCE, RG_TRIFORCE_PIECE, RI_TRIFORCE_PIECE, "Triforce Piece", "Triforce Piece", "Piece of the Triforce") \
     X(FCI_TRAP, 1, FCI_F_TRAP, RG_ICE_TRAP, RI_TRAP, "Trap", "Ice Trap", "Knockoff Item") \
     /* ---------- A3: canciones compartidas ---------- */ \
-    X(FCI_SONG_EPONA, 1, FCI_F_NONE, RG_EPONAS_SONG, RI_SONG_EPONA, "Epona's Song", "Epona's Song", "Epona's Song") \
-    X(FCI_SONG_TIME, 1, FCI_F_NONE, RG_SONG_OF_TIME, RI_SONG_TIME, "Song of Time", "Song of Time", "Song of Time") /* starting item por defecto */ \
-    X(FCI_SONG_STORMS, 1, FCI_F_NONE, RG_SONG_OF_STORMS, RI_SONG_STORMS, "Song of Storms", "Song of Storms", "Song of Storms") \
-    X(FCI_SONG_SUN, 1, FCI_F_NONE, RG_SUNS_SONG, RI_SONG_SUN, "Sun's Song", "Sun's Song", "Sun's Song") \
-    X(FCI_SONG_SARIA, 1, FCI_F_NONE, RG_SARIAS_SONG, RI_SONG_SARIA, "Saria's Song", "Saria's Song", "Saria's Song") \
-    X(FCI_SONG_FUGUE_OF_HOME, 1, FCI_F_NONE, FCI_NO_ITEM, RI_OOT_SONG_FUGUE_OF_HOME, "Fugue of Home", "", "Fugue of Home") /* NEI custom; storage ootQuestItems bit 7 / OCARINA_SONG_NEI_* */ \
-    X(FCI_SONG_COMMAND_MELODY, 1, FCI_F_NONE, FCI_NO_ITEM, RI_OOT_SONG_COMMAND_MELODY, "Command Melody", "", "Command Melody") /* NEI custom; bit 10 */ \
-    X(FCI_SONG_BALLAD_OF_HERO, 1, FCI_F_NONE, FCI_NO_ITEM, RI_OOT_SONG_BALLAD_OF_THE_HERO, "Ballad of the Hero", "", "Ballad of the Hero") /* NEI custom; bit 11 */ \
+    X(FCI_SONG_EPONA, 1, FCI_F_SONG, RG_EPONAS_SONG, RI_SONG_EPONA, "Epona's Song", "Epona's Song", "Epona's Song") \
+    X(FCI_SONG_TIME, 1, FCI_F_SONG, RG_SONG_OF_TIME, RI_SONG_TIME, "Song of Time", "Song of Time", "Song of Time") /* starting item por defecto */ \
+    X(FCI_SONG_STORMS, 1, FCI_F_SONG, RG_SONG_OF_STORMS, RI_SONG_STORMS, "Song of Storms", "Song of Storms", "Song of Storms") \
+    X(FCI_SONG_SUN, 1, FCI_F_SONG, RG_SUNS_SONG, RI_SONG_SUN, "Sun's Song", "Sun's Song", "Sun's Song") \
+    X(FCI_SONG_SARIA, 1, FCI_F_SONG, RG_SARIAS_SONG, RI_SONG_SARIA, "Saria's Song", "Saria's Song", "Saria's Song") \
+    X(FCI_SONG_FUGUE_OF_HOME, 1, FCI_F_SONG, RG_NEI_SONG_FUGUE_OF_HOME, RI_OOT_SONG_FUGUE_OF_HOME, "Fugue of Home", "Fugue of Home", "Fugue of Home") /* NEI custom; storage ootQuestItems bit 7 / OCARINA_SONG_NEI_* */ \
+    X(FCI_SONG_COMMAND_MELODY, 1, FCI_F_SONG, RG_NEI_SONG_COMMAND_MELODY, RI_OOT_SONG_COMMAND_MELODY, "Command Melody", "Command Melody", "Command Melody") /* NEI custom; bit 10 */ \
+    X(FCI_SONG_BALLAD_OF_HERO, 1, FCI_F_SONG, RG_NEI_SONG_BALLAD_OF_HERO, RI_OOT_SONG_BALLAD_OF_THE_HERO, "Ballad of the Hero", "Ballad of the Hero", "Ballad of the Hero") /* NEI custom; bit 11 */ \
     /* ---------- A4: botones de ocarina ---------- */ \
     X(FCI_OCARINA_BUTTON_A, 1, FCI_F_NONE, RG_OCARINA_A_BUTTON, RI_OCARINA_BUTTON_A, "Ocarina A Button", "Ocarina A Button", "Ocarina A Button") \
     X(FCI_OCARINA_BUTTON_C_UP, 1, FCI_F_NONE, RG_OCARINA_C_UP_BUTTON, RI_OCARINA_BUTTON_C_UP, "Ocarina C Up Button", "Ocarina C Up Button", "Ocarina C Up Button") \
@@ -143,7 +157,7 @@
     X(FCI_BEETLE, 1, FCI_F_NONE, RG_BEETLE, RI_OOT_NEI_BEETLE, "Beetle", "Beetle", "Beetle") \
     X(FCI_SWITCH_HOOK, 1, FCI_F_NONE, RG_SWITCH_HOOK, RI_OOT_NEI_SWITCH_HOOK, "Switch Hook", "Switch Hook", "Switch Hook") \
     X(FCI_ICE_ROD, 1, FCI_F_NONE, RG_ICE_ROD, RI_OOT_NEI_ICE_ROD, "Ice Rod", "Ice Rod", "Ice Rod") \
-    X(FCI_ZONAI_PERMAFROST, 1, FCI_F_NONE, RG_ZONAI_PERMAFROST, RI_OOT_NEI_ZONAI_PERMAFROST, "Zonai Permafrost", "Zonai Permafrost", "Zonai Permafrost") \
+    X(FCI_ZONAI_PERMAFROST, 1, FCI_F_NONE, RG_ZONAI_PERMAFROST, RI_OOT_NEI_ZONAI_PERMAFROST, "Zonai Timer", "Zonai Timer", "Zonai Timer") \
     X(FCI_MOGMA_MITTS, 1, FCI_F_NONE, RG_MOGMA_MITTS, RI_OOT_NEI_MOGMA_MITTS, "Mogma Mitts", "Mogma Mitts", "Mogma Mitts") \
     X(FCI_GUST_JAR, 1, FCI_F_NONE, RG_GUST_JAR, RI_OOT_NEI_GUST_JAR, "Gust Jar", "Gust Jar", "Gust Jar") \
     X(FCI_BALL_AND_CHAIN, 1, FCI_F_NONE, RG_BALL_AND_CHAIN, RI_OOT_NEI_BALL_AND_CHAIN, "Ball and Chain", "Ball and Chain", "Ball and Chain") \
@@ -152,20 +166,20 @@
     X(FCI_LANTERN, 1, FCI_F_NONE, RG_LANTERN, RI_OOT_NEI_LANTERN, "Lantern", "Lantern", "Lantern") \
     X(FCI_MINISH_CAP, 1, FCI_F_NONE, RG_MINISH_CAP, RI_OOT_NEI_MINISH_CAP, "The Minish Cap", "The Minish Cap", "The Minish Cap") \
     X(FCI_POKEBALL, 1, FCI_F_NONE, RG_POKEBALL, RI_OOT_NEI_POKE_BALL, "Poke Ball", "Pok\xC3\xA9 Ball", "Poke Ball") \
-    X(FCI_CANE_OF_SOMARIA, 1, FCI_F_NONE, RG_CANE_OF_SOMARIA, RI_OOT_NEI_CANE_OF_SOMARIA, "Cane of Somaria", "Cane of Somaria", "Cane of Somaria") \
+    X(FCI_CANE_OF_SOMARIA, 6, FCI_F_NONE, RG_CANE_OF_SOMARIA, RI_OOT_NEI_CANE_OF_SOMARIA, "Cane of Somaria", "Cane of Somaria", "Cane of Somaria") \
     X(FCI_SHOVEL, 1, FCI_F_NONE, RG_SHOVEL, RI_OOT_NEI_SHOVEL, "Shovel", "Shovel", "Shovel") \
     X(FCI_DOMINION_ROD, 1, FCI_F_NONE, RG_DOMINION_ROD, RI_OOT_NEI_DOMINION_ROD, "Dominion Rod", "Dominion Rod", "Dominion Rod") \
     X(FCI_DESIRE_SENSOR, 1, FCI_F_NONE, RG_DESIRE_SENSOR, RI_OOT_NEI_DESIRE_SENSOR, "Desire Sensor", "Desire Sensor", "Desire Sensor") \
     /* ---------- A7: extended equipment (Ikana y Pendant estan arriba) ---------- */ \
     X(FCI_EXT_CANE_OF_BYRNA, 1, FCI_F_NONE, RG_EXT_CANE_OF_BYRNA, RI_OOT_EXT_CANE_OF_BYRNA, "Cane of Byrna", "Cane of Byrna", "Cane of Byrna") \
     X(FCI_EXT_FOUR_SWORD, 1, FCI_F_NONE, RG_EXT_FOUR_SWORD, RI_OOT_EXT_FOUR_SWORD, "Four Sword", "Four Sword", "Four Sword") \
-    X(FCI_EXT_DIVINE_SHIELD, 1, FCI_F_NONE, RG_EXT_DIVINE_SHIELD, RI_OOT_EXT_DIVINE_SHIELD, "Divine Shield", "Divine Shield", "Divine Shield") \
-    X(FCI_EXT_SHEIKAH_SHIELD, 1, FCI_F_NONE, RG_EXT_SHEIKAH_SHIELD, RI_OOT_EXT_SHEIKAH_SHIELD, "Sheikah Shield", "Sheikah Shield", "Sheikah Shield") \
+    X(FCI_EXT_DIVINE_SHIELD, 1, FCI_F_NONE, RG_EXT_DIVINE_SHIELD, RI_OOT_EXT_DIVINE_SHIELD, "Goddess Shield", "Goddess Shield", "Goddess Shield") \
+    X(FCI_EXT_SHEIKAH_SHIELD, 1, FCI_F_NONE, RG_EXT_SHEIKAH_SHIELD, RI_OOT_EXT_SHEIKAH_SHIELD, "Kite Shield", "Kite Shield", "Kite Shield") \
     X(FCI_EXT_MAGIC_CAPE, 1, FCI_F_NONE, RG_EXT_MAGIC_CAPE, RI_OOT_EXT_MAGIC_CAPE, "Magic Cape", "Magic Cape", "Magic Cape") \
-    X(FCI_EXT_SPIRIT_BREASTPLATE, 1, FCI_F_NONE, RG_EXT_SPIRIT_BREASTPLATE, RI_OOT_EXT_SPIRIT_BREASTPLATE, "Spirit Breastplate", "Spirit Breastplate", "Spirit Breastplate") \
+    X(FCI_EXT_SPIRIT_BREASTPLATE, 1, FCI_F_NONE, RG_EXT_SPIRIT_BREASTPLATE, RI_OOT_EXT_SPIRIT_BREASTPLATE, "Magic Tunic", "Magic Tunic", "Magic Tunic") \
     X(FCI_EXT_CHAMPIONS_TUNIC, 1, FCI_F_NONE, RG_EXT_CHAMPIONS_TUNIC, RI_OOT_EXT_CHAMPIONS_TUNIC, "Champion's Tunic", "Champion's Tunic", "Champion's Tunic") \
-    X(FCI_EXT_PEGASUS_ANKLET, 1, FCI_F_NONE, RG_EXT_PEGASUS_ANKLET, RI_OOT_EXT_PEGASUS_ANKLET, "Pegasus Anklet", "Pegasus Anklet", "Pegasus Anklet") \
-    X(FCI_EXT_WATER_DRAGON_SCALE, 1, FCI_F_NONE, RG_EXT_WATER_DRAGON_SCALE, RI_OOT_EXT_WATER_DRAGON_SCALE, "Water Dragon Scale", "Water Dragon Scale", "Water Dragon Scale") \
+    X(FCI_EXT_PEGASUS_ANKLET, 1, FCI_F_NONE, RG_EXT_PEGASUS_ANKLET, RI_OOT_EXT_PEGASUS_ANKLET, "Pegasus Boots", "Pegasus Boots", "Pegasus Boots") \
+    X(FCI_EXT_WATER_DRAGON_SCALE, 1, FCI_F_NONE, RG_EXT_WATER_DRAGON_SCALE, RI_OOT_EXT_WATER_DRAGON_SCALE, "Sage's Tunic", "Sage's Tunic", "Sage's Tunic") /* legacy IDs retained for serialized FleetCombo compatibility */ \
     /* ---------- A8: mascaras OoT sin par MM (ownership ootMasksOwned compartido) ---------- */ \
     X(FCI_SKULL_MASK, 1, FCI_F_NONE, RG_SKULL_MASK, RI_OOT_MASK_SKULL, "Skull Mask", "Skull Mask", "Skull Mask") \
     X(FCI_SPOOKY_MASK, 1, FCI_F_NONE, RG_SPOOKY_MASK, RI_OOT_MASK_SPOOKY, "Spooky Mask", "Spooky Mask", "Spooky Mask") \
@@ -234,10 +248,10 @@
     X(FCI_MM_SOUL_WIZROBE, 1, FCI_F_NONE, RG_MM_SOUL_WIZROBE, RI_SOUL_ENEMY_WIZROBE, "Soul of Wizrobes", "Soul of Wizrobes", "Soul of Wizrobes") \
     X(FCI_MM_SOUL_WOLFOS, 1, FCI_F_NONE, RG_MM_SOUL_WOLFOS, RI_SOUL_ENEMY_WOLFOS, "Soul of Wolfos", "Soul of Wolfos", "Soul of Wolfos") \
     /* -- MM boss remains (native MM) -- */ \
-    X(FCI_MM_REMAINS_ODOLWA, 1, FCI_F_NONE, RG_MM_REMAINS_ODOLWA, RI_REMAINS_ODOLWA, "Odolwa's Remains", "Odolwa's Remains", "Odolwa's Remains") \
-    X(FCI_MM_REMAINS_GOHT, 1, FCI_F_NONE, RG_MM_REMAINS_GOHT, RI_REMAINS_GOHT, "Goht's Remains", "Goht's Remains", "Goht's Remains") \
-    X(FCI_MM_REMAINS_GYORG, 1, FCI_F_NONE, RG_MM_REMAINS_GYORG, RI_REMAINS_GYORG, "Gyorg's Remains", "Gyorg's Remains", "Gyorg's Remains") \
-    X(FCI_MM_REMAINS_TWINMOLD, 1, FCI_F_NONE, RG_MM_REMAINS_TWINMOLD, RI_REMAINS_TWINMOLD, "Twinmold's Remains", "Twinmold's Remains", "Twinmold's Remains") \
+    X(FCI_MM_REMAINS_ODOLWA, 1, FCI_F_DUNGEON_REWARD, RG_MM_REMAINS_ODOLWA, RI_REMAINS_ODOLWA, "Odolwa's Remains", "Odolwa's Remains", "Odolwa's Remains") \
+    X(FCI_MM_REMAINS_GOHT, 1, FCI_F_DUNGEON_REWARD, RG_MM_REMAINS_GOHT, RI_REMAINS_GOHT, "Goht's Remains", "Goht's Remains", "Goht's Remains") \
+    X(FCI_MM_REMAINS_GYORG, 1, FCI_F_DUNGEON_REWARD, RG_MM_REMAINS_GYORG, RI_REMAINS_GYORG, "Gyorg's Remains", "Gyorg's Remains", "Gyorg's Remains") \
+    X(FCI_MM_REMAINS_TWINMOLD, 1, FCI_F_DUNGEON_REWARD, RG_MM_REMAINS_TWINMOLD, RI_REMAINS_TWINMOLD, "Twinmold's Remains", "Twinmold's Remains", "Twinmold's Remains") \
     /* -- MM stray fairies (native MM, multi-copia por mazmorra; modelo OoT compartido) -- */ \
     X(FCI_MM_STRAY_FAIRY_CLOCK_TOWN, 1, FCI_F_NONE, RG_MM_STRAY_FAIRY, RI_CLOCK_TOWN_STRAY_FAIRY, "Clock Town Stray Fairy", "Clock Town Stray Fairy", "Clock Town Stray Fairy") \
     X(FCI_MM_STRAY_FAIRY_WOODFALL, 15, FCI_F_NONE, RG_MM_STRAY_FAIRY_WOODFALL, RI_WOODFALL_STRAY_FAIRY, "Woodfall Stray Fairy", "Woodfall Stray Fairy", "Woodfall Stray Fairy") \
@@ -245,14 +259,14 @@
     X(FCI_MM_STRAY_FAIRY_GREAT_BAY, 15, FCI_F_NONE, RG_MM_STRAY_FAIRY_GREAT_BAY, RI_GREAT_BAY_STRAY_FAIRY, "Great Bay Stray Fairy", "Great Bay Stray Fairy", "Great Bay Stray Fairy") \
     X(FCI_MM_STRAY_FAIRY_STONE_TOWER, 15, FCI_F_NONE, RG_MM_STRAY_FAIRY_STONE_TOWER, RI_STONE_TOWER_STRAY_FAIRY, "Stone Tower Stray Fairy", "Stone Tower Stray Fairy", "Stone Tower Stray Fairy") \
     /* -- MM-exclusive songs (native MM) -- */ \
-    X(FCI_MM_SONG_SONATA, 1, FCI_F_NONE, RG_MM_SONG_SONATA, RI_SONG_SONATA, "Sonata of Awakening", "Sonata of Awakening", "Sonata of Awakening") \
-    X(FCI_MM_SONG_LULLABY, 1, FCI_F_NONE, RG_MM_SONG_LULLABY, RI_SONG_LULLABY, "Goron Lullaby", "Goron Lullaby", "Goron Lullaby") \
-    X(FCI_MM_SONG_LULLABY_INTRO, 1, FCI_F_NONE, RG_MM_SONG_LULLABY_INTRO, RI_SONG_LULLABY_INTRO, "Goron Lullaby Intro", "Goron Lullaby Intro", "Goron Lullaby Intro") \
-    X(FCI_MM_SONG_NOVA, 1, FCI_F_NONE, RG_MM_SONG_NOVA, RI_SONG_NOVA, "New Wave Bossa Nova", "New Wave Bossa Nova", "New Wave Bossa Nova") \
-    X(FCI_MM_SONG_ELEGY, 1, FCI_F_NONE, RG_MM_SONG_ELEGY, RI_SONG_ELEGY, "Elegy of Emptiness", "Elegy of Emptiness", "Elegy of Emptiness") \
-    X(FCI_MM_SONG_OATH, 1, FCI_F_NONE, RG_MM_SONG_OATH, RI_SONG_OATH, "Oath to Order", "Oath to Order", "Oath to Order") \
-    X(FCI_MM_SONG_SOARING, 1, FCI_F_NONE, RG_MM_SONG_SOARING, RI_SONG_SOARING, "Song of Soaring", "Song of Soaring", "Song of Soaring") \
-    X(FCI_MM_SONG_HEALING, 1, FCI_F_NONE, RG_MM_SONG_HEALING, RI_SONG_HEALING, "Song of Healing", "Song of Healing", "Song of Healing") \
+    X(FCI_MM_SONG_SONATA, 1, FCI_F_SONG, RG_MM_SONG_SONATA, RI_SONG_SONATA, "Sonata of Awakening", "Sonata of Awakening", "Sonata of Awakening") \
+    X(FCI_MM_SONG_LULLABY, 1, FCI_F_SONG, RG_MM_SONG_LULLABY, RI_SONG_LULLABY, "Goron Lullaby", "Goron Lullaby", "Goron Lullaby") \
+    X(FCI_MM_SONG_LULLABY_INTRO, 1, FCI_F_SONG, RG_MM_SONG_LULLABY_INTRO, RI_SONG_LULLABY_INTRO, "Goron Lullaby Intro", "Goron Lullaby Intro", "Goron Lullaby Intro") \
+    X(FCI_MM_SONG_NOVA, 1, FCI_F_SONG, RG_MM_SONG_NOVA, RI_SONG_NOVA, "New Wave Bossa Nova", "New Wave Bossa Nova", "New Wave Bossa Nova") \
+    X(FCI_MM_SONG_ELEGY, 1, FCI_F_SONG, RG_MM_SONG_ELEGY, RI_SONG_ELEGY, "Elegy of Emptiness", "Elegy of Emptiness", "Elegy of Emptiness") \
+    X(FCI_MM_SONG_OATH, 1, FCI_F_SONG, RG_MM_SONG_OATH, RI_SONG_OATH, "Oath to Order", "Oath to Order", "Oath to Order") \
+    X(FCI_MM_SONG_SOARING, 1, FCI_F_SONG, RG_MM_SONG_SOARING, RI_SONG_SOARING, "Song of Soaring", "Song of Soaring", "Song of Soaring") \
+    X(FCI_MM_SONG_HEALING, 1, FCI_F_SONG, RG_MM_SONG_HEALING, RI_SONG_HEALING, "Song of Healing", "Song of Healing", "Song of Healing") \
     X(FCI_MM_SONG_DOUBLE_TIME, 1, FCI_F_NONE, RG_MM_SONG_DOUBLE_TIME, RI_SONG_DOUBLE_TIME, "Song of Double Time", "Song of Double Time", "Song of Double Time") \
     X(FCI_MM_SONG_INVERTED_TIME, 1, FCI_F_NONE, RG_MM_SONG_INVERTED_TIME, RI_SONG_INVERTED_TIME, "Inverted Song of Time", "Inverted Song of Time", "Inverted Song of Time") \
     /* -- MM owl statues (native MM) -- */ \
@@ -283,23 +297,23 @@
     X(FCI_MM_LETTER_TO_KAFEI, 1, FCI_F_NONE, RG_MM_LETTER_TO_KAFEI, RI_LETTER_TO_KAFEI, "Letter to Kafei", "Letter to Kafei", "Letter to Kafei") \
     X(FCI_MM_LETTER_TO_MAMA, 1, FCI_F_NONE, RG_MM_LETTER_TO_MAMA, RI_LETTER_TO_MAMA, "Letter to Mama", "Letter to Mama", "Letter to Mama") \
     /* -- OoT medallions (native OoT) -- */ \
-    X(FCI_OOT_MEDALLION_FOREST, 1, FCI_F_NONE, RG_FOREST_MEDALLION, RI_OOT_MEDALLION_FOREST, "Forest Medallion", "Forest Medallion", "Forest Medallion") \
-    X(FCI_OOT_MEDALLION_FIRE, 1, FCI_F_NONE, RG_FIRE_MEDALLION, RI_OOT_MEDALLION_FIRE, "Fire Medallion", "Fire Medallion", "Fire Medallion") \
-    X(FCI_OOT_MEDALLION_WATER, 1, FCI_F_NONE, RG_WATER_MEDALLION, RI_OOT_MEDALLION_WATER, "Water Medallion", "Water Medallion", "Water Medallion") \
-    X(FCI_OOT_MEDALLION_SPIRIT, 1, FCI_F_NONE, RG_SPIRIT_MEDALLION, RI_OOT_MEDALLION_SPIRIT, "Spirit Medallion", "Spirit Medallion", "Spirit Medallion") \
-    X(FCI_OOT_MEDALLION_SHADOW, 1, FCI_F_NONE, RG_SHADOW_MEDALLION, RI_OOT_MEDALLION_SHADOW, "Shadow Medallion", "Shadow Medallion", "Shadow Medallion") \
-    X(FCI_OOT_MEDALLION_LIGHT, 1, FCI_F_NONE, RG_LIGHT_MEDALLION, RI_OOT_MEDALLION_LIGHT, "Light Medallion", "Light Medallion", "Light Medallion") \
+    X(FCI_OOT_MEDALLION_FOREST, 1, FCI_F_DUNGEON_REWARD, RG_FOREST_MEDALLION, RI_OOT_MEDALLION_FOREST, "Forest Medallion", "Forest Medallion", "Forest Medallion") \
+    X(FCI_OOT_MEDALLION_FIRE, 1, FCI_F_DUNGEON_REWARD, RG_FIRE_MEDALLION, RI_OOT_MEDALLION_FIRE, "Fire Medallion", "Fire Medallion", "Fire Medallion") \
+    X(FCI_OOT_MEDALLION_WATER, 1, FCI_F_DUNGEON_REWARD, RG_WATER_MEDALLION, RI_OOT_MEDALLION_WATER, "Water Medallion", "Water Medallion", "Water Medallion") \
+    X(FCI_OOT_MEDALLION_SPIRIT, 1, FCI_F_DUNGEON_REWARD, RG_SPIRIT_MEDALLION, RI_OOT_MEDALLION_SPIRIT, "Spirit Medallion", "Spirit Medallion", "Spirit Medallion") \
+    X(FCI_OOT_MEDALLION_SHADOW, 1, FCI_F_DUNGEON_REWARD, RG_SHADOW_MEDALLION, RI_OOT_MEDALLION_SHADOW, "Shadow Medallion", "Shadow Medallion", "Shadow Medallion") \
+    X(FCI_OOT_MEDALLION_LIGHT, 1, FCI_F_DUNGEON_REWARD, RG_LIGHT_MEDALLION, RI_OOT_MEDALLION_LIGHT, "Light Medallion", "Light Medallion", "Light Medallion") \
     /* -- OoT spiritual stones (native OoT) -- */ \
-    X(FCI_OOT_STONE_KOKIRI, 1, FCI_F_NONE, RG_KOKIRI_EMERALD, RI_OOT_STONE_KOKIRI_EMERALD, "Kokiri's Emerald", "Kokiri's Emerald", "Kokiri's Emerald") \
-    X(FCI_OOT_STONE_GORON, 1, FCI_F_NONE, RG_GORON_RUBY, RI_OOT_STONE_GORON_RUBY, "Goron's Ruby", "Goron's Ruby", "Goron's Ruby") \
-    X(FCI_OOT_STONE_ZORA, 1, FCI_F_NONE, RG_ZORA_SAPPHIRE, RI_OOT_STONE_ZORA_SAPPHIRE, "Zora's Sapphire", "Zora's Sapphire", "Zora's Sapphire") \
+    X(FCI_OOT_STONE_KOKIRI, 1, FCI_F_DUNGEON_REWARD, RG_KOKIRI_EMERALD, RI_OOT_STONE_KOKIRI_EMERALD, "Kokiri's Emerald", "Kokiri's Emerald", "Kokiri's Emerald") \
+    X(FCI_OOT_STONE_GORON, 1, FCI_F_DUNGEON_REWARD, RG_GORON_RUBY, RI_OOT_STONE_GORON_RUBY, "Goron's Ruby", "Goron's Ruby", "Goron's Ruby") \
+    X(FCI_OOT_STONE_ZORA, 1, FCI_F_DUNGEON_REWARD, RG_ZORA_SAPPHIRE, RI_OOT_STONE_ZORA_SAPPHIRE, "Zora's Sapphire", "Zora's Sapphire", "Zora's Sapphire") \
     /* -- OoT warp songs (native OoT) -- */ \
-    X(FCI_OOT_SONG_MINUET, 1, FCI_F_NONE, RG_MINUET_OF_FOREST, RI_OOT_SONG_MINUET_OF_FOREST, "Minuet of Forest", "Minuet of Forest", "Minuet of Forest") \
-    X(FCI_OOT_SONG_BOLERO, 1, FCI_F_NONE, RG_BOLERO_OF_FIRE, RI_OOT_SONG_BOLERO_OF_FIRE, "Bolero of Fire", "Bolero of Fire", "Bolero of Fire") \
-    X(FCI_OOT_SONG_SERENADE, 1, FCI_F_NONE, RG_SERENADE_OF_WATER, RI_OOT_SONG_SERENADE_OF_WATER, "Serenade of Water", "Serenade of Water", "Serenade of Water") \
-    X(FCI_OOT_SONG_REQUIEM, 1, FCI_F_NONE, RG_REQUIEM_OF_SPIRIT, RI_OOT_SONG_REQUIEM_OF_SPIRIT, "Requiem of Spirit", "Requiem of Spirit", "Requiem of Spirit") \
-    X(FCI_OOT_SONG_NOCTURNE, 1, FCI_F_NONE, RG_NOCTURNE_OF_SHADOW, RI_OOT_SONG_NOCTURNE_OF_SHADOW, "Nocturne of Shadow", "Nocturne of Shadow", "Nocturne of Shadow") \
-    X(FCI_OOT_SONG_PRELUDE, 1, FCI_F_NONE, RG_PRELUDE_OF_LIGHT, RI_OOT_SONG_PRELUDE_OF_LIGHT, "Prelude of Light", "Prelude of Light", "Prelude of Light") \
+    X(FCI_OOT_SONG_MINUET, 1, FCI_F_SONG, RG_MINUET_OF_FOREST, RI_OOT_SONG_MINUET_OF_FOREST, "Minuet of Forest", "Minuet of Forest", "Minuet of Forest") \
+    X(FCI_OOT_SONG_BOLERO, 1, FCI_F_SONG, RG_BOLERO_OF_FIRE, RI_OOT_SONG_BOLERO_OF_FIRE, "Bolero of Fire", "Bolero of Fire", "Bolero of Fire") \
+    X(FCI_OOT_SONG_SERENADE, 1, FCI_F_SONG, RG_SERENADE_OF_WATER, RI_OOT_SONG_SERENADE_OF_WATER, "Serenade of Water", "Serenade of Water", "Serenade of Water") \
+    X(FCI_OOT_SONG_REQUIEM, 1, FCI_F_SONG, RG_REQUIEM_OF_SPIRIT, RI_OOT_SONG_REQUIEM_OF_SPIRIT, "Requiem of Spirit", "Requiem of Spirit", "Requiem of Spirit") \
+    X(FCI_OOT_SONG_NOCTURNE, 1, FCI_F_SONG, RG_NOCTURNE_OF_SHADOW, RI_OOT_SONG_NOCTURNE_OF_SHADOW, "Nocturne of Shadow", "Nocturne of Shadow", "Nocturne of Shadow") \
+    X(FCI_OOT_SONG_PRELUDE, 1, FCI_F_SONG, RG_PRELUDE_OF_LIGHT, RI_OOT_SONG_PRELUDE_OF_LIGHT, "Prelude of Light", "Prelude of Light", "Prelude of Light") \
     /* -- OoT adult/child trade (native OoT) -- */ \
     X(FCI_OOT_TRADE_WEIRD_EGG, 1, FCI_F_NONE, RG_WEIRD_EGG, RI_OOT_TRADE_WEIRD_EGG, "Weird Egg", "Weird Egg", "Weird Egg") \
     X(FCI_OOT_TRADE_ZELDAS_LETTER, 1, FCI_F_NONE, RG_ZELDAS_LETTER, RI_OOT_TRADE_ZELDAS_LETTER, "Zelda's Letter", "Zelda's Letter", "Zelda's Letter") \
@@ -434,7 +448,48 @@
     X(FCI_MM_TIME_NIGHT_1, 1, FCI_F_NONE, RG_MM_TIME_NIGHT_1, RI_TIME_NIGHT_1, "Time (Night 1)", "Time (Night 1)", "Time (Night 1)") \
     X(FCI_MM_TIME_NIGHT_2, 1, FCI_F_NONE, RG_MM_TIME_NIGHT_2, RI_TIME_NIGHT_2, "Time (Night 2)", "Time (Night 2)", "Time (Night 2)") \
     X(FCI_MM_TIME_NIGHT_3, 1, FCI_F_NONE, RG_MM_TIME_NIGHT_3, RI_TIME_NIGHT_3, "Time (Night 3)", "Time (Night 3)", "Time (Night 3)") \
-    X(FCI_TREASURE_GAME_SMALL_KEY, 6, FCI_F_NONE, RG_TREASURE_GAME_SMALL_KEY, RI_OOT_SMALL_KEY_TREASURE_GAME, "Chest Game Small Key", "Chest Game Small Key", "Chest Game Small Key")
+    X(FCI_TREASURE_GAME_SMALL_KEY, 6, FCI_F_NONE, RG_TREASURE_GAME_SMALL_KEY, RI_OOT_SMALL_KEY_TREASURE_GAME, "Chest Game Small Key", "Chest Game Small Key", "Chest Game Small Key") \
+    /* APPEND-ONLY desde aqui (regla 2): filas nuevas al final, nunca intercaladas — los FCI_* ids
+       indexan comboObtainedFc[] en el save de los dos juegos. */ \
+    /* Unica cancion de OoT sin contrapartida en MM hasta ahora; RI creado en 2ship para que cruce. */ \
+    X(FCI_SONG_ZELDAS_LULLABY, 1, FCI_F_SONG, RG_ZELDAS_LULLABY, RI_OOT_SONG_ZELDAS_LULLABY, "Zelda's Lullaby", "Zelda's Lullaby", "Zelda's Lullaby") \
+    /* La OTRA pluma de SoH: la ship-vanilla que vive en el slot de Nayru's Love. Check distinto del
+       Progressive Roc de Skijer (FCI_SKIJER_ROC), que ya tenia fila propia. */ \
+    X(FCI_ROCS_FEATHER, 1, FCI_F_NONE, RG_ROCS_FEATHER, RI_OOT_ROCS_FEATHER, "Roc's Feather", "Roc's Feather", "Roc's Feather") \
+    /* Skill de OoT "can open chests": Termina no tiene esa puerta, asi que en MM es un no-op que
+       solo hay que poder encontrar — mismo trato que Climb/Crawl y los jabber nuts. */ \
+    X(FCI_OPEN_CHESTS, 2, FCI_F_NONE, RG_OPEN_CHEST, RI_OOT_ABILITY_CHESTS, "Open Chests", "Open Chests", "Open Chests") \
+    /* Bombchus: existen identicos en los dos juegos y nunca tuvieron fila. */ \
+    X(FCI_BOMBCHU_5, 1, FCI_F_NOT_SHARED, RG_BOMBCHU_5, FCI_NO_ITEM, "Bombchus (5)", "Bombchus (5)", "") \
+    X(FCI_BOMBCHU_10, 1, FCI_F_NOT_SHARED, RG_BOMBCHU_10, FCI_NO_ITEM, "Bombchus (10)", "Bombchus (10)", "") \
+    /* Formas PROGRESIVAS de MM. 2ship elige una forma u otra por seed (RO_CLOCK_SHUFFLE_PROGRESSIVE \
+       para el reloj, la opcion de Goron Lullaby para la cancion), asi que NUNCA coexisten con las \
+       filas sueltas de arriba: el filtro de elegibilidad por lado deja viva la que toque. Sin estas \
+       filas, la forma POR DEFECTO del pool de MM no podia cruzar (84 items por seed atrapados). */ \
+    X(FCI_MM_TIME_PROGRESSIVE, 6, FCI_F_NONE, RG_MM_TIME_PROGRESSIVE, RI_TIME_PROGRESSIVE, "Progressive Time", "Progressive Time", "Progressive Time") \
+    X(FCI_MM_SONG_LULLABY_PROGRESSIVE, 2, FCI_F_SONG, RG_MM_SONG_LULLABY_PROGRESSIVE, RI_PROGRESSIVE_LULLABY, "Progressive Goron Lullaby", "Progressive Goron Lullaby", "Progressive Goron Lullaby") \
+    /* Last three page-2 equipment cells: playable in both games but with no cross-game identity until now. APPENDED -- fcIds index comboObtainedFc[] in both saves. Skijer's NEI */ \
+    X(FCI_EXT_TRIDENT, 1, FCI_F_NONE, RG_EXT_TRIDENT, RI_OOT_EXT_TRIDENT, "Trident", "Trident", "Trident") \
+    X(FCI_EXT_CLIMB_BOOTS, 1, FCI_F_NONE, RG_EXT_CLIMB_BOOTS, RI_OOT_EXT_CLIMB_BOOTS, "Climb Boots", "Climb Boots", "Climb Boots") \
+    X(FCI_EXT_ROC_BOOTS, 1, FCI_F_NONE, RG_EXT_ROC_BOOTS, RI_OOT_EXT_ROC_BOOTS, "Roc's Boots", "Roc's Boots", "Roc's Boots") \
+    /* Elemental Wand family. The wand slot's SIX rods have clean 1:1 peers on both sides (RG_WAND_* in soh, RI_OOT_NEI_WAND_* in 2ship), and per seed only ONE form is in a pool (the option picks wand-as-one-item OR six rods), so supplying both rows never double-counts. The generic wand row covers the Medallions/Single modes. Before these rows NONE of the seven could cross in combo. Skijer's NEI */ \
+    X(FCI_ELEMENTAL_WAND, 1, FCI_F_NONE, RG_ELEMENTAL_WAND, RI_OOT_NEI_ELEMENTAL_WAND, "Elemental Wand", "Elemental Wand", "Elemental Wand") \
+    X(FCI_WAND_SAND_ROD, 1, FCI_F_NONE, RG_WAND_SAND_ROD, RI_OOT_NEI_WAND_SAND_ROD, "Sand Rod", "Sand Rod", "Sand Rod") \
+    X(FCI_WAND_TORNADO_ROD, 1, FCI_F_NONE, RG_WAND_TORNADO_ROD, RI_OOT_NEI_WAND_TORNADO_ROD, "Tornado Rod", "Tornado Rod", "Tornado Rod") \
+    X(FCI_WAND_WATER_ROD, 1, FCI_F_NONE, RG_WAND_WATER_ROD, RI_OOT_NEI_WAND_WATER_ROD, "Water Rod", "Water Rod", "Water Rod") \
+    X(FCI_WAND_METEOR_ROD, 1, FCI_F_NONE, RG_WAND_METEOR_ROD, RI_OOT_NEI_WAND_METEOR_ROD, "Meteor Rod", "Meteor Rod", "Meteor Rod") \
+    X(FCI_WAND_STORM_ROD, 1, FCI_F_NONE, RG_WAND_STORM_ROD, RI_OOT_NEI_WAND_STORM_ROD, "Storm Rod", "Storm Rod", "Storm Rod") \
+    X(FCI_WAND_SHADOW_SCEPTER, 1, FCI_F_NONE, RG_WAND_SHADOW_SCEPTER, RI_OOT_NEI_WAND_SHADOW_SCEPTER, "Shadow Scepter", "Shadow Scepter", "Shadow Scepter") \
+    /* The four page-2 cells opened by the 2026-08-06 re-layout (behaviorless-for-now real items). Skijer's NEI */ \
+    X(FCI_SHEIKAH_SLATE, 1, FCI_F_NONE, RG_SHEIKAH_SLATE, RI_OOT_NEI_SHEIKAH_SLATE, "Sheikah Slate", "Sheikah Slate", "Sheikah Slate") \
+    X(FCI_PHANTOM_HOURGLASS, 1, FCI_F_NONE, RG_PHANTOM_HOURGLASS, RI_OOT_NEI_PHANTOM_HOURGLASS, "Phantom Hourglass", "Phantom Hourglass", "Phantom Hourglass") \
+    X(FCI_SHADOW_CRYSTAL, 1, FCI_F_NONE, RG_SHADOW_CRYSTAL, RI_OOT_NEI_SHADOW_CRYSTAL, "Shadow Crystal", "Shadow Crystal", "Shadow Crystal") \
+    X(FCI_ROD_OF_SEASONS, 1, FCI_F_NONE, RG_ROD_OF_SEASONS, RI_OOT_NEI_ROD_OF_SEASONS, "Rod of Seasons", "Rod of Seasons", "Rod of Seasons") \
+    /* Sheikah Slate runes — sibling items over the slate cell (wand idiom). APPENDED: FCI ids are serialized. Skijer's NEI */ \
+    X(FCI_SLATE_RUNE_BOMB, 1, FCI_F_NONE, RG_SLATE_RUNE_BOMB, RI_OOT_NEI_SLATE_RUNE_BOMB, "Rune: Remote Bomb", "Rune: Remote Bomb", "Rune: Remote Bomb") \
+    X(FCI_SLATE_RUNE_MASTER_CYCLE, 1, FCI_F_NONE, RG_SLATE_RUNE_MASTER_CYCLE, RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE, "Rune: Master Cycle", "Rune: Master Cycle", "Rune: Master Cycle") \
+    X(FCI_SLATE_RUNE_STASIS, 1, FCI_F_NONE, RG_SLATE_RUNE_STASIS, RI_OOT_NEI_SLATE_RUNE_STASIS, "Rune: Stasis", "Rune: Stasis", "Rune: Stasis") \
+    X(FCI_SLATE_RUNE_CRYONIS, 1, FCI_F_NONE, RG_SLATE_RUNE_CRYONIS, RI_OOT_NEI_SLATE_RUNE_CRYONIS, "Rune: Cryonis", "Rune: Cryonis", "Rune: Cryonis")
 
 // -----------------------------------------------------------------------------
 // Enum estable de items combo (generado por la lista; APPEND-ONLY)

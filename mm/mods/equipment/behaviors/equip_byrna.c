@@ -25,7 +25,7 @@
 // ---------------------------------------------------------------------------
 // Melee Hit Callback
 // ---------------------------------------------------------------------------
-static void Byrna_OnMeleeHit(Player* player, PlayState* play) {
+static void GreatFairySword_RecoverOnHit(Player* player, PlayState* play) {
     s32 damage = 0;
 
     if (player->meleeWeaponQuads[0].base.atFlags & AT_HIT) {
@@ -48,53 +48,18 @@ static void Byrna_OnMeleeHit(Player* player, PlayState* play) {
 }
 
 // ---------------------------------------------------------------------------
-// Per-frame Behavior
+// Cane of Byrna — DUMMY (Skijer 2026-07-29). Its whole gameplay behavior (two-handed reach + HP/MP
+// recovery on melee hit) belongs to the progressive double-hand sword line now: the Great Fairy's
+// Sword owns it below, where it is the player's REAL sword instead of a sword-slot hijack. The grid
+// slot, icon, name and hand model stay so the slot is visible; it is reserved for a future behavior.
 // ---------------------------------------------------------------------------
 static void Byrna_Behavior(Player* player, PlayState* play) {
-    // Skip during cutscenes, dying, loading, etc.
-    if (player->stateFlags1 & (PLAYER_STATE1_DEAD | PLAYER_STATE1_IN_CUTSCENE | PLAYER_STATE1_LOADING |
-                               PLAYER_STATE1_IN_ITEM_CS | PLAYER_STATE1_GETTING_ITEM)) {
-        return;
-    }
-
-    // Save original sword state before overriding (only once).
-    // 2ship MM: equips/swordHealth live under save.saveInfo; MM has no bgsFlag
-    // (the OoT Giant's-Knife durability concept doesn't exist here), so it's dropped.
-    if (!gExtEquipBehavior.byrnaActive) {
-        gExtEquipBehavior.byrnaSavedSwordEquip =
-            (gSaveContext.save.saveInfo.equips.equipment >> gEquipShifts[EQUIP_TYPE_SWORD]) & 0xF;
-        gExtEquipBehavior.byrnaSavedButtonItem = gSaveContext.save.saveInfo.equips.buttonItems[0][0];
-        gExtEquipBehavior.byrnaSavedSwordHealth = gSaveContext.save.saveInfo.playerData.swordHealth;
-        gExtEquipBehavior.byrnaActive = 1;
-    }
-
-    // Force the two-handed sword IA when actively holding a normal sword. MM's
-    // PLAYER_IA_SWORD_TWO_HANDED is the long two-handed reach (≈ OoT Biggoron).
-    if (player->heldItemAction == PLAYER_IA_SWORD_GILDED || player->heldItemAction == PLAYER_IA_SWORD_KOKIRI) {
-        player->heldItemAction = PLAYER_IA_SWORD_TWO_HANDED;
-    }
-
-    // Force a strong sword equip so the sword system works (MM: Gilded is the top sword-slot value).
-    SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
-
-    // Keep B button showing the sword item (icon override handled by ExtInv_GetItemIcon).
-    gSaveContext.save.saveInfo.equips.buttonItems[0][0] = ITEM_SWORD_GILDED;
-
-    // Force swordHealth > 0 so charge/spin attacks work (MM Razor durability is u16).
-    if (gSaveContext.save.saveInfo.playerData.swordHealth <= 0) {
-        gSaveContext.save.saveInfo.playerData.swordHealth = 8;
-    }
+    (void)player;
+    (void)play;
 }
 
-// Restore original sword state when Byrna is unequipped
 static void Byrna_Cleanup(void) {
-    if (!gExtEquipBehavior.byrnaActive)
-        return;
-
-    // Restore original sword equipment (2ship MM field paths; bgsFlag dropped).
-    SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, gExtEquipBehavior.byrnaSavedSwordEquip);
-    gSaveContext.save.saveInfo.equips.buttonItems[0][0] = gExtEquipBehavior.byrnaSavedButtonItem;
-    gSaveContext.save.saveInfo.playerData.swordHealth = gExtEquipBehavior.byrnaSavedSwordHealth;
+    // Nothing to restore: the slot no longer touches the sword equip / swordHealth / B button.
     gExtEquipBehavior.byrnaActive = 0;
 }
 
@@ -123,6 +88,5 @@ static void GreatFairySword_Behavior(Player* player, PlayState* play) {
 }
 
 static void GreatFairySword_OnMeleeHit(Player* player, PlayState* play) {
-    // Same HP/MP recovery as the Cane of Byrna.
-    Byrna_OnMeleeHit(player, play);
+    GreatFairySword_RecoverOnHit(player, play);
 }

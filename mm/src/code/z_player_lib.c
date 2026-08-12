@@ -4,6 +4,7 @@
  */
 
 #include "global.h"
+#include <libultraship/log/luslog.h> // 2S2H [Port] lusprintf (LUS 464 exports it via API_EXPORT)
 #include "2s2h/GameInteractor/GameInteractor.h"
 
 #include "objects/gameplay_keep/gameplay_keep.h"
@@ -828,7 +829,15 @@ ItemId Player_Dpad_GetItemOnButton(PlayState* play, Player* player, DpadEquipSlo
 }
 // #endregion
 
+u8 Pacci_UltrahandModeActive(void); // mods/actors/cane_pacci.c
+
 ItemId Player_GetItemOnButton(PlayState* play, Player* player, EquipSlot slot) {
+    // mods/actors/cane_pacci.c — while Ultrahand mode is up the D-pad rotates and
+    // moves the held object, so it must not also fire whatever is equipped there.
+    if ((slot >= EQUIP_SLOT_D_RIGHT) && (slot <= EQUIP_SLOT_D_UP) && Pacci_UltrahandModeActive()) {
+        return ITEM_NONE;
+    }
+
     if (slot >= EQUIP_SLOT_A) {
         return ITEM_NONE;
     }
@@ -4978,8 +4987,6 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
 
                         if (sheathIdx >= 0) {
                             Gfx noOpInstr = gsDPPipeSync();
-                            extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt,
-                                                  ...);
                             lusprintf(__FILE__, __LINE__, 2,
                                       "NEI OoT-mirror back: no-op'ing sheath sub-DL at instr %d", sheathIdx);
                             ResourceMgr_PatchGfxByName(path, "neiOotMirrorBackNoSheath", sheathIdx, noOpInstr);

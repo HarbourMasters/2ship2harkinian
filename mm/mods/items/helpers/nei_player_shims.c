@@ -91,11 +91,10 @@ void AnimationContext_SetLoadFrame(PlayState* play, LinkAnimationHeader* anim, s
     AnimTaskQueue_AddLoadPlayerFrame(play, anim, frame, limbCount, dst);
 }
 
-// SoH ResourceMgr_LoadPlayerAnimAsHeader → 2ship ResourceMgr_LoadPlayerAnimByName, gated so a
-// missing path returns NULL (callers skip the anim) instead of crashing the resource manager.
-LinkAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeader(const char* animPath) {
-    if (animPath != NULL && ResourceMgr_FileExists(animPath)) {
-        return (LinkAnimationHeader*)ResourceMgr_LoadPlayerAnimByName(animPath);
-    }
-    return NULL;
-}
+// ResourceMgr_LoadPlayerAnimAsHeader is defined ONCE, canonically, in 2s2h/BenPort.cpp — that version
+// WRAPS the raw SOH_PlayerAnimation payload in a real PlayerAnimationHeader (frameCount = totalS16/67) and
+// caches it. This shim used to ALSO define it (returning the raw payload cast straight to a header — the
+// exact out-of-bounds bug BenPort's version was written to fix), which left the symbol defined twice
+// (here inside the z_player.c unity TU AND in BenPort.obj). That duplicate is what triggered
+// `z_player.obj : LNK1179 duplicate COMDAT 'ResourceMgr_LoadPlayerAnimAsHeader'`. Removed — every caller
+// links against BenPort's correct, cached implementation (LinkAnimationHeader == PlayerAnimationHeader).

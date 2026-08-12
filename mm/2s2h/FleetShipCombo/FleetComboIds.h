@@ -141,7 +141,11 @@ typedef enum {
     FC_MM_FAIRIES_SNOWHEAD,
     FC_MM_FAIRIES_GREAT_BAY,
     FC_MM_FAIRIES_STONE_TOWER,
-    // 94..127 free for future assignments (NEVER renumber the above).
+    // OoT Progressive Strength (Goron Bracelet -> Silver -> Gold Gauntlets). Info-only in MM, like
+    // the tunics/boots above: the cell records the level so the ext-equipment kaleido and the combo
+    // sync can see it. Appended at the first free index, so no existing cell moves. Skijer's NEI
+    FC_OOT_STRENGTH = 94,
+    // 95..127 free for future assignments (NEVER renumber the above).
     FC_MAX = FC_COMBO_OBTAINED_SIZE
 } FleetComboId;
 
@@ -149,6 +153,13 @@ typedef enum {
 // Mirror of MM's nei.ootQuestItems pattern: OoT stores MM quest ownership here. Bits chosen to
 // match MM's native QuestItem indices where one exists (remains 0-3, songs 6-17) so the sync is
 // a masked copy of MM's inventory.questItems.
+// --- Combo goal state (Beat Both Bosses) ---------------------------------------------------
+// Shared because the goal is genuinely cross-game: neither world may roll credits until BOTH
+// bosses are down. Whoever wins first records its bit, saves, and is sent back out to keep
+// playing; the second one to fall triggers the real ending. Synced like every other combo field.
+#define FC_GOAL_GANON_BEATEN (1 << 0)
+#define FC_GOAL_MAJORA_BEATEN (1 << 1)
+
 #define FC_MMQ_REMAINS_ODOLWA (1 << 0)
 #define FC_MMQ_REMAINS_GOHT (1 << 1)
 #define FC_MMQ_REMAINS_GYORG (1 << 2)
@@ -312,6 +323,10 @@ static const FcBottleContentPair kFcItemPairMap[] = {
     { 0xF5, 0xF8 }, // Bottomless Bottle
     { 0xF6, 0x0C }, // Powder Keg
     { 0xDD, 0xDC }, // Magic Mushroom
+    // Elemental Wand — the ONE page-2 custom whose id is the SAME on both sides (0xD0), so it falls
+    // outside the +0x18 block below and used to translate to 0xFF (unmappable) in BOTH directions:
+    // obtained in either game, it simply never showed up in the other. Skijer's NEI
+    { 0xD0, 0xD0 }, // Elemental Wand
 };
 #define FC_ITEM_PAIR_MAP_COUNT (sizeof(kFcItemPairMap) / sizeof(kFcItemPairMap[0]))
 // NEI page-2 custom items sit in a contiguous 26-id block on both sides at a fixed offset:

@@ -5,6 +5,7 @@
  */
 
 #include "z_kaleido_scope.h"
+#include <libultraship/log/luslog.h> // 2S2H [Port] lusprintf (LUS 464 exports it via API_EXPORT)
 #include "interface/parameter_static/parameter_static.h"
 #include "archives/icon_item_static/icon_item_static_yar.h"
 #include <libultraship/bridge/consolevariablebridge.h> // CVarGetInteger (OoT quest-page L-flip toggle)
@@ -78,9 +79,16 @@ static const char* sOotAgonyIconPath = "__OTR__textures/icon_item_24_static/gQue
 static const char* sOotGerudoIconPath = "__OTR__textures/icon_item_24_static/gQuestIconGerudosCardTex";
 static const char* sOotSkulltulaIconPath = "__OTR__textures/icon_item_24_static/gQuestIconGoldSkulltulaTex";
 
+// OoT quest cursor points: 0-5 medallions, 6-0x11 songs, 0x12-0x14 stones, 0x15 agony, 0x16 gerudo,
+// 0x17 skulltula, 0x18 heart-piece pie. Points map 1:1 onto the quad indices of the layout tables.
+#define OOT_QUEST_POINT_HEART_PIECE 0x18
+#define OOT_QUEST_POINT_MAX OOT_QUEST_POINT_HEART_PIECE
+
 // Companion item-name textures (IA4 128x16) for the hovered slot — shown in the bottom name box, so
-// hovering a song tells you WHICH song it is (its "preview"). Indexed by quest point 0..23. Skijer's NEI.
-static const char* sOotNamePaths[24] = {
+// hovering a song tells you WHICH song it is (its "preview"). Indexed by quest point 0..0x18.
+// Entries 13/16/17 are NEI-generated (mm/assets/custom/textures/item_name_custom/generate_names.py);
+// the rest come from the companion oot.o2r. Skijer's NEI.
+static const char* sOotNamePaths[OOT_QUEST_POINT_MAX + 1] = {
     "__OTR__textures/item_name_static/gForestMedallionItemNameENGTex", // 0 Forest
     "__OTR__textures/item_name_static/gFireMedallionItemNameENGTex",   // 1 Fire
     "__OTR__textures/item_name_static/gWaterMedallionItemNameENGTex",  // 2 Water
@@ -105,10 +113,21 @@ static const char* sOotNamePaths[24] = {
     "__OTR__textures/item_name_static/gStoneofAgonyItemNameENGTex",    // 21 Stone of Agony
     "__OTR__textures/item_name_static/gGerudosCardItemNameENGTex",     // 22 Gerudo's Card
     "__OTR__textures/item_name_static/gGoldSkulltulaItemNameENGTex",   // 23 Gold Skulltula
+    "__OTR__textures/item_name_static/gPieceofHeartItemNameENGTex",    // 0x18 Heart-piece pie
 };
 
 // Cache one companion texture per unique path (small fixed set; loaded once).
+//
+// MUST probe first: ResourceMgr_LoadTexOrDListByName (which OotAssets_LoadTexOrDList wraps) does
+// `GetResourceByName(path)->GetInitData()` with NO null check, so a path that isn't in the mounted
+// archives is a straight 0xC0000005 — not a NULL return. FileExists is the same guard the equipment
+// page's KaleidoEquip_OotTex uses. Skijer 2026-07-30 (crash on opening the pause menu).
 static void* OotQuest_Tex(const char* path) {
+    extern u8 ResourceMgr_FileExists(const char* resName);
+
+    if ((path == NULL) || !ResourceMgr_FileExists(path)) {
+        return NULL;
+    }
     return OotAssets_LoadTexOrDList(path);
 }
 
@@ -185,6 +204,30 @@ static const u8 sOotMedallionItemIds[6] = {
 // MM's own DrawCursor runs in a different flat view (SetView 0,0,64) and can't be aligned blind.
 static s16 sOotQuestCursorPoint = 0;
 
+// ---- Quartz of Motion: category-tracking list on the Stone of Agony slot ----
+// Level 2 of the progressive Stone of Agony. Pressing A on point 0x15 opens a
+// modal list of tracking categories (Bombers'-Notebook-style, but implemented
+// like the item page's cycle wheels: a small modal that OWNS the stick until it
+// closes, so it costs nothing outside the kaleido). Confirming spends one heart
+// container and runs the sensor for 5 minutes — see 2s2h/Rando/DesireCompass.h.
+#include "2s2h/Rando/DesireCompass.h"
+
+#define QUARTZ_POINT 0x15
+
+static s8 sQuartzMenuOpen = 0;
+static s8 sQuartzMenuIndex = 0;
+static s8 sQuartzStickHeld = 0;
+
+// Read by the ImGui overlay (2s2h/Rando/DesireCompassHud.cpp), which renders the
+// list itself — the kaleido owns the INPUT, the overlay owns the PIXELS. Drawing
+// it here would mean hand-rolling text with the N64 renderer for no benefit.
+u8 Quartz_IsListOpen(void) {
+    return (u8)sQuartzMenuOpen;
+}
+s32 Quartz_GetListIndex(void) {
+    return sQuartzMenuIndex;
+}
+
 // ---- "Pause Play": close the pause menu and auto-play the selected song on the REAL ocarina ----
 // Works for ALL songs (MM's quest page + the OoT page). Phase machine driven from Player_Update
 // (NeiPausePlay_Update): the menu closes, Link pulls out the ocarina (Player_UseItem — same as
@@ -225,7 +268,6 @@ static void NeiPausePlay_Start(PlayState* play, s16 mmSongIndex) {
 }
 
 // NEI-DBG: pause-play tracing (remove after diagnosis)
-extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
 
 // Called every frame from Player_Update (gameplay only). Skijer's NEI.
 void NeiPausePlay_Update(PlayState* play, Player* player) {
@@ -273,26 +315,59 @@ void NeiPausePlay_Update(PlayState* play, Player* player) {
 }
 
 // OoT quest cursor navigation (soh z_kaleido_collect.c D_8082A1AC): [point][dir] dir 0=up 1=down
-// 2=left 3=right; 0xFF = no neighbor, walk stops. Faithful hexagon/grid navigation.
+// 2=left 3=right. Faithful hexagon/grid navigation.
+//
+// Skijer 2026-07-31 FIX: this table used to have 0xFF in EVERY slot soh spells 0xFE/0xFD, i.e. all
+// six page-switch edges were flattened into dead ends — with the D-pad/stick-edge scroll also gated
+// off in KaleidoScope_HandlePageToggles, the only way off this page was R/Z. Restored 1:1 from soh,
+// with the sentinels spelled out instead of relying on the s8 wraparound of 0xFF/0xFE/0xFD.
+#define OQ_NAV_NONE (-1)       // soh 0xFF: no neighbour in that direction, cursor stays put
+#define OQ_NAV_PAGE_RIGHT (-2) // soh 0xFE
+#define OQ_NAV_PAGE_LEFT (-3)  // soh 0xFD
 static const s8 sOotQuestNav[26][4] = {
-    { 0x05, 0x01, 0x05, 0xFF }, { 0x00, 0x02, 0x02, 0xFF }, { 0xFF, 0x13, 0x03, 0x01 }, { 0x04, 0x02, 0x11, 0x02 },
-    { 0x05, 0x03, 0x18, 0x05 }, { 0xFF, 0xFF, 0x04, 0x00 }, { 0x0C, 0xFF, 0xFF, 0x07 }, { 0x0D, 0xFF, 0x06, 0x08 },
-    { 0x0E, 0xFF, 0x07, 0x09 }, { 0x0F, 0xFF, 0x08, 0x0A }, { 0x10, 0xFF, 0x09, 0x0B }, { 0x11, 0xFF, 0x0A, 0x12 },
-    { 0x17, 0x06, 0xFF, 0x0D }, { 0x17, 0x07, 0x0C, 0x0E }, { 0x17, 0x08, 0x0D, 0x0F }, { 0x18, 0x09, 0x0E, 0x10 },
-    { 0x18, 0x0A, 0x0F, 0x11 }, { 0x18, 0x0B, 0x10, 0x03 }, { 0x02, 0xFF, 0x0B, 0x13 }, { 0x02, 0xFF, 0x12, 0x14 },
-    { 0x02, 0xFF, 0x13, 0xFF }, { 0xFF, 0x17, 0xFF, 0x16 }, { 0xFF, 0x17, 0x15, 0x18 }, { 0x15, 0x0C, 0xFF, 0x18 },
-    { 0xFF, 0x10, 0x16, 0x04 }, { 0x00, 0x00, 0x00, 0x00 },
+    { 0x05, 0x01, 0x05, OQ_NAV_PAGE_RIGHT },
+    { 0x00, 0x02, 0x02, OQ_NAV_PAGE_RIGHT },
+    { OQ_NAV_NONE, 0x13, 0x03, 0x01 },
+    { 0x04, 0x02, 0x11, 0x02 },
+    { 0x05, 0x03, 0x18, 0x05 },
+    { OQ_NAV_NONE, OQ_NAV_NONE, 0x04, 0x00 },
+    { 0x0C, OQ_NAV_NONE, OQ_NAV_PAGE_LEFT, 0x07 },
+    { 0x0D, OQ_NAV_NONE, 0x06, 0x08 },
+    { 0x0E, OQ_NAV_NONE, 0x07, 0x09 },
+    { 0x0F, OQ_NAV_NONE, 0x08, 0x0A },
+    { 0x10, OQ_NAV_NONE, 0x09, 0x0B },
+    { 0x11, OQ_NAV_NONE, 0x0A, 0x12 },
+    { 0x17, 0x06, OQ_NAV_PAGE_LEFT, 0x0D },
+    { 0x17, 0x07, 0x0C, 0x0E },
+    { 0x17, 0x08, 0x0D, 0x0F },
+    { 0x18, 0x09, 0x0E, 0x10 },
+    { 0x18, 0x0A, 0x0F, 0x11 },
+    { 0x18, 0x0B, 0x10, 0x03 },
+    { 0x02, OQ_NAV_NONE, 0x0B, 0x13 },
+    { 0x02, OQ_NAV_NONE, 0x12, 0x14 },
+    { 0x02, OQ_NAV_NONE, 0x13, OQ_NAV_PAGE_RIGHT },
+    { OQ_NAV_NONE, 0x17, OQ_NAV_PAGE_LEFT, 0x16 },
+    { OQ_NAV_NONE, 0x17, 0x15, 0x18 },
+    { 0x15, 0x0C, OQ_NAV_PAGE_LEFT, 0x18 },
+    { OQ_NAV_NONE, 0x10, 0x16, 0x04 },
+    { 0x00, 0x00, 0x00, 0x00 },
 };
+
+// OOT_QUEST_POINT_HEART_PIECE (0x18) is reachable from six rows of the table above — it is the
+// heart-piece pie, quad 24. See the point map next to sOotNamePaths.
 
 static s32 OotQuest_Has(s32 bit); // defined below
 
-// Is this OoT quest point currently owned/selectable? (medallions/stones/agony/gerudo via bits;
-// songs via the song bit range; skulltula icon selectable if any GS.)
+// Is this OoT quest point currently owned? Used for the label/notes/A-action, NOT for navigation —
+// OoT (and MM) both let the cursor rest on an empty slot, it just shows nothing.
 static s32 OotQuest_PointOwned(s16 point) {
     if (point <= 0x17) {
         return OotQuest_Has(point); // ootQuestItems bit index == quest point for 0..0x17
     }
-    return 0; // 0x18 heart-piece area / others: not selectable
+    if (point == OOT_QUEST_POINT_HEART_PIECE) {
+        return (GET_SAVE_INVENTORY_QUEST_ITEMS >> QUEST_HEART_PIECE_COUNT) != 0;
+    }
+    return 0;
 }
 
 static s32 OotQuest_Has(s32 bit) {
@@ -378,17 +453,25 @@ void KaleidoScope_DrawOotQuestStatus(PlayState* play) {
 
     OPEN_DISPS(gfxCtx);
 
-    // Hovered quad grows when interaction is on (point 0..0x17 maps 1:1 to quad index 0..23).
-    s16 cursorQuad = (CVarGetInteger(CVAR_QUEST_INTERACT, 1) && (sOotQuestCursorPoint <= 0x17)) ? sOotQuestCursorPoint
-                                                                                                 : -1;
+    // Hovered quad grows when interaction is on (point 0..0x18 maps 1:1 to quad index 0..24).
+    s16 cursorQuad = (CVarGetInteger(CVAR_QUEST_INTERACT, 1) && (sOotQuestCursorPoint <= OOT_QUEST_POINT_MAX))
+                         ? sOotQuestCursorPoint
+                         : -1;
     OotQuest_SetupVtx(vtx, pauseCtx->offsetY, pauseCtx->alpha, cursorQuad);
 
     // Suppress MM's own info-panel name at draw time too (this runs before DrawInfoPanel this frame),
     // so its stale item-page name never bleeds under our name box regardless of update ordering.
     // itemDescriptionOn OR namedItem!=NONE both trigger MM's name draw (z_kaleido_scope_NES.c:1395), so
     // clear both.
-    pauseCtx->namedItem = PAUSE_ITEM_NONE;
-    pauseCtx->itemDescriptionOn = false;
+    //
+    // Skijer 2026-07-31 FIX: gated on pageIndex. namedItem/itemDescriptionOn are GLOBAL, and
+    // KaleidoScope_DrawPages also draws the quest page as the adjacent page whenever the player is on
+    // the map or the equipment page (z_kaleido_scope_NES.c:910) — before DrawInfoPanel runs. So this
+    // pair was wiping the NAME and cancelling the item DESCRIPTION on those pages every frame.
+    if (pauseCtx->pageIndex == PAUSE_QUEST) {
+        pauseCtx->namedItem = PAUSE_ITEM_NONE;
+        pauseCtx->itemDescriptionOn = false;
+    }
 
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
@@ -522,13 +605,36 @@ void KaleidoScope_DrawOotQuestStatus(PlayState* play) {
         }
     }
 
+    // --- Heart-piece count (quad 24, 48x48 IA8 pie) ---
+    // Skijer 2026-07-29 FIX: this quad was in the layout table but never drawn, so flipping to the
+    // OoT layout lost the piece-of-heart indicator that MM's own page shows. The count is the SAME
+    // save field in both layouts (questItems bits 28+), and MM's yar icon set has the pie textures,
+    // so this is MM's native draw (Gfx_DrawTexQuadIA8, icons 0x7A..) on the OoT quad.
+    {
+        u32 hpCount = GET_SAVE_INVENTORY_QUEST_ITEMS >> QUEST_HEART_PIECE_COUNT;
+
+        if (hpCount != 0) {
+            gDPPipeSync(POLY_OPA_DISP++);
+            gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                              PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 70, 50, pauseCtx->alpha);
+            gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+            gSPVertex(POLY_OPA_DISP++, &vtx[24 * 4], 4, 0);
+            POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gItemIcons[0x7A + hpCount], 48, 48, 0);
+        }
+    }
+
     // Hovered song's OoT note fingering, drawn on the parchment's music staff (bottom-left).
     OotQuest_DrawSongStaff(play);
 
     // Cursor — MM's spinning-circles cursor, drawn HERE in the page view (same as the icons) so it
     // stays aligned. 4 copies of gPauseMenuCursorTex orbit the selected slot's exact center, exactly
     // like KaleidoScope_DrawCursor (Math_SinS/CosS(spin + i*0x4000) * radius) but in our space.
-    if (CVarGetInteger(CVAR_QUEST_INTERACT, 1) && (sOotQuestCursorPoint <= 0x17)) {
+    // cursorSpecialPos != 0 means the cursor has moved onto a page-scroll arrow, which MM draws
+    // itself through pauseCtx->cursorVtx — drawing ours too would leave a second cursor stuck on the
+    // last hovered slot.
+    if (CVarGetInteger(CVAR_QUEST_INTERACT, 1) && (pauseCtx->cursorSpecialPos == 0) &&
+        (sOotQuestCursorPoint <= OOT_QUEST_POINT_MAX)) {
         static s16 sSpin = 0;
         s16 q = sOotQuestCursorPoint * 4;
         f32 cx = (vtx[q].v.ob[0] + vtx[q + 1].v.ob[0]) * 0.5f;
@@ -584,10 +690,22 @@ void KaleidoScope_DrawOotQuestName(PlayState* play) {
     Vtx* nv;
     s16 y;
 
+    // Skijer 2026-07-31 FIX: this used to draw whenever the quest page was the active page, with no
+    // check on pauseCtx->state, mainState or cursorSpecialPos — and it runs AFTER
+    // KaleidoScope_DrawInfoPanel (z_kaleido_scope_NES.c:3317 then :3322) onto the exact same strip
+    // (infoPanelVtx[16..19] is also y = infoPanelOffsetY - 80, x -63..+65). So every time the player
+    // scrolled off this page the info panel's "to Map"/"to Equipment" label was drawn first and this
+    // name landed on top of it — two texts stacked. Same during the save prompt / game over.
+    // Only draw where MM itself would draw an item name: main state, cursor on the page, slot owned.
     if (!CVarGetInteger(CVAR_OOT_QUEST_PAGE, 0) || !CVarGetInteger(CVAR_QUEST_INTERACT, 1) ||
-        (pauseCtx->pageIndex != PAUSE_QUEST) || (sOotQuestCursorPoint > 0x17)) {
+        (pauseCtx->pageIndex != PAUSE_QUEST) || (pauseCtx->state != PAUSE_STATE_MAIN) ||
+        (pauseCtx->cursorSpecialPos != 0) || (sOotQuestCursorPoint > OOT_QUEST_POINT_MAX) ||
+        !OotQuest_PointOwned(sOotQuestCursorPoint)) {
         return;
     }
+
+    // Existence probe only — the DRAW below passes the OTR PATH, not this pointer, so texture packs
+    // still get to substitute the name by name (see the HD-path rule used across the kaleido).
     nameTex = OotQuest_Tex(sOotNamePaths[sOotQuestCursorPoint]);
     if (nameTex == NULL) {
         return;
@@ -617,7 +735,8 @@ void KaleidoScope_DrawOotQuestName(PlayState* play) {
     gDPSetEnvColor(POLY_OPA_DISP++, 20, 30, 40, 0);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
     gSPVertex(POLY_OPA_DISP++, nv, 4, 0);
-    POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, nameTex, G_IM_FMT_IA, 128, 16, 0);
+    POLY_OPA_DISP =
+        Gfx_DrawTexQuad4b(POLY_OPA_DISP, sOotNamePaths[sOotQuestCursorPoint], G_IM_FMT_IA, 128, 16, 0);
 
     CLOSE_DISPS(gfxCtx);
 }
@@ -641,7 +760,9 @@ static void OotQuest_DrawSongStaff(PlayState* play) {
     u8 dimAll;   // also draw the not-yet-revealed notes, dimmed (prompt target)
     u8 bi;
 
-    if ((sOotQuestCursorPoint < 6) || (sOotQuestCursorPoint > 0x11)) {
+    // Ownership matters now that the cursor is allowed to rest on empty slots (vanilla nav): without
+    // this the staff happily previewed the fingering of a song the player has not learned.
+    if ((sOotQuestCursorPoint < 6) || (sOotQuestCursorPoint > 0x11) || !OotQuest_Has(sOotQuestCursorPoint)) {
         return;
     }
     song = sOotQuestCursorPoint - 6;
@@ -704,20 +825,29 @@ static void OotQuest_DrawSongStaff(PlayState* play) {
 // Interaction — isolated cursor layer, invoked from KaleidoScope_UpdateQuestCursor with an early
 // return so MM's own quest cursor logic never runs on the OoT page. Skijer's NEI.
 // ---------------------------------------------------------------------------
+// Skijer 2026-07-31 FIX: this used to WALK the nav chain until it found an owned slot, which is not
+// what the table encodes. In soh the walk condition is KaleidoScope_UpdateQuestStatusPoint, and that
+// function unconditionally `return 1` — so vanilla stops at the FIRST neighbour, owned or not, and
+// simply shows nothing for an empty slot. Walking past empties with a table built for "stop
+// immediately" is why most directions did nothing on a half-filled page: e.g. from 4 (Shadow) down ->
+// 3 (Spirit) -> 2 (Water) -> 0x13 (Goron's Ruby) -> 0xFF, cursor never moved. Now 1:1 with vanilla.
 static void OotQuest_MoveCursor(PlayState* play, s16 dir) {
-    s16 point = sOotQuestCursorPoint;
-    s16 next = (s16)(u8)sOotQuestNav[point][dir];
+    s16 next = sOotQuestNav[sOotQuestCursorPoint][dir];
 
-    // Walk the nav chain to the first owned/selectable neighbor (skip empty slots like OoT).
-    while ((next != 0xFF) && (next < 26)) {
-        if (OotQuest_PointOwned(next)) {
-            if (next != sOotQuestCursorPoint) {
-                sOotQuestCursorPoint = next;
-                Audio_PlaySfx(NA_SE_SY_CURSOR);
-            }
-            return;
-        }
-        next = (s16)(u8)sOotQuestNav[next][dir];
+    if (next == OQ_NAV_PAGE_LEFT) {
+        KaleidoScope_MoveCursorToSpecialPos(play, PAUSE_CURSOR_PAGE_LEFT);
+        return;
+    }
+    if (next == OQ_NAV_PAGE_RIGHT) {
+        KaleidoScope_MoveCursorToSpecialPos(play, PAUSE_CURSOR_PAGE_RIGHT);
+        return;
+    }
+    if (next == OQ_NAV_NONE) {
+        return;
+    }
+    if (next != sOotQuestCursorPoint) {
+        sOotQuestCursorPoint = next;
+        Audio_PlaySfx(NA_SE_SY_CURSOR);
     }
 }
 
@@ -767,6 +897,10 @@ static void OotQuest_HandleSelect(PlayState* play, Input* input) {
             }
             if (dBtn != -1) {
                 DPAD_BUTTON_ITEM_EQUIP(0, dBtn) = item;
+                // Same 0xFF "not from an inventory slot" sentinel the C-button branch sets above —
+                // otherwise this D-pad slot keeps the previous item's slot and the toggle/outline
+                // logic that compares slots misreads the button.
+                DPAD_SLOT_EQUIP(0, dBtn) = 0xFF;
                 Interface_Dpad_LoadItemIcon(play, (u8)dBtn);
                 Audio_PlaySfx(NA_SE_SY_DECIDE);
                 return;
@@ -812,6 +946,25 @@ static void OotQuest_HandleSelect(PlayState* play, Input* input) {
         if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
             SpiritualStone_TogglePassive(point - 0x12); // 0=Kokiri 1=Goron 2=Zora
             Audio_PlaySfx(NA_SE_SY_DECIDE);
+        }
+        return;
+    }
+
+    // Stone of Agony (0x15): with the Quartz of Motion (level 2 of the progressive) owned, A opens
+    // the tracking-category list. Without it the stone is a passive sense and A does nothing.
+    if (point == QUARTZ_POINT && OotQuest_Has(OOT_QUEST_STONE_OF_AGONY)) {
+        if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
+            if (Rando_DesireCompass_IsOwned()) {
+                sQuartzMenuOpen = 1;
+                sQuartzStickHeld = 1; // swallow the stick until it recenters
+                sQuartzMenuIndex = (s8)Nei_Save()->quartzCategory;
+                if (sQuartzMenuIndex < 0 || sQuartzMenuIndex >= (s8)DCOMPASS_CAT_MAX) {
+                    sQuartzMenuIndex = 0;
+                }
+                Audio_PlaySfx(NA_SE_SY_DECIDE);
+            } else {
+                Audio_PlaySfx(NA_SE_SY_ERROR);
+            }
         }
         return;
     }
@@ -869,6 +1022,9 @@ s32 OotQuest_HandleCursor(PlayState* play) {
     // by default; the "Pause Play" enhancement switches that to overworld-style play (with an ocarina).
     if (!CVarGetInteger(CVAR_OOT_QUEST_PAGE, 0) || !CVarGetInteger(CVAR_QUEST_INTERACT, 1) ||
         (pauseCtx->pageIndex != PAUSE_QUEST)) {
+        // Not our page: make sure the Quartz modal can't stay latched across a page change.
+        sQuartzMenuOpen = 0;
+        sQuartzStickHeld = 0;
         return false;
     }
 
@@ -876,6 +1032,27 @@ s32 OotQuest_HandleCursor(PlayState* play) {
     // namedItem is left pointing at whatever was last hovered on the item page — which then bleeds
     // under our own name box. Force it to NONE so only KaleidoScope_DrawOotQuestName's name shows.
     pauseCtx->namedItem = PAUSE_ITEM_NONE;
+
+    // Skijer 2026-07-31 FIX: KaleidoScope_UpdateQuestCursor is driven for the WHOLE
+    // PAUSE_STATE_OPENING_3..PAUSE_STATE_SAVEPROMPT range (z_kaleido_scope_NES.c), and MM's own quest
+    // handler re-filters on PAUSE_STATE_MAIN. This one never did, so the cursor moved, items equipped
+    // and songs started during the open/close animation and while the save prompt was up (where the
+    // same A press also answers "save?"). We still own the page — just take no input.
+    //
+    // This is also where the Quartz modal gets released: closing the menu with START used to leave
+    // sQuartzMenuOpen latched, and the next time the player opened the pause menu the cursor was dead
+    // because the modal swallowed everything and returned true.
+    if (pauseCtx->state != PAUSE_STATE_MAIN) {
+        sQuartzMenuOpen = 0;
+        sQuartzStickHeld = 0;
+        return true;
+    }
+
+    // Defensive clamp: every write to sOotQuestCursorPoint goes through the nav table, but a stale
+    // CVar/save could still leave it out of range and index sOotQuestNav OOB.
+    if ((sOotQuestCursorPoint < 0) || (sOotQuestCursorPoint > OOT_QUEST_POINT_MAX)) {
+        sOotQuestCursorPoint = 0;
+    }
 
     // --- Song minigame states -------------------------------------------------------------------
     // MM's own quest-page handler for these is skipped on our page, so we run the bits we need; the
@@ -911,23 +1088,98 @@ s32 OotQuest_HandleCursor(PlayState* play) {
         }
         return true;
     }
+    // Skijer 2026-07-31 FIX: the "play it yourself" prompt had NO way out. MM's own quest handler
+    // aborts it as soon as the stick moves (KaleidoScope_UpdateQuestCursor below); this page only
+    // returned true, so once you pressed A on a song you were pinned: no cursor, and no page change
+    // either, because KaleidoScope_HandlePageToggles is only called while mainState is IDLE /
+    // IDLE_CURSOR_ON_SONG. Worse for the NEI custom songs (slots 30-32): the prompt only ends when
+    // ocarinaStaff->state == ocarinaSongIndex, and those start through the without-staff path
+    // (AudioOcarina_StartDefault(0xC0000000)), so the state may never match and the prompt never
+    // finished at all. Same stick-abort as vanilla.
+    if (pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PROMPT) {
+        if ((pauseCtx->stickAdjX != 0) || (pauseCtx->stickAdjY != 0)) {
+            pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
+            AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
+        }
+        return true;
+    }
     if ((pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PLAYBACK) ||
-        (pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PROMPT) ||
         (pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PROMPT_DONE)) {
         return true;
     }
 
-    // Snap onto the first owned slot if the cursor landed on an empty one (e.g. page just opened).
-    if (!OotQuest_PointOwned(sOotQuestCursorPoint)) {
-        for (s16 p = 0; p <= 0x17; p++) {
-            if (OotQuest_PointOwned(p)) {
-                sOotQuestCursorPoint = p;
-                break;
+    // --- Quartz of Motion list (modal) ---------------------------------------------------------
+    // While open it OWNS the stick and A/B, exactly like the item page's cycle wheels
+    // (z_kaleido_item.c: "an open wheel OWNS the stick ... skip all pause-cursor movement").
+    // Returning true keeps MM's cursor logic from running underneath.
+    if (sQuartzMenuOpen) {
+        // Vertical nav with debounce so one tilt = one row.
+        if ((pauseCtx->stickAdjY > 30) || (pauseCtx->stickAdjY < -30)) {
+            if (!sQuartzStickHeld) {
+                s8 count = (s8)DCOMPASS_CAT_MAX;
+                sQuartzMenuIndex += (pauseCtx->stickAdjY > 30) ? -1 : 1;
+                if (sQuartzMenuIndex < 0) {
+                    sQuartzMenuIndex = (s8)(count - 1);
+                } else if (sQuartzMenuIndex >= count) {
+                    sQuartzMenuIndex = 0;
+                }
+                Audio_PlaySfx(NA_SE_SY_CURSOR);
+                sQuartzStickHeld = 1;
             }
+        } else {
+            sQuartzStickHeld = 0;
         }
+
+        if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
+            // Confirm: queue the activation and leave the pause menu. The heart
+            // is charged in-world at the end of the attuning animation.
+            if (Rando_DesireCompass_RequestActivation((DesireCompassCategory)sQuartzMenuIndex,
+                                                       DCOMPASS_SUBCAT_ANY)) {
+                Audio_PlaySfx(NA_SE_SY_DECIDE);
+                sQuartzMenuOpen = 0;
+                sQuartzStickHeld = 0;
+                // Close the menu the same way the B/START path does.
+                pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
+                pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
+            } else {
+                // Refused (not enough heart capacity, or not owned) — keep the
+                // list up so the player can see nothing happened on purpose.
+                Audio_PlaySfx(NA_SE_SY_ERROR);
+            }
+            return true;
+        }
+
+        if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
+            sQuartzMenuOpen = 0;
+            sQuartzStickHeld = 0;
+            Audio_PlaySfx(NA_SE_SY_CANCEL);
+            return true;
+        }
+        return true;
+    }
+
+    // --- Page-scroll positions ------------------------------------------------------------------
+    // The nav table can now park the cursor on PAUSE_CURSOR_PAGE_LEFT/RIGHT (see sOotQuestNav).
+    // Pushing further in the same direction is KaleidoScope_HandlePageToggles' job (it scrolls the
+    // kaleido); pushing back returns to the page, mirroring soh's own return points — 0x15 (Stone of
+    // Agony) from the left edge, 0 (Forest Medallion) from the right.
+    if (pauseCtx->cursorSpecialPos != 0) {
+        // KaleidoScope_MoveCursorFromSpecialPos already plays NA_SE_SY_CURSOR and restores the
+        // button statuses — don't double up the sfx here.
+        if ((pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT) && (pauseCtx->stickAdjX > 30)) {
+            KaleidoScope_MoveCursorFromSpecialPos(play);
+            sOotQuestCursorPoint = 0x15;
+        } else if ((pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_RIGHT) && (pauseCtx->stickAdjX < -30)) {
+            KaleidoScope_MoveCursorFromSpecialPos(play);
+            sOotQuestCursorPoint = 0;
+        }
+        return true;
     }
 
     // Stick / DPad navigation (thresholds + directions match MM's kaleido cursor).
+    //
+    // NOTE: no "snap to the first owned slot" here any more. It ran every frame, so the cursor was
+    // yanked back the instant it rested on an empty slot — which the vanilla table expects it to do.
     if (pauseCtx->stickAdjX < -30) {
         OotQuest_MoveCursor(play, 2);
     } else if (pauseCtx->stickAdjX > 30) {
@@ -937,6 +1189,11 @@ s32 OotQuest_HandleCursor(PlayState* play) {
         OotQuest_MoveCursor(play, 1);
     } else if (pauseCtx->stickAdjY > 30) {
         OotQuest_MoveCursor(play, 0);
+    }
+
+    // A left/right step may have moved us onto a page-scroll position; don't also run select there.
+    if (pauseCtx->cursorSpecialPos != 0) {
+        return true;
     }
 
     OotQuest_HandleSelect(play, input);
@@ -1136,27 +1393,53 @@ void KaleidoScope_DrawQuestStatus(PlayState* play) {
         }
     }
 
-    // Draw shield
+    // STRENGTH / SWIM upgrades (Skijer 2026-07-29 kaleido re-layout).
+    // These two quads used to mirror the equipped shield and sword. Both live on the equipment page,
+    // so the quads now carry the two capacity upgrades that moved OFF that page's left column:
+    // quad QUEST_SHIELD = strength (bracelet/gauntlets), quad QUEST_SWORD = swim (silver/golden
+    // scale). Values come from the NEI parallel OoT-upgrade store (ootUpgrades: strength@9 scale@12)
+    // and the icons from the player's OoT archive, exactly like the equipment page drew them.
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
     gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
-    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) != EQUIP_VALUE_SHIELD_NONE) {
-        gSPVertex(POLY_OPA_DISP++, &pauseCtx->questVtx[j], 4, 0);
-        KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, gItemIcons[(ITEM_SHIELD_HERO - 1) + GET_CUR_EQUIP_VALUE(1)],
-                                       32, 32, 0);
+    {
+        static const char* sStrengthIcons[3] = {
+            "__OTR__textures/icon_item_static/gItemIconGoronsBraceletTex",
+            "__OTR__textures/icon_item_static/gItemIconSilverGauntletsTex",
+            "__OTR__textures/icon_item_static/gItemIconGoldenGauntletsTex",
+        };
+        static const char* sScaleIcons[2] = {
+            // NOTE the spelling: oot.o2r has ScaleSilver/ScaleGolden, NOT SilverScale/GoldenScale
+            // (verified against the archive; the old equipment-page code had it backwards and silently
+            // drew nothing because it was FileExists-gated).
+            "__OTR__textures/icon_item_static/gItemIconScaleSilverTex",
+            "__OTR__textures/icon_item_static/gItemIconScaleGoldenTex",
+        };
+        s16 upg = (Nei_Save()->ootUpgrades >> 9) & 7; // strength
+        void* tex;
+
+        if (upg > 0) {
+            tex = OotQuest_Tex(sStrengthIcons[((upg > 3) ? 3 : upg) - 1]);
+            if (tex != NULL) {
+                gSPVertex(POLY_OPA_DISP++, &pauseCtx->questVtx[j], 4, 0);
+                KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, tex, 32, 32, 0);
+            }
+        }
+
+        j += 4;
+
+        upg = (Nei_Save()->ootUpgrades >> 12) & 7; // swim (scale)
+        if (upg > 0) {
+            tex = OotQuest_Tex(sScaleIcons[((upg > 2) ? 2 : upg) - 1]);
+            if (tex != NULL) {
+                gSPVertex(POLY_OPA_DISP++, &pauseCtx->questVtx[j], 4, 0);
+                KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, tex, 32, 32, 0);
+            }
+        }
+
+        j += 4;
     }
-
-    j += 4;
-
-    // Draw Sword
-    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) != EQUIP_VALUE_SWORD_NONE) {
-        gSPVertex(POLY_OPA_DISP++, &pauseCtx->questVtx[j], 4, 0);
-        KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, gItemIcons[(ITEM_SWORD_KOKIRI - 1) + GET_CUR_EQUIP_VALUE(0)],
-                                       32, 32, 0);
-    }
-
-    j += 4;
 
     // Draw Songs
     gDPPipeSync(POLY_OPA_DISP++);
@@ -1660,21 +1943,12 @@ void KaleidoScope_UpdateQuestCursor(PlayState* play) {
                     } else {
                         cursorItem = PAUSE_ITEM_NONE;
                     }
-                } else if (pauseCtx->cursorPoint[PAUSE_QUEST] == QUEST_SHIELD) {
-                    // Shield
-                    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) != EQUIP_VALUE_SHIELD_NONE) {
-                        cursorItem = (ITEM_SHIELD_HERO - EQUIP_TYPE_SHIELD) + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD);
-                    } else {
-                        cursorItem = PAUSE_ITEM_NONE;
-                    }
-                } else if (pauseCtx->cursorPoint[PAUSE_QUEST] == QUEST_SWORD) {
-                    // Sword
-                    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) != EQUIP_VALUE_SWORD_NONE) {
-                        cursorItem =
-                            (ITEM_SWORD_KOKIRI - EQUIP_VALUE_SWORD_KOKIRI) + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
-                    } else {
-                        cursorItem = PAUSE_ITEM_NONE;
-                    }
+                } else if ((pauseCtx->cursorPoint[PAUSE_QUEST] == QUEST_SHIELD) ||
+                           (pauseCtx->cursorPoint[PAUSE_QUEST] == QUEST_SWORD)) {
+                    // Skijer 2026-07-29: these two quads are the STRENGTH and SWIM upgrades now (they
+                    // moved off the equipment page's left column). MM has no name texture for the
+                    // bracelet/gauntlets/scales, so the cell shows no label — same as it did there.
+                    cursorItem = PAUSE_ITEM_NONE;
                 } else if (pauseCtx->cursorPoint[PAUSE_QUEST] <= QUEST_SONG_SUN) {
                     // Songs
                     if (CHECK_QUEST_ITEM(pauseCtx->cursorPoint[PAUSE_QUEST])) {

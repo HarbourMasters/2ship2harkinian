@@ -106,6 +106,13 @@ extern void Player_InitMinishCapIA(PlayState* play, Player* this);
 extern void Player_InitLanternIA(PlayState* play, Player* this);
 extern void Player_InitPokeballIA(PlayState* play, Player* this);
 
+// Elemental Wand — behavior lives in mods/items/logic/item_elemental_wand.c, dispatched by
+// Wand_GetMode(). Unlike SoH (whose action space is full and forces the wand to share
+// PLAYER_IA_UNUSED_5B with the Mario Mask), 2ship's wand owns PLAYER_IA_ELEMENTAL_WAND outright, so
+// the row below points at the real functions directly. Skijer's NEI
+extern s32 Player_UpperAction_ElementalWand(Player* player, PlayState* play);
+extern void Player_InitElementalWandIA(PlayState* play, Player* player);
+
 // NOTE (NEI slingshot pass): Sw97_PreferBow is kept only for reference-parity with the SoH
 // fork; since the arrows/bullets split (arrows = bow wheel, bullets = slingshot wheel) the
 // SW97 arrow items always resolve to bow IAs and this predicate is no longer consulted.
@@ -168,7 +175,9 @@ static const NeiItem sNeiItems[] = {
       "Du hast den %pWunschdetektor%w!&Ein verfluchtes Artefakt das&verborgene Schätze enthüllt...&für einen "
       "Preis.^Drücke %y\xA1%w zum Aktivieren.&%rKostet 3 Herzen%w pro Nutzung!^%g(Nur im Randomizer)%w:&%yGoldene "
       "Funken%w = Wichtige Items&sind noch in diesem Gebiet.&%rGanondorfs Lachen%w = Nichts mehr da." },
-    { ITEM_HYLIAS_GRACE,             PLAYER_IA_HYLIAS_GRACE,         PLAYER_MODELGROUP_DEFAULT,  SLOT_HYLIAS_GRACE,         AGE_REQ_NONE,  (void*)gItemIconHyliaGraceTex,             func_8083485C,                  Player_InitHyliasGraceIA,  Randomizer_DrawHyliaGrace,        RG_HYLIAS_GRACE,
+    // RETIRED 2026-08-06: no inventory cell (41 belongs to the Phantom Hourglass). Row kept so old
+    // saves/icon lookups by ITEM id still resolve; NEI_NO_SLOT = never reachable from the kaleido.
+    { ITEM_HYLIAS_GRACE,             PLAYER_IA_HYLIAS_GRACE,         PLAYER_MODELGROUP_DEFAULT,  NEI_NO_SLOT,               AGE_REQ_NONE,  (void*)gItemIconHyliaGraceTex,             func_8083485C,                  Player_InitHyliasGraceIA,  Randomizer_DrawHyliaGrace,        RG_HYLIAS_GRACE,
       "You got %pHylia's Grace%w!&A divine blessing that transforms&you into a %cfairy%w for 10 seconds.^Press %y\xA1%w "
       "to activate&(requires a %rFairy in a Bottle%w).^%yA%w = Ascend  %yB%w = Descend&%yL%w = Sprint&1 minute "
       "cooldown after use.",
@@ -179,14 +188,14 @@ static const NeiItem sNeiItems[] = {
       "verwandelt.^Drücke %y\xA1%w zum Aktivieren&(benötigt eine %rFee in einer Flasche%w).^%yA%w = Aufsteigen  %yB%w = "
       "Absteigen&%yL%w = Sprinten&1 Minute Abklingzeit nach Nutzung." },
     { ITEM_ZONAI_PERMAFROST,         PLAYER_IA_ZONAI_PERMAFROST,     PLAYER_MODELGROUP_DEFAULT,  SLOT_ZONAI_PERMAFROST,     AGE_REQ_NONE,  (void*)gItemIconZonaiPermafrostTex,        func_8083485C,                  Player_InitZonaiPermafrostIA, Randomizer_DrawZonaiPermafrost, RG_ZONAI_PERMAFROST,
-      "You got %cZonai Permafrost%w!&Ancient Zonai technology that&freezes the flow of time itself.^Press %y\xA1%w to "
+      "You got the %cZonai Timer%w!&Ancient Zonai technology that&freezes the flow of time itself.^Press %y\xA1%w to "
       "cast the spell.&%rAll enemies%w, %ypuzzle elements%w,&and even the %cday/night cycle%w&freeze for %g10 "
       "seconds%w!^Costs %g12 Magic%w per use.&Move freely while time is stopped.",
-      "Vous obtenez %cPermafrost Soneau%w!&Technologie ancienne des Soneau&qui gèle le flux du temps.^Appuyez sur "
+      "Vous obtenez le %cMinuteur Soneau%w!&Technologie ancienne des Soneau&qui gèle le flux du temps.^Appuyez sur "
       "%y\xA1%w pour lancer&le sort. %rTous les ennemis%w,&%yéléments de puzzle%w, et même&le %ccycle jour/nuit%w "
       "gèlent&pendant %g10 secondes%w!^Coûte %g12 Magie%w par utilisation.&Bougez librement pendant que&le temps est "
       "arrêté.",
-      "Du hast %cSonau Permafrost%w!&Uralte Sonau-Technologie die&den Fluss der Zeit einfriert.^Drücke %y\xA1%w um den "
+      "Du hast den %cSonau-Zeitmesser%w!&Uralte Sonau-Technologie die&den Fluss der Zeit einfriert.^Drücke %y\xA1%w um den "
       "Zauber&zu wirken. %rAlle Feinde%w,&%yRätsel-Elemente%w, und sogar&der %cTag/Nacht-Zyklus%w frieren&für %g10 "
       "Sekunden%w ein!^Kostet %g12 Magie%w pro Nutzung.&Bewege dich frei während die&Zeit angehalten ist." },
     { ITEM_DEMISE_DESTRUCTION,       PLAYER_IA_DEMISE_DESTRUCTION,   PLAYER_MODELGROUP_DEFAULT,  SLOT_DEMISE_DESTRUCTION,   AGE_REQ_NONE,  (void*)gItemIconDemiseDestructionTex,      func_8083485C,                  Player_InitDemiseDestructionIA, Randomizer_DrawDemiseDestruction, RG_DEMISE_DESTRUCTION,
@@ -267,7 +276,7 @@ static const NeiItem sNeiItems[] = {
       "Du hast den %yKreisel%w!&Uralte Technologie aus dem&Wüstensand.^Drücke %y\xA1%w um aufzusteigen&und zu gleiten. "
       "Überbrücke&große Distanzen damit.^Mit %g\xA4%w führst du einen&Verfolgungs-Angriff auf&den Feind aus. "
       "Zerbricht Felsen!" },
-    { ITEM_CANE_OF_SOMARIA,          PLAYER_IA_CANE_OF_SOMARIA,      PLAYER_MODELGROUP_DEFAULT,  SLOT_CANE_OF_SOMARIA,      AGE_REQ_NONE,  (void*)gItemIconCaneOfSomariaTex,          Player_UpperAction_CaneOfSomaria, Player_InitCaneOfSomariaIA, Randomizer_DrawCaneOfSomaria,   RG_CANE_OF_SOMARIA,
+    { ITEM_CANE_OF_SOMARIA,          PLAYER_IA_CANE_OF_SOMARIA,      PLAYER_MODELGROUP_BGS,  SLOT_CANE_OF_SOMARIA,      AGE_REQ_NONE,  (void*)gItemIconCaneOfSomariaTex,          Player_UpperAction_CaneOfSomaria, Player_InitCaneOfSomariaIA, Randomizer_DrawCaneOfSomaria,   RG_CANE_OF_SOMARIA,
       "You got the %rCane of Somaria%w!&A wand that creates magical&blocks out of thin air.^Press %y\xA1%w to swing and "
       "create&a %rmagical block%w. Up to %g3&blocks%w can exist at once.^The %roldest block%w is destroyed&when you "
       "create a 4th.^Use them to activate switches,&block enemies, or as&platforms to reach heights.",
@@ -279,7 +288,9 @@ static const NeiItem sNeiItems[] = {
       "Schwingen&und erschaffe einen %rmagischen&Block%w. Bis zu %g3 Blöcke%w können&gleichzeitig existieren.^Der "
       "%rälteste Block%w wird zerstört&wenn du einen 4. erschaffst.^Nutze sie für Schalter, um Feinde&zu blockieren, "
       "oder als Plattform." },
-    { ITEM_DOMINION_ROD,             PLAYER_IA_DOMINION_ROD,         PLAYER_MODELGROUP_DEFAULT,  SLOT_DOMINION_ROD,         AGE_REQ_NONE,  (void*)gItemIconDominionRodTex,            func_8083485C,                  Player_InitDominionRodIA,  Randomizer_DrawDominionRod,       RG_DOMINION_ROD,
+    // 2026-08-06: the rod rides the SHOVEL cell (46) as a wheel entry; cell 47 is the Rod of
+    // Seasons. Slot updated so equip-by-slot paths point at the shared cell.
+    { ITEM_DOMINION_ROD,             PLAYER_IA_DOMINION_ROD,         PLAYER_MODELGROUP_DEFAULT,  SLOT_SHOVEL,               AGE_REQ_NONE,  (void*)gItemIconDominionRodTex,            func_8083485C,                  Player_InitDominionRodIA,  Randomizer_DrawDominionRod,       RG_DOMINION_ROD,
       "You got the %pDominion Rod%w!&An ancient artifact that can&possess and control enemies.^Press %y\xA1%w to fire a "
       "golden orb.&It can possess: %rBeamos%w,&%yArmos%w, and %cAnubis%w.^Once possessed, the enemy will&%gmimic your "
       "movements%w!&Walk to make it walk,&attack to make it attack.^Uses %gMagic%w while controlling.",
@@ -301,7 +312,12 @@ static const NeiItem sNeiItems[] = {
       "Du hast das %cZeittor%w!&Eine tragbare Tür durch die Zeit,&die Macht des Zeitturms in&deinen Händen.^Drücke "
       "%y\xA1%w zum Aktivieren.&Eine Frage erscheint: %g\"Durch&die Zeit reisen?\"%w^Wähle %yJa%w um zwischen&%rKind%w "
       "und %gErwachsenem%w Link&überall zu wechseln!^Kostet %g48 Magie%w pro Nutzung." },
-    { ITEM_BOMB_ARROWS,              PLAYER_IA_BOMB_ARROWS,          PLAYER_MODELGROUP_DEFAULT,  SLOT_BOMB_ARROWS,          AGE_REQ_ADULT, (void*)gItemIconBombArrowsTex,             Player_UpperAction_BombArrows,  Player_InitBombArrowsIA,   Randomizer_DrawBombArrows,        RG_BOMB_ARROWS,
+    // Bomb Arrows keeps every column EXCEPT the slot: it is the 7th value of the bow's element flag
+    // (SW97_ELEM_BOMB) and owns no inventory cell, so .slot is NEI_NO_SLOT. The IA/upper-action/init
+    // are still reached — ExtPlayer_GetItemAction returns PLAYER_IA_BOMB_ARROWS for a bow whose flag
+    // is BOMB. NEI_NO_SLOT also makes ExtInv_GetItemSlot() return 0xFF, so every legacy
+    // `baSlot != 0xFF` guard fails safe. Skijer's NEI
+    { ITEM_BOMB_ARROWS,              PLAYER_IA_BOMB_ARROWS,          PLAYER_MODELGROUP_DEFAULT,  NEI_NO_SLOT,               AGE_REQ_ADULT, (void*)gItemIconBombArrowsTex,             Player_UpperAction_BombArrows,  Player_InitBombArrowsIA,   Randomizer_DrawBombArrows,        RG_BOMB_ARROWS,
       "You got %rBomb Arrows%w!&An explosive combination.^Requires %yArrows%w and %rBombs%w.&Use %y\xA1%w to enter "
       "first-person&mode and aim.^The arrow explodes on impact.&Consumes %y1 arrow%w + %r1 bomb%w&per shot.",
       "Vous obtenez les %rFlèches-Bombes%w!&Une combinaison explosive.^Nécessite des %yFlèches%w et "
@@ -310,6 +326,16 @@ static const NeiItem sNeiItems[] = {
       "Du hast %rBombenpfeile%w!&Eine explosive Kombination.^Benötigt %yPfeile%w und %rBomben%w.&Benutze %y\xA1%w für "
       "Erste-Person&Modus und zielen.^Der Pfeil explodiert beim&Aufprall. Verbraucht %y1 Pfeil%w&+ %r1 Bombe%w pro "
       "Schuss." },
+    // Elemental Wand — six rods sharing page-2 slot 27 (the cell Bomb Arrows vacated). One row, one
+    // IA: the active rod is NeiSaveData.wandMode. Per-rod behavior is a separate task, so the update
+    // func is the generic aim handler and the init is a stub. Skijer's NEI
+    { ITEM_ELEMENTAL_WAND,           PLAYER_IA_ELEMENTAL_WAND,       PLAYER_MODELGROUP_DEFAULT,  SLOT_ELEMENTAL_WAND,       AGE_REQ_NONE,  (void*)gItemIconSandRodTex,                Player_UpperAction_ElementalWand, Player_InitElementalWandIA, Randomizer_DrawElementalWand,  RG_ELEMENTAL_WAND,
+      "You got the %cElemental Wand%w!&Six rods in one.^Press %y¡%w on it in the pause&menu to switch between the "
+      "rods&you have unlocked.",
+      "Vous obtenez la %cBaguette&Élémentaire%w!&Six sceptres en un.^Appuyez sur %y¡%w dans le menu&pause pour "
+      "changer de sceptre.",
+      "Du hast den %cElementarstab%w!&Sechs Stäbe in einem.^Drücke %y¡%w im Pausenmenü,&um zwischen den "
+      "freigeschalteten&Stäben zu wechseln." },
     // Rods use the BGS (two-handed) model group + sword mechanics for charge attacks.
     { ITEM_ROD_FIRE,                 PLAYER_IA_ROD_FIRE,             PLAYER_MODELGROUP_BGS,      SLOT_FIRE_ROD,             AGE_REQ_NONE,  (void*)gItemIconFireRodTex,                Player_UpperAction_1,           Player_InitFireRodIA,      Randomizer_DrawFireRod,           RG_FIRE_ROD,
       "You got the %rFire Rod%w!&A magical weapon that channels&the power of fire.^%yBasic attacks%w:&Slash = 3 "
@@ -377,7 +403,9 @@ static const NeiItem sNeiItems[] = {
       "You got the %yLantern%w!&Catch fire from torches and&use it to light your way!",
       "Vous obtenez la %yLanterne%w!&Capturez le feu des torches et&utilisez-le pour éclairer votre chemin!",
       "Du hast die %yLaterne%w erhalten!&Fang Feuer von Fackeln und&nutze es um deinen Weg zu erleuchten!" },
-    { ITEM_POKEBALL,                 PLAYER_IA_POKEBALL,             PLAYER_MODELGROUP_DEFAULT,  SLOT_POKEBALL,             AGE_REQ_NONE,  (void*)gItemIconPokeballTex,               func_8083485C,                  Player_InitPokeballIA,     Randomizer_DrawPokeball,          RG_POKEBALL,
+    // 2026-08-06: the Pokeball left page 2 (cell 44 = Shadow Crystal) for the Broken Items page,
+    // where it is the Pikachu form. NEI_NO_SLOT keeps the row for icon/textbox lookups only.
+    { ITEM_POKEBALL,                 PLAYER_IA_POKEBALL,             PLAYER_MODELGROUP_DEFAULT,  NEI_NO_SLOT,               AGE_REQ_NONE,  (void*)gItemIconPokeballTex,               func_8083485C,                  Player_InitPokeballIA,     Randomizer_DrawPokeball,          RG_POKEBALL,
       "You got the %yPoké Ball%w!&Use it to give orders to&a transformed Pikachu."
       "^%y\x9F%w combo  %y\xA0%w Thunder Jolt&Stick+%y\x9F%w/%y\xA0%w: smash / special&%y\xA2%w crouch  %y\xA3%w bubble shield&%y\xA1%w-buttons: special items",
       "Vous obtenez la %yPoké Ball%w!&Donnez des ordres à un&Pikachu transformé."
@@ -401,7 +429,7 @@ static const NeiItem sNeiItems[] = {
     // Bottle Randomizer extra items: Net + Bottomless Bottle (occupy SLOT_BOTTLE_3/4). Icons from
     // soh.otr (icon_item_custom). The empty Bottomless Bottle behaves as a bottle via the IA alias
     // in ExtPlayer_GetItemAction (PLAYER_IA_BOTTLE); when filled, the slot holds the content id.
-    { ITEM_NET,                  PLAYER_IA_NET,                     PLAYER_MODELGROUP_DEFAULT, NEI_NO_SLOT, AGE_REQ_NONE, (void*)gItemIconNetTex, func_8083485C, Player_InitDefaultIA, NULL, NEI_NO_RG,
+    { ITEM_NET,                  PLAYER_IA_NET,                     PLAYER_MODELGROUP_DEFAULT, NEI_NO_SLOT, AGE_REQ_NONE, (void*)gItemIconNetTex, Player_UpperAction_Net, Player_InitDefaultIA, NULL, NEI_NO_RG,
       "You got the %gNet%w!&Spin to scoop things in a wider radius.", NULL, NULL },
     { ITEM_BOTTOMLESS_BOTTLE,    PLAYER_IA_BOTTOMLESS_BOTTLE,       PLAYER_MODELGROUP_DEFAULT, NEI_NO_SLOT, AGE_REQ_NONE, (void*)gItemIconBottomlessBottleTex, func_8083485C, Player_InitDefaultIA, NULL, NEI_NO_RG,
       "You got the %gBottomless Bottle%w!&Its contents multiply with use.", NULL, NULL },
@@ -552,41 +580,49 @@ int8_t ExtPlayer_GetItemAction(int32_t item) {
         // inventory icon/name/slot still come from its sNeiItems row (looked up by itemId, not IA).
         case ITEM_SWITCH_HOOK:
             return PLAYER_IA_HOOKSHOT;
-        case ITEM_FAIRY_SLINGSHOT:
-            return PLAYER_IA_SLINGSHOT; // real OoT slingshot IA: fires ARROW_TYPE_SLINGSHOT on NEI seed ammo
+        // (ITEM_FAIRY_SLINGSHOT moved down next to ITEM_BOW — both are SW97 element carriers now and
+        // read better together.)
         case ITEM_BOOMERANG:
             return PLAYER_IA_BOOMERANG; // real OoT boomerang IA (0x62): 1:1 human throw/catch chain
         case ITEM_ROCS_FEATHER:
-            return PLAYER_IA_ROCS_FEATHER_SKIJER; // ship-vanilla feather: same functional jump route
+            // Ship-vanilla feather. In SoH this item has NO item action at all — it is hook-only, and
+            // the jump happens before the use-item path runs. Same here now: RocsFeatherVanilla_TryUse
+            // returns early out of Player_UseItem, so this mapping is no longer on the use path. It
+            // stays pointed at the Skijer action only so anything that still asks gets a valid,
+            // in-range value instead of PLAYER_IA_NONE (which would read as "put the item away").
+            return PLAYER_IA_ROCS_FEATHER_SKIJER;
         case ITEM_HAMMER:
             return PLAYER_IA_HAMMER; // real Megaton Hammer IA — 2H melee weapon w/ ground-pound floor smash
 
-        // SW97 Arrow items: ALWAYS the bow (user decision 2026-07-02: elemental arrows and
-        // elemental bullets coexist — arrows live on the bow wheel, bullets on the slingshot
-        // wheel). fire/ice/light keep their elemental bow IA (fork parity: same magic-state
-        // error gate); dark/soul/wind use the plain bow IA (MM has no PLAYER_IA_BOW_0C..0E).
-        // The SW97 ARROW_TYPE override happens in func_808305BC via heldItemId.
-        case ITEM_SW97_ARROW_FIRE:
-            return PLAYER_IA_BOW_FIRE;
-        case ITEM_SW97_ARROW_ICE:
-            return PLAYER_IA_BOW_ICE;
-        case ITEM_SW97_ARROW_LIGHT:
-            return PLAYER_IA_BOW_LIGHT;
-        case ITEM_SW97_ARROW_DARK:
-        case ITEM_SW97_ARROW_SOUL:
-        case ITEM_SW97_ARROW_WIND:
-            return PLAYER_IA_BOW;
-
-        // SW97 Bullet items (slingshot wheel): the Fairy Slingshot loaded with an element.
-        // Same IA as the plain slingshot; the ARROW_TYPE_SEED_* override happens in
-        // func_808305BC via heldItemId.
-        case ITEM_SW97_BULLET_FIRE:
-        case ITEM_SW97_BULLET_ICE:
-        case ITEM_SW97_BULLET_LIGHT:
-        case ITEM_SW97_BULLET_DARK:
-        case ITEM_SW97_BULLET_SOUL:
-        case ITEM_SW97_BULLET_WIND:
-            return PLAYER_IA_SLINGSHOT;
+        // SW97 elemental shots (Skijer's NEI). The element used to be twelve separate item ids
+        // sitting on the C-button; it is a flag now, so the button holds a PLAIN bow/slingshot and
+        // the IA is picked here from that flag. Dynamic — cannot be a static table cell.
+        //
+        // ALL SIX elements return the plain PLAYER_IA_BOW, deliberately. Returning BOW_FIRE/ICE/
+        // LIGHT for three of them (as this used to) is what made medallion arrows cost magic and
+        // made func_808306F8 refuse to draw the bow while magicState != IDLE — the user's decision
+        // is that medallion shots are free, so they must stay OUT of that IA range. Verified this
+        // costs nothing: PLAYER_IA_BOW, BOW_FIRE, BOW_ICE and BOW_LIGHT share the same
+        // upper-action (Player_UpperAction_6) and the same init (Player_InitBowOrDekuNutIA). The
+        // element itself is applied as ARROW_TYPE_SW97_* in func_808305BC, which reads the flag live.
+        //
+        // SW97_ELEM_BOMB routes to the Bomb Arrows item action even though ITEM_BOMB_ARROWS never
+        // reaches a button: that is what gives it its upper-action and init without a slot.
+        case ITEM_BOW: {
+            uint8_t elem = Sw97_EffectiveElement(0);
+            return (elem == SW97_ELEM_BOMB) ? PLAYER_IA_BOMB_ARROWS : PLAYER_IA_BOW;
+        }
+        case ITEM_FAIRY_SLINGSHOT: {
+            // Real OoT slingshot IA: fires ARROW_TYPE_SLINGSHOT on NEI seed ammo. The six medallion
+            // elements ride the flag and are decoded in func_808305BC, so the IA never varies for
+            // them and vanilla seed behavior is untouched.
+            //
+            // BOMB is the exception, exactly as on the bow: bomb bullets need the aim/charge/detonate
+            // machinery, which lives behind PLAYER_IA_BOMB_ARROWS. That action then asks the HELD
+            // item whether it is firing arrows or seeds. Skijer's NEI
+            uint8_t elem = Sw97_EffectiveElement(1);
+            return (elem == SW97_ELEM_BOMB) ? PLAYER_IA_BOMB_ARROWS : PLAYER_IA_SLINGSHOT;
+        }
 
         default:
             break;
@@ -610,7 +646,29 @@ int8_t ExtPlayer_GetItemAction(int32_t item) {
 /**
  * Get the model group for a given PLAYER_IA_xxx value.
  */
+// mods/items/logic/item_cane_of_somaria.c — which of the four canes is in hand.
+uint8_t Cane_GetType(void);
+uint8_t Pacci_IsHoldingUltrahand(void); // mods/actors/cane_pacci.c
+#ifndef CANE_TYPE_ULTRAHAND
+#define CANE_TYPE_ULTRAHAND 3
+#endif
+
 uint8_t ExtPlayer_GetActionModelGroup(int32_t itemAction) {
+    // Dual Cane: FOUR different things share one row of the item table, so that
+    // row's static modelGroup cannot be right for all of them. It is resolved from
+    // the active cane instead — the same context variable the icon and name use.
+    // Ultrahand is the odd one: a bare-handed gesture, so it must not put Link in
+    // the two-handed stance the three staves want.
+    if (itemAction == PLAYER_IA_CANE_OF_SOMARIA) {
+        if (Cane_GetType() != CANE_TYPE_ULTRAHAND) {
+            return PLAYER_MODELGROUP_TWO_HAND_SWORD;
+        }
+        // Ultrahand: empty-handed while idle, and the HOOKSHOT hold once it has
+        // something — that group already poses Link with an arm extended forward,
+        // which is exactly the "reaching out at the object" read.
+        return Pacci_IsHoldingUltrahand() ? PLAYER_MODELGROUP_HOOKSHOT : PLAYER_MODELGROUP_DEFAULT;
+    }
+
     // Megaton Hammer: hold two-handed (Stage 1 uses the 2H-sword hold; Stage 2 swaps to the
     // companion held-hammer DL gLinkAdultLeftHandHoldingHammer*).
     if (itemAction == PLAYER_IA_HAMMER) {
@@ -645,7 +703,9 @@ uint8_t ExtPlayer_GetActionModelGroup(int32_t itemAction) {
     }
 
     // For vanilla item actions, use the original array if within bounds
-    if (itemAction < VANILLA_PLAYER_IA_COUNT) {
+    // Lower bound matters: heldItemAction is s8, so a bad/unknown action arrives NEGATIVE and
+    // would index off the FRONT of this table. Skijer's NEI
+    if ((itemAction >= 0) && (itemAction < VANILLA_PLAYER_IA_COUNT)) {
         return sActionModelGroups[itemAction];
     }
 
@@ -678,7 +738,9 @@ ItemActionUpdateFunc ExtPlayer_GetItemActionUpdateFunc(int32_t itemAction) {
     }
 
     // For vanilla item actions, use the original array if within bounds
-    if (itemAction < VANILLA_PLAYER_IA_COUNT) {
+    // Lower bound matters: heldItemAction is s8, so a bad/unknown action arrives NEGATIVE and
+    // would index off the FRONT of this table. Skijer's NEI
+    if ((itemAction >= 0) && (itemAction < VANILLA_PLAYER_IA_COUNT)) {
         return sItemActionUpdateFuncs[itemAction];
     }
 
@@ -712,7 +774,9 @@ ItemActionInitFunc ExtPlayer_GetItemActionInitFunc(int32_t itemAction) {
     }
 
     // For vanilla item actions, use the original array if within bounds
-    if (itemAction < VANILLA_PLAYER_IA_COUNT) {
+    // Lower bound matters: heldItemAction is s8, so a bad/unknown action arrives NEGATIVE and
+    // would index off the FRONT of this table. Skijer's NEI
+    if ((itemAction >= 0) && (itemAction < VANILLA_PLAYER_IA_COUNT)) {
         return sItemActionInitFuncs[itemAction];
     }
 

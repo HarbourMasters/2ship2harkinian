@@ -227,7 +227,7 @@ static void ClearCustomCosmeticValueCvars(const char* valuesCvar) {
 }
 
 static std::string BuildDynamicCosmeticsStateSignature() {
-    auto resourceManager = Ship::Context::GetInstance()->GetResourceManager();
+    auto resourceManager = Ship::Context::GetRawInstance()->GetResourceManager();
     auto archiveManager = resourceManager->GetArchiveManager();
     std::string signature = std::to_string(CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0));
 
@@ -317,7 +317,7 @@ bool IsCustomKafeiModelActive() {
 }
 
 void ApplyDynamicCosmetics() {
-    auto resourceManager = Ship::Context::GetInstance()->GetResourceManager();
+    auto resourceManager = Ship::Context::GetRawInstance()->GetResourceManager();
     auto archiveManager = resourceManager->GetArchiveManager();
 
     for (const auto& entry : customCosmeticEntries) {
@@ -353,13 +353,13 @@ static void SetCustomCosmeticColor(const CustomCosmeticEntry& entry, Color_RGBA8
     ShipInit::Init(entry.option.rainbowCvar);
     ShipInit::Init(entry.option.changedCvar);
     ApplyDynamicCosmetics();
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 }
 
 static void ResetCustomCosmeticColor(const CustomCosmeticEntry& entry) {
     CosmeticEditorResetElement(const_cast<CosmeticOption&>(entry.option), false);
     ApplyDynamicCosmetics();
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 }
 
 static void RandomizeCustomCosmeticColor(const CustomCosmeticEntry& entry) {
@@ -413,7 +413,7 @@ void ScanDynamicCosmetics() {
     customFierceDeityCosmeticsAvailable = false;
     customKafeiCosmeticsAvailable = false;
 
-    auto resourceManager = Ship::Context::GetInstance()->GetResourceManager();
+    auto resourceManager = Ship::Context::GetRawInstance()->GetResourceManager();
     auto archiveManager = resourceManager->GetArchiveManager();
     RefreshCustomModelActiveFlags(archiveManager.get());
     auto materialPaths = archiveManager->ListFiles("*");
@@ -554,14 +554,14 @@ static void DrawCustomCosmeticRow(const CustomCosmeticEntry& entry) {
             ShipInit::Init(entry.option.rainbowCvar);
             ShipInit::Init(entry.option.changedCvar);
             ApplyDynamicCosmetics();
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+            Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         },
         [&entry]() { RandomizeCustomCosmeticColor(entry); },
         [&entry]() {
             CVarSetInteger(entry.option.changedCvar, 1);
             ShipInit::Init(entry.option.changedCvar);
             ApplyDynamicCosmetics();
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+            Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         },
         [&entry]() { ResetCustomCosmeticColor(entry); });
 }
@@ -575,7 +575,7 @@ static void DrawCustomCosmeticCategory(const char* label, const std::vector<cons
         for (const auto* entry : entries) {
             RandomizeCustomCosmeticColor(*entry);
         }
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         ApplyDynamicCosmetics();
     }
     ImGui::SameLine();

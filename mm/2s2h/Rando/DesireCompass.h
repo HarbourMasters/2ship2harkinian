@@ -2,19 +2,22 @@
 #define RANDO_DESIRE_COMPASS_H
 
 // =============================================================================
-// Desire Compass — the "brain" for the progressive Stone of Agony -> Desire
-// Compass item. Given one of 8 categories (+ optional subcategory), it locates
-// the nearest UNCOLLECTED rando check of that category whose actor is currently
-// loaded in the scene, by iterating the live actor lists and resolving each
-// actor to its RandoCheckId (see DesireCompass.cpp for the recognizer).
+// Quartz of Motion — level 2 of the progressive Stone of Agony.
 //
-// MM rando checks carry no world coordinates, so "locate" only works for
-// checks whose carrier actor is loaded in the CURRENT scene. Out-of-scene
-// targeting (arrow-to-exit) is layered on top in the item logic, not here.
+// It is a SENSOR, not a compass: it never points anywhere. Pick a category from
+// the kaleido (A on the Stone of Agony slot of the OoT quest page), pay 3
+// hearts, and for the next 5 minutes it gives two signals, Sheikah-Sensor
+// style:
 //
-// This header is C-safe: the item logic (item_desire_sensor.c, a .c file
-// compiled as part of the z_player translation unit) forward-declares and
-// calls these extern "C" entry points.
+//   1. "There is something here" — an on-screen indicator whenever the room you
+//      just walked into holds an uncollected check of your category.
+//   2. "You are getting closer" — a blip + rumble whose rate rises as you near
+//      it, silent when there is nothing loaded.
+//
+// Detection is purely "is the carrier actor loaded right now", which means the
+// current room. No routing, no world graph, no room tables.
+//
+// C-safe header: the kaleido (.c) calls these extern "C" entry points.
 // =============================================================================
 
 #ifdef __cplusplus
@@ -23,7 +26,7 @@ extern "C" {
 
 #include "z64math.h"
 
-// The 8 dowsing-wheel categories (Skyward-Sword style radial menu order).
+// The 8 tracking categories, in kaleido-list order.
 typedef enum {
     DCOMPASS_CAT_BOSS_SOULS = 0, // RI_SOUL_BOSS_*
     DCOMPASS_CAT_KEYS,           // RITYPE_SMALL_KEY / RITYPE_BOSS_KEY
@@ -32,33 +35,49 @@ typedef enum {
     DCOMPASS_CAT_SKILLS,         // RI_ABILITY_*
     DCOMPASS_CAT_JUNK,           // RITYPE_JUNK
     DCOMPASS_CAT_TRIFORCE,       // RI_TRIFORCE_PIECE(_PREVIOUS)
-    DCOMPASS_CAT_OTHER,          // everything else (lesser/health/token/fairy...)
+    DCOMPASS_CAT_OTHER,          // everything else
     DCOMPASS_CAT_MAX
 } DesireCompassCategory;
 
-// Subcategory 0 always means "any within the category". Category-specific
-// subcategories (currently only Keys: 1 = small keys, 2 = boss keys) are
-// documented in DesireCompass.cpp / DCompass_SubcategoryCount.
 #define DCOMPASS_SUBCAT_ANY 0
 
-// Number of meaningful subcategories for a category (>= 1). The wheel's 2nd
-// level uses this to know how many spokes to draw.
+#define DCOMPASS_DURATION_SECONDS 300 // 5 minutes
+// Cost: 3 hearts of CURRENT health (0x10 units per heart) — the max-health
+// capacity is never touched.
+#define DCOMPASS_HEALTH_COST 0x30
+
+// --- Queries -----------------------------------------------------------------
+
+const char* Rando_DesireCompass_CategoryName(DesireCompassCategory cat);
 s32 Rando_DesireCompass_SubcategoryCount(DesireCompassCategory cat);
-
-// Is the compass usable at all (i.e. are we in a rando save)? The item logic
-// lives in the z_player C translation unit, where IS_RANDO is a hardcoded 0
-// fallback (mods/nei_oot_compat.h) — so the real check has to happen here.
-u8 Rando_DesireCompass_IsAvailable(void);
-
-// Locate the nearest loaded, uncollected check of (cat, subcat) in the current
-// scene. Returns 1 and fills *outPos (+ *outDist if non-NULL, XZ distance to
-// the player) when a target is found; returns 0 otherwise.
-u8 Rando_DesireCompass_LocateNearest(DesireCompassCategory cat, s32 subcat, Vec3f* outPos, f32* outDist);
-
-// Count of still-shuffled, uncollected items of (cat, subcat) across the whole
-// seed (not just the current scene). Drives the L1 "Stone of Agony" rumble
-// sense and can label the wheel spokes. Returns 0 when none remain.
 s32 Rando_DesireCompass_CountRemaining(DesireCompassCategory cat, s32 subcat);
+u8 Rando_DesireCompass_IsAvailable(void); // in a rando save?
+u8 Rando_DesireCompass_IsOwned(void);     // Quartz obtained?
+
+// --- Activation --------------------------------------------------------------
+
+// Validate and queue an activation. Returns 1 if accepted — the caller (kaleido)
+// should then close the pause menu. Nothing is charged yet: once gameplay
+// resumes the tick plays a short attuning animation, spends the 3 hearts, and
+// starts the sensor. Returns 0 if refused, leaving the list open.
+u8 Rando_DesireCompass_RequestActivation(DesireCompassCategory cat, s32 subcat);
+void Rando_DesireCompass_Cancel(void);
+u8 Rando_DesireCompass_IsAttuning(void);
+
+// --- Active-session state (read by the HUD) ----------------------------------
+
+u8 Rando_DesireCompass_IsActive(void);
+s32 Rando_DesireCompass_GetRemainingSeconds(void);
+DesireCompassCategory Rando_DesireCompass_GetActiveCategory(void);
+
+// Signal 1: this room holds an uncollected check of the tracked category.
+u8 Rando_DesireCompass_RoomHasTarget(void);
+
+// Frames left on the "you just entered a room with something" flash (0 = idle).
+s32 Rando_DesireCompass_RoomAlertFrames(void);
+
+// Signal 2: proximity, 0.0 (far / nothing) .. 1.0 (right on top of it).
+f32 Rando_DesireCompass_GetProximity(void);
 
 #ifdef __cplusplus
 }

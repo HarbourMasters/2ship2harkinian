@@ -18,13 +18,23 @@
 extern "C" {
 #include "variables.h"
 #include "functions.h"
+#include "mods/extended_equipment.h"
 #include "mods/extended_inventory.h" // page-2 SLOT_*/custom ITEM_* ids + ExtInv_GiveItem (ownedItems store)
 // Set by FleetSync's ApplyFcRegistryToNatives while it grants an FC deficit — suppress re-recording
 // those native grants (they were already counted when obtained), else the registry feeds itself.
 extern int gFcCombo_SuppressRecord;
-// extended_equipment.c — sets the extEquipOwnedBits ownership bit (16 + equipType*3 + (index-1)),
-// the exact store the ext-equipment kaleido + FleetSync read. EQUIP_TYPE_* come from z64save.h.
-void ExtEquip_GiveItem(s16 equipType, u8 index);
+// item_cane_of_somaria.c — Dual Cane. Six separate obtainable skills share ONE inventory
+// slot; this lights the skill's bit and, on the FIRST one obtained (any of the six, in any
+// order), also puts the cane into SLOT_CANE_OF_SOMARIA. CANE_SKILL_* live in
+// mods/items/logic/item_cane_of_somaria.h, mirrored here so this TU stays free of the
+// z_player-side item headers.
+#define CANE_SKILL_SOMARIA_STATUE 0
+#define CANE_SKILL_SOMARIA_BLOCK 1
+#define CANE_SKILL_SOMARIA_PLATFORM 2
+#define CANE_SKILL_PACCI_FLIP 3
+#define CANE_SKILL_PACCI_STONE 4
+#define CANE_SKILL_PACCI_ULTRAHAND 5
+u8 Cane_GiveSkill(u8 skill);
 // trade_items.c — sets the tradeAdultOwned bit for a NEI trade index (nei_save.h layout); index 19
 // (Pendant of Memories) also sets its Ext Boots 2 combat-ownership bit (FCI_F_DUAL_GRANT).
 void TradeAdult_GiveIndex(s32 index);
@@ -57,7 +67,26 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         }
     } _dg;
     if (sGiveDepth == 1 && gFcCombo_SuppressRecord == 0) {
-        int fc = FcCombo_ItemForNative((int)randoItemId);
+        // Dual Cane skills: MM's pool places SIX DISTINCT skill RIs, but the FC table pairs one RG
+        // with one RI — soh's side is six copies of the single RG_CANE_OF_SOMARIA, all counting into
+        // FCI_CANE_OF_SOMARIA (chainLen 6). Adding five more rows would need five fake RG peers and
+        // collapse riToFc (documented FC-table rule), so instead the five skill RIs ALIAS to the
+        // generic cane row here, at record time. Each obtained skill = +1 on the shared counter; the
+        // peer materializes it through its own progressive give. This closes "the cane skills never
+        // cross in combo". Skijer's NEI
+        RandoItemId recordId = randoItemId;
+        switch (randoItemId) {
+            case RI_OOT_NEI_CANE_SOMARIA_BLOCK:
+            case RI_OOT_NEI_CANE_SOMARIA_PLATFORM:
+            case RI_OOT_NEI_CANE_PACCI_FLIP:
+            case RI_OOT_NEI_CANE_PACCI_STONE:
+            case RI_OOT_NEI_CANE_PACCI_ULTRAHAND:
+                recordId = RI_OOT_NEI_CANE_OF_SOMARIA;
+                break;
+            default:
+                break;
+        }
+        int fc = FcCombo_ItemForNative((int)recordId);
         if (fc != FCI_NO_ITEM) {
             NeiSaveData* nei = Nei_Save();
             if (fc >= 0 && fc < FC_COMBO_OBTAINED_FC_SIZE) {
@@ -311,6 +340,12 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             // the equip nibble only ever moves up here.
             Item_Give(gPlayState, Rando::StaticData::Items[randoItemId].itemId);
             Nei_Save()->shieldOwned |= FC_SHIELD_IKANA;
+            // ...and its page-2 equipment cell (SHIELD-3). Only the mask bit was set here, and the
+            // kaleido cell reads extEquipOwnedBits, so in a solo-MM game the Shield of Ikana cell
+            // stayed dark forever; it only lit up after a round trip through OoT, whose ApplyShared
+            // turns the mask bit back into bit 21. OoT's own give already does both (randomizer.cpp).
+            // Skijer's NEI
+            ExtEquip_GiveItem(EQUIP_TYPE_SHIELD, 3); // bit 21
             break;
         case RI_SWORD_GILDED:
         case RI_SWORD_KOKIRI:
@@ -633,11 +668,17 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_OOT_TRADE_CLAIM_CHECK:
             TradeAdult_GiveIndex(10);
             break;
-        // OoT CHILD trade items (Weird Egg / Zelda's Letter) have NO MM store (the adult wheel only
-        // tracks the adult chain): give stays a no-op — draw + message only; the FC record hook at the
-        // top still counts the pickup in comboObtainedFc for the cross-game registry.
+        // OoT CHILD trade items. These USED to be a no-op ("no MM store"), but the trade wheel was
+        // unified on 2026-07-30: the child chain's non-mask items now have their own bits in
+        // tradeAdultOwned (20 = Weird Egg, 21 = Cucco, 22 = Zelda's Letter), so they belong in the
+        // same wheel as everything else. Index 21 has no case because OoT does not randomize the
+        // Cucco — the Weird Egg hatches into it (no RG_/RI_ id exists). The FC record hook at the top
+        // still counts the pickup in comboObtainedFc for the cross-game registry. Skijer 2026-07-30
         case RI_OOT_TRADE_WEIRD_EGG:
+            TradeAdult_GiveIndex(20);
+            break;
         case RI_OOT_TRADE_ZELDAS_LETTER:
+            TradeAdult_GiveIndex(22);
             break;
         // Skijer's NEI — OoT (SoH) medallions, warp songs, and spiritual stones: no MM gameplay
         // effect (no sage/warp systems), but ownership is recorded in the parallel OoT quest store
@@ -679,6 +720,9 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_OOT_SONG_PRELUDE_OF_LIGHT:
             Nei_Save()->ootQuestItems |= (1u << OOT_QUEST_SONG_PRELUDE);
             break;
+        case RI_OOT_SONG_ZELDAS_LULLABY:
+            Nei_Save()->ootQuestItems |= (1u << OOT_QUEST_SONG_LULLABY);
+            break;
         case RI_OOT_STONE_KOKIRI_EMERALD:
             Nei_Save()->ootQuestItems |= (1u << OOT_QUEST_KOKIRI_EMERALD);
             break;
@@ -697,7 +741,11 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             //           item IS the level-2 gate, so the item logic needs no
             //           extra check.
             if (Nei_Save()->ootQuestItems & (1u << OOT_QUEST_STONE_OF_AGONY)) {
-                ExtInv_GiveItem(SLOT_DESIRE_SENSOR, ITEM_DESIRE_SENSOR);
+                // Level 2: Quartz of Motion. Not an equippable item — it is used
+                // from the kaleido (A on the Stone of Agony slot opens the
+                // category list). Ownership is a save bit, read by
+                // Rando_DesireCompass_IsOwned().
+                Nei_Save()->quartzOwned = 1;
             } else {
                 Nei_Save()->ootQuestItems |= (1u << OOT_QUEST_STONE_OF_AGONY); // bit 21
             }
@@ -811,6 +859,43 @@ void Rando::GiveItem(RandoItemId randoItemId) {
                 WeaponUpgrade_SetHammerAxe(1);
             }
             break;
+        case RI_OOT_PROGRESSIVE_STRENGTH: {
+            // FC 3-level chain (FCI_STRENGTH): Goron Bracelet -> Silver Gauntlets -> Gold Gauntlets.
+            // The level belongs in ootUpgrades strength@9 (Nei_StrengthLevel) — that is the field
+            // that persists with the save, that the kaleido equipment page draws, and that FleetSync
+            // publishes as upgrades["strength"] for OoT to apply as a real UPG_STRENGTH. Until now
+            // the ONLY thing written here was comboObtained[FC_OOT_STRENGTH], which nothing reads on
+            // either side (soh defines the index and never consumes it), so a strength upgrade
+            // obtained in MM was silently lost in both games. comboObtained is still written for the
+            // combo registry/tracker, but it is no longer the source of truth. Skijer's NEI
+            u8 lvl = Nei_StrengthLevel();
+            // FleetSync imports into the native field as well and exports max(native, ootUpgrades),
+            // so start from whichever is higher — otherwise a level that arrived from OoT would be
+            // re-granted from zero here.
+            u8 native = (u8)CUR_UPG_VALUE(UPG_STRENGTH);
+            if (native > lvl) {
+                lvl = native;
+            }
+            if (lvl < NEI_STRENGTH_MAX) {
+                lvl++;
+            }
+            Nei_SetStrengthLevel(lvl);
+            Inventory_ChangeUpgrade(UPG_STRENGTH, lvl); // keep the native copy FleetSync exports in step
+            Nei_Save()->comboObtained[FC_OOT_STRENGTH] = lvl;
+            break;
+        }
+        case RI_OOT_PROGRESSIVE_BGS:
+            // FC 2-level chain (FCI_BIGGORON_SWORD): L1 Biggoron Sword ownership (comboObtained
+            // registry, same cell the ext-equipment kaleido reads), L2 upgrades it to the Great
+            // Fairy's Sword via the weaponUpgrades bit — mirrors how Shipwright's weapon_upgrades.c
+            // models BGS -> GFS. Before this the two were unrelated items, so "2 copies of the
+            // progressive BGS" meant nothing: there was no upgrade to hand out. Skijer's NEI
+            if (Nei_Save()->comboObtained[FC_OOT_SWORD_BIGGORON] == 0) {
+                Nei_Save()->comboObtained[FC_OOT_SWORD_BIGGORON] = 1;
+            } else {
+                WeaponUpgrade_SetGreatFairy(1);
+            }
+            break;
         case RI_OOT_PROGRESSIVE_MASTER_SWORD:
             // FC 2-level chain (FCI_MASTER_SWORD): L1 base ownership (comboObtained registry — the
             // ext-equipment kaleido reads exactly this cell), L2 True Master Sword (weaponUpgrades bit 3).
@@ -880,8 +965,10 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_OOT_NEI_SPINNER:
             ExtInv_GiveItem(SLOT_SPINNER, ITEM_SPINNER);
             break;
+        // Skijer's NEI — Bomb Arrows owns no inventory cell any more (it is the bow's element flag),
+        // so ExtInv_GiveItem into slot 27 would land on the Elemental Wand's cell. Set the flag.
         case RI_OOT_NEI_BOMB_ARROWS:
-            ExtInv_GiveItem(SLOT_BOMB_ARROWS, ITEM_BOMB_ARROWS);
+            Nei_Save()->bombArrowsOwned = 1;
             break;
         case RI_OOT_NEI_FIRE_ROD:
             ExtInv_GiveItem(SLOT_FIRE_ROD, ITEM_ROD_FIRE);
@@ -917,13 +1004,19 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             ExtInv_GiveItem(SLOT_BALL_AND_CHAIN, ITEM_BALL_AND_CHAIN);
             break;
         case RI_OOT_NEI_DESIRE_SENSOR:
-            ExtInv_GiveItem(SLOT_DESIRE_SENSOR, ITEM_DESIRE_SENSOR);
+            // The standalone Desire Sensor is retired — SLOT_DESIRE_SENSOR is no
+            // longer equippable. Any seed that still places it grants the Quartz
+            // of Motion instead, so it never becomes a dead item in the pool.
+            Nei_Save()->quartzOwned = 1;
             break;
         case RI_OOT_NEI_LIGHT_ROD:
             ExtInv_GiveItem(SLOT_LIGHT_ROD, ITEM_ROD_LIGHT);
             break;
         case RI_OOT_NEI_HYLIAS_GRACE:
-            ExtInv_GiveItem(SLOT_HYLIAS_GRACE, ITEM_HYLIAS_GRACE);
+            // RETIRED (user 2026-08-06): Hylia's Grace is gone as an item — its cell (41) now belongs
+            // to the Phantom Hourglass and its noclip capability is slated to move into the Soul
+            // spell (TODO: wire that transfer when the Soul spell work lands). Old seeds that still
+            // place this RI get nothing rather than a dead cell. The RI stays defined (append-only).
             break;
         case RI_OOT_NEI_LANTERN:
             ExtInv_GiveItem(SLOT_LANTERN, ITEM_LANTERN);
@@ -932,21 +1025,119 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             ExtInv_GiveItem(SLOT_MINISH_CAP, ITEM_MINISH_CAP);
             break;
         case RI_OOT_NEI_POKE_BALL:
-            ExtInv_GiveItem(SLOT_POKEBALL, ITEM_POKEBALL);
+            // 2026-08-06 re-layout: the Pokeball left page 2 (cell 44 is the Shadow Crystal now) and
+            // lives on the Broken Items equipment page, where it is the PIKACHU MODE form — that page
+            // already uses the Pokeball as that form's icon. Ownership is a flag; the form selector
+            // will gate on it (TODO: BrokenItems_FormCount/EquipForm gating). Skijer's NEI
+            Nei_Save()->pokeballOwned = 1;
             break;
-        case RI_OOT_NEI_CANE_OF_SOMARIA:
-            ExtInv_GiveItem(SLOT_CANE_OF_SOMARIA, ITEM_CANE_OF_SOMARIA);
+        // Dual Cane: six separate skills on ONE slot. Cane_GiveSkill lights that
+        // skill's bit and, if this is the first one found, drops the cane itself
+        // into SLOT_CANE_OF_SOMARIA — so any of the six can be the "first" pickup.
+        // The BASE check is progressive: each copy lights the next unowned skill, in
+        // the same order SoH uses (randomizer.cpp), so a seed can simply place six
+        // copies of one item. The five explicit skill ids below stay available for
+        // anything that wants to hand out one specific skill.
+        case RI_OOT_NEI_CANE_OF_SOMARIA: {
+            static const u8 kCaneOrder[6] = { CANE_SKILL_SOMARIA_STATUE,   CANE_SKILL_PACCI_FLIP,
+                                              CANE_SKILL_SOMARIA_BLOCK,    CANE_SKILL_PACCI_STONE,
+                                              CANE_SKILL_SOMARIA_PLATFORM, CANE_SKILL_PACCI_ULTRAHAND };
+            for (int i = 0; i < 6; i++) {
+                if (Cane_GiveSkill(kCaneOrder[i])) {
+                    break;
+                }
+            }
             break;
+        }
+        case RI_OOT_NEI_CANE_SOMARIA_BLOCK:
+            Cane_GiveSkill(CANE_SKILL_SOMARIA_BLOCK);
+            break;
+        case RI_OOT_NEI_CANE_SOMARIA_PLATFORM:
+            Cane_GiveSkill(CANE_SKILL_SOMARIA_PLATFORM);
+            break;
+        case RI_OOT_NEI_CANE_PACCI_FLIP:
+            Cane_GiveSkill(CANE_SKILL_PACCI_FLIP);
+            break;
+        case RI_OOT_NEI_CANE_PACCI_STONE:
+            Cane_GiveSkill(CANE_SKILL_PACCI_STONE);
+            break;
+        case RI_OOT_NEI_CANE_PACCI_ULTRAHAND:
+            Cane_GiveSkill(CANE_SKILL_PACCI_ULTRAHAND);
+            break;
+        // 2026-08-06 re-layout: Shovel and Dominion Rod SHARE cell 46 behind a wheel (the user's
+        // page-2 layout: "Shovel <-> Dominion Rod"), freeing cell 47 for the Rod of Seasons. The
+        // cell holds whichever of the two is in hand; ownership of each is its own flag, exactly
+        // like the Power Keg on the bomb cell — a cell value cannot say "both owned". The give only
+        // seeds the cell when it is EMPTY, so obtaining the second one never kicks the first out of
+        // hand. Skijer's NEI
         case RI_OOT_NEI_SHOVEL:
-            ExtInv_GiveItem(SLOT_SHOVEL, ITEM_SHOVEL);
+            Nei_Save()->shovelOwned = 1;
+            if (ExtInv_GetSlotItem(SLOT_SHOVEL) == ITEM_NONE) {
+                ExtInv_GiveItem(SLOT_SHOVEL, ITEM_SHOVEL);
+            }
             break;
         case RI_OOT_NEI_DOMINION_ROD:
-            ExtInv_GiveItem(SLOT_DOMINION_ROD, ITEM_DOMINION_ROD);
+            Nei_Save()->dominionOwned = 1;
+            if (ExtInv_GetSlotItem(SLOT_SHOVEL) == ITEM_NONE) {
+                ExtInv_GiveItem(SLOT_SHOVEL, ITEM_DOMINION_ROD);
+            }
+            break;
+        // The four cells the 2026-08-06 re-layout opened up (39 / 41 / 44 / 47). Real, owned,
+        // equippable page-2 items with icon + description; their gameplay behaviour is pending
+        // (behaviorless by design — NOT placeholders that vanish). EXT (u16) ids: the u8 space is
+        // exhausted, which is what the ownedItems widening was for. Skijer's NEI
+        case RI_OOT_NEI_SHEIKAH_SLATE:
+            ExtInv_GiveItem(SLOT_SHEIKAH_SLATE, EXT_ITEM_SHEIKAH_SLATE);
+            break;
+        // Sheikah Slate runes — sibling items over the slate cell (wand idiom). Each lights its
+        // slateRunesOwned bit; the first one also hands over the slate itself (Slate_GrantRune).
+        case RI_OOT_NEI_SLATE_RUNE_BOMB:
+            Slate_GrantRune(SLATE_RUNE_BOMB);
+            break;
+        case RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE:
+            Slate_GrantRune(SLATE_RUNE_MASTER_CYCLE);
+            break;
+        case RI_OOT_NEI_SLATE_RUNE_STASIS:
+            Slate_GrantRune(SLATE_RUNE_STASIS);
+            break;
+        case RI_OOT_NEI_SLATE_RUNE_CRYONIS:
+            Slate_GrantRune(SLATE_RUNE_CRYONIS);
+            break;
+        case RI_OOT_NEI_PHANTOM_HOURGLASS:
+            ExtInv_GiveItem(SLOT_PHANTOM_HOURGLASS, EXT_ITEM_PHANTOM_HOURGLASS);
+            break;
+        case RI_OOT_NEI_SHADOW_CRYSTAL:
+            ExtInv_GiveItem(SLOT_SHADOW_CRYSTAL, EXT_ITEM_SHADOW_CRYSTAL);
+            break;
+        case RI_OOT_NEI_ROD_OF_SEASONS:
+            ExtInv_GiveItem(SLOT_ROD_OF_SEASONS, EXT_ITEM_ROD_OF_SEASONS);
+            break;
+        // Elemental Wand: whichever rod lands grants that mode AND the slot. In "Single item" mode
+        // one pickup lights all six; in "Elemental shuffle" each rod is its own check. Wand_GrantMode
+        // handles both, so the arms are identical by design.
+        case RI_OOT_NEI_ELEMENTAL_WAND:
+        case RI_OOT_NEI_WAND_SAND_ROD:
+            Wand_GrantMode(WAND_MODE_SAND);
+            break;
+        case RI_OOT_NEI_WAND_TORNADO_ROD:
+            Wand_GrantMode(WAND_MODE_TORNADO);
+            break;
+        case RI_OOT_NEI_WAND_WATER_ROD:
+            Wand_GrantMode(WAND_MODE_WATER);
+            break;
+        case RI_OOT_NEI_WAND_METEOR_ROD:
+            Wand_GrantMode(WAND_MODE_METEOR);
+            break;
+        case RI_OOT_NEI_WAND_STORM_ROD:
+            Wand_GrantMode(WAND_MODE_STORM);
+            break;
+        case RI_OOT_NEI_WAND_SHADOW_SCEPTER:
+            Wand_GrantMode(WAND_MODE_SCEPTER);
             break;
         case RI_OOT_PROGRESSIVE_ROC: {
             // FC 2-level chain (FCI_SKIJER_ROC): Roc's Feather (Skijer) -> Roc's Cape, sharing
             // SLOT_ROCS (the cape replaces the feather in the same cell).
-            uint8_t curRoc = Nei_GetOwnedItem(SLOT_ROCS);
+            uint16_t curRoc = Nei_GetOwnedItem(SLOT_ROCS);
             if (curRoc == ITEM_ROCS_FEATHER_SKIJER || curRoc == ITEM_ROCS_CAPE) {
                 ExtInv_GiveItem(SLOT_ROCS, ITEM_ROCS_CAPE);
             } else {
@@ -954,15 +1145,58 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             }
             break;
         }
+        // Deku stick / nut capacity, the same shape as the bomb bag above: bump the native upgrade
+        // level and top the ammo up to the new capacity. The FC row is a 2-level chain (v1 has no
+        // bag-gate), so level 1 of the native upgrade is assumed and these take it to 2 and then 3 —
+        // sticks 20 -> 30, nuts 30 -> 40. Also makes sure the slot itself is owned, since MM's logic
+        // gates on HAS_ITEM(ITEM_DEKU_STICK/NUT) and a capacity with no stick is useless.
+        case RI_OOT_PROGRESSIVE_STICK_CAPACITY: {
+            uint8_t lvl = CUR_UPG_VALUE(UPG_DEKU_STICKS);
+            Inventory_ChangeUpgrade(UPG_DEKU_STICKS, lvl < 3 ? lvl + 1 : 3);
+            INV_CONTENT(ITEM_DEKU_STICK) = ITEM_DEKU_STICK;
+            AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
+            break;
+        }
+        case RI_OOT_PROGRESSIVE_NUT_CAPACITY: {
+            uint8_t lvl = CUR_UPG_VALUE(UPG_DEKU_NUTS);
+            Inventory_ChangeUpgrade(UPG_DEKU_NUTS, lvl < 3 ? lvl + 1 : 3);
+            INV_CONTENT(ITEM_DEKU_NUT) = ITEM_DEKU_NUT;
+            AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
+            break;
+        }
+        case RI_OOT_ROCS_FEATHER:
+            // SoH's OTHER feather (RG_ROCS_FEATHER): the SHIP-VANILLA one, which lives in the Nayru's
+            // Love cell and cycles with it. Nothing to do with Skijer's feather in SLOT_ROCS — the two
+            // are separate items and each is obtained on its own.
+            //
+            // Must be NayrusWheel_Grant, not ExtInv_Set*SlotItem: those are the wheel's selection
+            // writes and confer no ownership (otherwise cycling the wheel would hand you the item).
+            // ExtInv_GiveItem is no good either — it silently ignores anything outside slots 24..47,
+            // and the OoT virtual slots live at 72+. Skijer's NEI
+            NayrusWheel_Grant(ITEM_ROCS_FEATHER);
+            break;
         // Extended equipment: the extEquipOwnedBits ownership bit (16 + type*3 + index-1) via the
         // canonical setter — the ext-equipment kaleido grid and FleetSync both read these bits.
         // Grid map (extended_equipment.c): SWORD Byrna/FourSword/Drillshaft, SHIELD Divine/Kite
-        // (=Sheikah)/Ikana, TUNIC Cape/Breastplate/Champion's, BOOTS Anklet/Pendant/Scale.
+        // (=Sheikah)/Ikana, TUNIC Champion/Spirit/Sage's, BOOTS Anklet/Pendant/Scale.
+        // The Magic Cape now has dedicated ownership outside the tunic grid.
         case RI_OOT_EXT_CANE_OF_BYRNA:
             ExtEquip_GiveItem(EQUIP_TYPE_SWORD, 1); // bit 16
             break;
         case RI_OOT_EXT_FOUR_SWORD:
             ExtEquip_GiveItem(EQUIP_TYPE_SWORD, 2); // bit 17
+            break;
+        // The last three cells of the grid. They had playable behaviours in both games but no
+        // randomizer identity at all, so the save editor was the only way to own them — and with no
+        // id there was nothing for FleetSync to carry across either. Skijer's NEI
+        case RI_OOT_EXT_TRIDENT:
+            ExtEquip_GiveItem(EQUIP_TYPE_SWORD, 3); // bit 18
+            break;
+        case RI_OOT_EXT_CLIMB_BOOTS:
+            ExtEquip_GiveItem(EQUIP_TYPE_BOOTS, 2); // bit 26
+            break;
+        case RI_OOT_EXT_ROC_BOOTS:
+            ExtEquip_GiveItem(EQUIP_TYPE_BOOTS, 3); // bit 27
             break;
         case RI_OOT_EXT_DIVINE_SHIELD:
             ExtEquip_GiveItem(EQUIP_TYPE_SHIELD, 1);      // bit 19
@@ -973,20 +1207,20 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             Nei_Save()->shieldOwned |= FC_SHIELD_KITE;  // unified shield mask stays coherent
             break;
         case RI_OOT_EXT_MAGIC_CAPE:
-            ExtEquip_GiveItem(EQUIP_TYPE_TUNIC, 1); // bit 22 (upgrade-column passive while owned)
+            ExtEquip_GiveCape();
             break;
         case RI_OOT_EXT_SPIRIT_BREASTPLATE:
             ExtEquip_GiveItem(EQUIP_TYPE_TUNIC, 2); // bit 23
             break;
         case RI_OOT_EXT_CHAMPIONS_TUNIC:
-            ExtEquip_GiveItem(EQUIP_TYPE_TUNIC, 3); // bit 24
+            ExtEquip_GiveItem(EQUIP_TYPE_TUNIC, 1);
             break;
         case RI_OOT_EXT_PEGASUS_ANKLET:
             ExtEquip_GiveItem(EQUIP_TYPE_BOOTS, 1); // bit 25
             break;
         case RI_OOT_EXT_WATER_DRAGON_SCALE:
-            ExtEquip_GiveItem(EQUIP_TYPE_BOOTS, 3); // bit 27 (grid slot retired; ownership bit still
-                                                    // meaningful — Zora-swim passive reads it)
+            // Legacy RI name retained for serialized FleetCombo compatibility.
+            ExtEquip_GiveItem(EQUIP_TYPE_TUNIC, 3); // Sage's
             break;
         // Skijer's NEI bottle randomizer — Net + Bottomless Bottle (Task: cross-plaçable natives).
         case RI_NET:
@@ -1009,6 +1243,7 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         // jabber nuts have no MM speak system, Ruto's Letter has no MM letter content (the custom
         // bottle system carries no letter), and the OoT GS Token has no MM store — its count crosses
         // via comboObtainedFc and OoT grants the real tokens on arrival.
+        case RI_OOT_ABILITY_CHESTS:
         case RI_OOT_ABILITY_CLIMB:
         case RI_OOT_ABILITY_CRAWL:
         case RI_OOT_SPEAK_DEKU:

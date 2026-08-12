@@ -5,6 +5,7 @@
 #include "GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+#include <libultraship/log/luslog.h> // 2S2H [Port] lusprintf (LUS 464 exports it via API_EXPORT)
 #include <libultraship/bridge/audiobridge.h>
 
 typedef struct {
@@ -2346,7 +2347,6 @@ void AudioOcarina_Start(u32 ocarinaFlags) {
     if (ocarinaFlags != 0xFFFF) {
         // NEI-DBG: pause-play tracing (remove after diagnosis)
         {
-            extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
             lusprintf(__FILE__, __LINE__, 2, "NEI-PP: AudioOcarina_Start flags=0x%08X", ocarinaFlags);
         }
         sOcarinaFlags = 0x80000000 + ocarinaFlags;
@@ -2739,7 +2739,6 @@ void AudioOcarina_CheckSongsWithoutMusicStaff(void) {
                 if (j == gOcarinaSongButtons[songIndex].numButtons) {
                     // NEI-DBG: pause-play tracing (remove after diagnosis)
                     {
-                        extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
                         lusprintf(__FILE__, __LINE__, 2, "NEI-PP: audio recognized song=%d (hand-played)", songIndex);
                     }
                     sPlayedOcarinaSongIndexPlusOne = songIndex + 1;
@@ -2766,7 +2765,6 @@ void AudioOcarina_CheckSongsWithoutMusicStaff(void) {
                 }
                 if (j == gOcarinaSongButtons[songIndex].numButtons) {
                     {
-                        extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
                         lusprintf(__FILE__, __LINE__, 2, "NEI-PP: audio recognized CUSTOM song=%d", songIndex);
                     }
                     sPlayedOcarinaSongIndexPlusOne = songIndex + 1;

@@ -1,14 +1,21 @@
 /**
- * Somaria Cubes System (Elegy Statues)
- * Form-dependent statues spawned by Cane of Somaria (max 3)
- * - Uses MM Elegy of Emptiness shell models from mm.o2r
- * - Form based on current player transformation
- * - Hookshotable
- * - Switchhookable (future)
- * - Can press switches (all forms except Deku; Goron = heavy switches)
- * - Dominion Rod orb swap: hitting a statue swaps player/statue positions
+ * Cane summon system (Somaria side of the Dual Cane) — Skijer's NEI.
  *
- * Uses actor hijacking on En_Lightbox
+ * Three summon kinds share ONE pool of CANE_MAX_SUMMONS slots; summoning past the
+ * cap destroys the oldest.
+ *
+ *   STATUE   — the real MM Elegy of Emptiness shell (ACTOR_EN_TORCH2, form-matched).
+ *              Placed AT Link's feet. NOT liftable. Presses switches, and the Goron
+ *              shell presses heavy switches (the OoT "needs Ruto" ones).
+ *   BLOCK    — the real pushable block (ACTOR_OBJ_OSHIHIKI). Aimed placement.
+ *   PLATFORM — a square textured slab (ACTOR_OBJ_LIFT, frozen so it never moves)
+ *              tinted red and parked in mid-air. Aimed placement, and it may be
+ *              placed ANYWHERE — geometry is not a blocker.
+ *
+ * The file keeps its historical name and the SomariaCube_* symbols because
+ * item_dominionrod.c targets summons through SomariaCube_IsSomariaCube().
+ *
+ * Consumed via #include from item_cane_of_somaria.c (the .c is NOT in the vcxproj).
  */
 
 #ifndef SOMARIA_CUBES_H
@@ -18,76 +25,70 @@
 #include "elegy_shell_assets.h"
 
 // ============================================================================
-// STATUE PROPERTIES
+// SUMMON KINDS
 // ============================================================================
-
-#define SOMARIA_MAX_CUBES 3
-#define SOMARIA_MAX_COLLIDERS 12 // 3 local + up to 9 remote (3 per remote player)
-#define SOMARIA_CUBE_SCALE 0.01f // Elegy shells are large models, scale down
-#define SOMARIA_CUBE_SIZE 30
-#define SOMARIA_SPAWN_FRAMES 20
-
-// Physics
-#define SOMARIA_GRAVITY -2.0f
-#define SOMARIA_THROW_VEL_Y 8.0f
-#define SOMARIA_THROW_SPEED_XZ 6.0f
-#define SOMARIA_MIN_VEL_Y -20.0f
-
-// Collision cylinder (like MM's EnTorch2)
-#define SOMARIA_CYL_RADIUS 20
-#define SOMARIA_CYL_HEIGHT 60
-#define SOMARIA_MASS 255 // MASS_IMMOVABLE
-
-// Knockback (AT damage when thrown)
-#define SOMARIA_KNOCKBACK_DAMAGE 4
-
-// ============================================================================
-// STATE MACROS (using hijacked actor fields)
-// ============================================================================
-
-#define SOMARIA_GET_STATE(actor) ((actor)->home.rot.x)
-#define SOMARIA_SET_STATE(actor, s) ((actor)->home.rot.x = (s))
-#define SOMARIA_GET_TIMER(actor) ((actor)->home.rot.z)
-#define SOMARIA_SET_TIMER(actor, t) ((actor)->home.rot.z = (t))
-#define SOMARIA_GET_FORM(actor) ((actor)->home.rot.y)
-#define SOMARIA_SET_FORM(actor, f) ((actor)->home.rot.y = (f))
 
 typedef enum {
-    SOMARIA_STATE_SPAWN = 0,
-    SOMARIA_STATE_IDLE = 1,
-    SOMARIA_STATE_HELD = 2,
-    SOMARIA_STATE_THROWN = 3,
-} SomariaCubeState;
+    CANE_SUMMON_STATUE = 0,
+    CANE_SUMMON_BLOCK = 1,
+    CANE_SUMMON_PLATFORM = 2,
+    CANE_SUMMON_MAX,
+} CaneSummonKind;
 
 // ============================================================================
-// CUSTOM FLAGS
+// PROPERTIES
 // ============================================================================
 
-// Flag for switchhook compatibility (future use)
-#define ACTOR_FLAG_SWITCHHOOKABLE (1 << 28)
+// Each summon kind has its OWN budget; they do not compete for slots. Placing a
+// fourth statue evicts the oldest STATUE and leaves your blocks and platforms
+// alone. The pool is simply big enough to hold every kind at once.
+#define CANE_MAX_STATUES 4
+#define CANE_MAX_BLOCKS 3
+#define CANE_MAX_PLATFORMS 2
+#define SOMARIA_MAX_CUBES (CANE_MAX_STATUES + CANE_MAX_BLOCKS + CANE_MAX_PLATFORMS)
 
-// ============================================================================
-// BGCHECK FLAGS
-// ============================================================================
+// Obj_Oshihiki params: FF00 >= 0x80 makes ObjOshihiki_Init skip the switch-flag
+// "kill me on load" branch entirely (there is no scene switch flag behind a
+// summoned block), and F == OBJOSHIHIKI_F_0 is the small block anyone can push.
+#define CANE_BLOCK_PARAMS 0x8000
+#define CANE_BLOCK_HALF_WIDTH 30.0f // the pushable block is 60x60x60
+#define CANE_BLOCK_HEIGHT 60.0f
 
-#ifndef BGCHECKFLAG_GROUND
-#define BGCHECKFLAG_GROUND 0x0001
-#define BGCHECKFLAG_WALL 0x0008
-#endif
+// Obj_Lift's slab: a wide, flat square, spawned floating at the aimed height.
+// The preview ghost matches it.
+#define CANE_PLATFORM_RADIUS 60.0f
+#define CANE_PLATFORM_HEIGHT 12.0f
+
+// The platform keeps the slab's own texture with env 210,70,70,255 over it so it
+// reads as a Somaria construct. Written out at the call site — a multi-value
+// #define does not survive MSVC's function-like macro expansion.
 
 // ============================================================================
 // FUNCTIONS
 // ============================================================================
 
-Actor* SomariaCube_Spawn(PlayState* play, Vec3f* pos, s16 yaw);
+/** Summon at `pos` facing `yaw`. Returns the actor, or NULL if it could not spawn. */
+Actor* CaneSummon_Spawn(PlayState* play, CaneSummonKind kind, Vec3f* pos, s16 yaw);
+
+/** Drop dead entries from the pool (actors killed by scene unload, etc.). */
+void CaneSummon_CleanupPool(void);
+
+/** Kill every live summon (used when the cane is unequipped mid-scene). */
+void CaneSummon_KillAll(PlayState* play);
+
+/**
+ * Is the aimed placement legal for `kind`? Checks that the spot is on ground, is
+ * not inside geometry, and is clear of the player and other summons.
+ */
+u8 CaneSummon_PlacementValid(PlayState* play, CaneSummonKind kind, Vec3f* pos);
+
+/** Draw the translucent placement preview (blue = valid, red = blocked). */
+void CaneSummon_DrawPreview(PlayState* play, CaneSummonKind kind, Vec3f* pos, s16 yaw, u8 valid);
+
+/** Is this actor one of ours? (used by the Dominion Rod's target filter) */
 u8 SomariaCube_IsSomariaCube(Actor* actor);
 u8 SomariaCube_IsSwitchable(Actor* actor);
 void SomariaCube_PlaySound(Actor* actor, u16 sfxId);
 u8 SomariaCube_GetForm(Actor* actor);
-
-// Remote cube functions (for Harpoon multiplayer sync)
-Actor* SomariaCube_SpawnRemote(PlayState* play, Vec3f* pos, s16 yaw, u8 form);
-void SomariaCube_UpdateRemotePos(Actor* cube, Vec3f* pos, f32 scale, s16 rotY);
-u8 SomariaCube_IsRemoteCube(Actor* actor);
 
 #endif // SOMARIA_CUBES_H

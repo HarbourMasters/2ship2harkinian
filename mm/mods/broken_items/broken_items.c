@@ -107,7 +107,10 @@ static void BrokenItems_PlaySfx(u16 sfxId) {
 // the other, transient system and doesn't change the equipped MODE.)
 static s32 BrokenItems_CurrentEquipped(void) {
     if (CVarGetInteger(CVAR_PIKACHU_MODE, 0) != 0) {
-        return BROKEN_MODE_PIKACHU;
+        // A set-but-unearned CVar (another file's leftovers) reads LINK — CVars are global, the
+        // Pokeball ownership is per-save. Mirrors soh's Mario guard. Skijer's NEI
+        extern s32 BrokenItems_FormUnlocked(s32 i);
+        return BrokenItems_FormUnlocked(BROKEN_MODE_PIKACHU) ? BROKEN_MODE_PIKACHU : BROKEN_MODE_LINK;
     }
     return (CVarGetInteger(CVAR_SM64_MARIO, 0) != 0) ? BROKEN_MODE_MARIO : BROKEN_MODE_LINK;
 }
@@ -164,7 +167,21 @@ u16 BrokenItems_FormItem(s32 i) {
 s32 BrokenItems_CurrentForm(void) {
     return BrokenItems_CurrentEquipped();
 }
+// Ownership gate (2026-08-06): PIKACHU MODE belongs to the Pokeball, which left page 2 for this
+// page — so the form is only equippable once the Pokeball is owned (NeiSaveData.pokeballOwned,
+// set by the rando give / the page-2 relayout heal). LINK and MARIO stay ungated: Link is the
+// default form and Mario's gating belongs to the SM64 expansion's own flow. Skijer's NEI
+s32 BrokenItems_FormUnlocked(s32 i) {
+    if (i == BROKEN_MODE_PIKACHU) {
+        return Nei_Save()->pokeballOwned != 0;
+    }
+    return 1;
+}
 void BrokenItems_EquipForm(PlayState* play, s32 i) {
+    if (!BrokenItems_FormUnlocked(i)) {
+        BrokenItems_PlaySfx(NA_SE_SY_ERROR); // locked: refuse with the error beep instead of silence
+        return;
+    }
     BrokenItems_Equip(play, i);
 }
 

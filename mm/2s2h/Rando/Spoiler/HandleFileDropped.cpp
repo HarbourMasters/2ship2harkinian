@@ -48,17 +48,17 @@ bool Rando::Spoiler::HandleFileDropped(char* filePath) {
         Rando::Spoiler::RefreshOptions();
 
         Audio_PlaySfx(NA_SE_SY_QUIZ_CORRECT);
-        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Spoiler file loaded");
         return true;
     } catch (std::exception& e) {
         SPDLOG_ERROR("Failed to load file: {}", e.what());
-        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Failed to load file");
         return false;
     } catch (...) {
         SPDLOG_ERROR("Failed to load file");
-        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Failed to load file");
         return false;
     }

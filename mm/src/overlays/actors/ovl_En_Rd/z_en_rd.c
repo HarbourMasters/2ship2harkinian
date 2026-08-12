@@ -23,6 +23,7 @@
  */
 
 #include "z_en_rd.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "z64rumble.h"
 #include "objects/object_rd/object_rd.h"
 #include "overlays/actors/ovl_Obj_Ice_Poly/z_obj_ice_poly.h"
@@ -659,7 +660,8 @@ void EnRd_WalkToPlayer(EnRd* this, PlayState* play) {
                                      PLAYER_STATE1_40000 | PLAYER_STATE1_80000 | PLAYER_STATE1_200000)) &&
             !(player->stateFlags2 & (PLAYER_STATE2_80 | PLAYER_STATE2_4000))) {
             if (this->playerStunWaitTimer == 0) {
-                if (!(this->flags & EN_RD_FLAG_CANNOT_FREEZE_PLAYER)) {
+                if (!(this->flags & EN_RD_FLAG_CANNOT_FREEZE_PLAYER) &&
+                    GameInteractor_Should(VB_REDEAD_GIBDO_FREEZE_PLAYER, true, this)) {
                     player->actor.freezeTimer = 40;
                     Player_SetAutoLockOnActor(play, &this->actor);
                     GET_PLAYER(play)->autoLockOnActor = &this->actor;
@@ -688,7 +690,7 @@ void EnRd_WalkToPlayer(EnRd* this, PlayState* play) {
             } else {
                 EnRd_SetupWalkToHome(this, play);
             }
-        } else if (play->grabPlayer(play, player)) {
+        } else if (GameInteractor_Should(VB_ENEMY_GRAB_PLAYER, true, this) && play->grabPlayer(play, player)) {
             this->actor.flags &= ~ACTOR_FLAG_ATTENTION_ENABLED;
             EnRd_SetupGrab(this);
         }
@@ -922,7 +924,8 @@ void EnRd_AttemptPlayerFreeze(EnRd* this, PlayState* play) {
     s16 yaw = this->actor.yawTowardsPlayer - this->actor.shape.rot.y - this->headRotY - this->torsoRotY;
 
     if (ABS_ALT(yaw) < 0x2008) {
-        if (!(this->flags & EN_RD_FLAG_CANNOT_FREEZE_PLAYER)) {
+        if (!(this->flags & EN_RD_FLAG_CANNOT_FREEZE_PLAYER) &&
+            GameInteractor_Should(VB_REDEAD_GIBDO_FREEZE_PLAYER, true, this)) {
             player->actor.freezeTimer = 60;
             Rumble_Request(this->actor.xzDistToPlayer, 255, 20, 150);
             Player_SetAutoLockOnActor(play, &this->actor);

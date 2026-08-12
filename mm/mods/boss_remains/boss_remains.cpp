@@ -46,6 +46,11 @@ extern SaveContext gSaveContext;
 // D-pad HUD icon refreshers used after an equip.
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn);
 void Interface_Dpad_LoadItemIcon(PlayState* play, u8 btn);
+// Custom player animations retargeted to Link's skeleton, packed in npc_link_anims.o2r (mods folder). A
+// SOH_PlayerAnimation resource is a raw s16 payload; ResourceMgr_LoadPlayerAnimAsHeader wraps it in a real
+// PlayerAnimationHeader and caches it (same pointer every call → BEN_ANIM_EQUAL's strcmp stays stable).
+uint8_t ResourceMgr_FileExists(const char* resName);
+PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeader(const char* animPath);
 // Majora's chant streak textures (Goht bull-charge cone).
 #include "objects/object_stk2/object_stk2.h"
 // EnWaterEffect types — Gyorg's REAL water funnel (whirlpool visual, 1:1).
@@ -82,12 +87,68 @@ inline bool RemainsEnabled() {
 // Transient per-session state (like the native currentMask "on" state).
 s16 sWornRemains = ITEM_NONE;
 
+// Pseudo inventory-slot base for the four remains (96..99), written into C_SLOT_EQUIP / DPAD_SLOT_EQUIP.
+// Must be >= ITEM_NUM_SLOTS (so the engine keeps treating them as "not a plain inventory item"), UNIQUE
+// per remains (the equip machinery matches buttons by slot), and clear of SLOT_NONE (0xFF), the vanilla
+// mask band (24..47) and the ExtInv page-1 custom band (72..95).
+constexpr s16 kRemainsPseudoSlotBase = 96;
+
 // Odolwa A-action: while the Odolwa remains is worn, Link's roll is suppressed (func_80836B3C) and he
 // just RUNS — human locomotion is always 1.5x (BossRemains_RunSpeedMul, read in Player_Action_13), the
 // red trail draws while moving, and Odolwa footstep SFX play on a cadence. No toggle needed.
 s16 sOdolwaRunSfxTimer = 0; // footstep-SFX cadence while running
 s16 sOdolwaShieldFireTimer = 0; // cooldown between shield-deflect fire bursts
 bool sOdolwaRunBoost = false; // true while HOLDING A (worn) → 2x run + purple trail
+
+// ── Odolwa custom animations (retargeted to Link, from npc_link_anims.o2r) ───
+// Loaded once and cached: ResourceMgr_LoadPlayerAnimAsHeader already caches, but we also cache the pointer
+// so Player_GetIdleAnim can return the SAME header every call (the idle detection strcmps it).
+enum OdolwaAnimId { ODOLWA_ANIM_READY, ODOLWA_ANIM_SWING_DANCE, ODOLWA_ANIM_MOTH_DANCE, ODOLWA_ANIM_CROUCH,
+                    ODOLWA_ANIM_MAX };
+const char* const kOdolwaAnimPath[ODOLWA_ANIM_MAX] = {
+    "__OTR__misc/link_animetion/gPlayerAnim_mhr_npc_odolwa_ready",
+    "__OTR__misc/link_animetion/gPlayerAnim_mhr_npc_odolwa_arm_swing_dance",
+    "__OTR__misc/link_animetion/gPlayerAnim_mhr_npc_odolwa_moth_summon_dance",
+    "__OTR__misc/link_animetion/gPlayerAnim_mhr_npc_odolwa_crouch",
+};
+PlayerAnimationHeader* sOdolwaAnimCache[ODOLWA_ANIM_MAX] = { nullptr, nullptr, nullptr, nullptr };
+bool sOdolwaAnimTried[ODOLWA_ANIM_MAX] = { false, false, false, false };
+
+// Returns the cached wrapped header, or NULL if the o2r isn't present (every caller must handle NULL).
+PlayerAnimationHeader* OdolwaAnim(OdolwaAnimId id) {
+    if ((id < 0) || (id >= ODOLWA_ANIM_MAX)) {
+        return nullptr;
+    }
+    if (!sOdolwaAnimTried[id]) {
+        sOdolwaAnimTried[id] = true;
+        if (ResourceMgr_FileExists(kOdolwaAnimPath[id])) {
+            sOdolwaAnimCache[id] = ResourceMgr_LoadPlayerAnimAsHeader(kOdolwaAnimPath[id]);
+        }
+    }
+    return sOdolwaAnimCache[id];
+}
+
+// ── Odolwa "Nimbus" flight (moth cloud, near soft soil / Deku Flower) ─────────────
+//   0 = grounded/off, 1 = the moth-summon dance is playing (takeoff windup), 2 = airborne on the cloud.
+// Forced "spell-style" summon dance (bug/moth summon): a locked, uninterruptible dance we OWN frame by
+// frame (the locomotion func can't steal it), like a spell cast holds the player.
+s16 sOdolwaSummonLock = 0;             // frames left in the locked dance
+PlayerAnimationHeader* sOdolwaSummonAnim = nullptr;
+f32 sOdolwaSummonFrame = 0.0f;         // hand-driven cycle frame
+u16 sOdolwaSummonChant = 0;            // the chant sfx to sustain (played FLAGGED each locked frame, like
+                                       // the real Odolwa) so it auto-stops when the dance ends
+
+s16 sOdolwaFlightState = 0;
+s16 sOdolwaFlightWindup = 0;      // frames left in the summon-dance windup before liftoff
+s16 sOdolwaFlightTimer = 0;       // frames left before the flight auto-lands (10s timeout)
+s16 sOdolwaFlightPitch = 0;       // aim pitch (binang), steered by stick Y
+s16 sOdolwaFlightYaw = 0;         // aim yaw (binang), steered by stick X
+constexpr f32 kOdolwaFlightSpeed = 8.0f;      // forward advance speed (A held)
+constexpr f32 kOdolwaFlightPlantRange = 120.0f; // how near soft soil / a Deku Flower you must be to take off
+constexpr s16 kOdolwaFlightMaxFrames = 200;    // ~10s at the game's 20fps logic tick → auto-land
+constexpr s16 kOdolwaFlightTurnRate = 0x0A;    // yaw/pitch steer per stick unit (~7°/frame at full stick)
+constexpr s16 kOdolwaFlightPitchMax = 0x3800;  // clamp so you can't flip straight up/down
+constexpr s16 kOdolwaSummonDanceFrames = 45;   // hold the summon dance this long (chant length + a bit)
 
 // Goht A-action state:
 //   A held        → BULL CHARGE: cl_nigeru anim + Majora-red cone + 3x forward speed. Drains 1 magic per
@@ -210,8 +271,9 @@ extern "C" s32 BossRemains_TryEquipAtCursor(PlayState* play, Input* input) {
     if (!IsRemainsItem(item)) {
         return false;
     }
+    s32 idx = RemainsIndex(item); // 0..3, also picks this remains' unique pseudo-slot below
     // Must actually own it (the quest bit), so an empty slot can't be equipped.
-    if (!CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA + RemainsIndex(item))) {
+    if (!CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA + idx)) {
         return false;
     }
 
@@ -226,7 +288,12 @@ extern "C" s32 BossRemains_TryEquipAtCursor(PlayState* play, Input* input) {
     }
     if (cBtn != -1) {
         BUTTON_ITEM_EQUIP(0, cBtn) = (u8)item;
-        C_SLOT_EQUIP(0, cBtn) = 0xFF; // not from an inventory slot
+        // UNIQUE pseudo-slot per remains (96..99) instead of a shared 0xFF. The equip machinery decides
+        // "this item is already on another button" by comparing SLOTS only, and SLOT_NONE is 0xFF — so
+        // marking every quest-page item 0xFF made them all look like the same (or an empty) button:
+        // equipping a second remains could wipe the first. Anything >= ITEM_NUM_SLOTS still counts as
+        // "not a plain inventory item" everywhere, so 96..99 keeps that meaning while staying unique.
+        C_SLOT_EQUIP(0, cBtn) = (u8)(kRemainsPseudoSlotBase + idx);
         Interface_LoadItemIconImpl(play, (u8)cBtn);
         Audio_PlaySfx(NA_SE_SY_DECIDE);
         return true;
@@ -246,6 +313,10 @@ extern "C" s32 BossRemains_TryEquipAtCursor(PlayState* play, Input* input) {
         }
         if (dBtn != -1) {
             DPAD_BUTTON_ITEM_EQUIP(0, dBtn) = (u8)item;
+            // Same unique pseudo-slot as the C path (see the note there). Without writing it at all the
+            // D-pad slot kept the PREVIOUS item's slot, and the swap/toggle logic that compares slots
+            // (KaleidoScope_UpdateDpadItemEquip, ItemUnequip.cpp, the equipped-outline VB) misread it.
+            DPAD_SLOT_EQUIP(0, dBtn) = (u8)(kRemainsPseudoSlotBase + idx);
             Interface_Dpad_LoadItemIcon(play, (u8)dBtn);
             Audio_PlaySfx(NA_SE_SY_DECIDE);
             return true;
@@ -277,6 +348,10 @@ extern "C" void BossRemains_ClearWorn(void) {
 
 // Defined in the Goht block further down; TickSummons (Goht thunder aiming) needs it earlier.
 static Actor* BossRemains_FindFrontEnemy(PlayState* play, Player* player, f32 maxDist, s16 cone);
+
+// Start a forced "spell-style" Odolwa summon dance (locked until it finishes). Defined near the flight
+// driver; TickSummons calls it when summoning bugs.
+static void BossRemains_OdolwaSummonDance(PlayState* play, Player* player, OdolwaAnimId animId);
 
 // z_player.c internal (no header) — the intended movement yaw/speed from the stick+camera. We reuse it
 // to steer the bull charge stiffly. `player` here is just the (arbitrary) param name in this declaration.
@@ -569,7 +644,11 @@ static void BossRemains_TickSummons(PlayState* play, Player* player) {
                     p.z += Rand_CenteredFloat(70.0f);
                     RemainsAllyBug_Spawn(play, &p, (s16)(s32)Rand_CenteredFloat(60000.0f));
                 }
-                Actor_PlaySfx(&player->actor, NA_SE_EN_MIBOSS_VOICE2_OLD);
+                // Odolwa's chant (VOICE1 for the beetle summon) + his arm-swing dance, forced spell-style.
+                // The chant is sustained flagged during the locked dance (see the lock handler) so it stops
+                // when the dance ends instead of lingering.
+                sOdolwaSummonChant = NA_SE_EN_MIBOSS_VOICE1_OLD;
+                BossRemains_OdolwaSummonDance(play, player, ODOLWA_ANIM_SWING_DANCE);
             }
             break;
         case 1: // Goht — SHIELD(R)+B = friendly bombchu; B (no R) held = charged thunder bolt (magic, pierces walls)
@@ -669,10 +748,14 @@ static void BossRemains_TickSummons(PlayState* play, Player* player) {
 // Magic drained per sword-swing moth projectile.
 static constexpr s16 kOdolwaMothMagicCost = 2;
 
-// Sword swing with magic → a moth projectile flies forward (toward the lock-on target, else Link's
-// facing) like FD's sword beam. Called from z_player.c func_80833864 (every melee-attack setup).
+// Sword swing with magic → a moth projectile flies at the LOCK-ON target. Only fires while Z-targeting
+// (an enemy is locked on) and always aims at that target. Called from z_player.c func_80833864.
 extern "C" void BossRemains_OdolwaSwordMoth(PlayState* play, Player* player) {
     if (!BossRemains_IsOdolwaWorn() || play == nullptr || player == nullptr) {
+        return;
+    }
+    // ONLY while Z-targeting — no lock-on target, no moth. (Was: fired on every swing toward the facing.)
+    if (player->focusActor == nullptr) {
         return;
     }
     // SHIELD (R) held = the R+B bug summon, not a normal swing — no beam / no magic drain then.
@@ -688,10 +771,7 @@ extern "C" void BossRemains_OdolwaSwordMoth(PlayState* play, Player* player) {
     gSaveContext.save.saveInfo.playerData.magic -= kOdolwaMothMagicCost;
 
     Vec3f pos = player->bodyPartsPos[PLAYER_BODYPART_WAIST];
-    s16 yaw = player->actor.shape.rot.y;
-    if (player->focusActor != NULL) {
-        yaw = Actor_WorldYawTowardActor(&player->actor, player->focusActor);
-    }
+    s16 yaw = Actor_WorldYawTowardActor(&player->actor, player->focusActor); // straight at the locked target
     RemainsAllyBug_SpawnProjectile(play, &pos, yaw);
     Actor_PlaySfx(&player->actor, NA_SE_EN_MB_MOTH_FLY);
 }
@@ -1197,8 +1277,10 @@ static void BossRemains_TickOdolwa(PlayState* play, Player* player) {
 // macro) to kill its chain loop on stop; this C++ TU doesn't pull that macro header, so use it direct.
 static void BossRemains_StopOdolwaSfx(void) {
     AudioSfx_StopById(NA_SE_EN_MIBOSS_GND1_OLD);   // running footsteps cadence
-    AudioSfx_StopById(NA_SE_EN_MB_MOTH_FLY);       // sword-swing moth beam
-    AudioSfx_StopById(NA_SE_EN_MIBOSS_VOICE2_OLD); // R+B beetle summon voice
+    AudioSfx_StopById(NA_SE_EN_MB_MOTH_FLY);       // sword-swing moth beam / flight wing-flap loop
+    AudioSfx_StopById(NA_SE_EN_MIBOSS_VOICE1_OLD); // beetle-summon chant
+    AudioSfx_StopById(NA_SE_EN_MIBOSS_VOICE2_OLD); // moth-summon chant
+    AudioSfx_StopById(NA_SE_EN_MIBOSS_RHYTHM_OLD); // (legacy summon chant)
 }
 
 // Goht UNEQUIPS the sword (like Goron): while worn we stash the B-button item and blank it, so B is free
@@ -1373,6 +1455,186 @@ extern "C" s32 BossRemains_IsOdolwaWorn(void) {
     return (RemainsEnabled() && (sWornRemains == ITEM_REMAINS_ODOLWA)) ? 1 : 0;
 }
 
+// Idle stance override read by z_player.c's Player_GetIdleAnim: while Odolwa is worn (Human), Link's idle
+// pose is Odolwa's "ready" stance. Returns NULL if the anim isn't loaded → z_player.c keeps the vanilla idle.
+extern "C" PlayerAnimationHeader* BossRemains_GetOdolwaIdleAnim(void) {
+    if (!BossRemains_IsOdolwaWorn()) {
+        return nullptr;
+    }
+    return OdolwaAnim(ODOLWA_ANIM_READY);
+}
+
+// True while Link is riding the Odolwa moth-cloud (state 2). Read by z_player.c hooks so the flight driver
+// owns movement (no gravity, no fall action) — mirrors the Goht-charge exemptions.
+extern "C" s32 BossRemains_IsOdolwaFlying(void) {
+    return (sOdolwaFlightState == 2) ? 1 : 0;
+}
+
+// Is there soft soil (Obj_Bean) or a Deku Flower (Obj_Etcetera) within range of Link? Gates takeoff:
+// ONLY there does A summon the moths; everywhere else A stays Odolwa's fast run (his normal move), so
+// this gate is what keeps the two from fighting over the button.
+static bool BossRemains_NearFlightPlant(PlayState* play, Player* player) {
+    for (Actor* a = play->actorCtx.actorLists[ACTORCAT_BG].first; a != nullptr; a = a->next) {
+        if (((a->id == ACTOR_OBJ_BEAN) || (a->id == ACTOR_OBJ_ETCETERA)) &&
+            (Actor_WorldDistXZToActor(&player->actor, a) < kOdolwaFlightPlantRange)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+// Start a forced spell-style summon dance (locked, uninterruptible, plays fully). Held frame-by-frame in
+// BossRemains_OdolwaFlightTick so the locomotion func can't steal it — the "estilo spell" the user asked
+// for (like item_oot_spells.c takes over the player for the cast).
+static void BossRemains_OdolwaSummonDance(PlayState* play, Player* player, OdolwaAnimId animId) {
+    PlayerAnimationHeader* anim = OdolwaAnim(animId);
+    if ((anim == nullptr) || (play == nullptr) || (player == nullptr)) {
+        return;
+    }
+    sOdolwaSummonAnim = anim;
+    sOdolwaSummonFrame = 0.0f;
+    // Hold for a fixed span (chant length + a bit), LOOPING the dance so it repeats enough to be heard.
+    sOdolwaSummonLock = kOdolwaSummonDanceFrames;
+    PlayerAnimation_Change(play, &player->skelAnime, anim, 1.0f, 0.0f, (f32)Animation_GetLastFrame(anim),
+                           ANIMMODE_LOOP, -4.0f);
+    player->speedXZ = 0.0f;
+}
+
+// Per-frame Odolwa flight driver — the "Nimbus" + the forced summon-dance lock. Called from z_player.c
+// AFTER the action func so our overrides win. Flight = 1:1 the Gyorg/Zora free-swim feel: the STICK aims
+// pitch + yaw and A advances forward along that 3D heading; the crouch pose stays completely static.
+extern "C" void BossRemains_OdolwaFlightTick(PlayState* play, Player* player) {
+    if ((play == nullptr) || (player == nullptr)) {
+        return;
+    }
+    if (!BossRemains_IsOdolwaWorn() || (player->transformation != PLAYER_FORM_HUMAN)) {
+        if (sOdolwaFlightState == 2) {
+            player->actor.gravity = -2.0f; // don't strand a floating Link if the mask comes off mid-flight
+        }
+        sOdolwaFlightState = 0;
+        sOdolwaSummonLock = 0;
+        if (sOdolwaSummonChant != 0) {
+            AudioSfx_StopById(sOdolwaSummonChant); // cut a chant if the mask comes off mid-dance
+            sOdolwaSummonChant = 0;
+        }
+        return;
+    }
+
+    Input* in = &play->state.input[0];
+
+    // ── FORCED SUMMON DANCE: lock the player, own the anim frame by frame, LOOPING it until the lock ends ──
+    if (sOdolwaSummonLock > 0) {
+        sOdolwaSummonLock--;
+        player->speedXZ = 0.0f;
+        // Sustain the chant FLAGGED every locked frame (exactly how the real Odolwa plays it) so it stops
+        // the instant we stop re-requesting it — one-shot playback never auto-stopped and lingered forever.
+        if (sOdolwaSummonChant != 0) {
+            Actor_PlaySfx(&player->actor, sOdolwaSummonChant - SFX_FLAG);
+        }
+        if (sOdolwaSummonAnim != nullptr) {
+            f32 last = (f32)Animation_GetLastFrame(sOdolwaSummonAnim);
+            sOdolwaSummonFrame += 1.0f;
+            if ((last > 0.0f) && (sOdolwaSummonFrame > last)) {
+                sOdolwaSummonFrame -= last; // wrap → keep dancing (repeat), don't freeze on the last frame
+            }
+            PlayerAnimation_Change(play, &player->skelAnime, sOdolwaSummonAnim, 1.0f, sOdolwaSummonFrame, last,
+                                   ANIMMODE_ONCE, 0.0f);
+        }
+        if (sOdolwaSummonLock == 0) {
+            // Dance done → belt-and-suspenders stop (the flagged sound already stops on its own).
+            if (sOdolwaSummonChant != 0) {
+                AudioSfx_StopById(sOdolwaSummonChant);
+            }
+            sOdolwaSummonChant = 0;
+        }
+        // The moth-dance windup drives takeoff even while locked (state 1 spawns the cloud below).
+        if (sOdolwaFlightState != 1) {
+            return;
+        }
+    }
+
+    // ── TAKEOFF: A (no R) while grounded near soft soil or a Deku Flower ─────────────────
+    if ((sOdolwaFlightState == 0) && CHECK_BTN_ALL(in->press.button, BTN_A) &&
+        !CHECK_BTN_ALL(in->cur.button, BTN_R) && (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) &&
+        (play->msgCtx.msgMode == MSGMODE_NONE) && BossRemains_NearFlightPlant(play, player)) {
+        // Odolwa's chant (VOICE2 for the moth summon — a different voice) + the moth-summon dance as windup.
+        // Sustained flagged during the locked dance so it stops on its own when the windup ends.
+        sOdolwaSummonChant = NA_SE_EN_MIBOSS_VOICE2_OLD;
+        BossRemains_OdolwaSummonDance(play, player, ODOLWA_ANIM_MOTH_DANCE);
+        sOdolwaFlightState = 1;
+        sOdolwaFlightWindup = kOdolwaSummonDanceFrames; // wait out the full dance before liftoff
+        return;
+    }
+
+    // ── WINDUP: the moth-summon dance plays, then Link lifts off onto the cloud ──
+    if (sOdolwaFlightState == 1) {
+        player->speedXZ = 0.0f;
+        if (--sOdolwaFlightWindup <= 0) {
+            sOdolwaFlightState = 2;
+            sOdolwaSummonLock = 0; // done dancing → let the airborne crouch pose take over
+            if (sOdolwaSummonChant != 0) {
+                AudioSfx_StopById(sOdolwaSummonChant); // stop the takeoff chant (liftoff bypasses the lock handler)
+                sOdolwaSummonChant = 0;
+            }
+            sOdolwaFlightTimer = kOdolwaFlightMaxFrames; // 10s before the moths tire out
+            sOdolwaFlightYaw = player->actor.shape.rot.y;
+            sOdolwaFlightPitch = 0;
+            player->actor.velocity.y = 4.0f; // pop up onto the cloud
+            player->actor.bgCheckFlags &= ~BGCHECKFLAG_GROUND;
+            // Spawn the carrying moth cloud — 8 moths that orbit under Link.
+            for (s32 i = 0; i < 8; i++) {
+                Vec3f p = player->actor.world.pos;
+                p.y -= 8.0f;
+                RemainsAllyBug_SpawnCloud(play, &p, player->actor.shape.rot.y);
+            }
+        }
+        return;
+    }
+
+    // ── AIRBORNE: ride the cloud — 1:1 Zora free-swim (stick aims pitch+yaw, A advances) ──
+    if (sOdolwaFlightState == 2) {
+        // 10s timeout, or manual exit (R / touching ground). Restore gravity (we zeroed it) + stop the
+        // wing-flap loop so it doesn't keep sounding after landing.
+        bool timedOut = (--sOdolwaFlightTimer <= 0);
+        bool manualExit = CHECK_BTN_ALL(in->cur.button, BTN_R) ||
+                          ((player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) && !CHECK_BTN_ALL(in->cur.button, BTN_A));
+        if (timedOut || manualExit) {
+            sOdolwaFlightState = 0;
+            player->actor.gravity = -2.0f;
+            AudioSfx_StopById(NA_SE_EN_MB_MOTH_FLY);
+            return;
+        }
+
+        // Static crouch pose — completely frozen (playSpeed 0, held on frame 0), re-asserted every frame.
+        PlayerAnimationHeader* crouch = OdolwaAnim(ODOLWA_ANIM_CROUCH);
+        if (crouch != nullptr) {
+            PlayerAnimation_Change(play, &player->skelAnime, crouch, 0.0f, 0.0f, 0.0f, ANIMMODE_ONCE, 0.0f);
+        }
+
+        // Steer pitch + yaw from the stick, INVERTED to match Zora free-swim (stick up = dive/nose down).
+        sOdolwaFlightYaw -= (s16)(in->rel.stick_x * kOdolwaFlightTurnRate);
+        sOdolwaFlightPitch -= (s16)(in->rel.stick_y * kOdolwaFlightTurnRate);
+        sOdolwaFlightPitch = CLAMP(sOdolwaFlightPitch, (s16)-kOdolwaFlightPitchMax, kOdolwaFlightPitchMax);
+
+        player->actor.world.rot.y = sOdolwaFlightYaw;
+        player->actor.shape.rot.y = sOdolwaFlightYaw;
+        player->yaw = sOdolwaFlightYaw;
+        player->actor.gravity = 0.0f;
+
+        // A advances forward along the aim; no A = hover in place.
+        if (CHECK_BTN_ALL(in->cur.button, BTN_A)) {
+            player->speedXZ = kOdolwaFlightSpeed * Math_CosS(sOdolwaFlightPitch);
+            player->actor.velocity.y = kOdolwaFlightSpeed * Math_SinS(sOdolwaFlightPitch);
+            if ((play->gameplayFrames & 7) == 0) {
+                Actor_PlaySfx(&player->actor, NA_SE_EN_MB_MOTH_FLY - SFX_FLAG);
+            }
+        } else {
+            player->speedXZ = 0.0f;
+            player->actor.velocity.y = 0.0f;
+        }
+    }
+}
+
 // Run-speed multiplier applied at Player_Action_13 (human locomotion): 2x while wearing Odolwa AND
 // HOLDING A; 1.0x otherwise. (sOdolwaRunBoost is refreshed each frame in BossRemains_TickOdolwa.)
 extern "C" f32 BossRemains_RunSpeedMul(void) {
@@ -1380,9 +1642,10 @@ extern "C" f32 BossRemains_RunSpeedMul(void) {
 }
 
 // True while the 2x run boost (A held) is active — drives the purple trail (trail func also gates on
-// actual movement), so the trail only shows during the boosted run.
+// actual movement), so the trail only shows during the boosted run. NEVER while riding the moth cloud
+// (A there means "advance", not "run") — the flight has no run trail.
 extern "C" s32 BossRemains_IsOdolwaRunning(void) {
-    return (BossRemains_IsOdolwaWorn() && sOdolwaRunBoost) ? 1 : 0;
+    return (BossRemains_IsOdolwaWorn() && sOdolwaRunBoost && !BossRemains_IsOdolwaFlying()) ? 1 : 0;
 }
 
 // ============================================================================

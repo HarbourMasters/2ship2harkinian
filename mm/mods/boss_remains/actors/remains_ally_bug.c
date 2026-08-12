@@ -87,14 +87,31 @@ static const char* const sMothModelDLPath = "__OTR__overlays/ovl_En_Tanron1/ovl_
 #define BUG_THUNDER_TTL 40
 #define BUG_THUNDER_DAMAGE 0x06
 
+// Cloud mode (Odolwa "Nimbus" flight): a moth that hovers UNDER Link in an orbiting ring, forming the
+// cloud that carries him. It only exists while Link is flying (BossRemains_IsOdolwaFlying) and never
+// attacks. hopTimer is repurposed as the orbit angle.
+#define BUG_MODE_CLOUD 3
+#define BUG_CLOUD_RADIUS 22.0f  // ring radius under Link
+#define BUG_CLOUD_BELOW 10.0f   // how far below Link the cloud sits
+#define BUG_CLOUD_ORBIT 0x0300  // orbit angular speed (binang/frame)
+
+// Pikmin ball (ground beetles trail Link like Gyorg's fish school): a loose spaced BALL BEHIND Link that
+// only breaks formation to attack when Link holds still, converging on the enemy nearest to LINK.
+#define BUG_BALL_DIST    50.0f  // base distance the ball trails behind Link
+#define BUG_BALL_SPACING 26.0f  // extra ring depth so they don't all sit at one radius
+#define BUG_BALL_SEP     22.0f  // boids separation radius (keeps the ball from merging to a dot)
+#define BUG_LINK_MOVE    2.5f   // Link speedXZ above this = "moving" → re-form (don't peel off to attack)
+
+extern s32 BossRemains_IsOdolwaFlying(void); // defined later in the same TU (boss_remains.cpp)
+
 typedef struct RemainsAllyBug {
     /**/ Actor actor;
     /**/ SkelAnime skelAnime; // ground mode: Odolwa's bug (gOdolwaBugSkel) crawling skeleton
     /**/ Vec3s jointTable[BUG_ODOLWA_LIMB_MAX];
     /**/ Vec3s morphTable[BUG_ODOLWA_LIMB_MAX];
     /**/ ColliderCylinder collider;
-    /**/ s16 spawnParams; // 0 = ground beetle, BUG_MODE_PROJECTILE = flying moth-beam
-    /**/ s16 hopTimer;    // frames until the next hop
+    /**/ s16 spawnParams; // 0 = ground beetle, BUG_MODE_PROJECTILE/THUNDER/CLOUD otherwise
+    /**/ s16 hopTimer;    // frames until the next hop (CLOUD: orbit angle)
     /**/ s16 lifeTimer;   // hard TTL countdown
     /**/ s16 flapTimer;   // projectile (moth) wing-flap phase
 } RemainsAllyBug;
@@ -174,6 +191,15 @@ static void RemainsAllyBug_Init(Actor* thisx, PlayState* play) {
         self->actor.world.rot.y = self->actor.shape.rot.y; // Actor_MoveWithGravity flies along this
         self->hopTimer = 0;
         self->lifeTimer = (self->spawnParams == BUG_MODE_THUNDER) ? BUG_THUNDER_TTL : BUG_PROJECTILE_TTL;
+
+        if (self->spawnParams == BUG_MODE_CLOUD) {
+            // Not a projectile: it hovers under Link. hopTimer = orbit angle (seeded from spawn rot), no
+            // speed of its own, and no TTL — it lives until the flight ends (self-kills in Update).
+            self->actor.speed = 0.0f;
+            self->hopTimer = self->actor.shape.rot.y;
+            self->lifeTimer = 0;
+            Actor_SetScale(&self->actor, 0.014f);
+        }
     } else {
         // Ground = Odolwa's real BEETLE: FLEX skeleton + crawl anim from object_boss01, loaded by OTR path
         // (the resource manager resolves the limb DLs — same route the bombchu ally uses).
@@ -203,8 +229,26 @@ static void RemainsAllyBug_Destroy(Actor* thisx, PlayState* play) {
     Collider_DestroyCylinder(play, &self->collider);
 }
 
+// Boids separation among GROUND beetles: nudge apart so the Pikmin ball stays spaced instead of merging
+// into one dot (mirrors RemainsAllyFish_Separate). Only ground bugs (spawnParams 0) push each other.
+static void RemainsAllyBug_Separate(RemainsAllyBug* self, PlayState* play) {
+    for (Actor* a = play->actorCtx.actorLists[ACTORCAT_MISC].first; a != NULL; a = a->next) {
+        if ((a == &self->actor) || (a->id != ACTOR_REMAINS_ALLY_BUG) || (((RemainsAllyBug*)a)->spawnParams != 0)) {
+            continue;
+        }
+        f32 d = Math_Vec3f_DistXZ(&self->actor.world.pos, &a->world.pos);
+        if ((d < BUG_BALL_SEP) && (d > 0.1f)) {
+            s16 away = Math_Vec3f_Yaw(&a->world.pos, &self->actor.world.pos); // neighbor -> self
+            f32 push = (BUG_BALL_SEP - d) * 0.25f;
+            self->actor.world.pos.x += Math_SinS(away) * push;
+            self->actor.world.pos.z += Math_CosS(away) * push;
+        }
+    }
+}
+
 // ============================================================================
-// UPDATE — find nearest enemy, hop-chase + kamikaze; else idle-follow the player.
+// UPDATE — Pikmin ball behind Link (like Gyorg's fish), peeling off to swarm the
+// nearest enemy to Link only while Link holds still; kamikaze on contact.
 // ============================================================================
 
 static void RemainsAllyBug_Update(Actor* thisx, PlayState* play) {
@@ -215,6 +259,23 @@ static void RemainsAllyBug_Update(Actor* thisx, PlayState* play) {
         self->flapTimer += BUG_FLAP_RATE; // moth wing-flap / thunder flicker phase
     } else {
         SkelAnime_Update(&self->skelAnime); // crawl the beetle's legs
+    }
+
+    // CLOUD: hover under Link in an orbiting ring for as long as the flight lasts; self-kill when it ends.
+    if (self->spawnParams == BUG_MODE_CLOUD) {
+        if (!BossRemains_IsOdolwaFlying()) {
+            Actor_Kill(&self->actor);
+            return;
+        }
+        Player* pl = GET_PLAYER(play);
+        if (pl != NULL) {
+            self->hopTimer += BUG_CLOUD_ORBIT; // swirl the ring
+            self->actor.world.pos.x = pl->actor.world.pos.x + (Math_SinS(self->hopTimer) * BUG_CLOUD_RADIUS);
+            self->actor.world.pos.z = pl->actor.world.pos.z + (Math_CosS(self->hopTimer) * BUG_CLOUD_RADIUS);
+            self->actor.world.pos.y = pl->actor.world.pos.y - BUG_CLOUD_BELOW;
+            self->actor.shape.rot.y = self->hopTimer;
+        }
+        return;
     }
 
     if (self->hopTimer > 0) {
@@ -266,7 +327,26 @@ static void RemainsAllyBug_Update(Actor* thisx, PlayState* play) {
         return;
     }
 
-    target = RemainsAlly_FindNearestEnemy(play, &self->actor.world.pos, BUG_SEARCH_RANGE);
+    // Pikmin ball: this bug's spot is BEHIND Link (facing reversed), fanned + ring-depthed by a stable
+    // per-bug hash of its pointer, and boids-separated so the ball has volume. Like Gyorg's fish.
+    Player* player = GET_PLAYER(play);
+    Vec3f anchor = self->actor.world.pos;
+    s32 linkMoving = (player != NULL) && (player->speedXZ > BUG_LINK_MOVE);
+    if (player != NULL) {
+        s16 behindYaw = player->actor.shape.rot.y + 0x8000;
+        s16 fan = (s16)((((s32)((uintptr_t)self >> 5) & 3) - 1) * 0x1800);
+        f32 ringDist = BUG_BALL_DIST + (f32)(((uintptr_t)self >> 7) & 1) * BUG_BALL_SPACING;
+        anchor = player->actor.world.pos;
+        anchor.x += Math_SinS(behindYaw + fan) * ringDist;
+        anchor.z += Math_CosS(behindYaw + fan) * ringDist;
+        RemainsAllyBug_Separate(self, play);
+    }
+
+    // Peel off to swarm ONLY while Link holds still, converging on the enemy nearest to LINK (so they
+    // gang up "en banco"); while he moves they re-form the ball and keep up.
+    target = (linkMoving || (player == NULL))
+                 ? NULL
+                 : RemainsAlly_FindNearestEnemy(play, &player->actor.world.pos, BUG_SEARCH_RANGE);
 
     if (target != NULL) {
         // Hop cadence: inject upward velocity only when grounded so it reads as hopping. Done BEFORE
@@ -299,14 +379,17 @@ static void RemainsAllyBug_Update(Actor* thisx, PlayState* play) {
             Actor_Kill(&self->actor);
             return;
         }
-    } else {
-        // Nothing to fight: hop near the player (the hard TTL at the top of Update expires it).
+    } else if (player != NULL) {
+        // Form up: hop toward this bug's spot in the ball behind Link. Sprint if far (keep up with him),
+        // ease when near, hold when there — same speed ramp the fish school uses.
         if ((self->hopTimer <= 0) && (self->actor.bgCheckFlags & BGCHECKFLAG_GROUND)) {
             self->actor.velocity.y = BUG_HOP_STRENGTH;
             self->hopTimer = BUG_HOP_INTERVAL;
         }
 
-        RemainsAlly_FollowPlayer(play, &self->actor, BUG_FOLLOW_DIST, BUG_IDLE_SPEED);
+        f32 distToAnchor = Math_Vec3f_DistXZ(&self->actor.world.pos, &anchor);
+        f32 sp = (distToAnchor > BUG_FOLLOW_DIST) ? BUG_CHASE_SPEED : (distToAnchor > 10.0f) ? BUG_IDLE_SPEED : 0.0f;
+        RemainsAlly_HomeTowardPos(play, &self->actor, &anchor, sp);
     }
 }
 
@@ -358,8 +441,8 @@ static void RemainsAllyBug_Draw(Actor* thisx, PlayState* play) {
             MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, play->state.gfxCtx);
             gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gGohtLightningModelDL);
         }
-    } else if (self->spawnParams == BUG_MODE_PROJECTILE) {
-        // Sword-beam = the En_Tanron1 MOTH sprite as a camera-facing billboard with a wing-flap.
+    } else if ((self->spawnParams == BUG_MODE_PROJECTILE) || (self->spawnParams == BUG_MODE_CLOUD)) {
+        // Sword-beam / carrying-cloud = the En_Tanron1 MOTH sprite as a camera-facing billboard, wing-flap.
         f32 flap = 0.75f + (0.30f * Math_SinS(self->flapTimer));
         gSPDisplayList(POLY_OPA_DISP++, (Gfx*)sMothSetupDLPath);
         Matrix_Translate(self->actor.world.pos.x, self->actor.world.pos.y + BUG_DRAW_Y_LIFT, self->actor.world.pos.z,
@@ -406,6 +489,17 @@ Actor* RemainsAllyBug_Spawn(PlayState* play, Vec3f* pos, s16 rotY) {
     }
 
     return Actor_Spawn(&play->actorCtx, play, ACTOR_REMAINS_ALLY_BUG, pos->x, pos->y, pos->z, 0, rotY, 0, 0);
+}
+
+// Nimbus cloud moth: hovers under Link (rotY seeds its ring angle). Lives while the flight is active.
+Actor* RemainsAllyBug_SpawnCloud(PlayState* play, Vec3f* pos, s16 rotY) {
+    if ((play == NULL) || (pos == NULL)) {
+        return NULL;
+    }
+    // Spread the ring: offset each moth's seed angle so 5 of them fan out around the circle.
+    s16 spread = rotY + (s16)Rand_CenteredFloat(65535.0f);
+    return Actor_Spawn(&play->actorCtx, play, ACTOR_REMAINS_ALLY_BUG, pos->x, pos->y, pos->z, 0, spread, 0,
+                       BUG_MODE_CLOUD);
 }
 
 // FD-beam moth: spawn one in projectile mode (params = BUG_MODE_PROJECTILE) flying toward rotY.

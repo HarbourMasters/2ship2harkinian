@@ -203,8 +203,18 @@ void DrawItemCycleExtras(PlayState* play, u8 slot, u8 canCycle, u8 leftItem, u8 
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
+// 2026-08-07 — DISABLED under the NEI unified layout. These three hooks are the base rando's
+// trade-item cycling, and they address the pause grid by MM's NATIVE slot numbers (SLOT_TRADE_DEED
+// = 5, KEY_MAMA = 11, COUPLE = 17). The NEI item page remaps every visual cell through
+// sOotPage0Map, so those "cells" are Din's Fire, Farore's Wind and Nayru's Love now — which is
+// exactly the reported bug: the DEED wheel drawing on top of Din's Fire, deeds cycling while the
+// cursor sits on a spell, and the spell's own name being suppressed by the DISPLAY_ITEM_TEXT veto.
+// The unified trade wheel (z_kaleido_item.c, visual cell 22) already folds all three native slots
+// and cycles the full 23-entry list, so this whole system is superseded, not lost. Skijer's NEI
+static constexpr bool kNeiUnifiedLayoutOwnsTradeCycling = true;
+
 void Rando::MiscBehavior::InitKaleidoItemPage() {
-    COND_HOOK(OnKaleidoUpdate, IS_RANDO, [](PauseContext* pauseCtx) {
+    COND_HOOK(OnKaleidoUpdate, IS_RANDO && !kNeiUnifiedLayoutOwnsTradeCycling, [](PauseContext* pauseCtx) {
         InterfaceContext* interfaceCtx = &gPlayState->interfaceCtx;
 
         if ((pauseCtx->state != PAUSE_STATE_MAIN)) {
@@ -344,7 +354,7 @@ void Rando::MiscBehavior::InitKaleidoItemPage() {
         sPrevKaleidoCursorSlot = slot;
     });
 
-    COND_VB_SHOULD(VB_KALEIDO_DISPLAY_ITEM_TEXT, IS_RANDO, {
+    COND_VB_SHOULD(VB_KALEIDO_DISPLAY_ITEM_TEXT, IS_RANDO && !kNeiUnifiedLayoutOwnsTradeCycling, {
         PauseContext* pauseCtx = &gPlayState->pauseCtx;
         u16 slot = pauseCtx->cursorSlot[PAUSE_ITEM];
 
@@ -355,7 +365,8 @@ void Rando::MiscBehavior::InitKaleidoItemPage() {
         *should = false;
     });
 
-    COND_ID_HOOK(AfterKaleidoDrawPage, PAUSE_ITEM, IS_RANDO, [](PauseContext* pauseCtx, u16 pauseIndex) {
+    COND_ID_HOOK(AfterKaleidoDrawPage, PAUSE_ITEM, IS_RANDO && !kNeiUnifiedLayoutOwnsTradeCycling,
+                 [](PauseContext* pauseCtx, u16 pauseIndex) {
         std::vector<u8> availableDeedItems = BuildAvailableItemsList(SLOT_TRADE_DEED);
         std::vector<u8> availableKeyMamaItems = BuildAvailableItemsList(SLOT_TRADE_KEY_MAMA);
         std::vector<u8> availableCoupleItems = BuildAvailableItemsList(SLOT_TRADE_COUPLE);

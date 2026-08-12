@@ -70,7 +70,24 @@ static void MigrateWarpPoints(Ship::Config* conf) {
         }
     }
 
-    Ship::Context::GetInstance()->GetConfig()->SetBlock("WarpPoints", warpPoints);
+    Ship::Context::GetRawInstance()->GetConfig()->SetBlock("WarpPoints", warpPoints);
+}
+
+// LUS 1.3.1-464 replaced `enum class Ship::WindowBackend` (DX11=0, OpenGL=1, Metal=2) with the
+// plain `enum Fast::WindowBackend` (DX11=1, OpenGL=2, Metal=3), so every previously stored
+// "Window.Backend.Id" is off by one and would select the wrong renderer — or none at all, since
+// the new scheme reserves 0 for "no backend in use". Shift the saved id forward to preserve the
+// user's choice instead of dropping it. This runs exactly once, gated on the config version.
+static void MigrateWindowBackendId(Ship::Config* conf) {
+    int32_t oldBackendId = conf->GetInt("Window.Backend.Id", -1);
+
+    if (oldBackendId < 0) {
+        return; // never chosen a renderer explicitly; the running backend is used as-is
+    }
+
+    conf->SetInt("Window.Backend.Id", oldBackendId + 1);
+    // Regenerated from the (now corrected) id the next time the renderer combobox is touched.
+    conf->Erase("Window.Backend.Name");
 }
 
 ConfigVersion1Updater::ConfigVersion1Updater() : ConfigVersionUpdater(1) {
@@ -80,6 +97,13 @@ void ConfigVersion1Updater::Update(Ship::Config* conf) {
     ApplyMigrationActions(version1Migrations);
     MigrateDisplayOverlayTimerMode(conf);
     MigrateWarpPoints(conf);
+}
+
+ConfigVersion2Updater::ConfigVersion2Updater() : ConfigVersionUpdater(2) {
+}
+
+void ConfigVersion2Updater::Update(Ship::Config* conf) {
+    MigrateWindowBackendId(conf);
 }
 
 } // namespace Ben

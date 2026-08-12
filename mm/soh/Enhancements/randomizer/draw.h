@@ -31,4 +31,7 @@
 #define Randomizer_DrawLantern NULL
 #define Randomizer_DrawPokeball NULL
 #define Randomizer_DrawBottleWithMagicMushroom NULL
+// Elemental Wand (Skijer's NEI) — the real get-item model is picked in 2s2h/Rando/DrawItem.cpp by
+// RandoItemId, same as every other NEI item here.
+#define Randomizer_DrawElementalWand NULL
 #endif

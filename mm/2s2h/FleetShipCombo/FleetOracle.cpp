@@ -31,6 +31,10 @@
 #include <fstream>
 #include <memory>
 #include <set>
+#include <random>    // mt19937 seeded from the seed (deterministic fillTurn)
+#include <algorithm> // std::shuffle
+#include <thread>    // sleep_for on the response-rename retry
+#include <chrono>
 #include <nlohmann/json.hpp>
 #include <spdlog/spdlog.h>
 
@@ -123,14 +127,35 @@ void WriteJsonAtomic(const std::filesystem::path& p, const nlohmann::json& j) {
     }
     try {
         std::filesystem::path tmp = p;
-        tmp += ".tmp2"; // sufijo propio de 2ship, como en FleetSync, para no chocar con el host
+        tmp += ".tmp2"; // 2ship's own suffix, as in FleetSync, so it never clashes with the host's
         {
             std::ofstream out(tmp);
             out << j << std::endl;
         }
-        std::filesystem::rename(tmp, p);
+        // Windows: renaming onto oracle_resp.json fails (sharing violation) when the host happens to
+        // have it open for reading at that exact moment. Dropping the response there is fatal for the
+        // host: it blocks for the full 45s OracleReachable timeout, the pre-placement aborts and the
+        // whole fill attempt is retried. With thousands of requests per generation this fired often
+        // enough that seeds essentially never finished generating.
+        //
+        // The host side already retries its own rename for exactly this reason (FleetOracleClient's
+        // SendRequest); this mirrors it so the fix covers BOTH directions. Skijer's NEI
+        std::error_code ec;
+        for (int attempt = 0; attempt < 100; attempt++) {
+            std::filesystem::rename(tmp, p, ec);
+            if (!ec) {
+                break;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        }
+        if (ec) {
+            std::error_code rmec;
+            std::filesystem::remove(tmp, rmec); // do not leave the .tmp2 behind
+            SPDLOG_WARN("[FleetOracle] failed writing the response (rename: {}) - the host will time out",
+                        ec.message());
+        }
     } catch (...) {
-        SPDLOG_WARN("[FleetOracle] fallo escribiendo la respuesta");
+        SPDLOG_WARN("[FleetOracle] failed writing the response");
     }
 }
 
@@ -172,6 +197,34 @@ void BuildRandoBaseline() {
     Rando::GrantStartingItems();
 }
 
+// Is this an ocarina song? MM has no RITYPE_SONG, and the song ids sit in one contiguous alphabetical
+// block, so this is the same test Menu.cpp uses for the starting-items song group. RI_PROGRESSIVE_LULLABY
+// lives outside the block (it is a progressive chain) and has to be named explicitly. Skijer's NEI
+static bool FleetOracle_IsSongItem(RandoItemId itemId) {
+    return (itemId >= RI_SONG_DOUBLE_TIME && itemId <= RI_SONG_TIME) || itemId == RI_PROGRESSIVE_LULLABY;
+}
+
+// Is this a dungeon reward? MM's four boss remains — the counterpart of OoT's 6 medallions and 3
+// spiritual stones. The ids are contiguous but the block is alphabetical and could grow, so they are
+// named one by one rather than range-tested. Skijer's NEI
+static bool FleetOracle_IsRewardItem(RandoItemId itemId) {
+    return itemId == RI_REMAINS_ODOLWA || itemId == RI_REMAINS_GOHT || itemId == RI_REMAINS_GYORG ||
+           itemId == RI_REMAINS_TWINMOLD;
+}
+
+// SHARED RESTRICTED CATEGORIES. Each one is a set of items that belongs to a matching set of spots in
+// both games; the host asks for MM's half through the manifest and then places across both. `key`
+// must match gFcCategories in the host's FleetComboRando.cpp — it is the wire contract. Adding a
+// category is one row here and one row there. Skijer's NEI
+struct FleetOracleCategory {
+    const char* key;
+    bool (*isItem)(RandoItemId);
+};
+static const FleetOracleCategory sOracleCategories[] = {
+    { "songs", FleetOracle_IsSongItem },
+    { "rewards", FleetOracle_IsRewardItem },
+};
+
 // ---- ops ----
 
 nlohmann::json HandleManifest() {
@@ -183,8 +236,38 @@ nlohmann::json HandleManifest() {
     Rando::Logic::GeneratePools(gSaveContext.save.shipSaveInfo.rando, checkPool, itemPool);
 
     nlohmann::json checks = nlohmann::json::array();
+    // Readable area name per check (RC_name -> "Woodfall Temple"). OoT needs this to generate hints
+    // pointing at items placed in MM: without it its generator resolves RC_UNKNOWN_CHECK and emits
+    // "Invalid Location", which ends up leaving raw [[N]] tokens on the altar. Skijer's NEI
+    nlohmann::json checkAreas = nlohmann::json::object();
+    // MM's own song spots, for the combo's shared "Song Spots" mode.
+    //
+    // Identified by the check's VANILLA ITEM, not by randoCheckType: the two Goron Lullaby checks
+    // (RC_GORON_SHRINE_FULL_LULLABY and RC_PATH_TO_GORON_VILLAGE_LULLABY_INTRO) are typed RCTYPE_NPC,
+    // so filtering on RCTYPE_SONG silently found 9 spots instead of 11. There is no RITYPE_SONG in
+    // MM; the range test below is the idiom the codebase already uses (Menu.cpp). Skijer's NEI
+    nlohmann::json songChecks = nlohmann::json::array();
+    nlohmann::json categoryChecks = nlohmann::json::object();
+    for (auto& cat : sOracleCategories) {
+        categoryChecks[cat.key] = nlohmann::json::array();
+    }
     for (RandoCheckId checkId : checkPool) {
         checks.push_back({ (int)checkId, Rando::StaticData::Checks[checkId].name });
+        for (auto& cat : sOracleCategories) {
+            if (cat.isItem(Rando::StaticData::Checks[checkId].randoItemId)) {
+                categoryChecks[cat.key].push_back(Rando::StaticData::Checks[checkId].name);
+            }
+        }
+        if (FleetOracle_IsSongItem(Rando::StaticData::Checks[checkId].randoItemId)) {
+            songChecks.push_back(Rando::StaticData::Checks[checkId].name);
+        }
+
+        // GetLocationNameForHint returns "in <Area>"; the host only wants the area.
+        std::string area = Rando::StaticData::GetLocationNameForHint(checkId, false);
+        if (area.rfind("in ", 0) == 0) {
+            area = area.substr(3);
+        }
+        checkAreas[Rando::StaticData::Checks[checkId].name] = area;
     }
     // Pool con categoría: [spoilerName, "prog"|"junk"|"health"|"trap"] — el host clasifica
     // progresión vs relleno con esto (strings estables, no ints de enum que pueden driftear).
@@ -211,6 +294,11 @@ nlohmann::json HandleManifest() {
     }
 
     resp["checks"] = checks;
+    resp["checkAreas"] = checkAreas;
+    // songChecks is the old songs-only field, kept so a host built before categoryChecks still gets
+    // its song spots instead of silently placing every song inside Hyrule. Skijer's NEI
+    resp["songChecks"] = songChecks;
+    resp["categoryChecks"] = categoryChecks;
     resp["pool"] = pool;
     resp["startingItems"] = starting;
     resp["options"] = options;
@@ -395,6 +483,103 @@ nlohmann::json HandleCreateSave(const nlohmann::json& req) {
     return resp;
 }
 
+// ---- Save pairing (OoT is the owner, MM's files are DERIVED) ----------------------------------
+// A combo file is ONE file living in two processes: OoT's slot N and MM's slot N are the same save.
+// So MM must never keep a slot OoT no longer has, and must never play a slot built for a different
+// seed than the one OoT is running -- that is how you end up with two games handing out items from
+// two different fills, which looks like nothing at all until hours later.
+
+// Delete MM's file for `slot` (and its backup). Called for the pair when OoT erases its own file.
+void DeleteSlotFiles(int slot) {
+    SaveManager_DeleteSaveFile(SaveManager_GetFileName(slot + 1));
+    SaveManager_DeleteSaveFile(SaveManager_GetFileName(slot + 1, true)); // backup copy
+}
+
+// Does the file on disk carry the seed OoT published for this combo? Reads the slot straight off
+// disk (nothing is loaded at the point we ask) and only reports a rebuild when it can PROVE the
+// slot is unusable: missing, unreadable, or stamped with another seed. "We cannot tell" (no seed
+// published yet, a non-rando save) is never a rebuild -- guessing here destroys real progress.
+bool SlotNeedsRebuild(int slot) {
+    nlohmann::json j;
+    if (SaveManager_ReadSaveFile(SaveManager_GetFileName(slot + 1), j) != 0) {
+        return true; // no file at all, or garbage: OoT has a combo file, MM must have its half
+    }
+    const unsigned int expected = FleetShipCombo_GetComboSeed();
+    if (expected == 0) {
+        return false; // no combo seed published yet: nothing to validate against
+    }
+    try {
+        const auto& rando = j.at("newCycleSave").at("save").at("shipSaveInfo").at("rando");
+        return rando.at("finalSeed").get<unsigned int>() != expected;
+    } catch (...) {
+        // With a combo seed published, MM's half of the slot MUST be a rando save carrying it. A
+        // vanilla save (or any shape without a finalSeed) sitting there is simply not the other
+        // half of OoT's file, so it gets rebuilt rather than played as if it were.
+        return true;
+    }
+}
+
+// op "deleteSave": OoT erased its file in this slot -> drop MM's half of the pair.
+nlohmann::json HandleDeleteSave(const nlohmann::json& req) {
+    int slot = req.value("slot", -1);
+    if (slot < 0 || slot > 2) {
+        throw std::runtime_error("deleteSave: invalid slot");
+    }
+    DeleteSlotFiles(slot);
+    SPDLOG_INFO("[FleetOracle] deleteSave OK: MM file{}.json removed (OoT erased its half)", slot + 1);
+    nlohmann::json resp;
+    resp["slot"] = slot;
+    return resp;
+}
+
+// op "wipeSaves": the combo was just switched ON. Every MM save predating the combo belongs to a
+// game OoT knows nothing about, so none of them has a valid OoT counterpart -- wipe the lot and let
+// the pairing rebuild them from OoT's seed. Ship only sends this on the OFF->ON transition.
+nlohmann::json HandleWipeSaves(const nlohmann::json& req) {
+    (void)req;
+    for (int slot = 0; slot < 3; slot++) {
+        DeleteSlotFiles(slot);
+    }
+    SPDLOG_INFO("[FleetOracle] wipeSaves OK: MM file1/2/3 removed (combo just enabled)");
+    nlohmann::json resp;
+    resp["wiped"] = 3;
+    return resp;
+}
+
+// op "ensureSave": OoT is about to play its combo file in this slot -> guarantee MM's half exists
+// and belongs to the SAME seed, rebuilding it when it does not. This is the "no match, no file"
+// repair: the alternative is OoT running seed A while MM runs seed B.
+nlohmann::json HandleEnsureSave(const nlohmann::json& req) {
+    int slot = req.value("slot", -1);
+    if (slot < 0 || slot > 2) {
+        throw std::runtime_error("ensureSave: invalid slot");
+    }
+    nlohmann::json resp;
+    resp["slot"] = slot;
+    if (!SlotNeedsRebuild(slot)) {
+        resp["rebuilt"] = false;
+        return resp;
+    }
+    SPDLOG_WARN("[FleetOracle] ensureSave: MM slot {} is missing or built for another seed -> rebuilding", slot);
+    DeleteSlotFiles(slot); // drop the stale half first: createSave overwrites the file, not the backup
+    nlohmann::json createReq;
+    createReq["slot"] = slot;
+    createReq["name"] = req.value("name", "LINK");
+    HandleCreateSave(createReq);
+    resp["rebuilt"] = true;
+    // The rebuild uses whatever spoiler THIS 2ship has installed (prepareSeed), which is not
+    // necessarily the one OoT's file was made from — loading an old combo file whose seed was never
+    // prepared here rebuilds the slot correctly-shaped but still on the wrong fill. Say so instead
+    // of reporting success: silent is exactly how the two games end up on different seeds.
+    if (SlotNeedsRebuild(slot)) {
+        resp["seedMismatch"] = true;
+        SPDLOG_ERROR("[FleetOracle] ensureSave: MM slot {} STILL does not match combo seed {} after the rebuild "
+                     "-- this 2ship has a different spoiler prepared (reload the .fleet from OoT)",
+                     slot, FleetShipCombo_GetComboSeed());
+    }
+    return resp;
+}
+
 void GiveOneItem(RandoItemId randoItemId) {
     if (randoItemId <= RI_UNKNOWN || randoItemId >= RI_MAX) {
         return;
@@ -435,6 +620,25 @@ nlohmann::json HandleReachable(const nlohmann::json& req) {
         }
     }
 
+    // PRE-PLACED ITEMS (restricted stages: shared songs, dungeon rewards). They are physically in
+    // MM's checks already, but nothing here knew that — so MM's logic could never reach anything
+    // gated behind them, and could never tell OoT it had got there either. They are NOT part of the
+    // assumed inventory: an item in a check is only yours once you can reach the check, which is
+    // exactly how a plando placement behaves. The crawl below hands each one over on arrival and
+    // keeps iterating, so one of them opening the way to the next resolves on its own. Skijer's NEI
+    std::map<std::string, RandoItemId> prePlaced;
+    if (req.contains("prePlaced") && req["prePlaced"].is_object()) {
+        for (auto& [checkName, itemName] : req["prePlaced"].items()) {
+            RandoItemId ri = Rando::StaticData::GetItemIdFromName(itemName.get<std::string>().c_str());
+            if (ri == RI_UNKNOWN) {
+                SPDLOG_WARN("[FleetOracle] pre-placed item desconocido: {}", itemName.get<std::string>());
+                continue;
+            }
+            prePlaced[checkName] = ri;
+        }
+    }
+    std::set<std::string> prePlacedReached;
+
     // Crawl fixed-point (mismo esqueleto que GlitchlessLogic, sin colocación ni junk-swap).
     // Los time states se inicializan DESPUÉS de dar los items, igual que en OnFileCreate
     // (starting items primero, InitializeRegionTimeStates ya refleja el tiempo poseído).
@@ -474,6 +678,13 @@ nlohmann::json HandleReachable(const nlohmann::json& req) {
                 if (!checksInLogic.contains(randoCheckId) && checkLogic.first()) {
                     checksInLogic.insert(randoCheckId);
                     changed = true;
+                    // Reached a check that already holds something: collect it. `changed` is already
+                    // true, so the loop runs again and whatever this item unlocks is picked up.
+                    auto pre = prePlaced.find(Rando::StaticData::Checks[randoCheckId].name);
+                    if (pre != prePlaced.end() && !prePlacedReached.contains(pre->first)) {
+                        prePlacedReached.insert(pre->first);
+                        GiveOneItem(pre->second);
+                    }
                 }
             }
         }
@@ -488,7 +699,224 @@ nlohmann::json HandleReachable(const nlohmann::json& req) {
         reachable.push_back((int)checkId);
     }
     resp["reachable"] = reachable;
-    SPDLOG_INFO("[FleetOracle] reachable: {} checks alcanzables", reachable.size());
+    // Whether MM's end of the portal (the fleet hole in South Clock Town) is standable with this
+    // inventory. The cross-game playthrough verifier needs it to know when Hyrule opens up.
+    resp["portalReachable"] = regionsInLogic.contains(RR_CLOCK_TOWN_SOUTH);
+    // Which pre-placed spots MM actually stood on. This is MM saying "I got to this one" — the host
+    // turns it into an announcement so OoT may assume that item from now on, and not a moment sooner.
+    nlohmann::json reachedPre = nlohmann::json::array();
+    for (auto& name : prePlacedReached) {
+        reachedPre.push_back(name);
+    }
+    resp["prePlacedReached"] = reachedPre;
+    SPDLOG_INFO("[FleetOracle] reachable: {} checks alcanzables, {} de {} pre-colocados alcanzados",
+                reachable.size(), prePlacedReached.size(), prePlaced.size());
+    return resp;
+}
+
+// ---- fillTurn: ONE TURN of the delegated fill ----
+//
+// The combo no longer places MM's items: it asks MM to place them. Each turn MM receives (a) the
+// inventory it may ASSUME (what OoT already placed and is reachable — "kept promises" — plus what MM
+// itself has placed so far), (b) the items still assigned to it, and (c) the checks already taken in
+// previous turns. It places everything that fits in checks reachable RIGHT NOW and returns.
+//
+// Why placing everything reachable at once is safe: putting an item into an ALREADY reachable
+// location can never make that location unreachable, so there is no need to re-crawl between items.
+// Spheres advance on their own — each turn starts from a larger assumed inventory.
+//
+// Stateless across calls: the request carries `used` and the RNG is seeded from the seed, so the same
+// seed always produces the same game. Skijer's NEI
+nlohmann::json HandleFillTurn(const nlohmann::json& req) {
+    nlohmann::json resp;
+    BuildRandoBaseline();
+
+    // (a) what OoT has ANNOUNCED it already placed, as [RI name, count]. Facts, not promises: every
+    // entry is a copy already sitting in a slot OoT could reach, so MM is entitled to assume it. The
+    // host never sends the shared pool wholesale — an item MM has not been told about does not exist
+    // as far as this turn is concerned. Skijer's NEI
+    std::vector<std::pair<std::string, int>> assumed;
+    if (req.contains("assumed") && req["assumed"].is_array()) {
+        for (auto& pair : req["assumed"]) {
+            assumed.push_back({ pair[0].get<std::string>(), pair[1].get<int>() });
+        }
+    }
+
+    // (b) items MM still owes, expanded one entry per copy
+    std::vector<std::string> toPlace;
+    if (req.contains("toPlace") && req["toPlace"].is_array()) {
+        for (auto& pair : req["toPlace"]) {
+            for (int i = 0, n = pair[1].get<int>(); i < n; i++) {
+                toPlace.push_back(pair[0].get<std::string>());
+            }
+        }
+    }
+
+    // (c) checks already taken in previous turns
+    std::set<std::string> used;
+    if (req.contains("used") && req["used"].is_array()) {
+        for (auto& name : req["used"]) {
+            used.insert(name.get<std::string>());
+        }
+    }
+
+    // Only MM's SHUFFLED checks are valid (the pool depends on MM's own options).
+    std::vector<RandoCheckId> checkPool;
+    std::vector<RandoItemId> itemPool;
+    Rando::Logic::GeneratePools(gSaveContext.save.shipSaveInfo.rando, checkPool, itemPool);
+    std::set<RandoCheckId> shuffled(checkPool.begin(), checkPool.end());
+
+    std::mt19937 rng((uint32_t)req.value("rngSeed", 0u));
+    std::shuffle(toPlace.begin(), toPlace.end(), rng);
+
+    // Nothing needs ordering last any more: restricted-category items (songs, dungeon rewards) are
+    // placed by the host's own stage before the split and never reach a fill turn. Skijer's NEI
+
+    // Same pre-placed handling as the reachable op: items the restricted stages already dropped into
+    // MM's checks are collected ON ARRIVAL, not assumed. Without this the fill turn is blind to them
+    // and reports slots unreachable that a player could open. Skijer's NEI
+    std::map<std::string, RandoItemId> prePlaced;
+    if (req.contains("prePlaced") && req["prePlaced"].is_object()) {
+        for (auto& [checkName, itemName] : req["prePlaced"].items()) {
+            RandoItemId ri = Rando::StaticData::GetItemIdFromName(itemName.get<std::string>().c_str());
+            if (ri != RI_UNKNOWN) {
+                prePlaced[checkName] = ri;
+            }
+        }
+    }
+    std::set<std::string> prePlacedReached;
+
+    // Reachability crawl under a given assumed inventory. Rebuilds the baseline every call because
+    // GiveOneItem mutates the save; the whole thing is restored by the caller afterwards.
+    auto crawlReachable = [&](const std::vector<std::string>& inventory) {
+        BuildRandoBaseline();
+        for (auto& name : inventory) {
+            RandoItemId ri = Rando::StaticData::GetItemIdFromName(name.c_str());
+            if (ri != RI_UNKNOWN) {
+                GiveOneItem(ri);
+            }
+        }
+        std::set<std::string> reachedHere;
+        uint64_t tick = GetUnixTimestamp();
+        std::set<RandoRegionId> regionsInLogic = { RR_MAX };
+        std::set<RandoCheckId> checksInLogic;
+        std::set<std::pair<RandoEvent, std::function<bool()>>*> eventsInLogic;
+        auto regionTimeStates = Rando::Logic::InitializeRegionTimeStates(RR_MAX);
+        while (true) {
+            if (GetUnixTimestamp() - tick > 10000) {
+                throw std::runtime_error("fillTurn crawl took too long, aborting");
+            }
+            bool changed = false;
+            auto prevSize = regionsInLogic.size();
+            for (RandoRegionId regionId : regionsInLogic) {
+                Rando::Logic::FindReachableRegions(regionId, regionsInLogic, regionTimeStates);
+            }
+            if (regionsInLogic.size() != prevSize) {
+                changed = true;
+            }
+            for (RandoRegionId regionId : regionsInLogic) {
+                auto& randoRegion = Rando::Logic::Regions[regionId];
+                Rando::Logic::SetCurrentRegionTime(regionTimeStates, regionId);
+                for (auto& randoEvent : randoRegion.events) {
+                    if (!eventsInLogic.contains(&randoEvent) && randoEvent.second()) {
+                        RANDO_EVENTS[randoEvent.first]++;
+                        eventsInLogic.insert(&randoEvent);
+                        changed = true;
+                    }
+                }
+                for (auto& [randoCheckId, checkLogic] : randoRegion.checks) {
+                    if (!checksInLogic.contains(randoCheckId) && checkLogic.first()) {
+                        checksInLogic.insert(randoCheckId);
+                        changed = true;
+                        auto pre = prePlaced.find(Rando::StaticData::Checks[randoCheckId].name);
+                        if (pre != prePlaced.end() && !reachedHere.contains(pre->first)) {
+                            reachedHere.insert(pre->first);
+                            GiveOneItem(pre->second);
+                        }
+                    }
+                }
+            }
+            if (!changed) {
+                break;
+            }
+        }
+        prePlacedReached.insert(reachedHere.begin(), reachedHere.end());
+        return std::make_pair(checksInLogic, regionsInLogic.contains(RR_CLOCK_TOWN_SOUTH));
+    };
+
+    // ASSUMED FILL, ONE ITEM AT A TIME. The copy being placed is left OUT of the assumed inventory,
+    // so its slot is guaranteed reachable WITHOUT it. Placing a whole batch against a single crawl
+    // (which is what this did at first) lets items end up behind themselves and produces seeds that
+    // cannot be completed — the exact bug that had to be fixed on the OoT side too. Skijer's NEI
+    nlohmann::json placed = nlohmann::json::object();
+    std::vector<std::string> leftover;
+    std::set<std::string> takenThisTurn;
+    bool portalReachable = false;
+
+    for (size_t idx = 0; idx < toPlace.size(); idx++) {
+        // Assumed = OoT's announcements + every copy MM still owes EXCEPT the one being placed now.
+        std::vector<std::string> inventory;
+        for (auto& [name, count] : assumed) {
+            for (int i = 0; i < count; i++) {
+                inventory.push_back(name);
+            }
+        }
+        for (size_t j = idx + 1; j < toPlace.size(); j++) {
+            inventory.push_back(toPlace[j]);
+        }
+        for (auto& name : leftover) {
+            inventory.push_back(name);
+        }
+
+        auto [reachable, portal] = crawlReachable(inventory);
+        portalReachable = portalReachable || portal;
+
+        std::vector<RandoCheckId> candidates;
+        for (RandoCheckId checkId : reachable) {
+            if (!shuffled.contains(checkId)) {
+                continue;
+            }
+            const char* name = Rando::StaticData::Checks[checkId].name;
+            if (used.contains(name) || takenThisTurn.contains(name)) {
+                continue;
+            }
+            candidates.push_back(checkId);
+        }
+        if (candidates.empty()) {
+            leftover.push_back(toPlace[idx]); // no reachable slot: the host retries it next turn
+            continue;
+        }
+        RandoCheckId pick = candidates[std::uniform_int_distribution<size_t>(0, candidates.size() - 1)(rng)];
+        const char* pickName = Rando::StaticData::Checks[pick].name;
+        placed[pickName] = toPlace[idx];
+        takenThisTurn.insert(pickName);
+    }
+
+    nlohmann::json remaining = nlohmann::json::array();
+    for (auto& riName : leftover) {
+        remaining.push_back(riName);
+    }
+
+    resp["placed"] = placed;
+    resp["remaining"] = remaining;
+    // MM's side of the cross-game portal is the fleet hole in South Clock Town. Reporting whether
+    // MM's own logic can stand there is what lets the host open OoT when the seed STARTS in MM: the
+    // portal is one bidirectional edge, and whichever world you begin in unlocks the other by
+    // reaching its end of it. Skijer's NEI
+    resp["portalReachable"] = portalReachable;
+    // Pre-placed spots MM stood on during this turn: "I got to this one". The host announces each to
+    // OoT, which may assume that item from then on and not before.
+    nlohmann::json reachedPre = nlohmann::json::array();
+    for (auto& name : prePlacedReached) {
+        reachedPre.push_back(name);
+    }
+    resp["prePlacedReached"] = reachedPre;
+    // Blocked = items remain and this turn could not place a SINGLE one. If it placed something, the
+    // next turn starts from a larger inventory and may unblock itself.
+    resp["blocked"] = !leftover.empty() && placed.empty();
+    resp["reachable"] = (int)placed.size();
+    SPDLOG_INFO("[FleetOracle] fillTurn: {} placed, {} pending, portal={}", placed.size(), leftover.size(),
+                portalReachable);
     return resp;
 }
 
@@ -525,7 +953,7 @@ void ProcessOracle() {
     // esos toasts (title/file select) y floodean la cola de notificaciones. createSave crea el save
     // real y sí debe registrar, así que NO se suprime ahí (el guard de gPlayState en CurrentJunkItem
     // evita el crash en cualquier caso). Balanceado en el restore.
-    bool suppressToast = (op == "manifest" || op == "reachable");
+    bool suppressToast = (op == "manifest" || op == "reachable" || op == "fillTurn");
     if (suppressToast) {
         gFcCombo_SuppressRecord++;
     }
@@ -538,10 +966,18 @@ void ProcessOracle() {
             resp = HandleReachable(req);
         } else if (op == "setOptions") {
             resp = HandleSetOptions(req);
+        } else if (op == "fillTurn") {
+            resp = HandleFillTurn(req);
         } else if (op == "prepareSeed") {
             resp = HandlePrepareSeed(req);
         } else if (op == "createSave") {
             resp = HandleCreateSave(req);
+        } else if (op == "deleteSave") {
+            resp = HandleDeleteSave(req);
+        } else if (op == "wipeSaves") {
+            resp = HandleWipeSaves(req);
+        } else if (op == "ensureSave") {
+            resp = HandleEnsureSave(req);
         } else {
             resp["error"] = "unknown op: " + op;
         }
@@ -569,3 +1005,19 @@ void RegisterFleetOracle() {
 static RegisterShipInitFunc initFleetOracle(RegisterFleetOracle, {});
 
 } // namespace
+
+bool FleetOracle_RecreateSaveSlot(int slot, const char* name) {
+    try {
+        nlohmann::json req;
+        req["slot"] = slot;
+        req["name"] = (name != nullptr && name[0] != '\0') ? name : "Link";
+        HandleCreateSave(req);
+        return true;
+    } catch (const std::exception& e) {
+        SPDLOG_ERROR("[FleetOracle] could not rebuild MM slot {}: {}", slot, e.what());
+        return false;
+    } catch (...) {
+        SPDLOG_ERROR("[FleetOracle] could not rebuild MM slot {}: unknown exception", slot);
+        return false;
+    }
+}

@@ -5,7 +5,7 @@
  *   1. Clawshot mode  — A on hookshot/longshot reverses pull direction
  *                       (target → Link) and enables chain grappling.
  *   2. Bomb Arrows    — Bomb arrows appear in the arrow wheel without
- *                       requiring the AutoGrantOnBag CVar.
+ *                       regardless of the "Shuffle Bomb Arrows" randomizer mode.
  *   3. Gale Boomerang — A on boomerang enables multi-target routing
  *                       (L/R add targets) + Z-target B-boost to boomerang
  *                       (Twilight Princess clawshot-jump style).
@@ -53,7 +53,7 @@ void TwilightUpgrade_SetGaleBoomerang(u8 on);
 // Item-availability shortcuts. These combine the upgrade bit with the
 // prerequisite item (e.g. Clawshot requires hookshot OR longshot to be useful).
 u8 TwilightUpgrade_ClawshotAvailable(void); // upgrade + (hookshot || longshot)
-u8 TwilightUpgrade_BombArrowsAvailable(void); // upgrade OR AutoGrantOnBag CVar OR explicit inv
+u8 TwilightUpgrade_BombArrowsAvailable(void); // == Sw97_BombArrowsOwned(): save flag OR upgrade OR "Bomb Bag" mode
 u8 TwilightUpgrade_GaleBoomerangAvailable(void); // upgrade + boomerang owned
 
 // Mode toggle accessors — read/write the active mode for each upgraded item.

@@ -5,6 +5,7 @@
  */
 
 #include "z_en_rr.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "z64rumble.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "objects/object_rr/object_rr.h"
@@ -503,7 +504,7 @@ void func_808FAC80(EnRr* this, PlayState* play) {
     if ((this->unk_1F0 == 0) && ((this->collider2.base.atFlags & AT_HIT) || (this->collider1.base.atFlags & AT_HIT))) {
         this->collider1.base.atFlags &= ~AT_HIT;
         this->collider2.base.atFlags &= ~AT_HIT;
-        if (play->grabPlayer(play, player)) {
+        if (GameInteractor_Should(VB_LIKE_LIKE_GRAB_PLAYER, true, this) && play->grabPlayer(play, player)) {
             player->actor.parent = &this->actor;
             func_808FA3F8(this, player);
         }

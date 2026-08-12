@@ -59,8 +59,14 @@
 #include "behaviors/equip_pendant.c"
 #include "behaviors/equip_divine_shield.c"
 #include "behaviors/equip_champion.c"
+#include "behaviors/equip_sages_tunic.c"
 #include "behaviors/equip_foursword.c"
-#include "behaviors/equip_vanilla_tunic_boots.c" // OoT vanilla tunics/boots effects (Skijer's NEI)
+#include "behaviors/equip_vanilla_tunic_boots.c"
+// Skijer 2026-07-29 kaleido re-layout: the four slots that changed hands.
+#include "behaviors/equip_trident.c"     // sword 3 (was the Iron Knuckle's Axe, now the Hammer upgrade)
+#include "behaviors/equip_kite_shield.c" // shield 2 (was the Gerudo Scimitar placeholder)
+#include "behaviors/equip_climb_boots.c" // boots 2 (was the Pendant of Memories)
+#include "behaviors/equip_roc_boots.c"   // boots 3 (was the deleted Water Dragon Scale)
 
 // ---------------------------------------------------------------------------
 // Sword behaviors
@@ -74,10 +80,9 @@ static void ExtEquip_Behavior_Sword2(Player* player, PlayState* play) {
 }
 
 static void ExtEquip_Behavior_Sword3(Player* player, PlayState* play) {
-    // Ext sword slot 3 is unused: the Iron Knuckle's Axe is now the Hammer upgrade,
-    // driven from ExtEquip_UpdateBehavior via WeaponUpgrade_HasHammerAxe().
-    (void)player;
-    (void)play;
+    // The Iron Knuckle's Axe left this slot for good — it is the HAMMER UPGRADE now, driven from
+    // ExtEquip_UpdateBehavior via WeaponUpgrade_HasHammerAxe(). The slot holds the TRIDENT.
+    Trident_Behavior(player, play);
 }
 
 // ---------------------------------------------------------------------------
@@ -88,8 +93,7 @@ static void ExtEquip_Behavior_Shield1(Player* player, PlayState* play) {
 }
 
 static void ExtEquip_Behavior_Shield2(Player* player, PlayState* play) {
-    (void)player;
-    (void)play;
+    KiteShield_Behavior(player, play);
 }
 
 static void ExtEquip_Behavior_Shield3(Player* player, PlayState* play) {
@@ -100,18 +104,15 @@ static void ExtEquip_Behavior_Shield3(Player* player, PlayState* play) {
 // Tunic behaviors (stubs)
 // ---------------------------------------------------------------------------
 static void ExtEquip_Behavior_Tunic1(Player* player, PlayState* play) {
-    // Tunic slot 1 is RETIRED (Skijer 2026-07-16) — the Magic Cape lives on the kaleido upgrade
-    // column: half-cost passive while OWNED (MAGIC_REQ), cloth gated on visibility in the dispatch.
-    (void)player;
-    (void)play;
+    Champion_Behavior(player, play);
 }
 
 static void ExtEquip_Behavior_Tunic2(Player* player, PlayState* play) {
-    Breastplate_Behavior(player, play);
+    Breastplate_Behavior(player, play); // MAGIC TUNIC: rupee-paid damage immunity + fire/water timer skip
 }
 
 static void ExtEquip_Behavior_Tunic3(Player* player, PlayState* play) {
-    Champion_Behavior(player, play);
+    Sages_Behavior(player, play);
 }
 
 // ---------------------------------------------------------------------------
@@ -122,18 +123,15 @@ static void ExtEquip_Behavior_Boots1(Player* player, PlayState* play) {
 }
 
 static void ExtEquip_Behavior_Boots2(Player* player, PlayState* play) {
-    // Boots slot 2 is RETIRED (Skijer 2026-07-16) — the Pendant of Memories lives on the kaleido
-    // upgrade column; its moveset runs when its toggle is ON (see ExtEquip_DispatchBehavior).
-    (void)player;
-    (void)play;
+    // The Pendant of Memories keeps its left-column cell (ownership = the adult trade wheel) and its
+    // moveset is dispatched cheat-independently; this GRID slot is the CLIMB BOOTS.
+    ClimbBoots_Behavior(player, play);
 }
 
 static void ExtEquip_Behavior_Boots3(Player* player, PlayState* play) {
-    // Boots slot 3 is FREE (Skijer 2026-07-16) — the Water Dragon Scale is deleted; its Zora swim is
-    // now the ZORA TUNIC's permanent effect (Nei_IsZoraSwim gates in z_player.c: fast swim, no drown
-    // timer, electric barrier). Slot reserved for Gravity Boots.
-    (void)player;
-    (void)play;
+    // The Water Dragon Scale is deleted (its Zora swim is the Zora Tunic's permanent effect); this
+    // slot is the ROC BOOTS.
+    RocBoots_Behavior(player, play);
 }
 
 // ---------------------------------------------------------------------------
@@ -182,8 +180,21 @@ static void ExtEquip_DispatchBehavior(Player* player, PlayState* play) {
     if (gExtEquipState.currentExtSword != 2) {
         FourSword_Cleanup();
     }
-    // Champion's Tunic cleanup: clear forced model + screen tint when slot 3 is lost
-    if (gExtEquipState.currentExtTunic != 3) {
+    // New-slot cleanups (Skijer 2026-07-29)
+    if (gExtEquipState.currentExtSword != 3) {
+        Trident_Cleanup();
+    }
+    if (gExtEquipState.currentExtShield != 2) {
+        KiteShield_Cleanup();
+    }
+    if (gExtEquipState.currentExtBoots != 2) {
+        ClimbBoots_Cleanup();
+    }
+    if (gExtEquipState.currentExtBoots != 3) {
+        RocBoots_Cleanup();
+    }
+    // Champion's Tunic cleanup: release slow motion and clear its screen tint
+    if (gExtEquipState.currentExtTunic != 1) {
         Champion_Cleanup(play);
     }
 
@@ -205,12 +216,14 @@ static void ExtEquip_DispatchBehavior(Player* player, PlayState* play) {
 // Melee hit dispatch (called from z_player.c)
 // ---------------------------------------------------------------------------
 static void ExtEquip_OnMeleeHitDispatch(Player* player, PlayState* play) {
-    // Cane of Byrna: MP recovery on sword hit
-    if (gExtEquipState.currentExtSword == 1) {
-        Byrna_OnMeleeHit(player, play);
+    // (The Cane of Byrna is a dummy slot now — its HP/MP-on-hit recovery belongs to the Great Fairy's
+    // Sword, dispatched from ExtEquip_UpdateBehavior.)
+    // Trident
+    if (gExtEquipState.currentExtSword == 3) {
+        Trident_OnMeleeHit(player, play);
     }
     // Champion's Tunic: count hits during Flurry Rush window
-    if (gExtEquipState.currentExtTunic == 3) {
+    if (gExtEquipState.currentExtTunic == 1) {
         Champion_OnMeleeHit(player, play);
     }
 }

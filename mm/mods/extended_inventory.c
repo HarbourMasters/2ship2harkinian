@@ -26,7 +26,7 @@ static ExtendedInventoryState sExtInvState = { .currentPage = 0, .pageSwitchTime
 const uint8_t gPage2Items[24] = { ITEM_ROCS_FEATHER_SKIJER,
                                   ITEM_WHIP,
                                   ITEM_SPINNER,
-                                  ITEM_BOMB_ARROWS,
+                                  ITEM_ELEMENTAL_WAND, // slot 27 — was ITEM_BOMB_ARROWS (now a flag)
                                   ITEM_ROD_FIRE,
                                   ITEM_DEMISE_DESTRUCTION,
                                   ITEM_DEKU_LEAF,
@@ -51,7 +51,9 @@ const uint8_t gPage2Items[24] = { ITEM_ROCS_FEATHER_SKIJER,
 // Age requirements for page 2 items
 // Roc's items (slot 0/24) = AGE_REQ_NONE (both adult and child can use Feather AND Cape)
 // Desire Sensor (slot 15/39) = AGE_REQ_NONE (both adult and child can use)
-const uint8_t gPage2ItemAgeReqs[24] = { AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_NONE, AGE_REQ_ADULT, AGE_REQ_NONE,
+// Index 3 (slot 27) was AGE_REQ_ADULT for Bomb Arrows; the Elemental Wand that replaced it is
+// age-free (MM has no age gate anyway — the medallions are what gate it).
+const uint8_t gPage2ItemAgeReqs[24] = { AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_NONE, AGE_REQ_NONE, AGE_REQ_NONE,
                                         AGE_REQ_NONE, AGE_REQ_CHILD, AGE_REQ_NONE, AGE_REQ_ADULT, AGE_REQ_CHILD,
                                         AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_NONE, AGE_REQ_CHILD, AGE_REQ_ADULT,
                                         AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_CHILD,
@@ -150,13 +152,13 @@ bool ExtInv_IsOnlyTransformation(void) {
 }
 // OoT item-pause layout for page 0 (1:1 with the Shipwright build) — visual cell -> backing slot.
 // MM-native cells use the real MM inventory slot; OoT-only cells use virtual slots (72+, backed
-// by NeiSaveData). Wheels (keg/SW97/claw/picto/rocs/trade) fold extra items onto these cells.
+// by NeiSaveData). Wheels (keg/SW97/claw/rocs/trade) fold extra items onto these cells.
 static const uint8_t sOotPage0Map[24] = {
     // ROW 1: Sticks | Nuts | Bombs(keg wheel) | Arrows(SW97 wheel) | Fire Arrows | Din's Fire
     SLOT_DEKU_STICK, SLOT_DEKU_NUT, SLOT_BOMB, SLOT_BOW, SLOT_ARROW_FIRE, VSLOT_DINS,
     // ROW 2: Slingshot(SW97) | Ocarina | Bombchu | Hookshot(claw wheel) | Ice Arrows | Farore's
     VSLOT_SLINGSHOT, SLOT_OCARINA, SLOT_BOMBCHU, SLOT_HOOKSHOT, SLOT_ARROW_ICE, VSLOT_FARORES,
-    // ROW 3: Boomerang | Lens(picto wheel) | Beans | Hammer | Light Arrows | Nayru's(rocs wheel)
+    // ROW 3: Boomerang | Lens | Beans | Hammer | Light Arrows | Nayru's(rocs wheel)
     VSLOT_OOT_BOOMERANG, SLOT_LENS_OF_TRUTH, SLOT_MAGIC_BEANS, VSLOT_HAMMER, SLOT_ARROW_LIGHT, VSLOT_NAYRUS,
     // ROW 4: Bottles A | Bottles B | Net | Bottomless | Trade wheel | OoT Masks
     SLOT_BOTTLE_1, SLOT_BOTTLE_2, SLOT_BOTTLE_3, SLOT_BOTTLE_4, SLOT_TRADE_DEED, VSLOT_OOT_MASKS,
@@ -169,6 +171,45 @@ int ExtInv_GetInventorySlot(int visualSlot) {
     return visualSlot + (sExtInvState.currentPage * 24);
 }
 
+// Ownership for the Nayru's Love <-> Roc's Feather cell. Exposed as functions because THREE places
+// need the same answer — the cell getter, and the kaleido's canCycle/preview computation in both the
+// handle and the draw pass. They used to each carry their own expression, and they had already
+// drifted: the kaleido asked whether SLOT_ROCS (the page-2 PROGRESSIVE Roc's item) was owned, which
+// is a different check entirely, so a rando-placed RG_ROCS_FEATHER produced a cell you could see but
+// not cycle. Skijer's NEI
+uint8_t NayrusWheel_HasRocs(void) {
+    // THE ship-vanilla feather (ITEM_ROCS_FEATHER), and nothing else. There are two Roc's Feathers in
+    // this fork and they are separate items that coexist freely:
+    //
+    //   ship-vanilla  ITEM_ROCS_FEATHER (0xA6)  — this wheel, paired with Nayru's Love, bit 0x8
+    //   Skijer's      SLOT_ROCS (24)            — page 2, progressive into the Roc's Cape
+    //
+    // Owning one must never imply the other. Deliberately NOT reading SLOT_ROCS here: doing so hands
+    // you the vanilla check for free the moment you pick up the progressive. SoH models it the same
+    // way — RocsFeatherCycle.c gates purely on RAND_INF_OBTAINED_ROCS_FEATHER and never looks at the
+    // Skijer item. Skijer's NEI
+    return (Nei_Save()->ootSpellsOwned & 0x8) != 0;
+}
+
+uint8_t NayrusWheel_HasNayrus(void) {
+    return (Nei_Save()->ootSpellsOwned & 0x4) != 0;
+}
+
+// THE give-path entry for this cell. Deliberately separate from ExtInv_SetOotSlotItem(VSLOT_NAYRUS,
+// ...): that one is what the kaleido wheel calls on every cycle, so it must only move the SELECTION
+// or spinning the wheel becomes an item generator. Granting also selects what you just received,
+// which is what the player expects to see in the cell. Skijer's NEI
+void NayrusWheel_Grant(uint8_t itemId) {
+    NeiSaveData* nei = Nei_Save();
+    if (itemId == ITEM_NAYRUS_LOVE) {
+        nei->ootSpellsOwned |= 0x4;
+        nei->nayruRocsMode = 0;
+    } else if (itemId == ITEM_ROCS_FEATHER) {
+        nei->ootSpellsOwned |= 0x8;
+        nei->nayruRocsMode = 1;
+    }
+}
+
 // --- OoT virtual slots (72+): backed by dedicated NeiSaveData fields ---
 uint8_t ExtInv_GetOotSlotItem(int slot) {
     NeiSaveData* nei = Nei_Save();
@@ -178,22 +219,39 @@ uint8_t ExtInv_GetOotSlotItem(int slot) {
         case VSLOT_FARORES:
             return (nei->ootSpellsOwned & 0x2) ? ITEM_FARORES_WIND : ITEM_NONE;
         case VSLOT_NAYRUS:
-            // Wheel: Roc's Feather (functional page-2 item) <-> Nayru's Love
-            if (nei->nayruRocsMode && Nei_GetOwnedItem(SLOT_ROCS) != ITEM_NONE) {
-                return ITEM_ROCS_FEATHER; // ship-vanilla feather (art + same jump behavior)
+            // Wheel: the SHIP-VANILLA Roc's Feather (ITEM_ROCS_FEATHER) <-> Nayru's Love.
+            //
+            // Not to be confused with Skijer's Roc's Feather, which is a different item living in
+            // SLOT_ROCS on page 2 and upgrading into the Roc's Cape. The two coexist freely and
+            // neither one's ownership says anything about the other — see NayrusWheel_HasRocs.
+            // This cell used to read SLOT_ROCS, which made the vanilla feather a mere display mode
+            // of an item you had to own separately: a rando-placed RG_ROCS_FEATHER showed nothing.
+            {
+                // Each entry of this wheel is independently obtainable, so the cell shows whichever
+                // one you actually have — preferring the selected mode, falling back to the other.
+                // Without the fallback, owning ONLY the feather while the mode still said "Nayru's"
+                // left the cell empty and the item unreachable. (Bow, slingshot, lantern and
+                // boomerang are deliberately NOT like this: their variants are modes of a weapon you
+                // must own.) Skijer's NEI
+                uint8_t hasRocs = NayrusWheel_HasRocs();
+                uint8_t hasNayrus = NayrusWheel_HasNayrus();
+
+                if (nei->nayruRocsMode && hasRocs) {
+                    return ITEM_ROCS_FEATHER; // ship-vanilla feather (art + same jump behavior)
+                }
+                if (!nei->nayruRocsMode && hasNayrus) {
+                    return ITEM_NAYRUS_LOVE;
+                }
+                if (hasRocs) {
+                    return ITEM_ROCS_FEATHER;
+                }
+                return hasNayrus ? ITEM_NAYRUS_LOVE : ITEM_NONE;
             }
-            return (nei->ootSpellsOwned & 0x4) ? ITEM_NAYRUS_LOVE : ITEM_NONE;
         case VSLOT_SLINGSHOT:
-            if (!nei->slingshotOwned) {
-                return ITEM_NONE;
-            }
-            // Wheel: plain Fairy Slingshot <-> SW97 elemental bullets (CVar-gated, twin of the
-            // bow cell's SW97 arrow wheel). Skijer's NEI slingshot pass.
-            if ((nei->slingshotWheel >= 1) && (nei->slingshotWheel <= 6) &&
-                CVarGetInteger("gEnhancements.SkijerNEI.SW97Medallions", 0)) {
-                return ITEM_SW97_BULLET_FIRE + (nei->slingshotWheel - 1);
-            }
-            return ITEM_FAIRY_SLINGSHOT;
+            // The cell always shows the plain slingshot now. The primed element is a FLAG
+            // (sw97SlingElement) drawn as a medallion behind the icon, so this slot no longer
+            // synthesizes a per-element item id. Skijer's NEI
+            return nei->slingshotOwned ? ITEM_FAIRY_SLINGSHOT : ITEM_NONE;
         case VSLOT_OOT_BOOMERANG:
             return nei->ootBoomerangOwned ? ITEM_BOOMERANG : ITEM_NONE;
         case VSLOT_HAMMER:
@@ -201,9 +259,124 @@ uint8_t ExtInv_GetOotSlotItem(int slot) {
             // (no distinct OoT icon) — WeaponUpgrade_HasHammerAxe drives the in-game axe strike.
             return nei->ootHammerOwned ? ITEM_HAMMER : ITEM_NONE;
         case VSLOT_OOT_MASKS:
-            return ITEM_NONE; // OoT child-trade masks wheel: per-item pass
+            // Was an unconditional ITEM_NONE ("per-item pass" — never written), which left cell 4,6
+            // permanently empty. The kaleido cursor SKIPS empty cells, so the OoT child-trade mask
+            // slot did not exist in MM at all. Synthesize it from the wheel, exactly like the trade
+            // cell does. Skijer 2026-07-30
+            return (OotMask_OwnedCount() > 0) ? OotMask_CellItem() : ITEM_NONE;
     }
     return ITEM_NONE;
+}
+
+// ─── OoT child-trade mask wheel (item cell 4,6 -> VSLOT_OOT_MASKS) ──────────────────────────────────
+// The 8 OoT masks have no MM item id, so — same scheme as the unified trade wheel — ownership is a
+// bitmask (nei->ootMasksOwned), the visible one is an index (nei->ootMaskCursor), the cell carries
+// ITEM_OOT_MASK_PLACEHOLDER and the art is resolved from the index against the companion oot.o2r.
+// NOTE OoT's own naming is inconsistent: Keaton/BunnyHood/Goron/Zora/MaskOfTruth read
+// "gItemIcon<Name>Tex" but Skull/Spooky/Gerudo read "gItemIconMask<Name>Tex". Verified against
+// soh/assets, not guessed. Skijer 2026-07-30
+#define OOT_MASK_COUNT 8
+static const char* sOotMaskIconPaths[OOT_MASK_COUNT] = {
+    "__OTR__textures/icon_item_static/gItemIconKeatonMaskTex",  // 0 Keaton Mask
+    "__OTR__textures/icon_item_static/gItemIconMaskSkullTex",   // 1 Skull Mask
+    "__OTR__textures/icon_item_static/gItemIconMaskSpookyTex",  // 2 Spooky Mask
+    "__OTR__textures/icon_item_static/gItemIconBunnyHoodTex",   // 3 Bunny Hood
+    "__OTR__textures/icon_item_static/gItemIconGoronMaskTex",   // 4 Goron Mask
+    "__OTR__textures/icon_item_static/gItemIconZoraMaskTex",    // 5 Zora Mask
+    "__OTR__textures/icon_item_static/gItemIconMaskGerudoTex",  // 6 Gerudo Mask
+    "__OTR__textures/icon_item_static/gItemIconMaskOfTruthTex", // 7 Mask of Truth
+};
+
+uint8_t OotMask_IsOwnedIndex(int index) {
+    if (index < 0 || index >= OOT_MASK_COUNT) {
+        return 0;
+    }
+    return (Nei_Save()->ootMasksOwned & (1u << index)) != 0;
+}
+
+void OotMask_SetOwnedIndex(int index, uint8_t on) {
+    if (index < 0 || index >= OOT_MASK_COUNT) {
+        return;
+    }
+    if (on) {
+        Nei_Save()->ootMasksOwned |= (uint16_t)(1u << index);
+    } else {
+        Nei_Save()->ootMasksOwned &= (uint16_t)~(1u << index);
+    }
+}
+
+int OotMask_OwnedCount(void) {
+    int n = 0;
+    for (int i = 0; i < OOT_MASK_COUNT; i++) {
+        if (OotMask_IsOwnedIndex(i)) {
+            n++;
+        }
+    }
+    return n;
+}
+
+int OotMask_OwnedAt(int ordinal) {
+    int n = 0;
+    for (int i = 0; i < OOT_MASK_COUNT; i++) {
+        if (OotMask_IsOwnedIndex(i)) {
+            if (n == ordinal) {
+                return i;
+            }
+            n++;
+        }
+    }
+    return -1;
+}
+
+// Self-healing like the trade cursor: an out-of-range or no-longer-owned index snaps to the first
+// owned mask (-1 when none).
+int OotMask_CursorIndex(void) {
+    int cur = (int)Nei_Save()->ootMaskCursor;
+    if (cur < 0 || cur >= OOT_MASK_COUNT || !OotMask_IsOwnedIndex(cur)) {
+        cur = OotMask_OwnedAt(0);
+        Nei_Save()->ootMaskCursor = (uint8_t)((cur < 0) ? 0 : cur);
+    }
+    return cur;
+}
+
+int OotMask_NeighborIndex(int dir) {
+    int owned = OotMask_OwnedCount();
+    int cur = OotMask_CursorIndex();
+    if (owned <= 0 || cur < 0) {
+        return -1;
+    }
+    int ord = 0;
+    for (int i = 0; i < cur; i++) {
+        if (OotMask_IsOwnedIndex(i)) {
+            ord++;
+        }
+    }
+    return OotMask_OwnedAt(((ord + dir) % owned + owned) % owned);
+}
+
+void OotMask_CursorStep(int dir) {
+    int gi = OotMask_NeighborIndex(dir);
+    if (gi >= 0) {
+        Nei_Save()->ootMaskCursor = (uint8_t)gi;
+    }
+}
+
+uint8_t OotMask_CellItem(void) {
+    return (OotMask_CursorIndex() < 0) ? ITEM_NONE : (uint8_t)ITEM_OOT_MASK_PLACEHOLDER;
+}
+
+uint8_t OotMask_NeighborCellItem(int dir) {
+    return (OotMask_NeighborIndex(dir) < 0)
+               ? ITEM_NONE
+               : (uint8_t)((dir < 0) ? ITEM_OOT_MASK_PREV : ITEM_OOT_MASK_NEXT);
+}
+
+const char* OotMask_IconPath(int index) {
+    extern unsigned char OotAssets_Available(void);
+    if (index < 0 || index >= OOT_MASK_COUNT || !OotAssets_Available()) {
+        return NULL;
+    }
+    return sOotMaskIconPaths[index];
 }
 
 void ExtInv_SetOotSlotItem(int slot, uint8_t itemId) {
@@ -218,26 +391,19 @@ void ExtInv_SetOotSlotItem(int slot, uint8_t itemId) {
                                                                 : (nei->ootSpellsOwned & ~0x2);
             break;
         case VSLOT_NAYRUS:
-            // Wheel writes: selecting Roc's flips the mode; selecting Nayru's flips back
+            // Wheel writes flip the SELECTION only — never ownership. This used to OR in the
+            // ownership bit for whatever you cycled onto, which meant spinning the wheel handed you
+            // Nayru's Love (or the feather) for free: the wheel was an item generator. Ownership now
+            // comes exclusively from the give paths. Skijer's NEI
             if (itemId == ITEM_NAYRUS_LOVE) {
-                nei->ootSpellsOwned |= 0x4;
                 nei->nayruRocsMode = 0;
             } else if (itemId != ITEM_NONE) {
                 nei->nayruRocsMode = 1; // ITEM_ROCS_FEATHER selected
             }
             break;
         case VSLOT_SLINGSHOT:
-            if (itemId == ITEM_FAIRY_SLINGSHOT) {
-                nei->slingshotOwned = 1;
-                nei->slingshotWheel = 0;
-            } else if ((itemId >= ITEM_SW97_BULLET_FIRE) && (itemId <= ITEM_SW97_BULLET_WIND)) {
-                // Wheel write: pick an elemental bullet (ownership unchanged)
-                nei->slingshotOwned = 1;
-                nei->slingshotWheel = (itemId - ITEM_SW97_BULLET_FIRE) + 1;
-            } else {
-                nei->slingshotOwned = 0;
-                nei->slingshotWheel = 0;
-            }
+            // Pure ownership now — the element lives in sw97SlingElement, not in this slot's value.
+            nei->slingshotOwned = (itemId == ITEM_FAIRY_SLINGSHOT);
             break;
         case VSLOT_OOT_BOOMERANG:
             nei->ootBoomerangOwned = (itemId == ITEM_BOOMERANG);
@@ -257,13 +423,9 @@ uint8_t ExtInv_ItemHasAmmo(uint8_t itemId) {
         case ITEM_BOW:
         case ITEM_POWDER_KEG:
         case ITEM_MAGIC_BEANS:
+        // The elemental-bullet ids used to need their own arms here to share the seed pouch; the
+        // slot holds a plain ITEM_FAIRY_SLINGSHOT now, so the one arm above covers every element.
         case ITEM_FAIRY_SLINGSHOT:
-        case ITEM_SW97_BULLET_FIRE: // Skijer's NEI: elemental bullets share the seed pouch
-        case ITEM_SW97_BULLET_ICE:
-        case ITEM_SW97_BULLET_LIGHT:
-        case ITEM_SW97_BULLET_DARK:
-        case ITEM_SW97_BULLET_SOUL:
-        case ITEM_SW97_BULLET_WIND:
         case ITEM_PICTOGRAPH_BOX: // photo counter (MM native ammo-count on the picto)
             return true;
         default:
@@ -403,7 +565,12 @@ static const CustomItemAsset sCustomItemAssets[] = {
     { ITEM_CANE_OF_SOMARIA,     (void*)gItemIconCaneOfSomariaTex,     (void*)gCaneOfSomariaNameTex },     // 0xAA
     { ITEM_DOMINION_ROD,        (void*)gItemIconDominionRodTex,       (void*)gDominionRodNameTex },       // 0xAB
     { ITEM_TIME_GATE,           (void*)gItemIconTimeGateTex,          (void*)gTimeGateNameTex },          // 0xAC
+    // Bomb Arrows keeps its icon/name row even though it owns no inventory cell any more: the
+    // wheel's corner badge and the get-item textbox still look them up by item id.
     { ITEM_BOMB_ARROWS,         (void*)gItemIconBombArrowsTex,        (void*)gBombArrowsNameTex },        // 0xAD
+    // Elemental Wand's icon/name are per-MODE, resolved in ExtInv_GetItemIcon /
+    // ExtInv_GetCustomItemNameTex; this row is only the fallback.
+    { ITEM_ELEMENTAL_WAND,      (void*)gItemIconSandRodTex,           (void*)gSandRodNameTex },           // 0xD0
     { ITEM_ROD_FIRE,            (void*)gItemIconFireRodTex,           (void*)gFireRodNameTex },           // 0xAE
     { ITEM_ROD_ICE,             (void*)gItemIconIceRodTex,            (void*)gIceRodNameTex },            // 0xAF
     { ITEM_ROD_LIGHT,           (void*)gItemIconLightRodTex,          (void*)gLightRodNameTex },          // 0xB0
@@ -429,6 +596,73 @@ static const CustomItemAsset* ExtInv_FindCustomItemAsset(uint16_t itemId) {
 }
 
 void* ExtInv_GetCustomItemNameTex(uint16_t itemId, uint8_t language) {
+    // 2026-08-06 page-2 additions — EXT (u16) ids; their IA4 name textures come from the
+    // generate_names.py pipeline. Path strings, resolved by the RSP like every custom name.
+    switch (itemId) {
+        case EXT_ITEM_SHEIKAH_SLATE:
+            return (void*)"__OTR__textures/item_name_custom/gSheikahSlateNameTex";
+        case EXT_ITEM_PHANTOM_HOURGLASS:
+            return (void*)"__OTR__textures/item_name_custom/gPhantomHourglassNameTex";
+        case EXT_ITEM_SHADOW_CRYSTAL:
+            return (void*)"__OTR__textures/item_name_custom/gShadowCrystalNameTex";
+        case EXT_ITEM_ROD_OF_SEASONS:
+            return (void*)"__OTR__textures/item_name_custom/gRodOfSeasonsNameTex";
+        default:
+            break;
+    }
+
+    // Elemental Wand: one item id, six names — the name follows the active rod.
+    if (itemId == ITEM_ELEMENTAL_WAND) {
+        return Wand_ModeNameTex(Wand_GetMode());
+    }
+
+    // Unified trade wheel: 23 entries behind one placeholder id, so the name comes from the index
+    // cursor (same reasoning as the icon override). Skijer 2026-07-29
+    if (itemId == ITEM_TRADE_PLACEHOLDER) {
+        extern s32 TradeAdult_CursorIndex(void);
+        extern const char* TradeAdult_NamePath(s32 index);
+        const char* tradeName = TradeAdult_NamePath(TradeAdult_CursorIndex());
+        if (tradeName != NULL && ResourceMgr_FileExists(tradeName)) {
+            return (void*)tradeName;
+        }
+        return NULL;
+    }
+
+    // OoT child-trade mask wheel: 8 masks behind one placeholder id, name from the index cursor.
+    if (itemId == ITEM_OOT_MASK_PLACEHOLDER) {
+        static const char* kOotMaskNames[] = {
+            "__OTR__textures/item_name_static/gKeatonMaskItemNameENGTex",
+            "__OTR__textures/item_name_static/gSkullMaskItemNameENGTex",
+            "__OTR__textures/item_name_static/gSpookyMaskItemNameENGTex",
+            "__OTR__textures/item_name_static/gBunnyHoodItemNameENGTex",
+            "__OTR__textures/item_name_static/gGoronMaskItemNameENGTex",
+            "__OTR__textures/item_name_static/gZoraMaskItemNameENGTex",
+            "__OTR__textures/item_name_static/gGerudoMaskItemNameENGTex",
+            // NOTE lowercase "of" — OoT's icon is gItemIconMaskOfTruthTex but the NAME texture is
+            // gMaskofTruthItemNameENGTex. Verified against soh/assets.
+            "__OTR__textures/item_name_static/gMaskofTruthItemNameENGTex",
+        };
+        int mi = OotMask_CursorIndex();
+        if (mi >= 0 && mi < (int)(sizeof(kOotMaskNames) / sizeof(kOotMaskNames[0])) &&
+            ResourceMgr_FileExists(kOotMaskNames[mi])) {
+            return (void*)kOotMaskNames[mi];
+        }
+        return NULL;
+    }
+
+    // Dual Cane: same reasoning as the icon override — one item id, four names.
+    if (itemId == ITEM_CANE_OF_SOMARIA && Nei_CaneOwned()) {
+        switch (Nei_CaneGetType()) {
+            case 1:
+                return (void*)"__OTR__textures/item_name_custom/gTrirodNameTex";
+            case 2:
+                return (void*)"__OTR__textures/item_name_custom/gCaneOfPacciNameTex";
+            case 3:
+                return (void*)"__OTR__textures/item_name_custom/gUltrahandNameTex";
+            default:
+                break;
+        }
+    }
     (void)language;
     // Skijer's NEI hookshot overhaul — name overrides BEFORE the generic OoT-path routing:
     //   - Ultrashot: level 3 of the hookshot chain keeps the Longshot ICON but the name reads
@@ -495,7 +729,60 @@ void* ExtInv_GetCapIcon(uint8_t cap) {
     }
 }
 
+// mods/nei_save.cpp — Dual Cane context variables (see the icon override below).
+uint8_t Nei_CaneOwned(void);
+uint8_t Nei_CaneActiveSkill(void);
+
 void* ExtInv_GetItemIcon(uint16_t itemId) {
+
+    // ── Unified trade wheel: 23 entries share one placeholder id ─────────────
+    // Same situation as the Dual Cane below — the icon cannot come from the id, because the 14 OoT
+    // trade entries have no MM item id at all (ITEM_NONE). It comes from the save's index cursor,
+    // whose OoT art lives in the companion oot.o2r. Skijer 2026-07-29
+    if (itemId == ITEM_TRADE_PLACEHOLDER || itemId == ITEM_TRADE_PREV || itemId == ITEM_TRADE_NEXT) {
+        extern s32 TradeAdult_CursorIndex(void);
+        extern s32 TradeAdult_NeighborIndex(s32 dir);
+        extern const char* TradeAdult_IconPath(s32 index);
+        s32 idx = (itemId == ITEM_TRADE_PLACEHOLDER) ? TradeAdult_CursorIndex()
+                                                     : TradeAdult_NeighborIndex(itemId == ITEM_TRADE_PREV ? -1 : 1);
+        const char* tradePath = TradeAdult_IconPath(idx);
+        if (tradePath != NULL && ResourceMgr_FileExists(tradePath)) {
+            return (void*)tradePath;
+        }
+        return NULL; // no oot.o2r → empty cell rather than a wrong icon
+    }
+
+    // OoT child-trade mask wheel — same three-marker scheme (cell / prev / next).
+    if (itemId == ITEM_OOT_MASK_PLACEHOLDER || itemId == ITEM_OOT_MASK_PREV || itemId == ITEM_OOT_MASK_NEXT) {
+        int mi = (itemId == ITEM_OOT_MASK_PLACEHOLDER)
+                     ? OotMask_CursorIndex()
+                     : OotMask_NeighborIndex(itemId == ITEM_OOT_MASK_PREV ? -1 : 1);
+        const char* maskPath = OotMask_IconPath(mi);
+        if (maskPath != NULL && ResourceMgr_FileExists(maskPath)) {
+            return (void*)maskPath;
+        }
+        return NULL;
+    }
+
+    // ── Dual Cane: the cell's icon is simply which of the four is in hand ────
+    // Four entries share one item id, so the icon cannot come from the id — it comes
+    // from the context variable. Trirod and Ultrahand are their own entries here,
+    // NOT the third level of the cane that unlocked them.
+    //
+    // OTR paths rather than the generated gItemIcon* symbols, because those only
+    // exist after an asset re-extract; the FD sword override below does the same.
+    if (itemId == ITEM_CANE_OF_SOMARIA && Nei_CaneOwned()) {
+        switch (Nei_CaneGetType()) {
+            case 1: // Trirod
+                return (void*)"__OTR__textures/icon_item_custom/gItemIconTrirodTex";
+            case 2: // Cane of Pacci
+                return (void*)"__OTR__textures/icon_item_custom/gItemIconCaneOfPacciTex";
+            case 3: // Ultrahand
+                return (void*)"__OTR__textures/icon_item_custom/gItemIconUltrahandTex";
+            default:
+                break; // Cane of Somaria keeps the cell's own icon
+        }
+    }
     // OoT page-0 items: vanilla OoT icons from the companion oot.o2r (FileExists-gated; a
     // missing companion just leaves the cell blank until per-item MM art lands).
     {
@@ -525,33 +812,40 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
         }
     }
 
-    // SW97 medallions + elemental arrows: the OoT medallion quest icons, 24x24 (SoH 1:1 —
-    // draw sites use ExtInv_GetItemIconSize; a 24x24 RGBA32 drawn as 32x32 reads as garbage).
+    // SW97 medallions: the OoT medallion quest icons, 24x24 (SoH 1:1 — draw sites use
+    // ExtInv_GetItemIconSize; a 24x24 RGBA32 drawn as 32x32 reads as garbage). The elemental
+    // arrow/bullet ids that used to alias onto these are gone; the composite draw sites now ask for
+    // the medallion directly via Sw97_ElementIcon(). Skijer's NEI
     switch (itemId) {
         case ITEM_MEDALLION_FOREST:
-        case ITEM_SW97_ARROW_WIND:
-        case ITEM_SW97_BULLET_WIND:
             return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionForestTex";
         case ITEM_MEDALLION_FIRE:
-        case ITEM_SW97_ARROW_FIRE:
-        case ITEM_SW97_BULLET_FIRE:
             return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionFireTex";
         case ITEM_MEDALLION_WATER:
-        case ITEM_SW97_ARROW_ICE:
-        case ITEM_SW97_BULLET_ICE:
             return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionWaterTex";
         case ITEM_MEDALLION_SPIRIT:
-        case ITEM_SW97_ARROW_SOUL:
-        case ITEM_SW97_BULLET_SOUL:
             return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionSpiritTex";
         case ITEM_MEDALLION_SHADOW:
-        case ITEM_SW97_ARROW_DARK:
-        case ITEM_SW97_BULLET_DARK:
             return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionShadowTex";
         case ITEM_MEDALLION_LIGHT:
-        case ITEM_SW97_ARROW_LIGHT:
-        case ITEM_SW97_BULLET_LIGHT:
             return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionLightTex";
+        // Elemental Wand: one item id, six icons — the cell shows whichever rod is active.
+        case ITEM_ELEMENTAL_WAND:
+            return Wand_ModeIcon(Wand_GetMode());
+        // 2026-08-06 page-2 additions — EXT (u16) inventory ids, own icons (icon_item_custom PNGs).
+        // Resolved before any generic fallback, which would index vanilla art with an id > 0xFF.
+        case EXT_ITEM_SHEIKAH_SLATE:
+            // Once any rune is lit the cell/HUD icon carries the ACTIVE rune's badge (wand idiom).
+            if (Nei_Save()->slateRunesOwned != 0) {
+                return Slate_RuneIcon(Slate_GetRune());
+            }
+            return (void*)"__OTR__textures/icon_item_custom/gItemIconSheikahSlateTex";
+        case EXT_ITEM_PHANTOM_HOURGLASS:
+            return (void*)"__OTR__textures/icon_item_custom/gItemIconPhantomHourglassTex";
+        case EXT_ITEM_SHADOW_CRYSTAL:
+            return (void*)"__OTR__textures/icon_item_custom/gItemIconShadowCrystalTex";
+        case EXT_ITEM_ROD_OF_SEASONS:
+            return (void*)"__OTR__textures/icon_item_custom/gItemIconRodOfSeasonsTex";
         // Spiritual Stones (companion quest icons, 24x24 — same idiom as the medallions above).
         case EXT_ITEM_SPIRITUAL_STONE_KOKIRI:
             return (void*)"__OTR__textures/icon_item_24_static/gQuestIconKokiriEmeraldTex";
@@ -642,19 +936,8 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
         }
     }
 
-    // Pictograph Box shares the Lens of Truth slot. When the slot's pictobox mode is selected (kaleido
-    // A-toggle), show the pictobox icon in the slot instead of the Lens — clear feedback for the swap,
-    // mirroring the Clawshot/Gale overrides above. Skijer's NEI
-    {
-        extern unsigned char Picto_IsOwned(void);
-        extern unsigned char Picto_IsOnLensActive(void);
-        if (itemId == ITEM_LENS_OF_TRUTH && Picto_IsOwned() && Picto_IsOnLensActive()) {
-            void* t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconPictographBoxTex");
-            if (t) {
-                return t;
-            }
-        }
-    }
+    // (The Pictograph-Box-over-Lens icon override lived here. Gone with the NEI pictobox: MM draws
+    // the real pictograph icon from its own slot.)
 
     // Power Keg shares the Bomb slot. When power-keg mode is selected (kaleido A-toggle), show the
     // Power Keg icon in the slot instead of the Bomb. Skijer's NEI
@@ -704,6 +987,15 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
 
     if (itemId < 156) {
         return (itemId < 0x9A) ? (void*)gItemIcons[itemId] : NULL; // NEI: never index OOB (garbage tex)
+    }
+    // ITEM_EXT_BOOTS_2 is the one shared id: as an INVENTORY / trade-wheel / C-button item it is the
+    // Pendant of Memories, while grid slot (BOOTS, 2) is the Climb Boots (whose icon the kaleido reads
+    // straight from ExtEquip_GetIcon, not from here). Skijer 2026-07-29
+    if (itemId == ITEM_EXT_BOOTS_2) {
+        void* pendantIcon = ExtEquip_GetPendantIcon();
+        if (pendantIcon != NULL) {
+            return pendantIcon;
+        }
     }
     // Extended equipment items (0xE0-0xEB): return ext equip icon
     // Must check BEFORE MM masks since ranges overlap
@@ -779,25 +1071,12 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
         case ITEM_MEDALLION_LIGHT:
             return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionLightTex";
 
-        // SW97 Arrow items (arrow mode — SAME medallion icons)
-        case ITEM_SW97_ARROW_FIRE:
-        case ITEM_SW97_BULLET_FIRE: // slingshot-wheel bullet twins share the medallion icons
-            return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionFireTex";
-        case ITEM_SW97_ARROW_ICE:
-        case ITEM_SW97_BULLET_ICE:
-            return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionWaterTex";
-        case ITEM_SW97_ARROW_LIGHT:
-        case ITEM_SW97_BULLET_LIGHT:
-            return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionLightTex";
-        case ITEM_SW97_ARROW_DARK:
-        case ITEM_SW97_BULLET_DARK:
-            return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionShadowTex";
-        case ITEM_SW97_ARROW_SOUL:
-        case ITEM_SW97_BULLET_SOUL:
-            return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionSpiritTex";
-        case ITEM_SW97_ARROW_WIND:
-        case ITEM_SW97_BULLET_WIND:
-            return (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionForestTex";
+        // (The twelve SW97 arrow/bullet ids used to alias onto the medallion icons here. They are
+        // gone — the composite draws ask for the medallion directly via Sw97_ElementIcon().)
+
+        // Elemental Wand: one item id, six icons — the cell shows whichever rod is active.
+        case ITEM_ELEMENTAL_WAND:
+            return Wand_ModeIcon(Wand_GetMode());
 
         // Spiritual Stones (companion quest icons, 24x24 — mirror the medallion cases above)
         case EXT_ITEM_SPIRITUAL_STONE_KOKIRI:
@@ -844,6 +1123,474 @@ void ExtInv_KeepMmMaskOrSell(PlayState* play, uint16_t maskItem) {
     }
 }
 
+// ── SW97 primed element + Elemental Wand (Skijer's NEI) ──────────────────────────────────────────
+// Single source of truth for "which element is the bow/slingshot primed with" and "which rod is the
+// wand showing". Hosted here (not in nei_save) because this file is plain C, already includes
+// z64item.h + nei_save.h, already owns the element->medallion icon map and ExtInv_GetItemIconSize,
+// and every consumer — the kaleido, z_parameter.c, z_player.c — already links against it. No new .c
+// file means no .vcxproj edit.
+//
+// Mirror of the SoH implementation, with two deliberate divergences: medallion ownership reads the
+// parallel OoT quest store (MM's native QUEST_* flags are stubbed), and the slingshot item is
+// ITEM_FAIRY_SLINGSHOT rather than ITEM_SLINGSHOT.
+
+#define SW97_ENABLED() CVarGetInteger("gEnhancements.SkijerNEI.SW97Medallions", 0)
+
+// Element -> medallion item id, for the icon composited behind the weapon.
+static const uint16_t sSw97ElemIcon[SW97_ELEM_COUNT] = {
+    ITEM_NONE,             // SW97_ELEM_NONE
+    ITEM_MEDALLION_FIRE,   // SW97_ELEM_FIRE
+    ITEM_MEDALLION_WATER,  // SW97_ELEM_ICE
+    ITEM_MEDALLION_LIGHT,  // SW97_ELEM_LIGHT
+    ITEM_MEDALLION_SHADOW, // SW97_ELEM_DARK
+    ITEM_MEDALLION_SPIRIT, // SW97_ELEM_SOUL
+    ITEM_MEDALLION_FOREST, // SW97_ELEM_WIND
+    ITEM_BOMB_ARROWS,      // SW97_ELEM_BOMB
+};
+// Element -> OoT quest bit that unlocks it (NeiSaveData.ootQuestItems, not MM's stubbed flags).
+static const uint8_t sSw97ElemQuest[SW97_ELEM_COUNT] = {
+    0,
+    OOT_QUEST_MEDALLION_FIRE,
+    OOT_QUEST_MEDALLION_WATER,
+    OOT_QUEST_MEDALLION_LIGHT,
+    OOT_QUEST_MEDALLION_SHADOW,
+    OOT_QUEST_MEDALLION_SPIRIT,
+    OOT_QUEST_MEDALLION_FOREST,
+    0,
+};
+// Vanilla elemental-arrow SLOT that also unlocks the element (0xFF = no vanilla equivalent). Ported
+// from SoH's sArrowWheelVanillaArrow so a player with fire arrows but no medallion still gets the
+// fire entry — 2ship never had this clause; adding it is the parity fix.
+static const uint8_t sSw97ElemVanillaSlot[SW97_ELEM_COUNT] = {
+    0xFF, SLOT_ARROW_FIRE, SLOT_ARROW_ICE, SLOT_ARROW_LIGHT, 0xFF, 0xFF, 0xFF, 0xFF,
+};
+
+uint16_t Sw97_ElementIcon(uint8_t elem) {
+    return (elem < SW97_ELEM_COUNT) ? sSw97ElemIcon[elem] : ITEM_NONE;
+}
+
+uint8_t BombArrows_RandoMode(void) {
+    return (uint8_t)CVarGetInteger("gMods.BombArrows.Mode", BOMB_ARROWS_RANDO_OFF);
+}
+
+uint8_t Sw97_BombArrowsOwned(void) {
+    extern u8 TwilightUpgrade_HasBombArrows(void);
+    if (Nei_Save()->bombArrowsOwned || TwilightUpgrade_HasBombArrows()) {
+        return 1;
+    }
+    return (BombArrows_RandoMode() == BOMB_ARROWS_RANDO_BOMB_BAG) && (CUR_UPG_VALUE(UPG_BOMB_BAG) > 0);
+}
+
+uint8_t Sw97_ElementOwned(uint8_t elem) {
+    if (elem == SW97_ELEM_NONE) {
+        return 1; // the plain weapon is always an option
+    }
+    if (elem == SW97_ELEM_BOMB) {
+        return Sw97_BombArrowsOwned();
+    }
+    if (elem >= SW97_ELEM_COUNT) {
+        return 0;
+    }
+    if (Nei_Save()->ootQuestItems & (1u << sSw97ElemQuest[elem])) {
+        return 1;
+    }
+    return (sSw97ElemVanillaSlot[elem] != 0xFF) &&
+           (gSaveContext.save.saveInfo.inventory.items[sSw97ElemVanillaSlot[elem]] != ITEM_NONE);
+}
+
+// Is `elem` a legal value for this weapon at all?
+//
+// Bombs ride BOTH weapons: bomb arrows on the bow, bomb bullets on the slingshot. They share one
+// ownership flag (bombArrowsOwned) but each weapon keeps its own primed element, so a bomb-primed
+// bow and a wind-primed slingshot coexist like any other pair. Skijer's NEI
+static uint8_t Sw97_ElementAllowed(uint8_t isSling, uint8_t elem) {
+    (void)isSling;
+    return Sw97_ElementOwned(elem);
+}
+
+uint8_t Sw97_ElementCount(uint8_t isSling) {
+    uint8_t n = 0;
+    for (uint8_t e = 0; e < SW97_ELEM_COUNT; e++) {
+        if (Sw97_ElementAllowed(isSling, e)) {
+            n++;
+        }
+    }
+    return n;
+}
+
+uint8_t Sw97_ElementAt(uint8_t isSling, uint8_t index) {
+    uint8_t n = 0;
+    for (uint8_t e = 0; e < SW97_ELEM_COUNT; e++) {
+        if (Sw97_ElementAllowed(isSling, e)) {
+            if (n == index) {
+                return e;
+            }
+            n++;
+        }
+    }
+    return SW97_ELEM_NONE;
+}
+
+uint8_t Sw97_GetElement(uint8_t isSling) {
+    NeiSaveData* nei = Nei_Save();
+    uint8_t e = isSling ? nei->sw97SlingElement : nei->sw97BowElement;
+    if (!Sw97_ElementAllowed(isSling, e)) {
+        // Self-heal: a medallion can be lost (or the option toggled) after the flag was set.
+        e = SW97_ELEM_NONE;
+        if (isSling) {
+            nei->sw97SlingElement = e;
+        } else {
+            nei->sw97BowElement = e;
+        }
+    }
+    return e;
+}
+
+void Sw97_SetElement(uint8_t isSling, uint8_t elem) {
+    if (!Sw97_ElementAllowed(isSling, elem)) {
+        return;
+    }
+    if (isSling) {
+        Nei_Save()->sw97SlingElement = elem;
+    } else {
+        Nei_Save()->sw97BowElement = elem;
+    }
+}
+
+uint8_t Sw97_ElementNeighbor(uint8_t isSling, uint8_t elem, int32_t dir) {
+    uint8_t n = Sw97_ElementCount(isSling);
+    if (n <= 1) {
+        return elem;
+    }
+    for (uint8_t i = 0; i < n; i++) {
+        if (Sw97_ElementAt(isSling, i) == elem) {
+            return Sw97_ElementAt(isSling, (uint8_t)((i + n + (dir > 0 ? 1 : -1)) % n));
+        }
+    }
+    return Sw97_ElementAt(isSling, 0);
+}
+
+// THE accessor. Everything downstream — the arrow-type decode, the item action, the HUD composite,
+// the pause grid — goes through this and nothing else, so the "CVar off" path stays byte-identical
+// to the pre-refactor behavior and the bow-only rule for bombs lives in exactly one place.
+uint8_t Sw97_EffectiveElement(uint8_t isSling) {
+    if (!SW97_ENABLED()) {
+        return SW97_ELEM_NONE;
+    }
+    return Sw97_GetElement(isSling);
+}
+
+uint8_t Sw97_IsBowItem(uint16_t item) {
+    return item == ITEM_BOW;
+}
+uint8_t Sw97_IsSlingItem(uint16_t item) {
+    return item == ITEM_FAIRY_SLINGSHOT;
+}
+
+// The composite HUD icon is built from iconItemSegment[], which only refreshes when the button's
+// item is (re)loaded. Changing the element does not change the item, so every setter has to ask for
+// the reload by hand — otherwise layer 1 keeps the previous weapon and it reads as a texture bug.
+void Sw97_RefreshButtonIcons(PlayState* play) {
+    void Interface_LoadItemIconImpl(PlayState * play, u8 btn);
+    for (int32_t i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
+        uint8_t item = BUTTON_ITEM_EQUIP(0, i);
+        if (Sw97_IsBowItem(item) || Sw97_IsSlingItem(item)) {
+            Interface_LoadItemIconImpl(play, (u8)i);
+        }
+    }
+}
+
+// Is this button item a weapon primed with bombs right now? THE predicate for "bombs are live" —
+// bomb arrows on the bow, bomb bullets on the slingshot. Every HUD badge, input dispatch and
+// cleanup guard goes through here so the two weapons can never drift apart. Skijer's NEI
+uint8_t Sw97_ItemHasBombs(uint16_t item) {
+    if (Sw97_IsBowItem(item)) {
+        return Sw97_EffectiveElement(0) == SW97_ELEM_BOMB;
+    }
+    if (Sw97_IsSlingItem(item)) {
+        return Sw97_EffectiveElement(1) == SW97_ELEM_BOMB;
+    }
+    return 0;
+}
+
+// Is Bomb Arrows the primed element on some button right now? Replaces the old
+// IsItemEquipped(ITEM_BOMB_ARROWS), which scanned for a literal id that no longer lands there.
+uint8_t Sw97_BombArrowsOnButton(void) {
+    for (int32_t i = EQUIP_SLOT_B; i <= EQUIP_SLOT_C_RIGHT; i++) {
+        if (Sw97_ItemHasBombs(BUTTON_ITEM_EQUIP(0, i))) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// One-shot save migration off the per-element item ids. Idempotent via sw97LayoutVersion.
+//
+// The legacy ids are GONE from z64item.h, so they are spelled as raw values here on purpose — this
+// function is the only place that must still recognise them. This sweep is NOT optional in 2ship:
+// 0xA7..0xAC are live ITEM_MAP_POINT_* values again, so an unmigrated save would leave a map point
+// sitting on a C-button.
+void Sw97_MigrateLayout(PlayState* play) {
+    NeiSaveData* nei = Nei_Save();
+    if (nei->sw97LayoutVersion >= 1) {
+        return;
+    }
+
+    // The slingshot's element was already a persisted index (1..6) with the SAME numbering as
+    // SW97_ELEM_FIRE..WIND, so this is a plain copy.
+    if ((nei->slingshotWheel >= 1) && (nei->slingshotWheel <= 6)) {
+        nei->sw97SlingElement = nei->slingshotWheel;
+    }
+    nei->slingshotWheel = 0;
+
+    // The bow's element was never persisted separately — it lived in the SLOT_BOW cell.
+    {
+        uint8_t bowCell = gSaveContext.save.saveInfo.inventory.items[SLOT_BOW];
+        if ((bowCell >= 0xD0) && (bowCell <= 0xD5)) {
+            nei->sw97BowElement = (uint8_t)(SW97_ELEM_FIRE + (bowCell - 0xD0));
+            gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] = ITEM_BOW;
+        }
+    }
+
+    // Buttons, for every player form — MM keeps a separate equips block per form.
+    for (int32_t form = 0; form < PLAYER_FORM_MAX; form++) {
+        for (int32_t i = EQUIP_SLOT_B; i <= EQUIP_SLOT_C_RIGHT; i++) {
+            uint8_t item = BUTTON_ITEM_EQUIP(form, i);
+            if ((item >= 0xD0) && (item <= 0xD5)) {
+                nei->sw97BowElement = (uint8_t)(SW97_ELEM_FIRE + (item - 0xD0));
+                BUTTON_ITEM_EQUIP(form, i) = ITEM_BOW;
+            } else if ((item >= 0xA7) && (item <= 0xAC)) {
+                nei->sw97SlingElement = (uint8_t)(SW97_ELEM_FIRE + (item - 0xA7));
+                BUTTON_ITEM_EQUIP(form, i) = ITEM_FAIRY_SLINGSHOT;
+            } else if (item == ITEM_BOMB_ARROWS) {
+                nei->sw97BowElement = SW97_ELEM_BOMB;
+                BUTTON_ITEM_EQUIP(form, i) = ITEM_BOW;
+            }
+        }
+    }
+
+    // Page-2 slot 27 held ITEM_BOMB_ARROWS; the cell belongs to the Elemental Wand now.
+    if (Nei_GetOwnedItem(SLOT_BOMB_ARROWS) == ITEM_BOMB_ARROWS) {
+        nei->bombArrowsOwned = 1;
+        Nei_SetOwnedItem(SLOT_BOMB_ARROWS, ITEM_NONE);
+    }
+
+    nei->sw97LayoutVersion = 1;
+    Sw97_RefreshButtonIcons(play);
+}
+
+// ── Elemental Wand — six rods in one page-2 cell ─────────────────────────────────────────────────
+static const uint8_t sWandQuest[WAND_MODE_COUNT] = {
+    OOT_QUEST_MEDALLION_SPIRIT, // Sand Rod
+    OOT_QUEST_MEDALLION_FOREST, // Tornado Rod
+    OOT_QUEST_MEDALLION_WATER,  // Water Rod
+    OOT_QUEST_MEDALLION_FIRE,   // Meteor Rod
+    OOT_QUEST_MEDALLION_LIGHT,  // Storm Rod
+    OOT_QUEST_MEDALLION_SHADOW, // Shadow Scepter
+};
+static const uint16_t sWandMedallion[WAND_MODE_COUNT] = {
+    ITEM_MEDALLION_SPIRIT, ITEM_MEDALLION_FOREST, ITEM_MEDALLION_WATER,
+    ITEM_MEDALLION_FIRE,   ITEM_MEDALLION_LIGHT,  ITEM_MEDALLION_SHADOW,
+};
+// Placeholder art note: until the six real PNGs land, dropping the rod texture files in place is the
+// only change needed — these paths are already the final ones.
+static void* const sWandIcon[WAND_MODE_COUNT] = {
+    (void*)gItemIconSandRodTex,   (void*)gItemIconTornadoRodTex, (void*)gItemIconWaterRodTex,
+    (void*)gItemIconMeteorRodTex, (void*)gItemIconStormRodTex,   (void*)gItemIconShadowScepterTex,
+};
+static void* const sWandNameTex[WAND_MODE_COUNT] = {
+    (void*)gSandRodNameTex,   (void*)gTornadoRodNameTex, (void*)gWaterRodNameTex,
+    (void*)gMeteorRodNameTex, (void*)gStormRodNameTex,   (void*)gShadowScepterNameTex,
+};
+
+void* Wand_ModeIcon(uint8_t mode) {
+    return (mode < WAND_MODE_COUNT) ? sWandIcon[mode] : sWandIcon[0];
+}
+void* Wand_ModeNameTex(uint8_t mode) {
+    return (mode < WAND_MODE_COUNT) ? sWandNameTex[mode] : sWandNameTex[0];
+}
+
+uint8_t Wand_RandoMode(void) {
+    return (uint8_t)CVarGetInteger("gRando.Options.RO_ELEMENTAL_WAND_SHUFFLE", WAND_RANDO_MEDALLIONS);
+}
+
+uint16_t Wand_ModeMedallion(uint8_t mode) {
+    return (mode < WAND_MODE_COUNT) ? sWandMedallion[mode] : ITEM_NONE;
+}
+
+// Which rods are usable. All three randomizer treatments share the SAME slot flag; they differ only
+// in what unlocks an individual mode.
+uint8_t Wand_ModeOwned(uint8_t mode) {
+    if (mode >= WAND_MODE_COUNT) {
+        return 0;
+    }
+    switch (Wand_RandoMode()) {
+        case WAND_RANDO_SINGLE:
+            return Nei_Save()->wandRodsOwned != 0; // one item lights all six
+        case WAND_RANDO_ELEMENTAL:
+            return (Nei_Save()->wandRodsOwned & (1 << mode)) != 0;
+        case WAND_RANDO_MEDALLIONS:
+        default:
+            return (Nei_Save()->ootQuestItems & (1u << sWandQuest[mode])) != 0;
+    }
+}
+
+void Wand_GrantMode(uint8_t mode) {
+    if (mode >= WAND_MODE_COUNT) {
+        return;
+    }
+    if (Wand_RandoMode() == WAND_RANDO_SINGLE) {
+        Nei_Save()->wandRodsOwned = (1 << WAND_MODE_COUNT) - 1;
+    } else {
+        Nei_Save()->wandRodsOwned |= (1 << mode);
+    }
+    // Obtaining ANY rod hands over the slot if it isn't there yet.
+    ExtInv_SetSlotItem(SLOT_ELEMENTAL_WAND, ITEM_ELEMENTAL_WAND);
+}
+
+uint8_t Wand_ModeCount(void) {
+    uint8_t n = 0;
+    for (uint8_t m = 0; m < WAND_MODE_COUNT; m++) {
+        if (Wand_ModeOwned(m)) {
+            n++;
+        }
+    }
+    return n;
+}
+
+uint8_t Wand_ModeAt(uint8_t index) {
+    uint8_t n = 0;
+    for (uint8_t m = 0; m < WAND_MODE_COUNT; m++) {
+        if (Wand_ModeOwned(m)) {
+            if (n == index) {
+                return m;
+            }
+            n++;
+        }
+    }
+    return WAND_MODE_SAND;
+}
+
+uint8_t Wand_GetMode(void) {
+    uint8_t m = Nei_Save()->wandMode;
+    if (!Wand_ModeOwned(m)) {
+        m = Wand_ModeAt(0);
+        Nei_Save()->wandMode = m;
+    }
+    return m;
+}
+
+void Wand_SetMode(uint8_t mode) {
+    if (Wand_ModeOwned(mode)) {
+        Nei_Save()->wandMode = mode;
+    }
+}
+
+uint8_t Wand_ModeNeighbor(uint8_t mode, int32_t dir) {
+    uint8_t n = Wand_ModeCount();
+    if (n <= 1) {
+        return mode;
+    }
+    for (uint8_t i = 0; i < n; i++) {
+        if (Wand_ModeAt(i) == mode) {
+            return Wand_ModeAt((uint8_t)((i + n + (dir > 0 ? 1 : -1)) % n));
+        }
+    }
+    return Wand_ModeAt(0);
+}
+
+// ── Sheikah Slate — four runes in one page-2 cell (wand idiom, no rando-mode split: each rune is
+// always its own sibling item, "random" order comes from where the seed hides them) ──────────────
+static void* const sSlateRuneMiniIcon[SLATE_RUNE_COUNT] = {
+    (void*)"__OTR__textures/icon_item_custom/gItemIconSlateRuneBombTex",
+    (void*)"__OTR__textures/icon_item_custom/gItemIconSlateRuneStasisTex",
+    (void*)"__OTR__textures/icon_item_custom/gItemIconSlateRuneCryonisTex",
+    (void*)"__OTR__textures/icon_item_custom/gItemIconSlateRuneMasterCycleTex",
+};
+static void* const sSlateRuneIcon[SLATE_RUNE_COUNT] = {
+    (void*)"__OTR__textures/icon_item_custom/gItemIconSheikahSlateBombTex",
+    (void*)"__OTR__textures/icon_item_custom/gItemIconSheikahSlateStasisTex",
+    (void*)"__OTR__textures/icon_item_custom/gItemIconSheikahSlateCryonisTex",
+    (void*)"__OTR__textures/icon_item_custom/gItemIconSheikahSlateMasterCycleTex",
+};
+
+void* Slate_RuneMiniIcon(uint8_t rune) {
+    return (rune < SLATE_RUNE_COUNT) ? sSlateRuneMiniIcon[rune] : sSlateRuneMiniIcon[0];
+}
+void* Slate_RuneIcon(uint8_t rune) {
+    return (rune < SLATE_RUNE_COUNT) ? sSlateRuneIcon[rune] : sSlateRuneIcon[0];
+}
+
+uint8_t Slate_RuneOwned(uint8_t rune) {
+    if (rune >= SLATE_RUNE_COUNT) {
+        return 0;
+    }
+    return (Nei_Save()->slateRunesOwned & (1 << rune)) != 0;
+}
+
+void Slate_GrantRune(uint8_t rune) {
+    if (rune >= SLATE_RUNE_COUNT) {
+        return;
+    }
+    Nei_Save()->slateRunesOwned |= (1 << rune);
+    // The freshly obtained rune becomes the active one — this is also what makes the get-item
+    // textbox icon (resolved through Slate_GetRune) show the rune that was just granted.
+    Nei_Save()->slateMode = rune;
+    // Obtaining ANY rune hands over the slate itself if it isn't there yet.
+    ExtInv_GiveItem(SLOT_SHEIKAH_SLATE, EXT_ITEM_SHEIKAH_SLATE);
+}
+
+uint8_t Slate_RuneCount(void) {
+    uint8_t n = 0;
+    for (uint8_t r = 0; r < SLATE_RUNE_COUNT; r++) {
+        if (Slate_RuneOwned(r)) {
+            n++;
+        }
+    }
+    return n;
+}
+
+uint8_t Slate_RuneAt(uint8_t index) {
+    uint8_t n = 0;
+    for (uint8_t r = 0; r < SLATE_RUNE_COUNT; r++) {
+        if (Slate_RuneOwned(r)) {
+            if (n == index) {
+                return r;
+            }
+            n++;
+        }
+    }
+    return SLATE_RUNE_BOMB;
+}
+
+uint8_t Slate_GetRune(void) {
+    uint8_t r = Nei_Save()->slateMode;
+    if (!Slate_RuneOwned(r)) {
+        r = Slate_RuneAt(0);
+        Nei_Save()->slateMode = r;
+    }
+    return r;
+}
+
+void Slate_SetRune(uint8_t rune) {
+    if (Slate_RuneOwned(rune)) {
+        Nei_Save()->slateMode = rune;
+    }
+}
+
+uint8_t Slate_RuneNeighbor(uint8_t rune, int32_t dir) {
+    uint8_t n = Slate_RuneCount();
+    if (n <= 1) {
+        return rune;
+    }
+    for (uint8_t i = 0; i < n; i++) {
+        if (Slate_RuneAt(i) == rune) {
+            return Slate_RuneAt((uint8_t)((i + n + (dir > 0 ? 1 : -1)) % n));
+        }
+    }
+    return Slate_RuneAt(0);
+}
+
 uint8_t ExtInv_GetItemSlot(uint16_t itemId) {
     if (itemId < 52) {
         return gItemSlots[itemId];
@@ -866,24 +1613,24 @@ uint8_t ExtInv_GetItemSlot(uint16_t itemId) {
 // icons (drawing them as 32x32 RGBA32 misreads the buffer into garbage). Everything else 32.
 uint8_t ExtInv_GetItemIconSize(uint16_t itemId) {
     switch (itemId) {
+        // Unified trade wheel: cell + the two preview markers all draw an OoT icon_item_static
+        // texture, which is 32x32. Without this they'd fall through to the default and render as
+        // garbage (a 24x24 read as 32x32). Skijer 2026-07-30
+        case ITEM_TRADE_PLACEHOLDER:
+        case ITEM_TRADE_PREV:
+        case ITEM_TRADE_NEXT:
+        case ITEM_OOT_MASK_PLACEHOLDER:
+        case ITEM_OOT_MASK_PREV:
+        case ITEM_OOT_MASK_NEXT:
+            return 32;
         case ITEM_MEDALLION_FOREST:
         case ITEM_MEDALLION_FIRE:
         case ITEM_MEDALLION_WATER:
         case ITEM_MEDALLION_SPIRIT:
         case ITEM_MEDALLION_SHADOW:
         case ITEM_MEDALLION_LIGHT:
-        case ITEM_SW97_ARROW_FIRE:
-        case ITEM_SW97_ARROW_ICE:
-        case ITEM_SW97_ARROW_LIGHT:
-        case ITEM_SW97_ARROW_DARK:
-        case ITEM_SW97_ARROW_SOUL:
-        case ITEM_SW97_ARROW_WIND:
-        case ITEM_SW97_BULLET_FIRE:
-        case ITEM_SW97_BULLET_ICE:
-        case ITEM_SW97_BULLET_LIGHT:
-        case ITEM_SW97_BULLET_DARK:
-        case ITEM_SW97_BULLET_SOUL:
-        case ITEM_SW97_BULLET_WIND:
+        // (The twelve SW97 arrow/bullet ids used to be listed here as 24x24 too. They are gone; the
+        // composite draw sites size the medallion layer explicitly.)
         // Spiritual Stones use the 24x24 companion quest icons (same as medallions).
         case EXT_ITEM_SPIRITUAL_STONE_KOKIRI:
         case EXT_ITEM_SPIRITUAL_STONE_GORON:

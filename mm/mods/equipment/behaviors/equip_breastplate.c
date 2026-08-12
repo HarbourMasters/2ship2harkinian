@@ -4,10 +4,16 @@
  * Behavior: Magic Armor (TP-style) — rupee-cost damage immunity.
  * - Makes Link immune to all damage while wearing (rupees > 0)
  * - Each HP of damage received costs 1 rupee
+ * - Absorbed hits play like a shield block: no knockback, no damage animation, no hurt voice
+ *   (gated per damage path in z_player.c via Player_SpiritTunicAbsorbHit)
+ * - 30% of each charge (ceil) SPILLS out of the wallet as real rupee pickups raining down on Link
  * - No rupees = slow movement (cursed weight)
- * - With rupees: golden Iron Knuckle tint (Nabooru variant)
- * - Without rupees: dark Iron Knuckle tint
  * - Passive rupee drain: 1 rupee per 30 frames
+ *
+ * The visual is a RECOLOR, not armor: the tunic DLs are patched orange (rupees) / near-black
+ * (broke) from NeiTunic_UpdateEquipmentColor in 2s2h/BenGui/CosmeticEditor.cpp. The Iron Knuckle
+ * armor draw further down is legacy and no longer reachable — ExtEquip_DrawBreastplate has no
+ * callers.
  *
  * Damage immunity is implemented via a direct C call from Health_ChangeBy
  * in z_parameter.c to Breastplate_OnHealthChangeBefore (defined below).
@@ -60,6 +66,60 @@ static void Breastplate_Behavior(Player* player, PlayState* play) {
 }
 
 // ---------------------------------------------------------------------------
+// Coin spill — ceil(30%) of the charge falls out of the wallet as REAL rupee actors (EnItem00),
+// tossed around Link with the standard drop bounce (Item_DropCollectible: random yaw, vy 8).
+// Decomposed into red/blue/green denominations so a big hit stays a handful of actors.
+//
+// Each coin gets a random bearing around Link at a short radius, mirroring the harpoon death-pile
+// scatter (soh/Network/Harpoon/DroppedItems.cpp SpawnInScene): without it they share one XZ and
+// z-fight into a single blob.
+//
+// The coins spawn ABOVE Link's head and rain down. This is not cosmetic: EnItem00_Update collects
+// on `xzDistToPlayer <= 30 && |playerHeightRel| <= 50` (z_en_item00.c:539), and the scatter radius
+// is well inside 30 units — spawning at Link's feet means he swallows the whole spill on the very
+// frame it appears, so the drop is invisible and free. Clearing the vertical window at spawn keeps
+// them uncollectable until they have fallen, and Item_DropCollectible's outward speed carries them
+// past the 30-unit ring on the way down, so they must be walked back to.
+//
+// MM-only wrinkle vs the soh copy: with PLAYER_STATE3_1000 (Great Fairy's Mask) the window widens
+// to 60 / +-100, so the mask can still vacuum the spill mid-fall. That is the mask doing its job —
+// deliberately not fought here.
+// ---------------------------------------------------------------------------
+#define BREASTPLATE_SPILL_RADIUS_MIN 8.0f
+#define BREASTPLATE_SPILL_RADIUS_MAX 20.0f
+// Clearance above the head. Must keep (height + this) > 50 for every form so the spawn starts
+// outside the pickup window; 40 leaves margin even for Deku, the shortest transformation.
+#define BREASTPLATE_SPILL_HEIGHT_MARGIN 40.0f
+
+static void Breastplate_SpillRupees(PlayState* play, s16 rupeeCost) {
+    Player* player = GET_PLAYER(play);
+    s16 spill = (s16)((rupeeCost * 3 + 9) / 10); // ceil(rupeeCost * 0.3)
+    f32 spawnY = player->actor.world.pos.y + Player_GetHeight(player) + BREASTPLATE_SPILL_HEIGHT_MARGIN;
+
+    while (spill > 0) {
+        u32 params;
+        if (spill >= 20) {
+            params = ITEM00_RUPEE_RED;
+            spill -= 20;
+        } else if (spill >= 5) {
+            params = ITEM00_RUPEE_BLUE;
+            spill -= 5;
+        } else {
+            params = ITEM00_RUPEE_GREEN;
+            spill -= 1;
+        }
+
+        s16 angle = (s16)Rand_CenteredFloat(65536.0f);
+        f32 radius = BREASTPLATE_SPILL_RADIUS_MIN +
+                     Rand_ZeroOne() * (BREASTPLATE_SPILL_RADIUS_MAX - BREASTPLATE_SPILL_RADIUS_MIN);
+        Vec3f pos = { player->actor.world.pos.x + Math_CosS(angle) * radius, spawnY,
+                      player->actor.world.pos.z + Math_SinS(angle) * radius };
+
+        Item_DropCollectible(play, &pos, params);
+    }
+}
+
+// ---------------------------------------------------------------------------
 // Pre-damage hook: convert incoming damage to rupee cost while breastplate
 // is active and Link has rupees.
 //
@@ -67,7 +127,7 @@ static void Breastplate_Behavior(Player* player, PlayState* play) {
 // mutated. Setting *amount = 0 makes Health_ChangeBy return early without
 // touching gSaveContext.save.saveInfo.playerData.health.
 // ---------------------------------------------------------------------------
-void Breastplate_OnHealthChangeBefore(int16_t* amount) {
+void Breastplate_OnHealthChangeBefore(PlayState* play, int16_t* amount) {
     if (!Breastplate_IsActive()) {
         return;
     }
@@ -85,6 +145,7 @@ void Breastplate_OnHealthChangeBefore(int16_t* amount) {
     }
     Rupees_ChangeBy(-rupeeCost);
     Sfx_PlaySfxCentered(NA_SE_IT_SHIELD_BOUND);
+    Breastplate_SpillRupees(play, rupeeCost);
 
     *amount = 0; // block the damage
 }

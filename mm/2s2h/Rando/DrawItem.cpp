@@ -26,7 +26,7 @@ u8 ResourceMgr_FileExists(const char* resName);
 void* OotAssets_LoadGfx(const char* otrPath); // Skijer's NEI — resolve an OoT model DL from oot.o2r
 void* OotAssets_LoadGfxDirect(const char* otrPath); // Skijer's NEI — archive-scoped load (defeats MM shadowing)
 void* OotAssets_LoadTexOrDList(const char* otrPath); // Skijer's NEI — texture/DL resource (Climb ladder seg-8 tex)
-uint8_t Nei_GetOwnedItem(uint8_t slot);       // mods/nei_save.cpp — Roc chain level for its draw
+uint16_t Nei_GetOwnedItem(uint8_t slot);      // mods/nei_save.cpp — Roc chain level for its draw (u16 store)
 }
 
 s32 StrayFairyOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx,
@@ -144,6 +144,10 @@ void DrawSong(RandoItemId randoItemId) {
             break;
         case RI_OOT_SONG_SERENADE_OF_WATER:
             gDPSetEnvColor(POLY_XLU_DISP++, 85, 180, 223, 255);
+            break;
+        // Zelda's Lullaby is not a warp song, but it renders the same way; pink, as in OoT's own UI.
+        case RI_OOT_SONG_ZELDAS_LULLABY:
+            gDPSetEnvColor(POLY_XLU_DISP++, 255, 120, 200, 255);
             break;
         case RI_OOT_SONG_REQUIEM_OF_SPIRIT:
             gDPSetEnvColor(POLY_XLU_DISP++, 222, 158, 47, 255);
@@ -579,16 +583,30 @@ void DrawOotBeanSoul() {
     DrawOotGetItemOpa("__OTR__objects/object_gi_bean/gGiBeanDL", &sCache);
 }
 
-// All 9 boss souls share the one OoT blue-fire flame (object_gi_fire/gGiBlueFireFlameDL), grayscale-
-// tinted per boss. Flame colors mirror SoH's Randomizer_DrawBossSoul. The boss skeleton SoH also draws
-// is intentionally omitted (that would require every boss object; the tinted flame is the generic soul).
+// All 9 boss souls draw OoT's blue-fire flame (grayscale-tinted per boss) PLUS the generic soul
+// skull, mirroring SoH's Randomizer_DrawBossSoul (draw.cpp:1000) in its "simpler models" form.
+// Before this only the flame was drawn, so all nine souls looked like the same little flame in a
+// different colour. Skijer's NEI
+//
+// Two loaders on purpose:
+//   - The flame is an OoT game asset, so it comes from oot.o2r — and with the ARCHIVE-SCOPED loader.
+//     The plain OotAssets_LoadGfx mounts oot.o2r at the LOWEST priority, so an MM folder with the
+//     same name and without that symbol makes the path resolve to nothing and the item renders
+//     invisible. That is exactly what bit the bean souls above.
+//   - The skull is object_boss_soul, a NEI custom asset that ships inside 2ship.o2r. It is NOT an
+//     OoT game asset, so it does not go through the oot.o2r path.
+// Each half draws independently: if one archive is not ready, the other still shows something.
 void DrawOotBossSoul(RandoItemId randoItemId) {
-    static Gfx* sCache = NULL;
-    if (sCache == NULL) {
-        sCache = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_fire/gGiBlueFireFlameDL");
+    static Gfx* sFlame = NULL;
+    static Gfx* sSkull = NULL;
+    if (sFlame == NULL) {
+        sFlame = (Gfx*)OotAssets_LoadGfxDirect("__OTR__objects/object_gi_fire/gGiBlueFireFlameDL");
     }
-    if (sCache == NULL) {
-        return; // oot.o2r not mounted yet — try again next frame
+    if (sSkull == NULL) {
+        sSkull = ResourceMgr_LoadGfxByName("__OTR__objects/object_boss_soul/gGIBossSoulSkullDL");
+    }
+    if (sFlame == NULL && sSkull == NULL) {
+        return; // neither archive ready yet — try again next frame
     }
 
     u8 r = 150, g = 150, b = 150; // default: Ganon/grey
@@ -607,18 +625,37 @@ void DrawOotBossSoul(RandoItemId randoItemId) {
 
     OPEN_DISPS(gPlayState->state.gfxCtx);
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
-    gSPSegment(POLY_XLU_DISP++, 8,
-               (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, 0, 0, 0, 16, 32, 1,
-                                             gPlayState->state.frames, -(gPlayState->state.frames * 8), 16, 32, 0, 0, 1,
-                                             -8));
-    Matrix_Translate(0.0f, -70.0f, 0.0f, MTXMODE_APPLY);
-    Matrix_Scale(5.0f, 5.0f, 5.0f, MTXMODE_APPLY);
-    Matrix_ReplaceRotation(&gPlayState->billboardMtxF);
-    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
-    gDPSetGrayscaleColor(POLY_XLU_DISP++, r, g, b, 255);
-    gSPGrayscale(POLY_XLU_DISP++, true);
-    gSPDisplayList(POLY_XLU_DISP++, sCache);
-    gSPGrayscale(POLY_XLU_DISP++, false);
+
+    // Flame: billboarded, pushed down and scaled up. Wrapped in Push/Pop so the skull below still
+    // gets the untouched get-item matrix, same as SoH does.
+    if (sFlame != NULL) {
+        Matrix_Push();
+        gSPSegment(POLY_XLU_DISP++, 8,
+                   (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, 0, 0, 0, 16, 32, 1,
+                                                 gPlayState->state.frames, -(gPlayState->state.frames * 8), 16, 32, 0,
+                                                 0, 1, -8));
+        Matrix_Translate(0.0f, -70.0f, 0.0f, MTXMODE_APPLY);
+        Matrix_Scale(5.0f, 5.0f, 5.0f, MTXMODE_APPLY);
+        Matrix_ReplaceRotation(&gPlayState->billboardMtxF);
+        MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+        gDPSetGrayscaleColor(POLY_XLU_DISP++, r, g, b, 255);
+        gSPGrayscale(POLY_XLU_DISP++, true);
+        gSPDisplayList(POLY_XLU_DISP++, sFlame);
+        gSPGrayscale(POLY_XLU_DISP++, false);
+        Matrix_Pop();
+    }
+
+    // Skull: Ganon's is black, the rest white — the one distinction SoH keeps in this mode.
+    if (sSkull != NULL) {
+        MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+        if (randoItemId == RI_SOUL_OOT_BOSS_GANON) {
+            gDPSetEnvColor(POLY_XLU_DISP++, 0, 0, 0, 255);
+        } else {
+            gDPSetEnvColor(POLY_XLU_DISP++, 255, 255, 255, 255);
+        }
+        gSPDisplayList(POLY_XLU_DISP++, sSkull);
+    }
+
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
@@ -1278,7 +1315,27 @@ void DrawOotGerudoCard() { // object_gi_gerudo (OoT-unique)
     static Gfx* sCache = NULL;
     DrawOotGetItemOpa("__OTR__objects/object_gi_gerudo/gGiGerudoCardDL", &sCache);
 }
+// Defined further down with the other NEI real-mesh helpers; declared here because the Stone of
+// Agony chain (below) draws a CUSTOM 2ship.o2r asset for its level 2.
+static bool DrawNeiRealOpa(const char* otrPath, Gfx** cache, u8* tried, f32 scale, bool rotZPi);
+
 void DrawOotStoneOfAgony() { // MM's own object_gi_map ALSO carries gGiStoneOfAgonyDL — resolves natively
+    // 2-level NEI chain: the vanilla stone, then the Quartz of Motion (its own custom model, made
+    // in Blender and exported to 2ship.o2r). Same shape as DrawOotProgressiveBgs: the flag is set
+    // by the give, so the SECOND copy is the one that draws the quartz.
+    // Uses DrawNeiRealOpa, NOT DrawOotGetItemOpa — the latter loads from oot.o2r, and this is a
+    // CUSTOM asset in 2ship.o2r. Scale 0.25: the mesh is 135 units tall and the NEI convention here
+    // is the same as SoH's (object_nei_divine_shield is 68 tall at 0.5 => ~34 on screen).
+    // Skijer's NEI
+    if (Nei_Save()->quartzOwned) {
+        static Gfx* sQuartz = NULL;
+        static u8 sQuartzTried = 0;
+        if (DrawNeiRealOpa("__OTR__objects/object_nei_quartz_of_motion/gNeiQuartzOfMotionDL", &sQuartz, &sQuartzTried,
+                           0.25f, false)) {
+            return;
+        }
+        // asset missing (2ship.o2r not regenerated) -> fall through to the vanilla stone
+    }
     static Gfx* sCache = NULL;
     DrawOotGetItemOpa("__OTR__objects/object_gi_map/gGiStoneOfAgonyDL", &sCache);
 }
@@ -1296,6 +1353,29 @@ void DrawOotGerudoMask() { // object_gi_gerudomask (OoT-unique)
 }
 
 // Iron Boots — object_gi_boots_2 (OoT-unique), boots Opa + rivets Xlu (OoT GetItem_DrawOpa0Xlu1).
+// Gauntlets — object_gi_gauntlets (OoT-unique). Same opa+xlu split as the boots: colour layer plus
+// the gauntlet geometry. Used for every level of the Progressive Strength chain. Skijer's NEI
+void DrawOotGauntlets() {
+    static Gfx* opaCache = NULL;
+    static Gfx* xluCache = NULL;
+    DrawOotGetItemOpaXlu("__OTR__objects/object_gi_gauntlets/gGiGauntletsColorDL", &opaCache,
+                         "__OTR__objects/object_gi_gauntlets/gGiGauntletsDL", &xluCache);
+}
+
+// Progressive Biggoron's Sword — the LAST of the ~430 rando items with no model at all (neither a
+// case here nor a GID in the table, so it fell to GetItem_Draw(GID_NONE) and drew nothing). L1 is
+// the Biggoron Sword mesh from oot.o2r; L2 (the Great Fairy's Sword upgrade) tints it pink as the
+// tier signal, same idiom as the Hammer->Axe and Longshot->Ultrashot chains. Skijer's NEI
+void DrawOotProgressiveBgs() {
+    if (Nei_Save()->comboObtained[FC_OOT_SWORD_BIGGORON] == 0) {
+        static Gfx* c1 = NULL;
+        DrawOotGetItemOpa("__OTR__objects/object_gi_longsword/gGiBiggoronSwordDL", &c1);
+    } else {
+        static Gfx* c2 = NULL;
+        DrawOotGetItemOpaTint("__OTR__objects/object_gi_longsword/gGiBiggoronSwordDL", &c2, 255, 150, 220);
+    }
+}
+
 void DrawOotIronBoots() {
     static Gfx* opaCache = NULL;
     static Gfx* xluCache = NULL;
@@ -1813,7 +1893,7 @@ void DrawOotNeiMinishCap() { // REAL mesh (object_nei_minish_cap, SoH scale 0.5)
 void DrawOotProgressiveRoc() { // REAL meshes (object_nei_rocs_feather/cape, SoH scales 0.5/0.6): show the
                                // NEXT chain tier (cape once the Skijer feather sits in SLOT_ROCS).
                                // Fallback: OoT bottled butterfly (a "flying thing").
-    uint8_t curRoc = Nei_GetOwnedItem(24 /* SLOT_ROCS */);
+    uint16_t curRoc = Nei_GetOwnedItem(24 /* SLOT_ROCS */);
     bool wantCape = (curRoc == 0xB6 /* ITEM_ROCS_FEATHER_SKIJER */) || (curRoc == 0xB7 /* ITEM_ROCS_CAPE */);
     if (wantCape) {
         static Gfx* capeReal = NULL;
@@ -2089,9 +2169,264 @@ void DrawOotExtSpiritBreastplate() { // SoH parity: tunic tinted orange
 void DrawOotExtChampionsTunic() { // SoH parity: tunic tinted BotW champion blue
     DrawOotTunicTint(0, 120, 215);
 }
-void DrawOotExtPegasusAnklet() { // SoH parity: Hover Boots mesh tinted red
+void DrawOotExtSagesTunic() { // Legacy RI_WATER_DRAGON_SCALE identity, now Sage's
+    // Tunic in the middle, with the 6 medallions that feed it launching out of it in angled
+    // ballistic arcs — the Triforce Thief drop-launch look (angled velocity + gravity + spin
+    // while airborne), staggered into a continuous fountain. Pop-in/shrink-out masks the loop.
+    static void (*const sMedallionDraws[6])() = {
+        DrawOotMedallionForest, DrawOotMedallionFire,   DrawOotMedallionWater,
+        DrawOotMedallionSpirit, DrawOotMedallionShadow, DrawOotMedallionLight,
+    };
+    const f32 kV0 = 1.5f;       // outward launch speed (model units/frame)
+    const f32 kUpBias = 1.5f;   // added to every launch's vertical speed (fountain lift)
+    const f32 kGravity = 0.07f; // per-frame² pull on the arcs
+    const s32 kCycle = 40;      // frames airborne per medallion
+    const s32 kStagger = 7;     // launch offset between medallions
+    const f32 kScale = 0.35f;   // per-medallion shrink (medallion mesh spans ±39)
+    const f32 kZOffset = 14.0f; // in front of the tunic plane (its z tops out at 9) so depth never eats them
+
+    for (s32 i = 0; i < 6; i++) {
+        f32 t = (f32)((gPlayState->state.frames + i * kStagger) % kCycle);
+        f32 theta = (M_PIf / 2.0f) + i * (M_PIf / 3.0f); // 6 launch directions in the item plane
+        f32 vx = cosf(theta) * kV0;
+        f32 vy = sinf(theta) * kV0 + kUpBias;
+        f32 scale = kScale;
+
+        if (t < 4.0f) {
+            scale *= t / 4.0f; // pop-in at the tunic
+        } else if (t >= kCycle - 9.0f) {
+            scale *= (kCycle - 1.0f - t) / 8.0f; // shrink-out at the arc's end
+        }
+        if (scale <= 0.001f) {
+            continue;
+        }
+
+        Matrix_Push();
+        Matrix_Translate(vx * t, vy * t - 0.5f * kGravity * t * t, kZOffset, MTXMODE_APPLY);
+        Matrix_Scale(scale, scale, scale, MTXMODE_APPLY);
+        Matrix_RotateYF((f32)gPlayState->state.frames * 0.09f + i, MTXMODE_APPLY); // spin while flying
+        sMedallionDraws[i]();
+        Matrix_Pop();
+    }
+    DrawOotTunicTint(235, 240, 245);
+}
+// The hover-boots GI colors its i4 textures through per-section prim/env colors (brown leather:
+// cloth prim 80,40,0 / env 40,20,0 ≈ 22% luminance), so a multiplicative grayscale tint can only
+// darken — the cloth went near-black. Remap each prim/env color onto the icon's crimson ramp
+// instead (gItemIconPegasusBootsTex: body ≈ 85,14,23, highlights ≈ 154,58,65) in a one-time local
+// copy of the DL, and draw that untinted (SoH parity).
+static u32 Pegasus_CrimsonRamp(u32 rgba) {
+    u8 r = (rgba >> 24) & 0xFF, g = (rgba >> 16) & 0xFF, b = (rgba >> 8) & 0xFF, a = rgba & 0xFF;
+    f32 lum = 0.299f * r + 0.587f * g + 0.114f * b;
+    f32 nrF = lum * 1.7f;
+    u8 nr = (u8)(nrF > 255.0f ? 255.0f : nrF);
+    u8 ng = (u8)(lum * 0.35f);
+    u8 nb = (u8)(lum * 0.42f);
+    return ((u32)nr << 24) | ((u32)ng << 16) | ((u32)nb << 8) | a;
+}
+
+static Gfx* Pegasus_GetRecoloredBootsDL() {
+    static Gfx sDL[512];
+    static bool sBuilt = false;
+    if (sBuilt) {
+        return sDL;
+    }
+    // Two-word (expanded) commands: the second word is payload, never an opcode.
+    auto isTwoWord = [](u8 op) {
+        return op == 0x20 || op == 0x24 || op == 0x25 || op == 0x27 || op == 0x31 || op == 0x32 ||
+               op == 0x33 || op == 0x35 || op == 0x36 || op == 0x42;
+    };
+    Gfx* src = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_hoverboots/gGiHoverBootsDL");
+    if (src == NULL) {
+        return NULL; // oot.o2r not mounted yet — try again next frame
+    }
+    size_t count = 0;
+    bool sawEnd = false;
+    while (count < 512) {
+        u8 op = (u8)((src[count].words.w0 >> 24) & 0xFF);
+        sDL[count] = src[count];
+        count++;
+        if (op == 0xDF) { // G_ENDDL
+            sawEnd = true;
+            break;
+        }
+        if (isTwoWord(op) && count < 512) {
+            sDL[count] = src[count];
+            count++;
+        }
+    }
+    if (!sawEnd) {
+        return NULL; // DL longer than the buffer — leave the fallback draw in charge
+    }
+    for (size_t i = 0; i < count; i++) {
+        u8 op = (u8)((sDL[i].words.w0 >> 24) & 0xFF);
+        if (op == 0xDF) {
+            break;
+        }
+        if (op == G_SETPRIMCOLOR || op == G_SETENVCOLOR) {
+            sDL[i].words.w1 = (uintptr_t)Pegasus_CrimsonRamp((u32)sDL[i].words.w1);
+        } else if (isTwoWord(op)) {
+            i++; // payload word, never an opcode
+        }
+    }
+    sBuilt = true;
+    return sDL;
+}
+
+void DrawOotExtPegasusAnklet() { // Hover Boots GI, prim/env palette recolored to the icon's crimson
+    Gfx* dl = Pegasus_GetRecoloredBootsDL();
+
+    if (dl == NULL) {
+        // Resource not resolvable yet — old grayscale-tinted draw as a stopgap.
+        static Gfx* c = NULL;
+        DrawOotGetItemOpaTint("__OTR__objects/object_gi_hoverboots/gGiHoverBootsDL", &c, 150, 40, 50);
+        return;
+    }
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_OPA_DISP++, dl);
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+// The last three page-2 equipment cells. No dedicated mesh exists for any of them in either archive,
+// so they follow the same convention as every other ext piece: a VANILLA get-item mesh, tinted. That
+// is the one reuse the asset rule allows — vanilla models keep their own game's path, so a retexture
+// mod for that game still applies. Skijer's NEI
+void DrawOotExtTrident() {
+    // Phantom Ganon's lance from oot.o2r: limb 9 of gPhantomGanonSkel (the elongated limb — 50
+    // tris, 14070 units along Z, prongs spreading in Y). Its two limb textures are referenced by
+    // hash INSIDE the DL, so they resolve on their own; nothing is copied into 2ship.o2r.
+    // LoadGfxDirect (archive-scoped to oot.o2r) instead of the plain resolver, so MM's own
+    // same-named objects can't shadow it.
+    //
+    // Needs its own matrices, which DrawOotGetItemOpa* don't give: the mesh is authored shaft-along
+    // +Z and off-center (bbox centre Z=+1485). Spin around world up, tip it upright (+Z -> +Y),
+    // scale, then bring the centre back to the origin so it spins about its middle. 0.00625 puts
+    // the 14070-unit lance at ~88 on screen: over the ~34 the other NEI get-items use, but a lance
+    // is a thin silhouette and read as a needle at the shared size (Skijer asked for 2.5x).
+    // Skijer's NEI
+    static Gfx* sTrident = NULL;
+    if (sTrident == NULL) {
+        sTrident = (Gfx*)OotAssets_LoadGfxDirect("__OTR__objects/object_gnd/gPhantomGanonSkelLimbsLimb_00C610DL_009298");
+    }
+    if (sTrident == NULL) {
+        static Gfx* c = NULL; // oot.o2r not ready — keep the old tinted stand-in rather than nothing
+        DrawOotGetItemOpaTint("__OTR__objects/object_gi_longsword/gGiBiggoronSwordDL", &c, 120, 190, 230);
+        return;
+    }
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    // MANDATORY: this limb DL branches to segment 8 twice (`gsSPDisplayList(0x08000001)`) — the
+    // per-limb hook the boss uses for its glow. Without pointing segment 8 somewhere valid the
+    // interpreter jumps into whatever that segment last held and executes it as opcodes (ASCII
+    // opcode burst + 0xC0000005). OoT's own DrawPhantomGanon sets it for the same reason.
+    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gEmptyDL);
+    Matrix_RotateXF(-M_PIf / 2.0f, MTXMODE_APPLY);
+    Matrix_Scale(0.00625f, 0.00625f, 0.00625f, MTXMODE_APPLY);
+    Matrix_Translate(0.0f, 80.0f, -1485.0f, MTXMODE_APPLY);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_OPA_DISP++, sTrident);
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void DrawOotExtClimbBoots() { // Iron Boots mesh tinted leather brown
     static Gfx* c = NULL;
-    DrawOotGetItemOpaTint("__OTR__objects/object_gi_hoverboots/gGiHoverBootsDL", &c, 220, 40, 40);
+    DrawOotGetItemOpaTint("__OTR__objects/object_gi_boots_2/gGiIronBootsDL", &c, 150, 95, 45);
+}
+
+void DrawOotExtRocBoots() { // Hover Boots mesh tinted feather white-blue (Pegasus already takes red)
+    static Gfx* c = NULL;
+    DrawOotGetItemOpaTint("__OTR__objects/object_gi_hoverboots/gGiHoverBootsDL", &c, 225, 235, 255);
+}
+
+// ── The four 2026-08-06 page-2 additions ─────────────────────────────────────────────────────────
+// Each has its OWN placeholder asset in 2ship.o2r (object_nei_<item>/gNei<Item>DL — a flat-colour
+// gem, per the "every custom item gets its own XML" rule) so a mod can replace the model without a
+// code change. If the o2r has not been rebuilt yet the tinted rod stand-in shows instead of nothing.
+// Skijer's NEI
+void DrawOotNeiSheikahSlate() {
+    static Gfx* real = NULL;
+    static u8 tried = 0;
+    if (DrawNeiRealOpa("__OTR__objects/object_nei_sheikah_slate/gNeiSheikahSlateDL", &real, &tried, 0.35f, false)) {
+        return;
+    }
+    static Gfx* c = NULL;
+    DrawOotRodStandIn(&c, 90, 160, 255); // sheikah blue
+}
+
+// Slate runes: the same slate model wrapped in a per-rune tinted flame (the boss-soul flame idiom —
+// the flame color IS the rune's identity, matching its badge/glyph icons and SoH's draw.cpp).
+static void DrawOotSlateRuneFlame(u8 r, u8 g, u8 b) {
+    static Gfx* sFlame = NULL;
+    if (sFlame == NULL) {
+        sFlame = (Gfx*)OotAssets_LoadGfxDirect("__OTR__objects/object_gi_fire/gGiBlueFireFlameDL");
+    }
+    if (sFlame == NULL) {
+        return; // oot.o2r not ready — the slate below still draws
+    }
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    Matrix_Push();
+    gSPSegment(POLY_XLU_DISP++, 8,
+               (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, 0, 0, 0, 16, 32, 1,
+                                             gPlayState->state.frames, -(gPlayState->state.frames * 8), 16, 32, 0, 0,
+                                             1, -8));
+    Matrix_Translate(0.0f, -70.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(5.0f, 5.0f, 5.0f, MTXMODE_APPLY);
+    Matrix_ReplaceRotation(&gPlayState->billboardMtxF);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+    gDPSetGrayscaleColor(POLY_XLU_DISP++, r, g, b, 255);
+    gSPGrayscale(POLY_XLU_DISP++, true);
+    gSPDisplayList(POLY_XLU_DISP++, sFlame);
+    gSPGrayscale(POLY_XLU_DISP++, false);
+    Matrix_Pop();
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void DrawOotSlateRune(RandoItemId randoItemId) {
+    u8 r = 95, g = 220, b = 235; // Remote Bomb — sheikah cyan
+    switch (randoItemId) {
+        case RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE: r = 100; g = 230; b = 190; break; // teal (Master Cycle Zero)
+        case RI_OOT_NEI_SLATE_RUNE_STASIS:   r = 250; g = 200; b = 70;  break; // gold
+        case RI_OOT_NEI_SLATE_RUNE_CRYONIS:  r = 150; g = 215; b = 255; break; // ice blue
+        default: break;
+    }
+    DrawOotSlateRuneFlame(r, g, b);
+    DrawOotNeiSheikahSlate();
+}
+
+void DrawOotNeiPhantomHourglass() {
+    static Gfx* real = NULL;
+    static u8 tried = 0;
+    if (DrawNeiRealOpa("__OTR__objects/object_nei_phantom_hourglass/gNeiPhantomHourglassDL", &real, &tried, 0.35f,
+                       false)) {
+        return;
+    }
+    static Gfx* c = NULL;
+    DrawOotRodStandIn(&c, 255, 200, 80); // sand gold
+}
+
+void DrawOotNeiShadowCrystal() {
+    static Gfx* real = NULL;
+    static u8 tried = 0;
+    if (DrawNeiRealOpa("__OTR__objects/object_nei_shadow_crystal/gNeiShadowCrystalDL", &real, &tried, 0.35f, false)) {
+        return;
+    }
+    static Gfx* c = NULL;
+    DrawOotRodStandIn(&c, 150, 60, 220); // twilight violet
+}
+
+void DrawOotNeiRodOfSeasons() {
+    static Gfx* real = NULL;
+    static u8 tried = 0;
+    if (DrawNeiRealOpa("__OTR__objects/object_nei_rod_of_seasons/gNeiRodOfSeasonsDL", &real, &tried, 0.35f, false)) {
+        return;
+    }
+    static Gfx* c = NULL;
+    DrawOotRodStandIn(&c, 230, 60, 60); // seasonal red
 }
 
 void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* actor) {
@@ -2139,6 +2474,7 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_OOT_SONG_PRELUDE_OF_LIGHT:
         case RI_OOT_SONG_REQUIEM_OF_SPIRIT:
         case RI_OOT_SONG_SERENADE_OF_WATER:
+        case RI_OOT_SONG_ZELDAS_LULLABY:
         // Skijer's NEI — the 3 NEI custom songs also reuse the tinted note model (see DrawSong).
         case RI_OOT_SONG_BALLAD_OF_THE_HERO:
         case RI_OOT_SONG_COMMAND_MELODY:
@@ -2447,6 +2783,12 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_OOT_PROGRESSIVE_MASTER_SWORD:
             DrawOotMasterSword();
             break;
+        case RI_OOT_PROGRESSIVE_BGS:
+            DrawOotProgressiveBgs();
+            break;
+        case RI_OOT_PROGRESSIVE_STRENGTH:
+            DrawOotGauntlets();
+            break;
         case RI_OOT_HOVER_BOOTS:
             DrawOotHoverBoots();
             break;
@@ -2562,20 +2904,17 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
             break;
         }
         case RI_CLAWSHOT: {
-            // Clawshot is its own item but shares GID_HOOKSHOT in the static table — differentiate
-            // it from RI_HOOKSHOT (the OoT progressive chain tier 1, which draws the natural-color
-            // OoT hookshot mesh). Chosen: the REAL OoT object_gi_hookshot mesh, direct-loaded off
-            // the mounted OoT archive handles (same-path shadowing makes it unreachable through the
-            // normal chain), in a slight red claw tint — enough to read "clawshot" next to the
-            // chain tier-1's untinted copy while still being the real model. Fallback while the
-            // direct load is unavailable: the previous draw — the (MM-resolved) hookshot mesh in
-            // the same red tint.
-            static Gfx* sDirectCache = NULL;
-            if (DrawOotDirectOpaTint("__OTR__objects/object_gi_hookshot/gGiHookshotDL", &sDirectCache, 255, 150, 140)) {
-                break;
-            }
+            // The Clawshot IS MM's hookshot, so it draws MM's OWN mesh — untinted, because the two
+            // items are genuinely different models and no longer need a colour to tell them apart:
+            // MM's DL sets PRIM 0xC3C300 (yellow) and OoT's 0x0A3CA0 (blue).
+            //
+            // MM is the host game here, so the plain path resolves to MM's copy of
+            // object_gi_hookshot; the OoT chain (RI_HOOKSHOT below) is the one that needs the
+            // archive-scoped Direct loader to reach oot.o2r past MM's same-path mesh. This is the
+            // mirror of the split soh uses: each game draws the OTHER game's item from the other
+            // archive, and its own natively. Skijer's NEI
             static Gfx* sCache = NULL;
-            DrawOotGetItemOpaTint("__OTR__objects/object_gi_hookshot/gGiHookshotDL", &sCache, 255, 110, 95);
+            DrawOotGetItemOpa("__OTR__objects/object_gi_hookshot/gGiHookshotDL", &sCache);
             break;
         }
         case RI_GREAT_FAIRY_SWORD:
@@ -2609,7 +2948,26 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_OOT_NEI_BOMB_ARROWS:
             DrawOotNeiBombArrows();
             break;
+        // Elemental Wand: all six rods are the same physical wand found in six places, so they
+        // share one model. Stands in with the Dominion Rod mesh until a dedicated one exists — the
+        // icon, name and textbox already say which rod it is.
+        case RI_OOT_NEI_ELEMENTAL_WAND:
+        case RI_OOT_NEI_WAND_SAND_ROD:
+        case RI_OOT_NEI_WAND_TORNADO_ROD:
+        case RI_OOT_NEI_WAND_WATER_ROD:
+        case RI_OOT_NEI_WAND_METEOR_ROD:
+        case RI_OOT_NEI_WAND_STORM_ROD:
+        case RI_OOT_NEI_WAND_SHADOW_SCEPTER:
+            DrawOotNeiDominionRod();
+            break;
+        // All six Dual Cane skills are the same physical cane in the world — they
+        // differ only in which skill bit they light, so they share one model.
         case RI_OOT_NEI_CANE_OF_SOMARIA:
+        case RI_OOT_NEI_CANE_SOMARIA_BLOCK:
+        case RI_OOT_NEI_CANE_SOMARIA_PLATFORM:
+        case RI_OOT_NEI_CANE_PACCI_FLIP:
+        case RI_OOT_NEI_CANE_PACCI_STONE:
+        case RI_OOT_NEI_CANE_PACCI_ULTRAHAND:
             DrawOotNeiCaneOfSomaria();
             break;
         case RI_OOT_NEI_DEKU_LEAF:
@@ -2688,8 +3046,12 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
             break;
         }
         case RI_OOT_PROGRESSIVE_ROC:
+        case RI_OOT_ROCS_FEATHER: // same feather model; only the slot it lands in differs
             DrawOotProgressiveRoc();
             break;
+        // Stick / nut capacity have no model of their own in either game (OoT draws the upgrade as the
+        // plain item too), so they are NOT listed here: their GI/GID in the item table point at MM's
+        // own deku stick / nut and the default GetItem_Draw path renders them.
         case RI_OOT_SKELETON_KEY:
             DrawOotSkeletonKey();
             break;
@@ -2714,6 +3076,33 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_OOT_EXT_PEGASUS_ANKLET:
             DrawOotExtPegasusAnklet();
             break;
+        case RI_OOT_EXT_TRIDENT:
+            DrawOotExtTrident();
+            break;
+        case RI_OOT_EXT_CLIMB_BOOTS:
+            DrawOotExtClimbBoots();
+            break;
+        case RI_OOT_EXT_ROC_BOOTS:
+            DrawOotExtRocBoots();
+            break;
+        case RI_OOT_NEI_SHEIKAH_SLATE:
+            DrawOotNeiSheikahSlate();
+            break;
+        case RI_OOT_NEI_SLATE_RUNE_BOMB:
+        case RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE:
+        case RI_OOT_NEI_SLATE_RUNE_STASIS:
+        case RI_OOT_NEI_SLATE_RUNE_CRYONIS:
+            DrawOotSlateRune(randoItemId);
+            break;
+        case RI_OOT_NEI_PHANTOM_HOURGLASS:
+            DrawOotNeiPhantomHourglass();
+            break;
+        case RI_OOT_NEI_SHADOW_CRYSTAL:
+            DrawOotNeiShadowCrystal();
+            break;
+        case RI_OOT_NEI_ROD_OF_SEASONS:
+            DrawOotNeiRodOfSeasons();
+            break;
         case RI_OOT_EXT_SHEIKAH_SHIELD:
             DrawOotExtSheikahShield();
             break;
@@ -2721,7 +3110,7 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
             DrawOotExtSpiritBreastplate();
             break;
         case RI_OOT_EXT_WATER_DRAGON_SCALE:
-            DrawOotWaterDragonScale();
+            DrawOotExtSagesTunic();
             break;
         case RI_NONE:
         case RI_UNKNOWN:

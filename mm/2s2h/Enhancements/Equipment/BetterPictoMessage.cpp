@@ -10,7 +10,10 @@ s32 Snap_RecordPictographedActors(PlayState* play);
 }
 
 #define CVAR_NAME "gEnhancements.Equipment.BetterPictoMessage"
-#define CVAR CVarGetInteger(CVAR_NAME, 0)
+// ON by default: naming the subject in the "keep this picture?" prompt is the reference behavior
+// for the Pictograph Box across 2Ship and Shipwright (soh mirrors this CVar name and default in
+// mods/items/logic/picto_message.cpp). Set to 0 to get the vanilla 0xF8 text back.
+#define CVAR CVarGetInteger(CVAR_NAME, 1)
 
 void RegisterBetterPictoMessage() {
     COND_ID_HOOK(OnOpenText, 0xF8, CVAR, [](u16* textId, bool* loadFromMessageTable) {

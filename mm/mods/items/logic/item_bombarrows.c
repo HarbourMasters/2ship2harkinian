@@ -7,8 +7,10 @@
  *                          (vanilla bomb mechanics from there — grab, throw, flee)
  *
  * Features:
- *   - Acts like other elemental arrows/bullets: arrow flies, explodes on impact
- *   - Adult uses bow ammo + 1 bomb; child uses slingshot ammo + 1 bomb
+ *   - Acts like other elemental arrows/bullets: projectile flies, explodes on impact
+ *   - Bow fires bomb arrows (1 arrow + 1 bomb); slingshot fires bomb bullets (1 seed + 1 bomb).
+ *     Both weapons reach this file through PLAYER_IA_BOMB_ARROWS; which one is firing comes from
+ *     the held item, since their SW97 element flags are independent.
  *   - No ammo consumed during charge — cancelling mid-charge costs nothing
  *   - The 3-second charge path is the ONLY way to spawn a bomb on Link
  *     (no more "fuse expires on Link" surprises during normal aim)
@@ -26,6 +28,8 @@
 #include "variables.h"
 #include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
 #include "overlays/actors/ovl_En_Bom/z_en_bom.h"
+#include "mods/extended_inventory.h" // Sw97_IsSlingItem — bomb arrows vs bomb bullets
+#include "mods/nei_save.h"           // Nei_Save()->slingshotSeeds (seed ammo)
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 
 static void BombArrows_Stop(Player* p, PlayState* play);
@@ -141,16 +145,35 @@ static void BombArrows_ClearTracking(void) {
 
 // Check if player can use bomb arrows.
 // Adult uses bow ammo, child uses slingshot ammo.
-static u8 BombArrows_CanUse(Player* p, PlayState* play) {
-    s32 ammoItem = LINK_IS_ADULT ? ITEM_BOW : ITEM_SLINGSHOT;
-    if (AMMO(ammoItem) <= 0 || AMMO(ITEM_BOMB) <= 0)
-        return 0;
-    return 1;
+// Bow (arrows) or slingshot (bullets)? Both weapons can be primed with SW97_ELEM_BOMB, and they
+// carry independent element flags, so the answer must come from what Link is actually HOLDING —
+// asking the flags would pick the wrong weapon whenever both are primed. Skijer's NEI
+static u8 BombArrows_UsesSeeds(Player* p) {
+    return Sw97_IsSlingItem(p->heldItemId);
 }
 
-// Consume 1 arrow/seed + 1 bomb (age-aware)
-static void BombArrows_ConsumeAmmo(void) {
-    Inventory_ChangeAmmo(LINK_IS_ADULT ? ITEM_BOW : ITEM_SLINGSHOT, -1);
+static u8 BombArrows_CanUse(Player* p, PlayState* play) {
+    if (AMMO(ITEM_BOMB) <= 0) {
+        return 0;
+    }
+    if (BombArrows_UsesSeeds(p)) {
+        // Seed ammo lives in NeiSaveData: ITEM_FAIRY_SLINGSHOT is outside the vanilla AMMO() table,
+        // so indexing it would read the Mama's-Key trade slot. Same reason func_808305BC reads it
+        // directly instead of going through AMMO().
+        return Nei_Save()->slingshotSeeds > 0;
+    }
+    return AMMO(ITEM_BOW) > 0;
+}
+
+// Consume 1 arrow/seed + 1 bomb, from whichever weapon is firing.
+static void BombArrows_ConsumeAmmo(u8 usesSeeds) {
+    if (usesSeeds) {
+        if (Nei_Save()->slingshotSeeds > 0) {
+            Nei_Save()->slingshotSeeds--;
+        }
+    } else {
+        Inventory_ChangeAmmo(ITEM_BOW, -1);
+    }
     Inventory_ChangeAmmo(ITEM_BOMB, -1);
 }
 
@@ -347,10 +370,13 @@ static void BombArrows_UpdateAim(Player* p, PlayState* play, ItemInputState* in)
 static void BombArrows_FireArrow(Player* p, PlayState* play) {
     s16 aimYaw = BombArrows_GetAimYaw(p, play);
     s16 aimPitch = BombArrows_GetAimPitch(p);
+    u8 usesSeeds = BombArrows_UsesSeeds(p);
 
-    BombArrows_ConsumeAmmo();
+    BombArrows_ConsumeAmmo(usesSeeds);
 
-    s8 arrowParam = LINK_IS_ADULT ? ARROW_NORMAL : ARROW_SEED;
+    // The projectile follows the weapon, not Link's age — MM has no child form, so the old
+    // LINK_IS_ADULT test could never pick the seed. Skijer's NEI
+    s8 arrowParam = usesSeeds ? ARROW_SEED : ARROW_NORMAL;
     Actor* arrow =
         Actor_SpawnAsChild(&play->actorCtx, &p->actor, play, ACTOR_EN_ARROW, p->actor.world.pos.x,
                            p->actor.world.pos.y + 40.0f, p->actor.world.pos.z, aimPitch, aimYaw, 0, arrowParam);

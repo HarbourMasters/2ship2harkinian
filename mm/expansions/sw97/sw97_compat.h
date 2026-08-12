@@ -118,9 +118,14 @@ typedef NpcInteractInfo NpcInfo;
 #define MATRIX_TO_MTX(dest, file, line) Matrix_ToMtx(dest, file, line)
 #endif
 
-// GRAPH_ALLOC — SW97 macro for Graph_Alloc
+// GRAPH_ALLOC — MM defines this in gfx.h as an inline bump of polyOpa.d. There is NO Graph_Alloc
+// function in MM (that is an OoT symbol), so the old fallback below only ever worked as long as
+// gfx.h happened to be included first. In any translation unit where this header came first, the
+// fallback won and the build died with "unresolved external symbol Graph_Alloc" from z_player.obj.
+// Pulling gfx.h in makes the real macro always win, whatever the include order. Skijer's NEI
+#include "gfx.h"
 #ifndef GRAPH_ALLOC
-#define GRAPH_ALLOC(gfxCtx, size) Graph_Alloc(gfxCtx, size)
+#error "gfx.h did not define GRAPH_ALLOC - MM has no Graph_Alloc function to fall back on"
 #endif
 
 // alloca — ensure it's available (SOH defines it as malloc in alloca.h)

@@ -1,5 +1,6 @@
 #include "Logic.h"
 #include "Rando/MiscBehavior/ClockShuffle.h"
+#include "2s2h/FleetShipCombo/FleetShipCombo.h" // FleetShipCombo_GetActiveGame (combo-only items)
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <sstream>
 
@@ -157,6 +158,158 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
     // them they will be removed from the pool in the next step
     itemPool.push_back(RI_PROGRESSIVE_SWORD);
     itemPool.push_back(RI_SHIELD_HERO);
+
+    // BOTTLES: 8, one per slot of the bottle system (NeiSaveData.bottleSlots[8] = two kaleido cells,
+    // each a wheel over 4 slots). MM's own checks only supply 6, so two more are added here.
+    //
+    // Empty ones on purpose: MM's logic never asks for a CONTENT, only for HAS_BOTTLE — the
+    // HAS_BOTTLE_ITEM(item) macro exists but is used nowhere — and an empty bottle can be filled from
+    // any source in the world. In a combo this block is skipped: there the 8 come from the shared
+    // pool and are split across both worlds (bottleSlots is synced by FleetSync, so the two games
+    // share ONE 8-slot inventory and adding more here would overflow it and silently lose bottles).
+    if (FleetShipCombo_GetActiveGame() < 0) {
+        itemPool.push_back(RI_BOTTLE_EMPTY);
+        itemPool.push_back(RI_BOTTLE_EMPTY);
+    }
+
+    // Combo (OoT+MM): the Progressive Master Sword is fully implemented on this side already (item
+    // table, GiveItem, DrawItem) but nothing ever put it in MM's pool, so the combo's per-game filter
+    // saw it in NEITHER pool and dropped it from cross-placement entirely — it never appeared in a
+    // single seed. Two copies = the chain's two levels (Master -> True Master).
+    //
+    // Gated on the combo actually being active so a solo-MM randomizer never offers an OoT-only
+    // sword. This is also true while the host drives the oracle (manifest / fillTurn), which is
+    // exactly when the pool has to contain it. Skijer's NEI
+    if (FleetShipCombo_GetActiveGame() >= 0) {
+        itemPool.push_back(RI_OOT_PROGRESSIVE_MASTER_SWORD); // L1 Master
+        itemPool.push_back(RI_OOT_PROGRESSIVE_MASTER_SWORD); // L2 True Master
+        // BGS chain. The standalone Great Fairy's Sword (vanilla item of RC_IKANA_GREAT_FAIRY) is a
+        // SECOND source of the very thing the chain's level 2 grants, so with both in the pool the
+        // sword can be obtained without ever touching the chain — and it showed up in the combo's
+        // unshared report as an item with no FC row. Swap that one entry for the chain's L1 instead of
+        // deleting it, so the pool keeps exactly as many items as there are checks.
+        auto gfs = std::find(itemPool.begin(), itemPool.end(), RI_GREAT_FAIRY_SWORD);
+        if (gfs != itemPool.end()) {
+            *gfs = RI_OOT_PROGRESSIVE_BGS;                   // L1 Biggoron Sword (replaces the loose GFS)
+        } else {
+            itemPool.push_back(RI_OOT_PROGRESSIVE_BGS);      // GFS check not shuffled: supply L1 ourselves
+        }
+        itemPool.push_back(RI_OOT_PROGRESSIVE_BGS);          // L2 Great Fairy's Sword
+
+        // The only OoT song with no MM counterpart, so it could never cross until now.
+        itemPool.push_back(RI_OOT_SONG_ZELDAS_LULLABY);
+
+        // SoH's ship-vanilla Roc's Feather (Nayru's Love slot). Distinct check from the progressive
+        // Skijer Roc — that one is a NEI custom item and is pooled in the NEI block further down,
+        // NOT here. (An FC row only maps the item for cross-game transport; it never puts anything in
+        // a pool, so having one was never enough to make the Skijer Roc placeable.)
+        itemPool.push_back(RI_OOT_ROCS_FEATHER);
+
+        // THE 3 DUPLICATE SONGS BECOME THE 3 NEI CUSTOMS. Epona's Song, the Song of Time and the Song
+        // of Storms exist in BOTH games, so in a combo two of each is a wasted item. NEI's answer is
+        // to give MM's side three songs of its own instead, and the MM quest page in OoT already draws
+        // them in exactly those three rows (sMmPageSongs, z_kaleido_collect.c).
+        //
+        // Done as a POOL SWAP, not by editing the checks table: a check's randoItemId is its VANILLA
+        // item (where the copy comes from), not what it will hand out, and rewriting it would change
+        // solo-MM randos too. Swapping keeps the pool exactly as long as the check list. OoT keeps its
+        // own Epona/Time/Storms — they are only dropped from MM's side. Skijer's NEI
+        const std::pair<RandoItemId, RandoItemId> kComboSongSwaps[] = {
+            { RI_SONG_EPONA, RI_OOT_SONG_FUGUE_OF_HOME },
+            { RI_SONG_TIME, RI_OOT_SONG_COMMAND_MELODY },
+            { RI_SONG_STORMS, RI_OOT_SONG_BALLAD_OF_THE_HERO },
+        };
+        for (auto& [dup, custom] : kComboSongSwaps) {
+            auto it = std::find(itemPool.begin(), itemPool.end(), dup);
+            if (it != itemPool.end()) {
+                *it = custom;
+            }
+        }
+
+        // Deku stick / nut capacity: 2 levels each, matching the FC chain (v1 has no bag-gate).
+        // MM has the upgrades natively, they just had no item.
+        itemPool.push_back(RI_OOT_PROGRESSIVE_STICK_CAPACITY);
+        itemPool.push_back(RI_OOT_PROGRESSIVE_STICK_CAPACITY);
+        itemPool.push_back(RI_OOT_PROGRESSIVE_NUT_CAPACITY);
+        itemPool.push_back(RI_OOT_PROGRESSIVE_NUT_CAPACITY);
+
+        // OoT's "can open chests" skill. Termina has no such gate, so it does nothing here — it just
+        // needs to be findable in MM, the same way Climb and Crawl are. 2 copies = OoT's pool count.
+        itemPool.push_back(RI_OOT_ABILITY_CHESTS);
+        itemPool.push_back(RI_OOT_ABILITY_CHESTS);
+        itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH);     // L1 Goron Bracelet
+        itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH);     // L2 Silver Gauntlets
+        itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH);     // L3 Gold Gauntlets
+    }
+
+    // ── 2026-08-06: cross-game categories for SOLO MM — user requirement #1 ──────────────────────
+    // Each game must be able to offer the other's items WITHOUT the combo. These blocks are the
+    // standalone half: they only run when the combo is INACTIVE (in combo the block above plus the
+    // FC delegation already supply these items — running both would double-supply the pool, which is
+    // exactly the "expected=2 got=4" class of bug the combo fill fought before). No swaps here, only
+    // additions: the swap idiom above (songs, GFS) encodes COMBO decisions and must not leak into a
+    // standalone MM seed. None of these are referenced by MM logic, so they place as extras — a seed
+    // can never become unbeatable through them. All four options default OFF. Skijer's NEI
+    if (FleetShipCombo_GetActiveGame() < 0) {
+        if (saveInfo.randoSaveOptions[RO_SHUFFLE_OOT_GEAR] == RO_GENERIC_YES) {
+            itemPool.push_back(RI_OOT_PROGRESSIVE_MASTER_SWORD); // L1 Master
+            itemPool.push_back(RI_OOT_PROGRESSIVE_MASTER_SWORD); // L2 True Master
+            itemPool.push_back(RI_OOT_PROGRESSIVE_BGS);          // L1 Biggoron Sword
+            itemPool.push_back(RI_OOT_PROGRESSIVE_BGS);          // L2 Great Fairy's Sword upgrade
+            itemPool.push_back(RI_OOT_PROGRESSIVE_STICK_CAPACITY);
+            itemPool.push_back(RI_OOT_PROGRESSIVE_STICK_CAPACITY);
+            itemPool.push_back(RI_OOT_PROGRESSIVE_NUT_CAPACITY);
+            itemPool.push_back(RI_OOT_PROGRESSIVE_NUT_CAPACITY);
+            itemPool.push_back(RI_OOT_ABILITY_CHESTS);
+            itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH); // L1 Goron Bracelet
+            itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH); // L2 Silver Gauntlets
+            itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH); // L3 Gold Gauntlets
+            itemPool.push_back(RI_OOT_ROCS_FEATHER);         // ship-vanilla feather (Nayru's slot)
+        }
+        if (saveInfo.randoSaveOptions[RO_SHUFFLE_OOT_EQUIPMENT] == RO_GENERIC_YES) {
+            itemPool.push_back(RI_OOT_EXT_CANE_OF_BYRNA);
+            itemPool.push_back(RI_OOT_EXT_FOUR_SWORD);
+            itemPool.push_back(RI_OOT_EXT_TRIDENT);
+            itemPool.push_back(RI_OOT_EXT_DIVINE_SHIELD);
+            itemPool.push_back(RI_OOT_EXT_SHEIKAH_SHIELD); // Kite Shield
+            itemPool.push_back(RI_OOT_EXT_CHAMPIONS_TUNIC);
+            itemPool.push_back(RI_OOT_EXT_SPIRIT_BREASTPLATE); // Magic Tunic
+            itemPool.push_back(RI_OOT_EXT_WATER_DRAGON_SCALE); // Sage's Tunic
+            itemPool.push_back(RI_OOT_EXT_PEGASUS_ANKLET);
+            itemPool.push_back(RI_OOT_EXT_CLIMB_BOOTS);
+            itemPool.push_back(RI_OOT_EXT_ROC_BOOTS);
+            itemPool.push_back(RI_OOT_EXT_MAGIC_CAPE);
+            itemPool.push_back(RI_OOT_PROGRESSIVE_ROC); // Skijer Roc: L1 Feather
+            itemPool.push_back(RI_OOT_PROGRESSIVE_ROC); // L2 Cape
+        }
+        if (saveInfo.randoSaveOptions[RO_SHUFFLE_OOT_QUEST] == RO_GENERIC_YES) {
+            itemPool.push_back(RI_OOT_MEDALLION_FOREST);
+            itemPool.push_back(RI_OOT_MEDALLION_FIRE);
+            itemPool.push_back(RI_OOT_MEDALLION_WATER);
+            itemPool.push_back(RI_OOT_MEDALLION_SPIRIT);
+            itemPool.push_back(RI_OOT_MEDALLION_SHADOW);
+            itemPool.push_back(RI_OOT_MEDALLION_LIGHT);
+            itemPool.push_back(RI_OOT_STONE_KOKIRI_EMERALD);
+            itemPool.push_back(RI_OOT_STONE_GORON_RUBY);
+            itemPool.push_back(RI_OOT_STONE_ZORA_SAPPHIRE);
+            itemPool.push_back(RI_OOT_STONE_OF_AGONY);
+            itemPool.push_back(RI_OOT_SONG_ZELDAS_LULLABY);
+            itemPool.push_back(RI_OOT_SONG_MINUET_OF_FOREST);
+            itemPool.push_back(RI_OOT_SONG_BOLERO_OF_FIRE);
+            itemPool.push_back(RI_OOT_SONG_SERENADE_OF_WATER);
+            itemPool.push_back(RI_OOT_SONG_REQUIEM_OF_SPIRIT);
+            itemPool.push_back(RI_OOT_SONG_NOCTURNE_OF_SHADOW);
+            itemPool.push_back(RI_OOT_SONG_PRELUDE_OF_LIGHT);
+            itemPool.push_back(RI_OOT_SONG_FUGUE_OF_HOME);
+            itemPool.push_back(RI_OOT_SONG_COMMAND_MELODY);
+            itemPool.push_back(RI_OOT_SONG_BALLAD_OF_THE_HERO);
+        }
+        if (saveInfo.randoSaveOptions[RO_SHUFFLE_OOT_MASKS] == RO_GENERIC_YES) {
+            itemPool.push_back(RI_OOT_MASK_SKULL);
+            itemPool.push_back(RI_OOT_MASK_SPOOKY);
+            itemPool.push_back(RI_OOT_MASK_GERUDO);
+        }
+    }
 
     // Add other items that don't have a vanilla location like Sun's Song or Song of Double Time
 
@@ -322,6 +475,89 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
         while (trapsToShuffle) {
             itemPool.push_back(RI_TRAP);
             trapsToShuffle--;
+        }
+    }
+
+    // ── Skijer's NEI custom items ────────────────────────────────────────────────────────────────
+    // These have had give / draw / icon plumbing for a long time but were NEVER reachable: nothing
+    // in Checks.cpp points a location's randoItemId at an RI_OOT_NEI_*, and this file had no block
+    // for them, so generating a seed could not place a single one. This is that missing block —
+    // the mirror of soh's `if (ctx->GetOption(RSK_SKIJER_CUSTOM_ITEMS))` in item_pool.cpp.
+    //
+    // Off by default: turning it on by default would silently change every existing seed.
+    if (saveInfo.randoSaveOptions[RO_SHUFFLE_NEI_ITEMS] == RO_GENERIC_YES) {
+        // The page-2 items, one copy each.
+        // 2026-08-06 re-layout: Hylia's Grace is OUT (item retired outright — its RI gives nothing
+        // now); the four new page-2 cells are IN as behaviorless-but-real items.
+        static const RandoItemId sNeiPoolItems[] = {
+            RI_OOT_NEI_BALL_AND_CHAIN, RI_OOT_NEI_BEETLE,        RI_OOT_NEI_DEKU_LEAF,
+            RI_OOT_NEI_DEMISE_DESTRUCTION, RI_OOT_NEI_DESIRE_SENSOR, RI_OOT_NEI_DOMINION_ROD,
+            RI_OOT_NEI_FIRE_ROD,       RI_OOT_NEI_GUST_JAR,      RI_OOT_NEI_ICE_ROD,
+            RI_OOT_NEI_LANTERN,        RI_OOT_NEI_LIGHT_ROD,     RI_OOT_NEI_MINISH_CAP,
+            RI_OOT_NEI_MOGMA_MITTS,    RI_OOT_NEI_POKE_BALL,     RI_OOT_NEI_SHOVEL,
+            RI_OOT_NEI_SPINNER,        RI_OOT_NEI_SWITCH_HOOK,   RI_OOT_NEI_TIME_GATE,
+            RI_OOT_NEI_WHIP,           RI_OOT_NEI_ZONAI_PERMAFROST,
+            RI_OOT_NEI_PHANTOM_HOURGLASS,
+            RI_OOT_NEI_SHADOW_CRYSTAL, RI_OOT_NEI_ROD_OF_SEASONS,
+            // Sheikah Slate: the pool item is gone — the FOUR RUNES are the placeable siblings now
+            // (wand idiom: any order, each with its own textbox; the first found hands over the slate).
+            RI_OOT_NEI_SLATE_RUNE_BOMB,   RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE,
+            RI_OOT_NEI_SLATE_RUNE_STASIS, RI_OOT_NEI_SLATE_RUNE_CRYONIS,
+        };
+        for (RandoItemId neiItem : sNeiPoolItems) {
+            itemPool.push_back(neiItem);
+        }
+
+        // BOTH Roc's Feathers. They are DIFFERENT items sharing nothing but a name, and each has to
+        // be findable on its own:
+        //
+        //   RI_OOT_PROGRESSIVE_ROC -> Skijer's feather, page 2 / SLOT_ROCS, 2 levels (feather -> cape)
+        //   RI_OOT_ROCS_FEATHER    -> the ship-vanilla one that shares the Nayru's Love cell
+        //
+        // Neither could be placed before this. The Skijer Roc was fully plumbed (item table, GiveItem,
+        // DrawItem, an FC row) but appeared in no pool at all, so no seed ever contained it. The
+        // vanilla one was pooled only inside the combo-only branch above, so a solo-MM seed never had
+        // it either. Two copies for the Skijer Roc, matching its two chain levels — same shape as the
+        // Dual Cane below. Skijer's NEI
+        itemPool.push_back(RI_OOT_PROGRESSIVE_ROC); // L1 Roc's Feather (Skijer)
+        itemPool.push_back(RI_OOT_PROGRESSIVE_ROC); // L2 Roc's Cape
+
+        // The combo branch above already puts the ship-vanilla feather in MM's pool (it is an OoT-side
+        // item that has to be there for cross-placement), so only add it here when running solo —
+        // otherwise a combo seed would place two of them.
+        if (FleetShipCombo_GetActiveGame() < 0) {
+            itemPool.push_back(RI_OOT_ROCS_FEATHER);
+        }
+
+        // Dual Cane: SIX copies, because the cane is six separate skills sharing one slot and each
+        // pickup unlocks the next (see the RI_OOT_NEI_CANE_* arms in GiveItem.cpp).
+        itemPool.push_back(RI_OOT_NEI_CANE_OF_SOMARIA);
+        itemPool.push_back(RI_OOT_NEI_CANE_SOMARIA_BLOCK);
+        itemPool.push_back(RI_OOT_NEI_CANE_SOMARIA_PLATFORM);
+        itemPool.push_back(RI_OOT_NEI_CANE_PACCI_FLIP);
+        itemPool.push_back(RI_OOT_NEI_CANE_PACCI_STONE);
+        itemPool.push_back(RI_OOT_NEI_CANE_PACCI_ULTRAHAND);
+
+        // Bomb Arrows only enters the pool in "Shuffled" mode — the other two hand it out for free
+        // (Off = Twilight Upgrade only, Bomb Bag = the moment you own a bomb bag), and placing a
+        // check for something you already have would waste a location.
+        if (saveInfo.randoSaveOptions[RO_SHUFFLE_BOMB_ARROWS] == RO_BOMB_ARROWS_SHUFFLED) {
+            itemPool.push_back(RI_OOT_NEI_BOMB_ARROWS);
+        }
+
+        // Elemental Wand — same slot flag in all three modes, different pool shape:
+        //   Medallions / Single item -> ONE item (the wand); the medallions or that single pickup
+        //                               decide which rods work.
+        //   Elemental shuffle        -> SIX items, one per rod; the first found grants the slot.
+        if (saveInfo.randoSaveOptions[RO_ELEMENTAL_WAND_SHUFFLE] == RO_WAND_ELEMENTAL_SHUFFLE) {
+            itemPool.push_back(RI_OOT_NEI_WAND_SAND_ROD);
+            itemPool.push_back(RI_OOT_NEI_WAND_TORNADO_ROD);
+            itemPool.push_back(RI_OOT_NEI_WAND_WATER_ROD);
+            itemPool.push_back(RI_OOT_NEI_WAND_METEOR_ROD);
+            itemPool.push_back(RI_OOT_NEI_WAND_STORM_ROD);
+            itemPool.push_back(RI_OOT_NEI_WAND_SHADOW_SCEPTER);
+        } else {
+            itemPool.push_back(RI_OOT_NEI_ELEMENTAL_WAND);
         }
     }
 }

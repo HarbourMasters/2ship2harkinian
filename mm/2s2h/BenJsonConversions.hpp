@@ -41,11 +41,14 @@ inline void from_json(const json& j, ExtButtonSaveInfo& extButtons) {
 }
 
 // Skijer's NEI — per-save custom state (gSaveContext.save.shipSaveInfo.nei).
-// pictoPhotoI5[11200] is intentionally NOT serialized for now (deferred; avoids
-// bloating every save's json — re-add with the pictograph subsystem).
+// The picto* keys are gone with the NEI pictobox: MM keeps pictoFlags0/1 and the I5 photo in its
+// own save (serialized further down with the rest of SaveInfo/SaveContext).
 inline void to_json(json& j, const NeiSaveData& n) {
     j = json{
         { "ownedItems", n.ownedItems },
+        { "shovelOwned", n.shovelOwned },
+        { "dominionOwned", n.dominionOwned },
+        { "pokeballOwned", n.pokeballOwned },
         { "extEquipOwnedBits", n.extEquipOwnedBits },
         { "lanternFireType", n.lanternFireType },
         { "lanternCapturedTypes", n.lanternCapturedTypes },
@@ -66,10 +69,6 @@ inline void to_json(json& j, const NeiSaveData& n) {
         { "powerKegCount", n.powerKegCount },
         { "powerKegMode", n.powerKegMode },
         { "tradeAdultOwned", n.tradeAdultOwned },
-        { "pictoboxOwned", n.pictoboxOwned },
-        { "pictoHasPhoto", n.pictoHasPhoto },
-        { "pictoFlags0", n.pictoFlags0 },
-        { "pictoFlags1", n.pictoFlags1 },
         // OoT page-0 items (Skijer's NEI slingshot pass — these were appended to NeiSaveData but
         // never serialized, so ownership/ammo/upgrades silently reset on save reload).
         { "ootSpellsOwned", n.ootSpellsOwned },
@@ -81,7 +80,6 @@ inline void to_json(json& j, const NeiSaveData& n) {
         { "ootHookshotLevel", n.ootHookshotLevel },
         { "ootHookMode", n.ootHookMode },
         { "nayruRocsMode", n.nayruRocsMode },
-        { "lensPictoMode", n.lensPictoMode },
         { "ootUpgrades", n.ootUpgrades },
         { "ootMasksOwned", n.ootMasksOwned },
         // Farore's Wind warp point (Skijer's NEI spells pass)
@@ -109,26 +107,55 @@ inline void to_json(json& j, const NeiSaveData& n) {
         { "comboObtainedFc", n.comboObtainedFc },
         { "comboAppliedFc", n.comboAppliedFc },
         { "comboTriforce", n.comboTriforce },
+        { "comboGoalFlags", n.comboGoalFlags },
         { "vanillaTunic", n.vanillaTunic },
         { "vanillaBoots", n.vanillaBoots },
         { "vanillaShieldSkin", n.vanillaShieldSkin },
         { "capeHidden", n.capeHidden },
         { "pendantEffectOff", n.pendantEffectOff },
+        { "capeOwned", n.capeOwned },
+        { "extTunicLayoutVersion", n.extTunicLayoutVersion },
         // Time Gate "adult mode" (Skijer's NEI): OoT adult Link model + collider toggle.
         { "timeGateAdultMode", n.timeGateAdultMode },
+        // Quartz of Motion (level 2 of the progressive Stone of Agony): ownership
+        // + the tracking category chosen from the kaleido list.
+        // Dual Cane (Skijer's NEI): caneSkills is the whole 6-skill progression.
+        // Omitting it here is what made upgrades vanish across a save/load.
+        { "caneSkills", n.caneSkills },
+        { "caneType", n.caneType },
+        { "caneSkillSel", n.caneSkillSel },
+        { "quartzOwned", n.quartzOwned },
+        { "quartzCategory", n.quartzCategory },
+        { "quartzSubcat", n.quartzSubcat },
+        { "extBootsLayoutVersion", n.extBootsLayoutVersion },
+        { "pendantOwned", n.pendantOwned },
+        { "sw97BowElement", n.sw97BowElement },
+        { "sw97SlingElement", n.sw97SlingElement },
+        { "bombArrowsOwned", n.bombArrowsOwned },
+        { "wandMode", n.wandMode },
+        { "wandRodsOwned", n.wandRodsOwned },
+        { "sw97LayoutVersion", n.sw97LayoutVersion },
+        { "slateMode", n.slateMode },
+        { "slateRunesOwned", n.slateRunesOwned },
     };
 }
 
 inline void from_json(const json& j, NeiSaveData& n) {
     // Defaults first: empty custom slots / bottles = 0xFF (ITEM_NONE), 0 would be ITEM_STICK.
     memset(&n, 0, sizeof(n));
-    memset(n.ownedItems, 0xFF, sizeof(n.ownedItems));
+    // ownedItems is u16: memset(0xFF) would leave 0xFFFF per entry, but empty is ITEM_NONE (0xFF).
+    for (int i = 0; i < ARRAY_COUNT(n.ownedItems); i++) {
+        n.ownedItems[i] = 0xFF;
+    }
     memset(n.bottleSlots, 0xFF, sizeof(n.bottleSlots));
     n.bottomlessContent = 0xFF;
     if (j.contains("ownedItems")) {
         for (int i = 0; i < ARRAY_COUNT(n.ownedItems); i++)
             j.at("ownedItems").at(i).get_to(n.ownedItems[i]);
     }
+    n.shovelOwned = j.value("shovelOwned", (uint8_t)0);
+    n.dominionOwned = j.value("dominionOwned", (uint8_t)0);
+    n.pokeballOwned = j.value("pokeballOwned", (uint8_t)0);
     if (j.contains("bottleSlots")) {
         for (int i = 0; i < ARRAY_COUNT(n.bottleSlots); i++)
             j.at("bottleSlots").at(i).get_to(n.bottleSlots[i]);
@@ -152,10 +179,8 @@ inline void from_json(const json& j, NeiSaveData& n) {
     n.powerKegCount = j.value("powerKegCount", (uint8_t)0);
     n.powerKegMode = j.value("powerKegMode", (uint8_t)0);
     n.tradeAdultOwned = j.value("tradeAdultOwned", (uint32_t)0);
-    n.pictoboxOwned = j.value("pictoboxOwned", (uint8_t)0);
-    n.pictoHasPhoto = j.value("pictoHasPhoto", (uint8_t)0);
-    n.pictoFlags0 = j.value("pictoFlags0", (uint32_t)0);
-    n.pictoFlags1 = j.value("pictoFlags1", (uint32_t)0);
+    // (pictoboxOwned / pictoHasPhoto / pictoFlags0 / pictoFlags1 dropped with the NEI pictobox —
+    // saves written before the removal still carry the keys; they are ignored on load.)
     // OoT page-0 items (Skijer's NEI slingshot pass) — absent keys default to "not owned".
     n.ootSpellsOwned = j.value("ootSpellsOwned", (uint8_t)0);
     n.slingshotOwned = j.value("slingshotOwned", (uint8_t)0);
@@ -167,7 +192,6 @@ inline void from_json(const json& j, NeiSaveData& n) {
     n.ootHookMode = j.value("ootHookMode", (uint8_t)0);
     n.clawshotOwned = j.value("clawshotOwned", (uint8_t)0);
     n.nayruRocsMode = j.value("nayruRocsMode", (uint8_t)0);
-    n.lensPictoMode = j.value("lensPictoMode", (uint8_t)0);
     n.ootUpgrades = j.value("ootUpgrades", (uint16_t)0);
     n.ootMasksOwned = j.value("ootMasksOwned", (uint16_t)0);
     // Farore's Wind warp point (Skijer's NEI spells pass) — absent keys default to "no warp set".
@@ -205,13 +229,38 @@ inline void from_json(const json& j, NeiSaveData& n) {
             n.comboAppliedFc[i] = a[i].get<uint8_t>();
     }
     n.comboTriforce = j.value("comboTriforce", (uint16_t)0);
+    n.comboGoalFlags = j.value("comboGoalFlags", (uint8_t)0);
     n.vanillaTunic = j.value("vanillaTunic", (uint8_t)0);
     n.vanillaBoots = j.value("vanillaBoots", (uint8_t)0);
     n.vanillaShieldSkin = j.value("vanillaShieldSkin", (uint8_t)0);
     n.capeHidden = j.value("capeHidden", (uint8_t)0);
     n.pendantEffectOff = j.value("pendantEffectOff", (uint8_t)0);
+    n.capeOwned = j.value("capeOwned", (uint8_t)0);
+    n.extTunicLayoutVersion = j.value("extTunicLayoutVersion", (uint8_t)0);
     // Time Gate "adult mode" — absent key = child (vanilla) model.
     n.timeGateAdultMode = j.value("timeGateAdultMode", (uint8_t)0);
+    // Quartz of Motion — absent keys = not owned, tracking the first category.
+    // Dual Cane — absent keys mean a save from before the rework: mask 0, which
+    // Handle_CaneOfSomaria heals into the base Statue skill on first equip.
+    n.caneSkills = j.value("caneSkills", (uint8_t)0);
+    n.caneType = j.value("caneType", (uint8_t)0);
+    if (j.contains("caneSkillSel")) {
+        for (int i = 0; i < ARRAY_COUNT(n.caneSkillSel); i++)
+            j.at("caneSkillSel").at(i).get_to(n.caneSkillSel[i]);
+    }
+    n.quartzOwned = j.value("quartzOwned", (uint8_t)0);
+    n.quartzCategory = j.value("quartzCategory", (uint8_t)0);
+    n.quartzSubcat = j.value("quartzSubcat", (uint8_t)0);
+    n.extBootsLayoutVersion = j.value("extBootsLayoutVersion", (uint8_t)0);
+    n.pendantOwned = j.value("pendantOwned", (uint8_t)0);
+    n.sw97BowElement = j.value("sw97BowElement", (uint8_t)0);
+    n.sw97SlingElement = j.value("sw97SlingElement", (uint8_t)0);
+    n.bombArrowsOwned = j.value("bombArrowsOwned", (uint8_t)0);
+    n.wandMode = j.value("wandMode", (uint8_t)0);
+    n.wandRodsOwned = j.value("wandRodsOwned", (uint8_t)0);
+    n.sw97LayoutVersion = j.value("sw97LayoutVersion", (uint8_t)0);
+    n.slateMode = j.value("slateMode", (uint8_t)0);
+    n.slateRunesOwned = j.value("slateRunesOwned", (uint8_t)0);
 }
 
 // Spiritual Stones — per-save state (gSaveContext.save.shipSaveInfo.spiritualStones).

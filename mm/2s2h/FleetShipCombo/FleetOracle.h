@@ -18,3 +18,9 @@
 //                  ([["RI_NAME", count]...]) -> lista de RandoCheckId alcanzables.
 //
 // Registro automático via ShipInit; no requiere llamadas externas.
+
+// Rebuild the MM save in `slot` from scratch and write it straight to disk: native Sram_InitNewSave
+// plus the combo spoiler (applied by the OnSaveInit hook), same recipe as the oracle's "createSave"
+// op. In fleet mode MM's file is DERIVED -- OoT holds the seed -- so a missing or rejected MM save
+// is not data loss, it is something we can regenerate. Returns false if the rebuild failed.
+bool FleetOracle_RecreateSaveSlot(int slot, const char* name);

@@ -1,9 +1,11 @@
 /**
  * Zonai Permafrost Item Header
- * Time-freeze spell - freezes all target actors and day/night cycle for 10 seconds
+ * Time-freeze TOGGLE — press to stop time, press again to let it run.
  *
- * Sequence: Din's Fire cast (honoo1 -> honoo2 -> honoo3) -> time freeze -> free movement
- * No cooldown. 12 MP cost.
+ * There is no cast animation any more: the freeze snaps on the frame you press
+ * the button. It costs a small amount of magic to switch on and then drains
+ * continuously, so the meter is what limits how long you can hold the world
+ * still. Running the meter dry switches it off on its own.
  */
 
 #ifndef ITEM_ZONAI_PERMAFROST_H
@@ -12,32 +14,25 @@
 #include "z64.h"
 #include "../custom_items.h"
 
-// States
+// States.
+// ACTIVE must stay 2: custom_items_common.c tests the shared state by literal
+// number ("!= 2") to decide whether the other custom items may keep updating.
+// State 1 used to be CASTING and no longer exists.
 #define ZPERM_STATE_IDLE 0
-#define ZPERM_STATE_CASTING 1 // Din's Fire animation (honoo1 -> honoo2 -> honoo3)
-#define ZPERM_STATE_ACTIVE 2  // Freeze active, Link free to move
-#define ZPERM_STATE_ENDING 3  // Cleanup frame
+#define ZPERM_STATE_ACTIVE 2 // Freeze held, Link free to move
+#define ZPERM_STATE_ENDING 3 // Cleanup frame
 
-// Casting sub-phases (Din's Fire 3-part animation)
-#define ZPERM_CAST_HONOO1 0
-#define ZPERM_CAST_HONOO2 1
-#define ZPERM_CAST_HONOO3 2
+// Magic. Switching on costs a lump so flicking the button on and off is not free;
+// after that it drains DRAIN_COST every DRAIN_INTERVAL frames. Gameplay runs at
+// 20 fps, so 1 per 10 frames is 2 magic per second — roughly 24 s of stopped time
+// on a full single meter, against the 10 s the old fixed-duration spell gave.
+#define ZPERM_MAGIC_ACTIVATION 4
+#define ZPERM_DRAIN_COST 1
+#define ZPERM_DRAIN_INTERVAL 10
 
-// Magic
-#define ZPERM_MAGIC_COST 12
-
-// Freeze duration
-#define ZPERM_FREEZE_DURATION 600 // 10 seconds at 20fps
-
-// Freeze timer refresh value (set on actors each frame)
-// Must be > 1 because DECR decrements each frame before the check
-#define ZPERM_FREEZE_REFRESH 3
-
-// Visual flicker: last 2 seconds (40 frames) the green particles flicker
-#define ZPERM_FLICKER_START 40
-
-// Din's Fire animation speed (half of vanilla 0.83 because we double-update)
-#define ZPERM_ANIM_SPEED 0.415f
+// The green particles start flickering once this little magic is left, as the
+// warning that the freeze is about to drop on its own.
+#define ZPERM_FLICKER_MAGIC 8
 
 // State aliases
 #define zpActive gCustomItemState.zonaiPermafrostActive

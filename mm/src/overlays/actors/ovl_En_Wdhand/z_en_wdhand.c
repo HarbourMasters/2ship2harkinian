@@ -5,6 +5,7 @@
  */
 
 #include "z_en_wdhand.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "objects/object_wdhand/object_wdhand.h"
 
 #define FLAGS (ACTOR_FLAG_ATTENTION_ENABLED | ACTOR_FLAG_HOSTILE)
@@ -406,7 +407,8 @@ void EnWdhand_LungeForPlayer(EnWdhand* this, PlayState* play) {
         }
     }
 
-    if ((this->collider.base.atFlags & AT_HIT) && play->grabPlayer(play, player)) {
+    if ((this->collider.base.atFlags & AT_HIT) &&
+        GameInteractor_Should(VB_ENEMY_GRAB_PLAYER, true, this) && play->grabPlayer(play, player)) {
         // Touched the player, grab
         EnWdhand_SetupGrabbedPlayer(this, play);
     } else if (allStepsDone) {

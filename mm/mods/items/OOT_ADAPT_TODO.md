@@ -25,7 +25,7 @@ want to reclaim their rewards.
 | `logic/item_switchhook.h` | `EN_ANUBICE`, `EN_KAKASI2`, `EN_KAKASI3`, `EN_ZF`, `ACTOR_FLAG_SWITCHHOOKABLE` | Switch-hook grabs hookable targets → mark MM hookable actors + set the flag | no |
 | `logic/item_whip.h` | `EN_ZF` | Whip grabs/pulls Lizalfos → MM Lizalfos actor | no |
 | `logic/power_keg.c` | `BG_HEAVY_BLOCK` | Keg blows the silver-gauntlet heavy block → MM bombable walls / heavy objects | maybe |
-| `logic/snap.c` (pictograph) | `EN_GELDB`, `EN_KAKASI2`, `EN_KAKASI3`, `EN_KO`, `EN_MD`, `EN_RU1`, `EN_RU2`, `EN_SA`, `EN_SKJ`, `OBJ_DEKUJR` | Photograph specific NPCs → map to MM NPC actors per pictograph target | no |
+| ~~`logic/snap.c` (pictograph)~~ | — | **DELETED** — MM owns the Pictograph Box natively (`src/code/z_snap.c`, `z_parameter.c` PICTO_BOX_STATE, the 0xF8 textbox). The whole NEI pictobox (`snap.c/.h`, `picto_box.c`, `picto_message.cpp`) is gone from this repo. | done |
 | `mm_bottles_behavior.h` | `EN_ICE_HONO` | Bottle catches blue fire → MM blue-fire actor (if present) | n/a |
 | `helpers/mailbox_actor.c` (+`.h`), `helpers/mushroom_spot_actor.c` (+`.h`) | `EN_LIGHTBOX` | — **both slated for deletion** (postman / mushroom cleanup) | — |
 

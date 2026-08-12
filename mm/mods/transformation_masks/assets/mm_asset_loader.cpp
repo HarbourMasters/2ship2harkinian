@@ -365,7 +365,34 @@ extern "C" {
 
 // True once an OoT asset archive (oot.o2r / oot-mq.o2r) is loaded. Backs
 // OotAssets_Available() in oot_asset_loader.cpp. Skijer's NEI.
+//
+// 2026-08-07: this now runs the SAME adopt-handles recovery MmAssets_LoadFromOotArchive carries.
+// oot.o2r can be mounted by TWO paths — LoadOotO2rs() here (feeds sOotArchives) or BenPort's
+// OTRGlobals init (straight into the ArchiveManager, sOotArchives stays empty). When only the
+// BenPort path ran, this returned 0 forever, and everything gated on OotAssets_Available() —
+// the unified trade wheel's icons (TradeAdult_IconPath) and the OoT-mask wheel's
+// (OotMask_IconPath) — resolved NULL and the two trade cells drew EMPTY, while the page-0 spell
+// icons (plain FileExists, no Available gate) kept working. That split is exactly the reported
+// "trade adult / trade child icons just don't show".
 unsigned char MmAssets_OotArchivesLoaded(void) {
+    if (sOotArchives.empty()) {
+        try {
+            auto rm = OTRGlobals::Instance->context->GetResourceManager();
+            auto am = rm ? rm->GetArchiveManager() : nullptr;
+            auto all = am ? am->GetArchives() : nullptr;
+            if (all) {
+                for (auto& ar : *all) {
+                    if (!ar) {
+                        continue;
+                    }
+                    const std::string& ap = ar->GetPath();
+                    if (ap.find("oot.o2r") != std::string::npos || ap.find("oot-mq.o2r") != std::string::npos) {
+                        sOotArchives.push_back(ar);
+                    }
+                }
+            }
+        } catch (...) {}
+    }
     return sOotArchives.empty() ? 0 : 1;
 }
 

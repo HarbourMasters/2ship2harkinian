@@ -32,6 +32,19 @@
 #include "2s2h/ObjectExtension/ActorListIndex.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 
+// Skijer's NEI shared time control (mods/items/helpers/timestop_helper.c).
+// gChampionSlowFactor: 1.0f = normal, 0.0f = fully stopped, in between = slow motion.
+// It is defined in mods/extended_equipment.c and arbitrated by timestop_helper so
+// Champion's Tunic, Zonai Permafrost and the Phantom Hourglass cannot fight over it.
+extern f32 gChampionSlowFactor;
+extern s32 TimeCtl_IsActorExempt(Actor* actor);
+
+// Skijer's NEI — Poe-fire lantern lens (mods/items/logic/item_lantern.c). It is a
+// second, independent lens source: no magic, no mask, and it never touches
+// actorCtx.lensActive so the Lens of Truth keeps working normally alongside it.
+extern u8 gLanternLensActive;
+extern s32 TimeCtl_GetStutterFrames(void);
+
 // bss
 // FaultClient sActorFaultClient; // 2 funcs
 
@@ -1315,6 +1328,16 @@ void Actor_SetMovementScale(s32 scale) {
  */
 void Actor_UpdatePos(Actor* actor) {
     f32 speedRate = sActorMovementScale;
+
+    // Skijer's NEI time control. Only a FULL stop zeroes motion here. A PARTIAL
+    // slowdown deliberately does NOT scale speedRate: the slow is expressed by letting
+    // the actor tick 1 frame in N (see the freeze in Actor_UpdateAll), and scaling its
+    // motion on top of that MULTIPLIES the two — which is why a nominal 0.15 read as a
+    // dead stop instead of slow motion. Exemptions (Link, native projectiles, Link's
+    // children) are centralized in TimeCtl_IsActorExempt.
+    if ((gChampionSlowFactor <= 0.0f) && !TimeCtl_IsActorExempt(actor)) {
+        speedRate = 0.0f;
+    }
 
     actor->world.pos.x += (actor->velocity.x * speedRate) + actor->colChkInfo.displacement.x;
     actor->world.pos.y += (actor->velocity.y * speedRate) + actor->colChkInfo.displacement.y;
@@ -2996,6 +3019,16 @@ Actor* Actor_UpdateActor(UpdateActor_Params* params) {
                     GameInteractor_ExecuteOnActorUpdate(actor);
                 }
                 DynaPoly_UnsetAllInteractFlags(play, &play->colCtx.dyna, actor);
+
+                // Skijer's NEI partial slowdown: re-freeze for TimeCtl_GetStutterFrames()
+                // after each update, so the actor ticks 1 frame in N and its animations and
+                // AI timers slow with it. The interval is derived from the requested factor,
+                // so 0.33 really is a third of normal speed. A FULL stop is not handled here
+                // — timestop_helper drives that directly so newly spawned actors are caught.
+                if ((gChampionSlowFactor > 0.0f) && (gChampionSlowFactor < 1.0f) &&
+                    !TimeCtl_IsActorExempt(actor)) {
+                    actor->freezeTimer = TimeCtl_GetStutterFrames();
+                }
             }
 
             CollisionCheck_ResetDamage(&actor->colChkInfo);
@@ -3390,22 +3423,28 @@ void Actor_DrawLensActors(PlayState* play, s32 numLensActors, Actor** lensActors
         POLY_XLU_DISP = gfx;
     }
 
-    gfx = OVERLAY_DISP;
+    // Skijer's NEI — the Poe lantern's shadow fire is a lens with NO circle: it reveals and
+    // hides over the whole screen. Skip the overlay when the lens is the lantern's own
+    // (the Lens of Truth item parks magicState in CONSUME_LENS; the lantern never does, so
+    // that is what tells the two apart when both are on).
+    if (!gLanternLensActive || (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
+        gfx = OVERLAY_DISP;
 
-    gDPPipeSync(gfx++);
+        gDPPipeSync(gfx++);
 
-    gDPSetOtherMode(gfx++,
-                    G_AD_DISABLE | G_CD_MAGICSQ | G_CK_NONE | G_TC_FILT | G_TF_BILERP | G_TT_NONE | G_TL_TILE |
-                        G_TD_CLAMP | G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
-                    G_AC_THRESHOLD | G_ZS_PRIM | G_RM_CLD_SURF | G_RM_CLD_SURF2);
+        gDPSetOtherMode(gfx++,
+                        G_AD_DISABLE | G_CD_MAGICSQ | G_CK_NONE | G_TC_FILT | G_TF_BILERP | G_TT_NONE | G_TL_TILE |
+                            G_TD_CLAMP | G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
+                        G_AC_THRESHOLD | G_ZS_PRIM | G_RM_CLD_SURF | G_RM_CLD_SURF2);
 
-    gDPSetCombineLERP(gfx++, 1, TEXEL0, PRIMITIVE, 0, 1, TEXEL0, PRIMITIVE, 0, 1, TEXEL0, PRIMITIVE, 0, 1, TEXEL0,
-                      PRIMITIVE, 0);
-    gDPSetPrimColor(gfx++, 0, 0, 74, 0, 0, 74);
+        gDPSetCombineLERP(gfx++, 1, TEXEL0, PRIMITIVE, 0, 1, TEXEL0, PRIMITIVE, 0, 1, TEXEL0, PRIMITIVE, 0, 1, TEXEL0,
+                          PRIMITIVE, 0);
+        gDPSetPrimColor(gfx++, 0, 0, 74, 0, 0, 74);
 
-    gfxTemp = gfx;
-    Actor_DrawLensOverlay(&gfxTemp, play->actorCtx.lensMaskSize);
-    OVERLAY_DISP = gfxTemp;
+        gfxTemp = gfx;
+        Actor_DrawLensOverlay(&gfxTemp, play->actorCtx.lensMaskSize);
+        OVERLAY_DISP = gfxTemp;
+    }
 
     CLOSE_DISPS(gfxCtx);
 }
@@ -3654,9 +3693,13 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
             actor->isDrawn = false;
             if ((actor->init == NULL) && (actor->draw != NULL) && (shipActorFlagsCopy & drawActorFlagsMask)) {
                 // #endregion
+                // gLanternLensActive counts as a fully-open lens here: without it, actors
+                // in LENS_MODE_HIDE_ACTORS rooms (fake walls/floors) were only collected
+                // once lensMaskSize reached its active size, which the lantern never
+                // drives — so illusions stayed on screen while hidden actors appeared.
                 if ((actor->flags & ACTOR_FLAG_REACT_TO_LENS) &&
                     ((play->roomCtx.curRoom.lensMode == LENS_MODE_SHOW_ACTORS) ||
-                     (play->actorCtx.lensMaskSize == LENS_MASK_ACTIVE_SIZE) ||
+                     (play->actorCtx.lensMaskSize == LENS_MASK_ACTIVE_SIZE) || gLanternLensActive ||
                      (actor->room != play->roomCtx.curRoom.num))) {
                     if (Actor_AddToLensActors(play, actor)) {}
                 } else {
@@ -3687,7 +3730,7 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
         Math_StepToC(&play->actorCtx.lensMaskSize, 0, 10);
     }
 
-    if (play->actorCtx.lensMaskSize != 0) {
+    if ((play->actorCtx.lensMaskSize != 0) || gLanternLensActive) {
         play->actorCtx.lensActorsDrawn = true;
         Actor_DrawLensActors(play, play->actorCtx.numLensActors, play->actorCtx.lensActors);
     }

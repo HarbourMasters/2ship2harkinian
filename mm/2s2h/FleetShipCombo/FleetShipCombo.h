@@ -56,6 +56,12 @@ void FleetShipCombo_SetActiveGame(int game);
 // save SLOT the trigger is in (e.g. gSaveContext.fileNum) so the target game lands in its own same slot.
 void FleetShipCombo_RequestWarp(int targetGame, int scene, float x, float y, float z, int rotY, int saveFile);
 
+// Scene sentinel for a RESUME warp: "hand the player to the other game AT ITS OWN SAVE", instead of
+// at a portal. Used when a combo file whose last save was made in the other game is loaded — the
+// arrival keeps the entrance/respawn the save itself carries (owl save included) and only takes the
+// shared-state overlay. Every real scene id is >= 0, so -1 can never collide with one.
+#define FC_WARP_SCENE_RESUME (-1)
+
 // Applied by whichever game just became active: returns 1 ONCE per new request when a warp is
 // addressed to THIS game, filling the target scene + land position/rotation. The receiver then
 // loads `scene` and overrides Link's pos/rot to (x,y,z,rotY). Any out-param may be null.
@@ -81,6 +87,23 @@ int FleetShipCombo_GetSendFadeAlpha(void);
 // so Ship's on-screen overlay can display it while you cycle to find the tunnel piece.
 void FleetShipCombo_SetDoorDLIndex(int index);
 int FleetShipCombo_GetDoorDLIndex(void);
+
+// ---- Combo seed identity ----
+// The Rando finalSeed OoT generated for this combo. OoT publishes it; MM validates the finalSeed
+// baked into its paired save against it and rebuilds the slot when they disagree, so an MM file
+// left over from an older seed can never be played against a newer OoT seed. 0 = unset.
+void FleetShipCombo_SetComboSeed(unsigned int seed);
+unsigned int FleetShipCombo_GetComboSeed(void);
+
+// ---- Anchor-style packet channel (shared-memory rings, region version 2) ----
+// The transport under FleetNet: one JSON message per call, same shape as an Anchor packet, but
+// through shared memory instead of a socket. Two one-way rings mean no lock and no file, so a
+// delta costs microseconds and cannot hit the oracle's "sharing violation" retry loop.
+// Push returns 1 if the packet was queued (0 = no combo, peer too old, or payload > 1023 bytes).
+// Pop fills `out` with ONE pending packet and returns 1, or returns 0 when the queue is empty --
+// call it in a loop from the per-frame pump until it returns 0.
+int FleetShipCombo_PushPacket(const char* json);
+int FleetShipCombo_PopPacket(char* out, int cap);
 
 // True if THIS process is the active game, OR if shared memory is unavailable
 // (standalone). Drives the FrameAdvance freeze of the inactive game.
@@ -144,6 +167,20 @@ unsigned long long FleetShipCombo_GetSharedWindowOpenSeq(void);
 // reset); ConsumeRestartRequest returns 1 ONCE when the OTHER game reset.
 void FleetShipCombo_SignalRestart(void);
 int FleetShipCombo_ConsumeRestartRequest(void);
+
+// Hand the combo back to Ocarina of Time: active game 0, front window 0, isPlayerIn2Ship 0.
+// MM's OWN title screen / file select must never be somewhere the player can act, so every path
+// that lands MM back on them (a restart, ours or OoT's) ends by yielding: MM freezes on its logo
+// off-screen and the player sees OoT's title instead. Idempotent; no-op outside a combo.
+void FleetShipCombo_YieldToOoT(void);
+
+// ---- Guest heartbeat (reservedU[0]) ----
+// Bumped by 2ship every frame from PollHostAlive, which runs OUTSIDE the render gating, so it keeps
+// ticking while MM is the frozen/inactive game. Ship watches it: a heartbeat that stopped while
+// MM's process is still alive is a HANG, and a hung guest leaves Ship staring at a stale shared
+// texture forever (the black screen), so Ship tears the whole combo down instead.
+void FleetShipCombo_BeatHeartbeat(void);
+unsigned long long FleetShipCombo_GetGuestHeartbeat(void);
 
 // Combo active save slot published to shared memory by OoT (0..2), so MM auto-loads the same slot
 // when it becomes the active game. -1 when unset. (reservedU[11].)

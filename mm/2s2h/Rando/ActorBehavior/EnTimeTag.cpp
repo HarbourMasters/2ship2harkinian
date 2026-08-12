@@ -25,7 +25,7 @@ void Rando::ActorBehavior::InitEnTimeTagBehavior() {
 
             RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_SONG_SOARING);
             CustomMessage::Replace(&entry.msg, "{{location}}",
-                                   Rando::StaticData::GetLocationNameForHint(randoCheckId, false));
+                                   Rando::GetHintLocationText(RI_SONG_SOARING, randoCheckId));
             CustomMessage::LoadCustomMessageIntoFont(entry);
             *loadFromMessageTable = false;
         }

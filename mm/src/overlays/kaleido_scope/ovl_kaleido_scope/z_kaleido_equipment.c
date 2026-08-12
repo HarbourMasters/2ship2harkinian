@@ -180,54 +180,47 @@ static void* KaleidoEquip_OotTex(const char* path) {
 }
 
 // ---------------------------------------------------------------------------
-// Upgrades column (col 0) — OoT rows 1:1: quiver / bomb bag / strength / scale.
-// Quiver + bomb bag are MM's REAL native upgrades; strength + scale come from the
-// NEI parallel OoT-upgrade store (nei->ootUpgrades: 3 bits each, strength@9 scale@12).
+// Left column (col 0) — Skijer 2026-07-29 (kaleido re-layout):
+//   row 0 = MAGIC CAPE          (A toggles the cloth visibility; its half-cost passive is always on)
+//   row 1 = PENDANT OF MEMORIES (A toggles its whole moveset)
+//   row 2 = RESERVED ext slot 1 } freed when quiver / bomb bag / STRENGTH / SWIM all moved to the
+//   row 3 = RESERVED ext slot 2 } quest page. Placeholder icon, hoverable, A error-beeps.
+// "Value" here = the cell is populated (drives landability + draw).
 // ---------------------------------------------------------------------------
+#define EQUIP_UPGRADE_ROW_RESERVED_1 2
+#define EQUIP_UPGRADE_ROW_RESERVED_2 3
+
+// Page-2 grid rows. The BOOTS row is NOT C-assignable: all three are real boots (equipped with A),
+// and its middle id (0xEA) belongs to the Pendant of Memories in the inventory/C-button id space.
+#define EQUIP_EXT_ROW_BOOTS 3
+
 static s16 KaleidoEquip_UpgradeValue(s16 row) {
     switch (row) {
-        // Skijer 2026-07-16 (OoT-rework 1:1): rows 0/1 no longer show the quiver and bomb-bag
-        // capacities — they hold the MAGIC CAPE and the PENDANT OF MEMORIES (moved out of the ext
-        // grid). "Value" here = owned (drives landability + draw), A toggles them (solid = on,
-        // half-transparent = off). Rows 2 (strength) and 3 (scale) are untouched.
         case 0:
             return ExtEquip_CapeOwned();
         case 1:
             return ExtEquip_PendantOwned();
-        case 2:
-            return (Nei_Save()->ootUpgrades >> 9) & 7; // strength
-        case 3:
-            return (Nei_Save()->ootUpgrades >> 12) & 7; // scale
+        case EQUIP_UPGRADE_ROW_RESERVED_1:
+        case EQUIP_UPGRADE_ROW_RESERVED_2:
+            return 1; // reserved: always drawn/hoverable until the item that lands here is decided
     }
     return 0;
 }
 
 static void* KaleidoEquip_UpgradeIcon(s16 row, s16 value) {
-    // OoT-archive icon sets for the OoT-only rows (strength / scale)
-    static const char* sStrengthIcons[3] = {
-        "__OTR__textures/icon_item_static/gItemIconGoronsBraceletTex",
-        "__OTR__textures/icon_item_static/gItemIconSilverGauntletsTex",
-        "__OTR__textures/icon_item_static/gItemIconGoldenGauntletsTex",
-    };
-    static const char* sScaleIcons[2] = {
-        "__OTR__textures/icon_item_static/gItemIconSilverScaleTex",
-        "__OTR__textures/icon_item_static/gItemIconGoldenScaleTex",
-    };
-
     if (value <= 0) {
         return NULL;
     }
     switch (row) {
-        // Skijer 2026-07-16: rows 0/1 = Magic Cape / Pendant of Memories icons (same art the ext
-        // grid used — cape from the NEI icon set, pendant from mm.o2r).
+        // Rows 0/1 = Magic Cape / Pendant of Memories (cape from the NEI icon set, pendant from mm.o2r).
         case 0:
-            return ExtEquip_GetIcon(EQUIP_TYPE_TUNIC, 1);
+            return ExtEquip_GetCapeIcon();
         case 1:
-            return ExtEquip_GetIcon(EQUIP_TYPE_BOOTS, 2);
-        case 2:
-            return KaleidoEquip_OotTex(sStrengthIcons[(value > 3 ? 3 : value) - 1]);
-        case 3:
-            return KaleidoEquip_OotTex(sScaleIcons[(value > 2 ? 2 : value) - 1]);
+            return ExtEquip_GetPendantIcon();
+        // Rows 2/3 = the two reserved ext slots (see KaleidoEquip_UpgradeValue).
+        case EQUIP_UPGRADE_ROW_RESERVED_1:
+        case EQUIP_UPGRADE_ROW_RESERVED_2:
+            return KaleidoEquip_OotTex("__OTR__textures/icon_item_custom/gItemIconReservedSlotTex");
     }
     return NULL;
 }
@@ -422,9 +415,22 @@ static u8 KaleidoEquip_CellEquipped(EquipCell* cell) {
     }
 }
 
-// Can the cursor land on this grid position? (SoH: unowned cells are skipped on the
-// vanilla page; the ext page allows every populated cell so C-assign works on unowned
-// is NOT wanted — only owned ext cells are selectable, matching SoH's HasItem gating.)
+// Can the cursor land on this grid position?
+//
+// Skijer 2026-07-31 FIX — this is why page 2 "no dejaba equipar nada". The old comment claimed SoH
+// only lets the cursor sit on OWNED ext cells; it does the opposite. soh z_kaleido_equipment.c:398:
+//
+//     // On extended page, cursor can land on any equipment slot (all owned)
+//     if (extEquipPage) { pauseAnyCursor = true; }
+//
+// and the entry scans at :569 / :610 read `(gBitFlags[...] & equipment) || extEquipPage`. So in OoT
+// the whole 4x3 ext grid is always hoverable; ownership only gates the ACTION (ExtEquip_Equip
+// silently refuses) and the DRAW (unowned cells render greyscaled — which KaleidoScope_DrawEquipment
+// here already does). Requiring ownership to LAND meant that with no extEquipOwnedBits set — the
+// normal state, since nothing in 2ship grants them outside the save editor — not one of the 12 cells
+// was reachable: the page showed 12 greyed icons and the cursor refused to enter. And because
+// ExtEquip_Equip is what flips CVAR_EXT_EQUIP_ENABLED on, ExtEquip_UpdateBehavior kept early-returning
+// too, so none of the 12 behaviors ever ran either. Now 1:1 with OoT.
 static u8 KaleidoEquip_CursorCanSit(s16 row, s16 col) {
     EquipCell cell;
 
@@ -437,6 +443,9 @@ static u8 KaleidoEquip_CursorCanSit(s16 row, s16 col) {
     }
     if (cell.equipType == CELL_DISPLAY) {
         return true; // hoverable for the name/preview, A just error-beeps
+    }
+    if (sEquipSubPage == EQUIP_SUBPAGE_EXT) {
+        return true; // soh parity: every populated ext cell is hoverable, owned or not
     }
     return KaleidoEquip_CellOwned(&cell);
 }
@@ -799,6 +808,7 @@ void KaleidoScope_UpdateEquipmentCursor(PlayState* play) {
                 KaleidoEquip_EquipCell(play, sEquipCursorY, sEquipCursorX);
             }
         } else if ((sEquipSubPage == EQUIP_SUBPAGE_EXT) && (sEquipCursorX != 0) &&
+                   (sEquipCursorY != EQUIP_EXT_ROW_BOOTS) &&
                    CHECK_BTN_ANY(input->press.button, BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT)) {
             KaleidoEquip_AssignCButton(play, sEquipCursorY, sEquipCursorX,
                                        input->press.button & (BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT));
@@ -806,6 +816,10 @@ void KaleidoScope_UpdateEquipmentCursor(PlayState* play) {
     }
 
     // --- Publish cursor state (name panel + drawn cursor) ---
+    // Flag the name resolver that any ext id it sees is a page-2 GRID slot: the one shared id (0xEA)
+    // means Climb Boots here and Pendant of Memories everywhere else. Skijer 2026-07-29
+    gExtEquipGridNameContext = (sEquipSubPage == EQUIP_SUBPAGE_EXT) && (sEquipCursorX != 0);
+
     if (sEquipCursorX == 0) {
         s16 nameItem = KaleidoEquip_UpgradeNameItem(sEquipCursorY, KaleidoEquip_UpgradeValue(sEquipCursorY));
         pauseCtx->cursorItem[PAUSE_MASK] = (nameItem >= 0) ? (u16)nameItem : PAUSE_ITEM_NONE;
@@ -1073,7 +1087,12 @@ void KaleidoScope_DrawEquipment(PlayState* play) {
                 icon = KaleidoEquip_OotTex(cell.ootIcon);
                 if (icon == NULL) {
                     if (cell.equipType >= 0) {
-                        icon = ExtEquip_GetIcon(cell.equipType, (u8)cell.index);
+                        // FileExists-gated: ExtEquip_GetIcon hands back an OTR PATH, and a path that
+                        // isn't in the archive does NOT draw nothing — gDPLoadTextureBlock leaves
+                        // whatever was last in TMEM, so the cell shows the PREVIOUS cell's icon. That
+                        // reads as "the whole grid is in the wrong order" (swords repeated, tunics on
+                        // the boots row) whenever an icon PNG hasn't been packed yet. Skijer 2026-07-29
+                        icon = KaleidoEquip_OotTex(ExtEquip_GetIcon(cell.equipType, (u8)cell.index));
                     } else {
                         icon = ExtInv_GetItemIcon((u16)cell.item);
                     }

@@ -26,6 +26,12 @@ void ApplyToSaveContext(nlohmann::json spoiler) {
     auto startingItems = Rando::GetStartingItemsFromSpoiler(spoiler);
     Rando::SetStartingItemsInSave(gSaveContext.save.shipSaveInfo.rando, startingItems);
 
+    // OoT+MM combo: persist the OoT areas in a sidecar so hints can name the real place of an item
+    // that stayed on the OoT side. Absent in non-combo seeds. Skijer's NEI
+    if (spoiler.contains("ootItemAreas")) {
+        Rando::Spoiler::SaveOotItemAreas(gSaveContext.save.shipSaveInfo.rando.finalSeed, spoiler["ootItemAreas"]);
+    }
+
     for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
         if (randoStaticCheck.randoCheckId == RC_UNKNOWN) {
             continue;

@@ -1,4 +1,5 @@
 #include "ActorBehavior.h"
+#include "Rando/Spoiler/Spoiler.h" // GetOotAreaForItem (combo cross-game hints)
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipUtils.h"
@@ -48,7 +49,7 @@ void ApplyRemainsHint(u16* textId, bool* loadFromMessageTable) {
 
         icon = Rando::StaticData::GetIconForZMessage(randoItemId);
         RandoCheckId randoCheckId = Rando::FindItemPlacement(randoItemId);
-        CustomMessage::Replace(&msg, "{{location}}", Rando::StaticData::GetLocationNameForHint(randoCheckId, false));
+        CustomMessage::Replace(&msg, "{{location}}", Rando::GetHintLocationText(randoItemId, randoCheckId));
     }
 
     CustomMessage::Entry entry = {
@@ -110,7 +111,10 @@ void ApplyTransformationHints(u16* textId, bool* loadFromMessageTable) {
             }
             for (auto& location : itemPlacements) {
                 if (location == RC_UNKNOWN) {
-                    locationStr = "%gLink's pocket%w";
+                    // Combo: before assuming you carry it, check whether the mask stayed in OoT.
+                    std::string ootArea =
+                        Rando::Spoiler::GetOotAreaForItem(Rando::StaticData::Items[randoItemId].spoilerName);
+                    locationStr = ootArea.empty() ? "%gLink's pocket%w" : ootArea;
                     break;
                 }
 
@@ -122,7 +126,10 @@ void ApplyTransformationHints(u16* textId, bool* loadFromMessageTable) {
             }
             CustomMessage::Replace(&msg, "{{locations}}", locationStr);
         } else {
-            CustomMessage::Replace(&msg, "{{locations}}", "%gLink's pocket%w");
+            // Empty list = the mask is not placed in any MM check. In the combo that usually means it
+            // landed in OoT, not that you are carrying it. Skijer's NEI
+            std::string ootArea = Rando::Spoiler::GetOotAreaForItem(Rando::StaticData::Items[randoItemId].spoilerName);
+            CustomMessage::Replace(&msg, "{{locations}}", ootArea.empty() ? "%gLink's pocket%w" : ootArea);
         }
     }
 

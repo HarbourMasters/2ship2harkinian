@@ -18,7 +18,10 @@
 // This file (pure C, #included into z_player.c) logs via libultraship's lusprintf but
 // doesn't pull luslog.h. Declare it explicitly so C doesn't synthesize a bad implicit
 // `int lusprintf()` that clashes with the real `void lusprintf(...)` (→ luslog.h C2371).
-extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
+// Must be declared through API_EXPORT: since LUS 1.3.1-464 the real declaration carries
+// __declspec(dllexport) on Windows, and a plain `extern` here is a linkage mismatch (C2375).
+#include <ship/Api.h>
+API_EXPORT void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
 
 // =============================================================================
 // MM compat shim — bridges OoT-only symbols this expansion references against

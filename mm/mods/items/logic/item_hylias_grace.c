@@ -894,6 +894,12 @@ s32 Player_UpperAction_HyliasGrace(Player* p, PlayState* play) {
 // True while the fairy is in free flight (passing through walls). Forces NoClip
 // (z_bgcheck.c) so OOT's standard floor-based loading-zone detection fires — the
 // fairy's own collision bypass left actor.wallPoly stale, so exits didn't trigger.
+//
+// 2026-08-06: Hylia's Grace is RETIRED as an item, and per the user its noclip capability moves to
+// the SOUL SPELL (SW97 Magic Soul, which enters through HGRACE_STATE_IVAN with hgForcedBySpell).
+// The Ivan state never granted it before — the spell flew, but Link's collision stayed live and
+// wall-adjacent exits misbehaved exactly like the pre-fix fairy. The FAIRY state keeps the flag for
+// any save still mid-flight. Skijer's NEI
 s32 HGrace_WantsNoClip(void) {
-    return hgActive && (hgState == HGRACE_STATE_FAIRY);
+    return hgActive && ((hgState == HGRACE_STATE_FAIRY) || (hgState == HGRACE_STATE_IVAN && hgForcedBySpell));
 }

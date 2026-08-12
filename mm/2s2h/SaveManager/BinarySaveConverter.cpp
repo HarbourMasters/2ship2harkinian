@@ -685,7 +685,7 @@ bool BinarySaveConverter_HandleFileDropped(char* filePath) {
         int saveSlot = SaveManager_GetOpenFileSlot();
         if (saveSlot == -1) {
             SPDLOG_ERROR("No save slot available");
-            auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+            auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
             gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "No save slot available");
             return true;
         }
@@ -731,18 +731,18 @@ bool BinarySaveConverter_HandleFileDropped(char* filePath) {
         }
 
         SPDLOG_INFO("Successfully imported save into slot {}", saveSlot);
-        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Successfully imported save into slot %d", saveSlot);
 
         return true;
     } catch (std::exception& e) {
         SPDLOG_ERROR("Failed to load file: {}", e.what());
-        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Failed to load file");
         return false;
     } catch (...) {
         SPDLOG_ERROR("Failed to load file");
-        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        auto gui = Ship::Context::GetRawInstance()->GetWindow()->GetGui();
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Failed to load file");
         return false;
     }

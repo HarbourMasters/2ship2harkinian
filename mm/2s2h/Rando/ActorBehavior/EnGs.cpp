@@ -174,7 +174,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
             CustomMessage::Replace(&entry.msg, "{{item}}",
                                    Rando::StaticData::GetItemName(saveCheck.randoItemId, true, randoCheckId));
             CustomMessage::Replace(&entry.msg, "{{location}}",
-                                   Rando::StaticData::GetLocationNameForHint(randoCheckId, showExact));
+                                   Rando::GetHintLocationText(saveCheck.randoItemId, randoCheckId, showExact));
 
             // Replace colors before line break calculation
             CustomMessage::ReplaceColorChars(&entry.msg);
@@ -223,7 +223,7 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
                     CustomMessage::Replace(&entry.msg, "{{item}}",
                                            Rando::StaticData::GetItemName(saveCheck.randoItemId, true, randoCheckId));
                     CustomMessage::Replace(&entry.msg, "{{location}}",
-                                           Rando::StaticData::GetLocationNameForHint(randoCheckId, true));
+                                           Rando::GetHintLocationText(saveCheck.randoItemId, randoCheckId, true));
 
                     gSaveContext.rupeeAccumulator -= cost;
                     cost *= 2;

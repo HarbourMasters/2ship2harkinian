@@ -27,6 +27,12 @@
 #define NEI_ANIM_SOMARIA NEI_ANIM_PATH("somaria")
 #define NEI_ANIM_DEMISE_DESTRUCTION NEI_ANIM_PATH("demise_destruction")
 #define NEI_ANIM_DAMPE_DIG NEI_ANIM_PATH("dampe_dig")
+// Ship-vanilla Roc's Feather jump. Unlike the four above this one was not generated from a C array:
+// it is SoH's own gPlayerAnim_link_rocs_feather_jump_Data copied over byte for byte. That works
+// because OoT and MM share the player animation format exactly — 67 s16 per frame, same limb order,
+// same 22-limb skeleton (see mods/anim_translator/mm_anim_loader.h, which relies on the same fact in
+// the other direction). 13 frames. Skijer's NEI
+#define NEI_ANIM_ROCS_FEATHER_JUMP NEI_ANIM_PATH("rocs_feather_jump")
 
 extern uint8_t ResourceMgr_FileExists(const char* resName);
 extern PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeader(const char* animPath);

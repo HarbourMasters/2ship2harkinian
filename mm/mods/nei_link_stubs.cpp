@@ -60,7 +60,9 @@ int func_80839FFC() { return 0; } // player state helper
 
 /* ── OoT-only player internals still without an MM port ── */
 int Player_UpperAction_Sword() { return 0; }  // NeiItem updateFn for sword-like items (TODO)
-int Player_StartLanternSwing() { return 0; }  // custom (lantern item swing visual)
+// Player_StartLanternSwing / Player_Action_SwingLantern: now REAL MM implementations at the end of
+// mods/items/logic/item_lantern.c (z_player.c TU) — ported from SoH on top of MM's own bottle-swing
+// action, so the lantern catches fire through the same animation + catch window it does in OoT.
 // Player_StartIKAxeThrow / Player_EndIKAxeThrow: now REAL MM implementations at the end of
 // mods/items/logic/item_oot_boomerang.c (z_player.c TU) — the Iron Knuckle's Axe reuses OoT's
 // boomerang throw pose + handsfree wait-return, exactly like OoT.
@@ -79,7 +81,8 @@ int Flags_GetItemGetInf() { return 0; }                // one-time item flags: a
 int Flags_SetItemGetInf() { return 0; }
 // Randomizer_GetSceneHint stub removed: the Desire Sensor was reworked into the
 // Desire Compass, whose real brain lives in 2s2h/Rando/DesireCompass.cpp.
-int Picto_SyncWrite() { return 0; }                    // pictobox netcode
+// Picto_SyncWrite stub removed with the NEI pictobox: MM's pictograph is vanilla here, so a future
+// OoT<->MM photo bridge writes gSaveContext.pictoPhotoI5 directly.
 // Play_CameraSetAtEye (OoT name) → the beetle now calls MM's real Play_SetCameraAtEye directly, so
 // its flying subcam actually tracks the beetle. Stub removed.
 int SwitchAge() { return 0; }                          // MM has no child/adult age

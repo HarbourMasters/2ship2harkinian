@@ -274,6 +274,17 @@ typedef struct {
     u8 somariaAnimating;
     s16 somariaAnimTimer;
     u8 somariaActionType;
+    // Dual Cane (Somaria / Pacci) — hold-to-open radial wheel + placement preview.
+    // Skijer's NEI. The OWNED skills and the persistent selection live in
+    // NeiSaveData (caneSkills / caneType / caneSkillSel); everything here is
+    // per-frame session state.
+    s16 caneHoldTimer;   // frames the equipped C button has been held
+    s16 caneSelectTimer; // frames L has been held (tap = swap cane, hold = wheel)     // frames the equipped button has been held
+    u8 caneWheelSpoke;     // CANE_SPOKE_* currently under the stick
+    u8 canePreviewValid;   // 1 = the aimed placement is legal (blue), 0 = red
+    Vec3f canePreviewPos;  // where the block/platform would land
+    s16 canePreviewYaw;    // its facing (camera-relative)
+    u8 canePendingSkill;   // skill the running cast animation will fire
 
     // Hylia's Grace
     u8 hyliasGraceActive;
@@ -330,23 +341,8 @@ typedef struct {
     s16 whipSwingSubCamId; // dedicated swing camera (Wind-Waker-style behind-follow), SUBCAM_FREE = none
     s16 whipSwingCamYaw;   // camera yaw, smoothly chases whipSwingYaw so it "semi-follows" the swing
 
-    // Desire Sensor
-    u8 desireSensorActive;
-    u8 desireSensorState;
-    s16 desireSensorTimer;
-    u8 desireSensorResult;
-
-    // Desire Compass (progressive: Stone of Agony lvl1 -> Compass lvl2).
-    // Reworked dowsing behavior — see items/logic/item_desire_sensor.c.
-    u8 desireCompassDowsing;    // 1 = actively dowsing toward a category
-    u8 desireCompassWheelOpen;  // 1 = radial category wheel is open (selecting)
-    u8 desireCompassCategory;   // DesireCompassCategory currently selected/dowsed
-    u8 desireCompassSubcat;     // active subcategory (0 = any)
-    u8 desireCompassHasTarget;  // 1 = a locatable target was found this frame
-    s16 desireCompassTargetYaw; // absolute world yaw from player toward target
-    f32 desireCompassTargetDist; // XZ distance to the located target
-    Vec3f desireCompassTargetPos; // world pos of the located target
-    s16 desireCompassRumbleTimer; // proximity rumble pulse counter
+    // (Desire Sensor state removed: the item was retired and replaced by the
+    // Quartz of Motion, whose state lives entirely in 2s2h/Rando/DesireCompass.cpp.)
 
     // Switch Hook
     u8 switchHookActive;
@@ -572,10 +568,6 @@ typedef struct {
     u8  postmanHatArriving;
     s16 postmanHatTransitionTimer;
 
-    // Desire Sensor — visible meter glow.
-    u8  desireSensorState;
-    s16 desireSensorTimer;
-    u8  desireSensorResult;
 } CustomItemVisualSync;
 
 /**
@@ -614,10 +606,11 @@ s32 CustomItems_OverrideDraw(Player* player, PlayState* play);
  * Late per-frame pass for custom items that manually write skelAnime.jointTable. Must be called from
  * z_player.c AFTER Player_UpdateCommon (which runs PlayerAnimation_Update and would otherwise wipe
  * the manual pose). MM runs CustomItems_Update at the top of Player_Update, unlike SoH which ran it
- * after — so pose-writing items (ball & chain) need this second, late stamp. Skijer's NEI
+ * after — so pose-writing items (ball & chain, gust jar) need this second, late stamp. Skijer's NEI
  */
 void CustomItems_LatePose(Player* player, PlayState* play);
 void BallChain_RefreshPose(Player* player);
+void GustJar_RefreshPose(Player* player, PlayState* play);
 
 /**
  * Check if custom item activation is blocked.
@@ -650,7 +643,6 @@ void Handle_HyliasGrace(Player* player, PlayState* play);
 void Handle_ZonaiPermafrost(Player* player, PlayState* play);
 void Handle_TimeGate(Player* player, PlayState* play);
 void Handle_Whip(Player* player, PlayState* play);
-void Handle_DesireSensor(Player* player, PlayState* play);
 void Handle_SwitchHook(Player* player, PlayState* play);
 void Handle_MinishCap(Player* player, PlayState* play);
 void Handle_Lantern(Player* player, PlayState* play);
@@ -697,6 +689,15 @@ extern Gfx* gLightRodGlowDL;
 s32 Player_UpperAction_Shovel(Player* player, PlayState* play);
 s32 Player_UpperAction_DemiseDestruction(Player* player, PlayState* play);
 s32 Player_UpperAction_SwitchHook(Player* player, PlayState* play);
+// Net: the vanilla sword upper action with the melee quads disarmed afterwards, so
+// Link swings it — and so other items can take it out of his hands — without it
+// dealing damage or cutting anything. Defined in items/logic/custom_items.c.
+s32 Player_UpperAction_Net(Player* player, PlayState* play);
+// Net equip/unequip bookkeeping. It has no cast of its own — catching lives in the
+// bottle code — but without a handler nothing watches the action buttons and the
+// net can never be put away.
+void Handle_Net(Player* player, PlayState* play);
+u8 Net_IsActive(void);
 
 // Init functions
 void Player_InitSpinnerIA(PlayState* play, Player* player);
@@ -715,7 +716,6 @@ void Player_InitHyliasGraceIA(PlayState* play, Player* player);
 void Player_InitZonaiPermafrostIA(PlayState* play, Player* player);
 void Player_InitTimeGateIA(PlayState* play, Player* player);
 void Player_InitWhipIA(PlayState* play, Player* player);
-void Player_InitDesireSensorIA(PlayState* play, Player* player);
 void Player_InitSwitchHookIA(PlayState* play, Player* player);
 void Player_InitMinishCapIA(PlayState* play, Player* player);
 

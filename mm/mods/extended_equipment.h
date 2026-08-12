@@ -128,17 +128,38 @@ u8 ExtEquip_GetCurrent(s16 equipType);
 #define IS_MAGIC_CAPE_ACTIVE (ExtEquip_CapeOwned())
 #define MAGIC_REQ(cost) (IS_MAGIC_CAPE_ACTIVE ? ((cost) / 2) : (cost))
 
-// Retired ext slots (Cape -> upgrade column, Pendant -> upgrade column, Water Dragon Scale deleted —
-// its Zora swim is the ZORA TUNIC's permanent effect now). Ownership bits stay meaningful.
+// No ext slot is retired anymore (all 12 are live after the 2026-07-29 re-layout); kept so the
+// kaleido / save-editor call sites stay put if a slot is ever parked again.
 u8 ExtEquip_SlotRetired(s16 equipType, u8 index);
 
-// Upgrade-column passives:
-u8 ExtEquip_CapeOwned(void);            // owns the Magic Cape (ext TUNIC 1 bit)
+// Left-column passives (equipment page rows 0/1) — ownership lives in nei save fields, NOT ext bits:
+u8 ExtEquip_CapeOwned(void);
+void ExtEquip_GiveCape(void);
 u8 ExtEquip_CapeVisible(void);          // owned && not hidden (draw the cloth)
 void ExtEquip_ToggleCapeVisibility(void);
-u8 ExtEquip_PendantOwned(void);         // owns the Pendant of Memories (ext BOOTS 2 bit)
-u8 ExtEquip_PendantActive(void);        // owned && effect toggle ON
+u8 ExtEquip_PendantOwned(void);         // owns the Pendant as EQUIPMENT (permanent once granted)
+void ExtEquip_GivePendant(void);        // grant it (the adult trade slot does this automatically)
+u8 ExtEquip_PendantActive(void);        // owned && effect toggle ON (the moveset gate)
 void ExtEquip_TogglePendantEffect(void);
+void* ExtEquip_GetCapeIcon(void);    // left-column icons (the pieces are not in the grid anymore)
+void* ExtEquip_GetPendantIcon(void);
+
+typedef enum {
+    SAGES_RESIST_ICE,
+    SAGES_RESIST_FIRE,
+    SAGES_RESIST_THUNDER,
+    SAGES_RESIST_STUN,
+    SAGES_RESIST_FALL,
+    SAGES_RESIST_WIND,
+} SagesResistance;
+u8 ExtEquip_IsChampionTunic(void);
+u8 ExtEquip_IsSpiritTunic(void);
+u8 ExtEquip_SpiritHasMoney(void); // Magic Tunic equipped AND rupees > 0 (its whole effect is gated on this)
+u8 ExtEquip_IsSagesTunic(void);
+u8 ExtEquip_HasSagesResistance(SagesResistance resistance);
+void ExtEquip_SagesFlash(SagesResistance resistance); // a resistance just absorbed damage
+void ExtEquip_SagesFlashTick(void);                   // per-frame decay (Sages_Behavior)
+void ExtEquip_GetSagesTunicColor(u8* r, u8* g, u8* b);
 
 // ---------------------------------------------------------------------------
 // Ownership
@@ -282,7 +303,7 @@ typedef struct {
 
 extern ExtEquipBehaviorState gExtEquipBehavior;
 
-// Champion's Tunic slow factor — 1.0f normal, 0.15f during Flurry Rush / Bullet Time
+// Champion's Tunic slow factor — 1.0f normal, 0.33f during Flurry Rush / Bullet Time
 // Used in z_actor.c Actor_UpdatePos to scale non-player actor movement.
 extern f32 gChampionSlowFactor;
 
@@ -384,6 +405,9 @@ void ExtEquip_UpdateAnkletPhysics(void* player);
  * When set to 1, ExtInv_GetItemIcon won't replace sword/shield icons.
  */
 extern u8 gExtEquipSuppressIconOverride;
+// 1 while the equipment page names one of its PAGE-2 GRID cells (disambiguates the one item id
+// shared by the Pendant of Memories and the Climb Boots — see extended_equipment.c).
+extern u8 gExtEquipGridNameContext;
 
 // ---------------------------------------------------------------------------
 // Shield of Ikana: Death Save

@@ -7,6 +7,7 @@
 extern "C" {
 #include "macros.h"
 #include "mods/nei_save.h" // Skijer's NEI: equipment-driven tunic color (Nei_Save()->vanillaTunic)
+#include "mods/extended_equipment.h"
 
 void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction);
 void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName);
@@ -141,7 +142,7 @@ typedef struct {
 std::unordered_map<std::string, std::unordered_map<int, OriginalRGB>> originalRGB;
 
 void PatchPalette(const char* path, int index, uint8_t r, uint8_t g, uint8_t b) {
-    auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path);
+    auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(path);
     auto data = (uint8_t*)res->GetRawPointer();
 
     if (!originalRGB.contains(path) || !originalRGB[path].contains(index)) {
@@ -161,7 +162,7 @@ void UnpatchPalette(const char* path, int index) {
         return;
     }
 
-    auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path);
+    auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(path);
     auto data = (uint8_t*)res->GetRawPointer();
 
     data[index * 2] = originalRGB[path][index].data1;
@@ -196,7 +197,7 @@ Gfx disableGrayscale[] = {
 // difference between the average color and the target color. It then colors the range according to newBase,
 // and shades it lighter or darker based on the difference between the average color and the target color.
 void ShadePaletteNewBase(const char* path, uint32_t begin, uint32_t end, Color_RGBA8 newBase, SHADE_MODE mode) {
-    auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path);
+    auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(path);
     auto data = (uint8_t*)res->GetRawPointer();
 
     uint32_t maxR = 0;
@@ -314,7 +315,7 @@ void ShadePaletteGradient(const char* path, uint32_t begin, uint32_t end, Color_
     oldBase.b >>= 3;
     oldBase.a >>= 3;
 
-    auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path);
+    auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(path);
     auto data = (uint8_t*)res->GetRawPointer();
     for (int i = begin; i <= end; i++) {
         uint16_t col16 = (data[i * 2] << 8) | data[i * 2 + 1];
@@ -331,7 +332,7 @@ void ShadePaletteGradient(const char* path, uint32_t begin, uint32_t end, Color_
 
 // Patches a single pixel in a raw RGBA16 (RGBA5551) texture, preserving the original alpha bit.
 void PatchRGBA16Pixel(const char* path, int index, uint8_t r, uint8_t g, uint8_t b) {
-    auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path);
+    auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(path);
     auto data = (uint8_t*)res->GetRawPointer();
 
     if (!originalRGB.contains(path) || !originalRGB[path].contains(index)) {
@@ -354,7 +355,7 @@ void PatchRGBA16Pixel(const char* path, int index, uint8_t r, uint8_t g, uint8_t
  * so transparent background areas are left untouched.
  */
 void ShadeRGBA16NewBase(const char* path, uint32_t begin, uint32_t end, Color_RGBA8 newBase, SHADE_MODE mode) {
-    auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path);
+    auto res = Ship::Context::GetRawInstance()->GetResourceManager()->LoadResource(path);
     auto data = (uint8_t*)res->GetRawPointer();
 
     uint32_t maxR = 0;
@@ -606,7 +607,7 @@ const char* kCosmeticRandomizeOnSeedGenCvar = "gCosmetics.RandomizeOnSeedGen";
 int sCosmeticRainbowHue = 0;
 
 void CosmeticEditorSave() {
-    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
 }
 
 Color_RGBA8 CosmeticEditorGetDefaultColor(const CosmeticOption& option) {
@@ -1080,17 +1081,37 @@ static void NeiTunic_UpdateEquipmentColor() {
     };
 
     uint8_t tunic = Nei_Save()->vanillaTunic;
+    u8 extTunic = ExtEquip_GetCurrent(EQUIP_TYPE_TUNIC);
+    int8_t colorMode = extTunic != 0 ? (int8_t)(extTunic + 2) : (int8_t)tunic;
 
-    if (tunic == 1 || tunic == 2) {
+    if (colorMode != 0) {
         // Goron / Zora: (re)apply every frame so it survives scene reloads that drop the patch. The
         // patch + color are idempotent, so re-applying is cheap.
-        Color_RGBA8 c = (tunic == 1) ? ColorRGBA8(180, 55, 35, 255)    // Goron: red
-                                     : ColorRGBA8(35, 85, 195, 255);   // Zora: blue
+        Color_RGBA8 c;
+        switch (colorMode) {
+            case 1:
+                c = ColorRGBA8(180, 55, 35, 255);
+                break;
+            case 2:
+            case 3:
+                c = ColorRGBA8(35, 85, 195, 255);
+                break;
+            case 4:
+                c = gSaveContext.save.saveInfo.playerData.rupees > 0 ? ColorRGBA8(225, 145, 45, 255)
+                                                                     : ColorRGBA8(35, 35, 40, 255);
+                break;
+            default:
+                // Sage's Tunic: white, briefly dyed with a medallion's color while its
+                // resistance is absorbing damage (ExtEquip_SagesFlash).
+                c.a = 255;
+                ExtEquip_GetSagesTunicColor(&c.r, &c.g, &c.b);
+                break;
+        }
         neiEquipTunic[0] = gsDPSetPrimColor(0, 0, c.r, c.g, c.b, 255);
         for (const auto& p : kPatches) {
             ResourceMgr_PatchGfxByName(p.path, p.name, p.index, gsSPDisplayList(neiEquipTunic));
         }
-        sNeiLastTunic = (int8_t)tunic;
+        sNeiLastTunic = colorMode;
     } else if (sNeiLastTunic != 0) {
         // Transitioned to Kokiri: restore ONCE — re-apply the HumanTunic cosmetic if it's active,
         // otherwise remove the patch so the baked-green tunic shows.

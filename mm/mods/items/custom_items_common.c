@@ -15,6 +15,7 @@
 #include <math.h>
 #include "helpers/fx_helper.h"
 #include "helpers/camera_helper.h"
+#include "helpers/equip_helper.h" // ItemEquip_GetItemOnSlot — MM keeps D-pad equips in their own array
 #include "logic/item_postman_hat.h"
 #include "../extended_inventory.h" // ExtInv_GetItemSlot — custom items must NOT use vanilla SLOT()/INV_CONTENT()
 #include "overlays/actors/ovl_En_Boom/z_en_boom.h" // EnBoom struct for Gale Boomerang multi-target override
@@ -186,11 +187,6 @@ CustomItemState gCustomItemState = { .timer1 = 0,
                                      .whipExtendYaw = 0,
                                      .whipExtendPitch = 0,
                                      .whipFirstPersonActive = 0,
-                                     // Desire Sensor
-                                     .desireSensorActive = 0,
-                                     .desireSensorState = 0,
-                                     .desireSensorTimer = 0,
-                                     .desireSensorResult = 0,
                                      // Switch Hook
                                      .switchHookActive = 0,
                                      .switchHookState = 0,
@@ -221,10 +217,13 @@ s32 CustomItems_IsBlocked(Player* p, PlayState* play) {
     return false;
 }
 
-// Quick check if item is in any C-button slot
+// Quick check if item is on any item button (B, the three C buttons, or a D-pad slot).
+// Must go through ItemEquip_GetItemOnSlot: MM's equips.buttonItems row is only 4 wide and the
+// D-pad lives in its own save array, so the old 1..8 walk missed B, missed the D-pad entirely,
+// and read past the row into other transformations' C-buttons.
 static u8 IsItemEquipped(u8 itemId) {
-    for (u8 i = 1; i <= 8; i++) {
-        if (gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][i] == itemId)
+    for (u8 i = 0; i < 8; i++) {
+        if (ItemEquip_GetItemOnSlot(i) == itemId)
             return 1;
     }
     return 0;
@@ -246,8 +245,13 @@ static void CustomItems_CleanupUnequipped(Player* p, PlayState* play) {
         Handle_DekuLeaf(p, play);
     if (gCustomItemState.beetleActive && !IsItemEquipped(ITEM_BEETLE))
         Handle_Beetle(p, play);
-    if (gCustomItemState.bombArrowActive && !IsItemEquipped(ITEM_BOMB_ARROWS))
+    // Skijer's NEI — Bomb Arrows is the bow's element flag, not an item on a button, so the literal
+    // IsItemEquipped(ITEM_BOMB_ARROWS) scan can never hit. Without this it returns false every frame
+    // and cancels the aim immediately, which reads as "bomb arrows do nothing".
+    if (gCustomItemState.bombArrowActive && !Sw97_BombArrowsOnButton())
         Handle_BombArrows(p, play);
+    if (Net_IsActive() && !IsItemEquipped(ITEM_NET))
+        Handle_Net(p, play);
     if ((gCustomItemState.fireRodActive || gCustomItemState.fireRodFirstPerson) && !IsItemEquipped(ITEM_ROD_FIRE))
         Handle_FireRod(p, play);
     if ((gCustomItemState.iceRodActive || gCustomItemState.iceRodFirstPerson) && !IsItemEquipped(ITEM_ROD_ICE))
@@ -268,8 +272,6 @@ static void CustomItems_CleanupUnequipped(Player* p, PlayState* play) {
         Handle_MogmaMitts(p, play);
     if (gCustomItemState.whipActive && !IsItemEquipped(ITEM_WHIP))
         Handle_Whip(p, play);
-    if (gCustomItemState.desireSensorActive && !IsItemEquipped(ITEM_DESIRE_SENSOR))
-        Handle_DesireSensor(p, play);
     if (gCustomItemState.switchHookActive && !IsItemEquipped(ITEM_SWITCH_HOOK))
         Handle_SwitchHook(p, play);
 }
@@ -377,6 +379,25 @@ void CustomItems_Update(Player* p, PlayState* play) {
     (void)&FleetWarp_Tick; // keep the (now unused) static referenced -> no -Wunused-function
     // FleetWarp_Tick(p, play);  // <- do NOT re-enable in MM
 
+    // Shared world-time arbiter (Champion's Tunic slow-mo, Zonai Permafrost stop, Phantom
+    // Hourglass scrub) runs ALWAYS: it is a no-op with no active claim, it re-applies the
+    // freeze to actors that spawned mid-effect, and it self-restores on scene change so a
+    // held day/night clock can never leak across a load. Skijer's NEI
+    TimeCtl_Update(play);
+
+    // Ship-vanilla Roc's Feather: re-arms its one-jump-per-landing counter. Unconditional on purpose
+    // (SoH's equivalent is an OnPlayerUpdate hook) — gating it on the feather being held would leave
+    // the counter frozen wherever you last used it. Skijer's NEI
+    {
+        extern void RocsFeatherVanilla_Tick(Player * player);
+        RocsFeatherVanilla_Tick(p);
+    }
+
+    // Trajectory recorder for the Phantom Hourglass' rewind. Disabled by default
+    // (Rewind_SetEnabled), so this is a single compare until that item exists. Must run
+    // AFTER TimeCtl_Update so it sees this frame's freeze state. Skijer's NEI
+    Rewind_Tick(play);
+
     // Switch Hook charge regen (Epona-carrot style) runs ALWAYS — even with the hook not in hand
     // or the player blocked — so the 20s/2min timers keep counting. Skijer's NEI
     {
@@ -410,9 +431,11 @@ void CustomItems_Update(Player* p, PlayState* play) {
         extern void Lantern_UpdateFlames(PlayState * play);
         extern void Lantern_UpdateBurning(PlayState * play);
         extern void Lantern_UpdateLens(PlayState * play);
+        extern void Lantern_UpdatePassive(PlayState * play);
         Lantern_UpdateFlames(play);
         Lantern_UpdateBurning(play);
         Lantern_UpdateLens(play);
+        Lantern_UpdatePassive(play); // point light + green-fire regen
     }
 
     // Bomb-arrows auto-grant: when CVar is on, hand the player ITEM_BOMB_ARROWS
@@ -421,15 +444,12 @@ void CustomItems_Update(Player* p, PlayState* play) {
     // (bomb arrows is one of its three unlocks).
     {
         extern u8 TwilightUpgrade_HasBombArrows(void);
-        u8 autoGrant = CVarGetInteger("gMods.BombArrows.AutoGrantOnBag", 0) != 0;
-        u8 twilightGrant = TwilightUpgrade_HasBombArrows();
-        // ITEM_BOMB_ARROWS is a NEI custom item (0xAE) and is NOT a valid index into
-        // gItemSlots[56]; INV_CONTENT()/SLOT() would read OOB and corrupt SaveContext.
-        // Resolve the real extended-inventory slot (returns SLOT_BOMB_ARROWS == 27).
-        u8 baSlot = ExtInv_GetItemSlot(ITEM_BOMB_ARROWS);
-        if ((autoGrant || twilightGrant) && CUR_UPG_VALUE(UPG_BOMB_BAG) > 0 && baSlot != 0xFF &&
-            ExtInv_GetSlotItem(baSlot) == ITEM_NONE) { // Skijer's NEI
-            ExtInv_SetSlotItem(baSlot, ITEM_BOMB_ARROWS); // Skijer's NEI
+        // Ownership is a save flag now (bombArrowsOwned) instead of an item in page-2 slot 27 —
+        // that slot is the Elemental Wand's. "Bomb Bag" mode latches the flag the moment a bomb bag
+        // is owned; the Twilight Upgrade grants it outright. Idempotent. Skijer's NEI
+        u8 bagGrant = (BombArrows_RandoMode() == BOMB_ARROWS_RANDO_BOMB_BAG) && (CUR_UPG_VALUE(UPG_BOMB_BAG) > 0);
+        if ((bagGrant || TwilightUpgrade_HasBombArrows()) && !Nei_Save()->bombArrowsOwned) {
+            Nei_Save()->bombArrowsOwned = 1;
         }
     }
 
@@ -636,12 +656,6 @@ void CustomItems_Update(Player* p, PlayState* play) {
         return;
     }
 
-    // Desire Sensor blocks all other custom items during sensing/result
-    if (gCustomItemState.desireSensorActive) {
-        Handle_DesireSensor(p, play);
-        return;
-    }
-
     // Beetle flying blocks all other custom items
     if (gCustomItemState.beetleActive && (gCustomItemState.beetleState == 2 || gCustomItemState.beetleState == 3)) {
         Handle_Beetle(p, play);
@@ -660,8 +674,11 @@ void CustomItems_Update(Player* p, PlayState* play) {
         return;
     }
 
-    // Zonai Permafrost must run before IsBlocked check (CASTING sets IN_ITEM_CS)
-    // During CASTING: block other items. During ACTIVE: let other items also update.
+    // Zonai Permafrost is a toggle now: there is no CASTING state, so it is always
+    // either idle or ACTIVE and this never swallows the frame. Kept ahead of the
+    // IsBlocked check so the freeze can be switched off from states that would
+    // otherwise block item input, and the "!= ACTIVE" guard below is what lets the
+    // other custom items keep updating while time is stopped.
     if (gCustomItemState.zonaiPermafrostActive) {
         Handle_ZonaiPermafrost(p, play);
         if (gCustomItemState.zonaiPermafrostState != 2 /* ZPERM_STATE_ACTIVE */) {
@@ -685,11 +702,11 @@ void CustomItems_Update(Player* p, PlayState* play) {
         static const u16 sMaskBtns[] = { BTN_CLEFT, BTN_CDOWN, BTN_CRIGHT, BTN_DUP, BTN_DDOWN, BTN_DLEFT, BTN_DRIGHT };
         Input* ctrl = &play->state.input[0];
         for (s32 mi = 0; mi < 7; mi++) {
-            if (mi >= 3 && !CVarGetInteger(CVAR_ENHANCEMENT("DpadEquips"), 0))
+            if (mi >= 3 && !CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0))
                 break;
             if (CHECK_BTN_ALL(ctrl->press.button, sMaskBtns[mi])) {
-                u8 slot = (mi < 3) ? (mi + 1) : (mi - 3 + 5); // C-buttons: slots 1-3, D-pad: slots 5-8
-                u8 maskItem = gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][slot];
+                // sMaskBtns is sButtonMasks minus B, so logical slot = mi + 1 (C: 1-3, D-pad: 4-7).
+                u8 maskItem = ItemEquip_GetItemOnSlot((u8)(mi + 1));
                 if (maskItem == ITEM_MM_MASK_ZORA || maskItem == ITEM_MASK_ZORA) {
                     extern void TransformMasks_HandleMaskUse(PlayState*, Player*, s32);
                     TransformMasks_HandleMaskUse(play, p, maskItem);
@@ -699,15 +716,60 @@ void CustomItems_Update(Player* p, PlayState* play) {
         }
     }
 
-    // Walk every equip slot, including slot 0 = B button. The previous
-    // range (1..8) skipped B entirely AND overflowed the 8-element
-    // `buttonItems` array at index 8 — so custom items like Roc's
-    // Feather equipped to B never had their handler dispatched. Fix:
-    // i = 0..7 covers B + 3 C-buttons + 4 D-pad slots cleanly.
+    // Walk every equip slot: 0 = B, 1-3 = C buttons, 4-7 = D-pad.
+    //
+    // This MUST go through ItemEquip_GetItemOnSlot. Indexing `buttonItems[CUR_FORM][i]` up to 7
+    // is the OoT layout, where buttonItems was one flat 8-entry array whose tail WAS the D-pad.
+    // MM's row is 4 wide (B + 3 C) and the D-pad lives in shipSaveInfo.dpadEquips, so slots 4-7
+    // were reading the NEXT transformations' C-buttons: a custom item sitting on the D-pad never
+    // had its handler dispatched (the item simply did nothing when pressed), while an unrelated
+    // item on another form's C-button could be dispatched by mistake.
+    u8 dispatched[8];
+    u8 dispatchedCount = 0;
+
     for (u8 i = 0; i < 8; i++) {
-        u8 item = gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][i];
+        u8 item = ItemEquip_GetItemOnSlot(i);
+        // Skijer's NEI — Bomb Arrows rides the weapon's element flag; the button holds ITEM_BOW or
+        // ITEM_FAIRY_SLINGSHOT, which the custom-item range guard below would reject. This clause
+        // must therefore sit ABOVE it. The dedupe list still applies: fold it in as ITEM_BOMB_ARROWS
+        // so a bow (or a bow AND a slingshot) on two buttons does not double-process the press.
+        if (Sw97_ItemHasBombs(item)) {
+            u8 baSeen = 0;
+            for (u8 d = 0; d < dispatchedCount; d++) {
+                if (dispatched[d] == ITEM_BOMB_ARROWS) {
+                    baSeen = 1;
+                    break;
+                }
+            }
+            if (!baSeen) {
+                dispatched[dispatchedCount++] = ITEM_BOMB_ARROWS;
+                Handle_BombArrows(p, play);
+            }
+            continue;
+        }
+        // Skijer's NEI — the Net's id (0xF4) sits ABOVE ITEM_POKEBALL (0xB7), so the
+        // custom-item range guard below rejects it and the switch is never reached.
+        // Same trap as Bomb Arrows above: this clause has to sit before the guard.
+        // Without it Handle_Net never ran and the net could not be put away at all.
+        if (item == ITEM_NET) {
+            Handle_Net(p, play);
+            continue;
+        }
         if (item < ITEM_ROCS_FEATHER_SKIJER || item > ITEM_POKEBALL)
             continue;
+
+        // The same item can now legitimately sit on two buttons (e.g. C-Left and D-Up); its handler
+        // polls the input itself, so dispatching twice in one frame would double-process the press.
+        u8 alreadyDispatched = 0;
+        for (u8 d = 0; d < dispatchedCount; d++) {
+            if (dispatched[d] == item) {
+                alreadyDispatched = 1;
+                break;
+            }
+        }
+        if (alreadyDispatched)
+            continue;
+        dispatched[dispatchedCount++] = item;
 
         switch (item) {
             case ITEM_ROCS_FEATHER_SKIJER:
@@ -737,9 +799,8 @@ void CustomItems_Update(Player* p, PlayState* play) {
             case ITEM_BEETLE:
                 Handle_Beetle(p, play);
                 break;
-            case ITEM_BOMB_ARROWS:
-                Handle_BombArrows(p, play);
-                break;
+            // (ITEM_BOMB_ARROWS case removed — it can no longer sit on a button; see the flag
+            // clause above the range guard.)
             case ITEM_ROD_FIRE:
                 Handle_FireRod(p, play);
                 break;
@@ -772,9 +833,6 @@ void CustomItems_Update(Player* p, PlayState* play) {
             case ITEM_WHIP:
                 Handle_Whip(p, play);
                 break;
-            case ITEM_DESIRE_SENSOR:
-                Handle_DesireSensor(p, play);
-                break;
             case ITEM_SWITCH_HOOK:
                 Handle_SwitchHook(p, play);
                 break;
@@ -791,6 +849,26 @@ void CustomItems_Update(Player* p, PlayState* play) {
                 break;
         }
     }
+
+    // Ultrahand assemblies keep their formation ALWAYS, not just while the mode is open.
+    // The merged collision is registered on the ROOT, so the engine re-transforms it by the
+    // root's SRT every frame no matter what — but the parts' MODELS are drawn at their own
+    // world.pos, and only this drives those. Leaving it inside the mode meant that the moment
+    // you pressed B, or simply put the cane away, the root kept moving (it falls, it can be
+    // pushed) and dragged the whole welded surface with it while every glued piece's model
+    // stayed behind: collision in one place, texture in another. Runs last so it sees wherever
+    // the root ended up this frame. Skijer's NEI
+    {
+        // Declared here rather than by including cane_pacci.h, the way SwitchHook_ChargeTick above
+        // does it: this file does not otherwise depend on the actor headers.
+        extern void Pacci_FuseFollow(PlayState * play);
+        // And the fall, which has to survive the cane being put away - see the note on
+        // Pacci_UltrahandDropTick. Before the transform, so the parts follow where the root
+        // landed this frame rather than where it was last frame.
+        extern void Pacci_UltrahandDropTick(PlayState * play);
+        Pacci_UltrahandDropTick(play);
+        Pacci_FuseFollow(play);
+    }
 }
 
 // Late per-frame pass — runs AFTER Player_UpdateCommon (which re-samples the animation into
@@ -798,6 +876,7 @@ void CustomItems_Update(Player* p, PlayState* play) {
 // pose is wiped every frame. Skijer's NEI
 void CustomItems_LatePose(Player* p, PlayState* play) {
     BallChain_RefreshPose(p);
+    GustJar_RefreshPose(p, play); // both hands up holding the jar (see item_gustjar.c)
     Beetle_LateReticle(p, play); // point MM's lock-on reticle at the beetle's target/candidate
 }
 
@@ -832,6 +911,15 @@ s32 CustomItems_OverrideDraw(Player* p, PlayState* play) {
     if (gCustomItemState.somariaActive) {
         CustomItems_DrawCaneOfSomaria(p, play);
     }
+    // Sheikah Slate: its own equip flag lives in the item TU (EXT item, no gCustomItemState entry),
+    // so the draw gates itself on Slate_IsDrawn(). Skijer's NEI
+    {
+        extern void CustomItems_DrawSheikahSlate(Player * player, PlayState * play);
+        extern void Stasis_Draw(PlayState * play);
+
+        CustomItems_DrawSheikahSlate(p, play);
+        Stasis_Draw(play); // chains + launch arrow on whatever the Stasis rune is holding
+    }
     if (gCustomItemState.mogmaMittsActive) {
         CustomItems_DrawMogmaMitts(p, play);
     }
@@ -846,18 +934,12 @@ s32 CustomItems_OverrideDraw(Player* p, PlayState* play) {
         CustomItems_DrawSwitchHookInHand(p, play);
         CustomItems_DrawSwitchHook(p, play);
     }
-    // Lantern draws in hand ONLY during/after swing AND while lantern is still on a C-button.
+    // Lantern draws in hand ONLY during/after swing AND while lantern is still on an item button.
     if (gCustomItemState.lanternEquipped || gCustomItemState.lanternSwinging) {
-        // Check if lantern is still on any C-button
-        u8 lanternOnC = 0;
-        for (u8 btn = 1; btn <= 8; btn++) {
-            if (gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][btn] == ITEM_LANTERN) {
-                lanternOnC = 1;
-                break;
-            }
-        }
+        // Check if lantern is still on any item button (B / C / D-pad)
+        u8 lanternOnC = IsItemEquipped(ITEM_LANTERN);
         if (!lanternOnC) {
-            // Removed from C-buttons — force hide
+            // Removed from every button — force hide
             gCustomItemState.lanternEquipped = 0;
             gCustomItemState.lanternSwinging = 0;
         } else {
@@ -1262,10 +1344,7 @@ void ClawshotBT_Update(Player* player, PlayState* play) {
     F(minishCapGrowing)             \
     F(postmanHatDashing)            \
     F(postmanHatArriving)           \
-    F(postmanHatTransitionTimer)    \
-    F(desireSensorState)            \
-    F(desireSensorTimer)            \
-    F(desireSensorResult)
+    F(postmanHatTransitionTimer)
 
 #define CI_VISUAL_ARRAYS(F)         \
     F(fireRodProjTrail)             \
@@ -1301,8 +1380,7 @@ void ClawshotBT_Update(Player* player, PlayState* play) {
     F(CI_FLAG_LANTERN,            s->lanternEquipped || s->lanternSwinging,  0, 0)                           \
     F(CI_FLAG_MINISH_CAP,         s->minishCapShrinking || s->minishCapGrowing || s->minishCapWarpMode ||    \
                                   s->minishTinyActive || s->minishTinyAnim,  0, 0)                           \
-    F(CI_FLAG_POSTMAN_HAT,        s->postmanHatDashing || s->postmanHatArriving, 0, 0)                       \
-    F(CI_FLAG_DESIRE_SENSOR,      s->desireSensorActive,                     0, s->desireSensorActive = present;)
+    F(CI_FLAG_POSTMAN_HAT,        s->postmanHatDashing || s->postmanHatArriving, 0, 0)
 // clang-format on
 
 void CustomItems_BuildVisualSync(CustomItemVisualSync* out) {

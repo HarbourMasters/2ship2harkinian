@@ -33,7 +33,7 @@ void ApplyOathHint(u16* textId, bool* loadFromMessageTable) {
     }
 
     RandoCheckId randoCheckId = Rando::FindItemPlacement(RI_SONG_OATH);
-    CustomMessage::Replace(&msg, "{{location}}", Rando::StaticData::GetLocationNameForHint(randoCheckId, false));
+    CustomMessage::Replace(&msg, "{{location}}", Rando::GetHintLocationText(RI_SONG_OATH, randoCheckId));
 
     CustomMessage::Entry entry = {
         .nextMessageID = (u16)0xFFFF,

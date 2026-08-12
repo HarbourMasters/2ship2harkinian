@@ -439,6 +439,18 @@
 #ifndef ITEM_CLAIM_CHECK
 #define ITEM_CLAIM_CHECK ITEM_NONE
 #endif
+/* OoT *child* trade-quest items (the non-mask half of OoT's SLOT_TRADE_CHILD). Same story as the
+ * adult chain above: no MM equivalent, no room left in the u8 id space → ITEM_NONE. They are visible
+ * in MM through the unified wheel's index cursor + TradeAdult_IconPath(), not through an item id. */
+#ifndef ITEM_WEIRD_EGG
+#define ITEM_WEIRD_EGG ITEM_NONE
+#endif
+#ifndef ITEM_CHICKEN
+#define ITEM_CHICKEN ITEM_NONE
+#endif
+#ifndef ITEM_LETTER_ZELDA
+#define ITEM_LETTER_ZELDA ITEM_NONE
+#endif
 #ifndef EQUIP_TYPE_BOOTS
 /* MM natively has SWORD=0/SHIELD=1/TUNIC=2; BOOTS is our accessory tag. 3 keeps it
  * unique (0 collided with EQUIP_TYPE_SWORD → duplicate switch cases) + matches the

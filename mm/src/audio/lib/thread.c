@@ -13,6 +13,9 @@
 // in sm64_mario.c — safe to call unconditionally.
 extern void Sm64Audio_MixInto(int16_t* outBuf, uint32_t numSamples);
 
+// Sheikah Slate Stasis rune cue (mods/actors/stasis_sfx.inc.c). One voice, no-op when idle.
+extern void StasisSfx_MixInto(s16* outBuf, u32 numSamples);
+
 AudioTask* AudioThread_UpdateImpl(void);
 void AudioThread_SetFadeOutTimer(s32 seqPlayerIndex, s32 fadeTimer);
 void AudioThread_SetFadeInTimer(s32 seqPlayerIndex, s32 fadeTimer);
@@ -74,6 +77,8 @@ void AudioMgr_CreateNextAudioBuffer(s16* samples, u32 num_samples) {
     // Mix libsm64 Mario audio (jumps, punches, coins, death, etc.) on top
     // of the synth output. No-op while gSm64Mario is off.
     Sm64Audio_MixInto(samples, num_samples);
+    // Mix the Stasis rune cue
+    StasisSfx_MixInto(samples, num_samples);
     gAudioCtx.audioRandom = (gAudioCtx.audioRandom + gAudioCtx.totalTaskCount) * osGetCount();
 }
 

@@ -20,6 +20,12 @@ extern "C" {
 // (VISIBLE), entrance = ((params>>12)&7) stays 0 — vanilla grotto spawns never set it.
 #define FLEET_HOLE_PARAM 0x0800
 
+// Absolute path of a file in the shared fleet folder (<ShipDir>/fleet/<name>), created on demand.
+// Both exes resolve it to the same physical folder, so it is where the two games keep things they
+// SHARE instead of copy — e.g. the combo pictograph (picture.bin + pictoflags.bin, MM's own byte
+// layout). Returns "" if the exe dir can't be resolved; valid until the next call.
+const char* FleetSync_SharedFilePath(const char* name);
+
 // LEAVING this game (call when the send-fade starts, BEFORE RequestWarp): writes this game's
 // anchor section + regenerates "shared" from live state.
 void FleetSync_WriteDeparture(int slot);
@@ -47,6 +53,23 @@ void FleetSync_ClearHoleFall(void);
 // check consults HoleGrabInert. Decremented every frame inside FleetSync's own tick.
 void FleetSync_SetHoleGrabCooldown(int frames);
 int FleetSync_HoleGrabInert(void);
+
+// ---- POST-FLIP TRACE (diagnostic, temporary) ----
+// 2ship dies moments AFTER handing the game over to OoT — process gone, no C++ throw, nothing in
+// the log. The flip itself is now known-good (it logs on both sides of the handover), so the kill
+// is in the first frames of being the FROZEN game: draining the peer's packets, re-extracting the
+// shared state for its saveRequest, granting cross-game items. Those all run every frame normally,
+// so tracing them always would flood the log; instead the flip arms a short window during which
+// each step announces itself. The LAST [FleetTrace] line before the log ends names the step that
+// killed the process. Remove once it is caught.
+void FleetSync_BeginPostFlipTrace(void);
+
+// 1 while that window is open. Lets code OUTSIDE this file (the render path in BenPort) join the
+// same trace without paying for it during normal play. The 2026-08-03 log ends on "frozen frame 0",
+// i.e. inside the first frame after the handover but past the sync pump — so the remaining suspects
+// are the render/publish half of that frame, which lives over there.
+int FleetSync_PostFlipTraceActive(void);
+void FleetSync_PostFlipTrace(const char* what);
 
 #ifdef __cplusplus
 }

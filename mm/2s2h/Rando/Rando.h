@@ -21,6 +21,11 @@ RandoItemId CurrentTrapItem(RandoCheckId randoCheckId = RC_UNKNOWN);
 bool IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId = RC_UNKNOWN);
 RandoItemId ConvertItem(RandoItemId randoItemId, RandoCheckId randoCheckId = RC_UNKNOWN);
 RandoCheckId FindItemPlacement(RandoItemId randoItemId);
+
+// Hint location that works in the OoT+MM combo: if the item is not in MM, it names the OoT area where
+// it ended up instead of "in an Unknown Location". Use this in EVERY hint that shows a place, rather
+// than calling StaticData::GetLocationNameForHint directly.
+std::string GetHintLocationText(RandoItemId randoItemId, RandoCheckId randoCheckId, bool exact = false);
 void RegisterMenu();
 
 std::vector<RandoItemId> GetComputedStartingItems(RandoSaveInfo& randoSaveInfo);

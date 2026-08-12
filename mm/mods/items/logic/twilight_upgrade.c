@@ -69,14 +69,10 @@ u8 TwilightUpgrade_ClawshotAvailable(void) {
 }
 
 u8 TwilightUpgrade_BombArrowsAvailable(void) {
-    // Upgrade bit OR explicit ownership (auto-grant CVar populates the inv slot).
-    if (TwilightUpgrade_HasBombArrows()) {
-        return 1;
-    }
-    // ITEM_BOMB_ARROWS is a NEI custom item (0xAE); INV_CONTENT()/SLOT() would index
-    // gItemSlots[56] out of bounds. Resolve the real extended-inventory slot instead.
-    u8 baSlot = ExtInv_GetItemSlot(ITEM_BOMB_ARROWS);
-    return (baSlot != 0xFF) && (ExtInv_GetSlotItem(baSlot) == ITEM_BOMB_ARROWS); // Skijer's NEI
+    // Ownership moved off page-2 slot 27 (now the Elemental Wand's) onto NeiSaveData.bombArrowsOwned.
+    // Sw97_BombArrowsOwned folds together the save flag, this upgrade bit and the "Bomb Bag" rando
+    // mode, so there is one answer everywhere. Skijer's NEI
+    return Sw97_BombArrowsOwned();
 }
 
 u8 TwilightUpgrade_GaleBoomerangAvailable(void) {

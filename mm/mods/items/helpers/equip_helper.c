@@ -10,6 +10,7 @@
 #include "variables.h"
 #include "libultraship/bridge.h"
 #include "transformation_masks/transformation_masks.h"
+#include "extended_inventory.h" // Sw97_* — Bomb Arrows rides the bow's element flag (Skijer's NEI)
 
 typedef struct {
     u32 frameCount;
@@ -19,6 +20,32 @@ typedef struct {
 
 static EquipCache sEquipCache = { 0 };
 
+u8 ItemEquip_GetItemOnSlot(u8 slot) {
+    // sButtonMasks[4..7] is D-Up, D-Down, D-Left, D-Right — keep this table in that same order.
+    static const u8 sDpadSlots[4] = {
+        EQUIP_SLOT_D_UP,
+        EQUIP_SLOT_D_DOWN,
+        EQUIP_SLOT_D_LEFT,
+        EQUIP_SLOT_D_RIGHT,
+    };
+
+    if (slot == 0) {
+        // B is the only per-transformation button.
+        return BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
+    }
+    if (slot < 4) {
+        // C-button equipment is shared by every transformation.
+        return BUTTON_ITEM_EQUIP(0, slot);
+    }
+    if (slot < 8) {
+        if (!CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+            return ITEM_NONE;
+        }
+        return DPAD_BUTTON_ITEM_EQUIP(0, sDpadSlots[slot - 4]);
+    }
+    return ITEM_NONE;
+}
+
 static void EquipCache_Update(PlayState* play) {
     if (sEquipCache.frameCount == play->gameplayFrames)
         return;
@@ -27,18 +54,25 @@ static void EquipCache_Update(PlayState* play) {
     for (int i = 0; i < 256; i++)
         sEquipCache.cachedButtons[i] = 0;
 
-    u8 dpadEnabled = CVarGetInteger("gEnhancements.DpadEquips", 0);
-    u8 maxSlot = dpadEnabled ? 8 : 4;
-
     // Slot 0 = B button (sButtonMasks[0] = BTN_B). Start at 0 so custom
     // items equipped to B (e.g. Roc's Feather, transformation masks) get
     // registered alongside C-buttons / D-pad slots. Previously the loop
     // started at slot 1, so B-equipped custom items never received input.
-    for (u8 slot = 0; slot < maxSlot; slot++) {
-        u8 itemId = gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][slot];
+    for (u8 slot = 0; slot < 8; slot++) {
+        u8 itemId = ItemEquip_GetItemOnSlot(slot);
+
         sEquipCache.cachedItems[slot] = itemId;
-        if (itemId != ITEM_NONE && itemId < 256) {
+        if (itemId != ITEM_NONE) {
             sEquipCache.cachedButtons[itemId] = sButtonMasks[slot];
+        }
+        // Skijer's NEI — Bomb Arrows has no inventory slot and never reaches a button; it is the
+        // 7th value of the weapon's element flag. Everything in item_bombarrows.c asks this cache
+        // "which button is ITEM_BOMB_ARROWS on?", so aliasing it onto the weapon's button here is
+        // what keeps that whole state machine (baButtonMask, press edges, cleanup) working untouched.
+        // Both weapons qualify: bomb arrows on the bow, bomb bullets on the slingshot.
+        if ((Sw97_IsBowItem(itemId) && (Sw97_EffectiveElement(0) == SW97_ELEM_BOMB)) ||
+            (Sw97_IsSlingItem(itemId) && (Sw97_EffectiveElement(1) == SW97_ELEM_BOMB))) {
+            sEquipCache.cachedButtons[ITEM_BOMB_ARROWS] = sButtonMasks[slot];
         }
     }
 }
@@ -48,9 +82,24 @@ u16 ItemInput_GetEquippedButton(u8 itemId, PlayState* play) {
     return sEquipCache.cachedButtons[itemId];
 }
 
+// mods/actors/cane_pacci.c — while Ultrahand mode is up the D-pad rotates and moves
+// the held object.
+u8 Pacci_UltrahandModeActive(void);
+
 void ItemInput_Update(ItemInputState* out, u8 itemId, Player* player, PlayState* play) {
     out->equippedButton = ItemInput_GetEquippedButton(itemId, play);
     out->wasEquipped = (out->equippedButton != 0);
+
+    // Custom items never go through Player_GetItemOnButton — they find themselves in
+    // buttonItems and read the raw pad here — so the guard placed in that engine
+    // function did nothing for them. Roc's Cape on a D-pad slot kept firing right
+    // through Ultrahand mode because of exactly this second path. An item sitting on
+    // the D-pad is simply not usable while the mode owns those buttons.
+    if (out->wasEquipped && Pacci_UltrahandModeActive() &&
+        (out->equippedButton & (BTN_DUP | BTN_DDOWN | BTN_DLEFT | BTN_DRIGHT))) {
+        out->isPressed = out->isHeld = out->isReleased = out->otherButtonPressed = out->damageTaken = 0;
+        return;
+    }
 
     if (!out->wasEquipped) {
         out->isPressed = out->isHeld = out->isReleased = out->otherButtonPressed = out->damageTaken = 0;

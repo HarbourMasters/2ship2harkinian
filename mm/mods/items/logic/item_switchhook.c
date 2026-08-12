@@ -105,6 +105,401 @@ s32 SwitchHook_ConsumeCharge(void) {
 }
 
 // ============================================================================
+// COLLIDER RE-ANCHOR — keep an actor's HITBOXES glued to its model after a teleport
+//
+// Writing actor->world.pos moves the model, the bg checks and the dyna mesh, but
+// NOT the collision-check system: every collider keeps its own WORLD-space
+// geometry (cylinder centre, sphere centres, triangle/quad vertices) that only
+// the OWNING actor refreshes, from inside its own update, through
+// Collider_UpdateCylinder & friends. Plenty of actors build that geometry ONCE
+// at init and never touch it again, so after a switch-hook swap their hitbox
+// stayed behind — the object was still solid/breakable/damaging at its old spot
+// and intangible where you could see it. That is the "the mesh moves but the
+// collider doesn't" bug.
+//
+// Shifting the colliders once by the teleport vector is NOT enough, because the
+// actor does not stay where we put it: its own update runs right afterwards and
+// CORRECTS the position — pushed back out of a wall it materialised inside,
+// dropped down onto the floor below — and a one-shot shift leaves the hitbox at
+// the uncorrected spot for good. That is the "it moves wrong when it meets a
+// wall" case.
+//
+// So the colliders are RE-ANCHORED, not shifted: each one's reference point is
+// captured relative to its owner's world.pos BEFORE the teleport, and then forced
+// back onto `owner world.pos + offset` every frame of the settle window. That is
+// an absolute reposition, so it follows whatever the actor does to itself, and it
+// is idempotent, so repeating it every frame is safe.
+//
+// If an owner turns out to maintain its collider itself — its reference point
+// moved away from where WE last left it — that actor's answer is authoritative:
+// the offset is re-derived from it instead of fighting it.
+// ============================================================================
+
+static void SwitchHook_ShiftCollider(Collider* col, Vec3f* delta) {
+    // Round rather than truncate: the s16 shapes would otherwise lose up to a unit per frame of
+    // re-anchoring and lag permanently behind the model.
+    s16 dxs = (s16)((delta->x >= 0.0f) ? (delta->x + 0.5f) : (delta->x - 0.5f));
+    s16 dys = (s16)((delta->y >= 0.0f) ? (delta->y + 0.5f) : (delta->y - 0.5f));
+    s16 dzs = (s16)((delta->z >= 0.0f) ? (delta->z + 0.5f) : (delta->z - 0.5f));
+    s32 i;
+    s32 j;
+
+    switch (col->shape) {
+        case COLSHAPE_JNTSPH: {
+            ColliderJntSph* jntSph = (ColliderJntSph*)col;
+
+            for (i = 0; i < jntSph->count; i++) {
+                Sphere16* sphere = &jntSph->elements[i].dim.worldSphere;
+
+                sphere->center.x += dxs;
+                sphere->center.y += dys;
+                sphere->center.z += dzs;
+            }
+            break;
+        }
+
+        case COLSHAPE_CYLINDER: {
+            ColliderCylinder* cyl = (ColliderCylinder*)col;
+
+            cyl->dim.pos.x += dxs;
+            cyl->dim.pos.y += dys;
+            cyl->dim.pos.z += dzs;
+            break;
+        }
+
+        case COLSHAPE_TRIS: {
+            ColliderTris* tris = (ColliderTris*)col;
+
+            for (i = 0; i < tris->count; i++) {
+                TriNorm* tri = &tris->elements[i].dim;
+
+                for (j = 0; j < 3; j++) {
+                    tri->vtx[j].x += delta->x;
+                    tri->vtx[j].y += delta->y;
+                    tri->vtx[j].z += delta->z;
+                }
+                // The plane is stored as `n . p + originDist = 0`. Translating the triangle keeps
+                // its normal and moves the plane by -(n . delta) — leave this out and every
+                // tri-vs-anything test still answers against the ORIGINAL plane.
+                tri->plane.originDist -= (tri->plane.normal.x * delta->x) + (tri->plane.normal.y * delta->y) +
+                                         (tri->plane.normal.z * delta->z);
+            }
+            break;
+        }
+
+        case COLSHAPE_QUAD: {
+            ColliderQuad* quad = (ColliderQuad*)col;
+
+            for (i = 0; i < 4; i++) {
+                quad->dim.quad[i].x += delta->x;
+                quad->dim.quad[i].y += delta->y;
+                quad->dim.quad[i].z += delta->z;
+            }
+            // The cached edge midpoints are world-space too (they drive the quad-vs-quad tests).
+            quad->dim.dcMid.x += dxs;
+            quad->dim.dcMid.y += dys;
+            quad->dim.dcMid.z += dzs;
+            quad->dim.baMid.x += dxs;
+            quad->dim.baMid.y += dys;
+            quad->dim.baMid.z += dzs;
+            break;
+        }
+
+        case COLSHAPE_SPHERE: {
+            ColliderSphere* sphere = (ColliderSphere*)col;
+
+            sphere->dim.worldSphere.center.x += dxs;
+            sphere->dim.worldSphere.center.y += dys;
+            sphere->dim.worldSphere.center.z += dzs;
+            break;
+        }
+    }
+}
+
+static void SwitchHook_ShiftColliderList(Collider** list, s32 count, Actor* actor, Vec3f* delta) {
+    s32 i;
+
+    for (i = 0; i < count; i++) {
+        if ((list[i] != NULL) && (list[i]->actor == actor)) {
+            SwitchHook_ShiftCollider(list[i], delta);
+        }
+    }
+}
+
+/**
+ * Translate every collider `actor` has live this frame by `delta`.
+ * Call this ONCE, right after teleporting an actor, with the exact vector its world.pos moved by.
+ */
+void SwitchHook_ShiftActorColliders(PlayState* play, Actor* actor, Vec3f* delta) {
+    if ((play == NULL) || (actor == NULL) || (delta == NULL)) {
+        return;
+    }
+    if ((delta->x == 0.0f) && (delta->y == 0.0f) && (delta->z == 0.0f)) {
+        return;
+    }
+
+    SwitchHook_ShiftColliderList(play->colChkCtx.colAT, play->colChkCtx.colATCount, actor, delta);
+    SwitchHook_ShiftColliderList(play->colChkCtx.colAC, play->colChkCtx.colACCount, actor, delta);
+    SwitchHook_ShiftColliderList(play->colChkCtx.colOC, play->colChkCtx.colOCCount, actor, delta);
+}
+
+// ---------------------------------------------------------------------------
+// Re-anchor bookkeeping. Two slots is all the switch hook ever needs: one hook
+// exists at a time and a swap moves exactly two actors, Link and his target.
+// ---------------------------------------------------------------------------
+
+#define SWITCHHOOK_ANCHOR_SLOTS 2
+#define SWITCHHOOK_ANCHORS_PER_ACTOR 16 // colliders tracked per actor; any extras are simply left alone
+
+typedef struct {
+    Collider* col; // the collider being kept glued to its owner
+    Vec3f offset;  // its reference point, relative to the owner's world.pos
+    Vec3f lastSet; // where WE last left that reference point
+    u8 hasLastSet; // lastSet is meaningless until the first re-anchor has run
+} SwitchHookAnchor;
+
+typedef struct {
+    Actor* owner;
+    u8 active;
+    s32 count;
+    Vec3f focusOffset; // lock-on point, same treatment as a collider
+    Vec3f focusLastSet;
+    u8 hasFocusLast;
+    SwitchHookAnchor anchors[SWITCHHOOK_ANCHORS_PER_ACTOR];
+} SwitchHookAnchorSlot;
+
+static SwitchHookAnchorSlot sSwitchHookAnchorSlots[SWITCHHOOK_ANCHOR_SLOTS];
+
+// The point of a collider that stands in for "where this collider is". Everything else in the shape
+// is translated rigidly with it, so one point is enough to reposition the whole thing.
+static s32 SwitchHook_GetColliderRefPos(Collider* col, Vec3f* out) {
+    switch (col->shape) {
+        case COLSHAPE_JNTSPH: {
+            ColliderJntSph* jntSph = (ColliderJntSph*)col;
+
+            if ((jntSph->count <= 0) || (jntSph->elements == NULL)) {
+                return 0;
+            }
+            out->x = jntSph->elements[0].dim.worldSphere.center.x;
+            out->y = jntSph->elements[0].dim.worldSphere.center.y;
+            out->z = jntSph->elements[0].dim.worldSphere.center.z;
+            return 1;
+        }
+
+        case COLSHAPE_CYLINDER: {
+            ColliderCylinder* cyl = (ColliderCylinder*)col;
+
+            out->x = cyl->dim.pos.x;
+            out->y = cyl->dim.pos.y;
+            out->z = cyl->dim.pos.z;
+            return 1;
+        }
+
+        case COLSHAPE_TRIS: {
+            ColliderTris* tris = (ColliderTris*)col;
+
+            if ((tris->count <= 0) || (tris->elements == NULL)) {
+                return 0;
+            }
+            *out = tris->elements[0].dim.vtx[0];
+            return 1;
+        }
+
+        case COLSHAPE_QUAD: {
+            ColliderQuad* quad = (ColliderQuad*)col;
+
+            *out = quad->dim.quad[0];
+            return 1;
+        }
+
+        case COLSHAPE_SPHERE: {
+            ColliderSphere* sphere = (ColliderSphere*)col;
+
+            out->x = sphere->dim.worldSphere.center.x;
+            out->y = sphere->dim.worldSphere.center.y;
+            out->z = sphere->dim.worldSphere.center.z;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Is this pointer still a live actor? Walking the lists is the only honest answer, and it is what
+// makes the whole thing safe: nothing inside the slot is dereferenced until the owner is found here,
+// so a target that gets broken or despawned mid-window can never be read through a stale pointer.
+static s32 SwitchHook_IsActorAlive(PlayState* play, Actor* actor) {
+    s32 category;
+
+    if (actor == NULL) {
+        return 0;
+    }
+    for (category = 0; category < ACTORCAT_MAX; category++) {
+        Actor* it = play->actorCtx.actorLists[category].first;
+
+        while (it != NULL) {
+            if (it == actor) {
+                return it->update != NULL;
+            }
+            it = it->next;
+        }
+    }
+    return 0;
+}
+
+static void SwitchHook_CollectColliders(SwitchHookAnchorSlot* slot, Collider** list, s32 count) {
+    s32 i;
+    s32 j;
+
+    for (i = 0; (i < count) && (slot->count < SWITCHHOOK_ANCHORS_PER_ACTOR); i++) {
+        Collider* col = list[i];
+        Vec3f refPos;
+
+        if ((col == NULL) || (col->actor != slot->owner)) {
+            continue;
+        }
+        // A collider can be registered as AT and AC and OC in the same frame — track it once.
+        for (j = 0; j < slot->count; j++) {
+            if (slot->anchors[j].col == col) {
+                break;
+            }
+        }
+        if (j < slot->count) {
+            continue;
+        }
+        if (!SwitchHook_GetColliderRefPos(col, &refPos)) {
+            continue;
+        }
+
+        slot->anchors[slot->count].col = col;
+        slot->anchors[slot->count].offset.x = refPos.x - slot->owner->world.pos.x;
+        slot->anchors[slot->count].offset.y = refPos.y - slot->owner->world.pos.y;
+        slot->anchors[slot->count].offset.z = refPos.z - slot->owner->world.pos.z;
+        slot->anchors[slot->count].hasLastSet = 0;
+        slot->count++;
+    }
+}
+
+/**
+ * Snapshot `actor`'s live colliders and lock-on point, as offsets from its world.pos.
+ * Call this BEFORE teleporting it — the offsets have to describe the actor at rest.
+ * `slot` is 0 for Link and 1 for the actor he swaps with.
+ */
+void SwitchHook_CaptureSwapColliders(PlayState* play, s32 slot, Actor* actor) {
+    SwitchHookAnchorSlot* s;
+
+    if ((play == NULL) || (actor == NULL) || (slot < 0) || (slot >= SWITCHHOOK_ANCHOR_SLOTS)) {
+        return;
+    }
+
+    s = &sSwitchHookAnchorSlots[slot];
+    s->owner = actor;
+    s->active = 1;
+    s->count = 0;
+    s->focusOffset.x = actor->focus.pos.x - actor->world.pos.x;
+    s->focusOffset.y = actor->focus.pos.y - actor->world.pos.y;
+    s->focusOffset.z = actor->focus.pos.z - actor->world.pos.z;
+    s->hasFocusLast = 0;
+
+    SwitchHook_CollectColliders(s, play->colChkCtx.colAT, play->colChkCtx.colATCount);
+    SwitchHook_CollectColliders(s, play->colChkCtx.colAC, play->colChkCtx.colACCount);
+    SwitchHook_CollectColliders(s, play->colChkCtx.colOC, play->colChkCtx.colOCCount);
+}
+
+static void SwitchHook_ReanchorOne(SwitchHookAnchorSlot* slot, SwitchHookAnchor* anchor) {
+    Vec3f refPos;
+    Vec3f want;
+    Vec3f delta;
+
+    if (!SwitchHook_GetColliderRefPos(anchor->col, &refPos)) {
+        return;
+    }
+
+    // The owner rebuilt this collider itself since our last pass — its result wins. Re-derive the
+    // offset from it so we stay in step if it ever stops maintaining it.
+    if (anchor->hasLastSet && ((refPos.x != anchor->lastSet.x) || (refPos.y != anchor->lastSet.y) ||
+                               (refPos.z != anchor->lastSet.z))) {
+        anchor->offset.x = refPos.x - slot->owner->world.pos.x;
+        anchor->offset.y = refPos.y - slot->owner->world.pos.y;
+        anchor->offset.z = refPos.z - slot->owner->world.pos.z;
+        anchor->lastSet = refPos;
+        return;
+    }
+
+    want.x = slot->owner->world.pos.x + anchor->offset.x;
+    want.y = slot->owner->world.pos.y + anchor->offset.y;
+    want.z = slot->owner->world.pos.z + anchor->offset.z;
+    delta.x = want.x - refPos.x;
+    delta.y = want.y - refPos.y;
+    delta.z = want.z - refPos.z;
+    SwitchHook_ShiftCollider(anchor->col, &delta);
+
+    // Record where the collider ACTUALLY ended up, not where we aimed: the s16 shapes round, and
+    // comparing against the rounded-off ideal would read as "the owner moved it" every frame.
+    if (SwitchHook_GetColliderRefPos(anchor->col, &anchor->lastSet)) {
+        anchor->hasLastSet = 1;
+    }
+}
+
+/**
+ * Force every captured collider (and lock-on point) back onto its owner's CURRENT position.
+ * Safe and idempotent — call it once per frame for as long as the swapped actors are settling.
+ */
+void SwitchHook_ReanchorSwapColliders(PlayState* play) {
+    s32 slotIdx;
+    s32 i;
+
+    if (play == NULL) {
+        return;
+    }
+
+    for (slotIdx = 0; slotIdx < SWITCHHOOK_ANCHOR_SLOTS; slotIdx++) {
+        SwitchHookAnchorSlot* slot = &sSwitchHookAnchorSlots[slotIdx];
+
+        if (!slot->active) {
+            continue;
+        }
+        if (!SwitchHook_IsActorAlive(play, slot->owner)) { // broken pot, killed enemy, scene change...
+            slot->active = 0;
+            slot->owner = NULL;
+            slot->count = 0;
+            continue;
+        }
+
+        for (i = 0; i < slot->count; i++) {
+            SwitchHook_ReanchorOne(slot, &slot->anchors[i]);
+        }
+
+        // Same treatment for the lock-on/aim point: a plain world-space field that actors setting it
+        // once at init would otherwise keep offering at the spot they came from.
+        if (slot->hasFocusLast && ((slot->owner->focus.pos.x != slot->focusLastSet.x) ||
+                                   (slot->owner->focus.pos.y != slot->focusLastSet.y) ||
+                                   (slot->owner->focus.pos.z != slot->focusLastSet.z))) {
+            slot->focusOffset.x = slot->owner->focus.pos.x - slot->owner->world.pos.x;
+            slot->focusOffset.y = slot->owner->focus.pos.y - slot->owner->world.pos.y;
+            slot->focusOffset.z = slot->owner->focus.pos.z - slot->owner->world.pos.z;
+            slot->focusLastSet = slot->owner->focus.pos;
+        } else {
+            slot->owner->focus.pos.x = slot->owner->world.pos.x + slot->focusOffset.x;
+            slot->owner->focus.pos.y = slot->owner->world.pos.y + slot->focusOffset.y;
+            slot->owner->focus.pos.z = slot->owner->world.pos.z + slot->focusOffset.z;
+            slot->focusLastSet = slot->owner->focus.pos;
+            slot->hasFocusLast = 1;
+        }
+    }
+}
+
+/** Drop every tracked actor (hook destroyed, scene change, settle window over). */
+void SwitchHook_ClearSwapColliders(void) {
+    s32 i;
+
+    for (i = 0; i < SWITCHHOOK_ANCHOR_SLOTS; i++) {
+        sSwitchHookAnchorSlots[i].active = 0;
+        sSwitchHookAnchorSlots[i].owner = NULL;
+        sSwitchHookAnchorSlots[i].count = 0;
+    }
+}
+
+// ============================================================================
 // STATIC VARIABLES
 // ============================================================================
 
@@ -535,6 +930,29 @@ static void SwitchHook_PerformSwap(Player* p, PlayState* play) {
             shTarget->velocity.x = 0.0f;
             shTarget->velocity.y = 0.0f;
             shTarget->velocity.z = 0.0f;
+        }
+
+        // Carry the HITBOXES over too — world.pos moves models, never colliders. Applied ONCE, on the
+        // frame the swap lands: the eased frames above only move the models, so shifting per frame
+        // would double-offset every actor that rebuilds its collider from world.pos.
+        {
+            Vec3f linkDelta;
+            Vec3f targetDelta;
+
+            linkDelta.x = shTargetStartPos.x - shLinkStartPos.x;
+            linkDelta.y = shTargetStartPos.y - shLinkStartPos.y;
+            linkDelta.z = shTargetStartPos.z - shLinkStartPos.z;
+            targetDelta.x = -linkDelta.x;
+            targetDelta.y = -linkDelta.y;
+            targetDelta.z = -linkDelta.z;
+
+            SwitchHook_ShiftActorColliders(play, &p->actor, &linkDelta);
+            if (shTarget != NULL && shTarget->update != NULL) {
+                SwitchHook_ShiftActorColliders(play, shTarget, &targetDelta);
+                shTarget->focus.pos.x += targetDelta.x;
+                shTarget->focus.pos.y += targetDelta.y;
+                shTarget->focus.pos.z += targetDelta.z;
+            }
         }
 
         Audio_PlaySoundGeneral(NA_SE_EV_ROLL_STAND, &p->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale,

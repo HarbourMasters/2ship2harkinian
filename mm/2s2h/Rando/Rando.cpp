@@ -26,7 +26,7 @@ void Rando::Init() {
     Rando::MiscBehavior::Init();
     Rando::ActorBehavior::Init();
     Rando::CheckTracker::Init();
-    Ship::Context::GetInstance()->GetFileDropMgr()->RegisterDropHandler(Rando::Spoiler::HandleFileDropped);
+    Ship::Context::GetRawInstance()->GetFileDropMgr()->RegisterDropHandler(Rando::Spoiler::HandleFileDropped);
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveLoad>(OnSaveLoadHandler);
 }
@@ -39,6 +39,27 @@ RandoCheckId Rando::FindItemPlacement(RandoItemId randoItemId) {
     }
 
     return RC_UNKNOWN;
+}
+
+// Location text for a hint, valid in the OoT+MM combo too.
+//
+// If the item is placed in MM this is exactly the usual behaviour. If it is NOT, then in a combo seed
+// that means it landed on the OoT side: the real area travels in the sidecar the spoiler installed,
+// so we name it ("in Kakariko Village") instead of emitting "in an Unknown Location", which is what
+// testers saw on EVERY cross-game hint. Skijer's NEI
+std::string Rando::GetHintLocationText(RandoItemId randoItemId, RandoCheckId randoCheckId, bool exact) {
+    if (randoCheckId != RC_UNKNOWN) {
+        return Rando::StaticData::GetLocationNameForHint(randoCheckId, exact);
+    }
+
+    if (randoItemId != RI_NONE) {
+        std::string ootArea = Rando::Spoiler::GetOotAreaForItem(Rando::StaticData::Items[randoItemId].spoilerName);
+        if (!ootArea.empty()) {
+            return "in " + ootArea;
+        }
+    }
+
+    return Rando::StaticData::GetLocationNameForHint(randoCheckId, exact);
 }
 
 std::vector<RandoCheckId> Rando::FindMultiItemPlacement(RandoItemId randoItemId) {

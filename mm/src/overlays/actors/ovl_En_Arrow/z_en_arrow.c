@@ -410,9 +410,17 @@ void func_8088A594(EnArrow* this, PlayState* play) {
                 Actor_SetSpeeds(&this->actor, 80.0f);
                 this->unk_260 = 15;
             }
-            this->actor.shape.rot.x = 0;
-            this->actor.shape.rot.y = 0;
-            this->actor.shape.rot.z = 0;
+            // Only the PLAIN slingshot pellet and the deku nut get their visual rotation zeroed.
+            // Vanilla does that because both are billboarded sparkles with no meaningful facing —
+            // but an ELEMENTAL seed attaches a SW97 glow (EnArrow_SpawnSw97Glow) that copies this
+            // shape.rot and then applies its own fixed Matrix_RotateRPY(0x4000). Zeroed here, that
+            // left the cone perpendicular to the flight path, reading as a flying line instead of a
+            // cone. The seed's own render is unaffected: it is billboarded either way. Skijer's NEI
+            if (!((this->actor.params >= ARROW_TYPE_SEED_FIRE) && (this->actor.params <= ARROW_TYPE_SEED_WIND))) {
+                this->actor.shape.rot.x = 0;
+                this->actor.shape.rot.y = 0;
+                this->actor.shape.rot.z = 0;
+            }
         } else {
             Actor_SetSpeeds(&this->actor, 150.0f);
             this->unk_260 = 16;
@@ -675,7 +683,11 @@ void func_8088ACE0(EnArrow* this, PlayState* play) {
             this->actor.wallBgId = bgId;
         }
 
-        if (ARROW_IS_ARROW(this->actor.params)) {
+        // Pitch the model along the trajectory as it arcs. ARROW_IS_ARROW already covers the SW97
+        // bow arrows; elemental SEEDS are deliberately NOT arrows, but their attached SW97 glow
+        // takes its orientation from this rotation, so they need it too. Skijer's NEI
+        if (ARROW_IS_ARROW(this->actor.params) ||
+            ((this->actor.params >= ARROW_TYPE_SEED_FIRE) && (this->actor.params <= ARROW_TYPE_SEED_WIND))) {
             this->actor.shape.rot.x = Math_Atan2S_XY(this->actor.speed, -this->actor.velocity.y);
         }
     }

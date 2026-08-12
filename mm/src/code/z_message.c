@@ -1,5 +1,6 @@
 #include "prevent_bss_reordering.h"
 #include "global.h"
+#include <libultraship/log/luslog.h> // 2S2H [Port] lusprintf (LUS 464 exports it via API_EXPORT)
 #include "segment_symbols.h"
 #include "z64horse.h"
 #include "z64shrink_window.h"
@@ -1155,19 +1156,28 @@ void Message_DrawItemIcon(PlayState* play, Gfx** gfxP) {
         gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
-    } else if (msgCtx->itemId >= ITEM_B8) {
+    } else if ((msgCtx->itemId >= ITEM_B8) && (msgCtx->itemId <= ITEM_CC) && play->pauseCtx.bombersNotebookOpen) {
+        // Skijer's NEI: bounded + notebook-gated to match Message_LoadItemIcon. A NEI custom item
+        // reaching this arm would be drawn as a 16-bit schedule photo from a garbage pointer.
         gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
-    } else if (msgCtx->itemId >= ITEM_SKULL_TOKEN) {
+    } else if ((msgCtx->itemId >= ITEM_SKULL_TOKEN) && (msgCtx->itemId <= ITEM_HEART_PIECE_2)) {
         gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 24, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
     } else {
+        // Skijer's NEI: the fallback arm is where every custom item now lands. Its icon may be a
+        // 24x24 quest-style texture (medallions, spiritual stones) rather than a 32x32 item icon —
+        // loading one as the other is exactly the "shows garbage" failure the size helper exists to
+        // prevent, so ask it rather than assuming 32.
+        extern unsigned char ExtInv_GetItemIconSize(unsigned short itemId);
+        s32 neiDrawSize = (ExtInv_GetItemIconSize(msgCtx->itemId) == 24) ? 24 : 32;
+
         msgCtx->unk12016 = msgCtx->unk12014;
-        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                            G_TX_NOLOD);
+        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_RGBA, G_IM_SIZ_32b, neiDrawSize,
+                            neiDrawSize, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                            G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     }
 
     gSPTextureRectangle(gfx++, msgCtx->unk12010 << 2, msgCtx->unk12012 << 2, (msgCtx->unk12010 + msgCtx->unk12014) << 2,
@@ -2102,7 +2112,16 @@ void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
         // 0x1000,
         //                 0x400);
         msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gBombersNotebookPhotos[ITEM_POTION_BLUE];
-    } else if (itemId >= ITEM_B8) {
+    } else if ((itemId >= ITEM_B8) && (itemId <= ITEM_CC) && play->pauseCtx.bombersNotebookOpen) {
+        // Skijer's NEI — TWO guards added here, both fixing out-of-bounds reads:
+        //   * the upper bound: gBombersNotebookPhotos has 24 entries (0xB8..0xCF), and this arm used
+        //     to accept ANY id >= 0xB8. Every NEI item from 0xD0 up (medallions, swords, prop-hunt
+        //     icons, the wand...) read a `const char*` past the end of that array and handed the
+        //     garbage pointer straight to gDPLoadTextureBlock.
+        //   * bombersNotebookOpen: 0xB8..0xCF is BOTH the photo range and the NEI custom-item range.
+        //     The values are ambiguous, the context is not — photos only ever appear in the
+        //     notebook, so that flag is what tells the two apart. Without it a NEI item's get-item
+        //     textbox showed a schedule photo.
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 8);
         msgCtx->unk12014 = 0x20;
@@ -2110,7 +2129,9 @@ void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
         // 0x1000,
         //                 0x800);
         msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gBombersNotebookPhotos[itemId - ITEM_B8];
-    } else if (itemId >= ITEM_SKULL_TOKEN) {
+    } else if ((itemId >= ITEM_SKULL_TOKEN) && (itemId <= ITEM_HEART_PIECE_2)) {
+        // Upper bound added for the same reason: gQuestIcons has 14 entries (0x6E..0x7B), and this
+        // arm used to accept anything >= 0x6E — so every NEI id in 0xA0..0xB7 read past its end.
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF7C[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 0xA);
         msgCtx->unk12014 = 0x18;
@@ -2118,6 +2139,17 @@ void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
         //                 msgCtx->textboxSegment + 0x1000, 0x900);
         msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gQuestIcons[itemId - ITEM_SKULL_TOKEN];
         // #endregion
+    } else {
+        // Skijer's NEI: anything left is a custom item id. Use its real inventory icon instead of
+        // falling through with an untouched textboxSegment (which is what made these crash).
+        extern void* ExtInv_GetItemIcon(unsigned short itemId);
+        extern unsigned char ExtInv_GetItemIconSize(unsigned short itemId);
+        u8 neiSize = ExtInv_GetItemIconSize(itemId);
+
+        msgCtx->unk12010 = (msgCtx->unk11FF8 - ((neiSize == 24) ? D_801CFF7C : D_801CFF70)[gSaveContext.options.language]);
+        msgCtx->unk12012 = (arg2 + ((neiSize == 24) ? 0xA : 6));
+        msgCtx->unk12014 = (neiSize == 24) ? 0x18 : 0x20;
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = ExtInv_GetItemIcon(itemId);
     }
 
     if (play->pauseCtx.bombersNotebookOpen) {
@@ -3824,7 +3856,6 @@ void Message_DisplayOcarinaStaffImpl(PlayState* play, u16 ocarinaAction) {
         }
         // NEI-DBG: pause-play tracing (remove after diagnosis)
         {
-            extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
             lusprintf(__FILE__, __LINE__, 2, "NEI-PP: staff open action=%d availSongs=0x%08X custom=0x%X ootQuest=0x%08X",
                       ocarinaAction, msgCtx->ocarinaAvailableSongs, gNeiCustomSongsAvailable, ootSongs);
         }
@@ -4755,7 +4786,6 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                 // below consumes synchronously (same invocation, no timing window).
                 {
                     extern s16 gNeiPausePlayForcedSong; // z_kaleido_collect.c
-                    extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
                     if ((gNeiPausePlayForcedSong >= 0) && (msgCtx->ocarinaAction == OCARINA_ACTION_FREE_PLAY)) {
                         lusprintf(__FILE__, __LINE__, 2, "NEI-PP: handoff consumed, stamping state=%d",
                                   gNeiPausePlayForcedSong);
@@ -4795,7 +4825,6 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                     (msgCtx->ocarinaStaff->state >= OCARINA_SONG_OOT_WARP_FIRST) &&
                     (msgCtx->ocarinaStaff->state < OCARINA_SONG_MAX)) {
                     {
-                        extern void lusprintf(const char* file, int32_t line, int32_t logLevel, const char* fmt, ...);
                         lusprintf(__FILE__, __LINE__, 2, "NEI-PP: WARP SUCCESS state=%d",
                                   msgCtx->ocarinaStaff->state); // NEI-DBG
                     }

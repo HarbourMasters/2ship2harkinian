@@ -54,7 +54,7 @@ class OTRGlobals {
     ImFont* fontMonoLarger = nullptr;
     ImFont* fontMonoLargest = nullptr;
 
-    std::shared_ptr<Ship::Context> context;
+    Ship::Context* context;
 
     OTRGlobals();
     ~OTRGlobals();

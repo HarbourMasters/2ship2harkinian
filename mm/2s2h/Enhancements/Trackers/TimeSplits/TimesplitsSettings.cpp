@@ -1,5 +1,6 @@
 
 #include "TimesplitsSettings.h"
+#include "2s2h/ShipUtils.h"
 #include "Timesplits.h"
 #include <libultraship/bridge/consolevariablebridge.h>
 #include <ship/Context.h>
@@ -560,7 +561,7 @@ void DrawEntranceList() {
 
                 if (ImGui::ImageButton(
                         std::to_string(sceneObjectList[i].splitId).c_str(),
-                        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gPauseUnusedCursorTex),
+                        Ship_GetFast3dGui()->GetTextureByName(gPauseUnusedCursorTex),
                         ImVec2(32.0f, 32.0f))) {
                     AddSplitEntryBySceneId(sceneObjectList[i].splitId);
                 };
@@ -584,7 +585,7 @@ void DrawItemList(const char* tableName, IndexRangeObject range, uint32_t tableS
             ImGui::TableNextColumn();
             SplitsPushImageButtonStyle();
             if (ImGui::ImageButton(std::to_string(splitObjectList[i].splitId).c_str(),
-                                   Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                                   Ship_GetFast3dGui()->GetTextureByName(
                                        GetItemImageById(splitObjectList[i].splitId)),
                                    GetItemImageSizeById(splitObjectList[i].splitId) * 1.5f, ImVec2(0, 0), ImVec2(1, 1),
                                    ImVec4(0, 0, 0, 0), Ship_GetItemColorTint(splitObjectList[i].splitId))) {
@@ -645,7 +646,7 @@ void TimesplitsSettingsWindow::DrawElement() {
                     SplitsPushImageButtonStyle();
                     if (ImGui::ImageButton(
                             std::to_string(i).c_str(),
-                            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                            Ship_GetFast3dGui()->GetTextureByName(
                                 splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
                                                                             : gPauseUnusedCursorTex),
                             splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageSizeById(splitList[i].splitId)

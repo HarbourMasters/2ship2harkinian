@@ -1,4 +1,5 @@
 #include "BenMenu.h"
+#include "2s2h/ShipUtils.h"
 #include "BenGui.hpp"
 #include "UIWidgets.hpp"
 #include "BenPort.h"
@@ -22,6 +23,7 @@
 #include <tuple>
 #include "ResolutionEditor.h"
 #include "2s2h/Rando/Rando.h"
+#include "mods/nei_save.h" // Skijer's NEI: NeiSaveData accessors used by the NEI menu
 #include "build.h"
 
 extern "C" {
@@ -355,7 +357,7 @@ void BenMenu::AddSettings() {
     AddWidget(path, "Cursor Always Visible", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.CursorVisibility")
         .Callback([](WidgetInfo& info) {
-            Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(
+            Ship::Context::GetRawInstance()->GetWindow()->SetForceCursorVisibility(
                 CVarGetInteger("gSettings.CursorVisibility", 0));
         })
         .Options(CheckboxOptions().Tooltip("Makes the cursor always visible, even in full screen."));
@@ -384,7 +386,7 @@ void BenMenu::AddSettings() {
         .Options(BtnSelectorOptions().DefaultValue(BTN_CUSTOM_MODIFIER2));
     AddWidget(path, "Open App Files Folder", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) {
-            std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
+            std::string filesPath = Ship::Context::GetRawInstance()->GetAppDirectoryPath();
             SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
         })
         .Options(ButtonOptions().Tooltip("Opens the folder that contains the save and mods folders, etc."));
@@ -413,7 +415,7 @@ void BenMenu::AddSettings() {
         ImGui::SeparatorText("Thank You");
         ImGui::PopStyleColor();
         ImGui::SameLine();
-        ImTextureID heartTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+        ImTextureID heartTextureId = Ship_GetFast3dGui()->GetTextureByName(
             (const char*)gQuestIconHeartContainer2Tex);
         ImGui::Image(heartTextureId, ImVec2(25.0f, 25.0f));
         ImGui::TextWrapped("Special thanks to our contributors, playtesters, artists, moderators, helpers, and "
@@ -522,12 +524,12 @@ void BenMenu::AddSettings() {
     AddSidebarEntry("Settings", "Graphics", 3);
     AddWidget(path, "Graphics Options", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Toggle Fullscreen", WIDGET_BUTTON)
-        .Callback([](WidgetInfo& info) { Ship::Context::GetInstance()->GetWindow()->ToggleFullscreen(); })
+        .Callback([](WidgetInfo& info) { Ship::Context::GetRawInstance()->GetWindow()->ToggleFullscreen(); })
         .Options(ButtonOptions().Tooltip("Toggles Fullscreen On/Off."));
     AddWidget(path, "Internal Resolution: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_INTERNAL_RESOLUTION)
         .Callback([](WidgetInfo& info) {
-            Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
+            Ship::Context::GetRawInstance()->GetWindow()->SetResolutionMultiplier(
                 CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
         })
         .PreFunc([](WidgetInfo& info) {
@@ -552,7 +554,7 @@ void BenMenu::AddSettings() {
     AddWidget(path, "Anti-aliasing (MSAA): %d", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_MSAA_VALUE)
         .Callback([](WidgetInfo& info) {
-            Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger(CVAR_MSAA_VALUE, 1));
+            Ship::Context::GetRawInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger(CVAR_MSAA_VALUE, 1));
         })
         .Options(
             IntSliderOptions()
@@ -1078,8 +1080,9 @@ void BenMenu::AddEnhancements() {
             "Enables magic spin attacks for the Fierce Deity Sword and Great Fairy's Sword."));
     AddWidget(path, "Better Picto Message", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.BetterPictoMessage")
-        .Options(
-            CheckboxOptions().Tooltip("Inform the player what target if any is being captured in the pictograph."));
+        .Options(CheckboxOptions()
+                     .Tooltip("Inform the player what target if any is being captured in the pictograph.")
+                     .DefaultValue(true));
     AddWidget(path, "Picto Box on C-Up", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Items.PictoBoxOnCUp")
         .Options(CheckboxOptions().Tooltip(
@@ -2039,7 +2042,7 @@ void BenMenu::AddDevTools() {
                      .ComboVec(&logLevels)
                      .DefaultIndex(defaultLogLevel))
         .Callback([](WidgetInfo& info) {
-            Ship::Context::GetInstance()->GetLogger()->set_level(
+            Ship::Context::GetRawInstance()->GetLogger()->set_level(
                 (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", defaultLogLevel));
         })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
@@ -2406,11 +2409,12 @@ void BenMenu::AddNetwork() {
     AddWidget(path, "Harpoon", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { HarpoonMainMenu(); });
 }
 
-// "Skijer's NEI" — mirror of the same menu in Ship (Shipwright). For now only the
-// Randomizer tab exists with the Fleet Ship Combo switch; the rest of NEI will be
-// ported into MM here over time.
-// NEI weapon-upgrade bit plumbing (mods/items/logic/weapon_upgrades.c, z_player TU)
+// "Skijer's NEI" — mirror of the same menu in Ship (Shipwright). The sidebar tabs and their
+// contents are kept 1:1 with soh/soh/SohGui/SohMenuNEI.cpp so a feature is always in the same
+// place in both games; anything a game genuinely lacks (Ship's .pak player models, 2ship's boss
+// remains) is simply absent from that game's tab rather than shown as a dead toggle.
 extern "C" {
+// NEI weapon-upgrade bit plumbing (mods/items/logic/weapon_upgrades.c, z_player TU)
 uint8_t WeaponUpgrade_HasHammerAxe(void);
 uint8_t WeaponUpgrade_HasRazor(void);
 uint8_t WeaponUpgrade_HasGilded(void);
@@ -2422,13 +2426,188 @@ void WeaponUpgrade_SetGilded(uint8_t on);
 void WeaponUpgrade_SetTrueMaster(uint8_t on);
 void WeaponUpgrade_SetGreatFairy(uint8_t on);
 void WeaponUpgrade_GrantAll(void);
+// Twilight Upgrade bits (mods/items/logic/twilight_upgrade.c)
+uint8_t TwilightUpgrade_HasClawshot(void);
+uint8_t TwilightUpgrade_HasBombArrows(void);
+uint8_t TwilightUpgrade_HasGaleBoomerang(void);
+void TwilightUpgrade_SetClawshot(uint8_t on);
+void TwilightUpgrade_SetBombArrows(uint8_t on);
+void TwilightUpgrade_SetGaleBoomerang(uint8_t on);
+void TwilightUpgrade_Grant(void);
+// Power Keg (mods/items/logic/power_keg.c)
+uint8_t PowerKeg_IsOwned(void);
+void PowerKeg_SetOwned(uint8_t on);
+void PowerKeg_SetCount(uint8_t n);
+// Adult trade-quest items (mods/items/logic/trade_items.c)
+s32 TradeAdult_Count(void);
+void TradeAdult_GiveIndex(s32 index);
 }
+
+// ---------------------------------------------------------------------------
+// Item Editor — per-item live tuning (Skijer's NEI)
+// ---------------------------------------------------------------------------
+// One section per custom item. Every control writes a `gItemEditor.<Item>.*`
+// CVar that the item's behavior TU reads once per frame, so edits land live and
+// the CVar names are shared with Ship (a preset carries over between games).
+// More items get their own section below as they are made tunable.
+namespace {
+
+struct CapeFloatParam {
+    const char* label;
+    const char* cvar;
+    float min;
+    float max;
+    float def;
+    const char* tooltip;
+};
+
+// Shape ------------------------------------------------------------------
+// Sheikah Slate: where the tablet sits in Link's hand ---------------------
+// Placing a flat slab in a closed fist so it reads like the Hookshot is pure eyeballing, so every
+// part of the transform is exposed. The offsets are applied AFTER the rotations, i.e. along the
+// tablet's own axes, so "up" keeps meaning "up the tablet" whichever way the hand points.
+const CapeFloatParam kSlateHandParams[] = {
+    { "Offset Right/Left", "gItemEditor.Slate.OffsetX", -20.0f, 20.0f, -3.036f,
+      "Slides the tablet across the palm." },
+    { "Offset Up/Down", "gItemEditor.Slate.OffsetY", -20.0f, 30.0f, -12.327f,
+      "Slides the tablet along the grip. Raise it until the hand meets the middle of the back." },
+    { "Offset Fwd/Back", "gItemEditor.Slate.OffsetZ", -20.0f, 20.0f, -0.264f,
+      "Pushes the tablet away from or into the palm." },
+    { "Rotate Pitch (X)", "gItemEditor.Slate.RotX", -180.0f, 180.0f, 78.416f,
+      "Tips the top of the tablet toward or away from Link." },
+    { "Rotate Yaw (Y)", "gItemEditor.Slate.RotY", -180.0f, 180.0f, 180.0f,
+      "Turns the screen to face left/right. 90 puts the screen across the grip." },
+    { "Rotate Roll (Z)", "gItemEditor.Slate.RotZ", -180.0f, 180.0f, 13.664f,
+      "Spins the tablet in its own plane." },
+    { "Scale", "gItemEditor.Slate.Scale", 0.005f, 0.2f, 0.146f,
+      "Size of the held tablet. The get-item model is unaffected." },
+};
+
+const CapeFloatParam kCapeShapeParams[] = {
+    { "Scale", "gItemEditor.Cape.Scale", 0.1f, 5.0f, 1.0f,
+      "Master multiplier over both the cape's length and its width." },
+    { "Segment Length", "gItemEditor.Cape.Length", 0.5f, 30.0f, 4.5f,
+      "Length of one cloth segment. The cape is 12 joints deep, so the total\n"
+      "hanging length is about 11x this value. Vanilla: 4.5." },
+    { "Width", "gItemEditor.Cape.Width", 0.1f, 5.0f, 1.0f,
+      "Multiplier over the shoulder-to-shoulder span the cloth is pinned across." },
+    { "Arc Span (deg)", "gItemEditor.Cape.ArcSpan", 10.0f, 360.0f, 180.0f,
+      "Angle the 12 strand roots are spread over. 180 is the vanilla half-circle\n"
+      "around the shoulders; lower values bunch the cape into a narrower cloak,\n"
+      "higher values wrap it further around the body." },
+    { "Arc Bulge", "gItemEditor.Cape.ArcBulge", 0.0f, 4.0f, 1.0f,
+      "Depth of the parabolic arc the roots trace — how far the middle of the cape\n"
+      "bows out behind Link. 0 flattens the arc into a straight line across the\n"
+      "shoulders." },
+    { "Arc Spread", "gItemEditor.Cape.ArcSpread", 0.0f, 4.0f, 1.0f,
+      "Width of that same arc along the shoulder line." },
+};
+
+// Placement & rotation ---------------------------------------------------
+const CapeFloatParam kCapePlacementParams[] = {
+    { "Offset Back/Forward", "gItemEditor.Cape.OffsetX", -50.0f, 50.0f, 0.0f,
+      "Shifts the whole attachment arc backwards (+) or into Link's back (-)." },
+    { "Offset Up/Down", "gItemEditor.Cape.OffsetY", -50.0f, 50.0f, 0.0f,
+      "Raises (+) or lowers (-) the attachment arc along Link's spine." },
+    { "Offset Left/Right", "gItemEditor.Cape.OffsetZ", -50.0f, 50.0f, 0.0f,
+      "Slides the attachment arc sideways along the shoulder line." },
+    { "Yaw (deg)", "gItemEditor.Cape.Yaw", -180.0f, 180.0f, 0.0f,
+      "Turns the cape around Link's vertical axis, on top of the angle derived\n"
+      "from his shoulders." },
+    { "Pitch (deg)", "gItemEditor.Cape.Pitch", -180.0f, 180.0f, 0.0f,
+      "Tips the cape forwards/backwards." },
+    { "Roll (deg)", "gItemEditor.Cape.Roll", -180.0f, 180.0f, 0.0f, "Banks the cape sideways." },
+};
+
+// Physics ----------------------------------------------------------------
+const CapeFloatParam kCapePhysicsParams[] = {
+    { "Gravity", "gItemEditor.Cape.Gravity", -20.0f, 5.0f, -3.0f,
+      "Downward pull applied to every joint each tick. Vanilla: -3.0.\n"
+      "Positive values make the cape float upwards." },
+    { "Back Push", "gItemEditor.Cape.BackPush", -20.0f, 20.0f, -4.0f,
+      "Constant push away from Link's back that keeps the cloth from clipping\n"
+      "into him while standing still. Vanilla: -4.0." },
+    { "Body Radius", "gItemEditor.Cape.MinDist", 0.0f, 60.0f, 8.0f,
+      "How far from Link's center the cloth is held off. Raise it if the cape\n"
+      "clips through a wider custom model. Vanilla: 8.0." },
+    { "Floor Limit", "gItemEditor.Cape.FloorOffset", -400.0f, 0.0f, -200.0f,
+      "Lowest the cloth may hang, relative to Link's feet. Vanilla: -200." },
+    { "Back Sway", "gItemEditor.Cape.BackSway", 0.0f, 3.0f, 0.3f,
+      "Backwards billow per unit of running speed. Vanilla: 0.3." },
+    { "Side Sway", "gItemEditor.Cape.SideSway", 0.0f, 3.0f, 0.15f,
+      "Sideways flutter per unit of running speed. Vanilla: 0.15." },
+    { "Damping", "gItemEditor.Cape.Damping", 0.0f, 1.0f, 0.8f,
+      "Fraction of a joint's velocity carried into the next tick. Lower = stiffer,\n"
+      "higher = floatier and slower to settle. Vanilla: 0.8." },
+    { "Velocity Clamp", "gItemEditor.Cape.VelClamp", 0.5f, 30.0f, 5.0f,
+      "Per-axis speed limit for a joint. Keeps the cloth from exploding on hard\n"
+      "camera cuts. Vanilla: 5.0." },
+    { "Settle Rate", "gItemEditor.Cape.Decel", 0.0f, 1.0f, 0.1f,
+      "How quickly leftover motion bleeds away when Link stops. Vanilla: 0.1." },
+};
+
+void ItemEditorCapeColorWidget(WidgetInfo& info) {
+    float col[4] = {
+        CVarGetInteger("gItemEditor.Cape.ColorR", 255) / 255.0f,
+        CVarGetInteger("gItemEditor.Cape.ColorG", 255) / 255.0f,
+        CVarGetInteger("gItemEditor.Cape.ColorB", 255) / 255.0f,
+        CVarGetInteger("gItemEditor.Cape.ColorA", 255) / 255.0f,
+    };
+
+    if (ImGui::ColorEdit4("Cape Color##ItemEditorCape", col,
+                          ImGuiColorEditFlags_AlphaBar)) {
+        CVarSetInteger("gItemEditor.Cape.ColorR", (int32_t)(col[0] * 255.0f + 0.5f));
+        CVarSetInteger("gItemEditor.Cape.ColorG", (int32_t)(col[1] * 255.0f + 0.5f));
+        CVarSetInteger("gItemEditor.Cape.ColorB", (int32_t)(col[2] * 255.0f + 0.5f));
+        CVarSetInteger("gItemEditor.Cape.ColorA", (int32_t)(col[3] * 255.0f + 0.5f));
+        Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+    }
+    UIWidgets::Tooltip("Tints the Ganondorf cape texture. White = untouched.\n"
+                       "Dropping the alpha below 255 also moves the cloth onto the translucent\n"
+                       "render pass so it actually blends instead of being drawn opaque.");
+}
+
+void ItemEditorResetSlate() {
+    for (const auto& p : kSlateHandParams) {
+        CVarSetFloat(p.cvar, p.def);
+    }
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+}
+
+void ItemEditorResetCape() {
+    static const char* kIntCVars[] = { "gItemEditor.Cape.ColorR", "gItemEditor.Cape.ColorG",
+                                       "gItemEditor.Cape.ColorB", "gItemEditor.Cape.ColorA" };
+
+    for (const auto& p : kCapeShapeParams) {
+        CVarSetFloat(p.cvar, p.def);
+    }
+    for (const auto& p : kCapePlacementParams) {
+        CVarSetFloat(p.cvar, p.def);
+    }
+    for (const auto& p : kCapePhysicsParams) {
+        CVarSetFloat(p.cvar, p.def);
+    }
+    for (const char* cvar : kIntCVars) {
+        CVarSetInteger(cvar, 255);
+    }
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+}
+
+} // namespace
 
 void BenMenu::AddNEI() {
     AddMenuEntry("Skijer's NEI", "gSettings.Menu.SkijerNEISidebarSection");
 
-    // --- Custom Items: 1:1 with Ship > Skijer's NEI > Custom Items ---
+    // Sidebar order is shared with Ship's Skijer's NEI menu.
     AddSidebarEntry("Skijer's NEI", "Custom Items", 1);
+    AddSidebarEntry("Skijer's NEI", "Item Editor", 2);
+    AddSidebarEntry("Skijer's NEI", "Masks", 1);
+    AddSidebarEntry("Skijer's NEI", "Spells", 1);
+    AddSidebarEntry("Skijer's NEI", "Modes", 1);
+    AddSidebarEntry("Skijer's NEI", "Randomizer", 1);
+    AddSidebarEntry("Skijer's NEI", "Controls", 1);
+
+    // ===================== Tab: Custom Items =====================
     WidgetPath itemsPath = { "Skijer's NEI", "Custom Items", SECTION_COLUMN_1 };
     AddWidget(itemsPath, "Custom Items", WIDGET_SEPARATOR_TEXT);
     AddWidget(itemsPath, "Custom Items Page", WIDGET_CVAR_CHECKBOX)
@@ -2440,6 +2619,35 @@ void BenMenu::AddNEI() {
     AddWidget(itemsPath, "Give All Custom Items (one-shot)", WIDGET_CVAR_CHECKBOX)
         .CVar("gMods.CustomItems.GiveAll")
         .Options(CheckboxOptions().Tooltip("Grants every NEI custom item on the next gameplay frame, then clears."));
+
+    // --- OoT Quest Page (mirror of Ship's "MM Quest Page" block) ---
+    AddWidget(itemsPath, "OoT Quest Page", WIDGET_SEPARATOR_TEXT);
+    AddWidget(itemsPath, "Interact With OoT Quest Page", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.SkijerNEI.QuestPageInteract")
+        .Options(CheckboxOptions()
+                     .DefaultValue(true)
+                     .Tooltip(
+                         "On the pause quest page, press L to flip to OoT's Quest Status layout. While on (the "
+                         "default), a cursor (stick/DPad) lets you EQUIP a medallion to a C button (hover it + "
+                         "C-left/down/right) and toggle a spiritual stone's passive buff (hover it + A)."));
+    AddWidget(itemsPath, "Songs: Pause Play (skip minigame)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.SkijerNEI.PausePlay")
+        .Options(CheckboxOptions().Tooltip(
+            "On the OoT Quest Status page, if you hold an ocarina (Ocarina of Time or, once added, the "
+            "Fairy Ocarina), pressing A on a learned song plays it overworld-style — a quick playback + "
+            "its effect (the song event is latched for the warp/effect pass) — INSTEAD of the learn-it "
+            "minigame. OFF (default) = the learn-it minigame. Requires 'Interact With OoT Quest Page'."));
+    AddWidget(itemsPath, "Grant OoT Songs + Medallions", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) {
+            // ootQuestItems uses OoT's own bit layout (nei_save.h): 0-5 medallions,
+            // 6-17 songs, 18-20 spiritual stones, 21 Stone of Agony, 22 Gerudo Card.
+            Nei_Save()->ootQuestItems |= 0x007FFFFF;
+        })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip(
+            "Fills the OoT quest page: the 6 medallions, all 12 OoT songs, the 3 spiritual stones, "
+            "the Stone of Agony and the Gerudo Membership Card. Idempotent."));
+
+    // --- Weapon Upgrade Appearance ---
     AddWidget(itemsPath, "Weapon Upgrade Appearance", WIDGET_SEPARATOR_TEXT);
     AddWidget(itemsPath, "Gilded Sword: use Gilded look", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.SkijerNEI.GildedUsesGildedLook")
@@ -2449,34 +2657,96 @@ void BenMenu::AddNEI() {
         .Options(CheckboxOptions().Tooltip("BGS upgrade shows the GFS model/icon.").DefaultValue(true));
     AddWidget(itemsPath, "Enable Extra Equipment", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.ExtEquip.Enabled")
-        .Options(CheckboxOptions().Tooltip("Extended equipment (ext swords/shields/tunics/boots) systems."));
+        .Options(CheckboxOptions().Tooltip(
+            "Adds 12 new equipment pieces (3 swords, 3 shields, 3 tunics, 3 boots).\n"
+            "Press L on the equipment page to toggle between vanilla and extended equipment."));
     AddWidget(itemsPath, "Roc's Items Use MM Animations", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.RocsItemsUseMmAnims")
         .Options(CheckboxOptions().Tooltip("Roc's Feather/Cape jump uses the MM anim set."));
     AddWidget(itemsPath, "Invert Roc's Items Animations", WIDGET_CVAR_CHECKBOX)
         .CVar("gMods.RocsItems.InvertAnims")
+        .PreFunc([](WidgetInfo& info) {
+            if (!CVarGetInteger("gEnhancements.RocsItemsUseMmAnims", 0)) {
+                CVarSetInteger("gMods.RocsItems.InvertAnims", 0);
+                info.options->disabled = true;
+                info.options->disabledTooltip = "Enable 'Roc's Items Use MM Animations' first.";
+            }
+        })
         .Options(CheckboxOptions().Tooltip("Swap which anim plays on jump vs double-jump."));
     AddWidget(itemsPath, "NEI Aim Cycle (R/L while aiming)", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.NeiAimCycle")
-        .Options(CheckboxOptions().Tooltip("Cycle projectile items while aiming."));
-    AddWidget(itemsPath, "Bomb Arrows: Auto-grant with Bomb Bag", WIDGET_CVAR_CHECKBOX)
-        .CVar("gMods.BombArrows.AutoGrantOnBag")
-        .Options(CheckboxOptions().Tooltip("Owning a bomb bag grants Bomb Arrows."));
+        .Options(CheckboxOptions().Tooltip(
+            "Cycle between elements while aiming. R = next, L = previous.\n"
+            "Applies to the bow, the slingshot and the Gust Jar; the arrow wheel also\n"
+            "includes Bombchus once you own any."));
 
+    // --- Twilight Upgrade bits (per-bit save flags; live shadow + setter, same as Ship) ---
+    AddWidget(itemsPath, "Twilight Upgrade Bits", WIDGET_SEPARATOR_TEXT);
+    static bool sTwClawshot, sTwBombArrows, sTwGaleBoomerang;
+    AddWidget(itemsPath, "Clawshot", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) {
+            sTwClawshot = TwilightUpgrade_HasClawshot() != 0;
+            info.valuePointer = &sTwClawshot;
+        })
+        .Callback([](WidgetInfo& info) { TwilightUpgrade_SetClawshot(sTwClawshot ? 1 : 0); })
+        .Options(CheckboxOptions().Tooltip(
+            "Unlocks the Clawshot mode on hookshot/longshot: the reverse pull\n"
+            "(enemy -> Link, pin to a grappling point)."));
+    AddWidget(itemsPath, "Bomb Arrows", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) {
+            sTwBombArrows = TwilightUpgrade_HasBombArrows() != 0;
+            info.valuePointer = &sTwBombArrows;
+        })
+        .Callback([](WidgetInfo& info) { TwilightUpgrade_SetBombArrows(sTwBombArrows ? 1 : 0); })
+        .Options(CheckboxOptions().Tooltip("Adds bomb arrows as a position in the arrow cycle during bow aim."));
+    AddWidget(itemsPath, "Gale Boomerang", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) {
+            sTwGaleBoomerang = TwilightUpgrade_HasGaleBoomerang() != 0;
+            info.valuePointer = &sTwGaleBoomerang;
+        })
+        .Callback([](WidgetInfo& info) { TwilightUpgrade_SetGaleBoomerang(sTwGaleBoomerang ? 1 : 0); })
+        .Options(CheckboxOptions().Tooltip(
+            "Unlocks the Gale Boomerang multi-target: during boomerang aim, L adds\n"
+            "the current Z-target to the route (up to 4 targets)."));
+    AddWidget(itemsPath, "Grant All Twilight Bits", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { TwilightUpgrade_Grant(); })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Sets all three Twilight Upgrade bits at once."));
+
+    // --- Hookshot overhaul: Ultrashot is the 3rd rung of the OoT hookshot chain here ---
+    AddWidget(itemsPath, "Hookshot Overhaul", WIDGET_SEPARATOR_TEXT);
+    static bool sUltrashot;
+    AddWidget(itemsPath, "Ultrashot", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) {
+            sUltrashot = Nei_Save()->ootHookshotLevel >= 3;
+            info.valuePointer = &sUltrashot;
+        })
+        .Callback([](WidgetInfo& info) {
+            // ootHookshotLevel: 1 Hookshot, 2 Longshot, 3 Ultrashot. Turning it off drops
+            // back to the Longshot rather than taking the item away entirely.
+            Nei_Save()->ootHookshotLevel = sUltrashot ? 3 : 2;
+        })
+        .Options(CheckboxOptions().Tooltip(
+            "Unlocks the Ultrashot: the Longshot fires 4x the hookshot's distance at\n"
+            "double chain speed. It keeps the Longshot icon — a small Light Medallion\n"
+            "corner marker and the 'Ultrashot' name tell it apart."));
+
+    // --- Weapon Upgrade bits ---
     AddWidget(itemsPath, "Weapon Upgrade Bits", WIDGET_SEPARATOR_TEXT);
     static bool sWuHammer, sWuRazor, sWuGilded, sWuMaster, sWuGfs;
     AddWidget(itemsPath, "Hammer: Iron Knuckle's Axe", WIDGET_CHECKBOX)
         .PreFunc([](WidgetInfo& info) { sWuHammer = WeaponUpgrade_HasHammerAxe() != 0; info.valuePointer = &sWuHammer; })
         .Callback([](WidgetInfo& info) { WeaponUpgrade_SetHammerAxe(sWuHammer ? 1 : 0); })
-        .Options(CheckboxOptions().Tooltip("Hammer upgrade bit."));
+        .Options(CheckboxOptions().Tooltip(
+            "Upgrades the hammer into the Iron Knuckle's Axe: double damage, double\n"
+            "reach, heavy swings and a tomahawk throw (hold R + B)."));
     AddWidget(itemsPath, "Kokiri: Razor Sword", WIDGET_CHECKBOX)
         .PreFunc([](WidgetInfo& info) { sWuRazor = WeaponUpgrade_HasRazor() != 0; info.valuePointer = &sWuRazor; })
         .Callback([](WidgetInfo& info) { WeaponUpgrade_SetRazor(sWuRazor ? 1 : 0); })
-        .Options(CheckboxOptions().Tooltip("Kokiri progressive level 1."));
+        .Options(CheckboxOptions().Tooltip("Kokiri Sword upgrade, progressive level 1."));
     AddWidget(itemsPath, "Kokiri: Gilded Sword", WIDGET_CHECKBOX)
         .PreFunc([](WidgetInfo& info) { sWuGilded = WeaponUpgrade_HasGilded() != 0; info.valuePointer = &sWuGilded; })
         .Callback([](WidgetInfo& info) { WeaponUpgrade_SetGilded(sWuGilded ? 1 : 0); })
-        .Options(CheckboxOptions().Tooltip("Kokiri progressive level 2."));
+        .Options(CheckboxOptions().Tooltip("Kokiri Sword upgrade, progressive level 2."));
     AddWidget(itemsPath, "Master: True Master Sword", WIDGET_CHECKBOX)
         .PreFunc([](WidgetInfo& info) { sWuMaster = WeaponUpgrade_HasTrueMaster() != 0; info.valuePointer = &sWuMaster; })
         .Callback([](WidgetInfo& info) { WeaponUpgrade_SetTrueMaster(sWuMaster ? 1 : 0); })
@@ -2487,15 +2757,167 @@ void BenMenu::AddNEI() {
         .Options(CheckboxOptions().Tooltip("BGS upgrade bit (GFS look via the appearance cheat)."));
     AddWidget(itemsPath, "Grant All Weapon Upgrades", WIDGET_BUTTON)
         .Callback([](WidgetInfo& info) { WeaponUpgrade_GrantAll(); })
-        .Options(ButtonOptions().Tooltip("Sets every weapon-upgrade bit."));
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip("Sets every weapon-upgrade bit."));
 
-    // --- Masks: 1:1 with Ship > Skijer's NEI > Masks ---
-    AddSidebarEntry("Skijer's NEI", "Masks", 1);
+    // (The NEI "Pictograph Box" dev widgets lived here. MM owns the pictograph natively — grant it
+    // from the Save Editor's inventory like any other vanilla item.)
+
+    // --- Power Keg ---
+    AddWidget(itemsPath, "Power Keg", WIDGET_SEPARATOR_TEXT);
+    static bool sPowerKegOwned;
+    AddWidget(itemsPath, "Power Keg: Owned", WIDGET_CHECKBOX)
+        .PreFunc([](WidgetInfo& info) {
+            sPowerKegOwned = PowerKeg_IsOwned() != 0;
+            info.valuePointer = &sPowerKegOwned;
+        })
+        .Callback([](WidgetInfo& info) { PowerKeg_SetOwned(sPowerKegOwned ? 1 : 0); })
+        .Options(CheckboxOptions().Tooltip(
+            "Grants the Power Keg. Shares the Bomb slot: press A on Bombs in the kaleido\n"
+            "to flip Bomb <-> Power Keg, then equip it to a C-button."));
+    AddWidget(itemsPath, "Give 20 Power Kegs", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) {
+            PowerKeg_SetOwned(1);
+            PowerKeg_SetCount(20);
+        })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip(
+            "Grants the Power Keg + 20 kegs of ammo (its own counter, separate from bombs)."));
+
+    // --- Trade items ---
+    AddWidget(itemsPath, "Trade Items", WIDGET_SEPARATOR_TEXT);
+    AddWidget(itemsPath, "Grant All Trade Items", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) {
+            s32 n = TradeAdult_Count();
+            for (s32 i = 0; i < n; i++) {
+                TradeAdult_GiveIndex(i);
+            }
+        })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip(
+            "Grants every adult trade-quest item into the adult-trade slot wheel. The Pendant\n"
+            "of Memories also unlocks its combat moveset (Ext Boots 2)."));
+
+    // ===================== Tab: Item Editor =====================
+    WidgetPath editorPath = { "Skijer's NEI", "Item Editor", SECTION_COLUMN_1 };
+    AddWidget(editorPath, "Item Editor", WIDGET_SEPARATOR_TEXT);
+    AddWidget(editorPath,
+              "Live tuning for the custom items. Everything here writes gItemEditor.* CVars that the "
+              "item's behavior reads every frame, so changes apply instantly and are shared with Ship "
+              "(the same preset works in both games). One section per item — more items land here as "
+              "they are made tunable.",
+              WIDGET_TEXT);
+
+    // ── Dual Cane wheel shape (user 2026-08-06). Four configurations for the shared cell 45 wheel;
+    // a base cane only leaves the wheel once its own end-item is owned (Nei_CaneTypeVisible). The
+    // CVar name is shared with Ship so the option carries over between games.
+    AddWidget(editorPath, "Dual Cane", WIDGET_SEPARATOR_TEXT);
+    static std::unordered_map<int32_t, const char*> caneWheelModeOptions = {
+        { 0, "Somaria - Trirod - Pacci - Ultrahand" },
+        { 1, "Trirod - Ultrahand" },
+        { 2, "Somaria - Trirod - Ultrahand" },
+        { 3, "Trirod - Pacci - Ultrahand" },
+    };
+    AddWidget(editorPath, "Cane Wheel Shape", WIDGET_CVAR_COMBOBOX)
+        .CVar("gItemEditor.CaneWheelMode")
+        .Options(ComboboxOptions()
+                     .ComboMap(&caneWheelModeOptions)
+                     .DefaultIndex(0)
+                     .Tooltip("Which canes ride the shared wheel. A base cane is only hidden once\n"
+                              "its own end-item (Trirod / Ultrahand) is owned, so the cell can\n"
+                              "never lose the only cane you have."));
+
+    // ── Sheikah Slate: in-hand placement. The tablet is drawn off the forearm→hand vector every
+    // frame (object_sheikah_slate.c), so these land live while it is out — draw it with C and drag.
+    AddWidget(editorPath, "Sheikah Slate (in hand)", WIDGET_SEPARATOR_TEXT);
+    AddWidget(editorPath, "Reset Slate to Defaults", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { ItemEditorResetSlate(); })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip(
+            "Puts the hand placement back to the values the slate ships with."));
+    for (const auto& p : kSlateHandParams) {
+        AddWidget(editorPath, p.label, WIDGET_CVAR_SLIDER_FLOAT)
+            .CVar(p.cvar)
+            .Options(FloatSliderOptions()
+                         .Min(p.min)
+                         .Max(p.max)
+                         .DefaultValue(p.def)
+                         .Step(0.005f)
+                         .Format("%.3f")
+                         .Tooltip(p.tooltip));
+    }
+
+    AddWidget(editorPath, "Magic Cape", WIDGET_SEPARATOR_TEXT);
+    AddWidget(editorPath, "Enable Custom Cape Settings", WIDGET_CVAR_CHECKBOX)
+        .CVar("gItemEditor.Cape.Custom")
+        .Options(CheckboxOptions().Tooltip(
+            "Master switch for this section. OFF (default) makes the cape use its built-in\n"
+            "values and ignore every control below, so you can A/B a tune against vanilla\n"
+            "without resetting anything."));
+    AddWidget(editorPath, "Reset Cape to Defaults", WIDGET_BUTTON)
+        .Callback([](WidgetInfo& info) { ItemEditorResetCape(); })
+        .Options(ButtonOptions().Size(Sizes::Inline).Tooltip(
+            "Puts every cape control below back to the value the cloth ships with."));
+
+    AddWidget(editorPath, "Cape: Shape & Size", WIDGET_SEPARATOR_TEXT);
+    for (const auto& p : kCapeShapeParams) {
+        AddWidget(editorPath, p.label, WIDGET_CVAR_SLIDER_FLOAT)
+            .CVar(p.cvar)
+            .PreFunc([](WidgetInfo& info) {
+                if (!CVarGetInteger("gItemEditor.Cape.Custom", 0)) {
+                    info.options->disabled = true;
+                    info.options->disabledTooltip = "Enable 'Enable Custom Cape Settings' first.";
+                }
+            })
+            .Options(FloatSliderOptions()
+                         .Min(p.min)
+                         .Max(p.max)
+                         .DefaultValue(p.def)
+                         .Step(0.05f)
+                         .Format("%.2f")
+                         .Tooltip(p.tooltip));
+    }
+
+    AddWidget(editorPath, "Cape: Placement & Rotation", WIDGET_SEPARATOR_TEXT);
+    for (const auto& p : kCapePlacementParams) {
+        AddWidget(editorPath, p.label, WIDGET_CVAR_SLIDER_FLOAT)
+            .CVar(p.cvar)
+            .PreFunc([](WidgetInfo& info) {
+                if (!CVarGetInteger("gItemEditor.Cape.Custom", 0)) {
+                    info.options->disabled = true;
+                    info.options->disabledTooltip = "Enable 'Enable Custom Cape Settings' first.";
+                }
+            })
+            .Options(FloatSliderOptions()
+                         .Min(p.min)
+                         .Max(p.max)
+                         .DefaultValue(p.def)
+                         .Step(0.5f)
+                         .Format("%.1f")
+                         .Tooltip(p.tooltip));
+    }
+
+    editorPath.column = SECTION_COLUMN_2;
+    AddWidget(editorPath, "Cape: Physics", WIDGET_SEPARATOR_TEXT);
+    for (const auto& p : kCapePhysicsParams) {
+        AddWidget(editorPath, p.label, WIDGET_CVAR_SLIDER_FLOAT)
+            .CVar(p.cvar)
+            .PreFunc([](WidgetInfo& info) {
+                if (!CVarGetInteger("gItemEditor.Cape.Custom", 0)) {
+                    info.options->disabled = true;
+                    info.options->disabledTooltip = "Enable 'Enable Custom Cape Settings' first.";
+                }
+            })
+            .Options(FloatSliderOptions()
+                         .Min(p.min)
+                         .Max(p.max)
+                         .DefaultValue(p.def)
+                         .Step(0.05f)
+                         .Format("%.2f")
+                         .Tooltip(p.tooltip));
+    }
+
+    AddWidget(editorPath, "Cape: Color", WIDGET_SEPARATOR_TEXT);
+    AddWidget(editorPath, "Cape Color", WIDGET_CUSTOM).CustomFunction(ItemEditorCapeColorWidget);
+
+    // ===================== Tab: Masks =====================
     WidgetPath masksPath = { "Skijer's NEI", "Masks", SECTION_COLUMN_1 };
-    AddWidget(masksPath, "MM Masks", WIDGET_SEPARATOR_TEXT);
-    AddWidget(masksPath, "MM Masks Page (Inventory + Effects)", WIDGET_CVAR_CHECKBOX)
-        .CVar("gMods.MmMasks.InventoryEnabled")
-        .Options(CheckboxOptions().Tooltip("Third item-kaleido page listing the MM masks.").DefaultValue(true));
     AddWidget(masksPath, "Mask Transformations", WIDGET_SEPARATOR_TEXT);
     AddWidget(masksPath, "Kafei Mask Transform", WIDGET_CVAR_CHECKBOX)
         .CVar("gMods.KafeiMaskTransform")
@@ -2505,7 +2927,12 @@ void BenMenu::AddNEI() {
         .Options(CheckboxOptions().Tooltip("Gerudo mask transforms the player."));
     AddWidget(masksPath, "Garo Mask Transform", WIDGET_CVAR_CHECKBOX)
         .CVar("gMods.GaroMaskTransform")
-        .Options(CheckboxOptions().Tooltip("Garo mask transforms the player."));
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip("Garo mask transforms the player."));
+
+    AddWidget(masksPath, "MM Masks", WIDGET_SEPARATOR_TEXT);
+    AddWidget(masksPath, "MM Masks Page (Inventory + Effects)", WIDGET_CVAR_CHECKBOX)
+        .CVar("gMods.MmMasks.InventoryEnabled")
+        .Options(CheckboxOptions().Tooltip("Third item-kaleido page listing the MM masks.").DefaultValue(true));
     AddWidget(masksPath, "Enable Transformation Masks", WIDGET_CVAR_CHECKBOX)
         .CVar("gMods.TransformMasks.Enabled")
         .Options(CheckboxOptions().Tooltip("Deku/Goron/Zora/FD transformation-mask systems.").DefaultValue(true));
@@ -2519,7 +2946,7 @@ void BenMenu::AddNEI() {
         .CVar("gEnhancements.SkijerNEI.MuteMmAudio")
         .Options(CheckboxOptions().Tooltip("Mutes the ported MM sound effects."));
 
-    // --- Boss Remains (wearable masks) ---
+    // --- Boss Remains (wearable masks). 2ship only — Ship has no boss-remains system. ---
     AddWidget(masksPath, "Boss Remains", WIDGET_SEPARATOR_TEXT);
     AddWidget(masksPath, "Enable Boss Remains Masks", WIDGET_CVAR_CHECKBOX)
         .CVar("gMods.BossRemains.Enabled")
@@ -2528,45 +2955,25 @@ void BenMenu::AddNEI() {
             "D-pad button from the quest page (hover it + C-left/down/right, or a D-pad slot with DpadEquips), "
             "then press that button in-game to don/doff it on Link's face. While worn, A does a custom action."));
 
-    // (Odolwa sword/shield in-hand placement is tuned + baked in boss_remains.cpp — sliders removed.)
-
-    // (Gyorg whirlpool funnel placement/size is tuned + baked in boss_remains.cpp — temp sliders removed.)
-
-    // --- Spells ---
-    AddSidebarEntry("Skijer's NEI", "Spells", 1);
+    // ===================== Tab: Spells =====================
     WidgetPath spellsPath = { "Skijer's NEI", "Spells", SECTION_COLUMN_1 };
     AddWidget(spellsPath, "Spells & Spiritual Stones", WIDGET_SEPARATOR_TEXT);
     AddWidget(spellsPath, "SW97 Medallion Spells", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.SkijerNEI.SW97Medallions")
-        .Options(CheckboxOptions().Tooltip("Spaceworld '97 medallion spells + elemental arrows (bow wheel) & "
-                                           "elemental slingshot bullets (slingshot wheel)."));
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Equip quest medallions to C-buttons from Quest Status.\n"
+            "C = cast elemental spell, L+C = set elemental arrow/slingshot bullet.\n\n"
+            "Credit: z64proto/sw97 team (spell/arrow actors)"));
     AddWidget(spellsPath, "Enable Spiritual Stones", WIDGET_CVAR_CHECKBOX)
         .CVar("gMods.SpiritualStones.Enabled")
-        .Options(CheckboxOptions().Tooltip("Spiritual stone items."));
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Master toggle for the custom Spiritual Stones behavior.\n"
+            "ON: each owned stone toggles (A on the Quest page) a passive buff\n"
+            "(Kokiri = faster walk, Goron = climb, Zora = swim), and held on a C/D-pad slot\n"
+            "sets/warps to a saved waypoint statue.\n"
+            "OFF: the stones behave like vanilla (no custom behavior)."));
 
-    // --- OoT Quest Status page (kaleido-collect L-flip pass) ---
-    AddWidget(spellsPath, "OoT Quest Page", WIDGET_SEPARATOR_TEXT);
-    AddWidget(spellsPath, "Interact With OoT Quest Page", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.SkijerNEI.QuestPageInteract")
-        .Options(CheckboxOptions()
-                     .DefaultValue(true)
-                     .Tooltip(
-                         "On the pause quest page, press L to flip to OoT's Quest Status layout. While on (the "
-                         "default), a cursor (stick/DPad) lets you EQUIP a medallion to a C button (hover it + "
-                         "C-left/down/right) and toggle a spiritual stone's passive buff (hover it + A)."));
-    // Song A-behavior on the OoT Quest page. By DEFAULT, A on a learned song runs the learn-it
-    // minigame (auto-playback -> reveal notes -> play it yourself). Turn this ON to instead play the
-    // song overworld-style (quick playback + its effect) — requires holding an ocarina.
-    AddWidget(spellsPath, "Songs: Pause Play (skip minigame)", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.SkijerNEI.PausePlay")
-        .Options(CheckboxOptions().Tooltip(
-            "On the OoT Quest Status page, if you hold an ocarina (Ocarina of Time or, once added, the "
-            "Fairy Ocarina), pressing A on a learned song plays it overworld-style — a quick playback + "
-            "its effect (the song event is latched for the warp/effect pass) — INSTEAD of the learn-it "
-            "minigame. OFF (default) = the learn-it minigame. Requires 'Interact With OoT Quest Page'."));
-
-    // --- Modes: Broken Modes form selector ---
-    AddSidebarEntry("Skijer's NEI", "Modes", 1);
+    // ===================== Tab: Modes =====================
     WidgetPath modesPath = { "Skijer's NEI", "Modes", SECTION_COLUMN_1 };
     AddWidget(modesPath, "Broken Modes", WIDGET_SEPARATOR_TEXT);
     AddWidget(modesPath, "Enable Broken Modes", WIDGET_CVAR_CHECKBOX)
@@ -2574,7 +2981,7 @@ void BenMenu::AddNEI() {
         .Options(CheckboxOptions().Tooltip(
             "Form selector (Link / Mario / Pikachu) on the equipment page's transform sub-page (L cycles)."));
 
-    AddSidebarEntry("Skijer's NEI", "Randomizer", 1);
+    // ===================== Tab: Randomizer =====================
     WidgetPath path = { "Skijer's NEI", "Randomizer", SECTION_COLUMN_1 };
 
     // Fleet Ship Combo: live MM <-> OoT switch (mirrors Ship > Skijer's NEI > Randomizer).
@@ -2620,7 +3027,7 @@ void BenMenu::AddNEI() {
             }
             int32_t next = cur ? 0 : 1; // 1 = MM (2ship), 0 = OoT (Ship)
             CVarSetInteger("isPlayerIn2Ship", next);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+            Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
             // Publish to shared memory so BOTH processes freeze/unfreeze + show/hide in sync.
             FleetShipCombo_SetActiveGame(next);
             FleetShipCombo_SetUiFocus(next); // front window follows the newly-active game
@@ -2638,6 +3045,26 @@ void BenMenu::AddNEI() {
 
     // The "Back to Ship UI" switch moved to the menu's top tab row (DrawFleetShipComboTabs):
     // selecting the "Ship of Harkinian" tab parks 2ship off-screen and returns to Ship.
+
+    // (The "Bomb Arrows: Auto-grant with Bomb Bag" checkbox lives in the randomizer's Shuffles tab
+    // now, as the middle value of the "Shuffle Bomb Arrows" dropdown — Bomb Arrows stopped being an
+    // inventory item and became the last entry of the bow's element wheel. Skijer's NEI)
+
+    // ===================== Tab: Controls =====================
+    WidgetPath controlsPath = { "Skijer's NEI", "Controls", SECTION_COLUMN_1 };
+    AddWidget(controlsPath, "Pause Menu", WIDGET_SEPARATOR_TEXT);
+    AddWidget(controlsPath, "Equip Items on D-Pad", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Dpad.DpadEquips")
+        .Options(CheckboxOptions().Tooltip(
+            "Allow equipping items to the D-Pad directions.\n"
+            "Same setting as Enhancements > Items > D-Pad Equips — surfaced here for convenience."));
+
+    AddWidget(controlsPath, "Camera", WIDGET_SEPARATOR_TEXT);
+    AddWidget(controlsPath, "Free Camera", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Camera.FreeLook.Enable")
+        .Options(CheckboxOptions().Tooltip(
+            "Enables free camera control (right stick / mouse).\n"
+            "Same setting as Enhancements > Camera > Free Look — surfaced here for convenience."));
 }
 
 BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name)
@@ -2704,29 +3131,29 @@ void BenMenu::InitElement() {
             "Debug Mode is Disabled" } },
         { DISABLE_FOR_NO_VSYNC,
           { [](disabledInfo& info) -> bool {
-               return !Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync();
+               return !Ship::Context::GetRawInstance()->GetWindow()->CanDisableVerticalSync();
            },
             "Disabling VSync not supported" } },
         { DISABLE_FOR_NO_WINDOWED_FULLSCREEN,
           { [](disabledInfo& info) -> bool {
-               return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen();
+               return !Ship::Context::GetRawInstance()->GetWindow()->SupportsWindowedFullscreen();
            },
             "Windowed Fullscreen not supported" } },
         { DISABLE_FOR_NO_MULTI_VIEWPORT,
           { [](disabledInfo& info) -> bool {
-               return !Ship::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports();
+               return !Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SupportsViewports();
            },
             "Multi-viewports not supported" } },
         { DISABLE_FOR_NOT_DIRECTX,
           { [](disabledInfo& info) -> bool {
-               return Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() !=
-                      Ship::WindowBackend::FAST3D_DXGI_DX11;
+               return Ship::Context::GetRawInstance()->GetWindow()->GetWindowBackend() !=
+                      Fast::WindowBackend::FAST3D_DXGI_DX11;
            },
             "Available Only on DirectX" } },
         { DISABLE_FOR_DIRECTX,
           { [](disabledInfo& info) -> bool {
-               return Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
-                      Ship::WindowBackend::FAST3D_DXGI_DX11;
+               return Ship::Context::GetRawInstance()->GetWindow()->GetWindowBackend() ==
+                      Fast::WindowBackend::FAST3D_DXGI_DX11;
            },
             "Not Available on DirectX" } },
         { DISABLE_FOR_MATCH_REFRESH_RATE_ON,

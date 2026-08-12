@@ -74,6 +74,25 @@ static const ALIGN_ASSET(2) char gItemIconDominionRodTex[] = dgItemIconDominionR
 static const ALIGN_ASSET(2) char gItemIconTimeGateTex[] = dgItemIconTimeGateTex;
 #define dgItemIconBombArrowsTex "__OTR__textures/icon_item_custom/gItemIconBombArrowsTex"
 static const ALIGN_ASSET(2) char gItemIconBombArrowsTex[] = dgItemIconBombArrowsTex;
+
+// Elemental Wand — one icon per rod; the page-2 cell shows whichever mode is active.
+#define dgItemIconSandRodTex "__OTR__textures/icon_item_custom/gItemIconSandRodTex"
+static const ALIGN_ASSET(2) char gItemIconSandRodTex[] = dgItemIconSandRodTex;
+
+#define dgItemIconTornadoRodTex "__OTR__textures/icon_item_custom/gItemIconTornadoRodTex"
+static const ALIGN_ASSET(2) char gItemIconTornadoRodTex[] = dgItemIconTornadoRodTex;
+
+#define dgItemIconWaterRodTex "__OTR__textures/icon_item_custom/gItemIconWaterRodTex"
+static const ALIGN_ASSET(2) char gItemIconWaterRodTex[] = dgItemIconWaterRodTex;
+
+#define dgItemIconMeteorRodTex "__OTR__textures/icon_item_custom/gItemIconMeteorRodTex"
+static const ALIGN_ASSET(2) char gItemIconMeteorRodTex[] = dgItemIconMeteorRodTex;
+
+#define dgItemIconStormRodTex "__OTR__textures/icon_item_custom/gItemIconStormRodTex"
+static const ALIGN_ASSET(2) char gItemIconStormRodTex[] = dgItemIconStormRodTex;
+
+#define dgItemIconShadowScepterTex "__OTR__textures/icon_item_custom/gItemIconShadowScepterTex"
+static const ALIGN_ASSET(2) char gItemIconShadowScepterTex[] = dgItemIconShadowScepterTex;
 #define dgItemIconFireRodTex "__OTR__textures/icon_item_custom/gItemIconFireRodTex"
 static const ALIGN_ASSET(2) char gItemIconFireRodTex[] = dgItemIconFireRodTex;
 #define dgItemIconIceRodTex "__OTR__textures/icon_item_custom/gItemIconIceRodTex"
@@ -491,6 +510,25 @@ static const ALIGN_ASSET(2) char gBalladOfHeroNameTex[] = dgBalladOfHeroNameTex;
 static const ALIGN_ASSET(2) char gBeetleNameTex[] = dgBeetleNameTex;
 #define dgBombArrowsNameTex "__OTR__textures/item_name_custom/gBombArrowsNameTex"
 static const ALIGN_ASSET(2) char gBombArrowsNameTex[] = dgBombArrowsNameTex;
+
+// Elemental Wand — one name banner per rod.
+#define dgSandRodNameTex "__OTR__textures/item_name_custom/gSandRodNameTex"
+static const ALIGN_ASSET(2) char gSandRodNameTex[] = dgSandRodNameTex;
+
+#define dgTornadoRodNameTex "__OTR__textures/item_name_custom/gTornadoRodNameTex"
+static const ALIGN_ASSET(2) char gTornadoRodNameTex[] = dgTornadoRodNameTex;
+
+#define dgWaterRodNameTex "__OTR__textures/item_name_custom/gWaterRodNameTex"
+static const ALIGN_ASSET(2) char gWaterRodNameTex[] = dgWaterRodNameTex;
+
+#define dgMeteorRodNameTex "__OTR__textures/item_name_custom/gMeteorRodNameTex"
+static const ALIGN_ASSET(2) char gMeteorRodNameTex[] = dgMeteorRodNameTex;
+
+#define dgStormRodNameTex "__OTR__textures/item_name_custom/gStormRodNameTex"
+static const ALIGN_ASSET(2) char gStormRodNameTex[] = dgStormRodNameTex;
+
+#define dgShadowScepterNameTex "__OTR__textures/item_name_custom/gShadowScepterNameTex"
+static const ALIGN_ASSET(2) char gShadowScepterNameTex[] = dgShadowScepterNameTex;
 #define dgBottomlessBottleNameTex "__OTR__textures/item_name_custom/gBottomlessBottleNameTex"
 static const ALIGN_ASSET(2) char gBottomlessBottleNameTex[] = dgBottomlessBottleNameTex;
 #define dgCaneOfSomariaNameTex "__OTR__textures/item_name_custom/gCaneOfSomariaNameTex"

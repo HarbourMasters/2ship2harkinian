@@ -31,8 +31,21 @@ extern "C" {
 // Custom PLAYER_IA range — re-based to +0x10 above MM's PLAYER_IA_MAX (0x53) so nothing
 // collides with vanilla MM item-actions (0x00-0x52). heldItemAction is s8 → keep <= 0x7F.
 // (MM masks + MM-native bottle contents are native in 2ship, not custom items here.)
+//
+// WARNING: this band (0x63-0x7F) is now COMPLETELY FULL — 29/29 taken. The only room left for a new
+// item action is the gap between MM's PLAYER_IA_MAX (0x53) and 0x62, where z64player.h already
+// parks PLAYER_IA_SLINGSHOT (0x54), the six magic spells (0x55-0x5A) and PLAYER_IA_BOOMERANG
+// (0x62). That is safe for the same documented reason they are: the ExtPlayer_* getters route
+// values >= 0x53 by EXACT MATCH and never index the [PLAYER_IA_MAX]-sized native tables. Free
+// there today: 0x5D-0x61. Skijer's NEI
 #define CUSTOM_PLAYER_IA_START 0x63
 #define CUSTOM_PLAYER_IA_END 0x7F
+
+// Elemental Wand (Skijer's NEI). ONE item action for all six rods — the active rod is
+// NeiSaveData.wandMode, read by the behavior when it lands. 0x5C sits in the pre-band gap described
+// above because 0x63-0x7F had nothing left. Per-rod behavior is a separate task; the init below is
+// a stub so the item equips, draws and cycles today.
+#define PLAYER_IA_ELEMENTAL_WAND 0x5C
 
 // Page-2 custom item PLAYER_IA values (0x63-0x7C, unique). Keys into sNeiItems[] via ExtPlayer.
 #define PLAYER_IA_ROCS_FEATHER_SKIJER 0x63

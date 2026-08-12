@@ -15,7 +15,10 @@
 #include "FleetShipCombo.h"
 
 #include <libultraship/libultraship.h>
+#include <fast/Fast3dWindow.h> // Fast::Fast3dWindow / Fast::WindowBackend (renderer guard below)
+#include "2s2h/BenGui/Notification.h" // on-screen warning when the renderer cannot share frames
 #include <spdlog/spdlog.h>
+#include <memory>
 #include <cstdlib>
 #include <cstring>
 
@@ -364,6 +367,23 @@ BOOL CALLBACK ShowOwnWindowsProc(HWND hwnd, LPARAM /*lparam*/) {
 }
 
 int sLastUiShown = -1; // -1 unknown, 0 hidden, 1 shown-for-config
+
+// Frames to skip capturing after the window is shown or hidden.
+//
+// Showing/hiding/moving the window makes the swapchain resize, which DESTROYS AND RECREATES the
+// framebuffer textures. The capture below takes the framebuffer handle from the renderer and
+// reinterpret_casts it to an ID3D11ShaderResourceView, then calls a method on it — so if it grabs
+// the handle in the same frame the window changed, it can dereference a view the resize already
+// released. That is a raw access violation: no exception, no C++ throw, nothing in the log.
+//
+// It is exactly the 2026-08-06 tester trace: "8. PollHostAlive enter", "9. done — host still
+// alive", "10. ProducerPublishFrame enter", and then the log ends. The first frame after a flip is
+// the ONE frame where this window goes from visible to hidden, which is why the swap looked guilty
+// for so long — the swap was only what made the window change.
+//
+// Two frames of margin: the resize is processed by the message pump between frames, so one is
+// enough in theory and two costs nothing (the peer just keeps showing the previous frame).
+int sSkipCaptureFrames = 0;
 } // namespace
 #endif
 
@@ -409,7 +429,7 @@ void FleetShipCombo_UpdateGuestWindow(void) {
             // menu. Switching to PLAY MM does NOT force the menu open — 2ship now has focus, so ESC
             // opens BenGui on demand and the keyboard drives MM.
             if (configPeek && !mmActive) {
-                if (auto window = Ship::Context::GetInstance()->GetWindow()) {
+                if (auto window = Ship::Context::GetRawInstance()->GetWindow()) {
                     if (auto gui = window->GetGui()) {
                         if (auto menu = gui->GetMenu()) {
                             if (!menu->IsVisible()) {
@@ -420,12 +440,13 @@ void FleetShipCombo_UpdateGuestWindow(void) {
                 }
             }
             sLastUiShown = 1;
+            sSkipCaptureFrames = 2; // the swapchain just resized — see sSkipCaptureFrames
         } else if (configPeek && !mmActive) {
             // Config-peek ONLY: the user came here just to use 2ship's BenGui while OoT is active;
             // once they close it (ESC / X), hand focus back to Ship. When MM is the ACTIVE game we
             // KEEP focus here (they're playing MM) — closing BenGui just closes the menu.
             bool hasMenu = false, menuOpen = false;
-            if (auto window = Ship::Context::GetInstance()->GetWindow()) {
+            if (auto window = Ship::Context::GetRawInstance()->GetWindow()) {
                 if (auto gui = window->GetGui()) {
                     if (auto menu = gui->GetMenu()) {
                         hasMenu = true;
@@ -452,6 +473,9 @@ void FleetShipCombo_UpdateGuestWindow(void) {
                 SetActiveWindow(sHostHwnd);
             }
         }
+        if (sLastUiShown != 0) {
+            sSkipCaptureFrames = 2; // the swapchain just resized — see sSkipCaptureFrames
+        }
         EnumWindows(HideOwnWindowsProc, 0); // keep off-screen / tool window (idempotent)
         sLastUiShown = 0;
     }
@@ -459,10 +483,32 @@ void FleetShipCombo_UpdateGuestWindow(void) {
 }
 
 void FleetShipCombo_PollHostAlive(void) {
+    // Tell Ship we are still turning frames. This is the ONE place guaranteed to run every frame
+    // whatever MM is doing (the frame loop calls it outside the render gating), which is exactly
+    // what makes it a usable liveness signal: an inactive MM renders nothing, so "did the shared
+    // texture update?" cannot distinguish idle from hung. A stopped heartbeat can.
+    FleetShipCombo_BeatHeartbeat();
 #ifdef _WIN32
     // If the host (Ship) has exited, don't linger as an orphan process. No-op when not a hosted
     // child (sHostProcess stays null in standalone) or while the host is still alive.
+    //
+    // SAY SO FIRST. This exit(0) is why "2ship crashes" reports have no crash in them: the process
+    // ends normally, with no exception, no C++ throw and not one line in the log — it just stops
+    // mid-frame, in whatever state it happened to be (idle on the file select, in gameplay, during a
+    // flip), which is exactly the pattern the 2026-08-05 logs show. It is not a crash here at all;
+    // it is US shutting down because SHIP died.
+    //
+    // The host's exit code is the payoff: a clean close reads 0, while a crash reads its exception
+    // code (0xC0000005 for an access violation, 0xC0000409 for a stack check, ...). So this single
+    // line says both "2ship stopped on purpose" and "here is how the host went down" — which moves
+    // the investigation to the process that actually failed.
     if (sHostProcess != nullptr && WaitForSingleObject(sHostProcess, 0) == WAIT_OBJECT_0) {
+        DWORD hostExit = 0;
+        GetExitCodeProcess(sHostProcess, &hostExit);
+        SPDLOG_ERROR("[FleetExit] host (Ship) is GONE — exit code {:#010x} ({}). 2ship is closing itself so it "
+                     "does not orphan; this is NOT a 2ship crash.",
+                     (uint32_t)hostExit, hostExit == 0 ? "clean shutdown" : "abnormal — that is the crash to chase");
+        spdlog::default_logger()->flush();
         exit(0);
     }
 #else
@@ -490,9 +536,43 @@ void FleetShipCombo_ProducerPublishFrame(void) {
     // selects "2Ship" in Ship's View selector (uiFocus) to reach its BenGui.
     FleetShipCombo_UpdateGuestWindow();
 
-    auto window = Ship::Context::GetInstance()->GetWindow();
+    auto window = Ship::Context::GetRawInstance()->GetWindow();
     if (!window) {
         return;
+    }
+
+    // Frame sharing is DirectX 11 only: below, GetGfxFrameBuffer() is reinterpret_cast to an
+    // ID3D11ShaderResourceView and dereferenced. Under OpenGL that same call returns a GL texture
+    // NAME — a small integer like 3 — so the cast produces a bogus pointer and the first method
+    // call is an access violation. The non-zero check further down does not catch it, because a
+    // texture name is perfectly non-zero.
+    //
+    // Bail out instead of crashing: the combo simply stops sharing frames until the user switches
+    // back to DirectX. Warned once so the reason is visible in the log rather than silent.
+    if (auto fast3d = std::dynamic_pointer_cast<Fast::Fast3dWindow>(window)) {
+        if (fast3d->GetWindowBackend() != Fast::WindowBackend::FAST3D_DXGI_DX11) {
+            // Warn once per renderer change rather than once per process: if the player switches
+            // back to DirectX and away again, they should be told again.
+            static int32_t lastWarnedBackend = -1;
+            const int32_t backend = fast3d->GetWindowBackend();
+            if (backend != lastWarnedBackend) {
+                lastWarnedBackend = backend;
+                SPDLOG_WARN("[FleetShipCombo] Frame sharing needs the DirectX 11 renderer; the "
+                            "current backend is {}. Frames will not be shared until it is changed "
+                            "back (Settings -> Renderer API).",
+                            fast3d->GetWindowBackendName());
+                Notification::Emit({
+                    .prefix = "Combo",
+                    .message = "needs the DirectX 11 renderer - the combo image will not show on " +
+                               fast3d->GetWindowBackendName(),
+                    .suffix = "change it in Settings > Renderer API",
+                    .remainingTime = 15.0f,
+                });
+            }
+            return;
+        }
+    } else {
+        return; // not a Fast3D window at all — nothing to capture
     }
 
     // Force render-to-fb EVERY frame so GetGfxFrameBuffer() stays non-zero (it is only
@@ -505,6 +585,17 @@ void FleetShipCombo_ProducerPublishFrame(void) {
             scale = 1.01f; // exactly 1.0x renders straight to the swapchain (no grabbable texture)
         }
         window->SetResolutionMultiplier(scale);
+    }
+
+    // Don't touch the framebuffer on a frame where the window just changed: the swapchain resize
+    // that follows a show/hide releases the very view we are about to dereference below, and the
+    // handle we would read is a plain uintptr_t with no way to tell a live view from a dead one.
+    // See sSkipCaptureFrames — this is the 2026-08-06 crash ("10. ProducerPublishFrame enter" and
+    // then nothing), which happens on the first frame after a flip because that is when this
+    // window goes from visible to hidden.
+    if (sSkipCaptureFrames > 0) {
+        sSkipCaptureFrames--;
+        return; // the peer keeps showing the previous frame for one or two frames
     }
 
     uintptr_t fb = window->GetGfxFrameBuffer();

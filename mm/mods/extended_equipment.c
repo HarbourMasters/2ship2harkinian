@@ -16,6 +16,12 @@
 #include "pak_loader/pak_loader.h"
 
 extern MmPlayerTransformation MmForm_GetCurrentForm(void);
+// trade_items.c ships no header; declared locally, as the save editor does. The Pendant of
+// Memories lives on the adult trade wheel — that bit is its ONLY ownership flag since the ext
+// BOOTS-2 grid slot became the Climb Boots (Skijer 2026-07-29).
+#define TRADE_ADULT_PENDANT 19
+extern u8 TradeAdult_IsOwnedIndex(s32 index);
+extern void TradeAdult_GiveIndex(s32 index);
 #include <string.h>
 #include <math.h>
 #include "z64.h"
@@ -72,15 +78,15 @@ static Gfx* Byrna_GetCaneDL(void) {
 #define AGE_REQ_CHILD 1
 #endif
 
-// Per-piece age requirement: [equipType][index-1]
-//   SWORD:  Byrna,            Four Sword,    Drillshaft
-//   SHIELD: Divine Shield,    Gerudo Scim.,  Shield of Ikana
-//   TUNIC:  Magic Cape,       Pending4,      Champion's Tunic
-//   BOOTS:  Pegasus Anklet,   Pendant Mem.,  Water Dragon Scale
+// Per-piece age requirement: [equipType][index-1] (2026-07-29 layout)
+//   SWORD:  Cane of Byrna,    Four Sword,    Trident
+//   SHIELD: Goddess Shield,   Kite Shield,   Shield of Ikana
+//   TUNIC:  Champion's Tunic, Magic Tunic,   Sage's
+//   BOOTS:  Pegasus Boots,    Climb Boots,   Roc Boots
 static const u8 sExtEquipAgeReqs[4][3] = {
     { AGE_REQ_NONE,  AGE_REQ_CHILD, AGE_REQ_ADULT },
     { AGE_REQ_NONE,  AGE_REQ_NONE,  AGE_REQ_CHILD },
-    { AGE_REQ_NONE,  AGE_REQ_ADULT, AGE_REQ_ADULT },
+    { AGE_REQ_NONE,  AGE_REQ_NONE,  AGE_REQ_NONE },
     { AGE_REQ_NONE,  AGE_REQ_NONE,  AGE_REQ_ADULT },
 };
 
@@ -94,7 +100,16 @@ u8 ExtEquip_CheckAgeReq(s16 equipType, u8 index) {
     if (CVarGetInteger("gCheats.TimelessEquipment", 0))
         return 1;
     u8 req = ExtEquip_GetAgeReq(equipType, index);
-    return (req == AGE_REQ_NONE) || (req == gSaveContext.save.linkAge); // 2ship: linkAge under Save
+    if (req == AGE_REQ_NONE) {
+        return 1;
+    }
+    // MM's linkAge is a dead field: z64save.h says it "still exists in MM, but is always set to 0
+    // (always adult)". Comparing against it meant every AGE_REQ_CHILD piece — Four Sword, Shield of
+    // Ikana — was permanently unequippable here, and the MM kaleido doesn't even beep on refusal, so
+    // it looked like the item simply hadn't crossed from OoT. MM's real age switch is the Time Gate:
+    // timeGateAdultMode forces OoT adult Link, and without it Link is the child. Skijer's NEI
+    u8 age = Nei_Save()->timeGateAdultMode ? AGE_REQ_ADULT : AGE_REQ_CHILD;
+    return req == age;
 }
 
 // ---------------------------------------------------------------------------
@@ -124,22 +139,45 @@ void ExtEquip_Init(void) {
     gExtEquipState.currentExtTunic = Nei_Save()->extEquipTunic;
     gExtEquipState.currentExtBoots = Nei_Save()->extEquipBoots;
 
-    // Old saves may still have the retired slots EQUIPPED (Cape as tunic 1, Pendant as boots 2,
-    // Dragon Scale as boots 3). Migrate: equipped implies OWNED — set the ownership bit (the moved
-    // passives read ownership now) BEFORE clearing the equipped field. Skijer 2026-07-16
-    if (ExtEquip_SlotRetired(EQUIP_TYPE_TUNIC, gExtEquipState.currentExtTunic)) {
-        if (gExtEquipState.currentExtTunic == 1) {
-            ExtEquip_GiveItem(EQUIP_TYPE_TUNIC, 1); // keep the Magic Cape owned
+    // Migrate the old tunic layout (Cape/Spirit/Champion) to
+    // Champion/Spirit/Sage's. Equipped implies owned.
+    if (Nei_Save()->extTunicLayoutVersion < 1) {
+        u8 hadCape = ExtEquip_HasItem(EQUIP_TYPE_TUNIC, 1);
+        u8 hadChampion = ExtEquip_HasItem(EQUIP_TYPE_TUNIC, 3);
+        u8 legacyEquippedTunic = gExtEquipState.currentExtTunic;
+
+        ExtEquip_RemoveItem(EQUIP_TYPE_TUNIC, 1);
+        ExtEquip_RemoveItem(EQUIP_TYPE_TUNIC, 3);
+        if (hadCape || legacyEquippedTunic == 1) {
+            Nei_Save()->capeOwned = 1;
         }
-        gExtEquipState.currentExtTunic = 0;
-        Nei_Save()->extEquipTunic = 0;
+        if (hadChampion || legacyEquippedTunic == 3) {
+            ExtEquip_GiveItem(EQUIP_TYPE_TUNIC, 1);
+        }
+        if (legacyEquippedTunic == 3) {
+            gExtEquipState.currentExtTunic = 1;
+            Nei_Save()->extEquipTunic = 1;
+        } else if (legacyEquippedTunic == 1) {
+            gExtEquipState.currentExtTunic = 0;
+            Nei_Save()->extEquipTunic = 0;
+        }
+        Nei_Save()->extTunicLayoutVersion = 1;
     }
-    if (ExtEquip_SlotRetired(EQUIP_TYPE_BOOTS, gExtEquipState.currentExtBoots)) {
-        if (gExtEquipState.currentExtBoots == 2) {
-            ExtEquip_GiveItem(EQUIP_TYPE_BOOTS, 2); // keep the Pendant of Memories owned
+    // Migrate the old boots layout (Pegasus / Pendant / Water Dragon Scale) to the real-boots layout
+    // (Pegasus / Climb / Roc). The Pendant keeps living on the left column, so its ownership moves off
+    // the BOOTS-2 bit onto the adult trade wheel; the dead Dragon-Scale bit is cleared so it can't
+    // read as "owns the Roc Boots". Equipped implies owned.
+    if (Nei_Save()->extBootsLayoutVersion < 1) {
+        if (ExtEquip_HasItem(EQUIP_TYPE_BOOTS, 2) || gExtEquipState.currentExtBoots == 2) {
+            TradeAdult_GiveIndex(TRADE_ADULT_PENDANT); // keep the Pendant owned on the trade wheel
         }
-        gExtEquipState.currentExtBoots = 0;
-        Nei_Save()->extEquipBoots = 0;
+        ExtEquip_RemoveItem(EQUIP_TYPE_BOOTS, 2);
+        ExtEquip_RemoveItem(EQUIP_TYPE_BOOTS, 3);
+        if (gExtEquipState.currentExtBoots == 2 || gExtEquipState.currentExtBoots == 3) {
+            gExtEquipState.currentExtBoots = 0;
+            Nei_Save()->extEquipBoots = 0;
+        }
+        Nei_Save()->extBootsLayoutVersion = 1;
     }
 
     // Clamp to valid range
@@ -151,6 +189,14 @@ void ExtEquip_Init(void) {
         gExtEquipState.currentExtTunic = 0;
     if (gExtEquipState.currentExtBoots > 3)
         gExtEquipState.currentExtBoots = 0;
+
+    // Existing saves may already have an extended piece equipped from the core
+    // equipment page while the legacy cheat CVar is off. Restore the complete
+    // behavior/draw path for that persisted loadout.
+    if (gExtEquipState.currentExtSword != 0 || gExtEquipState.currentExtShield != 0 ||
+        gExtEquipState.currentExtTunic != 0 || gExtEquipState.currentExtBoots != 0) {
+        CVarSetInteger(CVAR_EXT_EQUIP_ENABLED, 1);
+    }
 
     // Generate placeholder icons
     ExtEquip_GenerateIcons();
@@ -243,21 +289,27 @@ u8 ExtEquip_HasItem(s16 equipType, u8 index) {
 }
 
 // ---------------------------------------------------------------------------
-// Retired slots + upgrade-column passives (Skijer 2026-07-16, mirror of the OoT rework):
-//   TUNIC 1 (Magic Cape)          -> upgrade column; half-cost passive while OWNED, A-toggle = cloth
-//                                    visibility only.
-//   BOOTS 2 (Pendant of Memories) -> upgrade column; A-toggle = its whole moveset on/off.
-//   BOOTS 3 (Water Dragon Scale)  -> deleted; Zora swim is the ZORA TUNIC's permanent effect
-//                                    (Nei_IsZoraSwim in z_player.c).
-// Ownership bits remain meaningful — only the grid slots are dead.
+// Retired slots — NONE left (Skijer 2026-07-29, kaleido re-layout). History:
+//   TUNIC 1 (Magic Cape)          -> left column; ownership in Nei_Save()->capeOwned. Slot re-used
+//                                    by the Champion's Tunic (2026-07-16).
+//   BOOTS 2 (Pendant of Memories) -> left column; ownership in Nei_Save()->pendantOwned. Slot
+//                                    re-used by the CLIMB BOOTS.
+//   BOOTS 3 (Water Dragon Scale)  -> deleted (Zora swim = ZORA TUNIC's permanent effect). Slot
+//                                    re-used by the ROC BOOTS.
+// Kept as a function so the kaleido/save-editor call sites stay put if a slot is ever parked again.
 // ---------------------------------------------------------------------------
 u8 ExtEquip_SlotRetired(s16 equipType, u8 index) {
-    return (equipType == EQUIP_TYPE_TUNIC && index == 1) ||
-           (equipType == EQUIP_TYPE_BOOTS && (index == 2 || index == 3));
+    (void)equipType;
+    (void)index;
+    return false;
 }
 
 u8 ExtEquip_CapeOwned(void) {
-    return ExtEquip_HasItem(EQUIP_TYPE_TUNIC, 1);
+    return Nei_Save()->capeOwned;
+}
+
+void ExtEquip_GiveCape(void) {
+    Nei_Save()->capeOwned = 1;
 }
 
 u8 ExtEquip_CapeVisible(void) {
@@ -268,8 +320,102 @@ void ExtEquip_ToggleCapeVisibility(void) {
     Nei_Save()->capeHidden = !Nei_Save()->capeHidden;
 }
 
+u8 ExtEquip_IsChampionTunic(void) {
+    return ExtEquip_IsEnabled() && ExtEquip_GetCurrent(EQUIP_TYPE_TUNIC) == 1;
+}
+
+// Magic Tunic (slot 2) — TP-style Magic Armor. Every effect it has (damage absorption, the
+// underwater-breath skip, the orange visual) is gated on actually carrying rupees; broke, the
+// tunic is dead weight. Mirrors soh's ExtEquip_IsSpiritTunic / ExtEquip_SpiritHasMoney.
+u8 ExtEquip_IsSpiritTunic(void) {
+    return ExtEquip_IsEnabled() && ExtEquip_GetCurrent(EQUIP_TYPE_TUNIC) == 2;
+}
+
+u8 ExtEquip_SpiritHasMoney(void) {
+    return ExtEquip_IsSpiritTunic() && (gSaveContext.save.saveInfo.playerData.rupees > 0);
+}
+
+u8 ExtEquip_IsSagesTunic(void) {
+    return ExtEquip_IsEnabled() && ExtEquip_GetCurrent(EQUIP_TYPE_TUNIC) == 3;
+}
+
+u8 ExtEquip_HasSagesResistance(SagesResistance resistance) {
+    static const u8 sQuestItems[] = {
+        OOT_QUEST_MEDALLION_WATER,  OOT_QUEST_MEDALLION_FIRE,   OOT_QUEST_MEDALLION_LIGHT,
+        OOT_QUEST_MEDALLION_SHADOW, OOT_QUEST_MEDALLION_SPIRIT, OOT_QUEST_MEDALLION_FOREST,
+    };
+
+    return ExtEquip_IsSagesTunic() && resistance >= SAGES_RESIST_ICE &&
+           resistance <= SAGES_RESIST_WIND &&
+           (Nei_Save()->ootQuestItems & (1u << sQuestItems[resistance])) != 0;
+}
+
+// Sage's Tunic damage flash: when a medallion resistance absorbs a hit, the tunic briefly dyes
+// itself with that medallion's color, then fades back to white. Continuous sources (wind, shock)
+// keep refreshing the timer, so the dye holds while the medallion is still "feeding" the tunic.
+#define SAGES_FLASH_HOLD_FRAMES 20
+#define SAGES_FLASH_FADE_FRAMES 30
+static const u8 sSagesMedallionColors[6][3] = {
+    { 60, 130, 235 },  // ICE     <- Water Medallion
+    { 235, 60, 30 },   // FIRE    <- Fire Medallion
+    { 245, 225, 80 },  // THUNDER <- Light Medallion
+    { 155, 70, 220 },  // STUN    <- Shadow Medallion
+    { 240, 140, 40 },  // FALL    <- Spirit Medallion
+    { 70, 195, 90 },   // WIND    <- Forest Medallion
+};
+static s16 sSagesFlashTimer = 0;
+static u8 sSagesFlashResist = 0;
+
+void ExtEquip_SagesFlash(SagesResistance resistance) {
+    if (resistance > SAGES_RESIST_WIND) {
+        return;
+    }
+    sSagesFlashResist = resistance;
+    sSagesFlashTimer = SAGES_FLASH_HOLD_FRAMES + SAGES_FLASH_FADE_FRAMES;
+}
+
+void ExtEquip_SagesFlashTick(void) {
+    if (sSagesFlashTimer > 0) {
+        sSagesFlashTimer--;
+    }
+}
+
+void ExtEquip_GetSagesTunicColor(u8* r, u8* g, u8* b) {
+    *r = 235;
+    *g = 240;
+    *b = 245;
+    if (ExtEquip_IsSagesTunic() && sSagesFlashTimer > 0) {
+        const u8* m = sSagesMedallionColors[sSagesFlashResist];
+        s32 num = (sSagesFlashTimer >= SAGES_FLASH_FADE_FRAMES) ? SAGES_FLASH_FADE_FRAMES : sSagesFlashTimer;
+
+        *r = (u8)(*r + (((s32)m[0] - *r) * num) / SAGES_FLASH_FADE_FRAMES);
+        *g = (u8)(*g + (((s32)m[1] - *g) * num) / SAGES_FLASH_FADE_FRAMES);
+        *b = (u8)(*b + (((s32)m[2] - *b) * num) / SAGES_FLASH_FADE_FRAMES);
+    }
+}
+
+// Pendant of Memories — TWO separate flags (Skijer 2026-07-31, user decision):
+//
+//   OWN     (Nei_Save()->pendantOwned)     the EQUIPMENT piece. Holding the pendant in the adult
+//                                          trade slot GRANTS it, and from then on it is PERMANENT:
+//                                          the trade item can be handed away, the equipment piece
+//                                          cannot. This is what the kaleido equipment upgrade column
+//                                          shows and lets you toggle, and what FleetSync carries.
+//   EFFECT  (Nei_Save()->pendantEffectOff) the moveset on/off toggle (A on that cell).
+//
+// Before this, PendantOwned read the trade wheel DIRECTLY, so trading the pendant away silently
+// deleted the equipment piece and its whole moveset.
+void ExtEquip_GivePendant(void) {
+    Nei_Save()->pendantOwned = 1;
+}
+
 u8 ExtEquip_PendantOwned(void) {
-    return ExtEquip_HasItem(EQUIP_TYPE_BOOTS, 2);
+    // Latch on observation: this catches every acquisition path (trade grant, rando, save load,
+    // FleetSync) without having to hook each one. Idempotent, and it never clears.
+    if (!Nei_Save()->pendantOwned && TradeAdult_IsOwnedIndex(TRADE_ADULT_PENDANT)) {
+        ExtEquip_GivePendant();
+    }
+    return Nei_Save()->pendantOwned;
 }
 
 u8 ExtEquip_PendantActive(void) {
@@ -335,6 +481,13 @@ void ExtEquip_Equip(s16 equipType, u8 index) {
     // Age restriction
     if (!ExtEquip_CheckAgeReq(equipType, index))
         return;
+
+    // The MM equipment sub-page is a core inventory page and remains reachable even
+    // when the legacy cheat toggle is off. Equipping an owned piece is therefore the
+    // authoritative opt-in: enable its behavior/draw path as part of the equip action.
+    if (!ExtEquip_IsEnabled()) {
+        CVarSetInteger(CVAR_EXT_EQUIP_ENABLED, 1);
+    }
 
     // If already equipped, toggle off (unequip)
     u8 current = ExtEquip_GetCurrent(equipType);
@@ -490,20 +643,32 @@ u8 ExtEquip_GetCurrent(s16 equipType) {
 // Icons / Names
 // ---------------------------------------------------------------------------
 
-// Icon lookup table: [type][index-1] = OTR path string
+// Icon lookup table: [type][index-1] = OTR path string.
+// Skijer 2026-07-29 (kaleido re-layout) — page 2 is now:
+//   swords  Cane of Byrna (dummy, behavior moved to the GFS line) / Four Sword / Trident
+//   shields Goddess Shield / Kite Shield / Shield of Ikana (MM mirror shield)
+//   tunics  Champion's / Magic Tunic / Sage's (white)
+//   boots   Pegasus Boots / Climb Boots / Roc Boots
 static const char* sExtEquipIconPaths[4][3] = {
     // Swords
-    { dgItemIconCaneOfByrnaTex, dgItemIconFourSwordTex, dgItemIconDrillshaftTex },
+    { dgItemIconCaneOfByrnaTex, dgItemIconFourSwordTex, dgItemIconTridentTex },
     // Shields
-    { dgItemIconDivineShieldTex, dgItemIconGerudoScimitarTex,
+    { dgItemIconGoddessShieldTex, dgItemIconKiteShieldTex,
       "__OTR__icon_item_static_yar/gItemIconMirrorShieldTex" }, // Shield of Ikana (MM mirror shield)
     // Tunics
-    { dgItemIconMagicCapeTex, dgItemIconPending4Tex, dgItemIconChampionsTunicTex },
+    { dgItemIconChampionsTunicTex, dgItemIconMagicTunicTex, dgItemIconSagesTunicTex },
     // Boots
-    { dgItemIconPegasusAnkletTex,
-      "__OTR__icon_item_static_yar/gItemIconPendantOfMemoriesTex", // mm.o2r
-      dgItemIconWaterDragonScaleTex },
+    { dgItemIconPegasusBootsTex, dgItemIconClimbBootsTex, dgItemIconRocBootsTex },
 };
+
+// Left-column passives (Magic Cape / Pendant of Memories) — they left the ext grid, so their kaleido
+// icons come from here, NOT ExtEquip_GetIcon(grid). Mirror of the soh getters.
+void* ExtEquip_GetCapeIcon(void) {
+    return (void*)dgItemIconMagicCapeTex;
+}
+void* ExtEquip_GetPendantIcon(void) {
+    return (void*)"__OTR__icon_item_static_yar/gItemIconPendantOfMemoriesTex";
+}
 
 void* ExtEquip_GetIcon(s16 equipType, u8 index) {
     if (equipType < 0 || equipType >= 4 || index < 1 || index > 3) {
@@ -524,6 +689,11 @@ u16 ExtEquip_GetItemId(s16 equipType, u8 index) {
     }
     return ITEM_EXT_SWORD_1 + (equipType * 3) + (index - 1);
 }
+
+// Set by the equipment kaleido while it is naming a PAGE-2 GRID cell (same idiom as
+// gExtEquipSuppressIconOverride). Only ITEM_EXT_BOOTS_2 (0xEA) is ambiguous: as an inventory/trade-wheel
+// id it is the Pendant of Memories, as a grid slot it is the Climb Boots. Skijer 2026-07-29
+u8 gExtEquipGridNameContext = 0;
 
 void* ExtEquip_GetNameTex(u16 itemId, u8 language) {
     return ExtEquip_LookupNameTex(itemId, language);
@@ -569,8 +739,10 @@ void ExtEquip_UpdateBehavior(void* playerVoid, void* playVoid) {
         }
     }
 
-    if (!ExtEquip_IsEnabled())
+    if (!ExtEquip_IsEnabled()) {
+        Champion_Cleanup(play);
         return;
+    }
 
     ExtEquip_DispatchBehavior(player, play);
 }
@@ -646,7 +818,38 @@ void ExtEquip_DrawSwordDL(void* playVoid) {
     }
 }
 
+// item_cane_of_somaria.c — the Dual Cane borrows the two-handed BGS model group for
+// its stance, so the sword DL that group normally draws has to be suppressed.
+u8 Cane_IsActive(void);
+
+// mods/extended_player.h defines this, but pulling that header in here just for one
+// constant drags the whole custom-item action table with it. Guarded so the real
+// definition always wins if the include order ever changes.
+#ifndef PLAYER_IA_NET
+#define PLAYER_IA_NET 0x7E
+#endif
+
 u8 ExtEquip_ShouldHideSwordDL(void) {
+    // Dual Cane: the BGS model group is used for the two-handed POSE only. Same
+    // arrangement as the Cane of Byrna below, which also swaps the blade for its
+    // own model. Checked before the ext-equipment gate because the cane is a
+    // page-2 custom item, not ext equipment.
+    if (Cane_IsActive()) {
+        return 1;
+    }
+
+    // Net: it borrows Player_UpperAction_Sword so that drawing another item can take
+    // it out of Link's hands, but that action makes the engine draw the equipped
+    // BLADE too — which read as pulling the sword out on top of the net. The net has
+    // its own model, so the sword's is suppressed exactly like the cane's.
+    if (gPlayState != NULL) {
+        Player* netPlayer = GET_PLAYER(gPlayState);
+
+        if ((netPlayer != NULL) && (netPlayer->heldItemAction == PLAYER_IA_NET)) {
+            return 1;
+        }
+    }
+
     // Hammer upgrade: hide the hammer DL only while the axe is actually being drawn
     // (in free mode / putaway, don't hide — vanilla shows the open hand). Independent
     // of the ext-equipment cheat.

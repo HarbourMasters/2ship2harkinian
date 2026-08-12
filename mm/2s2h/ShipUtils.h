@@ -16,9 +16,18 @@
 #include <string>
 #include <array>
 #include <map>
+#include <memory>
 #include <vector>
 #include <imgui.h>
+#include <fast/Fast3dGui.h>
 #include "Rando/Rando.h"
+
+// LUS 1.3.1-464 moved the GUI texture helpers (GetTextureByName, LoadGuiTexture,
+// LoadTextureFromRawImage, HasTextureByName, GetTextureSize) off Ship::Gui and onto the
+// Fast::Fast3dGui subclass, which means every call site needs a downcast. This wraps it so
+// we don't repeat a dynamic_pointer_cast at ~105 places.
+std::shared_ptr<Fast::Fast3dGui> Ship_GetFast3dGui();
+
 void LoadGuiTextures();
 std::string convertEnumToReadableName(const std::string& input);
 std::string Ship_RemoveSpecialCharacters(const std::string& str);

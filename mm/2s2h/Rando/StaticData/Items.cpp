@@ -134,6 +134,9 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     // Distinct token+name per (dungeon,type); model shared per type. Names are the exact OoT English names.
     // Second wave (gear/spells/masks + NEI page-2 + ext equipment + NEI songs) is interleaved alphabetically.
     // Third wave (final cross items): SoH abilities / jabber nuts / GS token / bottled contents.
+    // ITEM_NONE keeps the give a no-op (it is in GiveItem's no-op group); the GI/GID are only what the
+    // default GetItem_Draw path renders, so it shows MM's own small key rather than nothing.
+    RI(RI_OOT_ABILITY_CHESTS,         "",     "Open Chests",                RITYPE_MAJOR,           ITEM_NONE,                       GI_KEY_SMALL,                GID_KEY_SMALL), // SoH RG_OPEN_CHEST — no MM gate, FC record only
     RI(RI_OOT_ABILITY_CLIMB,          "",     "Climb",                      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // SoH RG_CLIMB — ladder model draw
     RI(RI_OOT_ABILITY_CRAWL,          "",     "Crawl",                      RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // SoH RG_CRAWL — knee-pads (2 deku shields)
     RI(RI_OOT_BOMBCHU_BAG,            "a",    "Bombchu Bag",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -169,13 +172,25 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_OOT_DINS_FIRE,              "",     "Din's Fire",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_EXT_CANE_OF_BYRNA,      "the",  "Cane of Byrna",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_EXT_CHAMPIONS_TUNIC,    "the",  "Champion's Tunic",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_EXT_DIVINE_SHIELD,      "the",  "Divine Shield",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_DIVINE_SHIELD,      "the",  "Goddess Shield",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_EXT_FOUR_SWORD,         "the",  "Four Sword",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_EXT_MAGIC_CAPE,         "the",  "Magic Cape",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_EXT_PEGASUS_ANKLET,     "the",  "Pegasus Anklet",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_EXT_SHEIKAH_SHIELD,     "the",  "Sheikah Shield",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_EXT_SPIRIT_BREASTPLATE, "the",  "Spirit Breastplate",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_EXT_WATER_DRAGON_SCALE, "the",  "Water Dragon Scale",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_PEGASUS_ANKLET,     "the",  "Pegasus Boots",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_SHEIKAH_SHIELD,     "the",  "Kite Shield",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_SPIRIT_BREASTPLATE, "the",  "Magic Tunic",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_WATER_DRAGON_SCALE, "the",  "Sage's Tunic",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_TRIDENT,            "the",  "Trident",                    RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_CLIMB_BOOTS,        "the",  "Climb Boots",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_EXT_ROC_BOOTS,          "the",  "Roc's Boots",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_SHEIKAH_SLATE,      "the",  "Sheikah Slate",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_PHANTOM_HOURGLASS,  "the",  "Phantom Hourglass",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_SHADOW_CRYSTAL,     "the",  "Shadow Crystal",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_ROD_OF_SEASONS,     "the",  "Rod of Seasons",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    // Sheikah Slate runes — sibling items over the slate cell (wand idiom: any order, no levels).
+    RI(RI_OOT_NEI_SLATE_RUNE_BOMB,     "the", "Rune: Remote Bomb",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE, "the", "Rune: Master Cycle",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_SLATE_RUNE_STASIS,   "the", "Rune: Stasis",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_SLATE_RUNE_CRYONIS,  "the", "Rune: Cryonis",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_FARORES_WIND,           "",     "Farore's Wind",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_FISHING_POLE,           "the",  "Fishing Pole",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_GERUDO_MEMBERSHIP_CARD, "the",  "Gerudo Membership Card",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -221,10 +236,24 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_OOT_NEI_BEETLE,             "the",  "Beetle",                     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_BOMB_ARROWS,        "",     "Bomb Arrows",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_CANE_OF_SOMARIA,    "the",  "Cane of Somaria",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    // The other five Dual Cane skills. Each is its own check; whichever one is found
+    // first is what hands the player the cane itself (see Cane_GiveSkill).
+    RI(RI_OOT_NEI_CANE_SOMARIA_BLOCK,    "the", "Somaria Block",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_SOMARIA_PLATFORM, "the", "Somaria Platform",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_PACCI_FLIP,       "the", "Cane of Pacci",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_PACCI_STONE,      "the", "Magic Powder",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_PACCI_ULTRAHAND,  "the", "Pacci Ultrahand",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_DEKU_LEAF,          "the",  "Deku Leaf",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_DEMISE_DESTRUCTION, "",     "Demise Destruction",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_NEI_DESIRE_SENSOR,      "the",  "Desire Sensor",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_DESIRE_SENSOR,      "the",  "Quartz of Motion",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_DOMINION_ROD,       "the",  "Dominion Rod",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_ELEMENTAL_WAND,     "the",  "Elemental Wand",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_WAND_SAND_ROD,      "the",  "Sand Rod",                   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_WAND_TORNADO_ROD,   "the",  "Tornado Rod",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_WAND_WATER_ROD,     "the",  "Water Rod",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_WAND_METEOR_ROD,    "the",  "Meteor Rod",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_WAND_STORM_ROD,     "the",  "Storm Rod",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_WAND_SHADOW_SCEPTER,"the",  "Shadow Scepter",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_FIRE_ROD,           "the",  "Fire Rod",                   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_GUST_JAR,           "the",  "Gust Jar",                   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_HYLIAS_GRACE,       "",     "Hylia's Grace",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -239,10 +268,15 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_OOT_NEI_SWITCH_HOOK,        "the",  "Switch Hook",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_TIME_GATE,          "the",  "Time Gate",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_WHIP,               "the",  "Whip",                       RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_NEI_ZONAI_PERMAFROST,   "",     "Zonai Permafrost",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_ZONAI_PERMAFROST,   "the",  "Zonai Timer",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // renamed from "Zonai Permafrost" (user 2026-08-06); internal ids unchanged
     RI(RI_OOT_PROGRESSIVE_HAMMER,     "a",    "Progressive Hammer",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_PROGRESSIVE_BGS,        "a",    "Progressive Biggoron's Sword", RITYPE_MAJOR,        ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_PROGRESSIVE_STRENGTH,   "a",    "Progressive Strength Upgrade", RITYPE_MAJOR,        ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_PROGRESSIVE_MASTER_SWORD, "a",  "Progressive Master Sword",   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_PROGRESSIVE_NUT_CAPACITY,  "a", "Progressive Nut Capacity",   RITYPE_MAJOR,           ITEM_NONE,                       GI_DEKU_NUTS_1,              GID_DEKU_NUTS),
     RI(RI_OOT_PROGRESSIVE_ROC,        "a",    "Progressive Roc",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_PROGRESSIVE_STICK_CAPACITY, "a", "Progressive Stick Capacity", RITYPE_MAJOR,          ITEM_NONE,                       GI_DEKU_STICKS_1,            GID_DEKU_STICK),
+    RI(RI_OOT_ROCS_FEATHER,           "a",    "Roc's Feather",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // SoH's ship-vanilla feather (Nayru's Love slot), NOT the progressive Skijer Roc above
     RI(RI_OOT_RUTOS_LETTER,           "a",    "Bottle with Ruto's Letter",  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // OoT object_gi_bottle_letter (custom draw)
     RI(RI_OOT_SKELETON_KEY,           "the",  "Skeleton Key",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_SMALL_KEY_BOTTOM_OF_THE_WELL, "a", "Bottom of the Well Small Key", RITYPE_MAJOR,      ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -264,6 +298,7 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_OOT_SONG_PRELUDE_OF_LIGHT,  "the",  "Prelude of Light",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_SONG_REQUIEM_OF_SPIRIT, "the",  "Requiem of Spirit",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_SONG_SERENADE_OF_WATER, "the",  "Serenade of Water",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SONG_ZELDAS_LULLABY,    "",     "Zelda's Lullaby",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     // SoH Skijer jabber nuts (exact SoH English names) — per-race nut mesh from soh.o2r (direct load).
     RI(RI_OOT_SPEAK_DEKU,             "a",    "Deku Jabber Nut",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_SPEAK_GERUDO,           "a",    "Gerudo Jabber Nut",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -907,6 +942,7 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_OOT_SONG_PRELUDE_OF_LIGHT:
         case RI_OOT_SONG_REQUIEM_OF_SPIRIT:
         case RI_OOT_SONG_SERENADE_OF_WATER:
+        case RI_OOT_SONG_ZELDAS_LULLABY:
         // Skijer's NEI — the 3 NEI custom songs share the same OoT note icon (no icon of their own anywhere).
         case RI_OOT_SONG_BALLAD_OF_THE_HERO:
         case RI_OOT_SONG_COMMAND_MELODY:
@@ -988,6 +1024,8 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
         case RI_OOT_SPEAK_KOKIRI:
         case RI_OOT_SPEAK_ZORA:
             return (const char*)gItemIcons[ITEM_DEKU_NUT];
+        case RI_OOT_ABILITY_CHESTS: // no icon in SoH either; MM's chest-y stand-in is the small key
+            return (const char*)gItemIcons[ITEM_KEY_SMALL];
         case RI_OOT_ABILITY_CLIMB: // no icon exists anywhere (SoH included) — MM hookshot icon stands in (climbing aid)
             return (const char*)gItemIcons[ITEM_HOOKSHOT];
         case RI_OOT_ABILITY_CRAWL: // parity with SoH's knee-pads draw (two deku shields) — OoT deku-shield icon
@@ -1000,7 +1038,14 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return "__OTR__textures/icon_item_custom/gItemIconBeetleTex";
         case RI_OOT_NEI_BOMB_ARROWS:
             return "__OTR__textures/icon_item_custom/gItemIconBombArrowsTex";
+        // All six Dual Cane skills share the cane's icon — they are one item in the
+        // inventory, so a distinct icon per skill would misrepresent the slot.
         case RI_OOT_NEI_CANE_OF_SOMARIA:
+        case RI_OOT_NEI_CANE_SOMARIA_BLOCK:
+        case RI_OOT_NEI_CANE_SOMARIA_PLATFORM:
+        case RI_OOT_NEI_CANE_PACCI_FLIP:
+        case RI_OOT_NEI_CANE_PACCI_STONE:
+        case RI_OOT_NEI_CANE_PACCI_ULTRAHAND:
             return "__OTR__textures/icon_item_custom/gItemIconCaneOfSomariaTex";
         case RI_OOT_NEI_DEKU_LEAF:
             return "__OTR__textures/icon_item_custom/gItemIconDekuLeafTex";
@@ -1010,6 +1055,21 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return "__OTR__textures/icon_item_custom/gItemIconDesireSensorTex";
         case RI_OOT_NEI_DOMINION_ROD:
             return "__OTR__textures/icon_item_custom/gItemIconDominionRodTex";
+        // Elemental Wand: per-ROD icons, so the check tracker and the get-item textbox say which of
+        // the six you found even though they all land on one inventory cell.
+        case RI_OOT_NEI_ELEMENTAL_WAND:
+        case RI_OOT_NEI_WAND_SAND_ROD:
+            return "__OTR__textures/icon_item_custom/gItemIconSandRodTex";
+        case RI_OOT_NEI_WAND_TORNADO_ROD:
+            return "__OTR__textures/icon_item_custom/gItemIconTornadoRodTex";
+        case RI_OOT_NEI_WAND_WATER_ROD:
+            return "__OTR__textures/icon_item_custom/gItemIconWaterRodTex";
+        case RI_OOT_NEI_WAND_METEOR_ROD:
+            return "__OTR__textures/icon_item_custom/gItemIconMeteorRodTex";
+        case RI_OOT_NEI_WAND_STORM_ROD:
+            return "__OTR__textures/icon_item_custom/gItemIconStormRodTex";
+        case RI_OOT_NEI_WAND_SHADOW_SCEPTER:
+            return "__OTR__textures/icon_item_custom/gItemIconShadowScepterTex";
         case RI_OOT_NEI_FIRE_ROD:
             return "__OTR__textures/icon_item_custom/gItemIconFireRodTex";
         case RI_OOT_NEI_GUST_JAR:
@@ -1042,24 +1102,55 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return "__OTR__textures/icon_item_custom/gItemIconZonaiPermafrostTex";
         case RI_OOT_PROGRESSIVE_ROC:
             return "__OTR__textures/icon_item_custom/gItemIconRocsFeatherTex";
+        case RI_OOT_PROGRESSIVE_STICK_CAPACITY: // MM's own stick/nut icons; no upgrade art exists
+            return (const char*)gItemIcons[ITEM_DEKU_STICK];
+        case RI_OOT_PROGRESSIVE_NUT_CAPACITY:
+            return (const char*)gItemIcons[ITEM_DEKU_NUT];
+        case RI_OOT_ROCS_FEATHER:
+            // Ship-vanilla art, the same texture extended_inventory.c loads for ITEM_ROCS_FEATHER.
+            return "__OTR__textures/icon_item_static/gRocsFeatherTex";
         case RI_OOT_EXT_CANE_OF_BYRNA:
             return "__OTR__textures/icon_item_custom/gItemIconCaneOfByrnaTex";
         case RI_OOT_EXT_CHAMPIONS_TUNIC:
             return "__OTR__textures/icon_item_custom/gItemIconChampionsTunicTex";
-        case RI_OOT_EXT_DIVINE_SHIELD:
-            return "__OTR__textures/icon_item_custom/gItemIconDivineShieldTex";
+        case RI_OOT_EXT_DIVINE_SHIELD: // = the GODDESS SHIELD (renamed 2026-07-29; same item/behavior)
+            return "__OTR__textures/icon_item_custom/gItemIconGoddessShieldTex";
         case RI_OOT_EXT_FOUR_SWORD:
             return "__OTR__textures/icon_item_custom/gItemIconFourSwordTex";
+        case RI_OOT_EXT_TRIDENT:
+            return "__OTR__textures/icon_item_custom/gItemIconTridentTex";
+        case RI_OOT_EXT_CLIMB_BOOTS:
+            return "__OTR__textures/icon_item_custom/gItemIconClimbBootsTex";
+        case RI_OOT_EXT_ROC_BOOTS:
+            return "__OTR__textures/icon_item_custom/gItemIconRocBootsTex";
+        // 2026-08-06 page-2 additions — own icons (icon_item_custom PNG pipeline).
+        case RI_OOT_NEI_SHEIKAH_SLATE:
+            return "__OTR__textures/icon_item_custom/gItemIconSheikahSlateTex";
+        case RI_OOT_NEI_PHANTOM_HOURGLASS:
+            return "__OTR__textures/icon_item_custom/gItemIconPhantomHourglassTex";
+        case RI_OOT_NEI_SHADOW_CRYSTAL:
+            return "__OTR__textures/icon_item_custom/gItemIconShadowCrystalTex";
+        case RI_OOT_NEI_ROD_OF_SEASONS:
+            return "__OTR__textures/icon_item_custom/gItemIconRodOfSeasonsTex";
+        // Slate runes: the slate composite with the rune's badge (textbox/tracker icon).
+        case RI_OOT_NEI_SLATE_RUNE_BOMB:
+            return "__OTR__textures/icon_item_custom/gItemIconSheikahSlateBombTex";
+        case RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE:
+            return "__OTR__textures/icon_item_custom/gItemIconSheikahSlateMasterCycleTex";
+        case RI_OOT_NEI_SLATE_RUNE_STASIS:
+            return "__OTR__textures/icon_item_custom/gItemIconSheikahSlateStasisTex";
+        case RI_OOT_NEI_SLATE_RUNE_CRYONIS:
+            return "__OTR__textures/icon_item_custom/gItemIconSheikahSlateCryonisTex";
         case RI_OOT_EXT_MAGIC_CAPE:
             return "__OTR__textures/icon_item_custom/gItemIconMagicCapeTex";
-        case RI_OOT_EXT_PEGASUS_ANKLET:
-            return "__OTR__textures/icon_item_custom/gItemIconPegasusAnkletTex";
+        case RI_OOT_EXT_PEGASUS_ANKLET: // = the PEGASUS BOOTS (renamed 2026-07-29)
+            return "__OTR__textures/icon_item_custom/gItemIconPegasusBootsTex";
         case RI_OOT_EXT_SHEIKAH_SHIELD: // parity with SoH item_list, which uses the Gerudo Scimitar icon as its stand-in
             return "__OTR__textures/icon_item_custom/gItemIconGerudoScimitarTex";
-        case RI_OOT_EXT_SPIRIT_BREASTPLATE: // parity with SoH/2ship ext-equip page (Pending4 placeholder icon)
-            return "__OTR__textures/icon_item_custom/gItemIconPending4Tex";
+        case RI_OOT_EXT_SPIRIT_BREASTPLATE: // = the MAGIC TUNIC (renamed 2026-07-29; same behavior)
+            return "__OTR__textures/icon_item_custom/gItemIconMagicTunicTex";
         case RI_OOT_EXT_WATER_DRAGON_SCALE:
-            return "__OTR__textures/icon_item_custom/gItemIconWaterDragonScaleTex";
+            return "__OTR__textures/icon_item_custom/gItemIconSagesTunicTex";
         default:
             break;
     }

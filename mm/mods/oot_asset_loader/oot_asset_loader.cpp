@@ -28,6 +28,7 @@ extern "C" {
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
 unsigned char ResourceMgr_FileExists(const char* resName);
 char* ResourceMgr_LoadTexOrDListByName(const char* filePath);
+bool ResourceMgr_IsAltAssetsEnabled(void); // mod tolerance is gated on alt-assets being ON
 }
 
 // Defined in mm_asset_loader.cpp — true once an oot.o2r / oot-mq.o2r is loaded.
@@ -161,6 +162,78 @@ constexpr int kMaxDepth = 8;
 // is inserted BEFORE the walk, so a self/looping reference resolves to the in-progress buffer.
 std::unordered_map<std::string, void*> sDeepDlCache;
 
+void* DeepLoadPatchDl(const char* otrPath, int depth); // fwd (OotAssets_ResolveDL recurses into it)
+
+// -------------------------------------------------------------------------------------------------
+// MOD TOLERANCE (mirror of soh mm_asset_loader's FindModOverride, applied per CHILD reference).
+//
+// The deep-patch resolves every child of an OoT DL from the oot.o2r base. That means a user MOD could
+// only replace the WHOLE object (a full alt/ skeleton), never a single limb DL / vtx batch / texture —
+// any child the mod overrode was still pulled from oot.o2r. soh doesn't have this limitation: its
+// player draw resolves each child through the normal resource chain, where alt-assets transparently
+// swaps in the mod's version. We reproduce that here: before falling to the oot.o2r base for ANY child,
+// check whether a mod ships an alt/ override of that exact resource and, if so, load the MOD's version
+// through the normal path (its own children then resolve normally — mod alt first, MM/oot base after).
+// So a mod can now replace any part of the OoT model "tal cual", not just the entire skeleton.
+std::string OotAssets_CleanPath(const char* path) {
+    std::string s = (path != nullptr) ? path : "";
+    if (s.rfind("__OTR__", 0) == 0) {
+        s = s.substr(7);
+    }
+    return s;
+}
+
+// True if a user mod (alt-assets) ships an override of this resource. gAltAssetPrefix == "alt/".
+// Gated on alt-assets being ENABLED: with mods off, the resource manager won't redirect base -> alt,
+// so we must stay on the oot.o2r deep-patch path (loading the base DL through the normal path could
+// leave its children unresolved -> the very crash the deep-patch exists to prevent).
+bool OotAssets_HasModOverride(const std::string& clean) {
+    if (clean.empty() || !ResourceMgr_IsAltAssetsEnabled()) {
+        return false;
+    }
+    std::string alt = "alt/" + clean;
+    return ResourceMgr_FileExists(alt.c_str()) != 0;
+}
+
+// Mod override for a TEXTURE / VTX / ARRAY child -> raw data pointer (ImageData / Vertices.data()),
+// or nullptr if the mod doesn't override it. Loads via the base path; the resource manager auto-
+// redirects base -> alt when the mod ships it, so the mod's bytes come back.
+void* OotAssets_ModData(const std::string& clean) {
+    if (!OotAssets_HasModOverride(clean)) {
+        return nullptr;
+    }
+    std::string otr = "__OTR__" + clean;
+    return (void*)ResourceMgr_LoadTexOrDListByName(otr.c_str());
+}
+
+// Mod override for a child DISPLAY LIST -> Gfx*, or nullptr. Loaded through the normal path (NOT deep-
+// patched): an indexed mod DL's own children resolve normally at draw time, exactly like in soh.
+void* OotAssets_ModDL(const std::string& clean) {
+    if (!OotAssets_HasModOverride(clean)) {
+        return nullptr;
+    }
+    std::string otr = "__OTR__" + clean;
+    return (void*)ResourceMgr_LoadGfxByName(otr.c_str());
+}
+
+// Resolve a child TEXTURE/VTX/ARRAY: mod override first, then oot.o2r base.
+void* OotAssets_ResolveData(const char* path) {
+    void* mod = OotAssets_ModData(OotAssets_CleanPath(path));
+    if (mod != nullptr) {
+        return mod;
+    }
+    return MmAssets_LoadFromOotArchive(path, nullptr);
+}
+
+// Resolve a child DL: mod override (normal, self-resolving) first, then oot.o2r deep-patch.
+void* OotAssets_ResolveDL(const char* path, int depth) {
+    void* mod = OotAssets_ModDL(OotAssets_CleanPath(path));
+    if (mod != nullptr) {
+        return mod;
+    }
+    return DeepLoadPatchDl(path, depth + 1);
+}
+
 void* DeepLoadPatchDl(const char* otrPath, int depth) {
     if (otrPath == nullptr || *otrPath == '\0' || depth > kMaxDepth) {
         return nullptr;
@@ -191,7 +264,7 @@ void* DeepLoadPatchDl(const char* otrPath, int depth) {
                 size_t cnt = c[1].w0;
                 size_t dstIdx = c[1].w1 >> 16;
                 size_t vtxOff = c[1].w1 & 0xFFFF;
-                void* vtx = (vp != nullptr) ? MmAssets_LoadFromOotArchive(vp, nullptr) : nullptr;
+                void* vtx = (vp != nullptr) ? OotAssets_ResolveData(vp) : nullptr; // mod override -> oot.o2r
                 if (vtx != nullptr) {
                     c->w0 = ((uintptr_t)OP_VTX_F3DEX2 << 24) | ((cnt & 0xFF) << 12) | (((dstIdx + cnt) & 0x7F) << 1);
                     c->w1 = (uintptr_t)((char*)vtx + vtxOff * kVtxStride);
@@ -210,7 +283,7 @@ void* DeepLoadPatchDl(const char* otrPath, int depth) {
             case OP_DL_FILEPATH: {
                 const char* dp = (const char*)c->w1;
                 int branch = (int)((c->w0 >> 16) & 1);
-                void* child = DeepLoadPatchDl(dp, depth + 1);
+                void* child = OotAssets_ResolveDL(dp, depth); // mod override DL -> oot.o2r deep-patch
                 if (child != nullptr) {
                     c->w0 = (c->w0 & 0x00FFFFFF) | ((uintptr_t)OP_DL_F3DEX2 << 24);
                     c->w1 = (uintptr_t)child;
@@ -232,7 +305,7 @@ void* DeepLoadPatchDl(const char* otrPath, int depth) {
                 // path renders correctly. (Downside: a patched texture bypasses HD packs — unavoidable
                 // here since oot.o2r isn't in the resource system at all.)
                 const char* tp = (const char*)c->w1;
-                void* img = (tp != nullptr) ? MmAssets_LoadFromOotArchive(tp, nullptr) : nullptr;
+                void* img = (tp != nullptr) ? OotAssets_ResolveData(tp) : nullptr; // mod override -> oot.o2r
                 if (img != nullptr) {
                     c->w0 = (c->w0 & 0x00FFFFFF) | ((uintptr_t)OP_SETTIMG_RDP << 24);
                     c->w1 = (uintptr_t)img; // Texture::GetRawPointer() == ImageData (raw pixels)
@@ -244,7 +317,7 @@ void* DeepLoadPatchDl(const char* otrPath, int depth) {
                 uintptr_t offset = c->w1; // byte offset added to the resolved vtx base
                 uint64_t hash = ((uint64_t)c[1].w0 << 32) | (uint32_t)c[1].w1;
                 const char* vp = MmAssets_HashToPath(hash);
-                void* vtx = (vp != nullptr) ? MmAssets_LoadFromOotArchive(vp, nullptr) : nullptr;
+                void* vtx = (vp != nullptr) ? OotAssets_ResolveData(vp) : nullptr; // mod override -> oot.o2r
                 if (vtx != nullptr) {
                     // w0 already carries the f3dex2 G_VTX count/index bits — just swap the opcode.
                     c->w0 = (c->w0 & 0x00FFFFFF) | ((uintptr_t)OP_VTX_F3DEX2 << 24);
@@ -263,7 +336,7 @@ void* DeepLoadPatchDl(const char* otrPath, int depth) {
                 int branch = (int)((c->w0 >> 16) & 1);
                 uint64_t hash = ((uint64_t)c[1].w0 << 32) | (uint32_t)c[1].w1;
                 const char* dp = MmAssets_HashToPath(hash);
-                void* child = (dp != nullptr) ? DeepLoadPatchDl(dp, depth + 1) : nullptr;
+                void* child = (dp != nullptr) ? OotAssets_ResolveDL(dp, depth) : nullptr; // mod -> oot.o2r
                 if (child != nullptr) {
                     c->w0 = (c->w0 & 0x00FFFFFF) | ((uintptr_t)OP_DL_F3DEX2 << 24);
                     c->w1 = (uintptr_t)child;
@@ -290,7 +363,7 @@ void* DeepLoadPatchDl(const char* otrPath, int depth) {
                 // oot.o2r hashes don't resolve at draw time, so an unpatched texture goes dark).
                 uint64_t hash = ((uint64_t)c[1].w0 << 32) | (uint32_t)c[1].w1;
                 const char* tp = MmAssets_HashToPath(hash);
-                void* img = (tp != nullptr) ? MmAssets_LoadFromOotArchive(tp, nullptr) : nullptr;
+                void* img = (tp != nullptr) ? OotAssets_ResolveData(tp) : nullptr; // mod override -> oot.o2r
                 if (img != nullptr) {
                     c->w0 = (c->w0 & 0x00FFFFFF) | ((uintptr_t)OP_SETTIMG_RDP << 24);
                     c->w1 = (uintptr_t)img;
@@ -325,6 +398,13 @@ extern "C" void* OotAssets_LoadGfxDirect(const char* otrPath) {
     }
     if (!OotAssets_PathAllowed(otrPath)) {
         return nullptr; // blocked family: caller falls back to its stand-in draw
+    }
+    // MOD FIRST: if a user mod (alt-assets) overrides this whole DL, use the MOD's version verbatim —
+    // loaded through the normal path so its own children resolve normally (mod alt first). This is how
+    // a full appearance mod's DL is used "tal cual", and it composes with the per-child mod tolerance in
+    // the deep-patch below (a mod that overrides only SOME children still gets those swapped in).
+    if (void* mod = OotAssets_ModDL(OotAssets_CleanPath(otrPath))) {
+        return mod;
     }
     // Archive-scoped DEEP load first: resolves the path AND every child reference from the
     // OoT/soh companion archives, patching the instruction stream to raw pointers. This is the

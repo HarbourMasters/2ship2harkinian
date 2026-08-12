@@ -48,6 +48,22 @@ typedef void (*EquipCallback)(PlayState* play, Player* player);
 typedef void (*UnequipCallback)(PlayState* play, Player* player);
 
 /**
+ * Item sitting on a logical button slot, in the same 0..7 order as sButtonMasks
+ * (0 = B, 1-3 = C-Left/C-Down/C-Right, 4-7 = D-Up/D-Down/D-Left/D-Right).
+ *
+ * MM keeps D-pad equips in a SEPARATE save array (shipSaveInfo.dpadEquips) while
+ * equips.buttonItems is only [form][4] — B + the three C buttons. OoT/SoH had one flat
+ * 8-entry buttonItems where indices 4-7 WERE the D-pad, so every loop ported from there
+ * (`buttonItems[CUR_FORM][i]`, i up to 7/8) silently read other transformations' C-buttons
+ * instead of the D-pad. Use this accessor for any "which buttons is this item on?" scan.
+ *
+ * @param slot 0..7
+ * @return ITEM_xxx, or ITEM_NONE for an empty slot (D-pad slots also report ITEM_NONE
+ *         while the DpadEquips enhancement is off).
+ */
+u8 ItemEquip_GetItemOnSlot(u8 slot);
+
+/**
  * Get button mask for equipped item.
  * @param itemId ITEM_xxx constant
  * @param play PlayState instance

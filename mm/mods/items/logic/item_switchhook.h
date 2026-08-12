@@ -98,6 +98,23 @@ static ColliderQuadInit sSwitchHookQuadInit = {
 // ============================================================================
 
 /**
+ * Teleporting an actor by writing world.pos moves its model and bg checks but leaves its HITBOXES
+ * behind: colliders store world-space geometry that only the owning actor refreshes inside its own
+ * update, and many actors build theirs once at init.
+ *
+ * Capture BEFORE the teleport (slot 0 = Link, slot 1 = the actor he swaps with), then re-anchor once
+ * per frame until both have settled — the actors keep moving after the teleport (pushed out of walls,
+ * dropped onto floors) and only an absolute reposition per frame follows that. Defined in
+ * item_switchhook.c; z_arms_hook.c drives it for the switch-hook swap.
+ */
+void SwitchHook_CaptureSwapColliders(PlayState* play, s32 slot, Actor* actor);
+void SwitchHook_ReanchorSwapColliders(PlayState* play);
+void SwitchHook_ClearSwapColliders(void);
+
+/** One-shot rigid translation of every collider `actor` has live this frame. */
+void SwitchHook_ShiftActorColliders(PlayState* play, Actor* actor, Vec3f* delta);
+
+/**
  * Check if an actor can be swapped with.
  * @param actor The actor to check
  * @return 1 if swappable, 0 otherwise
