@@ -1199,6 +1199,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Disable Final Day Quakes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.A11y.NoFinalDayQuakes")
         .Options(CheckboxOptions().Tooltip("Earthquakes will not occur on the final day."));
+    AddWidget(path, "Disable Screen Distortion", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.A11y.NoScreenDistortion")
+        .Options(CheckboxOptions().Tooltip(
+            "Disables the wobbling/warping of the screen while swimming underwater, and other various sources"));
     AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.BowReticle")
         .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
