@@ -15,6 +15,8 @@
 extern "C" {
 #include "overlays/actors/ovl_En_Sth/z_en_sth.h"
 }
+// Added to allow the preset button to function properly under the custom Races Menu.
+extern nlohmann::json voyage3PresetJ
 
 #include <fast/Fast3dGui.h>
 
