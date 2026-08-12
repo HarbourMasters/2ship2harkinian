@@ -1023,6 +1023,7 @@ extern "C" void DeinitOTR() {
     benFast3dWindow = nullptr;
 
     OTRGlobals::Instance->context = nullptr;
+    Ship::Context::DestroyInstance();
     delete AudioCollection::Instance;
 }
 
