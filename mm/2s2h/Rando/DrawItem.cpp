@@ -216,24 +216,22 @@ const char* KeyColorEntries[12] = {
 */
 
 Color_RGBA8 DefaultKeyColors[10] = {
-    { 255, 170, 246, 255 },  // Woodfall Primitive
-    { 116, 226, 61, 255 },   // Snowhead Primitive
-    { 143, 103, 226, 255 },  // Great Bay Primitive
-    { 226, 221, 0, 255 },    // Stone Tower Primitive
+    { 255, 170, 246, 255 }, // Woodfall Primitive
+    { 116, 226, 61, 255 },  // Snowhead Primitive
+    { 143, 103, 226, 255 }, // Great Bay Primitive
+    { 226, 221, 0, 255 },   // Stone Tower Primitive
 
-    { 143, 45, 129, 255 },   // Woodfall Accent
-    { 0, 98, 56, 255 },      // Snowhead Accent
-    { 52, 0, 61, 255 },      // Great Bay Accent
-    { 119, 65, 0, 255 },     // Stone Tower Accent
+    { 143, 45, 129, 255 }, // Woodfall Accent
+    { 0, 98, 56, 255 },    // Snowhead Accent
+    { 52, 0, 61, 255 },    // Great Bay Accent
+    { 119, 65, 0, 255 },   // Stone Tower Accent
 
-    { 255, 244, 204, 255 },  // Boss Key Primitive
-    { 143, 107, 0, 255 }     // Boss Key Accent
+    { 255, 244, 204, 255 }, // Boss Key Primitive
+    { 143, 107, 0, 255 }    // Boss Key Accent
 };
 
-Gfx* emblemDLs[4] = { 
-    (Gfx*)gGiWoodfallKeyEmblemDL, (Gfx*)gGiSnowheadKeyEmblemDL,
-    (Gfx*)gGiGreatBayKeyEmblemDL, (Gfx*)gGiStoneTowerKeyEmblemDL
-};
+Gfx* emblemDLs[4] = { (Gfx*)gGiWoodfallKeyEmblemDL, (Gfx*)gGiSnowheadKeyEmblemDL, (Gfx*)gGiGreatBayKeyEmblemDL,
+                      (Gfx*)gGiStoneTowerKeyEmblemDL };
 
 void DrawSmallKey(RandoItemId randoItemId) {
     int slot = -1;
@@ -263,12 +261,14 @@ void DrawSmallKey(RandoItemId randoItemId) {
         Color_RGBA8 primColor;
         Color_RGBA8 envColor;
 
-        //defaultColor = DefaultKeyColors[slot];
-        //primColor = CosmeticEditor_GetChangedColor(defaultColor.r, defaultColor.g, defaultColor.b, 255, KeyColorEntries[slot]);
+        // defaultColor = DefaultKeyColors[slot];
+        // primColor = CosmeticEditor_GetChangedColor(defaultColor.r, defaultColor.g, defaultColor.b, 255,
+        // KeyColorEntries[slot]);
         primColor = DefaultKeyColors[slot];
-        
-        //defaultColor = DefaultKeyColors[slot + 4];
-        //envColor = CosmeticEditor_GetChangedColorEx(defaultColor.r, defaultColor.g, defaultColor.b, 255, KeyColorEntries[slot], COSMETIC_COLOR_MODE_DIVIDE, 2.0f);
+
+        // defaultColor = DefaultKeyColors[slot + 4];
+        // envColor = CosmeticEditor_GetChangedColorEx(defaultColor.r, defaultColor.g, defaultColor.b, 255,
+        // KeyColorEntries[slot], COSMETIC_COLOR_MODE_DIVIDE, 2.0f);
         envColor = DefaultKeyColors[slot + 4];
 
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, primColor.r, primColor.g, primColor.b, 255);
@@ -278,20 +278,21 @@ void DrawSmallKey(RandoItemId randoItemId) {
         gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gGiDungeonSmallKeyDL);
 
         // Draw Emblem
-        //defaultColor = DefaultKeyColors[slot];
-        //primColor = CosmeticEditor_GetChangedColor(defaultColor.r, defaultColor.g, defaultColor.b, 255, KeyColorEntries[slot + 4]);
+        // defaultColor = DefaultKeyColors[slot];
+        // primColor = CosmeticEditor_GetChangedColor(defaultColor.r, defaultColor.g, defaultColor.b, 255,
+        // KeyColorEntries[slot + 4]);
         primColor = DefaultKeyColors[slot];
 
-        //defaultColor = DefaultKeyColors[slot + 4];
-        //envColor = CosmeticEditor_GetChangedColorEx(defaultColor.r, defaultColor.g, defaultColor.b, 255, KeyColorEntries[slot + 4], COSMETIC_COLOR_MODE_DIVIDE, 2.0f);
+        // defaultColor = DefaultKeyColors[slot + 4];
+        // envColor = CosmeticEditor_GetChangedColorEx(defaultColor.r, defaultColor.g, defaultColor.b, 255,
+        // KeyColorEntries[slot + 4], COSMETIC_COLOR_MODE_DIVIDE, 2.0f);
         envColor = DefaultKeyColors[slot + 4];
 
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, primColor.r, primColor.g, primColor.b, 255);
         gDPSetEnvColor(POLY_OPA_DISP++, envColor.r, envColor.g, envColor.b, 255);
 
         gSPDisplayList(POLY_OPA_DISP++, emblemDLs[slot]);
-    }
-    else {
+    } else {
         switch (randoItemId) {
             case RI_WOODFALL_SMALL_KEY:
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, 255, 255, 255, 255);
@@ -349,12 +350,14 @@ void DrawBossKey(RandoItemId randoItemId) {
         Color_RGBA8 primColor;
         Color_RGBA8 envColor;
 
-        //defaultColor = DefaultKeyColors[8]; // Boss Key Primitive
-        //primColor = CosmeticEditor_GetChangedColor(defaultColor.r, defaultColor.g, defaultColor.b, 255, KeyColorEntries[slot + 8]);
+        // defaultColor = DefaultKeyColors[8]; // Boss Key Primitive
+        // primColor = CosmeticEditor_GetChangedColor(defaultColor.r, defaultColor.g, defaultColor.b, 255,
+        // KeyColorEntries[slot + 8]);
         primColor = DefaultKeyColors[8]; // Boss Key Primitive
 
-        //defaultColor = DefaultKeyColors[9]; // Boss Key Accent
-        //envColor = CosmeticEditor_GetChangedColorEx(defaultColor.r, defaultColor.g, defaultColor.b, 255, KeyColorEntries[slot + 8], COSMETIC_COLOR_MODE_DIVIDE, 2.0f);
+        // defaultColor = DefaultKeyColors[9]; // Boss Key Accent
+        // envColor = CosmeticEditor_GetChangedColorEx(defaultColor.r, defaultColor.g, defaultColor.b, 255,
+        // KeyColorEntries[slot + 8], COSMETIC_COLOR_MODE_DIVIDE, 2.0f);
         envColor = DefaultKeyColors[9]; // Boss Key Accent
 
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, primColor.r, primColor.g, primColor.b, 255);
@@ -364,20 +367,21 @@ void DrawBossKey(RandoItemId randoItemId) {
         gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gGiDungeonBossKeyDL);
 
         // Draw Emblem
-        //defaultColor = DefaultKeyColors[slot];
-        //primColor = CosmeticEditor_GetChangedColor(defaultColor.r, defaultColor.g, defaultColor.b, 255, KeyColorEntries[slot + 4]);
+        // defaultColor = DefaultKeyColors[slot];
+        // primColor = CosmeticEditor_GetChangedColor(defaultColor.r, defaultColor.g, defaultColor.b, 255,
+        // KeyColorEntries[slot + 4]);
         primColor = DefaultKeyColors[slot];
 
-        //defaultColor = DefaultKeyColors[slot + 4];
-        //envColor = CosmeticEditor_GetChangedColorEx(defaultColor.r, defaultColor.g, defaultColor.b, 255, KeyColorEntries[slot + 4], COSMETIC_COLOR_MODE_DIVIDE, 2.0f);
+        // defaultColor = DefaultKeyColors[slot + 4];
+        // envColor = CosmeticEditor_GetChangedColorEx(defaultColor.r, defaultColor.g, defaultColor.b, 255,
+        // KeyColorEntries[slot + 4], COSMETIC_COLOR_MODE_DIVIDE, 2.0f);
         envColor = DefaultKeyColors[slot + 4];
 
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, primColor.r, primColor.g, primColor.b, 255);
         gDPSetEnvColor(POLY_OPA_DISP++, envColor.r, envColor.g, envColor.b, 255);
 
         gSPDisplayList(POLY_OPA_DISP++, emblemDLs[slot]);
-    }
-    else {
+    } else {
         switch (randoItemId) {
             case RI_WOODFALL_BOSS_KEY:
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, 255, 255, 255, 255);

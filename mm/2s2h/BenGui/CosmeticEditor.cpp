@@ -32,7 +32,7 @@ Color_RGBA8 ColorRGBA8(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
 static const std::map<CosmeticGroup, const char*> sCosmeticGroupLabels = {
     { COSMETICS_GROUP_PLAYER, "Player" }, { COSMETICS_GROUP_EFFECTS, "Effects" }, { COSMETICS_GROUP_TRAILS, "Trails" },
     { COSMETICS_GROUP_HUD, "HUD" },       { COSMETICS_GROUP_BUTTONS, "Buttons" }, { COSMETICS_GROUP_MENUS, "Menus" },
-    // { COSMETICS_GROUP_WOODFALL_KEYS, "Woodfall Keys" }, { COSMETICS_GROUP_SNOWHEAD_KEYS, "Snowhead Keys" }, 
+    // { COSMETICS_GROUP_WOODFALL_KEYS, "Woodfall Keys" }, { COSMETICS_GROUP_SNOWHEAD_KEYS, "Snowhead Keys" },
     // { COSMETICS_GROUP_GREAT_BAY_KEYS, "Great Bay Keys" }, { COSMETICS_GROUP_STONE_TOWER_KEYS, "Stone Tower Keys" },
 };
 
