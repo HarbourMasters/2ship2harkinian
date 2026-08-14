@@ -83,8 +83,6 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
                 }
             }
 
-            heldItemCooldown = PUT_AWAY_COOLDOWN;
-
             // actually shoots
             *pressedItem = heldItem;
         }
@@ -94,6 +92,8 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
                 Player_PutAway(player);
             }
             *pressedItem = ITEM_NONE;
+        } else {
+            heldItemCooldown = PUT_AWAY_COOLDOWN;
         }
     }
 }
