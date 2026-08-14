@@ -156,12 +156,13 @@ bool DetectQuickspin(bool* should, s8* controlAngles) {
 }
 
 void RegisterQuickspinFunc() {
-    COND_VB_SHOULD(VB_SHOULD_QUICKSPIN, CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0),
+    COND_VB_SHOULD(VB_SHOULD_QUICKSPIN, CVarGetInteger("gEnhancements.Equipment.MouseQuickspin.Enable", 0),
                    { DetectQuickspin(should, va_arg(args, s8*)); });
-    COND_HOOK(OnPassPlayerInputs, CVarGetInteger("gEnhancements.Mouse.Quickspin.Enable", 0), CollectMouseVelocity);
+    COND_HOOK(OnPassPlayerInputs, CVarGetInteger("gEnhancements.Equipment.MouseQuickspin.Enable", 0),
+              CollectMouseVelocity);
 }
 
-static RegisterShipInitFunc initFunc(RegisterQuickspinFunc, { "gEnhancements.Mouse.Quickspin.Enable" });
+static RegisterShipInitFunc initFunc(RegisterQuickspinFunc, { "gEnhancements.Equipment.MouseQuickspin.Enable" });
 
 #ifdef __cplusplus
 } // extern "C"
