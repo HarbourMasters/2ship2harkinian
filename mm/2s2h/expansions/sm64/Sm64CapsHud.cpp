@@ -110,15 +110,17 @@ void EnsureTextures() {
         return;
     }
     auto gui = Ship_GetFast3dGui();
+    // LUS 1.3.1-485 (#1157, Palette4bpp) inserted a palettePath parameter before the tint —
+    // none of these textures are paletted, so it stays empty.
     for (const auto& slot : kSlots) {
-        gui->LoadGuiTexture(slot.texName, slot.resPath, ImVec4(1, 1, 1, 1));
+        gui->LoadGuiTexture(slot.texName, slot.resPath, "", ImVec4(1, 1, 1, 1));
     }
-    gui->LoadGuiTexture(kMaskTexName, kMaskResPath, ImVec4(1, 1, 1, 1));
+    gui->LoadGuiTexture(kMaskTexName, kMaskResPath, "", ImVec4(1, 1, 1, 1));
     // SM64 power-meter dial — 9 states (0..8 wedges). Replaces the OOT hearts.
     for (int n = 0; n <= 8; n++) {
         std::string name = "Sm64HP" + std::to_string(n);
         std::string path = "textures/mario_hp/gMarioHP" + std::to_string(n) + "Tex";
-        gui->LoadGuiTexture(name, path, ImVec4(1, 1, 1, 1));
+        gui->LoadGuiTexture(name, path, "", ImVec4(1, 1, 1, 1));
     }
     // Button indicators (raw PNGs). Use the user's d-right.png if it's been packed
     // into the o2r; otherwise fall back to the always-shipped DPadRight.png (same

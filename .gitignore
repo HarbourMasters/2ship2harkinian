@@ -14,6 +14,7 @@ shipofharkinian.json
 imgui.ini
 saves/*
 randomizer/*
+mods/*
 2S2HTimeSplitData.json
 
 mm/libultraship/extern/Debug/ImGui.lib
@@ -74,3 +75,4 @@ _packages/
 build/
 /references
 rebuild_2ship_otr.bat
+.cache

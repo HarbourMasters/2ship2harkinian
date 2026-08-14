@@ -19,6 +19,8 @@ extern "C" {
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "GameInteractor/GameInteractor.h"
 
+#include <fast/Fast3dGui.h>
+
 IndexRangeObject sceneRange = { 0, 98 };
 uint32_t sceneFilterIndex = 0;
 

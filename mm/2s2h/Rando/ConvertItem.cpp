@@ -147,6 +147,8 @@ static RegisterShipInitFunc refreshInitFunc(
             RefreshObtainableTrapItems();
         });
 
+        allTrapItems.clear();
+
         if (IS_RANDO) {
             for (auto& [randoCheckId, _] : Rando::StaticData::Checks) {
                 RandoSaveCheck saveCheck = RANDO_SAVE_CHECKS[randoCheckId];
@@ -170,10 +172,10 @@ RandoItemId Rando::CurrentJunkItem(RandoCheckId randoCheckId) {
         // for the frame component instead of reading gPlayState->gameplayFrames.
         uint32_t frameSeed = (gPlayState != NULL) ? (gPlayState->gameplayFrames / 30) : 0;
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId + frameSeed);
-        return obtainableJunkItems[Ship_Random(0, obtainableJunkItems.size() - 1)];
+        return obtainableJunkItems[Ship_Random(0, obtainableJunkItems.size())];
     } else {
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
-        return obtainableJunkItems[Ship_Random(0, obtainableJunkItems.size() - 1)];
+        return obtainableJunkItems[Ship_Random(0, obtainableJunkItems.size())];
     }
 }
 
@@ -185,7 +187,7 @@ RandoItemId Rando::CurrentTrapItem(RandoCheckId randoCheckId) {
 
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
 
-        return obtainableTrapItems[Ship_Random(0, obtainableTrapItems.size() - 1)];
+        return obtainableTrapItems[Ship_Random(0, obtainableTrapItems.size())];
     } else {
         if (allTrapItems.size() == 0) {
             return RI_RUPEE_SILVER;
@@ -193,7 +195,7 @@ RandoItemId Rando::CurrentTrapItem(RandoCheckId randoCheckId) {
 
         Ship_Random_Seed(gSaveContext.save.shipSaveInfo.rando.finalSeed + randoCheckId);
 
-        return allTrapItems[Ship_Random(0, allTrapItems.size() - 1)];
+        return allTrapItems[Ship_Random(0, allTrapItems.size())];
     }
 }
 
@@ -530,7 +532,10 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_SONG_OATH:
             return !CHECK_QUEST_ITEM(QUEST_SONG_OATH);
         case RI_SONG_SARIA:
-            return !CHECK_QUEST_ITEM(QUEST_SONG_SARIA);
+            if (hasObtainedCheck) {
+                return false;
+            }
+            return true;
         case RI_SONG_SOARING:
             return !CHECK_QUEST_ITEM(QUEST_SONG_SOARING);
         case RI_SONG_SONATA:

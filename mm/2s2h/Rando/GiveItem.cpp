@@ -202,6 +202,25 @@ void Rando::GiveItem(RandoItemId randoItemId) {
                 gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE]++;
             }
             break;
+        // Grants the max small keys for every dungeon at once (Woodfall 1, Snowhead 3, Great Bay 1, Stone Tower 4)
+        case RI_SKELETON_KEY:
+            if (DUNGEON_KEY_COUNT(DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE) < 1) {
+                DUNGEON_KEY_COUNT(DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE) = 1;
+                gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE] = 1;
+            }
+            if (DUNGEON_KEY_COUNT(DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE) < 3) {
+                DUNGEON_KEY_COUNT(DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE) = 3;
+                gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE] = 3;
+            }
+            if (DUNGEON_KEY_COUNT(DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE) < 1) {
+                DUNGEON_KEY_COUNT(DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE) = 1;
+                gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE] = 1;
+            }
+            if (DUNGEON_KEY_COUNT(DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE) < 4) {
+                DUNGEON_KEY_COUNT(DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE) = 4;
+                gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE] = 4;
+            }
+            break;
         case RI_TRIFORCE_PIECE:
         case RI_TRIFORCE_PIECE_PREVIOUS:
             gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces++;
@@ -779,6 +798,8 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             Item_Give(gPlayState, Rando::StaticData::Items[randoItemId].itemId);
             break;
         case RI_SONG_SARIA:
+            // 5.0.0 added Saria-song hints; NEI also mirrors the song into the OoT quest page.
+            gSaveContext.save.shipSaveInfo.rando.sariaHintsAvailable++;
             Nei_Save()->ootQuestItems |= (1u << OOT_QUEST_SONG_SARIA); // bit 14
             Item_Give(gPlayState, Rando::StaticData::Items[randoItemId].itemId);
             break;

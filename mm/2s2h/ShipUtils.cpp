@@ -17,6 +17,8 @@
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "assets/overlays/ovl_En_Syateki_Okuta/ovl_En_Syateki_Okuta.h"
 
+#include <fast/Fast3dGui.h>
+
 extern "C" {
 #include "z64.h"
 #include "functions.h"
@@ -352,31 +354,30 @@ std::shared_ptr<Fast::Fast3dGui> Ship_GetFast3dGui() {
 void LoadGuiTextures() {
     for (const TexturePtr entry : gItemIcons) {
         auto path = static_cast<const char*>(entry);
-        Ship_GetFast3dGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
+        Ship_GetFast3dGui()->LoadGuiTexture(path, path, "", ImVec4(1, 1, 1, 1));
     }
     for (const TexturePtr entry : gQuestIcons) {
         auto path = static_cast<const char*>(entry);
-        Ship_GetFast3dGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
+        Ship_GetFast3dGui()->LoadGuiTexture(path, path, "", ImVec4(1, 1, 1, 1));
     }
     for (const TexturePtr entry : gBombersNotebookPhotos) {
         auto path = static_cast<const char*>(entry);
-        Ship_GetFast3dGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
+        Ship_GetFast3dGui()->LoadGuiTexture(path, path, "", ImVec4(1, 1, 1, 1));
     }
     for (const auto entry : miscellaneousTextures) {
-        Ship_GetFast3dGui()->LoadGuiTexture(entry, entry, ImVec4(1, 1, 1, 1));
+        Ship_GetFast3dGui()->LoadGuiTexture(entry, entry, "", ImVec4(1, 1, 1, 1));
     }
     for (const auto entry : digitList) {
-        Ship_GetFast3dGui()->LoadGuiTexture(entry, entry, ImVec4(1, 1, 1, 1));
+        Ship_GetFast3dGui()->LoadGuiTexture(entry, entry, "", ImVec4(1, 1, 1, 1));
     }
 }
 
-std::string convertEnumToReadableName(const std::string& input) {
+std::string convertEnumToReadableName(const std::string& input, const std::string& prefix) {
     std::string result;
     std::string content = input;
 
-    // Step 1: Remove "RC_" prefix if present
-    const std::string prefix = "RC_";
-    if (content.rfind(prefix, 0) == 0) {
+    // Step 1: Remove prefix if present
+    if (!prefix.empty() && content.rfind(prefix, 0) == 0) {
         content = content.substr(prefix.size());
     }
 

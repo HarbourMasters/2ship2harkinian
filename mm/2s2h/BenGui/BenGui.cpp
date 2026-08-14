@@ -103,11 +103,8 @@ void SetupGuiElements() {
         SPDLOG_ERROR("Could not find console window");
     }
 
-    // Up to LUS 1.3.1-397 Ship::Gui built and registered this window itself, so it was enough to
-    // look it up by name. Since 464 the Gui no longer knows about it and the app owns it — the
-    // name has to stay "GfxDebuggerWindow" because BenMenu addresses it through WindowName().
     mGfxDebuggerWindow =
-        std::make_shared<LUS::GfxDebuggerWindow>("gOpenWindows.GfxDebugger", "GfxDebuggerWindow", ImVec2(820, 630));
+        std::make_shared<LUS::GfxDebuggerWindow>("gOpenWindows.GfxDebugger", "Gfx Debugger", ImVec2(520, 600));
     gui->AddGuiWindow(mGfxDebuggerWindow);
 
     mInputEditorWindow = gui->GetGuiWindow("2S2H Input Editor");

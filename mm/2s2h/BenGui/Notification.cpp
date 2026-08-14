@@ -8,6 +8,8 @@ extern "C" {
 #include "variables.h"
 }
 
+#include <fast/Fast3dGui.h>
+
 namespace Notification {
 
 static uint32_t nextId = 0;

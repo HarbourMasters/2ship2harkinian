@@ -12,6 +12,8 @@
 #include <tuple>
 #include <ship/config/Config.h>
 
+#include <fast/Fast3dWindow.h>
+
 extern "C" {
 #include "z64.h"
 #include "functions.h"
@@ -96,13 +98,12 @@ void Menu::RemoveSidebarSearch() {
 }
 
 void Menu::UpdateWindowBackendObjects() {
-    Fast::WindowBackend runningWindowBackend =
-        (Fast::WindowBackend)Ship::Context::GetRawInstance()->GetWindow()->GetWindowBackend();
+    int32_t runningWindowBackend = Ship::Context::GetRawInstance()->GetWindow()->GetWindowBackend();
     int32_t configWindowBackendId = Ship::Context::GetRawInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
     if (Ship::Context::GetRawInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
         configWindowBackend = static_cast<Fast::WindowBackend>(configWindowBackendId);
     } else {
-        configWindowBackend = runningWindowBackend;
+        configWindowBackend = static_cast<Fast::WindowBackend>(runningWindowBackend);
     }
 
     availableWindowBackends = Ship::Context::GetRawInstance()->GetWindow()->GetAvailableWindowBackends();
@@ -198,7 +199,7 @@ uint32_t Menu::DrawSearchResults(std::string& menuSearchText) {
                 auto& column = sidebar.columnWidgets.at(i);
                 for (auto& info : column) {
                     if (info.type == WIDGET_SEARCH || info.type == WIDGET_SEPARATOR ||
-                        info.type == WIDGET_SEPARATOR_TEXT || info.isHidden) {
+                        info.type == WIDGET_SEPARATOR_TEXT || info.isHidden || info.hideInSearch) {
                         continue;
                     }
                     const char* tooltip = info.options->tooltip;
@@ -310,7 +311,8 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors me
                 UIWidgets::ComboboxOptions options = {};
                 options.color = menuThemeIndex;
                 options.tooltip = "Sets the audio API used by the game. Requires a relaunch to take effect.";
-                options.disabled = Ship::Context::GetRawInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1;
+                options.disabled =
+                    Ship::Context::GetRawInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1;
                 options.disabledTooltip = "Only one audio API is available on this platform.";
                 if (UIWidgets::Combobox("Audio API", &currentAudioBackend, &audioBackendsMap, options)) {
                     Ship::Context::GetRawInstance()->GetAudio()->SetCurrentAudioBackend(currentAudioBackend);
@@ -324,10 +326,9 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors me
                 options.disabledTooltip = "Only one renderer API is available on this platform.";
                 if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend,
                                         &availableWindowBackendsMap, options)) {
-                    Ship::Context::GetRawInstance()->GetConfig()->SetInt("Window.Backend.Id",
-                                                                      (int32_t)(configWindowBackend));
+                    Ship::Context::GetRawInstance()->GetConfig()->SetInt("Window.Backend.Id", configWindowBackend);
                     Ship::Context::GetRawInstance()->GetConfig()->SetString("Window.Backend.Name",
-                                                                         windowBackendsMap.at(configWindowBackend));
+                                                                            windowBackendsMap.at(configWindowBackend));
                     Ship::Context::GetRawInstance()->GetConfig()->Save();
                     UpdateWindowBackendObjects();
 

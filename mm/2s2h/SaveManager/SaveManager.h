@@ -17,6 +17,7 @@ void SaveManager_DeleteSaveFile(const std::filesystem::path& fileName);
 // Read a save file's raw json WITHOUT loading it into the game. 0 = ok, -1 = no such file,
 // -2 = unreadable/not json. Used by the fleet combo to check a slot's seed before booting it.
 int SaveManager_ReadSaveFile(const std::filesystem::path& fileName, nlohmann::json& j);
+void SaveManager_PersistSariaHintsAvailable();
 #else
 void SaveManager_SysFlashrom_WriteData(u8* addr, u32 pageNum, u32 pageCount);
 s32 SaveManager_SysFlashrom_ReadData(void* addr, u32 pageNum, u32 pageCount);

@@ -15,6 +15,8 @@ uint64_t GetUnixTimestamp();
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "GameInteractor/GameInteractor.h"
 
+#include <fast/Fast3dGui.h>
+
 #define BLANK_SPLIT "--:--:--.-"
 
 // ImVec4 Colors

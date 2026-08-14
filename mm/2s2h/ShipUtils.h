@@ -29,7 +29,7 @@
 std::shared_ptr<Fast::Fast3dGui> Ship_GetFast3dGui();
 
 void LoadGuiTextures();
-std::string convertEnumToReadableName(const std::string& input);
+std::string convertEnumToReadableName(const std::string& input, const std::string& prefix = "RC_");
 std::string Ship_RemoveSpecialCharacters(const std::string& str);
 extern u16 sOwlWarpEntrancesForMods[];
 extern std::array<const char*, 11> digitList;
