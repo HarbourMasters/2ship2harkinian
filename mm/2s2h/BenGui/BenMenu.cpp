@@ -661,7 +661,8 @@ void BenMenu::AddSettings() {
     AddWidget(path, "Mouse", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.EnableMouse")
-        .Options(CheckboxOptions().DefaultValue(false));
+        .Options(CheckboxOptions().DefaultValue(false).Tooltip(
+            "Enables Mouse Control options, including Free Look and first-person aiming."));
     AddWidget(path, "Auto Capture Mouse Input", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.AutoCaptureMouse")
         .Options(CheckboxOptions().Tooltip(
@@ -1155,20 +1156,22 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Invert the Y axis while holding the shield so that it moves up with the left stick."));
     AddWidget(path, "Mouse Shielding Enabled", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Mouse.Shielding.Enabled")
-        .Options(CheckboxOptions().DefaultValue(false))
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active; });
+        .CVar("gEnhancements.Equipment.MouseShielding.Enable")
+        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active; })
+        .Options(CheckboxOptions().DefaultValue(false).Tooltip("Enables Shield Control with Mouse."));
     AddWidget(path, "Mouse Shielding Rotates Camera", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Mouse.Shielding.CameraControl")
-        .Options(CheckboxOptions().DefaultValue(true))
+        .CVar("gEnhancements.Equipment.MouseShielding.CameraControl")
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active ||
-                            !CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0);
-        });
+                            !CVarGetInteger("gEnhancements.Equipment.MouseShielding.Enable", 0);
+        })
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Enables camera movement in Shield Control when controlling with Mouse."));
     AddWidget(path, "Mouse Quickspin", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Mouse.Quickspin.Enable")
-        .Options(CheckboxOptions().DefaultValue(false))
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active; });
+        .CVar("gEnhancements.Equipment.MouseQuickspin.Enable")
+        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active; })
+        .Options(CheckboxOptions().DefaultValue(false).Tooltip("Allows to perform Spin Attack with Mouse."
+                                                               "Requires precise enough circular movement."));
     AddWidget(path, "Great Fairy Sword B-Button Attack", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.GreatFairySwordBButton")
         .Options(CheckboxOptions().Tooltip(

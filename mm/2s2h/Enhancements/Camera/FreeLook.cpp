@@ -104,8 +104,8 @@ bool Camera_FreeLook(Camera* camera) {
     // Disable mouse camera control when holding up a shield
     bool mouseEnabled = Mouse_IsCaptured() && CVarGetInteger("gSettings.EnableMouse", 0);
     bool inShieldingState = player->stateFlags1 & PLAYER_STATE1_400000;
-    bool mouseShieldingEnabled = CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0);
-    bool mouseShieldingCameraControl = CVarGetInteger("gEnhancements.Mouse.Shielding.CameraControl", 1);
+    bool mouseShieldingEnabled = CVarGetInteger("gEnhancements.Equipment.MouseShielding.Enable", 0);
+    bool mouseShieldingCameraControl = CVarGetInteger("gEnhancements.Equipment.MouseShielding.CameraControl", 1);
     if (mouseEnabled &&
         !(mouseShieldingEnabled && !mouseShieldingCameraControl && inShieldingState && player->focusActor == NULL) &&
         !CVarGetInteger("gEnhancements.Camera.Mouse.DisableThirdPerson", 0)) {

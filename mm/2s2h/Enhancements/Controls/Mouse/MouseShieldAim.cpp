@@ -30,7 +30,7 @@ static void HandleShieldAim(Player* player, PlayState* play, f32* xStick, f32* y
     }
 
     bool hasFocusActor = (player->focusActor != NULL);
-    bool camRotate = CVarGetInteger("gEnhancements.Mouse.Shielding.CameraControl", 1) && !hasFocusActor;
+    bool camRotate = CVarGetInteger("gEnhancements.Equipment.MouseShielding.CameraControl", 1) && !hasFocusActor;
 
     if (camRotate) {
         // Hook shield to camera view
@@ -62,7 +62,7 @@ static void HandleShieldAim(Player* player, PlayState* play, f32* xStick, f32* y
 }
 
 void HandleShieldCameraControl(Camera* camera, s16 viewYaw) {
-    if (!mPrevShieldHandled || !CVarGetInteger("gEnhancements.Mouse.Shielding.CameraControl", 1)) {
+    if (!mPrevShieldHandled || !CVarGetInteger("gEnhancements.Equipment.MouseShielding.CameraControl", 1)) {
         return;
     }
 
@@ -76,12 +76,13 @@ void HandleShieldCameraControl(Camera* camera, s16 viewYaw) {
 
 void RegisterMouseShieldHooks() {
     COND_HOOK(OnPlayerShieldControl,
-              CVarGetInteger("gSettings.EnableMouse", 0) && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0),
+              CVarGetInteger("gSettings.EnableMouse", 0) &&
+                  CVarGetInteger("gEnhancements.Equipment.MouseShielding.Enable", 0),
               HandleShieldAim);
 }
 
 static RegisterShipInitFunc initFunc(RegisterMouseShieldHooks,
-                                     { "gSettings.EnableMouse", "gEnhancements.Mouse.Shielding.Enabled" });
+                                     { "gSettings.EnableMouse", "gEnhancements.Equipment.MouseShielding.Enable" });
 
 #ifdef __cplusplus
 } // extern "C"

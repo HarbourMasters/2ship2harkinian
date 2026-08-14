@@ -671,14 +671,12 @@ nlohmann::json pcExperiencePresetJ = R"(
                 }
             },
             "Equipment": {
-                "ActiveItemOnB": 1
-            },
-            "Mouse": {
-                "Quickspin": {
+                "ActiveItemOnB": 1,
+                "MouseQuickspin": {
                     "Enable": 1
                 },
-                "Shielding": {
-                    "Enabled": 1
+                "MouseShielding": {
+                    "Enable": 1
                 }
             }
         },
