@@ -9,6 +9,14 @@ extern "C" {
 void Player_UseItem(PlayState* play, Player* player, ItemId item);
 }
 
+#define PUT_AWAY_COOLDOWN 2
+
+void Player_PutAway(Player* player) {
+    if (player->heldItemAction > PLAYER_IA_LAST_USED) {
+        Player_UseItem(gPlayState, player, ITEM_NONE);
+    }
+}
+
 constexpr bool IsFirstPersonItem(ItemId item) {
     return item != ITEM_NONE && (item == ITEM_BOW || item == ITEM_BOW_FIRE || item == ITEM_BOW_ICE ||
                                  item == ITEM_BOW_LIGHT || item == ITEM_HOOKSHOT);
@@ -45,6 +53,8 @@ static struct ButtonState {
     bool frameOverridden = false;
 } mBButtonState;
 
+static s16 heldItemCooldown = 0;
+
 static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedItem) {
     Player* player = GET_PLAYER(gPlayState);
 
@@ -73,14 +83,15 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
                 }
             }
 
+            heldItemCooldown = PUT_AWAY_COOLDOWN;
+
             // actually shoots
             *pressedItem = heldItem;
         }
     } else if (IsItemInScope(*pressedItem)) {
         if (IsHoldingScoped(player) && heldItem == *pressedItem) {
-            // put away
-            if (player->heldItemAction > PLAYER_IA_LAST_USED) {
-                Player_UseItem(gPlayState, player, ITEM_NONE);
+            if (heldItemCooldown == 0) {
+                Player_PutAway(player);
             }
             *pressedItem = ITEM_NONE;
         }
@@ -88,7 +99,7 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
 }
 
 // keeps EQUIP_SLOT_B integrity
-void RestoreBButtonItem(Actor* actor) {
+void RestoreBButtonItem() {
     if (!mBButtonState.frameOverridden) {
         return;
     }
@@ -104,9 +115,17 @@ void RestoreBButtonItem(Actor* actor) {
     mBButtonState.override = ITEM_NONE;
 }
 
+void PlayerUpdate(Actor* actor) {
+    RestoreBButtonItem();
+
+    if (heldItemCooldown > 0) {
+        heldItemCooldown--;
+    }
+}
+
 void CleanupBButtonSlot() {
     if (mBButtonState.stored != ITEM_NONE && !CVarGetInteger("gEnhancements.Equipment.ActiveItemOnB", 0)) {
-        RestoreBButtonItem(nullptr);
+        RestoreBButtonItem();
         mBButtonState.stored = ITEM_NONE;
     }
 }
@@ -118,8 +137,7 @@ void RegisterActiveItemOnB() {
         ItemId* item = va_arg(args, ItemId*);
         HandleGetItemOnButton(should, slot, item);
     });
-    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVarGetInteger("gEnhancements.Equipment.ActiveItemOnB", 0),
-                 RestoreBButtonItem);
+    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVarGetInteger("gEnhancements.Equipment.ActiveItemOnB", 0), PlayerUpdate);
 }
 
 static RegisterShipInitFunc initFunc(RegisterActiveItemOnB, { "gEnhancements.Equipment.ActiveItemOnB" });
