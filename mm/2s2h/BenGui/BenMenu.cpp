@@ -1678,6 +1678,9 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Fixes a missing gDPSetEnvColor, which causes ammo counts and B button "
             "action labels to be the wrong color prior to obtaining magic or other conditions."));
+    AddWidget(path, "Fix Circle Shadow Streaks", WIDGET_CVAR_CHECKBOX)
+        .CVar("gFixes.FixCircleShadowStreaks")
+        .Options(CheckboxOptions().Tooltip("Fixes faint streaks on round actor shadows").DefaultValue(true));
     AddWidget(path, "Fix Epona stealing Sword", WIDGET_CVAR_CHECKBOX)
         .CVar("gFixes.FixEponaStealingSword")
         .Options(CheckboxOptions().Tooltip(
