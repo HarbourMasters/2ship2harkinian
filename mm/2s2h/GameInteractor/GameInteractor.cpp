@@ -108,6 +108,10 @@ void GameInteractor_ExecuteAfterRoomSceneCommands(s16 sceneId, s8 roomNum) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::AfterRoomSceneCommands>(sceneId, roomNum);
 }
 
+void GameInteractor_ExecuteOnPlayDrawWorldStart() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayDrawWorldStart>();
+}
+
 void GameInteractor_ExecuteOnPlayDrawWorldEnd() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayDrawWorldEnd>();
 }
