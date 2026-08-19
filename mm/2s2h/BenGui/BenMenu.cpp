@@ -1125,6 +1125,10 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "When the Great Fairy's Sword is held, pressing B attacks with it instead of drawing "
             "your equipped sword. The sword can still be put away with A as normal."));
+    AddWidget(path, "Invert Zora Swim Y Axis", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.InvertZoraSwimY")
+        .Options(CheckboxOptions().DefaultValue(true).Tooltip(
+            "Invert the Y axis while swimming as Zora with the left stick."));
 
     path.column = SECTION_COLUMN_2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
@@ -1199,6 +1203,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Disable Final Day Quakes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.A11y.NoFinalDayQuakes")
         .Options(CheckboxOptions().Tooltip("Earthquakes will not occur on the final day."));
+    AddWidget(path, "Disable Screen Distortion", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.A11y.NoScreenDistortion")
+        .Options(CheckboxOptions().Tooltip(
+            "Disables the wobbling/warping of the screen while swimming underwater, and other various sources"));
     AddWidget(path, "Bow Reticle", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.BowReticle")
         .Options(CheckboxOptions().Tooltip("Gives the bow a reticle when you draw an arrow."));
@@ -1678,6 +1686,9 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Fixes a missing gDPSetEnvColor, which causes ammo counts and B button "
             "action labels to be the wrong color prior to obtaining magic or other conditions."));
+    AddWidget(path, "Fix Circle Shadow Streaks", WIDGET_CVAR_CHECKBOX)
+        .CVar("gFixes.FixCircleShadowStreaks")
+        .Options(CheckboxOptions().Tooltip("Fixes faint streaks on round actor shadows").DefaultValue(true));
     AddWidget(path, "Fix Epona stealing Sword", WIDGET_CVAR_CHECKBOX)
         .CVar("gFixes.FixEponaStealingSword")
         .Options(CheckboxOptions().Tooltip(
