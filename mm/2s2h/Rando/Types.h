@@ -3365,6 +3365,7 @@ typedef enum {
 } RandoOptionAccessDungeons;
 
 typedef enum {
+    RO_ACCESS_TRIALS_VANILLA,
     RO_ACCESS_TRIALS_20_MASKS,
     RO_ACCESS_TRIALS_REMAINS,
     RO_ACCESS_TRIALS_FORMS,
