@@ -316,6 +316,9 @@ nlohmann::json voyage3PresetJ = R"(
             "Camera": {
                 "DebugCam": {
                     "Enable": 0
+                },
+				"FirstPerson": {
+                    "RightStickEnabled": 0
                 }
             },
             "Cutscenes": {
