@@ -379,6 +379,16 @@ void BenMenu::AddSettings() {
             "Allows controller navigation of the 2Ship menu (Settings, Enhancements,...)\nCAUTION: "
             "This will disable game inputs while the menu is visible.\n\nD-pad to move between "
             "items, A to select, B to move up in scope."));
+    AddWidget(path, "Allow background inputs", WIDGET_CVAR_CHECKBOX)
+        .CVar(CVAR_ALLOW_BACKGROUND_INPUTS)
+        .Callback([](WidgetInfo& info) {
+            SDL_SetHint(SDL_HINT_JOYSTICK_ALLOW_BACKGROUND_EVENTS,
+                        CVarGetInteger(CVAR_ALLOW_BACKGROUND_INPUTS, 1) ? "1" : "0");
+        })
+        .Options(CheckboxOptions()
+                     .Tooltip("Allows controller inputs to be picked up by the game even when the game window isn't "
+                              "the focused window.")
+                     .DefaultValue(true));
     AddWidget(path, "Cursor Always Visible", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.CursorVisibility")
         .Callback([](WidgetInfo& info) {
