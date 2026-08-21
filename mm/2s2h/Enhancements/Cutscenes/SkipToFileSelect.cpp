@@ -11,7 +11,7 @@ extern "C" {
 #define CVAR_NAME "gEnhancements.Cutscenes.SkipToFileSelect"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-static constexpr int32_t OPENING_CS_ID = 0x1C00;
+static constexpr int32_t OPENING_CS_INDEX = 0xFFFA;
 
 // Normally the following is called by the opening cutscene
 static void SkipToFileSelect() {
@@ -27,7 +27,9 @@ static void SkipToFileSelect() {
 
 static void RegisterSkipToFileSelect() {
     COND_VB_SHOULD(VB_PLAY_TRANSITION_CS, CVAR, {
-        if (gSaveContext.save.entrance == OPENING_CS_ID) {
+        if ((gSaveContext.save.entrance == ENTRANCE(CUTSCENE, 0) ||
+             gSaveContext.save.entrance == ENTRANCE(CUTSCENE, 1)) &&
+            gSaveContext.save.cutsceneIndex == OPENING_CS_INDEX) {
             SkipToFileSelect();
         }
     });
