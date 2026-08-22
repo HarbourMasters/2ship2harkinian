@@ -1651,6 +1651,9 @@ static void DrawHintsTab() {
         CheckboxOptions({ { .tooltip = "Gossip stones will offer a hint for a scaling rupee cost. This cost ranges "
                                        "from 10-250 rupees depending on how many checks are remaining in your seed. "
                                        "The hint will guaranteed be a check you have not obtained yet." } }));
+    CVarCheckbox("Moon Gossip Stones", Rando::StaticData::Options[RO_HINTS_MOON_GOSSIP_STONES].cvar,
+                 CheckboxOptions({ { .tooltip = "The gossip stones inside the Moon trials each hint the location of "
+                                                "the mask they describe in vanilla" } }));
     CVarCheckbox(
         "Boss Remains", Rando::StaticData::Options[RO_HINTS_BOSS_REMAINS].cvar,
         CheckboxOptions(
