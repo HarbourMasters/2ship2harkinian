@@ -15,7 +15,7 @@
 #include "FleetShipCombo.h"
 
 #include <libultraship/libultraship.h>
-#include <fast/Fast3dWindow.h> // Fast::Fast3dWindow / Fast::WindowBackend (renderer guard below)
+#include <fast/Fast3dWindow.h>        // Fast::Fast3dWindow / Fast::WindowBackend (renderer guard below)
 #include "2s2h/BenGui/Notification.h" // on-screen warning when the renderer cannot share frames
 #include <spdlog/spdlog.h>
 #include <memory>
@@ -48,7 +48,7 @@ HANDLE sHostProcess = nullptr; // Ship's process; when it exits, we exit too (no
 DWORD sHostPid = 0;            // Ship's PID, to find its window for seamless overlay
 RECT sHostRect = {};           // Ship's window rect (filled before showing 2ship on top of it)
 bool sHaveHostRect = false;
-HWND sHostHwnd = nullptr;      // Ship's window handle, to hand OS focus back when OoT becomes active
+HWND sHostHwnd = nullptr; // Ship's window handle, to hand OS focus back when OoT becomes active
 uint32_t sSharedW = 0;
 uint32_t sSharedH = 0;
 uint32_t sSharedFmt = 0;
@@ -233,8 +233,8 @@ void SubclassGuestWindowOnce(HWND hwnd) {
     if (hwnd == nullptr || sSubclassedHwnd == hwnd) {
         return;
     }
-    sOrigWndProc = reinterpret_cast<WNDPROC>(
-        SetWindowLongPtrW(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(FleetGuestWndProc)));
+    sOrigWndProc =
+        reinterpret_cast<WNDPROC>(SetWindowLongPtrW(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(FleetGuestWndProc)));
     sSubclassedHwnd = hwnd;
 }
 
@@ -249,8 +249,8 @@ void RemoveFromTaskbar(HWND hwnd) {
     if (!tried) {
         tried = true;
         CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED); // harmless if COM is already initialized
-        if (FAILED(CoCreateInstance(__uuidof(TaskbarList), nullptr, CLSCTX_INPROC_SERVER,
-                                    __uuidof(ITaskbarList), reinterpret_cast<void**>(&tbl))) ||
+        if (FAILED(CoCreateInstance(__uuidof(TaskbarList), nullptr, CLSCTX_INPROC_SERVER, __uuidof(ITaskbarList),
+                                    reinterpret_cast<void**>(&tbl))) ||
             tbl == nullptr || FAILED(tbl->HrInit())) {
             if (tbl) {
                 tbl->Release();
@@ -314,7 +314,7 @@ BOOL CALLBACK FindHostWindowProc(HWND hwnd, LPARAM /*lparam*/) {
             sHostRect = r;
             sHaveHostRect = true;
             sHostHwnd = hwnd; // remember it so we can hand OS focus back to Ship on OoT switch
-            return FALSE;      // found Ship's window
+            return FALSE;     // found Ship's window
         }
     }
     return TRUE;
@@ -384,6 +384,11 @@ int sLastUiShown = -1; // -1 unknown, 0 hidden, 1 shown-for-config
 // Two frames of margin: the resize is processed by the message pump between frames, so one is
 // enough in theory and two costs nothing (the peer just keeps showing the previous frame).
 int sSkipCaptureFrames = 0;
+
+// Set by the render path when the GAME display list actually went through this frame; consumed by
+// the producer. See FleetShipCombo_MarkGameFrameRendered in the header for why the framebuffer
+// handle must never be read on any other frame.
+bool sGameFrameRendered = false;
 } // namespace
 #endif
 
@@ -479,6 +484,12 @@ void FleetShipCombo_UpdateGuestWindow(void) {
         EnumWindows(HideOwnWindowsProc, 0); // keep off-screen / tool window (idempotent)
         sLastUiShown = 0;
     }
+#endif
+}
+
+void FleetShipCombo_MarkGameFrameRendered(void) {
+#ifdef _WIN32
+    sGameFrameRendered = true;
 #endif
 }
 
@@ -587,15 +598,19 @@ void FleetShipCombo_ProducerPublishFrame(void) {
         window->SetResolutionMultiplier(scale);
     }
 
-    // Don't touch the framebuffer on a frame where the window just changed: the swapchain resize
-    // that follows a show/hide releases the very view we are about to dereference below, and the
-    // handle we would read is a plain uintptr_t with no way to tell a live view from a dead one.
-    // See sSkipCaptureFrames — this is the 2026-08-06 crash ("10. ProducerPublishFrame enter" and
-    // then nothing), which happens on the first frame after a flip because that is when this
-    // window goes from visible to hidden.
+    // ---- THE ONE RULE FOR THE FRAMEBUFFER HANDLE ----
+    // Only read it on a frame that actually rendered the game, and never on a frame where the
+    // window changed. Anything else risks dereferencing a view the renderer already destroyed,
+    // which corrupts the D3D heap and kills the process later inside ntdll (0xC0000005), with no
+    // exception and nothing in the log. See FleetShipCombo_MarkGameFrameRendered.
+    const bool renderedThisFrame = sGameFrameRendered;
+    sGameFrameRendered = false; // consume it: the next frame must earn it again
     if (sSkipCaptureFrames > 0) {
         sSkipCaptureFrames--;
-        return; // the peer keeps showing the previous frame for one or two frames
+        return; // window just resized; the peer keeps showing the previous frame for a frame or two
+    }
+    if (!renderedThisFrame) {
+        return; // frozen game / empty display list: the handle is stale by definition
     }
 
     uintptr_t fb = window->GetGfxFrameBuffer();
@@ -649,8 +664,8 @@ void FleetShipCombo_ProducerPublishFrame(void) {
 
             if (SUCCEEDED(dev->CreateTexture2D(&sd, nullptr, &sSharedTex)) && sSharedTex) {
                 IDXGIResource* dxgiRes = nullptr;
-                if (SUCCEEDED(sSharedTex->QueryInterface(__uuidof(IDXGIResource),
-                                                         reinterpret_cast<void**>(&dxgiRes))) &&
+                if (SUCCEEDED(
+                        sSharedTex->QueryInterface(__uuidof(IDXGIResource), reinterpret_cast<void**>(&dxgiRes))) &&
                     dxgiRes) {
                     dxgiRes->GetSharedHandle(&sSharedHandle);
                     dxgiRes->Release();

@@ -41,9 +41,9 @@ static void GreatFairySword_RecoverOnHit(Player* player, PlayState* play) {
     Health_ChangeBy(play, BYRNA_HP_RECOVER);
 
     // Recover 16 MP per hit
-    gSaveContext.save.saveInfo.playerData.magic+= BYRNA_MP_RECOVER;
-    if (gSaveContext.save.saveInfo.playerData.magic> gSaveContext.magicCapacity) {
-        gSaveContext.save.saveInfo.playerData.magic= gSaveContext.magicCapacity;
+    gSaveContext.save.saveInfo.playerData.magic += BYRNA_MP_RECOVER;
+    if (gSaveContext.save.saveInfo.playerData.magic > gSaveContext.magicCapacity) {
+        gSaveContext.save.saveInfo.playerData.magic = gSaveContext.magicCapacity;
     }
 }
 

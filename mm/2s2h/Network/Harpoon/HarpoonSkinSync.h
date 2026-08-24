@@ -26,6 +26,6 @@ void SetSlot(const std::string& slotKey, const std::string& skinName);
 // fallback to vanilla rendering).
 std::string ResolveSlot(const std::string& announcedName);
 
-}  // namespace HarpoonSkinSync
+} // namespace HarpoonSkinSync
 
 #endif

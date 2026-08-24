@@ -34,46 +34,49 @@
 // same. Only the subset used in Phase A is defined; more land in later phases.
 // -----------------------------------------------------------------------------
 namespace HarpoonPT {
-    // Lifecycle.
-    constexpr const char* HANDSHAKE      = "HARPOON.HANDSHAKE";
-    constexpr const char* HANDSHAKE_ACK  = "HARPOON.HANDSHAKE_ACK";
-    constexpr const char* SERVER_INFO    = "HARPOON.SERVER_INFO";
-    constexpr const char* RESUME         = "HARPOON.RESUME";
-    constexpr const char* ERROR_MSG      = "HARPOON.ERROR";
+// Lifecycle.
+constexpr const char* HANDSHAKE = "HARPOON.HANDSHAKE";
+constexpr const char* HANDSHAKE_ACK = "HARPOON.HANDSHAKE_ACK";
+constexpr const char* SERVER_INFO = "HARPOON.SERVER_INFO";
+constexpr const char* RESUME = "HARPOON.RESUME";
+constexpr const char* ERROR_MSG = "HARPOON.ERROR";
 
-    // Room lifecycle.
-    constexpr const char* ROOM_CREATE          = "ROOM.CREATE";
-    constexpr const char* ROOM_JOIN            = "ROOM.JOIN";
-    constexpr const char* ROOM_LEAVE           = "ROOM.LEAVE";
-    constexpr const char* ROOM_LIST            = "ROOM.LIST";
-    constexpr const char* ROOM_LIST_RESPONSE   = "ROOM.LIST_RESPONSE";
-    constexpr const char* ROOM_JOINED          = "ROOM.JOINED";
-    constexpr const char* ROOM_MEMBERS_UPDATED = "ROOM.MEMBERS_UPDATED";
-    constexpr const char* ROOM_PHASE_CHANGED   = "ROOM.PHASE_CHANGED";
+// Room lifecycle.
+constexpr const char* ROOM_CREATE = "ROOM.CREATE";
+constexpr const char* ROOM_JOIN = "ROOM.JOIN";
+constexpr const char* ROOM_LEAVE = "ROOM.LEAVE";
+constexpr const char* ROOM_LIST = "ROOM.LIST";
+constexpr const char* ROOM_LIST_RESPONSE = "ROOM.LIST_RESPONSE";
+constexpr const char* ROOM_JOINED = "ROOM.JOINED";
+constexpr const char* ROOM_MEMBERS_UPDATED = "ROOM.MEMBERS_UPDATED";
+constexpr const char* ROOM_PHASE_CHANGED = "ROOM.PHASE_CHANGED";
 
-    // Player state.
-    constexpr const char* PLAYER_UPDATE_TRANSFORM   = "PLAYER.UPDATE_TRANSFORM";
-    constexpr const char* PLAYER_UPDATE_SKELETON    = "PLAYER.UPDATE_SKELETON";
-    constexpr const char* PLAYER_UPDATE_VISUAL_STATE = "PLAYER.UPDATE_VISUAL_STATE";
-    constexpr const char* PLAYER_UPDATE_EQUIP_VISIBLE = "PLAYER.UPDATE_EQUIP_VISIBLE";
-    constexpr const char* PLAYER_SET_TRANSFORMATION = "PLAYER.SET_TRANSFORMATION";
-    constexpr const char* PLAYER_KILL               = "PLAYER.KILL";
+// Player state.
+constexpr const char* PLAYER_UPDATE_TRANSFORM = "PLAYER.UPDATE_TRANSFORM";
+constexpr const char* PLAYER_UPDATE_SKELETON = "PLAYER.UPDATE_SKELETON";
+constexpr const char* PLAYER_UPDATE_VISUAL_STATE = "PLAYER.UPDATE_VISUAL_STATE";
+constexpr const char* PLAYER_UPDATE_EQUIP_VISIBLE = "PLAYER.UPDATE_EQUIP_VISIBLE";
+constexpr const char* PLAYER_SET_TRANSFORMATION = "PLAYER.SET_TRANSFORMATION";
+constexpr const char* PLAYER_KILL = "PLAYER.KILL";
+// NEI custom items: a base64'd CustomItemVisualSync blob (mods/items/custom_items.h)
+// so peers can draw every custom item the sender is holding or using.
+constexpr const char* PLAYER_UPDATE_CUSTOM_ITEMS = "PLAYER.UPDATE_CUSTOM_ITEMS";
 
-    // Combat (Phase E).
-    constexpr const char* COMBAT_DEAL_DAMAGE   = "COMBAT.DEAL_DAMAGE";
-    constexpr const char* COMBAT_APPLY_STATUS  = "COMBAT.APPLY_STATUS";
+// Combat (Phase E).
+constexpr const char* COMBAT_DEAL_DAMAGE = "COMBAT.DEAL_DAMAGE";
+constexpr const char* COMBAT_APPLY_STATUS = "COMBAT.APPLY_STATUS";
 
-    // Projectile mirror (Phase F).
-    constexpr const char* APPEARANCE_SPAWN_VFX_ACTOR = "APPEARANCE.SPAWN_VFX_ACTOR";
+// Projectile mirror (Phase F).
+constexpr const char* APPEARANCE_SPAWN_VFX_ACTOR = "APPEARANCE.SPAWN_VFX_ACTOR";
 
-    // Skin sync (Phase G).
-    constexpr const char* APPEARANCE_SKIN_ANNOUNCE = "APPEARANCE.SKIN_SYNC.ANNOUNCE_CATALOG";
-    constexpr const char* APPEARANCE_SKIN_UPDATE   = "APPEARANCE.SKIN_SYNC.UPDATE_SLOTS";
+// Skin sync (Phase G).
+constexpr const char* APPEARANCE_SKIN_ANNOUNCE = "APPEARANCE.SKIN_SYNC.ANNOUNCE_CATALOG";
+constexpr const char* APPEARANCE_SKIN_UPDATE = "APPEARANCE.SKIN_SYNC.UPDATE_SLOTS";
 
-    // Save / flag sync (Phase I).
-    constexpr const char* SAVE_SET_FLAG   = "SAVE.SET_FLAG";
-    constexpr const char* SAVE_UNSET_FLAG = "SAVE.UNSET_FLAG";
-}
+// Save / flag sync (Phase I).
+constexpr const char* SAVE_SET_FLAG = "SAVE.SET_FLAG";
+constexpr const char* SAVE_UNSET_FLAG = "SAVE.UNSET_FLAG";
+} // namespace HarpoonPT
 
 enum class HarpoonConnState {
     Disconnected = 0,
@@ -94,10 +97,10 @@ struct HarpoonClient {
     // Pose / skeleton (Phase C).
     float posX = 0.0f, posY = 0.0f, posZ = 0.0f;
     int16_t rotX = 0, rotY = 0, rotZ = 0;
-    int16_t jointTable[24 * 3] = { 0 };  // 24 limbs * (x,y,z) Vec3s
+    int16_t jointTable[24 * 3] = { 0 }; // 24 limbs * (x,y,z) Vec3s
 
     // Visual state.
-    uint8_t transformation = 4;  // PLAYER_FORM_HUMAN
+    uint8_t transformation = 4; // PLAYER_FORM_HUMAN
     uint8_t currentMask = 0;
     uint8_t heldItemId = 0;
     int16_t sceneId = -1;
@@ -113,8 +116,23 @@ struct HarpoonClient {
     std::string adultSkinName;
     std::string equipSkinName;
 
-    // Dummy actor handle (Phase D). Opaque from this header's POV.
-    void* dummyActor = nullptr;
+    // The ACTOR_HARPOON_PEER carrying this client's AC collider, or null when we
+    // haven't spawned one (different scene, no position packet yet). Opaque here;
+    // it's an Actor* owned by the engine — HarpoonPeer_OnActorDestroyed and
+    // HarpoonPeer_OnPlayDestroy clear it.
+    void* peerActor = nullptr;
+
+    // This peer's own EffectBlure slots for the sword trail, or -1 before they
+    // are acquired. Without per-peer slots every remote shares the LOCAL player's
+    // blure and the trails get stitched into one ribbon between the two swords.
+    // Invalidated on scene teardown (Effect_DestroyAll recycles the pool).
+    int32_t fxBlure[2] = { -1, -1 };
+
+    // Raw CustomItemVisualSync bytes for this peer (mods/items/custom_items.h).
+    // Kept opaque here so this header doesn't have to pull in the MM/mods
+    // headers; HarpoonDummyPlayer.cpp is the only thing that reinterprets it,
+    // and it checks the size before doing so. Empty until the first packet.
+    std::vector<uint8_t> customItemBlob;
 };
 
 // One entry in the room browser (populated from ROOM.LIST_RESPONSE).
@@ -130,11 +148,11 @@ struct HarpoonRoomInfo {
 
 // Status effect type enum mirrored from Harpoon SoH (Phase E).
 enum HarpoonStatus : uint8_t {
-    HARPOON_STATUS_NONE      = 0,
-    HARPOON_STATUS_BURN_DOT  = 1,
-    HARPOON_STATUS_FREEZE    = 2,
+    HARPOON_STATUS_NONE = 0,
+    HARPOON_STATUS_BURN_DOT = 1,
+    HARPOON_STATUS_FREEZE = 2,
     HARPOON_STATUS_BLINDNESS = 3,
-    HARPOON_STATUS_STUN      = 4,
+    HARPOON_STATUS_STUN = 4,
 };
 
 // -----------------------------------------------------------------------------
@@ -147,8 +165,12 @@ class Harpoon {
     // Lifecycle.
     void Enable();
     void Disable();
-    bool IsEnabled() const { return enabled_.load(); }
-    HarpoonConnState State() const { return state_.load(); }
+    bool IsEnabled() const {
+        return enabled_.load();
+    }
+    HarpoonConnState State() const {
+        return state_.load();
+    }
 
     // Room operations (called from game thread / UI). Safe no-op if not connected.
     void CreateRoom(const std::string& name, const std::string& password = "");
@@ -171,8 +193,12 @@ class Harpoon {
     // Mutable access for hook handlers to fill remote client state from packets
     // (Phase C+). Caller MUST acquire StateMutex().
     HarpoonClient* GetOrCreateClient(uint32_t clientId);
-    std::mutex& StateMutex() const { return stateMutex_; }
-    std::unordered_map<uint32_t, HarpoonClient>& ClientsRaw() { return clients_; }
+    std::mutex& StateMutex() const {
+        return stateMutex_;
+    }
+    std::unordered_map<uint32_t, HarpoonClient>& ClientsRaw() {
+        return clients_;
+    }
 
     // Init / shutdown. Init registers GameInteractor hooks (Drain per frame,
     // OnActorUpdate for player sync, OnSceneInit for dummy spawn, etc.). Must
@@ -181,7 +207,9 @@ class Harpoon {
     void ShutdownHooks();
 
     // Read-only views (caller must hold no lock; mutex internal).
-    uint32_t OwnClientId() const { return ownClientId_.load(); }
+    uint32_t OwnClientId() const {
+        return ownClientId_.load();
+    }
     std::string LastError() const;
     std::string CurrentRoomId() const;
     std::vector<HarpoonClient> GetClientsSnapshot() const;
@@ -189,21 +217,33 @@ class Harpoon {
 
     // Selected gamemode for the next ROOM.CREATE (menu picks it). Defaults to
     // "default" — the restrictive baseline pack.
-    void SetGameMode(const std::string& gm) { std::lock_guard<std::mutex> lk(stateMutex_); gameMode_ = gm; }
-    std::string GameMode() const { std::lock_guard<std::mutex> lk(stateMutex_); return gameMode_; }
+    void SetGameMode(const std::string& gm) {
+        std::lock_guard<std::mutex> lk(stateMutex_);
+        gameMode_ = gm;
+    }
+    std::string GameMode() const {
+        std::lock_guard<std::mutex> lk(stateMutex_);
+        return gameMode_;
+    }
 
     // Convenience used by the menu's status line / buttons.
-    bool IsConnected() const { return state_.load() >= HarpoonConnState::Connected; }
-    bool IsConnecting() const { return enabled_.load() && state_.load() == HarpoonConnState::Connecting; }
-    bool IsReady() const { return IsConnected() && ownClientId_.load() != 0; }
+    bool IsConnected() const {
+        return state_.load() >= HarpoonConnState::Connected;
+    }
+    bool IsConnecting() const {
+        return enabled_.load() && state_.load() == HarpoonConnState::Connecting;
+    }
+    bool IsReady() const {
+        return IsConnected() && ownClientId_.load() != 0;
+    }
 
     // Behavior driven by the active room's gamemode (NOT manual toggles). The
     // gamemode id maps to its gamemode.yaml: "geoguessr" => PvP on, nametags
     // and minimap markers hidden. Coop modes => nametags/minimap shown, PvP off.
-    bool IsPvpActive() const;       // gamemode permits PvP (e.g. geoguessr)
-    bool NametagsVisible() const;   // false in geoguessr (hidden by design)
-    bool MinimapVisible() const;    // false in geoguessr
-    bool IsGeoguessr() const;       // current room's gamemode == "geoguessr"
+    bool IsPvpActive() const;     // gamemode permits PvP (e.g. geoguessr)
+    bool NametagsVisible() const; // false in geoguessr (hidden by design)
+    bool MinimapVisible() const;  // false in geoguessr
+    bool IsGeoguessr() const;     // current room's gamemode == "geoguessr"
 
   private:
     Harpoon() = default;
@@ -224,6 +264,7 @@ class Harpoon {
     void HandlePlayerUpdateSkeleton(const nlohmann::json& payload);
     void HandlePlayerUpdateVisualState(const nlohmann::json& payload);
     void HandlePlayerUpdateEquipVisible(const nlohmann::json& payload);
+    void HandlePlayerUpdateCustomItems(const nlohmann::json& payload);
     void HandlePlayerSetTransformation(const nlohmann::json& payload);
     void HandleCombatDealDamage(const nlohmann::json& payload);
     void HandleCombatApplyStatus(const nlohmann::json& payload);

@@ -23,11 +23,14 @@
 extern u8 ResourceMgr_FileExists(const char* resName);
 extern Gfx* ResourceMgr_LoadGfxByName(const char* path);
 extern u8 Slate_IsDrawn(void); // equip state, owned by item_sheikah_slate.c (same TU)
-extern f32 CVarGetFloat(const char* name, f32 defaultValue);
 
-// Live-tunable placement. These are the values tuned in-game with the Item Editor sliders — the
-// tablet sits in the fist the way the Hookshot does. Change them here only to move the baseline;
-// per-session tweaking is what the sliders are for.
+// Placement, baked. These are the values tuned in-game with the Item Editor sliders — the tablet
+// sits in the fist the way the Hookshot does — and they are now the whole answer: the Item Editor
+// no longer carries Slate sliders, and the CVars are no longer read, so a stray preset cannot
+// quietly override the pose with no UI left to correct it.
+//
+// NOT the same numbers as soh's. Different hand bone, different model scale; the two were tuned
+// separately and copying either set across would put the tablet through Link's wrist.
 #define SLATE_DEF_OFF_X -3.036f
 #define SLATE_DEF_OFF_Y -12.327f
 #define SLATE_DEF_OFF_Z -0.264f
@@ -94,18 +97,16 @@ void CustomItems_DrawSheikahSlate(Player* player, PlayState* play) {
     Matrix_RotateY(handYaw, MTXMODE_APPLY);
     Matrix_RotateX(-handPitch, MTXMODE_APPLY);
 
-    // ── Live tuning (Item Editor) ───────────────────────────────────────────
-    Matrix_RotateY(DEG_TO_RAD(CVarGetFloat("gItemEditor.Slate.RotY", SLATE_DEF_ROT_Y)), MTXMODE_APPLY);
-    Matrix_RotateX(DEG_TO_RAD(CVarGetFloat("gItemEditor.Slate.RotX", SLATE_DEF_ROT_X)), MTXMODE_APPLY);
-    Matrix_RotateZ(DEG_TO_RAD(CVarGetFloat("gItemEditor.Slate.RotZ", SLATE_DEF_ROT_Z)), MTXMODE_APPLY);
+    // ── Placement ───────────────────────────────────────────────────────────
+    Matrix_RotateY(DEG_TO_RAD(SLATE_DEF_ROT_Y), MTXMODE_APPLY);
+    Matrix_RotateX(DEG_TO_RAD(SLATE_DEF_ROT_X), MTXMODE_APPLY);
+    Matrix_RotateZ(DEG_TO_RAD(SLATE_DEF_ROT_Z), MTXMODE_APPLY);
 
-    // Offset AFTER the rotations, so the sliders move the tablet along its own axes — dragging
-    // "up" keeps meaning "up the tablet" no matter which way the hand is pointing.
-    Matrix_Translate(CVarGetFloat("gItemEditor.Slate.OffsetX", SLATE_DEF_OFF_X),
-                     CVarGetFloat("gItemEditor.Slate.OffsetY", SLATE_DEF_OFF_Y),
-                     CVarGetFloat("gItemEditor.Slate.OffsetZ", SLATE_DEF_OFF_Z), MTXMODE_APPLY);
+    // Offset AFTER the rotations, so it sits along the tablet's own axes — "up" means up the
+    // tablet no matter which way the hand is pointing.
+    Matrix_Translate(SLATE_DEF_OFF_X, SLATE_DEF_OFF_Y, SLATE_DEF_OFF_Z, MTXMODE_APPLY);
 
-    scale = CVarGetFloat("gItemEditor.Slate.Scale", SLATE_DEF_SCALE);
+    scale = SLATE_DEF_SCALE;
     Matrix_Scale(scale, scale, scale, MTXMODE_APPLY);
 
     MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, play->state.gfxCtx);

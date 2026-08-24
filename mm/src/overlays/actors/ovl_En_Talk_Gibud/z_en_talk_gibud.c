@@ -310,8 +310,7 @@ void EnTalkGibud_AttemptPlayerFreeze(EnTalkGibud* this, PlayState* play) {
     s16 rot = this->actor.shape.rot.y + this->headRot.y + this->torsoRot.y;
     s16 yaw = BINANG_SUB(this->actor.yawTowardsPlayer, rot);
 
-    if ((ABS_ALT(yaw) < 0x2008) &&
-        GameInteractor_Should(VB_REDEAD_GIBDO_FREEZE_PLAYER, true, this)) {
+    if ((ABS_ALT(yaw) < 0x2008) && GameInteractor_Should(VB_REDEAD_GIBDO_FREEZE_PLAYER, true, this)) {
         player->actor.freezeTimer = 60;
         Rumble_Request(this->actor.xzDistToPlayer, 255, 20, 150);
         Player_SetAutoLockOnActor(play, &this->actor);
@@ -351,13 +350,11 @@ void EnTalkGibud_WalkToPlayer(EnTalkGibud* this, PlayState* play) {
                 // If the Gibdo/Redead tries to grab Goron or Deku Link, it will fail to
                 // do so. It will appear to take damage and shake its head side-to-side.
                 EnTalkGibud_SetupGrabFail(this);
-            } else if (GameInteractor_Should(VB_ENEMY_GRAB_PLAYER, true, this) &&
-                       play->grabPlayer(play, player)) {
+            } else if (GameInteractor_Should(VB_ENEMY_GRAB_PLAYER, true, this) && play->grabPlayer(play, player)) {
                 EnTalkGibud_SetupGrab(this);
             }
         } else {
-            if ((this->playerStunWaitTimer == 0) &&
-                GameInteractor_Should(VB_REDEAD_GIBDO_FREEZE_PLAYER, true, this)) {
+            if ((this->playerStunWaitTimer == 0) && GameInteractor_Should(VB_REDEAD_GIBDO_FREEZE_PLAYER, true, this)) {
                 player->actor.freezeTimer = 40;
                 this->playerStunWaitTimer = 60;
                 Rumble_Request(this->actor.xzDistToPlayer, 255, 20, 150);

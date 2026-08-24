@@ -367,22 +367,22 @@ void Rando::MiscBehavior::InitKaleidoItemPage() {
 
     COND_ID_HOOK(AfterKaleidoDrawPage, PAUSE_ITEM, IS_RANDO && !kNeiUnifiedLayoutOwnsTradeCycling,
                  [](PauseContext* pauseCtx, u16 pauseIndex) {
-        std::vector<u8> availableDeedItems = BuildAvailableItemsList(SLOT_TRADE_DEED);
-        std::vector<u8> availableKeyMamaItems = BuildAvailableItemsList(SLOT_TRADE_KEY_MAMA);
-        std::vector<u8> availableCoupleItems = BuildAvailableItemsList(SLOT_TRADE_COUPLE);
+                     std::vector<u8> availableDeedItems = BuildAvailableItemsList(SLOT_TRADE_DEED);
+                     std::vector<u8> availableKeyMamaItems = BuildAvailableItemsList(SLOT_TRADE_KEY_MAMA);
+                     std::vector<u8> availableCoupleItems = BuildAvailableItemsList(SLOT_TRADE_COUPLE);
 
-        u8 currentDeedItem = gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_DEED];
-        u8 currentKeyMamaItem = gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_KEY_MAMA];
-        u8 currentCoupleItem = gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_COUPLE];
+                     u8 currentDeedItem = gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_DEED];
+                     u8 currentKeyMamaItem = gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_KEY_MAMA];
+                     u8 currentCoupleItem = gSaveContext.save.saveInfo.inventory.items[SLOT_TRADE_COUPLE];
 
-        DrawItemCycleExtras(gPlayState, SLOT_TRADE_DEED, true,
-                            GetPreviousListEntry(availableDeedItems, currentDeedItem),
-                            GetNextListEntry(availableDeedItems, currentDeedItem));
-        DrawItemCycleExtras(gPlayState, SLOT_TRADE_KEY_MAMA, true,
-                            GetPreviousListEntry(availableKeyMamaItems, currentKeyMamaItem),
-                            GetNextListEntry(availableKeyMamaItems, currentKeyMamaItem));
-        DrawItemCycleExtras(gPlayState, SLOT_TRADE_COUPLE, true,
-                            GetPreviousListEntry(availableCoupleItems, currentCoupleItem),
-                            GetNextListEntry(availableCoupleItems, currentCoupleItem));
-    });
+                     DrawItemCycleExtras(gPlayState, SLOT_TRADE_DEED, true,
+                                         GetPreviousListEntry(availableDeedItems, currentDeedItem),
+                                         GetNextListEntry(availableDeedItems, currentDeedItem));
+                     DrawItemCycleExtras(gPlayState, SLOT_TRADE_KEY_MAMA, true,
+                                         GetPreviousListEntry(availableKeyMamaItems, currentKeyMamaItem),
+                                         GetNextListEntry(availableKeyMamaItems, currentKeyMamaItem));
+                     DrawItemCycleExtras(gPlayState, SLOT_TRADE_COUPLE, true,
+                                         GetPreviousListEntry(availableCoupleItems, currentCoupleItem),
+                                         GetNextListEntry(availableCoupleItems, currentCoupleItem));
+                 });
 }

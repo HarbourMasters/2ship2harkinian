@@ -9,6 +9,7 @@
 #include "assets/overlays/ovl_Effect_Ss_Fhg_Flash/ovl_Effect_Ss_Fhg_Flash.h"
 
 #define rAlpha regs[0]
+#define rType regs[1]
 #define rXZRot regs[3]
 #define rParams regs[4]
 #define rScale regs[8]
@@ -28,6 +29,22 @@ u32 EffectSsFhgFlash_Init(PlayState* play, u32 index, EffectSs* this, void* init
     static Vec3f sZeroVec = { 0.0f, 0.0f, 0.0f };
     EffectSsFhgFlashInitParams* initParams = PARAMS;
     Vec3f noActorPos = { 0.0f, -1000.0f, 0.0f };
+
+    this->rType = initParams->type;
+    if (initParams->type == FHGFLASH_LIGHTBALL) {
+        this->actor = NULL;
+        this->pos = initParams->pos;
+        this->velocity = initParams->velocity;
+        this->accel = initParams->accel;
+        this->life = 100;
+        this->rScale = initParams->scale;
+        this->rAlpha = 255;
+        this->rParams = initParams->params;
+        this->gfx = gEffFhgFlashDL;
+        this->draw = EffectSsFhgFlash_Draw;
+        this->update = EffectSsFhgFlash_Update;
+        return 1;
+    }
 
     this->actor = initParams->actor;
     Math_Vec3f_Copy(&this->velocity, &gZeroVec3f);
@@ -61,7 +78,21 @@ void EffectSsFhgFlash_Draw(PlayState* play, u32 index, EffectSs* this) {
 
     Matrix_Translate(this->pos.x, this->pos.y, this->pos.z, MTXMODE_NEW);
     Matrix_Scale(scale, scale, scale, MTXMODE_APPLY);
-    if (this->rParams != FHGFLASH_SHOCK_NO_ACTOR) {
+    if (this->rType == FHGFLASH_LIGHTBALL) {
+        static Color_RGB8 sLightBallColors[] = {
+            { 165, 255, 61 }, { 0, 255, 255 }, { 255, 40, 0 }, { 255, 255, 0 }, { 0, 0, 255 },
+            { 255, 0, 255 },  { 255, 150, 0 }, { 0, 0, 0 },    { 0, 0, 0 },
+        };
+        u8 color = (this->rParams < ARRAY_COUNT(sLightBallColors)) ? this->rParams : FHGFLASH_LIGHTBALL_GREEN;
+
+        Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+        Matrix_ReplaceRotation(&play->billboardMtxF);
+        gDPSetRenderMode(POLY_XLU_DISP++, G_RM_PASS, G_RM_AA_ZB_XLU_SURF2);
+        gDPPipeSync(POLY_XLU_DISP++);
+        gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, this->rAlpha);
+        gDPSetEnvColor(POLY_XLU_DISP++, sLightBallColors[color].r, sLightBallColors[color].g, sLightBallColors[color].b,
+                       0);
+    } else if (this->rParams != FHGFLASH_SHOCK_NO_ACTOR) {
         Gfx_SetupDL44_Xlu(play->state.gfxCtx);
         Matrix_RotateXS(this->rXZRot, MTXMODE_APPLY);
         gDPSetRenderMode(POLY_XLU_DISP++, G_RM_PASS, G_RM_AA_ZB_XLU_DECAL2);
@@ -70,9 +101,11 @@ void EffectSsFhgFlash_Draw(PlayState* play, u32 index, EffectSs* this) {
         Matrix_ReplaceRotation(&play->billboardMtxF);
         gDPSetRenderMode(POLY_XLU_DISP++, G_RM_PASS, G_RM_AA_ZB_XLU_SURF2);
     }
-    gDPPipeSync(POLY_XLU_DISP++);
-    gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, this->rAlpha);
-    gDPSetEnvColor(POLY_XLU_DISP++, 0, 255, 155, 0);
+    if (this->rType != FHGFLASH_LIGHTBALL) {
+        gDPPipeSync(POLY_XLU_DISP++);
+        gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, this->rAlpha);
+        gDPSetEnvColor(POLY_XLU_DISP++, 0, 255, 155, 0);
+    }
     Matrix_RotateZS(this->rXZRot, MTXMODE_APPLY);
     MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gfxCtx);
 
@@ -86,6 +119,16 @@ void EffectSsFhgFlash_Update(PlayState* play, u32 index, EffectSs* this) {
     s16 rand = Rand_ZeroOne() * 20000.0f;
 
     this->rXZRot = (this->rXZRot + rand) + 0x4000;
+    if (this->rType == FHGFLASH_LIGHTBALL) {
+        this->rScale -= 10;
+        this->rAlpha -= 10;
+        if ((this->rScale <= 0) || (this->rAlpha <= 0)) {
+            this->rScale = 0;
+            this->rAlpha = 0;
+            this->life = 0;
+        }
+        return;
+    }
     if (this->rParams == FHGFLASH_SHOCK_PLAYER) {
         Player* player = GET_PLAYER(play);
 

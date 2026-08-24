@@ -83,9 +83,9 @@ typedef struct {
     u16 gustJarButtonMask;
     s8 gustJarPrevInvincibility;
     Actor* gustJarPotActor;
-    u8 gustJarBlowDir;        // Direction toggle: 0 = SUCK (hold C absorbs, release C blows
-                              // proportional to charge), 1 = BLOW (hold C directly blows
-                              // with current element). Toggled by L+R combo.
+    u8 gustJarBlowDir; // Direction toggle: 0 = SUCK (hold C absorbs, release C blows
+                       // proportional to charge), 1 = BLOW (hold C directly blows
+                       // with current element). Toggled by L+R combo.
 
     // Shovel
     u8 shovelActive;
@@ -279,12 +279,13 @@ typedef struct {
     // NeiSaveData (caneSkills / caneType / caneSkillSel); everything here is
     // per-frame session state.
     s16 caneHoldTimer;   // frames the equipped C button has been held
-    s16 caneSelectTimer; // frames L has been held (tap = swap cane, hold = wheel)     // frames the equipped button has been held
-    u8 caneWheelSpoke;     // CANE_SPOKE_* currently under the stick
-    u8 canePreviewValid;   // 1 = the aimed placement is legal (blue), 0 = red
-    Vec3f canePreviewPos;  // where the block/platform would land
-    s16 canePreviewYaw;    // its facing (camera-relative)
-    u8 canePendingSkill;   // skill the running cast animation will fire
+    s16 caneSelectTimer; // frames L has been held (tap = swap cane, hold = wheel)     // frames the equipped button has
+                         // been held
+    u8 caneWheelSpoke;   // CANE_SPOKE_* currently under the stick
+    u8 canePreviewValid; // 1 = the aimed placement is legal (blue), 0 = red
+    Vec3f canePreviewPos; // where the block/platform would land
+    s16 canePreviewYaw;   // its facing (camera-relative)
+    u8 canePendingSkill;  // skill the running cast animation will fire
 
     // Hylia's Grace
     u8 hyliasGraceActive;
@@ -381,7 +382,7 @@ typedef struct {
     u8 postmanHatInputSkip;        // Skip input on first kaleido frame (same-frame A guard)
 
     // ── Mask of Scents (Lost Woods mushroom spots) ───────────────────────
-    u8 mushroomSpotsCollected;     // Bit N = Lost Woods mushroom spot N collected (5 bits used)
+    u8 mushroomSpotsCollected; // Bit N = Lost Woods mushroom spot N collected (5 bits used)
 
     // ── Lantern ──────────────────────────────────────────────────────────
     u8 lanternFireType;    // LanternFireType enum (0-4)
@@ -427,15 +428,15 @@ extern CustomItemState gCustomItemState;
 #define CI_FLAG_ICE_ROD (1 << 13)
 #define CI_FLAG_LIGHT_ROD (1 << 14)
 // Phase 1 additions — items previously missing from the visual sync.
-#define CI_FLAG_ROCS_FEATHER       (1 << 15)
-#define CI_FLAG_BOMB_ARROW         (1 << 16)
+#define CI_FLAG_ROCS_FEATHER (1 << 15)
+#define CI_FLAG_BOMB_ARROW (1 << 16)
 #define CI_FLAG_DEMISE_DESTRUCTION (1 << 17)
-#define CI_FLAG_HYLIAS_GRACE       (1 << 18)
-#define CI_FLAG_ZONAI_PERMAFROST   (1 << 19)
-#define CI_FLAG_LANTERN            (1 << 20)
-#define CI_FLAG_MINISH_CAP         (1 << 21)
-#define CI_FLAG_POSTMAN_HAT        (1 << 22)
-#define CI_FLAG_DESIRE_SENSOR      (1 << 23)
+#define CI_FLAG_HYLIAS_GRACE (1 << 18)
+#define CI_FLAG_ZONAI_PERMAFROST (1 << 19)
+#define CI_FLAG_LANTERN (1 << 20)
+#define CI_FLAG_MINISH_CAP (1 << 21)
+#define CI_FLAG_POSTMAN_HAT (1 << 22)
+#define CI_FLAG_DESIRE_SENSOR (1 << 23)
 
 /**
  * Compact visual state for network sync.
@@ -529,8 +530,8 @@ typedef struct {
 
     // ── Phase 1 additions ──────────────────────────────────────────────
     // Roc's Feather / Cape — extra-jump animation state.
-    u8  rocsFeatherJumpActive;
-    u8  rocsJumpCount;
+    u8 rocsFeatherJumpActive;
+    u8 rocsJumpCount;
     s16 rocsMmAnimTimer;
 
     // Bomb Arrows — render of bomb-on-arrow + reticle suppressed remotely.
@@ -542,20 +543,20 @@ typedef struct {
     // Hylia's Grace — fairy companion + spell phase. The fairy actor itself
     // is spawned via APPEARANCE.SPAWN_VFX_ACTOR (Phase 2); these fields
     // describe the caster's spell-active aura.
-    u8  hyliasGraceState;
-    u8  hyliasGraceSubPhase;
+    u8 hyliasGraceState;
+    u8 hyliasGraceSubPhase;
     s16 hyliasGraceTimer;
-    u8  hyliasGraceForcedBySpell;
+    u8 hyliasGraceForcedBySpell;
 
     // Zonai Permafrost — frost effect around the caster.
-    u8  zonaiPermafrostState;
-    u8  zonaiPermafrostSubPhase;
+    u8 zonaiPermafrostState;
+    u8 zonaiPermafrostSubPhase;
     s16 zonaiPermafrostTimer;
 
     // Lantern — visible flame + swing animation in hand.
-    u8  lanternFireType;
-    u8  lanternSwinging;
-    u8  lanternEquipped;
+    u8 lanternFireType;
+    u8 lanternSwinging;
+    u8 lanternEquipped;
     s16 lanternSwingFrame;
 
     // Minish Cap — shrink/grow scale for fast travel.
@@ -564,8 +565,8 @@ typedef struct {
     u8 minishCapGrowing;
 
     // Postman Hat — fade-in/fade-out streak animation.
-    u8  postmanHatDashing;
-    u8  postmanHatArriving;
+    u8 postmanHatDashing;
+    u8 postmanHatArriving;
     s16 postmanHatTransitionTimer;
 
 } CustomItemVisualSync;

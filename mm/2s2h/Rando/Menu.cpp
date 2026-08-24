@@ -929,6 +929,43 @@ static bool ItemPoolCheckbox(const char* label, RandoOptionId optionId, const ch
     return changed;
 }
 
+struct NeiRandoOption {
+    RandoOptionId id;
+    int32_t on;
+};
+
+static const NeiRandoOption kNeiRandoOptions[] = {
+    { RO_SHUFFLE_NEI_ITEMS, 1 },
+    { RO_SHUFFLE_OOT_GEAR, 1 },
+    { RO_SHUFFLE_OOT_EQUIPMENT, 1 },
+    { RO_SHUFFLE_OOT_QUEST, 1 },
+    { RO_SHUFFLE_OOT_MASKS, 1 },
+    { RO_SHUFFLE_BOMB_ARROWS, RO_BOMB_ARROWS_SHUFFLED },
+    { RO_ELEMENTAL_WAND_SHUFFLE, RO_WAND_ELEMENTAL_SHUFFLE },
+};
+
+static void NeiRando_SetAll(bool on) {
+    for (const auto& o : kNeiRandoOptions) {
+        CVarSetInteger(Rando::StaticData::Options[o.id].cvar, on ? o.on : 0);
+    }
+    CVarSetInteger("gMods.BombArrows.Mode",
+                   CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_BOMB_ARROWS].cvar, RO_BOMB_ARROWS_OFF));
+    Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+}
+
+static void NeiRando_DrawSetAllButtons() {
+    if (Button("Add all NEI content",
+               ButtonOptions().Tooltip("Turns on every option in this card at once: NEI custom items, OoT\n"
+                                       "gear, equipment, songs & quest items, masks, bomb arrows and the\n"
+                                       "elemental wand."))) {
+        NeiRando_SetAll(true);
+    }
+    ImGui::SameLine();
+    if (Button("Remove all", ButtonOptions().Tooltip("Turns every option in this card off."))) {
+        NeiRando_SetAll(false);
+    }
+}
+
 static void DrawItemPoolTab() {
     DrawSeedHealthStrip();
 
@@ -1209,29 +1246,30 @@ static void DrawItemPoolTab() {
     // pushed them into the pool.
     UIWidgets::BeginCard("itemPoolNei");
     ImGui::SeparatorText("NEI & Cross-Game");
-    CVarCheckbox("Shuffle NEI Custom Items", Rando::StaticData::Options[RO_SHUFFLE_NEI_ITEMS].cvar,
-                 CheckboxOptions({ { .tooltip =
-                                         "Adds Skijer's NEI custom items (the page-2 inventory) to the item pool:\n"
-                                         "Whip, Spinner, the three elemental Rods, Deku Leaf, Time Gate, Beetle,\n"
-                                         "Switch Hook, Mogma Mitts, Gust Jar, Ball and Chain, Dominion Rod, the six\n"
-                                         "Dual Cane skills, and more.\n\n"
-                                         "These are not considered by logic yet." } }));
+    NeiRando_DrawSetAllButtons();
+    CVarCheckbox(
+        "Shuffle NEI Custom Items", Rando::StaticData::Options[RO_SHUFFLE_NEI_ITEMS].cvar,
+        CheckboxOptions({ { .tooltip = "Adds Skijer's NEI custom items (the page-2 inventory) to the item pool:\n"
+                                       "Whip, Spinner, the three elemental Rods, Deku Leaf, Time Gate, Beetle,\n"
+                                       "Switch Hook, Mogma Mitts, Gust Jar, Ball and Chain, Dominion Rod, the six\n"
+                                       "Dual Cane skills, and more.\n\n"
+                                       "These are not considered by logic yet." } }));
     // Cross-game categories: OoT items in a SOLO MM seed, no combo needed. In combo these come
     // through the combo's own supply, so the checkboxes only affect solo seeds.
-    CVarCheckbox("Add OoT Items", Rando::StaticData::Options[RO_SHUFFLE_OOT_GEAR].cvar,
-                 CheckboxOptions({ { .tooltip =
-                                         "Adds OoT gear to a solo-MM pool: the Master Sword and Biggoron's Sword\n"
-                                         "chains, Stick/Nut Capacity, Open Chests, Progressive Strength and the\n"
-                                         "ship-vanilla Roc's Feather.\n\nNot considered by logic." } }));
-    CVarCheckbox("Add OoT Equipment", Rando::StaticData::Options[RO_SHUFFLE_OOT_EQUIPMENT].cvar,
-                 CheckboxOptions({ { .tooltip =
-                                         "Adds the extended-equipment page to a solo-MM pool: Cane of Byrna, Four\n"
-                                         "Sword, Trident, the three shields, the three tunics, the three boots,\n"
-                                         "the Magic Cape and the progressive Roc.\n\nNot considered by logic." } }));
-    CVarCheckbox("Add OoT Songs & Quest Items", Rando::StaticData::Options[RO_SHUFFLE_OOT_QUEST].cvar,
-                 CheckboxOptions({ { .tooltip =
-                                         "Adds OoT's songs, the six medallions, the three spiritual stones and the\n"
-                                         "Stone of Agony to a solo-MM pool.\n\nNot considered by logic." } }));
+    CVarCheckbox(
+        "Add OoT Items", Rando::StaticData::Options[RO_SHUFFLE_OOT_GEAR].cvar,
+        CheckboxOptions({ { .tooltip = "Adds OoT gear to a solo-MM pool: the Master Sword and Biggoron's Sword\n"
+                                       "chains, Stick/Nut Capacity, Open Chests, Progressive Strength and the\n"
+                                       "ship-vanilla Roc's Feather.\n\nNot considered by logic." } }));
+    CVarCheckbox(
+        "Add OoT Equipment", Rando::StaticData::Options[RO_SHUFFLE_OOT_EQUIPMENT].cvar,
+        CheckboxOptions({ { .tooltip = "Adds the extended-equipment page to a solo-MM pool: Cane of Byrna, Four\n"
+                                       "Sword, Trident, the three shields, the three tunics, the three boots,\n"
+                                       "the Magic Cape and the progressive Roc.\n\nNot considered by logic." } }));
+    CVarCheckbox(
+        "Add OoT Songs & Quest Items", Rando::StaticData::Options[RO_SHUFFLE_OOT_QUEST].cvar,
+        CheckboxOptions({ { .tooltip = "Adds OoT's songs, the six medallions, the three spiritual stones and the\n"
+                                       "Stone of Agony to a solo-MM pool.\n\nNot considered by logic." } }));
     CVarCheckbox("Add OoT Masks", Rando::StaticData::Options[RO_SHUFFLE_OOT_MASKS].cvar,
                  CheckboxOptions({ { .tooltip = "Adds the Skull, Spooky and Gerudo masks to a solo-MM pool.\n\n"
                                                 "Not considered by logic." } }));
@@ -1244,14 +1282,14 @@ static void DrawItemPoolTab() {
             { RO_BOMB_ARROWS_BOMB_BAG, "Bomb Bag" },
             { RO_BOMB_ARROWS_SHUFFLED, "Shuffled" },
         };
-        UIWidgets::CVarCombobox(
-            "Shuffle Bomb Arrows", Rando::StaticData::Options[RO_SHUFFLE_BOMB_ARROWS].cvar, &bombArrowModeOptions,
-            UIWidgets::ComboboxOptions().Tooltip(
-                "How Bomb Arrows are obtained. They sit at the end of the bow's element wheel,\n"
-                "next to the medallion arrows — they have no inventory slot of their own.\n\n"
-                "Off: never granted on their own (the Twilight Upgrade still unlocks them).\n"
-                "Bomb Bag: granted the moment you own any bomb bag.\n"
-                "Shuffled: a real randomizer item."));
+        UIWidgets::CVarCombobox("Shuffle Bomb Arrows", Rando::StaticData::Options[RO_SHUFFLE_BOMB_ARROWS].cvar,
+                                &bombArrowModeOptions,
+                                UIWidgets::ComboboxOptions().Tooltip(
+                                    "How Bomb Arrows are obtained. They sit at the end of the bow's element wheel,\n"
+                                    "next to the medallion arrows — they have no inventory slot of their own.\n\n"
+                                    "Off: never granted on their own (the Twilight Upgrade still unlocks them).\n"
+                                    "Bomb Bag: granted the moment you own any bomb bag.\n"
+                                    "Shuffled: a real randomizer item."));
         CVarSetInteger("gMods.BombArrows.Mode",
                        CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_BOMB_ARROWS].cvar, RO_BOMB_ARROWS_OFF));
 

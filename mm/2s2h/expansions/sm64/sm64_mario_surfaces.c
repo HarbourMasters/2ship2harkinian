@@ -84,8 +84,8 @@ static void emitActorTri(struct SM64Surface* out, f32 ax, f32 ay, f32 az, f32 bx
 // axis-aligned box, whose corners poked ~0.41*r past the cylinder and made
 // Mario collide with "invented" phantom walls near signs/torches/props.
 static const f32 kOctDir[8][2] = {
-    { 1.000000f, 0.000000f },   { 0.707107f, 0.707107f },   { 0.000000f, 1.000000f },  { -0.707107f, 0.707107f },
-    { -1.000000f, 0.000000f },  { -0.707107f, -0.707107f }, { 0.000000f, -1.000000f }, { 0.707107f, -0.707107f },
+    { 1.000000f, 0.000000f },  { 0.707107f, 0.707107f },   { 0.000000f, 1.000000f },  { -0.707107f, 0.707107f },
+    { -1.000000f, 0.000000f }, { -0.707107f, -0.707107f }, { 0.000000f, -1.000000f }, { 0.707107f, -0.707107f },
 };
 
 // Emit an 8-wall prism (16 triangles) around a cylinder footprint of radius r,
@@ -201,12 +201,15 @@ struct SM64Surface* Sm64Surfaces_ExtractFiltered(PlayState* play, u32* outCount,
             for (bgId = 0; bgId < BG_ACTOR_MAX; bgId++) {
                 BgActor* bg;
                 u32 polyStart, polyEnd, p;
-                if (!(dyna->bgActorFlags[bgId] & 1)) continue;
+                if (!(dyna->bgActorFlags[bgId] & 1))
+                    continue;
                 bg = &dyna->bgActors[bgId];
-                if (bg->colHeader == NULL) continue;
+                if (bg->colHeader == NULL)
+                    continue;
                 polyStart = bg->dynaLookup.polyStartIndex;
                 polyEnd = polyStart + bg->colHeader->numPolygons;
-                if (polyEnd > dynaCapacity) polyEnd = dynaCapacity;
+                if (polyEnd > dynaCapacity)
+                    polyEnd = dynaCapacity;
                 for (p = polyStart; p < polyEnd; p++) {
                     // Honor the player-ignore flag (flags_vIA & 0x4000) on dynapoly
                     // too — same as the static pass. This is what makes Lens-of-Truth
@@ -217,8 +220,7 @@ struct SM64Surface* Sm64Surfaces_ExtractFiltered(PlayState* play, u32* outCount,
                         continue;
                     // Vanish cap: keep floors + exit walls on dynamic bgActors
                     // too (e.g. door-mounted loading zones).
-                    if (floorOnly && !isFloorPoly(&dPolyList[p]) &&
-                        !isExitPoly(play, &dPolyList[p], bgId))
+                    if (floorOnly && !isFloorPoly(&dPolyList[p]) && !isExitPoly(play, &dPolyList[p], bgId))
                         continue;
                     writeSurface(&surfaces[outIdx++], &dPolyList[p], dVtxList);
                 }
@@ -266,8 +268,7 @@ void Sm64Surfaces_RefreshActorColliders(PlayState* play) {
             continue;
         // Scope: obstacles only. Skip the player (that's Mario himself) and
         // enemies/bosses so Mario can still walk into them to attack.
-        if (actor->category == ACTORCAT_PLAYER || actor->category == ACTORCAT_ENEMY ||
-            actor->category == ACTORCAT_BOSS)
+        if (actor->category == ACTORCAT_PLAYER || actor->category == ACTORCAT_ENEMY || actor->category == ACTORCAT_BOSS)
             continue;
         // Must be an active OC collider that blocks the player.
         if (!(col->ocFlags1 & OC1_ON) || !(col->ocFlags1 & OC1_TYPE_PLAYER))

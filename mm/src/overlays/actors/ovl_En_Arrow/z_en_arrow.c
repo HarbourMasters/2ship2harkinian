@@ -75,9 +75,8 @@ static Actor* EnArrow_SpawnSw97Glow(EnArrow* this, PlayState* play, s32 element)
     // Donor: an inert deku-nut EnArrow (no skeleton, no blure effect, no heap allocs in Init),
     // spawned as OUR child so the glow's `actor.parent` is this projectile — exactly the
     // relationship the glow's Charge/Fly/Draw code expects.
-    Actor* glow = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_ARROW,
-                                     this->actor.world.pos.x, this->actor.world.pos.y, this->actor.world.pos.z, 0, 0,
-                                     0, ARROW_TYPE_DEKU_NUT);
+    Actor* glow = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_ARROW, this->actor.world.pos.x,
+                                     this->actor.world.pos.y, this->actor.world.pos.z, 0, 0, 0, ARROW_TYPE_DEKU_NUT);
 
     if (glow == NULL) {
         return NULL;

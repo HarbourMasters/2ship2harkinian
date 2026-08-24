@@ -20,13 +20,13 @@
 
 #include "z64.h"
 
-#define WEAPON_UPGRADE_HAMMER_AXE      (1 << 0) // Hammer  → Iron Knuckle's Axe
-#define WEAPON_UPGRADE_KOKIRI_RAZOR    (1 << 1) // Kokiri  → Razor Sword
-#define WEAPON_UPGRADE_KOKIRI_GILDED   (1 << 2) // Kokiri  → Gilded Sword
-#define WEAPON_UPGRADE_MASTER_TRUE     (1 << 3) // Master  → True Master Sword
+#define WEAPON_UPGRADE_HAMMER_AXE (1 << 0)      // Hammer  → Iron Knuckle's Axe
+#define WEAPON_UPGRADE_KOKIRI_RAZOR (1 << 1)    // Kokiri  → Razor Sword
+#define WEAPON_UPGRADE_KOKIRI_GILDED (1 << 2)   // Kokiri  → Gilded Sword
+#define WEAPON_UPGRADE_MASTER_TRUE (1 << 3)     // Master  → True Master Sword
 #define WEAPON_UPGRADE_BGS_GREAT_FAIRY (1 << 4) // Biggoron→ Great Fairy's Sword
-#define WEAPON_UPGRADE_ALL                                                                       \
-    (WEAPON_UPGRADE_HAMMER_AXE | WEAPON_UPGRADE_KOKIRI_RAZOR | WEAPON_UPGRADE_KOKIRI_GILDED |    \
+#define WEAPON_UPGRADE_ALL                                                                    \
+    (WEAPON_UPGRADE_HAMMER_AXE | WEAPON_UPGRADE_KOKIRI_RAZOR | WEAPON_UPGRADE_KOKIRI_GILDED | \
      WEAPON_UPGRADE_MASTER_TRUE | WEAPON_UPGRADE_BGS_GREAT_FAIRY)
 
 #ifdef __cplusplus

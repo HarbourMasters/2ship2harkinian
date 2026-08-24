@@ -20,18 +20,18 @@ extern "C" {
 
 #include "z64.h"
 
-void  VoicePack_Init(void);
-void  VoicePack_Shutdown(void);
+void VoicePack_Init(void);
+void VoicePack_Shutdown(void);
 
-s32         VoicePack_GetCount(void);
+s32 VoicePack_GetCount(void);
 const char* VoicePack_GetName(s32 index);
-void        VoicePack_Select(s32 index);
-s32         VoicePack_GetSelectedIndex(void);
+void VoicePack_Select(s32 index);
+s32 VoicePack_GetSelectedIndex(void);
 
-u8   VoicePack_PlayIfMatch(u16 sfxId, Vec3f* pos);
+u8 VoicePack_PlayIfMatch(u16 sfxId, Vec3f* pos);
 void VoicePack_MixInto(s16* outBuf, u32 numSamples);
 
-int  VoicePack_OwnsPath(const char* path);
+int VoicePack_OwnsPath(const char* path);
 
 #ifdef __cplusplus
 }

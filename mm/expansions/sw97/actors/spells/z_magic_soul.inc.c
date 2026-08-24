@@ -145,7 +145,11 @@ void MagicSoul_DimLighting(PlayState* play, f32 intensity) {
     // adjustable-fog layer (adjFogNear/adjFogColor) and Room has no behaviorType1. The soul
     // spell's screen-darken visual is a TODO (reimplement via Environment_LerpFog); the spell's
     // gameplay is unaffected.
-    (void)play; (void)intensity; (void)i; (void)temp_f0; (void)phi_f0;
+    (void)play;
+    (void)intensity;
+    (void)i;
+    (void)temp_f0;
+    (void)phi_f0;
 }
 
 void MagicSoul_OrbUpdate(Actor* thisx, PlayState* play) {

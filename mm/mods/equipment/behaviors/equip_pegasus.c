@@ -45,8 +45,8 @@ static u8 sPegasusNeedsReset = 0; // dash ended while airborne → reset action 
 // ---------------------------------------------------------------------------
 static ColliderCylinder sPegasusCol;
 
-static ColliderCylinderInit sPegasusColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_NONE,
-                                                  COLSHAPE_CYLINDER },
+static ColliderCylinderInit sPegasusColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE,
+                                                  OC2_NONE, COLSHAPE_CYLINDER },
                                                 { ELEM_MATERIAL_UNK2,
                                                   // TODO(port): literal 0x100 is OoT bit 8 (was DMG_SLASH). In MM bit 8
                                                   // is DMG_GORON_PUNCH; DMG_SWORD is bit 9 (0x200). Literal left as-is.
@@ -98,12 +98,16 @@ static void Pegasus_UpdateCollider(PlayState* play, Player* p) {
 // of the spin-charge action (Player_Action_80845000 charge-walk); leaving that
 // action active after the dash ends is what caused inverted controls — charge-walk
 // moves the stick relative to the locked facing instead of the camera.
-static f32 sPegasusSpinCharge = 0.0f; // MM stand-in for OoT Player.unk_858 (engine spin-charge; only read, and the line ~193 check falls back to PLAYER_STATE1_CHARGING_SPIN_ATTACK)
+// MM's engine spin-charge amount is Player.unk_B08 (= OoT's unk_858): the charge-walk action steps
+// it toward 0.5/1.0 (z_player.c ~11531) and releases a real SPIN ATTACK at >= 0.85. The dash rides
+// on that action, so the charge must be pinned to 0 every frame — the old file-static stand-in
+// suppressed nothing, which is why the spin attack fired and overwrote the dash animation.
+static f32 sPegasusRunAnimFrame = 0.0f; // own run-cycle accumulator (Goht-style pose ownership)
 
 static void Pegasus_ResetPlayer(Player* p, PlayState* play) {
     p->linearVelocity = 0.0f;
     p->actor.speed = 0.0f;
-    sPegasusSpinCharge = 0.0f; // spin charge amount
+    p->unk_B08 = 0.0f; // engine spin-charge amount
     p->actor.world.rot.y = p->actor.shape.rot.y;
     p->yaw = p->actor.shape.rot.y;
     func_80853080(p, play); // Player_Action_Idle + idle anim + yaw resync
@@ -115,8 +119,8 @@ static void Pegasus_ResetPlayer(Player* p, PlayState* play) {
 // from the windup cancel (charge action still owns the player and exits itself)
 // and from the cutscene/death path (the cutscene owns the player).
 static void Pegasus_Stop(Player* p, PlayState* play, s32 resetAction) {
-    s32 wasDashing = (gExtEquipBehavior.pegasusState == PEGASUS_RUNNING) ||
-                     (gExtEquipBehavior.pegasusState == PEGASUS_BONK);
+    s32 wasDashing =
+        (gExtEquipBehavior.pegasusState == PEGASUS_RUNNING) || (gExtEquipBehavior.pegasusState == PEGASUS_BONK);
 
     gExtEquipBehavior.pegasusState = PEGASUS_IDLE;
     gExtEquipBehavior.pegasusTimer = 0;
@@ -156,16 +160,21 @@ static void Pegasus_Cleanup(void) {
 // ---------------------------------------------------------------------------
 // Apply sword-forward limb pose
 // ---------------------------------------------------------------------------
+// Defined later in this TU (z_player.c:706): the vanilla upper-body limb map (torso/arms/head
+// true, root/waist/legs false) used by the hold-target walk's mapped copy.
+extern u8 sPlayerUpperBodyLimbCopyMap[];
+
 static void Pegasus_ApplyPose(Player* p, PlayState* play) {
-    // Load BGS stab frame 2 into upperJointTable (async — ready next frame)
+    // Load BGS stab frame 2 into upperJointTable (runs when the anim task queue flushes).
     AnimationContext_SetLoadFrame(play, &gPlayerAnim_link_fighter_Lpierce_kiru, 2, p->skelAnime.limbCount,
                                   p->skelAnimeUpper.jointTable);
 
-    // Copy upper body joints from upperJointTable (loaded previous frame) into jointTable
-    // Lower body (ROOT=1, WAIST=2, LOWER=3, thighs=4/7, shins=5/8, feet=6/9) keeps run_free
-    for (s32 i = PLAYER_LIMB_UPPER; i < PLAYER_LIMB_MAX; i++) {
-        p->skelAnime.jointTable[i] = p->skelAnimeUpper.jointTable[i];
-    }
+    // The run-frame load queued in StateRunning executes at queue-flush time, so a direct
+    // jointTable memcpy here gets wiped by it. Queue the upper-body overlay AFTER it instead —
+    // the vanilla mechanism (hold-target walk, z_player.c ~5078): tasks run in queue order, the
+    // stab joints land on top of the run joints for the mapped limbs, legs keep running.
+    AnimTaskQueue_AddCopyUsingMap(play, p->skelAnime.limbCount, p->skelAnime.jointTable, p->skelAnimeUpper.jointTable,
+                                  sPlayerUpperBodyLimbCopyMap);
 }
 
 // ---------------------------------------------------------------------------
@@ -194,9 +203,9 @@ static void Pegasus_StateIdle(Player* p, PlayState* play) {
     }
 
     // Check if the charge is building (vanilla spin attack charge)
-    if (sPegasusSpinCharge >= 0.1f || (p->stateFlags1 & PLAYER_STATE1_CHARGING_SPIN_ATTACK)) {
+    if (p->unk_B08 >= 0.1f || (p->stateFlags1 & PLAYER_STATE1_CHARGING_SPIN_ATTACK)) {
         // Intercept! Reset spin attack charge and enter windup
-        sPegasusSpinCharge = 0.0f;
+        p->unk_B08 = 0.0f;
         gExtEquipBehavior.pegasusState = PEGASUS_WINDUP;
         gExtEquipBehavior.pegasusTimer = PEGASUS_WINDUP_FRAMES;
         p->stateFlags1 |= PLAYER_STATE1_CHARGING_SPIN_ATTACK;
@@ -222,7 +231,7 @@ static void Pegasus_StateWindup(Player* p, PlayState* play) {
     }
 
     // Keep spin attack charge suppressed
-    sPegasusSpinCharge = 0.0f;
+    p->unk_B08 = 0.0f;
     p->actor.speed = 0.0f;
     p->linearVelocity = 0.0f;
 
@@ -230,6 +239,7 @@ static void Pegasus_StateWindup(Player* p, PlayState* play) {
     if (gExtEquipBehavior.pegasusTimer <= 0) {
         gExtEquipBehavior.pegasusState = PEGASUS_RUNNING;
         gExtEquipBehavior.pegasusMagicTick = 0;
+        sPegasusRunAnimFrame = 0.0f;
 
         Pegasus_InitCollider(play, p);
 
@@ -251,7 +261,7 @@ static void Pegasus_StateRunning(Player* p, PlayState* play) {
     }
 
     // Keep spin attack suppressed
-    sPegasusSpinCharge = 0.0f;
+    p->unk_B08 = 0.0f;
     p->stateFlags1 |= PLAYER_STATE1_CHARGING_SPIN_ATTACK;
 
     // Steering: use stick X for turning (negate: stick right = positive = turn right)
@@ -266,27 +276,30 @@ static void Pegasus_StateRunning(Player* p, PlayState* play) {
     p->linearVelocity = PEGASUS_DASH_SPEED;
     p->actor.speed = PEGASUS_DASH_SPEED;
 
-    // Force running animation on lower body (legs keep moving)
-    // The skeleton plays this animation for ALL limbs, then ApplyPose
-    // overrides only the upper body limbs — legs stay running
-    if (p->skelAnime.animation != &gPlayerAnim_link_normal_run_free) {
-        LinkAnimation_Change(play, &p->skelAnime, &gPlayerAnim_link_normal_run_free, 1.5f, 0.0f,
-                             Animation_GetLastFrame(&gPlayerAnim_link_normal_run_free), ANIMMODE_LOOP, -6.0f);
+    // Force running animation on lower body (legs keep moving); ApplyPose then overrides only the
+    // upper body limbs. Goht-style pose OWNERSHIP (boss_remains.cpp bull charge): the dash rides on
+    // the engine's charge-walk action, whose own anim swaps would overwrite a pointer-gated one-shot
+    // Change — so set the exact cycle frame every frame (morph 0) from our own accumulator.
+    sPegasusRunAnimFrame += 1.5f;
+    if (sPegasusRunAnimFrame >= Animation_GetLastFrame(&gPlayerAnim_link_normal_run_free)) {
+        sPegasusRunAnimFrame -= Animation_GetLastFrame(&gPlayerAnim_link_normal_run_free);
     }
+    LinkAnimation_Change(play, &p->skelAnime, &gPlayerAnim_link_normal_run_free, 1.0f, sPegasusRunAnimFrame,
+                         Animation_GetLastFrame(&gPlayerAnim_link_normal_run_free), ANIMMODE_ONCE, 0.0f);
 
     // Apply stab pose on upper body (lower body keeps running anim)
     Pegasus_ApplyPose(p, play);
 
     // Collider + magic drain: only when has magic
-    if (gSaveContext.save.saveInfo.playerData.magic> 0) {
+    if (gSaveContext.save.saveInfo.playerData.magic > 0) {
         Pegasus_UpdateCollider(play, p);
 
         gExtEquipBehavior.pegasusMagicTick++;
         if (gExtEquipBehavior.pegasusMagicTick >= PEGASUS_MAGIC_INTERVAL) {
             gExtEquipBehavior.pegasusMagicTick = 0;
             gSaveContext.save.saveInfo.playerData.magic--;
-            if (gSaveContext.save.saveInfo.playerData.magic< 0)
-                gSaveContext.save.saveInfo.playerData.magic= 0;
+            if (gSaveContext.save.saveInfo.playerData.magic < 0)
+                gSaveContext.save.saveInfo.playerData.magic = 0;
         }
     } else {
         // No magic: disable collider
@@ -428,7 +441,7 @@ static void Pegasus_Draw(Player* p, PlayState* play) {
     if (gExtEquipBehavior.pegasusState != PEGASUS_RUNNING)
         return;
 
-    if (gSaveContext.save.saveInfo.playerData.magic<= 0)
+    if (gSaveContext.save.saveInfo.playerData.magic <= 0)
         return;
 
     OPEN_DISPS(play->state.gfxCtx);

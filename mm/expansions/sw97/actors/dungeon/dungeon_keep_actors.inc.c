@@ -225,8 +225,8 @@ void Crashbox_Break(DungeonKeep* this, PlayState* play) {
 }
 
 void Crashbox_Wait(DungeonKeep* this, PlayState* play) {
-    if (((this->collider.base.acFlags & AC_HIT) && (this->collider.elem.acHitElem->atDmgInfo.dmgFlags & DMG_EXPLOSIVES) &&
-         (this->dyna.actor.bgCheckFlags & 1))) {
+    if (((this->collider.base.acFlags & AC_HIT) &&
+         (this->collider.elem.acHitElem->atDmgInfo.dmgFlags & DMG_EXPLOSIVES) && (this->dyna.actor.bgCheckFlags & 1))) {
         Crashbox_Break(this, play);
         Audio_PlaySoundAtPosition(play, &this->dyna.actor.world.pos, 80, NA_SE_EV_WOODBOX_BREAK);
         Actor_Kill(&this->dyna.actor);

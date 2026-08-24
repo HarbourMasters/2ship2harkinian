@@ -178,9 +178,12 @@ void DrawAimHint(ImDrawList* dl, const ImVec2& disp) {
 class CaneWheelHudWindow final : public Ship::GuiWindow {
   public:
     using GuiWindow::GuiWindow;
-    void InitElement() override {}
-    void DrawElement() override {}
-    void UpdateElement() override {}
+    void InitElement() override {
+    }
+    void DrawElement() override {
+    }
+    void UpdateElement() override {
+    }
     void Draw() override;
 };
 

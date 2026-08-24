@@ -28,9 +28,14 @@
 #include "overlays/actors/ovl_Obj_Syokudai/z_obj_syokudai.h"
 #include "overlays/actors/ovl_En_Light/z_en_light.h" // summoned flame: light type + colour params
 
-// object_po is not resident while Link holds the lantern, so its display list is
-// pulled straight out of mm.o2r (same pattern as the Powder Keg barrel).
-extern void* MmAssets_LoadResource(const char* path);
+// object_po is not resident while Link holds the lantern, so the Poe's lantern display
+// list is pulled from the archive by name — the same idiom the Switch Hook uses for the
+// OoT hookshot DLs. NOT MmAssets_LoadResource: that one targets a SEPARATE mm.o2r
+// archive (it came over with the SoH port, where MM assets are a bolt-on) and wants the
+// path WITHOUT the __OTR__ prefix, so it returned NULL here and the lantern body simply
+// never drew.
+extern u8 ResourceMgr_FileExists(const char* resName);
+extern Gfx* ResourceMgr_LoadGfxByName(const char* path);
 
 // ── MM player-action plumbing (this file is #included into the z_player TU, but
 // BEFORE z_player declares its own functions, so the ones the swing needs are
@@ -39,7 +44,7 @@ s32 Player_SetAction(PlayState* play, Player* this, PlayerActionFunc actionFunc,
 void Player_Anim_PlayOnceAdjusted(PlayState* play, Player* this, PlayerAnimationHeader* anim);
 s32 Player_DecelerateToZero(Player* this);
 void Player_StopCutscene(Player* this);
-bool func_808323C0(Player* this, s16 csId); // start a player cutscene (item show / death / ...)
+bool func_808323C0(Player* this, s16 csId);        // start a player cutscene (item show / death / ...)
 void func_80839E74(Player* this, PlayState* play); // drop back to the idle action
 void Player_StartLanternSwing(Player* this, PlayState* play);
 
@@ -54,16 +59,16 @@ u8 gLanternCatchPending = 0;
 // table's type is just the fallback for sources with a single fixed colour.
 
 static const LanternCatchEntry sCatchableFires[] = {
-    { ACTOR_OBJ_SYOKUDAI, LANTERN_FIRE_REGULAR },  // Lit torch
-    { ACTOR_EN_BW, LANTERN_FIRE_REGULAR },         // Torch slug
-    { ACTOR_EN_LIGHT, LANTERN_FIRE_REGULAR },      // General flame (colour from params)
-    { ACTOR_EN_ICE_HONO, LANTERN_FIRE_BLUE },      // Blue fire
-    { ACTOR_EN_POH, LANTERN_FIRE_POE },            // Poe lantern
-    { ACTOR_EN_PO_COMPOSER, LANTERN_FIRE_POE },    // Sharp / Flat (composer brothers)
-    { ACTOR_EN_PO_SISTERS, LANTERN_FIRE_POE },     // Poe sister torch
-    { ACTOR_EN_PO_FIELD, LANTERN_FIRE_POE },       // Field Poe
-    { ACTOR_EN_PO_DESERT, LANTERN_FIRE_POE },      // Desert Poe
-    { ACTOR_BG_PO_SYOKUDAI, LANTERN_FIRE_POE },    // Poe torch stand
+    { ACTOR_OBJ_SYOKUDAI, LANTERN_FIRE_REGULAR }, // Lit torch
+    { ACTOR_EN_BW, LANTERN_FIRE_REGULAR },        // Torch slug
+    { ACTOR_EN_LIGHT, LANTERN_FIRE_REGULAR },     // General flame (colour from params)
+    { ACTOR_EN_ICE_HONO, LANTERN_FIRE_BLUE },     // Blue fire
+    { ACTOR_EN_POH, LANTERN_FIRE_POE },           // Poe lantern
+    { ACTOR_EN_PO_COMPOSER, LANTERN_FIRE_POE },   // Sharp / Flat (composer brothers)
+    { ACTOR_EN_PO_SISTERS, LANTERN_FIRE_POE },    // Poe sister torch
+    { ACTOR_EN_PO_FIELD, LANTERN_FIRE_POE },      // Field Poe
+    { ACTOR_EN_PO_DESERT, LANTERN_FIRE_POE },     // Desert Poe
+    { ACTOR_BG_PO_SYOKUDAI, LANTERN_FIRE_POE },   // Poe torch stand
 };
 #define CATCHABLE_COUNT (sizeof(sCatchableFires) / sizeof(sCatchableFires[0]))
 
@@ -244,6 +249,32 @@ static void Lantern_SyncToSave(void) {
 // once at file load time via SaveManager (see SaveManager.cpp LoadBase).
 // Runtime is always authoritative; save is updated on catch via Lantern_SyncToSave.
 
+// ── Poe capture ─────────────────────────────────────────────────────────────
+// Taking a Poe's fire takes the Poe with it, and it has to leave the world in the same
+// state killing it would. A bare Actor_Kill skips everything the actor does on death —
+// for the sisters that is their drop, so capturing one used to be worth less than a
+// sword kill. (The Poe Hut's En_Gb2 counts its children by update == NULL, so the kill
+// itself already scores; only the drop had to be replayed.)
+static void Lantern_CapturePoe(Actor* actor, PlayState* play) {
+    switch (actor->id) {
+        case ACTOR_EN_PO_SISTERS:
+            // From EnPoSisters_SetupDeathStage2: drop table 8.
+            Item_DropCollectibleRandom(play, actor, &actor->world.pos, 0x8 << 4);
+            break;
+
+        case ACTOR_EN_POH:
+            break;
+
+        default:
+            // Torches, loose flames and the composer brothers (NPCs, not enemies) are
+            // never consumed by the catch.
+            return;
+    }
+
+    Audio_PlayActorSound2(actor, NA_SE_EN_PO_LAUGH2);
+    Actor_Kill(actor);
+}
+
 // ── Fire Catch (during swing catch window) ──────────────────────────────────
 
 u8 Lantern_TryCatch(Player* p, PlayState* play) {
@@ -277,13 +308,10 @@ u8 Lantern_TryCatch(Player* p, PlayState* play) {
                             Lantern_SyncToSave();
                             Audio_PlayActorSound2(&p->actor, NA_SE_EV_FLAME_IGNITION);
 
-                            // Poe catch = kill the Poe (like bottle catches fairy)
-                            if (type == LANTERN_FIRE_POE &&
-                                (actor->id == ACTOR_EN_POH || actor->id == ACTOR_EN_PO_FIELD ||
-                                 actor->id == ACTOR_EN_PO_DESERT || actor->id == ACTOR_EN_PO_SISTERS)) {
-                                Audio_PlayActorSound2(actor, NA_SE_EN_PO_LAUGH2);
-                                Actor_Kill(actor);
-                            }
+                            // Poe catch = the Poe goes with its fire (like a bottled fairy).
+                            // Keyed on the ACTOR, not on the fire colour: a red sister hands
+                            // over regular fire and still has to die for it.
+                            Lantern_CapturePoe(actor, play);
 
                             return 1; // caught!
                         }
@@ -367,8 +395,8 @@ static void Lantern_SpawnFireActor(Player* p, PlayState* play) {
     f32 fy = p->actor.world.pos.y; // Floor level
     f32 fz = p->actor.world.pos.z + Math_CosS(yaw) * dist;
 
-    Actor* flame = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHT, fx, fy, fz, 0, 0, 0,
-                               sLanternFlameParam[fireType]);
+    Actor* flame =
+        Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHT, fx, fy, fz, 0, 0, 0, sLanternFlameParam[fireType]);
 
     if (flame != NULL) {
         // No halo: En_Light asks for a GLOW light, which is the bright disc torches
@@ -444,9 +472,9 @@ void Lantern_UpdateBurning(PlayState* play) {
             u8 grassFire = gCustomItemState.lanternFireType;
 
             if ((grassFire != LANTERN_FIRE_NONE) && (grassFire < LANTERN_FIRE_MAX)) {
-                Actor* grassFlame = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHT, actor->world.pos.x,
-                                                actor->world.pos.y, actor->world.pos.z, 0, 0, 0,
-                                                sLanternFlameParam[grassFire]);
+                Actor* grassFlame =
+                    Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHT, actor->world.pos.x, actor->world.pos.y,
+                                actor->world.pos.z, 0, 0, 0, sLanternFlameParam[grassFire]);
                 if (grassFlame != NULL) {
                     ((EnLight*)grassFlame)->lightInfo.type = LIGHT_POINT_NOGLOW;
                     Lantern_TrackFlame(grassFlame, grassFire, play);
@@ -830,8 +858,7 @@ void Player_Action_SwingLantern(Player* this, PlayState* play) {
                     this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
                     // Stops Lantern_UpdateSwing's collider + trail for the catch cutscene
                     gCustomItemState.lanternCatchState = 1;
-                    Player_Anim_PlayOnceAdjusted(play, this,
-                                                 (PlayerAnimationHeader*)&gPlayerAnim_link_bottle_bug_in);
+                    Player_Anim_PlayOnceAdjusted(play, this, (PlayerAnimationHeader*)&gPlayerAnim_link_bottle_bug_in);
                 }
             } else if (activeFrame == 0) {
                 // Lit: throw the flame ONCE
@@ -861,16 +888,21 @@ void CustomItems_DrawLantern(Player* p, PlayState* play) {
     u8 fireType = gCustomItemState.lanternFireType;
     u8 lit = ((fireType != LANTERN_FIRE_NONE) && (fireType < LANTERN_FIRE_MAX));
     static u8 sFlameTexScroll = 0;
-    // The Poe's lantern body. Loaded by path (object_po is not resident) exactly like
-    // the Powder Keg's barrel; NULL just means the o2r lacks it, and the lantern falls
-    // back to a bare flame instead of executing a bad pointer as display list.
-    static void* sLanternDL = NULL;
+    // The Poe's lantern body. Checked before loading so a missing resource leaves the
+    // pointer NULL instead of feeding a path string to the RSP as display list opcodes.
+    // MM's own object_po is the first choice; oot.o2r's object_poh is the fallback for
+    // an mm.o2r built without it.
+    static Gfx* sLanternDL = NULL;
     static u8 sLanternDLTried = 0;
     f32 flicker;
 
     if (!sLanternDLTried) {
         sLanternDLTried = 1;
-        sLanternDL = MmAssets_LoadResource(dgPoeLanternDL); // object_po.h — never hand-type OTR paths
+        if (ResourceMgr_FileExists(dgPoeLanternDL)) { // object_po.h — never hand-type OTR paths
+            sLanternDL = ResourceMgr_LoadGfxByName(dgPoeLanternDL);
+        } else if (ResourceMgr_FileExists(LANTERN_OOT_DL_PATH)) {
+            sLanternDL = ResourceMgr_LoadGfxByName(LANTERN_OOT_DL_PATH);
+        }
     }
 
     sFlameTexScroll++;

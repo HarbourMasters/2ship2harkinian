@@ -23,7 +23,7 @@ extern "C" {
 // Per-spot world position + scene assignment.
 typedef struct {
     s16 sceneId;
-    u8  roomIndex;
+    u8 roomIndex;
     Vec3f pos;
 } MushroomSpotPoint;
 
@@ -37,7 +37,7 @@ Actor* MushroomSpot_Spawn(PlayState* play, const Vec3f* pos, s16 yaw, s32 spotId
 u8 MushroomSpot_IsActor(Actor* actor);
 
 // Save flag helpers (uses gCustomItemState.mushroomSpotsCollected).
-u8   MushroomSpot_IsCollected(s32 spotIdx);
+u8 MushroomSpot_IsCollected(s32 spotIdx);
 void MushroomSpot_MarkCollected(s32 spotIdx);
 void MushroomSpot_ResetAll(void);
 

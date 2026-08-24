@@ -146,7 +146,7 @@ static u8 MmStopGuard_Contains(u16 sfxId) {
 
 // VERBATIM from sfx.c:60-62
 MmSfxBankEntry* gMmSfxBanks[7] = {
-    sMmSfxPlayerBank, sMmSfxItemBank, sMmSfxEnvironmentBank, sMmSfxEnemyBank,
+    sMmSfxPlayerBank, sMmSfxItemBank,    sMmSfxEnvironmentBank, sMmSfxEnemyBank,
     sMmSfxSystemBank, sMmSfxOcarinaBank, sMmSfxVoiceBank,
 };
 
@@ -882,7 +882,8 @@ void AudioMmSfx_StopById(u32 sfxId) {
 
 // VERBATIM from sfx.c:853-860 (replaced enabled-gate with our static)
 void AudioMmSfx_ProcessRequests(void) {
-    if (!sMmSfxEngineReady) return;
+    if (!sMmSfxEngineReady)
+        return;
     while (sMmSfxRequestWriteIndex != sMmSfxRequestReadIndex) {
         AudioMmSfx_ProcessRequest();
         sMmSfxRequestReadIndex++;
@@ -908,7 +909,8 @@ static void AudioMmSfx_StepBankLerp(u8 bankId) {
 // VERBATIM from sfx.c:887-899
 void AudioMmSfx_ProcessActiveSfx(void) {
     u8 bankId;
-    if (!sMmSfxEngineReady) return;
+    if (!sMmSfxEngineReady)
+        return;
 
     sMmCurSfxPlayerChannelIndex = 0;
 

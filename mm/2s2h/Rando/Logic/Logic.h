@@ -198,10 +198,10 @@ void ValidateRegionTimeOwnership(RandoRegionId regionId, RandoCheckId checkId, u
 // extended-equipment shield (Divine = ext slot 1, Sheikah/Kite = ext slot 2), which the combo can
 // place from OoT but which never touch the native nibble. Only the "any shield" gate uses this;
 // the Mirror-shield-specific light puzzles keep their explicit `>= EQUIP_VALUE_SHIELD_MIRROR`.
-#define HAS_ANY_SHIELD                                        \
+#define HAS_ANY_SHIELD                                                                                             \
     (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) > EQUIP_VALUE_SHIELD_NONE || ExtEquip_HasItem(EQUIP_TYPE_SHIELD, 1) || \
      ExtEquip_HasItem(EQUIP_TYPE_SHIELD, 2))
-#define CAN_USE_EXPLOSIVE                             \
+#define CAN_USE_EXPLOSIVE \
     (HAS_ITEM(ITEM_BOMB) || HAS_ITEM(ITEM_BOMBCHU) || (HAS_ITEM(ITEM_MASK_BLAST) && HAS_ANY_SHIELD))
 #define CAN_USE_HUMAN_SWORD (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) >= EQUIP_VALUE_SWORD_KOKIRI)
 // A usable melee sword from ANY source the combo can grant: native equipped sword (Kokiri/Razor/

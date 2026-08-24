@@ -669,6 +669,19 @@ void EffectSsHitmark_SpawnCustomScale(PlayState* play, s32 type, s16 scale, Vec3
 
 // EffectSsFhgFlash Spawn Functions
 
+void EffectSsFhgFlash_SpawnLightBall(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale, u8 params) {
+    EffectSsFhgFlashInitParams initParams;
+
+    initParams.actor = NULL;
+    Math_Vec3f_Copy(&initParams.pos, pos);
+    Math_Vec3f_Copy(&initParams.velocity, velocity);
+    Math_Vec3f_Copy(&initParams.accel, accel);
+    initParams.scale = scale;
+    initParams.params = params;
+    initParams.type = FHGFLASH_LIGHTBALL;
+    EffectSs_Spawn(play, EFFECT_SS_FHG_FLASH, 128, &initParams);
+}
+
 /**
  * Spawn a shock effect
  *

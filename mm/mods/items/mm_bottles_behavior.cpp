@@ -17,7 +17,7 @@ static const MmBottleUseBehavior sMmBottleUse[MM_BOTTLE_COUNT] = {
     /* MM_BOTTLE_CHATEAU_ROMANI   */ MM_BOTTLE_USE_CANT_USE, // FUTURE idea: refill magic
     /* MM_BOTTLE_SPRING_WATER     */ MM_BOTTLE_USE_CANT_USE,
     /* MM_BOTTLE_HOT_SPRING_WATER */ MM_BOTTLE_USE_BLUE_FIRE, // user: acts as Blue Fire in OoT
-    /* MM_BOTTLE_MAGIC_MUSHROOM   */ MM_BOTTLE_USE_NATIVE,     // OoT already has ITEM_MAGIC_MUSHROOM
+    /* MM_BOTTLE_MAGIC_MUSHROOM   */ MM_BOTTLE_USE_NATIVE,    // OoT already has ITEM_MAGIC_MUSHROOM
     /* MM_BOTTLE_HYLIAN_LOACH     */ MM_BOTTLE_USE_CANT_USE,
     /* MM_BOTTLE_OBABA_DRINK      */ MM_BOTTLE_USE_CANT_USE,
 };
@@ -33,17 +33,28 @@ extern "C" MmBottleContent MmBottle_FromItemId(uint16_t ootItemId) {
     // OoT ITEM_ ids of the ported MM bottle-content custom items (z64item.h 0xDF-0xE1). More
     // contents (Deku Princess, Seahorse, Zora Egg, Spring Water...) get a case here as they land.
     switch (ootItemId) {
-        case 0xEC: return MM_BOTTLE_GOLD_DUST;        // ITEM_GOLD_DUST
-        case 0xED: return MM_BOTTLE_HOT_SPRING_WATER; // ITEM_HOT_SPRING_WATER
-        case 0xEE: return MM_BOTTLE_DEKU_PRINCESS;    // ITEM_DEKU_PRINCESS
-        case 0xEF: return MM_BOTTLE_SEAHORSE;         // ITEM_SEAHORSE
-        case 0xF0: return MM_BOTTLE_SPRING_WATER;     // ITEM_SPRING_WATER
-        case 0xF1: return MM_BOTTLE_ZORA_EGG;         // ITEM_ZORA_EGG
-        case 0xF2: return MM_BOTTLE_HYLIAN_LOACH;     // ITEM_HYLIAN_LOACH
-        case 0xF3: return MM_BOTTLE_OBABA_DRINK;      // ITEM_OBABA_DRINK
-        case 0xB6: return MM_BOTTLE_CHATEAU_ROMANI;   // ITEM_CHATEAU_ROMANI (pre-existing)
-        case 0xDD: return MM_BOTTLE_MAGIC_MUSHROOM;   // ITEM_MAGIC_MUSHROOM (pre-existing)
-        default:   return MM_BOTTLE_NONE;
+        case 0xEC:
+            return MM_BOTTLE_GOLD_DUST; // ITEM_GOLD_DUST
+        case 0xED:
+            return MM_BOTTLE_HOT_SPRING_WATER; // ITEM_HOT_SPRING_WATER
+        case 0xEE:
+            return MM_BOTTLE_DEKU_PRINCESS; // ITEM_DEKU_PRINCESS
+        case 0xEF:
+            return MM_BOTTLE_SEAHORSE; // ITEM_SEAHORSE
+        case 0xF0:
+            return MM_BOTTLE_SPRING_WATER; // ITEM_SPRING_WATER
+        case 0xF1:
+            return MM_BOTTLE_ZORA_EGG; // ITEM_ZORA_EGG
+        case 0xF2:
+            return MM_BOTTLE_HYLIAN_LOACH; // ITEM_HYLIAN_LOACH
+        case 0xF3:
+            return MM_BOTTLE_OBABA_DRINK; // ITEM_OBABA_DRINK
+        case 0xB6:
+            return MM_BOTTLE_CHATEAU_ROMANI; // ITEM_CHATEAU_ROMANI (pre-existing)
+        case 0xDD:
+            return MM_BOTTLE_MAGIC_MUSHROOM; // ITEM_MAGIC_MUSHROOM (pre-existing)
+        default:
+            return MM_BOTTLE_NONE;
     }
 }
 

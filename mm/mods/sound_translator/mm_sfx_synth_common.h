@@ -32,13 +32,19 @@ namespace mmsfx {
 // flip MMSFX_AUDIO_BIG_ENDIAN to 0 if a given table proves native-endian.)
 #define MMSFX_AUDIO_BIG_ENDIAN 1
 #if MMSFX_AUDIO_BIG_ENDIAN
-static inline u16 MmSfx_BE16(u16 v) { return (u16)((v << 8) | (v >> 8)); }
+static inline u16 MmSfx_BE16(u16 v) {
+    return (u16)((v << 8) | (v >> 8));
+}
 static inline u32 MmSfx_BE32(u32 v) {
     return ((v & 0xFF) << 24) | ((v & 0xFF00) << 8) | ((v >> 8) & 0xFF00) | ((v >> 24) & 0xFF);
 }
 #else
-static inline u16 MmSfx_BE16(u16 v) { return v; }
-static inline u32 MmSfx_BE32(u32 v) { return v; }
+static inline u16 MmSfx_BE16(u16 v) {
+    return v;
+}
+static inline u32 MmSfx_BE32(u32 v) {
+    return v;
+}
 #endif
 // Guard against libultraship's endianness.h (which also defines BE16/32SWAP).
 // Our TUs that use these (effects/playback) don't include libultraship, so they
@@ -50,7 +56,7 @@ static inline u32 MmSfx_BE32(u32 v) { return v; }
 #define BE32SWAP(x) ((s32)MmSfx_BE32((u32)(x)))
 #endif
 // Compile-time 16-bit byte swap for static initializers (MM's BE16SWAP_CONST).
-#define BE16SWAP_CONST(x) ((s16)((((u16)(x) & 0xFF) << 8) | (((u16)(x) >> 8) & 0xFF)))
+#define BE16SWAP_CONST(x) ((s16)((((u16)(x)&0xFF) << 8) | (((u16)(x) >> 8) & 0xFF)))
 
 // ---- constants ----
 #define SEQ_NUM_CHANNELS 16
@@ -62,11 +68,7 @@ static inline u32 MmSfx_BE32(u32 v) { return v; }
 #define MUTE_FLAGS_STOP_NOTES (1 << 6)
 #define MUTE_FLAGS_STOP_SCRIPT (1 << 7)
 
-typedef enum SeqPlayerState {
-    SEQPLAYER_STATE_0,
-    SEQPLAYER_STATE_FADE_IN,
-    SEQPLAYER_STATE_FADE_OUT
-} SeqPlayerState;
+typedef enum SeqPlayerState { SEQPLAYER_STATE_0, SEQPLAYER_STATE_FADE_IN, SEQPLAYER_STATE_FADE_OUT } SeqPlayerState;
 
 typedef enum SoundMode {
     SOUNDMODE_STEREO,
@@ -87,15 +89,15 @@ typedef enum SoundMode {
 // ---- data tables from MM data.c (defined in mm_sfx_synth_data.cpp) ----
 extern f32 gBendPitchOneOctaveFrequencies[256];
 extern f32 gBendPitchTwoSemitonesFrequencies[256];
-extern s16* gWaveSamples[9];                          // 9 entries in MM; index 2 == gSineWaveSample
-extern s16 gSineWaveSample[];                          // 256 samples (4 harmonics x 64); indexed mod WAVE_SAMPLE_COUNT
-extern f32 gPitchFrequencies[128];                    // MM's per-semitone note->freqScale (== OOT gNoteFrequencies)
+extern s16* gWaveSamples[9];       // 9 entries in MM; index 2 == gSineWaveSample
+extern s16 gSineWaveSample[];      // 256 samples (4 harmonics x 64); indexed mod WAVE_SAMPLE_COUNT
+extern f32 gPitchFrequencies[128]; // MM's per-semitone note->freqScale (== OOT gNoteFrequencies)
 extern u8 gDefaultShortNoteVelocityTable[16];
 extern u8 gDefaultShortNoteGateTimeTable[16];
-extern f32 gHeadsetPanVolume[128];                    // SOUNDMODE_HEADSET pan curve
-extern f32 gStereoPanVolume[128];                     // SOUNDMODE_STEREO pan curve
-extern f32 gDefaultPanVolume[128];                    // default / mono pan curve
-extern const s16 gAudioTatumInit[2];                  // [1] == gTatumsPerBeat == TATUMS_PER_BEAT
+extern f32 gHeadsetPanVolume[128];   // SOUNDMODE_HEADSET pan curve
+extern f32 gStereoPanVolume[128];    // SOUNDMODE_STEREO pan curve
+extern f32 gDefaultPanVolume[128];   // default / mono pan curve
+extern const s16 gAudioTatumInit[2]; // [1] == gTatumsPerBeat == TATUMS_PER_BEAT
 
 // adsrDecayTable: MM has NO constant source table. gAudioDecayRates is a dummy
 // (the extern resolves at link time but is unused). The runtime f32[256] table

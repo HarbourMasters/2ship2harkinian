@@ -9,8 +9,7 @@ namespace BenGui {
 void DrawMenuBarIcon() {
     static bool gameIconLoaded = false;
     if (!gameIconLoaded) {
-        Ship_GetFast3dGui()->LoadTextureFromRawImage("Game_Icon",
-                                                                                     "textures/icons/g2ShipIcon.png");
+        Ship_GetFast3dGui()->LoadTextureFromRawImage("Game_Icon", "textures/icons/g2ShipIcon.png");
         gameIconLoaded = true;
     }
 

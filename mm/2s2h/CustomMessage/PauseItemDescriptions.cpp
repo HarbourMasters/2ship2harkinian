@@ -38,7 +38,8 @@ static const ItemDescEntry sCustomItemDescs[] = {
     { ITEM_ROCS_FEATHER_SKIJER, "Jump in ground and small jump\nfrom water." },
     { ITEM_ROCS_CAPE, "Jump from ground or water. Press\nagain in the air for a double jump." },
     { ITEM_DESIRE_SENSOR, "Sense major items in this area.\nCosts 3 hearts. Randomizer only." },
-    { ITEM_HYLIAS_GRACE, "Fairy flight for 10s. Ignores walls.\nA=up, B=down, L=sprint. 24 MP." }, // RETIRED item; row kept for old saves
+    { ITEM_HYLIAS_GRACE,
+      "Fairy flight for 10s. Ignores walls.\nA=up, B=down, L=sprint. 24 MP." }, // RETIRED item; row kept for old saves
     // 2026-08-06 page-2 additions (behaviour pending — the description says so honestly).
     { EXT_ITEM_SHEIKAH_SLATE, "Ancient Sheikah tablet. A cycles\nits runes. Their powers are dormant." },
     { EXT_ITEM_PHANTOM_HOURGLASS, "Sand of hours from another sea.\nIts powers are still dormant." },
@@ -50,7 +51,8 @@ static const ItemDescEntry sCustomItemDescs[] = {
     { ITEM_SWITCH_HOOK, "Aim and fire to swap positions\nwith objects and enemies." },
     { ITEM_MOGMA_MITTS, "Toggle to climb any wall.\nDrains magic over time." },
     { ITEM_GUST_JAR, "Pull enemies toward you, then push\nthem away. Hold C for element select." },
-    { ITEM_BALL_AND_CHAIN, "Heavy thrown weapon. Breaks ice walls\nand heavy objects. Hold C to charge.\nC-Up to aim." },
+    { ITEM_BALL_AND_CHAIN,
+      "Heavy thrown weapon. Breaks ice walls\nand heavy objects. Hold C to charge.\nC-Up to aim." },
     { ITEM_WHIP, "Grapple from any bar surface. Swing\nwith joystick. Release for momentum\nlaunch." },
     { ITEM_SPINNER, "Toggle to ride. A for homing dash\nattack. Breaks rocks." },
     { ITEM_CANE_OF_SOMARIA, "Create statues (max 3) that press\nany switch. Hookable and throwable." },
@@ -63,7 +65,8 @@ static const ItemDescEntry sCustomItemDescs[] = {
     { ITEM_BEETLE, "Launch remote beetle. Steer with\njoystick. B=boost. Grabs items and\nhits enemies." },
     { ITEM_SHOVEL, "Dig to uncover grottos, Gold\nSkulltulas and buried rewards." },
     { ITEM_MINISH_CAP, "Fast travel to pod soil spots.\nKill Gold Skulltulas to unlock them." },
-    { ITEM_LANTERN, "Swing near fire to catch it. 4 types.\nBlue=melts red ice. Green=HP regen.\nPoe/Green=free Lens. Swing=fire dmg." },
+    { ITEM_LANTERN, "Swing near fire to catch it. 4 types.\nBlue=melts red ice. Green=HP regen.\nPoe/Green=free Lens. "
+                    "Swing=fire dmg." },
     { ITEM_CHATEAU_ROMANI, "Drink for infinite magic.\nOne-time consumable." },
     { ITEM_POKEBALL, "Transform into Pikachu.\nPress again to revert." },
 

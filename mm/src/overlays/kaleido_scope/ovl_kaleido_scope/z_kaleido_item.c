@@ -12,7 +12,7 @@
 #include "2s2h/CustomMessage/PauseItemDescriptions.h" // NEI: C-Up descriptions for custom items
 #include <libultraship/bridge/consolevariablebridge.h>
 #include "mods/extended_inventory.h" // NEI: page-aware kaleido (ExtInv_GetInventorySlot/GetSlotItem/GetItemIcon/SwitchPage/Update)
-#include "mods/items/custom_bottles.h" // NEI: bottle randomizer wheels A/B (Skijer's NEI)
+#include "mods/items/custom_bottles.h"                      // NEI: bottle randomizer wheels A/B (Skijer's NEI)
 #include "archives/icon_item_static/icon_item_static_yar.h" // gABtnSymbolTex + gPausePromptCursorTex (cycle overlay)
 
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn);
@@ -173,10 +173,10 @@ static void KaleidoScope_DrawItemCycleExtrasTinted(PlayState* play, u8 slot, u8 
         // candidates REST small (scale 0.325) tucked 15px below the cell, and grow to full 32px
         // flanking the item as the wheel opens (anim timer 0..5).
         f32 animScale = (5 - sSlotCycleActiveAnimTimer[slot]) / 5.0f; // 1 rest .. 0 open
-        f32 finalScale = 1.0f - (0.675f * animScale);                // 0.325 rest .. 1.0 open
-        s16 qSize = (s16)(32.0f * finalScale);                       // candidate quad px
-        s16 flank = (s16)(32.0f * finalScale);                       // candidate center offset from cell
-        s16 yShift = (s16)(-15.0f * animScale);                      // 15 below at rest .. 0 open
+        f32 finalScale = 1.0f - (0.675f * animScale);                 // 0.325 rest .. 1.0 open
+        s16 qSize = (s16)(32.0f * finalScale);                        // candidate quad px
+        s16 flank = (s16)(32.0f * finalScale);                        // candidate center offset from cell
+        s16 yShift = (s16)(-15.0f * animScale);                       // 15 below at rest .. 0 open
         s16 yTop;
         s32 vi;
 
@@ -206,10 +206,22 @@ static void KaleidoScope_DrawItemCycleExtrasTinted(PlayState* play, u8 slot, u8 
                 for (vi = 0; vi < 4; vi++) {
                     v[vi] = cellVtx[0];
                 }
-                v[0].v.ob[0] = x0;         v[0].v.ob[1] = yTop;         v[0].v.tc[0] = 0;        v[0].v.tc[1] = 0;
-                v[1].v.ob[0] = x0 + qSize; v[1].v.ob[1] = yTop;         v[1].v.tc[0] = lsz << 5; v[1].v.tc[1] = 0;
-                v[2].v.ob[0] = x0;         v[2].v.ob[1] = yTop - qSize; v[2].v.tc[0] = 0;        v[2].v.tc[1] = lsz << 5;
-                v[3].v.ob[0] = x0 + qSize; v[3].v.ob[1] = yTop - qSize; v[3].v.tc[0] = lsz << 5; v[3].v.tc[1] = lsz << 5;
+                v[0].v.ob[0] = x0;
+                v[0].v.ob[1] = yTop;
+                v[0].v.tc[0] = 0;
+                v[0].v.tc[1] = 0;
+                v[1].v.ob[0] = x0 + qSize;
+                v[1].v.ob[1] = yTop;
+                v[1].v.tc[0] = lsz << 5;
+                v[1].v.tc[1] = 0;
+                v[2].v.ob[0] = x0;
+                v[2].v.ob[1] = yTop - qSize;
+                v[2].v.tc[0] = 0;
+                v[2].v.tc[1] = lsz << 5;
+                v[3].v.ob[0] = x0 + qSize;
+                v[3].v.ob[1] = yTop - qSize;
+                v[3].v.tc[0] = lsz << 5;
+                v[3].v.tc[1] = lsz << 5;
                 gSPVertex(POLY_OPA_DISP++, v, 4, 0);
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, lt[0], lt[1], lt[2], candAlpha);
                 KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, lTex, lsz, lsz, 0);
@@ -224,10 +236,22 @@ static void KaleidoScope_DrawItemCycleExtrasTinted(PlayState* play, u8 slot, u8 
                 for (vi = 0; vi < 4; vi++) {
                     v[vi] = cellVtx[0];
                 }
-                v[0].v.ob[0] = x0;         v[0].v.ob[1] = yTop;         v[0].v.tc[0] = 0;        v[0].v.tc[1] = 0;
-                v[1].v.ob[0] = x0 + qSize; v[1].v.ob[1] = yTop;         v[1].v.tc[0] = rsz << 5; v[1].v.tc[1] = 0;
-                v[2].v.ob[0] = x0;         v[2].v.ob[1] = yTop - qSize; v[2].v.tc[0] = 0;        v[2].v.tc[1] = rsz << 5;
-                v[3].v.ob[0] = x0 + qSize; v[3].v.ob[1] = yTop - qSize; v[3].v.tc[0] = rsz << 5; v[3].v.tc[1] = rsz << 5;
+                v[0].v.ob[0] = x0;
+                v[0].v.ob[1] = yTop;
+                v[0].v.tc[0] = 0;
+                v[0].v.tc[1] = 0;
+                v[1].v.ob[0] = x0 + qSize;
+                v[1].v.ob[1] = yTop;
+                v[1].v.tc[0] = rsz << 5;
+                v[1].v.tc[1] = 0;
+                v[2].v.ob[0] = x0;
+                v[2].v.ob[1] = yTop - qSize;
+                v[2].v.tc[0] = 0;
+                v[2].v.tc[1] = rsz << 5;
+                v[3].v.ob[0] = x0 + qSize;
+                v[3].v.ob[1] = yTop - qSize;
+                v[3].v.tc[0] = rsz << 5;
+                v[3].v.tc[1] = rsz << 5;
                 gSPVertex(POLY_OPA_DISP++, v, 4, 0);
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, rt[0], rt[1], rt[2], candAlpha);
                 KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, rTex, rsz, rsz, 0);
@@ -243,10 +267,22 @@ static void KaleidoScope_DrawItemCycleExtrasTinted(PlayState* play, u8 slot, u8 
             for (vi = 0; vi < 4; vi++) {
                 av[vi] = cellVtx[0];
             }
-            av[0].v.ob[0] = ax - 7; av[0].v.ob[1] = ay + 5; av[0].v.tc[0] = 0;       av[0].v.tc[1] = 0;
-            av[1].v.ob[0] = ax + 7; av[1].v.ob[1] = ay + 5; av[1].v.tc[0] = 24 << 5; av[1].v.tc[1] = 0;
-            av[2].v.ob[0] = ax - 7; av[2].v.ob[1] = ay - 5; av[2].v.tc[0] = 0;       av[2].v.tc[1] = 16 << 5;
-            av[3].v.ob[0] = ax + 7; av[3].v.ob[1] = ay - 5; av[3].v.tc[0] = 24 << 5; av[3].v.tc[1] = 16 << 5;
+            av[0].v.ob[0] = ax - 7;
+            av[0].v.ob[1] = ay + 5;
+            av[0].v.tc[0] = 0;
+            av[0].v.tc[1] = 0;
+            av[1].v.ob[0] = ax + 7;
+            av[1].v.ob[1] = ay + 5;
+            av[1].v.tc[0] = 24 << 5;
+            av[1].v.tc[1] = 0;
+            av[2].v.ob[0] = ax - 7;
+            av[2].v.ob[1] = ay - 5;
+            av[2].v.tc[0] = 0;
+            av[2].v.tc[1] = 16 << 5;
+            av[3].v.ob[0] = ax + 7;
+            av[3].v.ob[1] = ay - 5;
+            av[3].v.tc[0] = 24 << 5;
+            av[3].v.tc[1] = 16 << 5;
             gSPVertex(POLY_OPA_DISP++, av, 4, 0);
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 100, 255, pauseCtx->alpha);
             gDPLoadTextureBlock(POLY_OPA_DISP++, gABtnSymbolTex, G_IM_FMT_IA, G_IM_SIZ_8b, 24, 16, 0,
@@ -447,8 +483,8 @@ static void Cane_KaleidoDraw(PlayState* play) {
     }
     // Both neighbours are the same cell item, so forceShow is required: without it
     // the shared visual suppresses a side whose item equals the cell's own value.
-    KaleidoScope_DrawItemCycleExtrasImpl(play, CANE_KALEIDO_CELL, true, ITEM_CANE_OF_SOMARIA,
-                                         ITEM_CANE_OF_SOMARIA, true);
+    KaleidoScope_DrawItemCycleExtrasImpl(play, CANE_KALEIDO_CELL, true, ITEM_CANE_OF_SOMARIA, ITEM_CANE_OF_SOMARIA,
+                                         true);
 }
 
 // ── Shovel <-> Dominion Rod wheel (page 2, shared cell 46) — 2026-08-06 re-layout ───────────────
@@ -494,8 +530,8 @@ static void Shovel_KaleidoHandle(PlayState* play) {
     u16 cur = ExtInv_GetSlotItem(SLOT_SHOVEL);
     u8 other = (cur == ITEM_SHOVEL) ? ITEM_DOMINION_ROD : ITEM_SHOVEL;
 
-    KaleidoScope_HandleItemCycleExtras(play, SHOVEL_KALEIDO_CELL, nei->shovelOwned && nei->dominionOwned, other,
-                                       other, true);
+    KaleidoScope_HandleItemCycleExtras(play, SHOVEL_KALEIDO_CELL, nei->shovelOwned && nei->dominionOwned, other, other,
+                                       true);
 }
 
 static void Shovel_KaleidoDraw(PlayState* play) {
@@ -688,10 +724,22 @@ static void GustJar_KaleidoDraw(PlayState* play) {
             for (mvi = 0; mvi < 4; mvi++) {
                 mv[mvi] = cellVtx[0];
             }
-            mv[0].v.ob[0] = mx0;         mv[0].v.ob[1] = myTop;         mv[0].v.tc[0] = 0;       mv[0].v.tc[1] = 0;
-            mv[1].v.ob[0] = mx0 + mSize; mv[1].v.ob[1] = myTop;         mv[1].v.tc[0] = 24 << 5; mv[1].v.tc[1] = 0;
-            mv[2].v.ob[0] = mx0;         mv[2].v.ob[1] = myTop - mSize; mv[2].v.tc[0] = 0;       mv[2].v.tc[1] = 24 << 5;
-            mv[3].v.ob[0] = mx0 + mSize; mv[3].v.ob[1] = myTop - mSize; mv[3].v.tc[0] = 24 << 5; mv[3].v.tc[1] = 24 << 5;
+            mv[0].v.ob[0] = mx0;
+            mv[0].v.ob[1] = myTop;
+            mv[0].v.tc[0] = 0;
+            mv[0].v.tc[1] = 0;
+            mv[1].v.ob[0] = mx0 + mSize;
+            mv[1].v.ob[1] = myTop;
+            mv[1].v.tc[0] = 24 << 5;
+            mv[1].v.tc[1] = 0;
+            mv[2].v.ob[0] = mx0;
+            mv[2].v.ob[1] = myTop - mSize;
+            mv[2].v.tc[0] = 0;
+            mv[2].v.tc[1] = 24 << 5;
+            mv[3].v.ob[0] = mx0 + mSize;
+            mv[3].v.ob[1] = myTop - mSize;
+            mv[3].v.tc[0] = 24 << 5;
+            mv[3].v.tc[1] = 24 << 5;
             gSPVertex(POLY_OPA_DISP++, mv, 4, 0);
             KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, tex, 24, 24, 0);
 
@@ -757,9 +805,9 @@ static void Sw97Wheel_Draw(PlayState* play, s32 cell, u8 isSling) {
     // Prev/next previews + the A hint. forceShow because the neighbours are medallion icons, never
     // the cell's own item value.
     if (Sw97_ElementCount(isSling) > 1) {
-        KaleidoScope_DrawItemCycleExtrasImpl(
-            play, cell, true, (u8)Sw97_ElementIcon(Sw97_ElementNeighbor(isSling, elem, -1)),
-            (u8)Sw97_ElementIcon(Sw97_ElementNeighbor(isSling, elem, 1)), true);
+        KaleidoScope_DrawItemCycleExtrasImpl(play, cell, true,
+                                             (u8)Sw97_ElementIcon(Sw97_ElementNeighbor(isSling, elem, -1)),
+                                             (u8)Sw97_ElementIcon(Sw97_ElementNeighbor(isSling, elem, 1)), true);
     }
 
     // Primed element as a badge on the cell's top-right corner, so it is readable without opening
@@ -788,10 +836,22 @@ static void Sw97Wheel_Draw(PlayState* play, s32 cell, u8 isSling) {
             for (mvi = 0; mvi < 4; mvi++) {
                 mv[mvi] = cellVtx[0];
             }
-            mv[0].v.ob[0] = mx0;         mv[0].v.ob[1] = myTop;         mv[0].v.tc[0] = 0;             mv[0].v.tc[1] = 0;
-            mv[1].v.ob[0] = mx0 + mSize; mv[1].v.ob[1] = myTop;         mv[1].v.tc[0] = texSize << 5;  mv[1].v.tc[1] = 0;
-            mv[2].v.ob[0] = mx0;         mv[2].v.ob[1] = myTop - mSize; mv[2].v.tc[0] = 0;             mv[2].v.tc[1] = texSize << 5;
-            mv[3].v.ob[0] = mx0 + mSize; mv[3].v.ob[1] = myTop - mSize; mv[3].v.tc[0] = texSize << 5;  mv[3].v.tc[1] = texSize << 5;
+            mv[0].v.ob[0] = mx0;
+            mv[0].v.ob[1] = myTop;
+            mv[0].v.tc[0] = 0;
+            mv[0].v.tc[1] = 0;
+            mv[1].v.ob[0] = mx0 + mSize;
+            mv[1].v.ob[1] = myTop;
+            mv[1].v.tc[0] = texSize << 5;
+            mv[1].v.tc[1] = 0;
+            mv[2].v.ob[0] = mx0;
+            mv[2].v.ob[1] = myTop - mSize;
+            mv[2].v.tc[0] = 0;
+            mv[2].v.tc[1] = texSize << 5;
+            mv[3].v.ob[0] = mx0 + mSize;
+            mv[3].v.ob[1] = myTop - mSize;
+            mv[3].v.tc[0] = texSize << 5;
+            mv[3].v.tc[1] = texSize << 5;
             gSPVertex(POLY_OPA_DISP++, mv, 4, 0);
             KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, tex, texSize, texSize, 0);
 
@@ -834,6 +894,9 @@ static void Wand_KaleidoHandle(PlayState* play) {
         if (dir != 0) {
             Audio_PlaySfx(NA_SE_SY_CURSOR);
             Wand_SetMode(Wand_ModeNeighbor(Wand_GetMode(), dir));
+            // The HUD caches the resolved icon per button (iconItemSegment[]); the item id did not
+            // change, so ask for the reload — same reasoning as Sw97_RefreshButtonIcons.
+            ExtInv_RefreshButtonIconsForItem(play, ITEM_ELEMENTAL_WAND);
         }
         gCurrentItemCyclingSlot = (pauseCtx->cursorSlot[PAUSE_ITEM] == WAND_KALEIDO_CELL) ? WAND_KALEIDO_CELL : -1;
     }
@@ -874,10 +937,22 @@ static void Wand_KaleidoDraw(PlayState* play) {
             for (mvi = 0; mvi < 4; mvi++) {
                 mv[mvi] = cellVtx[0];
             }
-            mv[0].v.ob[0] = mx0;         mv[0].v.ob[1] = myTop;         mv[0].v.tc[0] = 0;       mv[0].v.tc[1] = 0;
-            mv[1].v.ob[0] = mx0 + mSize; mv[1].v.ob[1] = myTop;         mv[1].v.tc[0] = 24 << 5; mv[1].v.tc[1] = 0;
-            mv[2].v.ob[0] = mx0;         mv[2].v.ob[1] = myTop - mSize; mv[2].v.tc[0] = 0;       mv[2].v.tc[1] = 24 << 5;
-            mv[3].v.ob[0] = mx0 + mSize; mv[3].v.ob[1] = myTop - mSize; mv[3].v.tc[0] = 24 << 5; mv[3].v.tc[1] = 24 << 5;
+            mv[0].v.ob[0] = mx0;
+            mv[0].v.ob[1] = myTop;
+            mv[0].v.tc[0] = 0;
+            mv[0].v.tc[1] = 0;
+            mv[1].v.ob[0] = mx0 + mSize;
+            mv[1].v.ob[1] = myTop;
+            mv[1].v.tc[0] = 24 << 5;
+            mv[1].v.tc[1] = 0;
+            mv[2].v.ob[0] = mx0;
+            mv[2].v.ob[1] = myTop - mSize;
+            mv[2].v.tc[0] = 0;
+            mv[2].v.tc[1] = 24 << 5;
+            mv[3].v.ob[0] = mx0 + mSize;
+            mv[3].v.ob[1] = myTop - mSize;
+            mv[3].v.tc[0] = 24 << 5;
+            mv[3].v.tc[1] = 24 << 5;
             gSPVertex(POLY_OPA_DISP++, mv, 4, 0);
             KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, tex, 24, 24, 0);
 
@@ -919,6 +994,8 @@ static void Slate_KaleidoHandle(PlayState* play) {
         if (dir != 0) {
             Audio_PlaySfx(NA_SE_SY_CURSOR);
             Slate_SetRune(Slate_RuneNeighbor(Slate_GetRune(), dir));
+            // Same HUD icon-cache reload as the wand wheel (slate rides an EXT-button marker).
+            ExtInv_RefreshButtonIconsForItem(play, EXT_ITEM_SHEIKAH_SLATE);
         }
         gCurrentItemCyclingSlot = (pauseCtx->cursorSlot[PAUSE_ITEM] == SLATE_KALEIDO_CELL) ? SLATE_KALEIDO_CELL : -1;
     }
@@ -944,10 +1021,22 @@ static void Slate_KaleidoDrawGlyph(PlayState* play, Vtx* cellVtx, void* tex, s16
     for (mvi = 0; mvi < 4; mvi++) {
         mv[mvi] = cellVtx[0];
     }
-    mv[0].v.ob[0] = mx0;         mv[0].v.ob[1] = myTop;         mv[0].v.tc[0] = 0;       mv[0].v.tc[1] = 0;
-    mv[1].v.ob[0] = mx0 + mSize; mv[1].v.ob[1] = myTop;         mv[1].v.tc[0] = 32 << 5; mv[1].v.tc[1] = 0;
-    mv[2].v.ob[0] = mx0;         mv[2].v.ob[1] = myTop - mSize; mv[2].v.tc[0] = 0;       mv[2].v.tc[1] = 32 << 5;
-    mv[3].v.ob[0] = mx0 + mSize; mv[3].v.ob[1] = myTop - mSize; mv[3].v.tc[0] = 32 << 5; mv[3].v.tc[1] = 32 << 5;
+    mv[0].v.ob[0] = mx0;
+    mv[0].v.ob[1] = myTop;
+    mv[0].v.tc[0] = 0;
+    mv[0].v.tc[1] = 0;
+    mv[1].v.ob[0] = mx0 + mSize;
+    mv[1].v.ob[1] = myTop;
+    mv[1].v.tc[0] = 32 << 5;
+    mv[1].v.tc[1] = 0;
+    mv[2].v.ob[0] = mx0;
+    mv[2].v.ob[1] = myTop - mSize;
+    mv[2].v.tc[0] = 0;
+    mv[2].v.tc[1] = 32 << 5;
+    mv[3].v.ob[0] = mx0 + mSize;
+    mv[3].v.ob[1] = myTop - mSize;
+    mv[3].v.tc[0] = 32 << 5;
+    mv[3].v.tc[1] = 32 << 5;
     gSPVertex(POLY_OPA_DISP++, mv, 4, 0);
     KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, tex, 32, 32, 0);
 
@@ -1056,9 +1145,9 @@ void KaleidoScope_HandleItemCycles(PlayState* play) {
         // read. Fold all three into the bitmask so every trade item reaches the wheel regardless of
         // which slot the engine put it in. Non-trade contents fold to nothing (IndexOfItem -> -1).
         // Skijer 2026-07-30
-        TradeAdult_FoldCurrent(tradeCur);                                 // SLOT_TRADE_DEED (this cell)
-        TradeAdult_FoldCurrent(ExtInv_GetSlotItem(SLOT_TRADE_KEY_MAMA));  // Room Key / Letter to Mama
-        TradeAdult_FoldCurrent(ExtInv_GetSlotItem(SLOT_TRADE_COUPLE));    // Letter to Kafei / Pendant
+        TradeAdult_FoldCurrent(tradeCur);                                // SLOT_TRADE_DEED (this cell)
+        TradeAdult_FoldCurrent(ExtInv_GetSlotItem(SLOT_TRADE_KEY_MAMA)); // Room Key / Letter to Mama
+        TradeAdult_FoldCurrent(ExtInv_GetSlotItem(SLOT_TRADE_COUPLE));   // Letter to Kafei / Pendant
 
         // Mirror the cursor into the cell. This also SEEDS it: an item earned in OoT arrives as a
         // tradeAdultOwned bit (FleetSync) while MM's cell is still ITEM_NONE — owned but invisible.
@@ -1190,14 +1279,26 @@ void KaleidoScope_DrawItemCycles(PlayState* play) {
             for (mvi = 0; mvi < 4; mvi++) {
                 mv[mvi] = cellVtx[0];
             }
-            mv[0].v.ob[0] = mx0;         mv[0].v.ob[1] = myTop;         mv[0].v.tc[0] = 0;       mv[0].v.tc[1] = 0;
-            mv[1].v.ob[0] = mx0 + mSize; mv[1].v.ob[1] = myTop;         mv[1].v.tc[0] = 24 << 5; mv[1].v.tc[1] = 0;
-            mv[2].v.ob[0] = mx0;         mv[2].v.ob[1] = myTop - mSize; mv[2].v.tc[0] = 0;       mv[2].v.tc[1] = 24 << 5;
-            mv[3].v.ob[0] = mx0 + mSize; mv[3].v.ob[1] = myTop - mSize; mv[3].v.tc[0] = 24 << 5; mv[3].v.tc[1] = 24 << 5;
+            mv[0].v.ob[0] = mx0;
+            mv[0].v.ob[1] = myTop;
+            mv[0].v.tc[0] = 0;
+            mv[0].v.tc[1] = 0;
+            mv[1].v.ob[0] = mx0 + mSize;
+            mv[1].v.ob[1] = myTop;
+            mv[1].v.tc[0] = 24 << 5;
+            mv[1].v.tc[1] = 0;
+            mv[2].v.ob[0] = mx0;
+            mv[2].v.ob[1] = myTop - mSize;
+            mv[2].v.tc[0] = 0;
+            mv[2].v.tc[1] = 24 << 5;
+            mv[3].v.ob[0] = mx0 + mSize;
+            mv[3].v.ob[1] = myTop - mSize;
+            mv[3].v.tc[0] = 24 << 5;
+            mv[3].v.tc[1] = 24 << 5;
             gSPVertex(POLY_OPA_DISP++, mv, 4, 0);
-            KaleidoScope_DrawTexQuadRGBA32(
-                play->state.gfxCtx, (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionLightTex", 24, 24,
-                0);
+            KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx,
+                                           (void*)"__OTR__textures/icon_item_24_static/gQuestIconMedallionLightTex", 24,
+                                           24, 0);
 
             CLOSE_DISPS(play->state.gfxCtx);
         }
@@ -1217,8 +1318,8 @@ void KaleidoScope_DrawItemCycles(PlayState* play) {
     // Prev/NextItem — those go through the item id, which is ITEM_NONE for every OoT entry and would
     // blank the arrows. Skijer 2026-07-29
     {
-        KaleidoScope_DrawItemCycleExtras(play, 22, TradeAdult_OwnedCount() > 1,
-                                         TradeAdult_NeighborCellItem(-1), TradeAdult_NeighborCellItem(1));
+        KaleidoScope_DrawItemCycleExtras(play, 22, TradeAdult_OwnedCount() > 1, TradeAdult_NeighborCellItem(-1),
+                                         TradeAdult_NeighborCellItem(1));
     }
     // [23] OoT child-trade mask wheel previews — neighbours of the mask cursor.
     {
@@ -1442,8 +1543,8 @@ void KaleidoScope_DrawAmmoCount(PauseContext* pauseCtx, GraphicsContext* gfxCtx,
             POLY_OPA_DISP = Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammoUpperDigit], 8, 8, nRectLeft,
                                                nRectTop, 8, 8, 1 << 10, 1 << 10);
         }
-        POLY_OPA_DISP = Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammo], 8, 8, nRectLeft + 6, nRectTop, 8,
-                                           8, 1 << 10, 1 << 10);
+        POLY_OPA_DISP = Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammo], 8, 8, nRectLeft + 6, nRectTop, 8, 8,
+                                           1 << 10, 1 << 10);
 
         CLOSE_DISPS(gfxCtx);
         return;
@@ -1501,14 +1602,13 @@ void KaleidoScope_DrawAmmoCount(PauseContext* pauseCtx, GraphicsContext* gfxCtx,
 
     // Draw upper digit
     if (ammoUpperDigit != 0) {
-        POLY_OPA_DISP =
-            Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammoUpperDigit], 8, 8, nRectLeft,
-                               nRectTop, 8, 8, 1 << 10, 1 << 10);
+        POLY_OPA_DISP = Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammoUpperDigit], 8, 8, nRectLeft, nRectTop,
+                                           8, 8, 1 << 10, 1 << 10);
     }
 
     // Draw lower digit
-    POLY_OPA_DISP = Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammo], 8, 8, nRectLeft + 6,
-                                       nRectTop, 8, 8, 1 << 10, 1 << 10);
+    POLY_OPA_DISP = Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammo], 8, 8, nRectLeft + 6, nRectTop, 8, 8,
+                                       1 << 10, 1 << 10);
 
     CLOSE_DISPS(gfxCtx);
 }
@@ -1669,9 +1769,9 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
                 u8 bottomlessCell = (ExtInv_GetCurrentPage() == 0) && (i == SLOT_BOTTLE_4) && Bottle_BottomlessOwned();
                 if (ExtInv_GetCurrentPage() == 0 &&
                     (bottomlessCell || ExtInv_ItemHasAmmo((u8)ExtInv_GetSlotItem(ExtInv_GetInventorySlot(i))))) {
-                    if (bottomlessCell ||
-                        (((void)0, ExtInv_GetSlotItem(ExtInv_GetInventorySlot(i))) != ITEM_NONE)) {
-                        KaleidoScope_DrawAmmoCount(pauseCtx, play->state.gfxCtx, ((void)0, ExtInv_GetSlotItem(ExtInv_GetInventorySlot(i))), i);
+                    if (bottomlessCell || (((void)0, ExtInv_GetSlotItem(ExtInv_GetInventorySlot(i))) != ITEM_NONE)) {
+                        KaleidoScope_DrawAmmoCount(pauseCtx, play->state.gfxCtx,
+                                                   ((void)0, ExtInv_GetSlotItem(ExtInv_GetInventorySlot(i))), i);
                     }
                     j++;
                 }

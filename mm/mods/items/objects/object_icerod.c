@@ -116,8 +116,8 @@ void CustomItems_DrawIceRod(Player* player, PlayState* play) {
     // Draw active ice ball sets. Local play uses sIceProjSets[]. Remote dummies
     // fall back to gCustomItemState (single set, mirrored from network sync).
     u8 hasLocalSets = IceRod_HasAnyActiveSet();
-    u8 hasRemoteSync = !hasLocalSets && iceRodProjActive && iceRodProjScale > 0.001f &&
-                       gCustomItemState.iceRodProjCount > 0;
+    u8 hasRemoteSync =
+        !hasLocalSets && iceRodProjActive && iceRodProjScale > 0.001f && gCustomItemState.iceRodProjCount > 0;
 
     if (hasLocalSets || hasRemoteSync) {
         sIceRodBallScroll -= 10;

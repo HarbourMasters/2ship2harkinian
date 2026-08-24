@@ -37,42 +37,43 @@
 // =============================================================================
 
 // Slot / panel order (top→bottom in the corner HUD): Wing, Metal, Vanish, Fire.
-#define SM64_CAP_SLOT_WING   0
-#define SM64_CAP_SLOT_METAL  1
+#define SM64_CAP_SLOT_WING 0
+#define SM64_CAP_SLOT_METAL 1
 #define SM64_CAP_SLOT_VANISH 2
-#define SM64_CAP_SLOT_FIRE   3
-#define SM64_CAP_SLOT_COUNT  4
+#define SM64_CAP_SLOT_FIRE 3
+#define SM64_CAP_SLOT_COUNT 4
 
 typedef struct {
-    u16         btn;         // D-pad bind
-    u32         capFlag;     // libsm64 cap flag; 0 = stub (Fire Flower — timer only, no effect yet)
-    s32         activeDur;   // frames of use at full duration (60 fps)
-    s32         maxCooldown; // frames of cooldown after full use (60 fps)
-    s32         sfx;
+    u16 btn;         // D-pad bind
+    u32 capFlag;     // libsm64 cap flag; 0 = stub (Fire Flower — timer only, no effect yet)
+    s32 activeDur;   // frames of use at full duration (60 fps)
+    s32 maxCooldown; // frames of cooldown after full use (60 fps)
+    s32 sfx;
     const char* name;
 } Sm64CapDef;
 
 // Balance (60 fps): Wing 30s/30s, Metal 60s/180s, Vanish 30s/15s, Fire 60s/90s.
 // Ordered to match SM64_CAP_SLOT_* above (index == slot).
 static const Sm64CapDef kCapDefs[SM64_CAP_SLOT_COUNT] = {
-    { BTN_DDOWN,  SM64_MARIO_WING_CAP,   30 * 60,  30 * 60,  NA_SE_PL_MAGIC_WIND_NORMAL, "Wing" },
-    { BTN_DLEFT,  SM64_MARIO_METAL_CAP,  60 * 60,  180 * 60, NA_SE_PL_MAGIC_SOUL_NORMAL, "Metal" },
-    { BTN_DRIGHT, SM64_MARIO_VANISH_CAP, 30 * 60,  15 * 60,  NA_SE_PL_MAGIC_FIRE,        "Vanish" },
-    { BTN_DUP,    0,                     60 * 60,  90 * 60,  NA_SE_PL_MAGIC_FIRE,        "Fire" },
+    { BTN_DDOWN, SM64_MARIO_WING_CAP, 30 * 60, 30 * 60, NA_SE_PL_MAGIC_WIND_NORMAL, "Wing" },
+    { BTN_DLEFT, SM64_MARIO_METAL_CAP, 60 * 60, 180 * 60, NA_SE_PL_MAGIC_SOUL_NORMAL, "Metal" },
+    { BTN_DRIGHT, SM64_MARIO_VANISH_CAP, 30 * 60, 15 * 60, NA_SE_PL_MAGIC_FIRE, "Vanish" },
+    { BTN_DUP, 0, 60 * 60, 90 * 60, NA_SE_PL_MAGIC_FIRE, "Fire" },
 };
 
 typedef struct {
-    u8  phase;       // SM64_CAP_PHASE_*
+    u8 phase;        // SM64_CAP_PHASE_*
     s32 elapsed;     // frames elapsed in the current phase
     s32 cooldownDur; // proportional cooldown (frames) computed when COOLDOWN entered
 } Sm64CapState;
 
 static Sm64CapState sCapStates[SM64_CAP_SLOT_COUNT];
-static s32          sActiveCap = -1; // index of the ACTIVE cap, or -1
-static u8           sCapStatesInited = 0;
+static s32 sActiveCap = -1; // index of the ACTIVE cap, or -1
+static u8 sCapStatesInited = 0;
 
 static void Sm64Caps_EnsureInit(void) {
-    if (sCapStatesInited) return;
+    if (sCapStatesInited)
+        return;
     for (s32 i = 0; i < SM64_CAP_SLOT_COUNT; i++) {
         sCapStates[i].phase = SM64_CAP_PHASE_READY;
         sCapStates[i].elapsed = 0;
@@ -87,7 +88,8 @@ static void Sm64Caps_EnsureInit(void) {
 // re-call to interact_cap would play. No-op if the Mario instance is gone (a
 // scene change already deleted it; the recreated Mario starts cap-less).
 static void Sm64Caps_ClearLibsm64Cap(void) {
-    if (sSm64MarioId < 0 || !p_sm64_set_mario_state) return;
+    if (sSm64MarioId < 0 || !p_sm64_set_mario_state)
+        return;
     u32 f = sSm64OutState.flags;
     f &= ~(SM64_MARIO_VANISH_CAP | SM64_MARIO_METAL_CAP | SM64_MARIO_WING_CAP);
     f |= SM64_MARIO_NORMAL_CAP | SM64_MARIO_CAP_ON_HEAD;
@@ -97,13 +99,15 @@ static void Sm64Caps_ClearLibsm64Cap(void) {
 // Move the active cap into its proportional cooldown. clearLib removes the
 // libsm64 cap effect (skip it when the Mario instance is being torn down).
 static void Sm64Caps_DeactivateActive(u8 clearLib) {
-    if (sActiveCap < 0) return;
+    if (sActiveCap < 0)
+        return;
     s32 idx = sActiveCap;
     Sm64CapState* s = &sCapStates[idx];
     const Sm64CapDef* d = &kCapDefs[idx];
 
     s32 used = s->elapsed;
-    if (used > d->activeDur) used = d->activeDur;
+    if (used > d->activeDur)
+        used = d->activeDur;
     s32 cd = (s32)(((f32)used / (f32)d->activeDur) * (f32)d->maxCooldown);
 
     if (clearLib && d->capFlag != 0) {
@@ -228,14 +232,16 @@ void Sm64MarioCaps_OnSuspend(void) {
 // --- HUD read accessors -----------------------------------------------------
 
 u8 Sm64MarioCaps_GetPhase(s32 idx) {
-    if (idx < 0 || idx >= SM64_CAP_SLOT_COUNT) return SM64_CAP_PHASE_READY;
+    if (idx < 0 || idx >= SM64_CAP_SLOT_COUNT)
+        return SM64_CAP_PHASE_READY;
     Sm64Caps_EnsureInit();
     return sCapStates[idx].phase;
 }
 
 // Charge 0..1: ACTIVE drains 1→0, COOLDOWN fills 0→1, READY = 1.
 f32 Sm64MarioCaps_GetCharge(s32 idx) {
-    if (idx < 0 || idx >= SM64_CAP_SLOT_COUNT) return 1.0f;
+    if (idx < 0 || idx >= SM64_CAP_SLOT_COUNT)
+        return 1.0f;
     Sm64Caps_EnsureInit();
     Sm64CapState* s = &sCapStates[idx];
     const Sm64CapDef* d = &kCapDefs[idx];
@@ -244,7 +250,8 @@ f32 Sm64MarioCaps_GetCharge(s32 idx) {
         return c < 0.0f ? 0.0f : c;
     }
     if (s->phase == SM64_CAP_PHASE_COOLDOWN) {
-        if (s->cooldownDur <= 0) return 1.0f;
+        if (s->cooldownDur <= 0)
+            return 1.0f;
         f32 c = (f32)s->elapsed / (f32)s->cooldownDur;
         return c > 1.0f ? 1.0f : c;
     }
@@ -253,7 +260,8 @@ f32 Sm64MarioCaps_GetCharge(s32 idx) {
 
 // Whole seconds remaining in the ACTIVE or COOLDOWN phase (0 when READY).
 s32 Sm64MarioCaps_GetRemainingSeconds(s32 idx) {
-    if (idx < 0 || idx >= SM64_CAP_SLOT_COUNT) return 0;
+    if (idx < 0 || idx >= SM64_CAP_SLOT_COUNT)
+        return 0;
     Sm64Caps_EnsureInit();
     Sm64CapState* s = &sCapStates[idx];
     const Sm64CapDef* d = &kCapDefs[idx];
@@ -265,7 +273,8 @@ s32 Sm64MarioCaps_GetRemainingSeconds(s32 idx) {
     } else {
         return 0;
     }
-    if (rem < 0) rem = 0;
+    if (rem < 0)
+        rem = 0;
     return (rem + 59) / 60; // ceil to whole seconds
 }
 
@@ -291,28 +300,28 @@ u8 Sm64MarioCaps_IsFireActive(void) {
 // already in flight finish even after the cap toggles off. B is NOT suppressed at
 // the input level any more — Mario still punches; the fireball is an extra.
 // =============================================================================
-#define MARIO_FB_MAX        6
-#define MARIO_FB_GRAVITY    1.5f   // per-frame downward accel (Triforce-drop feel)
-#define MARIO_FB_FWD_SPEED  10.0f  // forward launch speed
-#define MARIO_FB_UP_SPEED   7.0f   // initial upward kick (gives the first arc)
-#define MARIO_FB_BOUNCE     0.78f  // Y restitution on floor hit — bouncy, keeps popping
-#define MARIO_FB_HFRICTION  0.98f  // horizontal speed kept per bounce (ice-slide → travels far)
-#define MARIO_FB_LIFE       150    // max frames alive (long enough for several bounces)
-#define MARIO_FB_MAX_BOUNCE 8      // despawn after this many floor bounces
+#define MARIO_FB_MAX 6
+#define MARIO_FB_GRAVITY 1.5f    // per-frame downward accel (Triforce-drop feel)
+#define MARIO_FB_FWD_SPEED 10.0f // forward launch speed
+#define MARIO_FB_UP_SPEED 7.0f   // initial upward kick (gives the first arc)
+#define MARIO_FB_BOUNCE 0.78f    // Y restitution on floor hit — bouncy, keeps popping
+#define MARIO_FB_HFRICTION 0.98f // horizontal speed kept per bounce (ice-slide → travels far)
+#define MARIO_FB_LIFE 150        // max frames alive (long enough for several bounces)
+#define MARIO_FB_MAX_BOUNCE 8    // despawn after this many floor bounces
 
 typedef struct {
-    u8                active;
-    u8                colInited;
-    s16               life;
-    u8                bounces;
-    s16               fxScroll;   // flame texture-scroll / flicker phase
-    Vec3f             pos;
-    Vec3f             vel;
-    ColliderCylinder  col;
+    u8 active;
+    u8 colInited;
+    s16 life;
+    u8 bounces;
+    s16 fxScroll; // flame texture-scroll / flicker phase
+    Vec3f pos;
+    Vec3f vel;
+    ColliderCylinder col;
 } MarioFireball;
 
 static MarioFireball sMarioFireballs[MARIO_FB_MAX];
-static s16           sMarioFireballCooldown = 0;
+static s16 sMarioFireballCooldown = 0;
 
 // Boss super-damage GRACE window. Bosses that key off a collider hit (BUMP_HIT,
 // e.g. King Dodongo) read that flag ONE frame after the fireball's AT set it —
@@ -324,7 +333,7 @@ static s16           sMarioFireballCooldown = 0;
 // fix made the hit register. This grace keeps FireballActive()/FireballNear()
 // reporting true for a few frames AT THE IMPACT POINT so the boss's deferred read
 // still sees the fire as active.
-static s16   sFireGraceTimer = 0;
+static s16 sFireGraceTimer = 0;
 static Vec3f sFireGracePos = { 0.0f, 0.0f, 0.0f };
 #define MARIO_FB_GRACE 5
 
@@ -351,7 +360,10 @@ static ColliderCylinderInit sMarioFireballColInit = {
     { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_NONE, COLSHAPE_CYLINDER },
     { ELEM_MATERIAL_UNK2,
       { DMG_FIRE_ARROW | DMG_SWORD | DMG_LIGHT_ARROW | DMG_LIGHT_RAY, 0x01, 8 },
-      { 0, 0, 0 }, ATELEM_ON | ATELEM_SFX_NORMAL, ACELEM_NONE, OCELEM_NONE },
+      { 0, 0, 0 },
+      ATELEM_ON | ATELEM_SFX_NORMAL,
+      ACELEM_NONE,
+      OCELEM_NONE },
     { 22, 30, -6, { 0, 0, 0 } }
 };
 
@@ -647,8 +659,8 @@ void Sm64Mario_DrawFireballs(PlayState* play) {
         gDPSetEnvColor(POLY_XLU_DISP++, 255, 40, 0, 0);
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x80, 255, 220, 0, 255);
         gSPSegment(POLY_XLU_DISP++, 0x08,
-                   Gfx_TwoTexScrollEx(gfxCtx, 0, 0, 0, 0x20, 0x40, 1, 0, (fb->fxScroll * -0x14) & 0x1FF, 0x20,
-                                      0x80, 0, 0, 0, -0x14));
+                   Gfx_TwoTexScrollEx(gfxCtx, 0, 0, 0, 0x20, 0x40, 1, 0, (fb->fxScroll * -0x14) & 0x1FF, 0x20, 0x80, 0,
+                                      0, 0, -0x14));
         gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
     }
 
@@ -705,43 +717,47 @@ static void Sm64Mario_HandleCapDpad(PlayState* play) {
 // One cap at a time. Visual is a camera-facing spinning disc placeholder (the
 // real tiara mesh from omm_tiara_geo.bin replaces it once integrated).
 // =============================================================================
-#define CAPPY_OUT_SPEED    12.0f   // short throw → the cap hovers close & reachable
-#define CAPPY_OUT_FRAMES   12      // ≈ 144 units forward, a quick jump away
-#define CAPPY_HOVER_FRAMES 60      // long hover so the cap-jump window is reliable
+#define CAPPY_OUT_SPEED 12.0f // short throw → the cap hovers close & reachable
+#define CAPPY_OUT_FRAMES 12   // ≈ 144 units forward, a quick jump away
+#define CAPPY_HOVER_FRAMES 60 // long hover so the cap-jump window is reliable
 #define CAPPY_RETURN_SPEED 30.0f
-#define CAPPY_CATCH_DIST   26.0f
-#define CAPPY_BOUNCE_XZ    46.0f   // generous landing radius for the cap-bounce
-#define CAPPY_HOMING_RANGE 220.0f  // only nudge toward CLOSE enemies (keeps it reachable)
+#define CAPPY_CATCH_DIST 26.0f
+#define CAPPY_BOUNCE_XZ 46.0f     // generous landing radius for the cap-bounce
+#define CAPPY_HOMING_RANGE 220.0f // only nudge toward CLOSE enemies (keeps it reachable)
 #define CAPPY_ORBIT_FRAMES 30
 #define CAPPY_ORBIT_RADIUS 78.0f
 
 enum { CAPPY_OUT = 0, CAPPY_HOVER, CAPPY_RETURN, CAPPY_ORBIT };
 
 typedef struct {
-    u8                active;
-    u8                phase;
-    u8                mode;       // SM64_CAPPY_*
-    u8                colInited;
-    u8                homing;
-    u8                bounced;    // cap-jump fired this throw (one-shot)
-    s16               timer;
-    s16               fxScroll;
-    s16               yaw;
-    s16               orbitAng;
-    Vec3f             pos;
-    Vec3f             vel;
-    Actor*            target;     // homing target (nearest enemy), or NULL
-    ColliderCylinder  col;
+    u8 active;
+    u8 phase;
+    u8 mode; // SM64_CAPPY_*
+    u8 colInited;
+    u8 homing;
+    u8 bounced; // cap-jump fired this throw (one-shot)
+    s16 timer;
+    s16 fxScroll;
+    s16 yaw;
+    s16 orbitAng;
+    Vec3f pos;
+    Vec3f vel;
+    Actor* target; // homing target (nearest enemy), or NULL
+    ColliderCylinder col;
 } Cappy;
 
 static Cappy sCappy;
 
 // Boomerang-type AT (stuns enemies like a thrown object), no fire.
-static ColliderCylinderInit sCappyColInit = {
-    { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_NONE, COLSHAPE_CYLINDER },
-    { ELEM_MATERIAL_UNK2, { DMG_ZORA_BOOMERANG, 0x00, 0x08 }, { 0, 0, 0 }, ATELEM_ON | ATELEM_SFX_NORMAL, ACELEM_NONE, OCELEM_NONE },
-    { 18, 28, -12, { 0, 0, 0 } }
-};
+static ColliderCylinderInit sCappyColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_NONE,
+                                                COLSHAPE_CYLINDER },
+                                              { ELEM_MATERIAL_UNK2,
+                                                { DMG_ZORA_BOOMERANG, 0x00, 0x08 },
+                                                { 0, 0, 0 },
+                                                ATELEM_ON | ATELEM_SFX_NORMAL,
+                                                ACELEM_NONE,
+                                                OCELEM_NONE },
+                                              { 18, 28, -12, { 0, 0, 0 } } };
 
 // Mario's red cap — extracted from the SM64 decomp (libsm64 model.inc.c) by
 // apps/sm64_model_extract.py into mario_cap_model.c and #included here (rides this
@@ -792,7 +808,8 @@ static Actor* Sm64Cappy_FindTarget(PlayState* play, Vec3f* from) {
 static u8 Sm64Cappy_TryBounce(PlayState* play, Vec3f* mpos, Player* player) {
     f32 dx, dy, dz;
     (void)player;
-    if (sCappy.bounced || sCappy.fxScroll < 5) return 0;
+    if (sCappy.bounced || sCappy.fxScroll < 5)
+        return 0;
     dx = mpos->x - sCappy.pos.x;
     dy = mpos->y - sCappy.pos.y;
     dz = mpos->z - sCappy.pos.z;
@@ -812,7 +829,8 @@ void Sm64Cappy_Throw(PlayState* play, s32 mode, u8 homing) {
     Player* player;
     s16 yaw;
     f32 fwd = CAPPY_OUT_SPEED;
-    if (play == NULL) return;
+    if (play == NULL)
+        return;
     player = GET_PLAYER(play);
 
     if (!sCappy.colInited) {
@@ -862,7 +880,8 @@ void Sm64Cappy_Update(PlayState* play) {
     Vec3f mpos;
     f32 dx, dy, dz, dist;
 
-    if (play == NULL || !sCappy.active) return;
+    if (play == NULL || !sCappy.active)
+        return;
     player = GET_PLAYER(play);
     mpos = player->actor.world.pos;
     sCappy.fxScroll++;
@@ -876,7 +895,8 @@ void Sm64Cappy_Update(PlayState* play) {
 
     switch (sCappy.phase) {
         case CAPPY_OUT:
-            if (sCappy.mode == SM64_CAPPY_DIVE) sCappy.vel.y -= 1.2f;
+            if (sCappy.mode == SM64_CAPPY_DIVE)
+                sCappy.vel.y -= 1.2f;
             // Homing: GENTLE nudge toward a close enemy — never enough to fling the
             // cap far (so it still hovers near where you threw it, for the cap-jump).
             if (sCappy.homing && sCappy.target != NULL && sCappy.target->update != NULL) {
@@ -885,9 +905,10 @@ void Sm64Cappy_Update(PlayState* play) {
                 f32 tz = sCappy.target->world.pos.z - sCappy.pos.z;
                 f32 td = sqrtf(tx * tx + ty * ty + tz * tz);
                 if (td > 1.0f) {
-                    f32 spd = sqrtf(sCappy.vel.x * sCappy.vel.x + sCappy.vel.y * sCappy.vel.y +
-                                    sCappy.vel.z * sCappy.vel.z);
-                    if (spd < 10.0f) spd = 10.0f;
+                    f32 spd =
+                        sqrtf(sCappy.vel.x * sCappy.vel.x + sCappy.vel.y * sCappy.vel.y + sCappy.vel.z * sCappy.vel.z);
+                    if (spd < 10.0f)
+                        spd = 10.0f;
                     sCappy.vel.x += ((tx / td) * spd - sCappy.vel.x) * 0.12f;
                     sCappy.vel.y += ((ty / td) * spd - sCappy.vel.y) * 0.12f;
                     sCappy.vel.z += ((tz / td) * spd - sCappy.vel.z) * 0.12f;
@@ -896,7 +917,8 @@ void Sm64Cappy_Update(PlayState* play) {
             sCappy.pos.x += sCappy.vel.x;
             sCappy.pos.y += sCappy.vel.y;
             sCappy.pos.z += sCappy.vel.z;
-            if (Sm64Cappy_TryBounce(play, &mpos, player)) break;
+            if (Sm64Cappy_TryBounce(play, &mpos, player))
+                break;
             if (--sCappy.timer <= 0) {
                 sCappy.phase = CAPPY_HOVER;
                 sCappy.timer = CAPPY_HOVER_FRAMES;
@@ -909,7 +931,8 @@ void Sm64Cappy_Update(PlayState* play) {
             sCappy.pos.x += sCappy.vel.x;
             sCappy.pos.y += sCappy.vel.y;
             sCappy.pos.z += sCappy.vel.z;
-            if (Sm64Cappy_TryBounce(play, &mpos, player)) break;
+            if (Sm64Cappy_TryBounce(play, &mpos, player))
+                break;
             if (--sCappy.timer <= 0) {
                 sCappy.phase = CAPPY_RETURN;
             }
@@ -919,7 +942,8 @@ void Sm64Cappy_Update(PlayState* play) {
             sCappy.pos.x = mpos.x + Math_SinS(sCappy.orbitAng) * CAPPY_ORBIT_RADIUS;
             sCappy.pos.y = mpos.y + 26.0f;
             sCappy.pos.z = mpos.z + Math_CosS(sCappy.orbitAng) * CAPPY_ORBIT_RADIUS;
-            if (Sm64Cappy_TryBounce(play, &mpos, player)) break;
+            if (Sm64Cappy_TryBounce(play, &mpos, player))
+                break;
             if (--sCappy.timer <= 0) {
                 sCappy.phase = CAPPY_RETURN;
             }
@@ -951,8 +975,8 @@ void Sm64Cappy_Update(PlayState* play) {
         fq.z = sCappy.pos.z;
         fy = BgCheck_EntityRaycastFloor1(&play->colCtx, &fpoly, &fq);
         if (fpoly != NULL && fy > BGCHECK_Y_MIN && sCappy.pos.y < fy + 10.0f) {
-            sCappy.pos.y = fy + 10.0f;        // hug the slope
-            if (sCappy.phase == CAPPY_OUT) {  // climbing into terrain -> settle/hover
+            sCappy.pos.y = fy + 10.0f;       // hug the slope
+            if (sCappy.phase == CAPPY_OUT) { // climbing into terrain -> settle/hover
                 sCappy.vel.y = 0.0f;
             }
         }
@@ -974,7 +998,8 @@ void Sm64Cappy_Draw(PlayState* play) {
     GraphicsContext* gfxCtx;
     f32 spin;
 
-    if (play == NULL || !sCappy.active) return;
+    if (play == NULL || !sCappy.active)
+        return;
     gfxCtx = play->state.gfxCtx;
     spin = sCappy.fxScroll * 0x800; // spins about its own axis as it flies
 
@@ -983,14 +1008,14 @@ void Sm64Cappy_Draw(PlayState* play) {
     OPEN_DISPS(gfxCtx);
     Matrix_Translate(sCappy.pos.x, sCappy.pos.y + 4.0f, sCappy.pos.z, MTXMODE_NEW);
     Matrix_RotateYF(spin * (3.14159265358979323846f / 0x8000), MTXMODE_APPLY);
-    Matrix_Scale(0.09f, 0.09f, 0.09f, MTXMODE_APPLY); // tune to taste
+    Matrix_Scale(0.09f, 0.09f, 0.09f, MTXMODE_APPLY);      // tune to taste
     Matrix_Translate(0.0f, -72.0f, -12.0f, MTXMODE_APPLY); // recenter
     gSPMatrix(POLY_OPA_DISP++, Matrix_Finalize(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     Gfx_SetupDL25_Opa(gfxCtx);
-    gDPSetCombineMode(POLY_OPA_DISP++, G_CC_SHADE, G_CC_SHADE);  // lit vertex shade, no texture
+    gDPSetCombineMode(POLY_OPA_DISP++, G_CC_SHADE, G_CC_SHADE); // lit vertex shade, no texture
     gSPSetGeometryMode(POLY_OPA_DISP++, G_LIGHTING);
-    gSPSetLights1(POLY_OPA_DISP++, mario_red_lights_group);      // red for the cap dome
-    gSPDisplayList(POLY_OPA_DISP++, mario_cap_unused_base_dl);   // top (red) + brim (brown)
+    gSPSetLights1(POLY_OPA_DISP++, mario_red_lights_group);    // red for the cap dome
+    gSPDisplayList(POLY_OPA_DISP++, mario_cap_unused_base_dl); // top (red) + brim (brown)
     CLOSE_DISPS(gfxCtx);
 }
 

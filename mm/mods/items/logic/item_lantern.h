@@ -22,14 +22,17 @@ typedef enum {
 
 // ── Constants ───────────────────────────────────────────────────────────────
 
-#define LANTERN_CATCH_RANGE 80.0f   // Max distance to catch fire source
-#define LANTERN_EFFECT_RANGE 120.0f // Max distance for fire effects on swing
-#define LANTERN_LIGHT_RADIUS 200    // Point light radius when lit
-#define LANTERN_KALEIDO_HOLD 20     // Frames to hold C in Kaleido to extinguish
-#define LANTERN_GREEN_HEAL_RATE 60 // Frames between 1/4 heart + magic ticks, standing still
-#define LANTERN_GREEN_MAGIC 4      // Magic restored on each green-fire tick
+#define LANTERN_CATCH_RANGE 80.0f    // Max distance to catch fire source
+#define LANTERN_EFFECT_RANGE 120.0f  // Max distance for fire effects on swing
+#define LANTERN_LIGHT_RADIUS 200     // Point light radius when lit
+#define LANTERN_KALEIDO_HOLD 20      // Frames to hold C in Kaleido to extinguish
+#define LANTERN_GREEN_HEAL_RATE 60   // Frames between 1/4 heart + magic ticks, standing still
+#define LANTERN_GREEN_MAGIC 4        // Magic restored on each green-fire tick
 #define LANTERN_GREEN_STILL_EPS 1.5f // Per-frame movement under this counts as standing still
-#define TEXT_LANTERN_CATCH 0x00F9   // Custom textbox ID for fire catch messages
+#define TEXT_LANTERN_CATCH 0x00F9    // Custom textbox ID for fire catch messages
+
+// OoT's Poe lantern (oot.o2r), used only if mm.o2r has no object_po/gPoeLanternDL
+#define LANTERN_OOT_DL_PATH "__OTR__objects/object_poh/gPoeLanternDL"
 
 // In-hand flame billboard: sits inside the glass, a quarter of a torch flame's size
 #define LANTERN_FLAME_SCALE 0.0008f

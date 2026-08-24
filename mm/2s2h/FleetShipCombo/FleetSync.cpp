@@ -75,6 +75,10 @@ unsigned char ExtEquip_HasItem(short equipType, unsigned char index);
 // inside an anonymous namespace mangles as a local C++ symbol and fails to link (bit soh first).
 void Bottle_WheelPersist(unsigned char wheel, unsigned short slotItem);
 void Bottle_WheelRecordActive(unsigned char wheel, unsigned short slotItem);
+// Elemental Wand / Sheikah Slate grants (mods/extended_inventory.c): place the cell item, light the
+// rod/rune bit and pick the active mode -- the same call the native pickup makes.
+void Wand_GrantMode(unsigned char mode);
+void Slate_GrantRune(unsigned char rune);
 }
 
 // Cross-game restart: the raw reset of THIS game (defined in DebugConsole.cpp), called by the
@@ -142,9 +146,7 @@ void WriteTemp(const nlohmann::json& j) {
             out << std::setw(1) << j << std::endl;
         }
         std::filesystem::rename(tmp, p);
-    } catch (...) {
-        SPDLOG_WARN("[FleetSync] temp file write failed");
-    }
+    } catch (...) { SPDLOG_WARN("[FleetSync] temp file write failed"); }
 }
 
 void DeleteTemp() {
@@ -174,8 +176,10 @@ void OotUpgSet(int shift, int v) {
 // MM Kokiri-chain level from the shared weaponUpgrades byte (bits: 1<<1 razor, 1<<2 gilded).
 int KokiriChainLevel() {
     uint8_t wu = Nei_Save()->weaponUpgrades;
-    if (wu & (1 << 2)) return 2;
-    if (wu & (1 << 1)) return 1;
+    if (wu & (1 << 2))
+        return 2;
+    if (wu & (1 << 1))
+        return 1;
     return 0;
 }
 
@@ -183,11 +187,16 @@ uint16_t ComputeShieldOwned() {
     NeiSaveData* nei = Nei_Save();
     uint16_t sh = nei->shieldOwned;
     int nibble = (MM_EQ.equipment >> 4) & 0xF; // 1 Hero, 2 Mirror(-MM)
-    if (nibble >= 1) sh |= FC_SHIELD_HYLIAN;   // MM Hero == OoT Hylian
-    if (nibble == 2) sh |= FC_SHIELD_IKANA;    // MM Mirror == OoT Shield of Ikana
-    if (nei->extEquipOwnedBits & (1u << 19)) sh |= FC_SHIELD_DIVINE;
-    if (nei->extEquipOwnedBits & (1u << 20)) sh |= FC_SHIELD_KITE;
-    if (nei->extEquipOwnedBits & (1u << 21)) sh |= FC_SHIELD_IKANA;
+    if (nibble >= 1)
+        sh |= FC_SHIELD_HYLIAN; // MM Hero == OoT Hylian
+    if (nibble == 2)
+        sh |= FC_SHIELD_IKANA; // MM Mirror == OoT Shield of Ikana
+    if (nei->extEquipOwnedBits & (1u << 19))
+        sh |= FC_SHIELD_DIVINE;
+    if (nei->extEquipOwnedBits & (1u << 20))
+        sh |= FC_SHIELD_KITE;
+    if (nei->extEquipOwnedBits & (1u << 21))
+        sh |= FC_SHIELD_IKANA;
     nei->shieldOwned = sh;
     return sh;
 }
@@ -198,8 +207,10 @@ int GetEquippedShieldCanonical() {
         return 3 + nei->extEquipShield;
     }
     int nibble = (MM_EQ.equipment >> 4) & 0xF;
-    if (nibble == 1) return 2; // Hero -> Hylian
-    if (nibble == 2) return 6; // Mirror-MM -> Ikana
+    if (nibble == 1)
+        return 2; // Hero -> Hylian
+    if (nibble == 2)
+        return 6; // Mirror-MM -> Ikana
     return 0;
 }
 
@@ -312,11 +323,16 @@ static void FoldExtEquipmentIntoRegistry(NeiSaveData* nei) {
         unsigned char index;
         int fcId;
     } kExtEquipRows[] = {
-        { EQUIP_TYPE_SWORD, 1, FCI_EXT_CANE_OF_BYRNA },      { EQUIP_TYPE_SWORD, 2, FCI_EXT_FOUR_SWORD },
-        { EQUIP_TYPE_SHIELD, 1, FCI_EXT_DIVINE_SHIELD },     { EQUIP_TYPE_SHIELD, 2, FCI_EXT_SHEIKAH_SHIELD },
-        { EQUIP_TYPE_TUNIC, 1, FCI_EXT_CHAMPIONS_TUNIC },    { EQUIP_TYPE_TUNIC, 2, FCI_EXT_SPIRIT_BREASTPLATE },
-        { EQUIP_TYPE_TUNIC, 3, FCI_EXT_WATER_DRAGON_SCALE }, { EQUIP_TYPE_BOOTS, 1, FCI_EXT_PEGASUS_ANKLET },
-        { EQUIP_TYPE_SWORD, 3, FCI_EXT_TRIDENT },            { EQUIP_TYPE_BOOTS, 2, FCI_EXT_CLIMB_BOOTS },
+        { EQUIP_TYPE_SWORD, 1, FCI_EXT_CANE_OF_BYRNA },
+        { EQUIP_TYPE_SWORD, 2, FCI_EXT_FOUR_SWORD },
+        { EQUIP_TYPE_SHIELD, 1, FCI_EXT_DIVINE_SHIELD },
+        { EQUIP_TYPE_SHIELD, 2, FCI_EXT_SHEIKAH_SHIELD },
+        { EQUIP_TYPE_TUNIC, 1, FCI_EXT_CHAMPIONS_TUNIC },
+        { EQUIP_TYPE_TUNIC, 2, FCI_EXT_SPIRIT_BREASTPLATE },
+        { EQUIP_TYPE_TUNIC, 3, FCI_EXT_WATER_DRAGON_SCALE },
+        { EQUIP_TYPE_BOOTS, 1, FCI_EXT_PEGASUS_ANKLET },
+        { EQUIP_TYPE_SWORD, 3, FCI_EXT_TRIDENT },
+        { EQUIP_TYPE_BOOTS, 2, FCI_EXT_CLIMB_BOOTS },
         { EQUIP_TYPE_BOOTS, 3, FCI_EXT_ROC_BOOTS },
     };
     for (size_t i = 0; i < sizeof(kExtEquipRows) / sizeof(kExtEquipRows[0]); i++) {
@@ -378,10 +394,10 @@ void ApplyRegistryToNatives() {
             int fcId;
             int wheelIndex;
         } kOotTradeToWheel[] = {
-            { FC_OOT_TRADE_POCKET_EGG, 0 },   { FC_OOT_TRADE_POCKET_CUCCO, 1 }, { FC_OOT_TRADE_COJIRO, 2 },
-            { FC_OOT_TRADE_ODD_MUSHROOM, 3 }, { FC_OOT_TRADE_ODD_POTION, 4 },   { FC_OOT_TRADE_SAW, 5 },
-            { FC_OOT_TRADE_BROKEN_SWORD, 6 }, { FC_OOT_TRADE_PRESCRIPTION, 7 }, { FC_OOT_TRADE_FROG, 8 },
-            { FC_OOT_TRADE_EYEDROPS, 9 },     { FC_OOT_TRADE_CLAIM_CHECK, 10 }, { FC_OOT_TRADE_WEIRD_EGG, 20 },
+            { FC_OOT_TRADE_POCKET_EGG, 0 },   { FC_OOT_TRADE_POCKET_CUCCO, 1 },   { FC_OOT_TRADE_COJIRO, 2 },
+            { FC_OOT_TRADE_ODD_MUSHROOM, 3 }, { FC_OOT_TRADE_ODD_POTION, 4 },     { FC_OOT_TRADE_SAW, 5 },
+            { FC_OOT_TRADE_BROKEN_SWORD, 6 }, { FC_OOT_TRADE_PRESCRIPTION, 7 },   { FC_OOT_TRADE_FROG, 8 },
+            { FC_OOT_TRADE_EYEDROPS, 9 },     { FC_OOT_TRADE_CLAIM_CHECK, 10 },   { FC_OOT_TRADE_WEIRD_EGG, 20 },
             { FC_OOT_TRADE_CHICKEN, 21 },     { FC_OOT_TRADE_ZELDAS_LETTER, 22 },
         };
         for (size_t i = 0; i < sizeof(kOotTradeToWheel) / sizeof(kOotTradeToWheel[0]); i++) {
@@ -433,8 +449,8 @@ void ApplyFcRegistryToNatives() {
                 // Item_Give, which touches gPlayState, the player and the message system with an id
                 // that came from the OTHER game's registry. A bad id is a raw memory fault, not an
                 // exception, so no catch() can see it — but the log stops right here.
-                SPDLOG_WARN("[FleetGrant] fcId={} -> native={} (copy {} of {}) — cross-game grant", fcId, native,
-                            k + 1, (int)obtained);
+                SPDLOG_WARN("[FleetGrant] fcId={} -> native={} (copy {} of {}) — cross-game grant", fcId, native, k + 1,
+                            (int)obtained);
                 spdlog::default_logger()->flush();
                 Rando::GiveItem((RandoItemId)native);
                 FS_TRACE("3b. grant fcId={} OK", fcId);
@@ -458,14 +474,37 @@ void HealLeakedOwnedItems() {
         }
         if (v >= 0x9E && v <= 0xB5) {
             nei->ownedItems[i] = (uint16_t)(v + FC_PAGE2_MM_OFFSET); // leaked OoT page-2 id -> MM id
-        } else if (i >= 24 && v >= FC_OOT_MM_MASK_ITEM_BASE &&
-                   v < FC_OOT_MM_MASK_ITEM_BASE + FC_MM_MASK_COUNT) {
+        } else if (i >= 24 && v >= FC_OOT_MM_MASK_ITEM_BASE && v < FC_OOT_MM_MASK_ITEM_BASE + FC_MM_MASK_COUNT) {
             // Leaked OoT page-3 mask id: masks are NATIVE in MM — grant the native mask and clear.
             if (MM_INV.items[FC_MM_MASK_SLOT_BASE + (v - FC_OOT_MM_MASK_ITEM_BASE)] == 0xFF) {
                 MM_INV.items[FC_MM_MASK_SLOT_BASE + (v - FC_OOT_MM_MASK_ITEM_BASE)] =
                     kFcMmMaskItemBySlot[v - FC_OOT_MM_MASK_ITEM_BASE];
             }
             nei->ownedItems[i] = 0xFF;
+        }
+    }
+}
+
+// Cell repair (idempotent, both directions). Ownership of these cells is a FLAG/bitmask and the
+// cell can be emptied by something other than the player (OoT's HealBogusOwnedItems used to wipe
+// the wand cell on every extract; the Sheikah Slate cell was overwritten by the u16->u8 truncation
+// loop). Once the bit is set, the incremental "gained" grants in ApplyShared never fire again, so
+// the cell has to be re-seeded from the flags -- exactly what the kaleido's Page2Relayout_Heal does
+// for the Shovel/Dominion wheel. Runs on every extract and every apply. Slots are
+// extended_inventory.h SLOT_* (header not included in this TU).
+static void RepairFlagOwnedCells(NeiSaveData* nei) {
+    const uint8_t kSlotWand = 27, kSlotSlate = 39, kSlotShovel = 46;
+    const uint16_t kExtSheikahSlate = 0x0220; // EXT_ITEM_SHEIKAH_SLATE (same id in both games)
+    if (nei->wandRodsOwned != 0 && Nei_GetOwnedItem(kSlotWand) != ITEM_ELEMENTAL_WAND) {
+        Nei_SetOwnedItem(kSlotWand, ITEM_ELEMENTAL_WAND);
+    }
+    if (nei->slateRunesOwned != 0 && Nei_GetOwnedItem(kSlotSlate) != kExtSheikahSlate) {
+        Nei_SetOwnedItem(kSlotSlate, kExtSheikahSlate);
+    }
+    if (nei->shovelOwned || nei->dominionOwned) {
+        const uint16_t cur = Nei_GetOwnedItem(kSlotShovel);
+        if (cur != ITEM_SHOVEL && cur != ITEM_DOMINION_ROD) {
+            Nei_SetOwnedItem(kSlotShovel, nei->shovelOwned ? ITEM_SHOVEL : ITEM_DOMINION_ROD);
         }
     }
 }
@@ -494,6 +533,10 @@ void ExtractShared(nlohmann::json& sh) {
                        { "strength", std::max<int>(CUR_UPG_VALUE(UPG_STRENGTH), OotUpgGet(9)) },
                        { "scale", std::max<int>(CUR_UPG_VALUE(UPG_SCALE), OotUpgGet(12)) },
                        { "bulletBag", OotUpgGet(0) } };
+    // OoT "Grab" skill (RAND_INF_CAN_GRAB on the soh side). Not an upgrade LEVEL — it is the first
+    // link of the Progressive Strength chain when Shuffle Grab is on, and MM can receive that copy.
+    // Latched, never cleared, so it cannot walk backwards. Skijer's NEI
+    sh["canGrab"] = (int)nei->ootCanGrab;
     // GFS: keep the native inventory item and the shared weaponUpgrades bit coherent both ways.
     if (MM_INV.items[kSlotGreatFairySword] != 0xFF) {
         nei->weaponUpgrades |= (1 << 4); // WEAPON_UPGRADE_BGS_GREAT_FAIRY
@@ -570,9 +613,9 @@ void ExtractShared(nlohmann::json& sh) {
         // the top of this file — declaring them here would give them anonymous-namespace linkage.)
         uint16_t nativeA = gSaveContext.save.saveInfo.inventory.items[SLOT_BOTTLE_1];
         uint16_t nativeB = gSaveContext.save.saveInfo.inventory.items[SLOT_BOTTLE_2];
-        Bottle_WheelPersist(0, nativeA);      // BOTTLE_WHEEL_A
+        Bottle_WheelPersist(0, nativeA); // BOTTLE_WHEEL_A
         Bottle_WheelRecordActive(0, nativeA);
-        Bottle_WheelPersist(1, nativeB);      // BOTTLE_WHEEL_B
+        Bottle_WheelPersist(1, nativeB); // BOTTLE_WHEEL_B
         Bottle_WheelRecordActive(1, nativeB);
     }
 
@@ -604,18 +647,30 @@ void ExtractShared(nlohmann::json& sh) {
         } else if (nei->ownedItems[i] != 0xFF && nei->ownedItems[i] != 0x00 && nei->ownedItems[i] <= 0xFF) {
             // The > 0xFF guard is the EXT id space (0x02xx): those items do not exist on the OoT side
             // yet, so there is nothing to translate to — they stay local until they have a peer.
-            canon = FcEquip_MmToOot((uint8_t)nei->ownedItems[i]); // 0xFF if unmappable
+            // Only page-2 customs (0xB6..0xCF + wand 0xD0) are legitimate here; a cell poisoned with
+            // anything else (see the apply side) must not be echoed to the peer.
+            const uint8_t v = (uint8_t)nei->ownedItems[i];
+            if ((v >= FC_OOT_PAGE2_FIRST + FC_PAGE2_MM_OFFSET && v <= FC_OOT_PAGE2_LAST + FC_PAGE2_MM_OFFSET) ||
+                v == ITEM_ELEMENTAL_WAND) {
+                canon = FcEquip_MmToOot(v); // 0xFF if unmappable
+            }
         }
         ownedItems.push_back(canon);
     }
     sh["ownedItems"] = ownedItems;
     sh["tradeAdultOwned"] = nei->tradeAdultOwned;
+    // Elemental Wand rods + Sheikah Slate runes: the cell item travels in ownedItems, but WHICH rods
+    // / runes you own lives in these bitmasks, and nothing carried them -- the peer got an empty
+    // wand. OR-merged both ways (one-way unlocks); the fcId deficit path still grants the items
+    // natively, this just guarantees the bits arrive even if a grant is missed.
+    sh["wandRodsOwned"] = (int)nei->wandRodsOwned;
+    sh["slateRunesOwned"] = (int)nei->slateRunesOwned;
+    RepairFlagOwnedCells(nei);
     // Shared NEI options/flags (FleetComboOptions.h). Table-driven so a future
     // option is one row there, not new code here. MAX rows never lose a value;
     // NEWEST rows let either game re-author the player's preference.
-#define FCO_EXTRACT(key, field, mode)                                                    \
-    sh[key] = (mode == FCO_MERGE_MAX) ? (uint8_t)std::max<int>(sh.value(key, 0), nei->field) \
-                                      : (uint8_t)nei->field;
+#define FCO_EXTRACT(key, field, mode) \
+    sh[key] = (mode == FCO_MERGE_MAX) ? (uint8_t)std::max<int>(sh.value(key, 0), nei->field) : (uint8_t)nei->field;
     FC_COMBO_OPTION_TABLE(FCO_EXTRACT)
 #undef FCO_EXTRACT
     // Merge with previous shared value (one-way unlocks, authored by both games via
@@ -659,8 +714,10 @@ void ApplyShared(const nlohmann::json& sh) {
         // EVERY default here MUST be the current value, never 0: this block also runs for PARTIAL
         // deltas (FleetNet sends one leaf at a time), so a default of 0 would wipe magic and defense
         // hearts every time an unrelated vital -- a single rupee -- changed.
-        MM_PD.doubleDefense = (uint8_t)v.value("doubleDefense", (int)MM_PD.doubleDefense);
-        MM_INV.defenseHearts = (int8_t)v.value("defenseHearts", (int)MM_INV.defenseHearts);
+        // Double Defense is a one-way unlock: MAX-merge, so a peer snapshot taken before it received
+        // its copy (or a resync from the inactive game) can never strip it again.
+        MM_PD.doubleDefense = (uint8_t)std::max<int>(MM_PD.doubleDefense, v.value("doubleDefense", 0));
+        MM_INV.defenseHearts = (int8_t)std::max<int>(MM_INV.defenseHearts, v.value("defenseHearts", 0));
 
         // Magic syncs as the two OWNERSHIP FLAGS only -- magicLevel is deliberately not copied.
         // magicLevel is not "how much magic you have", it is the handshake the game uses to build
@@ -671,8 +728,11 @@ void ApplyShared(const nlohmann::json& sh) {
         // magicLevel so this game runs its own init next frame -- exactly what a native grant does.
         const bool hadMagic = MM_PD.isMagicAcquired != 0;
         const bool hadDouble = MM_PD.isDoubleMagicAcquired != 0;
-        const bool hasMagic = v.value("isMagic", (int)MM_PD.isMagicAcquired) != 0;
-        const bool hasDouble = v.value("isDoubleMagic", (int)MM_PD.isDoubleMagicAcquired) != 0;
+        // MAX-merge (never lose): magic is never un-obtained in either game, so a peer snapshot that
+        // still says "no magic" (it simply hasn't been granted its copy yet) must not strip the
+        // meter this game just earned — that left MM "waiting" for a magic it already had.
+        const bool hasMagic = hadMagic || v.value("isMagic", 0) != 0;
+        const bool hasDouble = hadDouble || v.value("isDoubleMagic", 0) != 0;
         MM_PD.isMagicAcquired = hasMagic;
         MM_PD.isDoubleMagicAcquired = hasDouble;
         if ((hasMagic && !hadMagic) || (hasDouble && !hadDouble)) {
@@ -690,6 +750,14 @@ void ApplyShared(const nlohmann::json& sh) {
         // differently-scaled reading from the peer can never walk an upgrade backwards.
         auto upg = [&u](const char* key, int cur) { return std::max(cur, u.value(key, cur)); };
         Inventory_ChangeUpgrade(UPG_WALLET, upg("wallet", CUR_UPG_VALUE(UPG_WALLET)));
+        // Wallet level 3 means 999 in OoT (its table) but only 500 in MM's vanilla table, or 5000 when
+        // MM's own Tycoon option is on -- so the same shared wallet showed three different capacities
+        // depending on where you looked. In the combo the wallet is ONE item: make MM's level 3 the
+        // same 999 OoT uses, so the capacity (and the synced rupee count) mean the same thing on both
+        // sides. Idempotent; only while a combo is running.
+        if (FleetShipCombo_GetActiveGame() >= 0) {
+            gUpgradeCapacities[UPG_WALLET][3] = 999; // variables.h
+        }
         Inventory_ChangeUpgrade(UPG_QUIVER, upg("quiver", CUR_UPG_VALUE(UPG_QUIVER)));
         Inventory_ChangeUpgrade(UPG_BOMB_BAG, upg("bombBag", CUR_UPG_VALUE(UPG_BOMB_BAG)));
         Inventory_ChangeUpgrade(UPG_DEKU_STICKS, upg("sticks", CUR_UPG_VALUE(UPG_DEKU_STICKS)));
@@ -700,6 +768,11 @@ void ApplyShared(const nlohmann::json& sh) {
         OotUpgSet(9, upg("strength", OotUpgGet(9)));
         OotUpgSet(12, upg("scale", OotUpgGet(12)));
         OotUpgSet(0, std::min(upg("bulletBag", OotUpgGet(0)), 3)); // cap 3: raw 7 reads capacities OOB
+    }
+    // Grab skill — latch on, never off (OR, not assign), so a peer snapshot taken before the pickup
+    // cannot take it away again.
+    if (sh.contains("canGrab") && sh["canGrab"].get<int>() != 0) {
+        nei->ootCanGrab = 1;
     }
     if (sh.contains("weaponUpgrades")) {
         nei->weaponUpgrades |= (uint8_t)sh["weaponUpgrades"].get<int>();
@@ -712,9 +785,12 @@ void ApplyShared(const nlohmann::json& sh) {
     if (sh.contains("shieldOwned")) {
         uint16_t owned = (uint16_t)sh["shieldOwned"].get<int>();
         nei->shieldOwned |= owned;
-        if (owned & FC_SHIELD_DIVINE) nei->extEquipOwnedBits |= (1u << 19);
-        if (owned & FC_SHIELD_KITE) nei->extEquipOwnedBits |= (1u << 20);
-        if (owned & FC_SHIELD_IKANA) nei->extEquipOwnedBits |= (1u << 21);
+        if (owned & FC_SHIELD_DIVINE)
+            nei->extEquipOwnedBits |= (1u << 19);
+        if (owned & FC_SHIELD_KITE)
+            nei->extEquipOwnedBits |= (1u << 20);
+        if (owned & FC_SHIELD_IKANA)
+            nei->extEquipOwnedBits |= (1u << 21);
         int nibble = (MM_EQ.equipment >> 4) & 0xF;
         if ((owned & FC_SHIELD_IKANA) && nibble < 2) {
             MM_EQ.equipment = (uint16_t)((MM_EQ.equipment & ~0xF0) | (2 << 4)); // own MM Mirror
@@ -734,8 +810,10 @@ void ApplyShared(const nlohmann::json& sh) {
     }
     if (sh.contains("swordFlags")) {
         const auto& s = sh["swordFlags"];
-        if (s.value("master", false)) nei->comboObtained[FC_OOT_SWORD_MASTER] = 1;
-        if (s.value("biggoron", false)) nei->comboObtained[FC_OOT_SWORD_BIGGORON] = 1;
+        if (s.value("master", false))
+            nei->comboObtained[FC_OOT_SWORD_MASTER] = 1;
+        if (s.value("biggoron", false))
+            nei->comboObtained[FC_OOT_SWORD_BIGGORON] = 1;
         if (s.value("kokiri", false)) {
             int nibble = MM_EQ.equipment & 0xF;
             int target = 1 + KokiriChainLevel(); // 1 kokiri / 2 razor / 3 gilded
@@ -784,14 +862,22 @@ void ApplyShared(const nlohmann::json& sh) {
             nei->twilightUpgrade |= 0x1; // TWILIGHT_UPGRADE_CLAWSHOT: gates the L-tap selector
                                          // (same companion flag Nei_GiveAllOotItems sets)
         }
-        if (inv.value("boomerang", false)) nei->ootBoomerangOwned = 1;
-        if (inv.value("hammer", false)) nei->ootHammerOwned = 1;
-        if (inv.value("dins", false)) nei->ootSpellsOwned |= (1 << 0);
-        if (inv.value("farores", false)) nei->ootSpellsOwned |= (1 << 1);
-        if (inv.value("nayrus", false)) nei->ootSpellsOwned |= (1 << 2);
-        if (inv.value("rocsFeatherVanilla", false)) nei->ootSpellsOwned |= (1 << 3);
-        if (inv.value("slingshot", false)) nei->slingshotOwned = 1;
-        if (inv.contains("slingshotAmmo")) nei->slingshotSeeds = (uint8_t)inv["slingshotAmmo"].get<int>();
+        if (inv.value("boomerang", false))
+            nei->ootBoomerangOwned = 1;
+        if (inv.value("hammer", false))
+            nei->ootHammerOwned = 1;
+        if (inv.value("dins", false))
+            nei->ootSpellsOwned |= (1 << 0);
+        if (inv.value("farores", false))
+            nei->ootSpellsOwned |= (1 << 1);
+        if (inv.value("nayrus", false))
+            nei->ootSpellsOwned |= (1 << 2);
+        if (inv.value("rocsFeatherVanilla", false))
+            nei->ootSpellsOwned |= (1 << 3);
+        if (inv.value("slingshot", false))
+            nei->slingshotOwned = 1;
+        if (inv.contains("slingshotAmmo"))
+            nei->slingshotSeeds = (uint8_t)inv["slingshotAmmo"].get<int>();
         if (inv.value("pictobox", false)) {
             if (MM_INV.items[kSlotPictograph] == 0xFF) {
                 MM_INV.items[kSlotPictograph] = ITEM_PICTOGRAPH_BOX;
@@ -805,18 +891,22 @@ void ApplyShared(const nlohmann::json& sh) {
         }
         if (inv.contains("powderKegCount")) {
             int c = std::min(inv["powderKegCount"].get<int>(), 5);
-            if (c > nei->powerKegCount) nei->powerKegCount = (uint8_t)c;
+            if (c > nei->powerKegCount)
+                nei->powerKegCount = (uint8_t)c;
             if (MM_INV.items[kSlotPowderKeg] != 0xFF && c > MM_INV.ammo[kSlotPowderKeg]) {
                 MM_INV.ammo[kSlotPowderKeg] = (int8_t)c;
             }
         }
-        if (inv.value("net", false)) nei->netEquipped = 1;
-        if (inv.contains("bottomlessMode")) nei->bottomlessBottleMode = (uint8_t)inv["bottomlessMode"].get<int>();
+        if (inv.value("net", false))
+            nei->netEquipped = 1;
+        if (inv.contains("bottomlessMode"))
+            nei->bottomlessBottleMode = (uint8_t)inv["bottomlessMode"].get<int>();
         if (inv.contains("bottomlessContent")) {
             uint8_t bt = FcBottle_OotToMm((uint8_t)inv["bottomlessContent"].get<int>());
             nei->bottomlessContent = (bt == FC_BOTTLE_UNMAPPED) ? 0x12 : bt;
         }
-        if (inv.contains("bottomlessCount")) nei->bottomlessCount = (uint8_t)inv["bottomlessCount"].get<int>();
+        if (inv.contains("bottomlessCount"))
+            nei->bottomlessCount = (uint8_t)inv["bottomlessCount"].get<int>();
     }
 
     if (sh.contains("bottleSlots") && sh["bottleSlots"].is_array()) {
@@ -825,25 +915,27 @@ void ApplyShared(const nlohmann::json& sh) {
             if (t == FC_BOTTLE_UNMAPPED) {
                 t = 0x12; // MM ITEM_BOTTLE: keep an empty bottle rather than a foreign id
             }
-            // An EMPTY incoming slot never clears a FULL local one (2026-08-07). The pump echoes
-            // whole arrays, so a peer's stale copy used to wipe a freshly-caught content — that was
-            // half of "bottles don't share". Trade-off accepted: drinking in the OTHER game no
-            // longer empties the bottle here until our own extract republishes; losing content
-            // spontaneously was the far worse failure. Content-to-content changes still apply.
-            if ((t == 0x12) && (nei->bottleSlots[i] != 0xFF) && (nei->bottleSlots[i] != 0x12)) {
-                continue;
-            }
+            // Applied VERBATIM, empties included. The old "an empty slot never clears a full one"
+            // guard was what resurrected consumed contents: the game that drank refused to let the
+            // peer's stale copy clear it -- but then its own state disagreed with the snapshot it had
+            // folded, so it republished the full bottle and the drinker got the potion back. Bottles
+            // are now a VOLATILE leaf (NetIsVolatileLeaf): only the active game publishes them, so
+            // there is no stale echo left to guard against.
             nei->bottleSlots[i] = t;
         }
     }
     if (sh.contains("ownedItems") && sh["ownedItems"].is_array()) {
         for (int i = 0; i < 48 && i < (int)sh["ownedItems"].size(); i++) {
-            uint8_t v = (uint8_t)sh["ownedItems"][i].get<int>();
+            const int raw = sh["ownedItems"][i].get<int>();
             // 0xFF = empty; 0x00 = uninitialized slot (no custom item / MM mask is ever id 0). Both
-            // must be skipped, else a raw 0x00 translates to a spurious page-2/mask item.
-            if (v == 0xFF || v == 0x00) {
+            // must be skipped, else a raw 0x00 translates to a spurious page-2/mask item. Anything
+            // above 0xFF is an EXT (u16) id: those never travel through this u8 canonical array (the
+            // fcId registry carries them), and truncating one to a byte here used to turn the
+            // Sheikah Slate into a random bottled content. Skip it whole.
+            if (raw == 0xFF || raw == 0x00 || raw > 0xFF || raw < 0) {
                 continue;
             }
+            const uint8_t v = (uint8_t)raw;
             if (i >= 24) {
                 // Canonical mask entry -> grant MM's NATIVE mask (never store in ownedItems).
                 if (v >= FC_OOT_MM_MASK_ITEM_BASE && v < FC_OOT_MM_MASK_ITEM_BASE + FC_MM_MASK_COUNT &&
@@ -852,8 +944,16 @@ void ApplyShared(const nlohmann::json& sh) {
                         kFcMmMaskItemBySlot[v - FC_OOT_MM_MASK_ITEM_BASE];
                 }
             } else {
+                // Page-2 cells only ever hold page-2 customs (0xB6..0xCF, + the wand at 0xD0). A
+                // translation that lands anywhere else (FcEquip_OotToMm also maps page-1 items and
+                // BOTTLE CONTENTS, which is how a truncated Slate id became a bottled Poe in a cell)
+                // is garbage for this array and must not be stored.
                 uint8_t mm = FcEquip_OotToMm(v); // page-2 translate (+0x18); 0xFF if unmappable
-                if (mm != 0xFF) nei->ownedItems[i] = mm; // peer ids are u8; EXT ids never arrive here
+                const bool page2 =
+                    (mm >= FC_OOT_PAGE2_FIRST + FC_PAGE2_MM_OFFSET && mm <= FC_OOT_PAGE2_LAST + FC_PAGE2_MM_OFFSET) ||
+                    mm == ITEM_ELEMENTAL_WAND;
+                if (page2)
+                    nei->ownedItems[i] = mm; // peer ids are u8; EXT ids never arrive here
             }
         }
     }
@@ -863,20 +963,44 @@ void ApplyShared(const nlohmann::json& sh) {
     // A partial delta legitimately carries only the keys that changed, so an ABSENT key is normal and
     // is not logged — warning on it floods the log at delta rate and buries the real events.
     // Shared NEI options/flags (FleetComboOptions.h) — mirror of the extract above.
-#define FCO_APPLY(key, field, mode)                                       \
-    if (sh.contains(key) && sh[key].is_number_integer()) {                \
-        uint8_t v = (uint8_t)sh[key].get<int>();                          \
-        if (mode == FCO_MERGE_MAX) {                                      \
-            if (v > nei->field) {                                         \
-                nei->field = v;                                           \
-            }                                                             \
-        } else {                                                          \
-            nei->field = v;                                               \
-        }                                                                 \
+#define FCO_APPLY(key, field, mode)                        \
+    if (sh.contains(key) && sh[key].is_number_integer()) { \
+        uint8_t v = (uint8_t)sh[key].get<int>();           \
+        if (mode == FCO_MERGE_MAX) {                       \
+            if (v > nei->field) {                          \
+                nei->field = v;                            \
+            }                                              \
+        } else {                                           \
+            nei->field = v;                                \
+        }                                                  \
     }
     FC_COMBO_OPTION_TABLE(FCO_APPLY)
 #undef FCO_APPLY
 
+    // Wand rods / slate runes: OR the bits in, and hand the game every rod/rune it did not have yet
+    // through its own grant function (which also places the cell item and picks the active mode).
+    if (sh.contains("wandRodsOwned") && sh["wandRodsOwned"].is_number_integer()) {
+        const uint8_t incoming = (uint8_t)sh["wandRodsOwned"].get<int>();
+        const uint8_t gained = (uint8_t)(incoming & ~nei->wandRodsOwned);
+        for (uint8_t m = 0; m < 6 && gained != 0; m++) {
+            if (gained & (1 << m)) {
+                Wand_GrantMode(m);
+            }
+        }
+        nei->wandRodsOwned |= incoming;
+    }
+    if (sh.contains("slateRunesOwned") && sh["slateRunesOwned"].is_number_integer()) {
+        const uint8_t incoming = (uint8_t)sh["slateRunesOwned"].get<int>();
+        const uint8_t gained = (uint8_t)(incoming & ~nei->slateRunesOwned);
+        for (uint8_t r = 0; r < 4 && gained != 0; r++) {
+            if (gained & (1 << r)) {
+                Slate_GrantRune(r);
+            }
+        }
+        nei->slateRunesOwned |= incoming;
+    }
+
+    RepairFlagOwnedCells(nei);
     if (sh.contains("tradeAdultOwned")) {
         if (sh["tradeAdultOwned"].is_null()) {
             // unflatten() fills gaps in a sparse index set with null (see the note further down); the
@@ -885,8 +1009,8 @@ void ApplyShared(const nlohmann::json& sh) {
             SPDLOG_WARN("[FleetSync] trade: key present but NULL (own=0x{:08X})", nei->tradeAdultOwned);
         } else {
             uint32_t incoming = sh["tradeAdultOwned"].get<uint32_t>();
-            SPDLOG_INFO("[FleetSync] trade: incoming=0x{:08X} own=0x{:08X} -> 0x{:08X}", incoming,
-                        nei->tradeAdultOwned, nei->tradeAdultOwned | incoming);
+            SPDLOG_INFO("[FleetSync] trade: incoming=0x{:08X} own=0x{:08X} -> 0x{:08X}", incoming, nei->tradeAdultOwned,
+                        nei->tradeAdultOwned | incoming);
             nei->tradeAdultOwned |= incoming;
         }
     }
@@ -911,38 +1035,43 @@ void ApplyShared(const nlohmann::json& sh) {
             int tradeIndex;
             int fcId;
         } kMmTradeFc[] = {
-            { 11, FCI_MM_MOONS_TEAR },     { 12, FCI_MM_DEED_LAND },      { 13, FCI_MM_DEED_SWAMP },
-            { 14, FCI_MM_DEED_MOUNTAIN },  { 15, FCI_MM_DEED_OCEAN },     { 16, FCI_MM_ROOM_KEY },
+            { 11, FCI_MM_MOONS_TEAR },      { 12, FCI_MM_DEED_LAND },      { 13, FCI_MM_DEED_SWAMP },
+            { 14, FCI_MM_DEED_MOUNTAIN },   { 15, FCI_MM_DEED_OCEAN },     { 16, FCI_MM_ROOM_KEY },
             { 17, FCI_MM_LETTER_TO_KAFEI }, { 18, FCI_MM_LETTER_TO_MAMA },
         };
         for (const auto& e : kMmTradeFc) {
             bool ownedByWheel = (nei->tradeAdultOwned & (1u << e.tradeIndex)) != 0;
             if (ownedByWheel && e.fcId < FC_COMBO_OBTAINED_FC_SIZE && nei->comboObtainedFc[e.fcId] == 0) {
                 nei->comboObtainedFc[e.fcId] = 1; // ApplyFcRegistryToNatives grants the native item next tick
-                SPDLOG_INFO("[FleetSync] trade: healed fcId={} from wheel bit {} (native grant pending)",
-                            e.fcId, e.tradeIndex);
+                SPDLOG_INFO("[FleetSync] trade: healed fcId={} from wheel bit {} (native grant pending)", e.fcId,
+                            e.tradeIndex);
             }
         }
     }
-    if (sh.contains("ootQuestItems")) nei->ootQuestItems |= sh["ootQuestItems"].get<uint32_t>();
+    if (sh.contains("ootQuestItems"))
+        nei->ootQuestItems |= sh["ootQuestItems"].get<uint32_t>();
     if (sh.contains("gsTokens")) {
         int gs = sh["gsTokens"].get<int>();
-        if (gs > nei->ootGsCount) nei->ootGsCount = (uint16_t)gs;
+        if (gs > nei->ootGsCount)
+            nei->ootGsCount = (uint16_t)gs;
     }
     if (sh.contains("mmQuestItems")) {
         MM_INV.questItems |= (sh["mmQuestItems"].get<uint32_t>() & (uint32_t)FC_MMQ_NATIVE_MASK);
     }
-    if (sh.contains("ootMasksOwned")) nei->ootMasksOwned |= (uint16_t)sh["ootMasksOwned"].get<int>();
+    if (sh.contains("ootMasksOwned"))
+        nei->ootMasksOwned |= (uint16_t)sh["ootMasksOwned"].get<int>();
     if (sh.contains("comboObtained") && sh["comboObtained"].is_array()) {
         for (int i = 0; i < FC_COMBO_OBTAINED_SIZE && i < (int)sh["comboObtained"].size(); i++) {
             uint8_t v = (uint8_t)sh["comboObtained"][i].get<int>();
-            if (v > nei->comboObtained[i]) nei->comboObtained[i] = v;
+            if (v > nei->comboObtained[i])
+                nei->comboObtained[i] = v;
         }
     }
     if (sh.contains("comboObtainedFc") && sh["comboObtainedFc"].is_array()) {
         for (int i = 0; i < FC_COMBO_OBTAINED_FC_SIZE && i < (int)sh["comboObtainedFc"].size(); i++) {
             uint8_t v = (uint8_t)sh["comboObtainedFc"][i].get<int>();
-            if (v > nei->comboObtainedFc[i]) nei->comboObtainedFc[i] = v;
+            if (v > nei->comboObtainedFc[i])
+                nei->comboObtainedFc[i] = v;
         }
     }
     if (sh.contains("comboGoalFlags")) {
@@ -950,7 +1079,8 @@ void ApplyShared(const nlohmann::json& sh) {
     }
     if (sh.contains("comboTriforce")) {
         uint16_t tf = (uint16_t)sh["comboTriforce"].get<int>();
-        if (tf > nei->comboTriforce) nei->comboTriforce = tf;
+        if (tf > nei->comboTriforce)
+            nei->comboTriforce = tf;
     }
     ApplyRegistryToNatives();
 
@@ -961,11 +1091,21 @@ void ApplyShared(const nlohmann::json& sh) {
         if (form >= 0 && form <= 4) {
             gSaveContext.save.playerForm = (s8)form;
             switch (form) {
-                case PLAYER_FORM_FIERCE_DEITY: gSaveContext.save.equippedMask = PLAYER_MASK_FIERCE_DEITY; break;
-                case PLAYER_FORM_GORON: gSaveContext.save.equippedMask = PLAYER_MASK_GORON; break;
-                case PLAYER_FORM_ZORA: gSaveContext.save.equippedMask = PLAYER_MASK_ZORA; break;
-                case PLAYER_FORM_DEKU: gSaveContext.save.equippedMask = PLAYER_MASK_DEKU; break;
-                default: gSaveContext.save.equippedMask = PLAYER_MASK_NONE; break;
+                case PLAYER_FORM_FIERCE_DEITY:
+                    gSaveContext.save.equippedMask = PLAYER_MASK_FIERCE_DEITY;
+                    break;
+                case PLAYER_FORM_GORON:
+                    gSaveContext.save.equippedMask = PLAYER_MASK_GORON;
+                    break;
+                case PLAYER_FORM_ZORA:
+                    gSaveContext.save.equippedMask = PLAYER_MASK_ZORA;
+                    break;
+                case PLAYER_FORM_DEKU:
+                    gSaveContext.save.equippedMask = PLAYER_MASK_DEKU;
+                    break;
+                default:
+                    gSaveContext.save.equippedMask = PLAYER_MASK_NONE;
+                    break;
             }
         }
     }
@@ -974,6 +1114,24 @@ void ApplyShared(const nlohmann::json& sh) {
     // next Player_Draw calls AdultLink_ShouldHide (lazy setup), so no explicit re-init is needed here.
     if (sh.contains("adult")) {
         Nei_Save()->timeGateAdultMode = sh["adult"].get<bool>() ? 1 : 0;
+    }
+
+    // [FleetSyncAudit] one line per full-state apply: what the peer SAID and what we HAVE now for
+    // the fields people report as "not crossing". Compare this line on both sides of a hand-over.
+    if (sh.contains("vitals") && sh.contains("upgrades") && sh.contains("inv")) {
+        const auto& v = sh["vitals"];
+        const auto& u = sh["upgrades"];
+        SPDLOG_INFO("[FleetSyncAudit] in: hp={}/{} magic={} isMagic={} dbl={} rupees={} wallet={} str={} wand={:#x} "
+                    "slate={:#x} | now: hp={}/{} isMagic={} dbl={} wallet={} wand={:#x} slate={:#x} "
+                    "bottles=[{},{},{},{},{},{},{},{}]",
+                    v.value("health", -1), v.value("healthCapacity", -1), v.value("magic", -1), v.value("isMagic", -1),
+                    v.value("isDoubleMagic", -1), v.value("rupees", -1), u.value("wallet", -1), u.value("strength", -1),
+                    sh.value("wandRodsOwned", -1), sh.value("slateRunesOwned", -1), (int)MM_PD.health,
+                    (int)MM_PD.healthCapacity, (int)MM_PD.isMagicAcquired, (int)MM_PD.isDoubleMagicAcquired,
+                    (int)CUR_UPG_VALUE(UPG_WALLET), (int)nei->wandRodsOwned, (int)nei->slateRunesOwned,
+                    (int)nei->bottleSlots[0], (int)nei->bottleSlots[1], (int)nei->bottleSlots[2],
+                    (int)nei->bottleSlots[3], (int)nei->bottleSlots[4], (int)nei->bottleSlots[5],
+                    (int)nei->bottleSlots[6], (int)nei->bottleSlots[7]);
     }
 }
 
@@ -1112,9 +1270,7 @@ void RefreshSharedInTemp() {
         ExtractShared(sh); // may throw on rando/FC fields a fresh check populated (guarded so no terminate)
     } catch (const std::exception& e) {
         SPDLOG_ERROR("[FleetSync] ExtractShared threw on save: {}", e.what());
-    } catch (...) {
-        SPDLOG_ERROR("[FleetSync] ExtractShared threw a non-std exception on save");
-    }
+    } catch (...) { SPDLOG_ERROR("[FleetSync] ExtractShared threw a non-std exception on save"); }
     temp["version"] = 1;
     temp["slot"] = gSaveContext.fileNum;
     temp["shared"] = sh;
@@ -1131,7 +1287,12 @@ void SaveOwnSlotFrozen() {
     gSaveContext.save.isOwlSave = true;
     Play_SaveCycleSceneFlags(gPlayState);
     gSaveContext.save.saveInfo.playerData.savedSceneId = gPlayState->sceneId;
-    func_8014546C(&gPlayState->sramCtx);
+    // Parked in the waiting room, the file must still say where the player REALLY is: swap the
+    // real entrance/scene in for the copy into the flash buffer, then put the room back (we are
+    // still parked). No-op when not parked.
+    FleetShipCombo_LimboSaveShadowBegin();
+    func_8014546C(&gPlayState->sramCtx); // copies gSaveContext into the flash buffer
+    FleetShipCombo_LimboSaveShadowEnd();
     Sram_SetFlashPagesOwlSave(&gPlayState->sramCtx,
                               gFlashOwlSaveStartPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER],
                               gFlashOwlSaveNumPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER]);
@@ -1160,10 +1321,10 @@ void SaveOwnSlotFrozen() {
 // This block is TEXTUALLY IDENTICAL in Ship and 2ship -- both sides speak the canonical schema, so
 // neither needs to know which game it is.
 
-constexpr int kNetScanPeriod = 20;      // frames between delta scans (~3x/sec)
-constexpr int kNetVerifyPeriod = 300;   // frames between hash reports (~5s)
-constexpr int kNetResyncCooldown = 900; // min frames between full resends (~15s), anti-loop
-constexpr size_t kNetBatchBytes = 3800; // leave room for the {"op":"delta","d":{}} envelope in 4095
+constexpr int kNetScanPeriod = 20;       // frames between delta scans (~3x/sec)
+constexpr int kNetVerifyPeriod = 300;    // frames between hash reports (~5s)
+constexpr int kNetResyncCooldown = 900;  // min frames between full resends (~15s), anti-loop
+constexpr size_t kNetBatchBytes = 3800;  // leave room for the {"op":"delta","d":{}} envelope in 4095
 constexpr int kNetMaxDrainPerFrame = 64; // hard cap on packets applied per frame (anti hang: the
                                          // peer can refill the ring while we drain it)
 
@@ -1213,13 +1374,13 @@ static void NetFillNullGaps(nlohmann::json& dst, const nlohmann::json& base) {
         }
     }
 }
-nlohmann::json sNetFlat = nlohmann::json::object();   // its flattened form = what the peer has
+nlohmann::json sNetFlat = nlohmann::json::object(); // its flattened form = what the peer has
 int sNetScanTick = 0;
 int sNetVerifyTick = 0;
 int sNetResyncCooldownLeft = 0;
 int sNetMismatchStreak = 0;
 int sNetFutileResyncs = 0; // consecutive resyncs that did NOT make the hashes agree
-bool sNetPrimed = false; // first scan publishes nothing: it only establishes the baseline
+bool sNetPrimed = false;   // first scan publishes nothing: it only establishes the baseline
 
 // ---- DIAGNOSTIC: "everything turned into an Ocarina of Time" watcher ----
 // In MM, ITEM_OCARINA_OF_TIME is 0x00 -- the same value an uninitialized or zeroed byte reads as.
@@ -1330,8 +1491,35 @@ struct NetDelta {
 // game's real rupees get dragged down -- money visibly draining on its own. Unlocks stay two-way;
 // only these follow whoever is actually being played.
 bool NetIsVolatileLeaf(const std::string& key) {
-    return key.rfind("/vitals/health", 0) == 0 || key.rfind("/vitals/magic", 0) == 0 ||
-           key.rfind("/vitals/rupees", 0) == 0;
+    // Live meters AND live contents: anything the PLAYER changes by playing. The inactive game must
+    // never author these -- it can only hold a stale copy, and a stale copy echoed back is exactly
+    // how a drunk potion came back, ammo walked backwards and a heart container vanished. The active
+    // game is the single author; the inactive one takes what it is sent and keeps the peer's value
+    // as its own baseline (see NetRescan).
+    if (key.rfind("/vitals/health", 0) == 0 || key.rfind("/vitals/magic", 0) == 0 ||
+        key.rfind("/vitals/rupees", 0) == 0) {
+        return true; // health, healthCapacity, magic, rupees
+    }
+    if (key.rfind("/bottleSlots", 0) == 0) {
+        return true; // the bottle wheel: contents are consumed and caught in the active game only
+    }
+    // WHAT IS EQUIPPED/WORN is a live choice too, not an unlock: sword, shield, MM form, adult/child.
+    // These apply by OVERWRITE, so a parked game's stale copy (any full resync sends the whole
+    // snapshot) used to force the active player's equipment right back.
+    if (key.rfind("/equippedShield", 0) == 0 || key.rfind("/equippedSword", 0) == 0 || key.rfind("/form", 0) == 0 ||
+        key.rfind("/adult", 0) == 0) {
+        return true;
+    }
+    if (key.rfind("/inv/", 0) == 0) {
+        const std::string leaf = key.substr(5);
+        if (leaf.size() > 4 && leaf.compare(leaf.size() - 4, 4, "Ammo") == 0) {
+            return true; // stickAmmo, bombAmmo, bowAmmo, ... slingshotAmmo
+        }
+        if (leaf == "powderKegCount" || leaf == "bottomlessContent" || leaf == "bottomlessCount") {
+            return true;
+        }
+    }
+    return false;
 }
 
 // If `key` points inside an array, return that array's root pointer ("/ownedItems"); else "".
@@ -1519,9 +1707,7 @@ void NetSendFullStateSafe(const char* where) {
     } catch (const std::exception& e) {
         SPDLOG_ERROR("[FleetNet] full-state publish threw at {}: {} — skipped (hash validation will retry)", where,
                      e.what());
-    } catch (...) {
-        SPDLOG_ERROR("[FleetNet] full-state publish threw a non-std exception at {} — skipped", where);
-    }
+    } catch (...) { SPDLOG_ERROR("[FleetNet] full-state publish threw a non-std exception at {} — skipped", where); }
 }
 
 void NetHandlePacket(const nlohmann::json& p) {
@@ -1604,15 +1790,12 @@ void NetPump() {
         drained++;
         try {
             NetHandlePacket(nlohmann::json::parse(buf));
-        } catch (const std::exception& e) {
-            SPDLOG_ERROR("[FleetNet] bad packet dropped: {}", e.what());
-        } catch (...) {
+        } catch (const std::exception& e) { SPDLOG_ERROR("[FleetNet] bad packet dropped: {}", e.what()); } catch (...) {
             SPDLOG_ERROR("[FleetNet] packet handler threw a non-std exception — dropped");
         }
     }
     if (drained >= kNetMaxDrainPerFrame) {
-        SPDLOG_WARN("[FleetNet] drain cap hit ({} packets this frame) — the rest waits for the next frame",
-                    drained);
+        SPDLOG_WARN("[FleetNet] drain cap hit ({} packets this frame) — the rest waits for the next frame", drained);
     }
 
     // The scan reads the whole live save through ExtractShared, so it throws on exactly the kind of
@@ -1638,9 +1821,7 @@ void NetPump() {
         }
     } catch (const std::exception& e) {
         SPDLOG_ERROR("[FleetNet] scan/verify threw: {} — skipped this round", e.what());
-    } catch (...) {
-        SPDLOG_ERROR("[FleetNet] scan/verify threw a non-std exception — skipped this round");
-    }
+    } catch (...) { SPDLOG_ERROR("[FleetNet] scan/verify threw a non-std exception — skipped this round"); }
     FS_TRACE("5. pump done ({} packets drained)", drained);
 }
 
@@ -1724,9 +1905,7 @@ void ProcessSignals() {
                     ApplyShared(temp["shared"]);
                 } catch (const std::exception& e) {
                     SPDLOG_ERROR("[FleetSync] ApplyShared threw (responder): {}", e.what());
-                } catch (...) {
-                    SPDLOG_ERROR("[FleetSync] ApplyShared threw a non-std exception (responder)");
-                }
+                } catch (...) { SPDLOG_ERROR("[FleetSync] ApplyShared threw a non-std exception (responder)"); }
             }
             int slot = FleetShipCombo_GetSyncSaveSlot();
             if (slot >= 0 && slot <= 2 && gSaveContext.fileNum == slot) {
@@ -1755,16 +1934,12 @@ void RegisterFleetSync() {
             HandleOwnSave(fileNum);
         } catch (const std::exception& e) {
             SPDLOG_ERROR("[FleetSync] save handshake threw: {}", e.what());
-        } catch (...) {
-            SPDLOG_ERROR("[FleetSync] save handshake threw a non-std exception");
-        }
+        } catch (...) { SPDLOG_ERROR("[FleetSync] save handshake threw a non-std exception"); }
     });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() {
         try {
             ProcessSignals();
-        } catch (const std::exception& e) {
-            SPDLOG_ERROR("[FleetSync] signal pump threw: {}", e.what());
-        } catch (...) {
+        } catch (const std::exception& e) { SPDLOG_ERROR("[FleetSync] signal pump threw: {}", e.what()); } catch (...) {
             SPDLOG_ERROR("[FleetSync] signal pump threw a non-std exception");
         }
     });
@@ -1781,9 +1956,7 @@ void RegisterFleetSync() {
                 ApplyFcRegistryToNatives();
             } catch (const std::exception& e) {
                 SPDLOG_ERROR("[FleetSync] ApplyFcRegistryToNatives threw: {}", e.what());
-            } catch (...) {
-                SPDLOG_ERROR("[FleetSync] ApplyFcRegistryToNatives threw a non-std exception");
-            }
+            } catch (...) { SPDLOG_ERROR("[FleetSync] ApplyFcRegistryToNatives threw a non-std exception"); }
             FleetSync_PostFlipTrace("3c. ApplyFcRegistryToNatives done");
         }
     });
@@ -1798,7 +1971,6 @@ void RegisterFleetSync() {
         NetResetBaseline(nlohmann::json::object());
         SPDLOG_INFO("[FleetNet] file loaded — snapshot reset");
     });
-
 }
 
 void* sFleetHole = nullptr;
@@ -1916,9 +2088,7 @@ void FleetSync_ApplyArrival(int slot) {
                 memcpy(&gSaveContext, &restored, offsetof(SaveContext, fileNum));
                 SPDLOG_INFO("[FleetSync] MM anchor restored (slot {})", slot);
                 NetPoisonDump("arrival:after anchor memcpy");
-            } catch (...) {
-                SPDLOG_WARN("[FleetSync] MM anchor unreadable — skipped");
-            }
+            } catch (...) { SPDLOG_WARN("[FleetSync] MM anchor unreadable — skipped"); }
         } else {
             SPDLOG_WARN("[FleetSync] MM anchor is for slot {} but arriving at {} — kept the loaded save's seed",
                         anchorSlot, slot);
@@ -1944,9 +2114,7 @@ void FleetSync_ApplyArrival(int slot) {
             SPDLOG_INFO("[FleetSync] shared overlay applied (MM)");
         } catch (const std::exception& e) {
             SPDLOG_ERROR("[FleetSync] ApplyShared threw on arrival: {}", e.what());
-        } catch (...) {
-            SPDLOG_ERROR("[FleetSync] ApplyShared threw a non-std exception on arrival");
-        }
+        } catch (...) { SPDLOG_ERROR("[FleetSync] ApplyShared threw a non-std exception on arrival"); }
     }
     // Re-baseline on the state we just arrived with, then ASK the peer for its full state (Anchor's
     // request/response shape). The temp file only carries what the peer knew when it wrote the
@@ -1960,9 +2128,7 @@ void FleetSync_ApplyArrival(int slot) {
         NetSend({ { "op", "saveRequest" } });
     } catch (const std::exception& e) {
         SPDLOG_ERROR("[FleetSync] arrival re-baseline threw: {} — arrival continues", e.what());
-    } catch (...) {
-        SPDLOG_ERROR("[FleetSync] arrival re-baseline threw a non-std exception — arrival continues");
-    }
+    } catch (...) { SPDLOG_ERROR("[FleetSync] arrival re-baseline threw a non-std exception — arrival continues"); }
     // The combo has ONE pictograph, and this has to be the LAST word on it. Everything above splats
     // saved state over the live one — the anchor memcpy alone rewrites the whole persistent region,
     // pictoPhotoI5 and QUEST_PICTOGRAPH included — so an import done any earlier is simply undone,

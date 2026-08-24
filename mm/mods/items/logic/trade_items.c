@@ -25,37 +25,58 @@
 // free u8 id. They are still fully visible/cyclable — the wheel runs off the index cursor and resolves
 // art through sTradeIconPaths below, never through the id. Skijer 2026-07-29
 static const u8 sTradeAdultItems[TRADE_ADULT_COUNT] = {
-    ITEM_POCKET_EGG,    ITEM_POCKET_CUCCO,    ITEM_COJIRO,          ITEM_ODD_MUSHROOM, // 0-3  (OoT adult)
-    ITEM_ODD_POTION,    ITEM_SAW,             ITEM_SWORD_BROKEN,    ITEM_PRESCRIPTION, // 4-7  (OoT adult)
-    ITEM_FROG,          ITEM_EYEDROPS,        ITEM_CLAIM_CHECK,                        // 8-10 (OoT adult)
-    ITEM_MM_MOONS_TEAR,                                                                // 11
-    ITEM_MM_DEED_LAND,  ITEM_MM_DEED_SWAMP,   ITEM_MM_DEED_MOUNTAIN, ITEM_MM_DEED_OCEAN, // 12-15
-    ITEM_MM_ROOM_KEY,   ITEM_MM_LETTER_KAFEI, ITEM_MM_SPECIAL_DELIVERY,                // 16-18
-    ITEM_EXT_BOOTS_2,                                                                  // 19 Pendant of Memories
-    ITEM_WEIRD_EGG,     ITEM_CHICKEN,         ITEM_LETTER_ZELDA,                       // 20-22 (OoT child)
+    ITEM_POCKET_EGG,
+    ITEM_POCKET_CUCCO,
+    ITEM_COJIRO,
+    ITEM_ODD_MUSHROOM, // 0-3  (OoT adult)
+    ITEM_ODD_POTION,
+    ITEM_SAW,
+    ITEM_SWORD_BROKEN,
+    ITEM_PRESCRIPTION, // 4-7  (OoT adult)
+    ITEM_FROG,
+    ITEM_EYEDROPS,
+    ITEM_CLAIM_CHECK,   // 8-10 (OoT adult)
+    ITEM_MM_MOONS_TEAR, // 11
+    ITEM_MM_DEED_LAND,
+    ITEM_MM_DEED_SWAMP,
+    ITEM_MM_DEED_MOUNTAIN,
+    ITEM_MM_DEED_OCEAN, // 12-15
+    ITEM_MM_ROOM_KEY,
+    ITEM_MM_LETTER_KAFEI,
+    ITEM_MM_SPECIAL_DELIVERY, // 16-18
+    ITEM_EXT_BOOTS_2,         // 19 Pendant of Memories
+    ITEM_WEIRD_EGG,
+    ITEM_CHICKEN,
+    ITEM_LETTER_ZELDA, // 20-22 (OoT child)
 };
 
 // Per-index icon art. The OoT entries come from the companion oot.o2r through the OoT asset loader
 // (OotAssets_LoadTexOrDList); the MM entries are NULL and fall back to MM's own gItemIcons via the
 // item id, which those DO have. Indexed exactly like sTradeAdultItems. Skijer 2026-07-29
 static const char* sTradeIconPaths[TRADE_ADULT_COUNT] = {
-    "__OTR__textures/icon_item_static/gItemIconPocketEggTex",          // 0
-    "__OTR__textures/icon_item_static/gItemIconPocketCuccoTex",        // 1
-    "__OTR__textures/icon_item_static/gItemIconCojiroTex",             // 2
-    "__OTR__textures/icon_item_static/gItemIconOddMushroomTex",        // 3
-    "__OTR__textures/icon_item_static/gItemIconOddPotionTex",          // 4
-    "__OTR__textures/icon_item_static/gItemIconPoachersSawTex",        // 5
-    "__OTR__textures/icon_item_static/gItemIconBrokenGoronsSwordTex",  // 6
-    "__OTR__textures/icon_item_static/gItemIconPrescriptionTex",       // 7
-    "__OTR__textures/icon_item_static/gItemIconEyeballFrogTex",        // 8
-    "__OTR__textures/icon_item_static/gItemIconEyeDropsTex",           // 9
-    "__OTR__textures/icon_item_static/gItemIconClaimCheckTex",         // 10
-    NULL, NULL, NULL, NULL, NULL,                                      // 11-15 MM native
-    NULL, NULL, NULL,                                                  // 16-18 MM native
-    NULL,                                                              // 19 Pendant (ext-equip art)
-    "__OTR__textures/icon_item_static/gItemIconWeirdEggTex",           // 20
-    "__OTR__textures/icon_item_static/gItemIconChickenTex",            // 21
-    "__OTR__textures/icon_item_static/gItemIconZeldasLetterTex",       // 22
+    "__OTR__textures/icon_item_static/gItemIconPocketEggTex",         // 0
+    "__OTR__textures/icon_item_static/gItemIconPocketCuccoTex",       // 1
+    "__OTR__textures/icon_item_static/gItemIconCojiroTex",            // 2
+    "__OTR__textures/icon_item_static/gItemIconOddMushroomTex",       // 3
+    "__OTR__textures/icon_item_static/gItemIconOddPotionTex",         // 4
+    "__OTR__textures/icon_item_static/gItemIconPoachersSawTex",       // 5
+    "__OTR__textures/icon_item_static/gItemIconBrokenGoronsSwordTex", // 6
+    "__OTR__textures/icon_item_static/gItemIconPrescriptionTex",      // 7
+    "__OTR__textures/icon_item_static/gItemIconEyeballFrogTex",       // 8
+    "__OTR__textures/icon_item_static/gItemIconEyeDropsTex",          // 9
+    "__OTR__textures/icon_item_static/gItemIconClaimCheckTex",        // 10
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL, // 11-15 MM native
+    NULL,
+    NULL,
+    NULL,                                                        // 16-18 MM native
+    NULL,                                                        // 19 Pendant (ext-equip art)
+    "__OTR__textures/icon_item_static/gItemIconWeirdEggTex",     // 20
+    "__OTR__textures/icon_item_static/gItemIconChickenTex",      // 21
+    "__OTR__textures/icon_item_static/gItemIconZeldasLetterTex", // 22
 };
 
 // Per-index name texture, same deal as the icons (item_name_static from the companion oot.o2r).
@@ -73,12 +94,18 @@ static const char* sTradeNamePaths[TRADE_ADULT_COUNT] = {
     "__OTR__textures/item_name_static/gEyeBallFrogItemNameENGTex",       // 8
     "__OTR__textures/item_name_static/gEyeDropsItemNameENGTex",          // 9
     "__OTR__textures/item_name_static/gClaimCheckItemNameENGTex",        // 10
-    NULL, NULL, NULL, NULL, NULL,                                        // 11-15 MM native
-    NULL, NULL, NULL,                                                    // 16-18 MM native
-    NULL,                                                                // 19 Pendant
-    "__OTR__textures/item_name_static/gWeirdEggItemNameENGTex",          // 20
-    "__OTR__textures/item_name_static/gCuccoItemNameENGTex",             // 21
-    "__OTR__textures/item_name_static/gZeldasLetterItemNameENGTex",      // 22
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL, // 11-15 MM native
+    NULL,
+    NULL,
+    NULL,                                                           // 16-18 MM native
+    NULL,                                                           // 19 Pendant
+    "__OTR__textures/item_name_static/gWeirdEggItemNameENGTex",     // 20
+    "__OTR__textures/item_name_static/gCuccoItemNameENGTex",        // 21
+    "__OTR__textures/item_name_static/gZeldasLetterItemNameENGTex", // 22
 };
 
 // OoT icon path for a trade index, or NULL when the entry uses MM's own art (or oot.o2r is absent).

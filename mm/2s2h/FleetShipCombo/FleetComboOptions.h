@@ -31,9 +31,18 @@
 #define FCO_MERGE_MAX 0
 #define FCO_MERGE_NEWEST 1
 
+// A page-2 cell that holds two items behind a wheel cannot encode "both owned", so ownership is a
+// flag; without these entries the Shovel/Dominion wheel never crossed. FleetSync seeds the shared
+// cell after this table is applied.
+//
+// clang-format off
 // X(jsonKey, neiField, mergeMode)
-#define FC_COMBO_OPTION_TABLE(X)                            \
-    /* Quartz of Motion — nivel 2 del Stone of Agony progresivo. */ \
-    X("quartzOwned", quartzOwned, FCO_MERGE_MAX)            \
-    X("quartzCategory", quartzCategory, FCO_MERGE_NEWEST)   \
-    X("quartzSubcat", quartzSubcat, FCO_MERGE_NEWEST)
+#define FC_COMBO_OPTION_TABLE(X)                                  \
+    X("quartzOwned",     quartzOwned,     FCO_MERGE_MAX)          \
+    X("quartzCategory",  quartzCategory,  FCO_MERGE_NEWEST)       \
+    X("quartzSubcat",    quartzSubcat,    FCO_MERGE_NEWEST)       \
+    X("shovelOwned",     shovelOwned,     FCO_MERGE_MAX)          \
+    X("dominionOwned",   dominionOwned,   FCO_MERGE_MAX)          \
+    X("pokeballOwned",   pokeballOwned,   FCO_MERGE_MAX)          \
+    X("bombArrowsOwned", bombArrowsOwned, FCO_MERGE_MAX)
+// clang-format on

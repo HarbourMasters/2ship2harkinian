@@ -33,7 +33,7 @@
  */
 
 #include "global.h"
-#include "mods/extended_inventory.h"      // Slate_GetRune / SLATE_RUNE_*
+#include "mods/extended_inventory.h"         // Slate_GetRune / SLATE_RUNE_*
 #include "mods/items/helpers/equip_helper.h" // equip SFX + the shared blocking checks
 // box_menu.c is unity-included just before this file in custom_items.c, so its BoxMenu_*
 // declarations are already in scope — it has no header (see the note at its top).
@@ -164,6 +164,10 @@ static u16 Slate_EquippedButtonMask(void) {
 // The box-menu confirm: the highlighted rune becomes the active one.
 static void Slate_OnWheelConfirm(s32 index) {
     Slate_SetRune((u8)index); // no-op if that rune is not owned
+    if (gPlayState != NULL) {
+        // HUD icon pointers are cached per button; the marker item never changes, so reload by hand.
+        ExtInv_RefreshButtonIconsForItem(gPlayState, EXT_ITEM_SHEIKAH_SLATE);
+    }
 }
 
 // Fills the row with ALL runes — locked ones included, drawn grayed and unselectable, so the wheel

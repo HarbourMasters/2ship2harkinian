@@ -68,6 +68,12 @@ extern void ExtEquip_DrawSwordDL(void* play);
 extern const char* ExtEquip_GetShieldDLOverride(void);
 extern void ExtEquip_DrawShieldDL(void* play);
 extern void ExtEquip_DrawShieldBackDL(void* play);
+// Kite Shield shield surfing: the board under his feet (ROOT limb) — this file declares the
+// ext-equipment entry points locally rather than including the header, so this one follows suit.
+extern void ExtEquip_DrawKiteSurfBoard(void* play);
+extern u8 ExtEquip_TridentTrailBegin(void);
+extern f32 ExtEquip_TridentTrailLength(void);
+extern u8 Trident_GoldenArmor(void);
 // Skijer's NEI: Boss Remains (Odolwa) — while the Odolwa remains is worn, hide Link's native
 // sword/shield (open/closed fist) and draw Odolwa's own DLs in their place (PostLimbDraw).
 extern s32 BossRemains_IsOdolwaWorn(void);
@@ -2253,6 +2259,9 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
         lod = 0;
     }
     sPlayerLod = lod;
+    if ((playerForm == PLAYER_FORM_HUMAN) && Trident_GoldenArmor()) {
+        gDPSetEnvColor(POLY_OPA_DISP++, 255, 205, 40, 0);
+    }
     SkelAnime_DrawFlexLod(play, skeleton, jointTable, dListCount, overrideLimbDraw, postLimbDraw, actor, lod);
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -2577,6 +2586,15 @@ s32 Player_OverrideLimbDrawGameplayCommon(PlayState* play, s32 limbIndex, Gfx** 
     s32 pad;
     Player* player = (Player*)thisx;
 
+    // Kite Shield: the riding stance (crouch, torso/hip rotation, live carve lean) while shield
+    // surfing. Self-guards on the surf being active. Declared locally rather than in
+    // extended_equipment.h for the same reason as the BossRemains hooks: it takes a Vec3s*, and
+    // that header is reached by translation units that have not seen z64math.h. Skijer's NEI
+    {
+        extern void KiteSurf_AdjustLimb(s32 limbIndex, Vec3s * rot);
+        KiteSurf_AdjustLimb(limbIndex, rot);
+    }
+
     if (limbIndex == PLAYER_LIMB_ROOT) {
         sPlayerLeftHandType = player->leftHandType;
         sPlayerRightHandType = player->rightHandType;
@@ -2820,8 +2838,7 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
                     extern Gfx* ResourceMgr_LoadGfxByName(const char* path);
                     extern void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index,
                                                            Gfx instruction);
-                    const char* nearPath =
-                        "__OTR__objects/object_link_boy/gLinkAdultLeftHandHoldingMasterSwordNearDL";
+                    const char* nearPath = "__OTR__objects/object_link_boy/gLinkAdultLeftHandHoldingMasterSwordNearDL";
 
                     sMasterDLsTried = 1;
                     if (ResourceMgr_FileExists(nearPath)) {
@@ -2901,8 +2918,7 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
                         extern Gfx* ResourceMgr_LoadGfxByName(const char* path);
                         extern void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index,
                                                                Gfx instruction);
-                        const char* nearPath =
-                            "__OTR__objects/object_link_boy/gLinkAdultLeftHandHoldingHammerNearDL";
+                        const char* nearPath = "__OTR__objects/object_link_boy/gLinkAdultLeftHandHoldingHammerNearDL";
 
                         sHammerDLsTried = 1;
                         if (ResourceMgr_FileExists(nearPath)) {
@@ -2947,6 +2963,29 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
                         func_80125CE0(player, phi_a1 ? D_801C0538 : D_801C0560, pos, rot);
                     }
                 }
+            }
+
+            // ⚠️ ESTE OCULTADO VA EL ÚLTIMO DE TODO EL LIMB, Y ESO ES EL ARREGLO.
+            //
+            // Un arma ext (Cane of Byrna, Trident) dibuja su PROPIO modelo sobre este mismo
+            // hueso en Player_PostLimbDrawGameplay, así que la hoja vanilla tiene que
+            // desaparecer o se ven las dos a la vez.
+            //
+            // Estaba puesto arriba, justo tras `*dList = leftHandDLists[sPlayerLod]`, y NO
+            // servía de nada: por debajo hay TRES bloques NEI que reescriben *dList sin
+            // condiciones según el arma que lleves — Master/Gilded, Biggoron y martillo. Con la
+            // Gilded equipada, su bloque volvía a meter la hoja en la mano y el arma ext
+            // simplemente no se veía. Es el mismo fallo que en OoT se llamó "la Gilded Sword
+            // sigue ahí", con la misma espada; allí también hizo falta un segundo ocultado
+            // posterior, y el que carga es el de después.
+            //
+            // Mano abierta, igual que el lado OoT (soh z_player_lib.c:1745-1751). La guarda de
+            // tipo evita pisar una mano que ya se resolvió lisa (no hay hoja que esconder).
+            if (ExtEquip_ShouldHideSwordDL() && (player->transformation == PLAYER_FORM_HUMAN) &&
+                (sPlayerLeftHandType != PLAYER_MODELTYPE_LH_OPEN) &&
+                (sPlayerLeftHandType != PLAYER_MODELTYPE_LH_CLOSED)) {
+                *dList = gPlayerLeftHandOpenDLs[D_801F59E0 + sPlayerLod];
+                sPlayerLeftHandType = PLAYER_MODELTYPE_LH_OPEN;
             }
         } else if (limbIndex == PLAYER_LIMB_RIGHT_HAND) {
             if ((player->transformation == PLAYER_FORM_ZORA) &&
@@ -3010,8 +3049,7 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
                         extern Gfx* ResourceMgr_LoadGfxByName(const char* path);
                         const char* nearPath =
                             "__OTR__objects/object_link_child/gLinkChildRightFistAndDekuShieldNearDL";
-                        const char* farPath =
-                            "__OTR__objects/object_link_child/gLinkChildRightFistAndDekuShieldFarDL";
+                        const char* farPath = "__OTR__objects/object_link_child/gLinkChildRightFistAndDekuShieldFarDL";
 
                         sDekuHandTried = 1;
                         if (ResourceMgr_FileExists(nearPath)) {
@@ -3217,8 +3255,7 @@ s32 Player_OverrideLimbDrawGameplayFirstPerson(PlayState* play, s32 limbIndex, G
 
                 // Skijer's NEI: OoT slingshot first-person arm — the stretched right arm holding
                 // the slingshot (OoT sFirstPersonRightHandHoldingWeaponDLs[1], companion asset).
-                if ((player->heldItemAction == PLAYER_IA_SLINGSHOT) &&
-                    (player->transformation == PLAYER_FORM_HUMAN)) {
+                if ((player->heldItemAction == PLAYER_IA_SLINGSHOT) && (player->transformation == PLAYER_FORM_HUMAN)) {
                     static Gfx* sSlingshotFirstPersonDL = NULL;
                     static u8 sSlingshotFirstPersonTried = 0;
 
@@ -4301,7 +4338,7 @@ static Gfx* PlayerLib_GetOotBoomerangDL(void) {
 // side. `isLeft` selects the left (true) vs right (false) DL; returns NULL when Kokiri boots are
 // equipped or oot.o2r is absent (feet just show bare). Mirrors OoT's sBootDListGroups append.
 static Gfx* PlayerLib_GetBootDL(s32 isLeft) {
-    static Gfx* sIronBootDLs[2] = { NULL, NULL };  // [0] = right, [1] = left
+    static Gfx* sIronBootDLs[2] = { NULL, NULL }; // [0] = right, [1] = left
     static Gfx* sHoverBootDLs[2] = { NULL, NULL };
     extern u8 VanillaTB_IsIronBoots(void);
     extern u8 VanillaTB_IsHoverBoots(void);
@@ -4330,6 +4367,14 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
 
     if (*dList2 != NULL) {
         Matrix_MultZero(sPlayerCurBodyPartPos);
+    }
+
+    // Kite Shield: the board under Link's feet while shield surfing. The ROOT limb matrix is his
+    // body root, which is what the board is placed against, and it means the board comes round with
+    // him when a spin attack turns the whole skeleton. Self-guards on the surf being active, and
+    // hides the hand/back shield for as long as it draws. Skijer's NEI
+    if (limbIndex == PLAYER_LIMB_ROOT) {
+        ExtEquip_DrawKiteSurfBoard(play);
     }
 
     // Skijer's NEI: draw the equipped OoT Iron/Hover boot on each foot. The foot limb matrix is live
@@ -4392,8 +4437,22 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
         // so the limb matrix is protected with a push/pop.
         // Iron Knuckle's Axe upgrade only: draw gIKAxeInlineDL in the fist (base hammer uses the
         // combined hand+hammer DL from the limb override above). Self-guards + own offset/scale.
-        if ((*dList1 != NULL) && WeaponUpgrade_HasHammerAxe() && (player->heldItemAction == PLAYER_IA_HAMMER) &&
-            (player->transformation == PLAYER_FORM_HUMAN)) {
+        // ⚠️ ESTE GATE ESTABA SÓLO EN EL MARTILLO, y por eso NINGÚN modelo de arma ext se
+        // dibujaba nunca en MM. ExtEquip_DrawSwordDL lleva dentro las ramas del Cane of Byrna
+        // (currentExtSword == 1) y del Trident (== 3), pero al ser este su ÚNICO call site y
+        // exigir el hacha, las dos eran código muerto: equipabas el arma y seguías viendo la
+        // espada vanilla. No faltaba el dibujo de un arma concreta — faltaba el sitio desde el
+        // que se llama a todas.
+        //
+        // ExtEquip_ShouldHideSwordDL es la misma condición con la que se acaba de ocultar la
+        // hoja arriba, así que ocultar y dibujar quedan atados: nunca puede pasar que se quite
+        // la espada y no aparezca nada. La rama del hacha se mantiene tal cual porque su guarda
+        // interna (ikAxeDrawing) no es la misma que heldItemAction. Todas las ramas de la
+        // función se auto-guardan, así que este gate sólo tiene que ser lo bastante permisivo.
+        // Skijer's NEI
+        if ((*dList1 != NULL) && (player->transformation == PLAYER_FORM_HUMAN) &&
+            (ExtEquip_ShouldHideSwordDL() ||
+             (WeaponUpgrade_HasHammerAxe() && (player->heldItemAction == PLAYER_IA_HAMMER)))) {
             Matrix_Push();
             ExtEquip_DrawSwordDL(play);
             Matrix_Pop();
@@ -4408,10 +4467,9 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
         // Skijer's NEI Net (Bottle Randomizer): draw the net DL on the hand bone (full wrist roll,
         // baked in-hand transform) and run the catch while the sword swing is active. No damage —
         // the vanilla weapon-info registration below is skipped for the Net. Mirrors SoH.
-        if ((*dList1 != NULL) && (player->heldItemId == ITEM_NET) &&
-            (player->transformation == PLAYER_FORM_HUMAN)) {
-            extern void CustomItems_DrawNet(Player* p, PlayState* pl);
-            extern void Net_CaptureAtBlade(PlayState* pl, Player* p);
+        if ((*dList1 != NULL) && (player->heldItemId == ITEM_NET) && (player->transformation == PLAYER_FORM_HUMAN)) {
+            extern void CustomItems_DrawNet(Player * p, PlayState * pl);
+            extern void Net_CaptureAtBlade(PlayState * pl, Player * p);
             extern void Net_ResetSwingCatch(void);
 
             Matrix_Push();
@@ -4467,12 +4525,18 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
                     2500.0f, // PLAYER_MELEEWEAPON_ZORA_BOOMERANG
                 };
 
-                if ((player->transformation == PLAYER_FORM_FIERCE_DEITY) ||
-                    ((player->transformation != PLAYER_FORM_ZORA) &&
-                     ((player->itemAction == PLAYER_IA_DEKU_STICK) ||
-                      ((player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0) &&
-                       (player->meleeWeaponAnimation != PLAYER_MWA_GORON_PUNCH_RIGHT) &&
-                       (player->meleeWeaponAnimation != PLAYER_MWA_GORON_PUNCH_BUTT))))) {
+                if (ExtEquip_TridentTrailBegin()) {
+                    D_801C0994->x = ExtEquip_TridentTrailLength();
+                    if (player->heldItemId != ITEM_NET) {
+                        func_80126B8C(play, player);
+                    }
+                    Matrix_Pop();
+                } else if ((player->transformation == PLAYER_FORM_FIERCE_DEITY) ||
+                           ((player->transformation != PLAYER_FORM_ZORA) &&
+                            ((player->itemAction == PLAYER_IA_DEKU_STICK) ||
+                             ((player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0) &&
+                              (player->meleeWeaponAnimation != PLAYER_MWA_GORON_PUNCH_RIGHT) &&
+                              (player->meleeWeaponAnimation != PLAYER_MWA_GORON_PUNCH_BUTT))))) {
                     if (player->itemAction == PLAYER_IA_DEKU_STICK) {
                         D_801C0994->x = player->unk_B0C * 5000.0f;
                     } else {
@@ -4975,9 +5039,9 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
                 }
 
                 OPEN_DISPS(play->state.gfxCtx);
-                gSPDisplayList(POLY_OPA_DISP++,
-                               (sDekuBackDL != NULL) ? sDekuBackDL
-                                                     : gPlayerShields[2 * ((player->currentShield - 1) ^ 0)]);
+                gSPDisplayList(POLY_OPA_DISP++, (sDekuBackDL != NULL)
+                                                    ? sDekuBackDL
+                                                    : gPlayerShields[2 * ((player->currentShield - 1) ^ 0)]);
                 CLOSE_DISPS(play->state.gfxCtx);
             } else if (ExtEquip_IsOotMirrorSkinActive()) {
                 // OoT Mirror on back: OoT has NO shield-only mirror DL — only the AndSheath combined
@@ -5013,8 +5077,8 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
 
                         if (sheathIdx >= 0) {
                             Gfx noOpInstr = gsDPPipeSync();
-                            lusprintf(__FILE__, __LINE__, 2,
-                                      "NEI OoT-mirror back: no-op'ing sheath sub-DL at instr %d", sheathIdx);
+                            lusprintf(__FILE__, __LINE__, 2, "NEI OoT-mirror back: no-op'ing sheath sub-DL at instr %d",
+                                      sheathIdx);
                             ResourceMgr_PatchGfxByName(path, "neiOotMirrorBackNoSheath", sheathIdx, noOpInstr);
                             sOotMirrorBackDL = ResourceMgr_LoadGfxByName(path);
                         }
@@ -5022,9 +5086,9 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
                 }
 
                 OPEN_DISPS(play->state.gfxCtx);
-                gSPDisplayList(POLY_OPA_DISP++,
-                               (sOotMirrorBackDL != NULL) ? sOotMirrorBackDL
-                                                          : gPlayerShields[2 * ((player->currentShield - 1) ^ 0)]);
+                gSPDisplayList(POLY_OPA_DISP++, (sOotMirrorBackDL != NULL)
+                                                    ? sOotMirrorBackDL
+                                                    : gPlayerShields[2 * ((player->currentShield - 1) ^ 0)]);
                 CLOSE_DISPS(play->state.gfxCtx);
             } else if (ExtEquip_GetShieldDLOverride() != NULL) {
                 ExtEquip_DrawShieldBackDL(play);

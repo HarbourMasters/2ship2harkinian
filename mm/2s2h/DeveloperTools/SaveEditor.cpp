@@ -33,6 +33,31 @@ void* ExtInv_GetItemIcon(unsigned short itemId);
 // so both editors drive the identical tradeAdultOwned bitmask. Skijer 2026-07-30
 unsigned char TradeAdult_IsOwnedIndex(int index);
 void TradeAdult_SetOwnedIndex(int index, unsigned char on);
+s32 TradeAdult_Count(void);
+void TradeAdult_GiveIndex(s32 index);
+// NEI save-state plumbing the Skijer's NEI menu used to expose (weapon_upgrades.c,
+// twilight_upgrade.c, power_keg.c).
+uint8_t WeaponUpgrade_HasHammerAxe(void);
+uint8_t WeaponUpgrade_HasRazor(void);
+uint8_t WeaponUpgrade_HasGilded(void);
+uint8_t WeaponUpgrade_HasTrueMaster(void);
+uint8_t WeaponUpgrade_HasGreatFairy(void);
+void WeaponUpgrade_SetHammerAxe(uint8_t on);
+void WeaponUpgrade_SetRazor(uint8_t on);
+void WeaponUpgrade_SetGilded(uint8_t on);
+void WeaponUpgrade_SetTrueMaster(uint8_t on);
+void WeaponUpgrade_SetGreatFairy(uint8_t on);
+void WeaponUpgrade_GrantAll(void);
+uint8_t TwilightUpgrade_HasClawshot(void);
+uint8_t TwilightUpgrade_HasBombArrows(void);
+uint8_t TwilightUpgrade_HasGaleBoomerang(void);
+void TwilightUpgrade_SetClawshot(uint8_t on);
+void TwilightUpgrade_SetBombArrows(uint8_t on);
+void TwilightUpgrade_SetGaleBoomerang(uint8_t on);
+void TwilightUpgrade_Grant(void);
+uint8_t PowerKeg_IsOwned(void);
+void PowerKeg_SetOwned(uint8_t on);
+void PowerKeg_SetCount(uint8_t n);
 // OoT child-trade mask wheel (extended_inventory.c). Declared here because this file does NOT include
 // extended_inventory.h — the only mention of it is a comment. Skijer 2026-07-30
 unsigned char OotMask_IsOwnedIndex(int index);
@@ -796,12 +821,11 @@ void DrawSlot(InventorySlot slot) {
     }
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
 
-    ImTextureID textureId = Ship_GetFast3dGui()->GetTextureByName(
-        SaveEditor_ItemIconPath(safeItemsForInventorySlot[slot][0]));
+    ImTextureID textureId =
+        Ship_GetFast3dGui()->GetTextureByName(SaveEditor_ItemIconPath(safeItemsForInventorySlot[slot][0]));
 
     if (currentItemId != ITEM_NONE) {
-        textureId = Ship_GetFast3dGui()->GetTextureByName(
-            SaveEditor_ItemIconPath(currentItemId));
+        textureId = Ship_GetFast3dGui()->GetTextureByName(SaveEditor_ItemIconPath(currentItemId));
     }
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
@@ -841,10 +865,9 @@ void DrawSlot(InventorySlot slot) {
             ItemId id = safeMode ? safeItemsForInventorySlot[selectedInventorySlot][pickerIndex]
                                  : static_cast<ItemId>(pickerIndex);
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-            bool buttonPressed = ImGui::ImageButton(
-                SaveEditor_ItemIconPath(id),
-                Ship_GetFast3dGui()->GetTextureByName(SaveEditor_ItemIconPath(id)),
-                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE));
+            bool buttonPressed = ImGui::ImageButton(SaveEditor_ItemIconPath(id),
+                                                    Ship_GetFast3dGui()->GetTextureByName(SaveEditor_ItemIconPath(id)),
+                                                    ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE));
             ImGui::PopStyleVar();
             if (buttonPressed) {
                 gSaveContext.save.saveInfo.inventory.items[selectedInventorySlot] = id;
@@ -1203,8 +1226,7 @@ void DrawQuestSlot(QuestItem slot) {
     ImGui::SetCursorPos(
         ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING));
 
-    ImTextureID textureId = Ship_GetFast3dGui()->GetTextureByName(
-        (const char*)gItemIcons[questToItemMap[slot]]);
+    ImTextureID textureId = Ship_GetFast3dGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[slot]]);
     if (ImGui::ImageButton(std::to_string(slot).c_str(), textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE),
                            ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                            ImVec4(1, 1, 1, CHECK_QUEST_ITEM(slot) ? 1.0f : 0.4f))) {
@@ -1216,11 +1238,11 @@ void DrawQuestSlot(QuestItem slot) {
 
 ImVec2 DrawSong(QuestItem slot) {
     SongInfo(slot);
-    if (ImGui::ImageButton(std::to_string(slot).c_str(),
-                           Ship_GetFast3dGui()->GetTextureByName(
-                               (const char*)gItemIcons[questToItemMap[(QuestItem)slot]]),
-                           ImVec2(INV_GRID_ICON_SIZE / 1.5f, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1),
-                           ImVec4(0, 0, 0, 0), colorTint)) {
+    if (ImGui::ImageButton(
+            std::to_string(slot).c_str(),
+            Ship_GetFast3dGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[(QuestItem)slot]]),
+            ImVec2(INV_GRID_ICON_SIZE / 1.5f, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+            colorTint)) {
         NextQuestInSlot(slot);
     }
     ImVec2 itemSize = ImGui::GetItemRectSize();
@@ -1299,8 +1321,7 @@ void DrawQuestStatusTab() {
     drawSongRange(QUEST_SONG_SONATA, QUEST_SONG_SARIA);
     ImGui::SeparatorText("Equipment");
     if (GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY) {
-        ImTextureID swordTextureId = Ship_GetFast3dGui()->GetTextureByName(
-            (const char*)gItemIcons[ITEM_SWORD_DEITY]);
+        ImTextureID swordTextureId = Ship_GetFast3dGui()->GetTextureByName((const char*)gItemIcons[ITEM_SWORD_DEITY]);
         ImGui::ImageButton(std::to_string(ITEM_SWORD_DEITY).c_str(), swordTextureId,
                            ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1),
                            ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
@@ -1332,8 +1353,7 @@ void DrawQuestStatusTab() {
         NextQuestInSlot(QUEST_SHIELD);
     }
     ImGui::SameLine();
-    ImTextureID textureId = Ship_GetFast3dGui()->GetTextureByName(
-        (const char*)gItemIcons[ITEM_BOMBERS_NOTEBOOK]);
+    ImTextureID textureId = Ship_GetFast3dGui()->GetTextureByName((const char*)gItemIcons[ITEM_BOMBERS_NOTEBOOK]);
     if (ImGui::ImageButton(std::to_string(ITEM_BOMBERS_NOTEBOOK).c_str(), textureId,
                            ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1),
                            ImVec4(0, 0, 0, 0),
@@ -1409,42 +1429,35 @@ void DrawDungeonItemTab() {
                           ImGuiChildFlags_Border);
         ImGui::Text("%s", dungeonNames[i]);
         if (ImGui::ImageButton(
-                stray_id.c_str(),
-                Ship_GetFast3dGui()->GetTextureByName(fairyIcons[dungeonId]),
+                stray_id.c_str(), Ship_GetFast3dGui()->GetTextureByName(fairyIcons[dungeonId]),
                 ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                 ImVec4(1, 1, 1, gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] ? 1.0f : 0.4f))) {
             ImGui::OpenPopup("strayFairies");
         }
         ImGui::SameLine();
-        if (ImGui::ImageButton(
-                map_id.c_str(),
-                Ship_GetFast3dGui()->GetTextureByName(gQuestIconDungeonMapTex),
-                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_MAP, i) ? 1.0f : 0.4f))) {
+        if (ImGui::ImageButton(map_id.c_str(), Ship_GetFast3dGui()->GetTextureByName(gQuestIconDungeonMapTex),
+                               ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1),
+                               ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_MAP, i) ? 1.0f : 0.4f))) {
             SetDungeonItems(DUNGEON_MAP, i);
         }
         ImGui::SameLine();
-        if (ImGui::ImageButton(
-                comp_id.c_str(),
-                Ship_GetFast3dGui()->GetTextureByName(gQuestIconCompassTex),
-                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, i) ? 1.0f : 0.4f))) {
+        if (ImGui::ImageButton(comp_id.c_str(), Ship_GetFast3dGui()->GetTextureByName(gQuestIconCompassTex),
+                               ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1),
+                               ImVec4(0, 0, 0, 0),
+                               ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, i) ? 1.0f : 0.4f))) {
             SetDungeonItems(DUNGEON_COMPASS, i);
         }
         ImGui::SameLine();
-        if (ImGui::ImageButton(
-                sKey_id.c_str(),
-                Ship_GetFast3dGui()->GetTextureByName(gQuestIconSmallKeyTex),
-                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                ImVec4(1, 1, 1, DUNGEON_KEY_COUNT(i) + 1 ? 1.0f : 0.4f))) {
+        if (ImGui::ImageButton(sKey_id.c_str(), Ship_GetFast3dGui()->GetTextureByName(gQuestIconSmallKeyTex),
+                               ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1),
+                               ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, DUNGEON_KEY_COUNT(i) + 1 ? 1.0f : 0.4f))) {
             ImGui::OpenPopup("smallKeys");
         }
         ImGui::SameLine();
-        if (ImGui::ImageButton(
-                bKey_id.c_str(),
-                Ship_GetFast3dGui()->GetTextureByName(gQuestIconBossKeyTex),
-                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, i) ? 1.0f : 0.4f))) {
+        if (ImGui::ImageButton(bKey_id.c_str(), Ship_GetFast3dGui()->GetTextureByName(gQuestIconBossKeyTex),
+                               ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1),
+                               ImVec4(0, 0, 0, 0),
+                               ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, i) ? 1.0f : 0.4f))) {
             SetDungeonItems(DUNGEON_BOSS_KEY, i);
         }
         if (ImGui::BeginPopup("strayFairies")) {
@@ -1635,7 +1648,8 @@ void DrawPlayerTab() {
         ImGui::Text("Link's Current Equipment");
         if (GET_PLAYER_FORM == PLAYER_FORM_HUMAN) {
             static const char* weaponCombo[] = { "Kokiri Sword", "Razor Sword", "Gilded Sword" };
-            static const char* shieldCombo[] = { "Hero's Shield", "Shield of Ikana" }; // display rename (item = ITEM_SHIELD_MIRROR)
+            static const char* shieldCombo[] = { "Hero's Shield",
+                                                 "Shield of Ikana" }; // display rename (item = ITEM_SHIELD_MIRROR)
             static int currentWeapon = 0;
             static int currentShield = 0;
 
@@ -2439,7 +2453,7 @@ void DrawRandoTab() {
 #include "mods/items/custom_bottles.h" // Bottle Randomizer editor (bottleSlots grid + Net/Bottomless)
 extern "C" {
 void ExtInv_DebugGiveAll(void);
-uint16_t Nei_GetOwnedItem(uint8_t slot); // u16 store (NeiSaveData.ownedItems)
+uint16_t Nei_GetOwnedItem(uint8_t slot);         // u16 store (NeiSaveData.ownedItems)
 void Nei_SetOwnedItem(uint8_t slot, uint16_t v); // u16 store (NeiSaveData.ownedItems)
 void ExtEquip_GiveItem(int16_t equipType, uint8_t index);
 uint8_t ExtEquip_HasItem(int16_t equipType, uint8_t index);
@@ -2451,14 +2465,13 @@ uint8_t Cane_GiveSkill(uint8_t skill);
 
 // Dual Cane skill rows for the editor. Index == CANE_SKILL_* bit index.
 static const char* kCaneSkillNames[6] = {
-    "Somaria: Statues", "Somaria: Blocks", "Somaria: Trirod",
-    "Pacci: Flip", "Pacci: Lift", "Pacci: Ultrahand",
+    "Somaria: Statues", "Somaria: Blocks", "Somaria: Trirod", "Pacci: Flip", "Pacci: Lift", "Pacci: Ultrahand",
 };
 #define SAVEEDIT_SLOT_CANE_OF_SOMARIA 45 // mods/extended_inventory.h SLOT_CANE_OF_SOMARIA
 // Elemental Wand — six rods in ONE page-2 cell (the one Bomb Arrows vacated). Mirrored here for the
 // same reason as the cane above: this file does not include extended_inventory.h / z64item.h's
 // custom block. Skijer's NEI
-#define SAVEEDIT_SLOT_ELEMENTAL_WAND 27  // mods/extended_inventory.h SLOT_ELEMENTAL_WAND
+#define SAVEEDIT_SLOT_ELEMENTAL_WAND 27   // mods/extended_inventory.h SLOT_ELEMENTAL_WAND
 #define SAVEEDIT_ITEM_ELEMENTAL_WAND 0xD0 // include/z64item.h ITEM_ELEMENTAL_WAND
 
 static void DrawDualCaneEditor() {
@@ -2519,7 +2532,7 @@ static void DrawDualCaneEditor() {
             if (has) {
                 Cane_GiveSkill(i); // also fills the slot when it is the first skill owned
             } else {
-                nei->caneSkills &= (uint8_t)~(1u << i);
+                nei->caneSkills &= (uint8_t) ~(1u << i);
                 if (nei->caneSkills == 0) {
                     Nei_SetOwnedItem(SAVEEDIT_SLOT_CANE_OF_SOMARIA, 0xFF);
                 }
@@ -2542,13 +2555,29 @@ static void DrawNeiTab() {
     ImGui::SeparatorText("Trade Items (shared slot — item cell 4,5)");
     {
         static const char* tradeNames[] = {
-            "Pocket Egg",       "Pocket Cucco",    "Cojiro",               "Odd Mushroom",
-            "Odd Potion",       "Poacher's Saw",   "Broken Goron's Sword", "Prescription",
-            "Eyeball Frog",     "Eye Drops",       "Claim Check",          // 0-10  OoT adult
-            "Moon's Tear",      "Land Title Deed", "Swamp Title Deed",     "Mountain Title Deed",
-            "Ocean Title Deed", "Room Key",        "Letter to Kafei",      "Special Delivery to Mama",
-            "Pendant of Memories",                                          // 11-19 MM + NEI
-            "Weird Egg",        "Cucco",           "Zelda's Letter",       // 20-22 OoT child
+            "Pocket Egg",
+            "Pocket Cucco",
+            "Cojiro",
+            "Odd Mushroom",
+            "Odd Potion",
+            "Poacher's Saw",
+            "Broken Goron's Sword",
+            "Prescription",
+            "Eyeball Frog",
+            "Eye Drops",
+            "Claim Check", // 0-10  OoT adult
+            "Moon's Tear",
+            "Land Title Deed",
+            "Swamp Title Deed",
+            "Mountain Title Deed",
+            "Ocean Title Deed",
+            "Room Key",
+            "Letter to Kafei",
+            "Special Delivery to Mama",
+            "Pendant of Memories", // 11-19 MM + NEI
+            "Weird Egg",
+            "Cucco",
+            "Zelda's Letter", // 20-22 OoT child
         };
         for (int i = 0; i < (int)(sizeof(tradeNames) / sizeof(tradeNames[0])); i++) {
             bool obtained = TradeAdult_IsOwnedIndex(i) != 0;
@@ -2557,6 +2586,13 @@ static void DrawNeiTab() {
                 TradeAdult_SetOwnedIndex(i, obtained ? 1 : 0);
             }
             ImGui::PopID();
+        }
+        // TradeAdult_GiveIndex, not SetOwnedIndex: the Pendant also unlocks its Ext Boots 2 moveset.
+        if (ImGui::Button("Grant All Trade Items")) {
+            s32 n = TradeAdult_Count();
+            for (s32 i = 0; i < n; i++) {
+                TradeAdult_GiveIndex(i);
+            }
         }
     }
 
@@ -2667,10 +2703,11 @@ static void DrawNeiTab() {
     {
         // Combo entries: none / empty bottle / every BottleContent (order matches the enum).
         static const char* sBottleContentNames[] = {
-            "Ruto's Letter", "Big Poe",       "Blue Fire",   "Blue Potion",  "Red Potion",  "Green Potion",
-            "Fairy",         "Fish",          "Bug",         "Poe",          "Milk",        "Gold Dust",
-            "Hot Spr. Water", "Deku Princess", "Seahorse",   "Spring Water", "Zora Egg",    "Hylian Loach",
-            "Obaba's Drink", "Chateau",       "Magic Mushroom",
+            "Ruto's Letter",  "Big Poe",   "Blue Fire",      "Blue Potion",   "Red Potion",
+            "Green Potion",   "Fairy",     "Fish",           "Bug",           "Poe",
+            "Milk",           "Gold Dust", "Hot Spr. Water", "Deku Princess", "Seahorse",
+            "Spring Water",   "Zora Egg",  "Hylian Loach",   "Obaba's Drink", "Chateau",
+            "Magic Mushroom",
         };
         auto bottleComboIndex = [](uint8_t item) -> int {
             if (item == BOTTLE_SLOT_EMPTY) {
@@ -2811,6 +2848,72 @@ static void DrawNeiTab() {
                 nei->ootQuestItems &= ~(0xFFFu << OOT_QUEST_SONG_MINUET);
             }
         }
+        if (ImGui::Button("Grant OoT Songs + Medallions")) {
+            nei->ootQuestItems |= 0x007FFFFF;
+        }
+    }
+
+    ImGui::SeparatorText("NEI Weapon Upgrade Bits");
+    {
+        bool wuHammer = WeaponUpgrade_HasHammerAxe() != 0;
+        if (ImGui::Checkbox("Hammer  ->  Iron Knuckle's Axe", &wuHammer)) {
+            WeaponUpgrade_SetHammerAxe(wuHammer ? 1 : 0);
+        }
+        bool wuRazor = WeaponUpgrade_HasRazor() != 0;
+        if (ImGui::Checkbox("Kokiri  ->  Razor Sword", &wuRazor)) {
+            WeaponUpgrade_SetRazor(wuRazor ? 1 : 0);
+        }
+        bool wuGilded = WeaponUpgrade_HasGilded() != 0;
+        if (ImGui::Checkbox("Kokiri  ->  Gilded Sword", &wuGilded)) {
+            WeaponUpgrade_SetGilded(wuGilded ? 1 : 0);
+        }
+        bool wuMaster = WeaponUpgrade_HasTrueMaster() != 0;
+        if (ImGui::Checkbox("Master  ->  Real Master Sword", &wuMaster)) {
+            WeaponUpgrade_SetTrueMaster(wuMaster ? 1 : 0);
+        }
+        bool wuGfs = WeaponUpgrade_HasGreatFairy() != 0;
+        if (ImGui::Checkbox("Biggoron  ->  Great Fairy's Sword", &wuGfs)) {
+            WeaponUpgrade_SetGreatFairy(wuGfs ? 1 : 0);
+        }
+        if (ImGui::Button("Grant All Weapon Upgrades")) {
+            WeaponUpgrade_GrantAll();
+        }
+    }
+
+    ImGui::SeparatorText("NEI Twilight Upgrade Bits");
+    {
+        bool twClawshot = TwilightUpgrade_HasClawshot() != 0;
+        if (ImGui::Checkbox("Clawshot", &twClawshot)) {
+            TwilightUpgrade_SetClawshot(twClawshot ? 1 : 0);
+        }
+        bool twBombArrows = TwilightUpgrade_HasBombArrows() != 0;
+        if (ImGui::Checkbox("Bomb Arrows (Twilight bit)", &twBombArrows)) {
+            TwilightUpgrade_SetBombArrows(twBombArrows ? 1 : 0);
+        }
+        bool twGale = TwilightUpgrade_HasGaleBoomerang() != 0;
+        if (ImGui::Checkbox("Gale Boomerang", &twGale)) {
+            TwilightUpgrade_SetGaleBoomerang(twGale ? 1 : 0);
+        }
+        if (ImGui::Button("Grant All Twilight Bits")) {
+            TwilightUpgrade_Grant();
+        }
+    }
+
+    ImGui::SeparatorText("NEI Hookshot / Power Keg");
+    {
+        NeiSaveData* nei = Nei_Save();
+        bool ultrashot = nei->ootHookshotLevel >= 3;
+        if (ImGui::Checkbox("Ultrashot (hookshot level 3)", &ultrashot)) {
+            nei->ootHookshotLevel = ultrashot ? 3 : 2;
+        }
+        bool kegOwned = PowerKeg_IsOwned() != 0;
+        if (ImGui::Checkbox("Power Keg owned", &kegOwned)) {
+            PowerKeg_SetOwned(kegOwned ? 1 : 0);
+        }
+        if (ImGui::Button("Give 20 Power Kegs")) {
+            PowerKeg_SetOwned(1);
+            PowerKeg_SetCount(20);
+        }
     }
 
     ImGui::SeparatorText("Extended Equipment (equipment page, L to reach ext sub-page)");
@@ -2853,8 +2956,7 @@ static void DrawNeiTab() {
         }
         ImGui::BeginDisabled(!ExtEquip_CapeOwned());
         bool capeVisible = neiUp->capeHidden == 0;
-        if (ImGui::Checkbox("Magic Cape visible on Link (half-cost is always active when owned)",
-                            &capeVisible)) {
+        if (ImGui::Checkbox("Magic Cape visible on Link (half-cost is always active when owned)", &capeVisible)) {
             neiUp->capeHidden = capeVisible ? 0 : 1;
         }
         ImGui::EndDisabled();

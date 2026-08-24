@@ -58,11 +58,11 @@
 #define CANE_TYPE_MAX 4
 
 // Which skill bit gates each type's existence in the wheel.
-#define CANE_TYPE_GATE_BIT(type)                                                 \
-    ((type) == CANE_TYPE_SOMARIA ? CANE_SKILL_SOMARIA_STATUE                     \
-     : (type) == CANE_TYPE_TRIROD ? CANE_SKILL_SOMARIA_PLATFORM                  \
-     : (type) == CANE_TYPE_PACCI ? CANE_SKILL_PACCI_FLIP                         \
-                                 : CANE_SKILL_PACCI_ULTRAHAND)
+#define CANE_TYPE_GATE_BIT(type)                                \
+    ((type) == CANE_TYPE_SOMARIA  ? CANE_SKILL_SOMARIA_STATUE   \
+     : (type) == CANE_TYPE_TRIROD ? CANE_SKILL_SOMARIA_PLATFORM \
+     : (type) == CANE_TYPE_PACCI  ? CANE_SKILL_PACCI_FLIP       \
+                                  : CANE_SKILL_PACCI_ULTRAHAND)
 
 // =============================================================================
 // SKILLS (bit indices into NeiSaveData.caneSkills)
@@ -81,7 +81,7 @@
 #define CANE_PACCI_MASK 0x38   // bits 3..5
 
 // Skill index (0..5) from (caneType, slot 0..2) and back.
-#define CANE_SKILL_OF(type, slot) (((type) * 3) + (slot))
+#define CANE_SKILL_OF(type, slot) (((type)*3) + (slot))
 #define CANE_SKILL_TYPE(skill) ((skill) / 3)
 #define CANE_SKILL_SLOT(skill) ((skill) % 3)
 
@@ -111,10 +111,10 @@
 // =============================================================================
 
 // Spoke order matches the HUD (CaneWheelHud.cpp): sector 0 = up, clockwise.
-#define CANE_SPOKE_SWAP 0  // up    — flip Somaria <-> Pacci
-#define CANE_SPOKE_A 1     // right — first skill of the active cane
-#define CANE_SPOKE_B 2     // down  — second skill
-#define CANE_SPOKE_C 3     // left  — third skill
+#define CANE_SPOKE_SWAP 0 // up    — flip Somaria <-> Pacci
+#define CANE_SPOKE_A 1    // right — first skill of the active cane
+#define CANE_SPOKE_B 2    // down  — second skill
+#define CANE_SPOKE_C 3    // left  — third skill
 #define CANE_SPOKE_MAX 4
 
 // L is the selector (user-locked). A TAP of L flips between the two canes; HOLDING

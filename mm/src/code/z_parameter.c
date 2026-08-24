@@ -3392,12 +3392,12 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 s32 itemIsRemains = (itemId >= ITEM_REMAINS_ODOLWA) && (itemId <= ITEM_REMAINS_TWINMOLD);
                 // NEI: custom item ids live beyond the 114-entry restriction table → never
                 // form-restricted (also fixes the documented OOB read for empty buttons, 255).
-                if (GameInteractor_Should(VB_ITEM_BE_RESTRICTED,
-                                          (itemIsRemains ? false
-                                                         : ((s32)itemId < 114
-                                                                ? !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId]
-                                                                : false)),
-                                          &itemId)) {
+                if (GameInteractor_Should(
+                        VB_ITEM_BE_RESTRICTED,
+                        (itemIsRemains
+                             ? false
+                             : ((s32)itemId < 114 ? !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId] : false)),
+                        &itemId)) {
                     // Item not usable in current playerForm
                     if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                         gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -3547,12 +3547,12 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 // loop above; otherwise the D-pad icon dims to alpha 70 as if it can't be used).
                 s32 itemIsRemains = (itemId >= ITEM_REMAINS_ODOLWA) && (itemId <= ITEM_REMAINS_TWINMOLD);
                 // NEI: custom item ids beyond the 114-entry table → never form-restricted.
-                if (GameInteractor_Should(VB_ITEM_BE_RESTRICTED,
-                                          (itemIsRemains ? false
-                                                         : ((s32)itemId < 114
-                                                                ? !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId]
-                                                                : false)),
-                                          &itemId)) {
+                if (GameInteractor_Should(
+                        VB_ITEM_BE_RESTRICTED,
+                        (itemIsRemains
+                             ? false
+                             : ((s32)itemId < 114 ? !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId] : false)),
+                        &itemId)) {
                     // Item not usable in current playerForm
                     if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
                         gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
@@ -4092,10 +4092,17 @@ void Interface_Dpad_LoadItemIconImpl(PlayState* play, u8 btn) {
     if (CVarGetInteger("gSm64Mario", 0)) {
         const char* capTex = NULL;
         switch (btn) {
-            case EQUIP_SLOT_D_UP:    capTex = gItemIconWingCapTex;   break;
-            case EQUIP_SLOT_D_DOWN:  capTex = gItemIconMetalCapTex;  break;
-            case EQUIP_SLOT_D_LEFT:  capTex = gItemIconVanishCapTex; break;
-            default: break;
+            case EQUIP_SLOT_D_UP:
+                capTex = gItemIconWingCapTex;
+                break;
+            case EQUIP_SLOT_D_DOWN:
+                capTex = gItemIconMetalCapTex;
+                break;
+            case EQUIP_SLOT_D_LEFT:
+                capTex = gItemIconVanishCapTex;
+                break;
+            default:
+                break;
         }
         if (capTex != NULL) {
             interfaceCtx->iconItemSegment[DPAD_BUTTON(btn) + EQUIP_SLOT_MAX] = (TexturePtr)capTex;
@@ -4109,8 +4116,10 @@ void Interface_Dpad_LoadItemIconImpl(PlayState* play, u8 btn) {
         extern void* ExtInv_GetItemIcon(unsigned short itemId);
         u8 it = DPAD_GET_CUR_FORM_BTN_ITEM(btn);
         void* neiIcon = ExtInv_GetItemIcon(it);
-        interfaceCtx->iconItemSegment[DPAD_BUTTON(btn) + EQUIP_SLOT_MAX] =
-            neiIcon ? (TexturePtr)neiIcon : (it < ARRAY_COUNT(gItemIcons)) ? gItemIcons[it] : gEmptyTexture;
+        interfaceCtx->iconItemSegment[DPAD_BUTTON(btn) + EQUIP_SLOT_MAX] = neiIcon ? (TexturePtr)neiIcon
+                                                                           : (it < ARRAY_COUNT(gItemIcons))
+                                                                               ? gItemIcons[it]
+                                                                               : gEmptyTexture;
     }
 }
 
@@ -4172,8 +4181,9 @@ void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
         // extButtons. Resolve to the real id for icon lookup (C-button ext items live at form 0).
         u16 eff = (it == ITEM_EXT_BUTTON) ? EXT_BUTTON_ITEM(0, btn) : it;
         void* neiIcon = ExtInv_GetItemIcon(eff);
-        interfaceCtx->iconItemSegment[btn] =
-            neiIcon ? (TexturePtr)neiIcon : (it < ARRAY_COUNT(gItemIcons)) ? gItemIcons[it] : gEmptyTexture;
+        interfaceCtx->iconItemSegment[btn] = neiIcon                          ? (TexturePtr)neiIcon
+                                             : (it < ARRAY_COUNT(gItemIcons)) ? gItemIcons[it]
+                                                                              : gEmptyTexture;
     }
     // #endregion
 }
@@ -6272,8 +6282,8 @@ void Interface_Dpad_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16
                                     G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(OVERLAY_DISP++, sDpadItemIconLeft[button] << 2, sDpadItemIconTop[button] << 2,
                                     (sDpadItemIconLeft[button] + sDpadItemIconWidth[button]) << 2,
-                                    (sDpadItemIconTop[button] + sDpadItemIconWidth[button]) << 2, G_TX_RENDERTILE, 0,
-                                    0, medScale << 1, medScale << 1);
+                                    (sDpadItemIconTop[button] + sDpadItemIconWidth[button]) << 2, G_TX_RENDERTILE, 0, 0,
+                                    medScale << 1, medScale << 1);
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
             }
@@ -6432,7 +6442,7 @@ void Interface_Dpad_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
 // Extended-button infra: ITEM_EXT_BUTTON (0xFB) is the u8 marker for a real u16 item parked in
 // extButtons. It sits above ITEM_F0 and outside the medallion range, so it must be whitelisted here
 // too or the ext item's icon would never load/draw (the real id is resolved at the icon sites).
-#define ITEM_IS_DRAWABLE_ON_BUTTON(item)                                                     \
+#define ITEM_IS_DRAWABLE_ON_BUTTON(item)                                                              \
     (((item) < ITEM_F0) || (((item) >= ITEM_MEDALLION_FOREST) && ((item) <= ITEM_MEDALLION_LIGHT)) || \
      ((item) == ITEM_EXT_BUTTON))
 
@@ -7201,9 +7211,9 @@ void Interface_DrawPauseMenuEquippingIcons(PlayState* play) {
 
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, pauseCtx->equipAnimAlpha);
                 gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
-                gDPLoadTextureBlock(OVERLAY_DISP++, equipAnimTex, G_IM_FMT_RGBA, G_IM_SIZ_32b,
-                                    equipAnimTexSize, equipAnimTexSize, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                gDPLoadTextureBlock(OVERLAY_DISP++, equipAnimTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, equipAnimTexSize,
+                                    equipAnimTexSize, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                    G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             } else if (pauseCtx->equipTargetItem >= 0xB8) {
                 // Skijer's NEI: custom item ids >= 0xB8 (page-2 customs, SW97 arrows 0xD0-0xD5)
                 // fell into the vanilla magic-arrow effect below and indexed its 3-entry color

@@ -14,7 +14,7 @@
  */
 #include <libultraship/libultraship.h>
 #include <libultraship/log/luslog.h>
-#include "z64audio.h"               // SoH SoundFont / SequenceData (global scope)
+#include "z64audio.h" // SoH SoundFont / SequenceData (global scope)
 #include "soh/ResourceManagerHelpers.h"
 #include "mods/transformation_masks/assets/mm_asset_loader.h" // MmAssets_IsAvailable
 
@@ -49,8 +49,8 @@ extern "C" ::SequenceData* ResourceMgr_LoadSeqPtrByName(const char* path);
 
 namespace mmsfx {
 
-void MmSfxSynth_InitEngine(void);     // glue.cpp
-void MmSfxSynth_MarkReady(bool);      // backend.cpp
+void MmSfxSynth_InitEngine(void); // glue.cpp
+void MmSfxSynth_MarkReady(bool);  // backend.cpp
 
 // ---- per-channel SFX state (read by the 0xBE custom function) -------------
 SfxChannelState sSfxChannelState[SEQ_NUM_CHANNELS];
@@ -131,8 +131,10 @@ extern "C" int MmSfxSynth_IsReady(void) {
 
 extern "C" int MmSfxSynth_Init(void) {
     using namespace mmsfx;
-    if (sLoaderReady) return 1;
-    if (!MmAssets_IsAvailable()) return 0;
+    if (sLoaderReady)
+        return 1;
+    if (!MmAssets_IsAvailable())
+        return 0;
 
     MMSYN_LOG("Init: booting isolated engine...");
 

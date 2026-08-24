@@ -201,10 +201,9 @@ void BoxMenu_Update(PlayState* play) {
 // stick arrows) goes through here: the FILL cycle can only pack 1-bit alpha into its fill colour,
 // and these need real transparency to sit over live gameplay. Coordinates are pixels; the texture
 // rectangle wants 10.2 fixed point, hence the <<2.
-#define BOXM_RECT(x1, y1, x2, y2, r, g, b, a)                                                        \
-    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, (r), (g), (b), (a));                                       \
-    gSPWideTextureRectangle(OVERLAY_DISP++, (x1) << 2, (y1) << 2, (x2) << 2, (y2) << 2,               \
-                            G_TX_RENDERTILE, 0, 0, 0, 0)
+#define BOXM_RECT(x1, y1, x2, y2, r, g, b, a)                  \
+    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, (r), (g), (b), (a)); \
+    gSPWideTextureRectangle(OVERLAY_DISP++, (x1) << 2, (y1) << 2, (x2) << 2, (y2) << 2, G_TX_RENDERTILE, 0, 0, 0, 0)
 
 // A triangle pointing left (dir < 0) or right (dir > 0), built from a staircase of rows — the RDP
 // fills rectangles, not triangles, and at this size the stairs read as a clean arrow.
@@ -300,8 +299,8 @@ void BoxMenu_Draw(PlayState* play) {
             gDPLoadTextureBlock(OVERLAY_DISP++, sBoxMEntries[i].iconPath, G_IM_FMT_RGBA, G_IM_SIZ_32b, src, src, 0,
                                 G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                 G_TX_NOLOD, G_TX_NOLOD);
-            gSPWideTextureRectangle(OVERLAY_DISP++, bx << 2, y1 << 2, (bx + BOXM_BOX) << 2,
-                                    (y1 + BOXM_BOX) << 2, G_TX_RENDERTILE, 0, 0, dd, dd);
+            gSPWideTextureRectangle(OVERLAY_DISP++, bx << 2, y1 << 2, (bx + BOXM_BOX) << 2, (y1 + BOXM_BOX) << 2,
+                                    G_TX_RENDERTILE, 0, 0, dd, dd);
         }
 
         bx += BOXM_BOX + BOXM_GAP;

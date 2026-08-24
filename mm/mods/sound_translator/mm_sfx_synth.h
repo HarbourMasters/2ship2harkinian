@@ -35,8 +35,7 @@ int MmSfxSynth_ReadChannelIO(int channelIndex, int ioPort);
 
 // Set the per-channel SFX state (freq/volume/stereo) that the seq's 0xBE custom
 // function reads back. Mirrors MM's sSfxChannelState[channelIndex].
-void MmSfxSynth_SetChannelState(int channelIndex, float volume, float freqScale,
-                                int8_t panSigned, int8_t stereoBits);
+void MmSfxSynth_SetChannelState(int channelIndex, float volume, float freqScale, int8_t panSigned, int8_t stereoBits);
 
 // Audio thread: advance the SFX sequence and mix its output into a 32 kHz
 // stereo-interleaved s16 buffer (same format/sample-rate as MmDirectAudio).

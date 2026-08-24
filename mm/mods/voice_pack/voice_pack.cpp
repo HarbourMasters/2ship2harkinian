@@ -40,18 +40,18 @@
 #include "voice_pack.h"
 #include "z64.h"
 #include "soh/OTRGlobals.h"
-#include <libultraship/bridge.h> // CVarGet*/CVarSet* — was transitive via OTRGlobals.h before upstream #6636
+#include <libultraship/bridge.h>       // CVarGet*/CVarSet* — was transitive via OTRGlobals.h before upstream #6636
 #include <libultraship/libultraship.h> // full Ship::Window (GetGui) — was transitive via OTRGlobals.h before #6636
 
 // ============================================================================
 // Logging
 // ============================================================================
 
-#define VP_LOG(fmt, ...)                                                      \
-    do {                                                                      \
-        char _vpbuf[512];                                                     \
-        snprintf(_vpbuf, sizeof(_vpbuf), "[VoicePack] " fmt, ##__VA_ARGS__);  \
-        SPDLOG_INFO("{}", _vpbuf);                                            \
+#define VP_LOG(fmt, ...)                                                     \
+    do {                                                                     \
+        char _vpbuf[512];                                                    \
+        snprintf(_vpbuf, sizeof(_vpbuf), "[VoicePack] " fmt, ##__VA_ARGS__); \
+        SPDLOG_INFO("{}", _vpbuf);                                           \
     } while (0)
 
 // ============================================================================
@@ -187,10 +187,17 @@ static int VorbisSeekCallback(void* src, ogg_int64_t pos, int whence) {
     OggFileData* d = static_cast<OggFileData*>(src);
     size_t newPos;
     switch (whence) {
-        case SEEK_SET: newPos = (size_t)pos; break;
-        case SEEK_CUR: newPos = d->pos + (size_t)pos; break;
-        case SEEK_END: newPos = d->size + (size_t)pos; break;
-        default: return -1;
+        case SEEK_SET:
+            newPos = (size_t)pos;
+            break;
+        case SEEK_CUR:
+            newPos = d->pos + (size_t)pos;
+            break;
+        case SEEK_END:
+            newPos = d->size + (size_t)pos;
+            break;
+        default:
+            return -1;
     }
     if (newPos > d->size)
         return -1;
@@ -208,7 +215,10 @@ static long VorbisTellCallback(void* src) {
 }
 
 static const ov_callbacks vorbisCallbacks = {
-    VorbisReadCallback, VorbisSeekCallback, VorbisCloseCallback, VorbisTellCallback,
+    VorbisReadCallback,
+    VorbisSeekCallback,
+    VorbisCloseCallback,
+    VorbisTellCallback,
 };
 
 // Decode an OGG Vorbis byte buffer into mono s16 PCM at its source sample rate.
@@ -318,10 +328,14 @@ static bool ParseHex16(const std::string& s, u16* out) {
     u32 v = 0;
     for (char c : s) {
         v <<= 4;
-        if (c >= '0' && c <= '9')      v |= (u32)(c - '0');
-        else if (c >= 'a' && c <= 'f') v |= (u32)(c - 'a' + 10);
-        else if (c >= 'A' && c <= 'F') v |= (u32)(c - 'A' + 10);
-        else return false;
+        if (c >= '0' && c <= '9')
+            v |= (u32)(c - '0');
+        else if (c >= 'a' && c <= 'f')
+            v |= (u32)(c - 'a' + 10);
+        else if (c >= 'A' && c <= 'F')
+            v |= (u32)(c - 'A' + 10);
+        else
+            return false;
     }
     if (v > 0xFFFF)
         return false;
@@ -341,9 +355,7 @@ static bool MatchSoundsEntry(const std::string& name, u16* outHexId) {
         return false;
 
     auto isSep = [](char c) { return c == '/' || c == '\\'; };
-    auto eqi = [](char a, char b) {
-        return tolower((unsigned char)a) == tolower((unsigned char)b);
-    };
+    auto eqi = [](char a, char b) { return tolower((unsigned char)a) == tolower((unsigned char)b); };
 
     // Find "sounds" as a path component (preceded by start-of-string or a
     // separator, and immediately followed by a separator).
@@ -390,7 +402,8 @@ static bool MatchSoundsEntry(const std::string& name, u16* outHexId) {
     if (name.size() < 4)
         return false;
     std::string tail = name.substr(name.size() - 4);
-    for (char& c : tail) c = (char)tolower((unsigned char)c);
+    for (char& c : tail)
+        c = (char)tolower((unsigned char)c);
     return tail == ".ogg";
 }
 
@@ -403,12 +416,15 @@ static bool MatchSoundsEntry(const std::string& name, u16* outHexId) {
 static std::string FindJsonString(const std::string& json, const std::string& key) {
     std::string search = "\"" + key + "\"";
     size_t pos = json.find(search);
-    if (pos == std::string::npos) return "";
+    if (pos == std::string::npos)
+        return "";
     pos = json.find("\"", pos + search.size());
-    if (pos == std::string::npos) return "";
+    if (pos == std::string::npos)
+        return "";
     pos++;
     size_t end = json.find("\"", pos);
-    if (end == std::string::npos) return "";
+    if (end == std::string::npos)
+        return "";
     return json.substr(pos, end - pos);
 }
 
@@ -435,9 +451,8 @@ static bool ScanOnePak(const std::string& pakPath, VoicePack& outPack) {
         const size_t kSample = 6;
         size_t shown = entries.size() < kSample ? entries.size() : kSample;
         for (size_t i = 0; i < shown; i++) {
-            VP_LOG("  no-voice in '%s': entry[%zu]='%s'",
-                   std::filesystem::path(pakPath).filename().string().c_str(),
-                   i, entries[i].name.c_str());
+            VP_LOG("  no-voice in '%s': entry[%zu]='%s'", std::filesystem::path(pakPath).filename().string().c_str(), i,
+                   entries[i].name.c_str());
         }
         return false;
     }
@@ -498,8 +513,8 @@ static bool DecodePack(VoicePack& pack) {
     }
 
     pack.decoded = true;
-    VP_LOG("Decoded '%s': %d samples (%d sfxIds), %d KB PCM",
-           pack.displayName.c_str(), totalSamples, (int)pack.samples.size(), totalBytes / 1024);
+    VP_LOG("Decoded '%s': %d samples (%d sfxIds), %d KB PCM", pack.displayName.c_str(), totalSamples,
+           (int)pack.samples.size(), totalBytes / 1024);
     return totalSamples > 0;
 }
 
@@ -536,7 +551,7 @@ extern "C" void VoicePack_MixInto(s16* outBuf, u32 numSamples) {
             s32 sample = (s32)((f32)slot.data[idx] * gain);
             s32 mL = (s32)outBuf[i * 2] + sample;
             s32 mR = (s32)outBuf[i * 2 + 1] + sample;
-            outBuf[i * 2]     = (mL > 32767) ? 32767 : (mL < -32768) ? -32768 : (s16)mL;
+            outBuf[i * 2] = (mL > 32767) ? 32767 : (mL < -32768) ? -32768 : (s16)mL;
             outBuf[i * 2 + 1] = (mR > 32767) ? 32767 : (mR < -32768) ? -32768 : (s16)mR;
             slot.fracPos += slot.step;
         }
@@ -548,12 +563,16 @@ extern "C" void VoicePack_MixInto(s16* outBuf, u32 numSamples) {
 // ============================================================================
 
 extern "C" u8 VoicePack_PlayIfMatch(u16 sfxId, Vec3f* /*pos*/) {
-    if (!sInitialized) return 0;
-    if (!CVarGetInteger("gMods.VoicePack.Enabled", 0)) return 0;
-    if (sActiveIdx < 0 || sActiveIdx >= (s32)sPacks.size()) return 0;
+    if (!sInitialized)
+        return 0;
+    if (!CVarGetInteger("gMods.VoicePack.Enabled", 0))
+        return 0;
+    if (sActiveIdx < 0 || sActiveIdx >= (s32)sPacks.size())
+        return 0;
 
     VoicePack& pack = sPacks[sActiveIdx];
-    if (!pack.decoded) return 0;
+    if (!pack.decoded)
+        return 0;
 
     auto it = pack.samples.find(sfxId);
     if (it == pack.samples.end() || it->second.empty())
@@ -582,11 +601,11 @@ extern "C" u8 VoicePack_PlayIfMatch(u16 sfxId, Vec3f* /*pos*/) {
     }
 
     VoiceSlot& slot = sSlots[freeSlot];
-    slot.data    = chosen.pcm.data();
-    slot.len     = (u32)chosen.pcm.size();
+    slot.data = chosen.pcm.data();
+    slot.len = (u32)chosen.pcm.size();
     slot.fracPos = 0.0f;
-    slot.step    = (f32)chosen.rate / 32000.0f;
-    slot.vol     = 1.0f;
+    slot.step = (f32)chosen.rate / 32000.0f;
+    slot.vol = 1.0f;
     // Publish last so the audio thread either sees the new playback fully set up
     // or still sees playing=0 from a previous frame.
     slot.playing.store(1, std::memory_order_release);
@@ -599,7 +618,8 @@ extern "C" u8 VoicePack_PlayIfMatch(u16 sfxId, Vec3f* /*pos*/) {
 // ============================================================================
 
 extern "C" s32 VoicePack_GetCount(void) {
-    if (!sInitialized) VoicePack_Init();
+    if (!sInitialized)
+        VoicePack_Init();
     return (s32)sPacks.size();
 }
 
@@ -614,7 +634,8 @@ extern "C" s32 VoicePack_GetSelectedIndex(void) {
 }
 
 extern "C" int VoicePack_OwnsPath(const char* path) {
-    if (!path) return 0;
+    if (!path)
+        return 0;
     return sClaimedPaths.count(path) ? 1 : 0;
 }
 
@@ -623,7 +644,7 @@ static void StopAllSlots(void) {
     for (s32 i = 0; i < VOICE_SLOT_COUNT; i++) {
         sSlots[i].playing.store(0, std::memory_order_release);
         sSlots[i].data = nullptr;
-        sSlots[i].len  = 0;
+        sSlots[i].len = 0;
     }
 }
 
@@ -673,15 +694,17 @@ extern "C" void VoicePack_Init(void) {
 
     s32 candidates = 0;
     for (auto& entry : std::filesystem::directory_iterator(modsPath)) {
-        if (entry.is_directory()) continue;
-        if (entry.path().extension() != ".pak") continue;
+        if (entry.is_directory())
+            continue;
+        if (entry.path().extension() != ".pak")
+            continue;
 
         candidates++;
         VoicePack pack{};
         if (ScanOnePak(entry.path().string(), pack)) {
             sClaimedPaths.insert(pack.path);
-            VP_LOG("Found voice pack: '%s' (%d sfxIds, %s)",
-                   pack.displayName.c_str(), (int)pack.oggEntryByHex.size(), pack.path.c_str());
+            VP_LOG("Found voice pack: '%s' (%d sfxIds, %s)", pack.displayName.c_str(), (int)pack.oggEntryByHex.size(),
+                   pack.path.c_str());
             sPacks.push_back(std::move(pack));
         }
     }

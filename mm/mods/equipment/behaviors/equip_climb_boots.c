@@ -5,11 +5,18 @@
  * on the equipment page's left column (ownership = the adult trade wheel, TRADE_ADULT_PENDANT) and
  * its moveset is dispatched cheat-independently, so this slot is free for a real pair of boots.
  *
- * BEHAVIOR: not specified yet — stub. Grid slot, ownership bit, icon gItemIconClimbBootsTex and
- * name gClimbBootsNameTex are wired.
+ * BEHAVIOR: full traction. While equipped, Link grips every floor —
+ *   - ice (FLOOR_TYPE_5) stops skating: same exemption the Iron Boots get, so he walks normally;
+ *   - steep slopes (FLOOR_EFFECT_1) neither force Player_Action_SlideOnSlope nor slow the climb.
+ * The behavior is all gates in z_player.c keyed on ClimbBoots_HasGrip(); nothing runs per frame.
  *
  * Included by ext_equip_behavior.c (unity build).
  */
+
+// Grip predicate for the z_player.c gates (this file is part of the z_player TU).
+u8 ClimbBoots_HasGrip(void) {
+    return ExtEquip_IsEnabled() && (gExtEquipState.currentExtBoots == 2);
+}
 
 // Per-frame behavior while the Climb Boots are the equipped ext boots.
 static void ClimbBoots_Behavior(Player* player, PlayState* play) {

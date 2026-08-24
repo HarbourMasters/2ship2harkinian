@@ -249,11 +249,11 @@ void func_808A2918(EnBoom* this, PlayState* play) {
 
     // Skijer's NEI: OoT's boomerang grabs ANY EnItem00 (heart pieces/containers included) — the
     // exclusions below are an MM Zora-fin restriction, so they only apply to the fin variants.
-    if ((this->collider.base.atFlags & AT_HIT) && (((this->collider.base.at->id == ACTOR_EN_ITEM00) &&
-                                                    (EN_BOOM_IS_OOT_STYLE(this->actor.params) ||
-                                                     ((this->collider.base.at->params != ITEM00_HEART_CONTAINER) &&
-                                                      (this->collider.base.at->params != ITEM00_HEART_PIECE)))) ||
-                                                   (this->collider.base.at->id == ACTOR_EN_SI))) {
+    if ((this->collider.base.atFlags & AT_HIT) &&
+        (((this->collider.base.at->id == ACTOR_EN_ITEM00) &&
+          (EN_BOOM_IS_OOT_STYLE(this->actor.params) || ((this->collider.base.at->params != ITEM00_HEART_CONTAINER) &&
+                                                        (this->collider.base.at->params != ITEM00_HEART_PIECE)))) ||
+         (this->collider.base.at->id == ACTOR_EN_SI))) {
         this->unk_1C8 = this->collider.base.at;
         if (this->collider.base.at->id == ACTOR_EN_SI) {
             this->collider.base.at->flags |= ACTOR_FLAG_HOOKSHOT_ATTACHED;

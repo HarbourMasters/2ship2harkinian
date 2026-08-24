@@ -43,15 +43,13 @@ void InputViewer::RenderButton(std::string btnTexture, std::string btnOutlineTex
     // Render Outline based on settings
     if (outlineMode == BUTTON_OUTLINE_ALWAYS_SHOWN || (outlineMode == BUTTON_OUTLINE_NOT_PRESSED && !state) ||
         (outlineMode == BUTTON_OUTLINE_PRESSED && state)) {
-        ImGui::Image(Ship_GetFast3dGui()->GetTextureByName(btnOutlineTexture), size,
-                     ImVec2(0, 0), ImVec2(1.0f, 1.0f));
+        ImGui::Image(Ship_GetFast3dGui()->GetTextureByName(btnOutlineTexture), size, ImVec2(0, 0), ImVec2(1.0f, 1.0f));
     }
     // Render button if pressed
     if (state) {
         ImGui::SetCursorPos(pos);
         ImGui::SetNextItemAllowOverlap();
-        ImGui::Image(Ship_GetFast3dGui()->GetTextureByName(btnTexture), size,
-                     ImVec2(0, 0), ImVec2(1.0f, 1.0f));
+        ImGui::Image(Ship_GetFast3dGui()->GetTextureByName(btnTexture), size, ImVec2(0, 0), ImVec2(1.0f, 1.0f));
     }
 }
 
@@ -68,80 +66,46 @@ void InputViewer::DrawElement() {
     if (CVarGetInteger("gWindows.InputViewer", 0)) {
         static bool sButtonTexturesLoaded = false;
         if (!sButtonTexturesLoaded) {
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Input-Viewer-Background", "textures/buttons/InputViewerBackground.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("A-Btn",
-                                                                                         "textures/buttons/ABtn.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("B-Btn",
-                                                                                         "textures/buttons/BBtn.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("L-Btn",
-                                                                                         "textures/buttons/LBtn.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("R-Btn",
-                                                                                         "textures/buttons/RBtn.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("Z-Btn",
-                                                                                         "textures/buttons/ZBtn.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Start-Btn", "textures/buttons/StartBtn.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Left",
-                                                                                         "textures/buttons/CLeft.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Right",
-                                                                                         "textures/buttons/CRight.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Up",
-                                                                                         "textures/buttons/CUp.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Down",
-                                                                                         "textures/buttons/CDown.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Analog-Stick", "textures/buttons/AnalogStick.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Dpad-Left", "textures/buttons/DPadLeft.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Dpad-Right", "textures/buttons/DPadRight.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("Dpad-Up",
-                                                                                         "textures/buttons/DPadUp.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Dpad-Down", "textures/buttons/DPadDown.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("Modifier-1",
-                                                                                         "textures/buttons/Mod1.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage("Modifier-2",
-                                                                                         "textures/buttons/Mod2.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Right-Stick", "textures/buttons/RightStick.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "A-Btn Outline", "textures/buttons/ABtnOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "B-Btn Outline", "textures/buttons/BBtnOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "L-Btn Outline", "textures/buttons/LBtnOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "R-Btn Outline", "textures/buttons/RBtnOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Z-Btn Outline", "textures/buttons/ZBtnOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Start-Btn Outline", "textures/buttons/StartBtnOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "C-Left Outline", "textures/buttons/CLeftOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "C-Right Outline", "textures/buttons/CRightOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "C-Up Outline", "textures/buttons/CUpOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "C-Down Outline", "textures/buttons/CDownOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Analog-Stick Outline", "textures/buttons/AnalogStickOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Dpad-Left Outline", "textures/buttons/DPadLeftOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Dpad-Right Outline", "textures/buttons/DPadRightOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Dpad-Up Outline", "textures/buttons/DPadUpOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Dpad-Down Outline", "textures/buttons/DPadDownOutline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Modifier-1 Outline", "textures/buttons/Mod1Outline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Modifier-2 Outline", "textures/buttons/Mod2Outline.png");
-            Ship_GetFast3dGui()->LoadTextureFromRawImage(
-                "Right-Stick Outline", "textures/buttons/RightStickOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Input-Viewer-Background",
+                                                         "textures/buttons/InputViewerBackground.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("A-Btn", "textures/buttons/ABtn.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("B-Btn", "textures/buttons/BBtn.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("L-Btn", "textures/buttons/LBtn.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("R-Btn", "textures/buttons/RBtn.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Z-Btn", "textures/buttons/ZBtn.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Start-Btn", "textures/buttons/StartBtn.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Left", "textures/buttons/CLeft.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Right", "textures/buttons/CRight.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Up", "textures/buttons/CUp.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Down", "textures/buttons/CDown.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Analog-Stick", "textures/buttons/AnalogStick.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Dpad-Left", "textures/buttons/DPadLeft.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Dpad-Right", "textures/buttons/DPadRight.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Dpad-Up", "textures/buttons/DPadUp.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Dpad-Down", "textures/buttons/DPadDown.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Modifier-1", "textures/buttons/Mod1.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Modifier-2", "textures/buttons/Mod2.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Right-Stick", "textures/buttons/RightStick.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("A-Btn Outline", "textures/buttons/ABtnOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("B-Btn Outline", "textures/buttons/BBtnOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("L-Btn Outline", "textures/buttons/LBtnOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("R-Btn Outline", "textures/buttons/RBtnOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Z-Btn Outline", "textures/buttons/ZBtnOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Start-Btn Outline", "textures/buttons/StartBtnOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Left Outline", "textures/buttons/CLeftOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Right Outline", "textures/buttons/CRightOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Up Outline", "textures/buttons/CUpOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("C-Down Outline", "textures/buttons/CDownOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Analog-Stick Outline",
+                                                         "textures/buttons/AnalogStickOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Dpad-Left Outline", "textures/buttons/DPadLeftOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Dpad-Right Outline", "textures/buttons/DPadRightOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Dpad-Up Outline", "textures/buttons/DPadUpOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Dpad-Down Outline", "textures/buttons/DPadDownOutline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Modifier-1 Outline", "textures/buttons/Mod1Outline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Modifier-2 Outline", "textures/buttons/Mod2Outline.png");
+            Ship_GetFast3dGui()->LoadTextureFromRawImage("Right-Stick Outline",
+                                                         "textures/buttons/RightStickOutline.png");
             sButtonTexturesLoaded = true;
         }
 
@@ -212,9 +176,8 @@ void InputViewer::DrawElement() {
             if (CVarGetInteger(CVAR_INPUT_VIEWER("ShowBackground"), 1)) {
                 ImGui::SetNextItemAllowOverlap();
                 // Background
-                ImGui::Image(
-                    Ship_GetFast3dGui()->GetTextureByName("Input-Viewer-Background"),
-                    scaledBGSize, ImVec2(0, 0), ImVec2(1.0f, 1.0f));
+                ImGui::Image(Ship_GetFast3dGui()->GetTextureByName("Input-Viewer-Background"), scaledBGSize,
+                             ImVec2(0, 0), ImVec2(1.0f, 1.0f));
             }
 
             // A/B
@@ -363,9 +326,8 @@ void InputViewer::DrawElement() {
                 (analogOutlineMode == STICK_MODE_HIDDEN_IN_DEADZONE && !analogStickIsInDeadzone)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                ImGui::Image(
-                    Ship_GetFast3dGui()->GetTextureByName("Analog-Stick Outline"),
-                    scaledBGSize, ImVec2(0, 0), ImVec2(1.0f, 1.0f));
+                ImGui::Image(Ship_GetFast3dGui()->GetTextureByName("Analog-Stick Outline"), scaledBGSize, ImVec2(0, 0),
+                             ImVec2(1.0f, 1.0f));
             }
             const int analogStickMode =
                 CVarGetInteger(CVAR_INPUT_VIEWER("AnalogStick.VisibilityMode"), STICK_MODE_ALWAYS_SHOWN);
@@ -375,8 +337,8 @@ void InputViewer::DrawElement() {
                 ImGui::SetCursorPos(
                     ImVec2(aPos.x + maxStickDistance * ((float)(pad.stick_x) / MAX_AXIS_RANGE) * scale,
                            aPos.y - maxStickDistance * ((float)(pad.stick_y) / MAX_AXIS_RANGE) * scale));
-                ImGui::Image(Ship_GetFast3dGui()->GetTextureByName("Analog-Stick"),
-                             scaledBGSize, ImVec2(0, 0), ImVec2(1.0f, 1.0f));
+                ImGui::Image(Ship_GetFast3dGui()->GetTextureByName("Analog-Stick"), scaledBGSize, ImVec2(0, 0),
+                             ImVec2(1.0f, 1.0f));
             }
 
             // Right Stick
@@ -387,9 +349,8 @@ void InputViewer::DrawElement() {
                 (rightOutlineMode == STICK_MODE_HIDDEN_IN_DEADZONE && !rightStickIsInDeadzone)) {
                 ImGui::SetNextItemAllowOverlap();
                 ImGui::SetCursorPos(aPos);
-                ImGui::Image(
-                    Ship_GetFast3dGui()->GetTextureByName("Right-Stick Outline"),
-                    scaledBGSize, ImVec2(0, 0), ImVec2(1.0f, 1.0f));
+                ImGui::Image(Ship_GetFast3dGui()->GetTextureByName("Right-Stick Outline"), scaledBGSize, ImVec2(0, 0),
+                             ImVec2(1.0f, 1.0f));
             }
             const int rightStickMode =
                 CVarGetInteger(CVAR_INPUT_VIEWER("RightStick.VisibilityMode"), STICK_MODE_ALWAYS_HIDDEN);
@@ -399,8 +360,8 @@ void InputViewer::DrawElement() {
                 ImGui::SetCursorPos(
                     ImVec2(aPos.x + maxRightStickDistance * ((float)(pad.right_stick_x) / MAX_AXIS_RANGE) * scale,
                            aPos.y - maxRightStickDistance * ((float)(pad.right_stick_y) / MAX_AXIS_RANGE) * scale));
-                ImGui::Image(Ship_GetFast3dGui()->GetTextureByName("Right-Stick"),
-                             scaledBGSize, ImVec2(0, 0), ImVec2(1.0f, 1.0f));
+                ImGui::Image(Ship_GetFast3dGui()->GetTextureByName("Right-Stick"), scaledBGSize, ImVec2(0, 0),
+                             ImVec2(1.0f, 1.0f));
             }
 
             // Left Analog stick angle text

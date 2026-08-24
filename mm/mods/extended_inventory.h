@@ -96,7 +96,7 @@ void OotMask_CursorStep(int dir);
 uint8_t OotMask_CellItem(void);
 uint8_t OotMask_NeighborCellItem(int dir);
 const char* OotMask_IconPath(int index);
-uint8_t ExtInv_ItemHasAmmo(uint8_t itemId); // page-0 ammo digits are item-based (layout is remapped)
+uint8_t ExtInv_ItemHasAmmo(uint8_t itemId);      // page-0 ammo digits are item-based (layout is remapped)
 uint8_t ExtInv_GetItemIconSize(uint16_t itemId); // 24 for SW97 medallion/arrow quest icons, else 32
 
 // OoT swords with no MM analog (icon-override sentinels — distinct, non-MM ids).
@@ -313,6 +313,7 @@ uint8_t Sw97_ItemHasBombs(uint16_t item);
 uint8_t Sw97_BombArrowsOnButton(void);
 uint8_t BombArrows_RandoMode(void);
 void Sw97_RefreshButtonIcons(struct PlayState* play);
+void ExtInv_RefreshButtonIconsForItem(struct PlayState* play, uint16_t itemId);
 void Sw97_MigrateLayout(struct PlayState* play); // one-shot, gated by NeiSaveData.sw97LayoutVersion
 
 // ── Elemental Wand (Skijer's NEI) ────────────────────────────────────────────
@@ -333,12 +334,12 @@ uint8_t Slate_RuneOwned(uint8_t rune);
 void Slate_GrantRune(uint8_t rune); // also hands over the slot on the first rune
 uint8_t Slate_RuneCount(void);      // owned runes
 uint8_t Slate_RuneAt(uint8_t index);
-uint8_t Slate_GetRune(void);        // active rune (self-healing to an owned one)
+uint8_t Slate_GetRune(void); // active rune (self-healing to an owned one)
 void Slate_SetRune(uint8_t rune);
 uint8_t Slate_RuneNeighbor(uint8_t rune, int32_t dir);
 void* Slate_RuneMiniIcon(uint8_t rune); // 24x24 rune glyph (wheel previews / textbox)
 void* Slate_RuneIcon(uint8_t rune);     // 32x32 slate-with-rune-badge (cell / HUD)
-void ExtInv_DebugGiveAll(void);          // NEI debug: grant all custom items to their slots
+void ExtInv_DebugGiveAll(void);         // NEI debug: grant all custom items to their slots
 
 typedef struct {
     int currentPage;         // 0 = vanilla, 1 = custom items, 2 = MM masks
@@ -511,14 +512,15 @@ extern const uint8_t gPage2ItemAgeReqs[24];
 #define SLOT_MOGMA_MITTS 36
 #define SLOT_GUST_JAR 37
 #define SLOT_BALL_AND_CHAIN 38
-#define SLOT_DESIRE_SENSOR 39 // RETIRED cell (Desire Sensor -> Quartz of Motion, collect page); 39 is the Sheikah Slate now
+#define SLOT_DESIRE_SENSOR \
+    39 // RETIRED cell (Desire Sensor -> Quartz of Motion, collect page); 39 is the Sheikah Slate now
 #define SLOT_LIGHT_ROD 40
 #define SLOT_HYLIAS_GRACE 41 // RETIRED item (2026-08-06); 41 is the Phantom Hourglass now
 #define SLOT_LANTERN 42
 #define SLOT_MINISH_CAP 43
 #define SLOT_POKEBALL 44 // moved to the Broken Items equipment page (Pikachu form); 44 is the Shadow Crystal now
 #define SLOT_CANE_OF_SOMARIA 45
-#define SLOT_SHOVEL 46 // shared cell: Shovel <-> Dominion Rod wheel (ownership = shovelOwned/dominionOwned flags)
+#define SLOT_SHOVEL 46       // shared cell: Shovel <-> Dominion Rod wheel (ownership = shovelOwned/dominionOwned flags)
 #define SLOT_DOMINION_ROD 47 // RETIRED cell (rod moved onto the shovel wheel); 47 is the Rod of Seasons now
 // 2026-08-06 re-layout — the four cells the moves above freed. These are the USER's canonical page-2
 // layout positions; do not re-shuffle them. Old defines above keep their numbers so existing code

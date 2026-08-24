@@ -163,41 +163,41 @@ void func_80B9C5E8(ObjHunsui* this, PlayState* play) {
                 this->unk_1A0 = 0.0f;
                 this->unk_19C = 0.0f;
             } else {
-            sp3E = BINANG_ROT180(player->actor.world.rot.y - this->dyna.actor.yawTowardsPlayer);
-            player->actor.gravity = 0.0f;
-            player->actor.velocity.y = 0.0f;
+                sp3E = BINANG_ROT180(player->actor.world.rot.y - this->dyna.actor.yawTowardsPlayer);
+                player->actor.gravity = 0.0f;
+                player->actor.velocity.y = 0.0f;
 
-            if ((this->unk_160 != OBJHUNSUI_F000_5) && (this->unk_160 != OBJHUNSUI_F000_6)) {
-                Math_SmoothStepToF(&player->actor.world.pos.y, this->dyna.actor.world.pos.y, 0.5f, 4.0f, 1.0f);
-            }
-
-            if ((sp3E < 0x4000) && (sp3E > -0x4000)) {
-                this->unk_1A4 = BINANG_ROT180(player->actor.world.rot.y);
-                sp34 = this->dyna.actor.xzDistToPlayer / (45.0f * this->dyna.actor.scale.x * 10.0f);
-                if (1) {}
-                sp38 = this->dyna.actor.xzDistToPlayer / (45.0f * this->dyna.actor.scale.x * 10.0f);
-
-                if (sp38 > 1.0f) {
-                    sp38 = sp34;
+                if ((this->unk_160 != OBJHUNSUI_F000_5) && (this->unk_160 != OBJHUNSUI_F000_6)) {
+                    Math_SmoothStepToF(&player->actor.world.pos.y, this->dyna.actor.world.pos.y, 0.5f, 4.0f, 1.0f);
                 }
 
-                player->speedXZ *= sp38;
+                if ((sp3E < 0x4000) && (sp3E > -0x4000)) {
+                    this->unk_1A4 = BINANG_ROT180(player->actor.world.rot.y);
+                    sp34 = this->dyna.actor.xzDistToPlayer / (45.0f * this->dyna.actor.scale.x * 10.0f);
+                    if (1) {}
+                    sp38 = this->dyna.actor.xzDistToPlayer / (45.0f * this->dyna.actor.scale.x * 10.0f);
 
-                if ((this->unk_160 == OBJHUNSUI_F000_5) || (this->unk_160 == OBJHUNSUI_F000_6)) {
-                    Math_ApproachF(&this->unk_1A0, 4.5f, 2.0f, 1.0f);
-                    Math_ApproachF(&this->unk_19C, this->unk_1A0, 2.0f, 0.3f * sp38);
+                    if (sp38 > 1.0f) {
+                        sp38 = sp34;
+                    }
+
+                    player->speedXZ *= sp38;
+
+                    if ((this->unk_160 == OBJHUNSUI_F000_5) || (this->unk_160 == OBJHUNSUI_F000_6)) {
+                        Math_ApproachF(&this->unk_1A0, 4.5f, 2.0f, 1.0f);
+                        Math_ApproachF(&this->unk_19C, this->unk_1A0, 2.0f, 0.3f * sp38);
+                    } else {
+                        Math_ApproachF(&this->unk_1A0, 3.0f, 1.0f, 1.0f);
+                        Math_ApproachF(&this->unk_19C, this->unk_1A0, 1.0f, 0.3f * sp38);
+                    }
                 } else {
+                    this->unk_1A4 = player->actor.world.rot.y;
+                    player->speedXZ *= 0.5f;
                     Math_ApproachF(&this->unk_1A0, 3.0f, 1.0f, 1.0f);
-                    Math_ApproachF(&this->unk_19C, this->unk_1A0, 1.0f, 0.3f * sp38);
+                    Math_ApproachF(&this->unk_19C, this->unk_1A0, 1.0f, 0.1f);
                 }
-            } else {
-                this->unk_1A4 = player->actor.world.rot.y;
-                player->speedXZ *= 0.5f;
-                Math_ApproachF(&this->unk_1A0, 3.0f, 1.0f, 1.0f);
-                Math_ApproachF(&this->unk_19C, this->unk_1A0, 1.0f, 0.1f);
-            }
-            player->pushedYaw = this->unk_1A4;
-            player->pushedSpeed = this->unk_19C;
+                player->pushedYaw = this->unk_1A4;
+                player->pushedSpeed = this->unk_19C;
             }
         }
     } else {

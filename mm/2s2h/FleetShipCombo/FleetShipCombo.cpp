@@ -1,6 +1,9 @@
 #include "FleetShipCombo.h"
 
 #include <libultraship/libultraship.h>
+#include <ship/resource/archive/O2rArchive.h> // ReadO2rMajor: "portVersion" of an .o2r
+#include <ship/utils/binarytools/MemoryStream.h>
+#include <ship/utils/binarytools/BinaryReader.h>
 #include <spdlog/spdlog.h>
 
 #include <atomic>
@@ -8,6 +11,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -23,7 +27,14 @@
 #endif
 #endif
 
+// This build's major (mm/src/boot/build.c) — the owner version for mm.o2r. Same declaration shape as
+// build.h (which this lean TU does not include).
+extern "C" uint16_t gBuildVersionMajor;
+
 namespace {
+
+// Set by FleetShipCombo_BootstrapMaybeRelaunch when launched with --fleet-extract.
+bool sExtractOnly = false;
 
 // Candidate Ship executable file names, in priority order, per platform.
 // Ship's CMake target is "soh" (-> soh.exe on Windows, soh.elf on Linux, soh on macOS).
@@ -139,7 +150,7 @@ bool LaunchShip(const std::filesystem::path& shipExe) {
 
 // THIS_GAME identity for this build: 1 = Majora's Mask (2ship).
 constexpr int kThisGame = 1;
-constexpr uint32_t kFscMagic = 0x46534331u;   // 'FSC1'
+constexpr uint32_t kFscMagic = 0x46534331u; // 'FSC1'
 constexpr uint32_t kFscVersion = 4u;
 
 // ---- Anchor-style packet channel (version 3) ----
@@ -164,7 +175,7 @@ struct FscShared {
     uint32_t version;
     int32_t activeGame; // 0 = Ocarina of Time (Ship), 1 = Majora's Mask (2ship)
     // Picture-in-picture: 2ship publishes its game image as a D3D11 shared texture.
-    uint64_t texHandle;     // OS shared handle from IDXGIResource::GetSharedHandle (0 = none)
+    uint64_t texHandle; // OS shared handle from IDXGIResource::GetSharedHandle (0 = none)
     uint32_t texWidth;
     uint32_t texHeight;
     uint32_t texFormat;     // DXGI_FORMAT value
@@ -173,15 +184,16 @@ struct FscShared {
     // Cross-game loading-zone WARP request. The trigger side writes the target (in the TARGET
     // game's id/space), bumps warpSeq, and flips activeGame; whichever game BECOMES active applies
     // it once per new seq (load scene + override Link pos/rot). MUST stay byte-identical to Ship.
-    int32_t warpSeq;        // bumped per request (0 = none yet)
-    int32_t warpScene;      // target scene id in the target game's space
-    float warpX;            // land position override (target game world coords)
+    int32_t warpSeq;   // bumped per request (0 = none yet)
+    int32_t warpScene; // target scene id in the target game's space
+    float warpX;       // land position override (target game world coords)
     float warpY;
     float warpZ;
     int32_t warpRotY;        // land Y rotation (s16 binary angle stored in int32)
     int32_t warpSaveFileNum; // save SLOT the warp came from; the target game loads its own same slot (-1 = unset)
-    int32_t sendFadeAlpha;   // 0..255 sending-fade overlay, written by the ACTIVE (sending) game, drawn by the host consumer
-    int32_t doorDLIndex;     // DEV: which Lost Woods room-DL the MM door tunnel tool is showing (for the on-screen readout)
+    int32_t
+        sendFadeAlpha; // 0..255 sending-fade overlay, written by the ACTIVE (sending) game, drawn by the host consumer
+    int32_t doorDLIndex; // DEV: which Lost Woods room-DL the MM door tunnel tool is showing (for the on-screen readout)
     uint64_t reservedU[12];
     // ---- Anchor-style packet rings (version 3) ----
     // TWO one-way rings, so neither side ever writes the ring it reads: no lock is needed. The
@@ -271,7 +283,8 @@ FscShared* MapShared(bool create) {
     }
 #ifdef _WIN32
     if (create) {
-        sShmHandle = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, sizeof(FscShared), sShmName.c_str());
+        sShmHandle =
+            CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, sizeof(FscShared), sShmName.c_str());
         bool existed = (sShmHandle != nullptr && GetLastError() == ERROR_ALREADY_EXISTS);
         if (sShmHandle != nullptr) {
             sShared = (FscShared*)MapViewOfFile(sShmHandle, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(FscShared));
@@ -317,18 +330,108 @@ FscShared* LazyOpen() {
     return MapShared(false);
 }
 
-// Copy an .o2r from whichever combo dir has it into the one that doesn't (best-effort, never throws).
-void MirrorO2r(const std::filesystem::path& dirA, const std::filesystem::path& dirB, const char* name) {
+// ---- .o2r version reading ----
+// Every LUS archive carries a "portVersion" entry: [endianness u8][major u16][minor u16][patch u16],
+// stamped with the build that made it. A game only accepts a ROM archive whose MAJOR equals its own
+// build major (RunExtract deletes + re-extracts on mismatch). Port archives (2ship.o2r / soh.o2r) are
+// stamped the same way, so "does oot.o2r match Ship's build?" is answerable from here: compare majors.
+constexpr int kO2rMajorUnknown = -1;
+
+int ReadO2rMajor(const std::filesystem::path& archivePath) {
     std::error_code ec;
-    std::filesystem::path a = dirA / name;
-    std::filesystem::path b = dirB / name;
+    if (archivePath.empty() || !std::filesystem::exists(archivePath, ec)) {
+        return kO2rMajorUnknown;
+    }
+    try {
+        auto archive = std::make_shared<Ship::O2rArchive>(archivePath.string());
+        if (!archive->Open()) {
+            return kO2rMajorUnknown;
+        }
+        auto t = archive->LoadFile("portVersion");
+        if (t == nullptr || !t->IsLoaded || t->Buffer == nullptr || t->Buffer->size() < 7) {
+            return kO2rMajorUnknown;
+        }
+        auto stream = std::make_shared<Ship::MemoryStream>(t->Buffer->data(), t->Buffer->size());
+        auto reader = std::make_shared<Ship::BinaryReader>(stream);
+        Ship::Endianness endianness = (Ship::Endianness)reader->ReadUByte();
+        reader->SetEndianness(endianness);
+        return (int)reader->ReadUInt16();
+    } catch (...) {
+        return kO2rMajorUnknown; // unreadable = "no usable copy here"
+    }
+}
+
+// Reconcile ONE archive between the two combo dirs given the major its OWNER build expects.
+//   ownerMajor == kO2rMajorUnknown -> can't judge; plain existence-mirroring (old behavior).
+// A copy is VALID when its major equals ownerMajor. Only valid copies are a source; the preferred
+// source is the copy in `preferDir` (the owner's dir). The destination is (over)written when it is
+// missing, invalid, or a different size. Never deletes: each game deletes its own outdated archive.
+void ReconcileO2r(const std::filesystem::path& preferDir, const std::filesystem::path& otherDir, const char* name,
+                  int ownerMajor) {
+    std::error_code ec;
+    std::filesystem::path a = preferDir / name;
+    std::filesystem::path b = otherDir / name;
     bool ae = std::filesystem::exists(a, ec);
     bool be = std::filesystem::exists(b, ec);
-    if (ae && !be) {
-        std::filesystem::copy_file(a, b, std::filesystem::copy_options::overwrite_existing, ec);
-    } else if (be && !ae) {
-        std::filesystem::copy_file(b, a, std::filesystem::copy_options::overwrite_existing, ec);
+    if (!ae && !be) {
+        return;
     }
+    if (ownerMajor == kO2rMajorUnknown) {
+        if (ae && !be) {
+            std::filesystem::copy_file(a, b, std::filesystem::copy_options::overwrite_existing, ec);
+        } else if (be && !ae) {
+            std::filesystem::copy_file(b, a, std::filesystem::copy_options::overwrite_existing, ec);
+        }
+        return;
+    }
+    int am = ae ? ReadO2rMajor(a) : kO2rMajorUnknown;
+    int bm = be ? ReadO2rMajor(b) : kO2rMajorUnknown;
+    bool aValid = ae && am == ownerMajor;
+    bool bValid = be && bm == ownerMajor;
+    if (!aValid && !bValid) {
+        SPDLOG_WARN("[FleetShipCombo] {}: no copy matches its owner build (major {}; have {} / {}) -> the owner "
+                    "game will re-extract it",
+                    name, ownerMajor, am, bm);
+        return;
+    }
+    const std::filesystem::path& src = aValid ? a : b;
+    const std::filesystem::path& dst = aValid ? b : a;
+    bool dstValid = aValid ? bValid : aValid;
+    if (dstValid) {
+        auto sSize = std::filesystem::file_size(src, ec);
+        auto dSize = std::filesystem::file_size(dst, ec);
+        if (sSize == dSize) {
+            return;
+        }
+    }
+    if (std::filesystem::copy_file(src, dst, std::filesystem::copy_options::overwrite_existing, ec)) {
+        SPDLOG_INFO("[FleetShipCombo] {}: mirrored {} -> {} (owner major {})", name, src.string(), dst.string(),
+                    ownerMajor);
+    } else {
+        SPDLOG_WARN("[FleetShipCombo] {}: could not mirror {} -> {} ({})", name, src.string(), dst.string(),
+                    ec.message());
+    }
+}
+
+struct ComboDirs {
+    std::filesystem::path selfDir; // next to 2ship.exe
+    std::filesystem::path rootDir; // next to soh.exe
+    bool valid = false;
+};
+
+ComboDirs GetComboDirs() {
+    ComboDirs d;
+    d.selfDir = SelfExeDir();
+    std::filesystem::path shipExe = LocateShipExe();
+    if (d.selfDir.empty() || shipExe.empty()) {
+        return d;
+    }
+    d.rootDir = shipExe.parent_path();
+    if (d.rootDir.empty() || d.rootDir == d.selfDir) {
+        return d;
+    }
+    d.valid = true;
+    return d;
 }
 
 } // namespace
@@ -337,20 +440,40 @@ void FleetShipCombo_ProvisionO2rBothDirs(void) {
     // Combo layout: <root>/soh.exe + <root>/2ship/2ship.exe. Both mm.o2r and oot.o2r should sit next to
     // BOTH exes, so mirror whichever exists into the dir missing it — an extraction done by EITHER game
     // (soh -> oot.o2r, 2ship -> mm.o2r) then provisions both. No-op when there's no sibling (standalone).
+    ComboDirs d = GetComboDirs();
+    if (!d.valid) {
+        return;
+    }
+    // mm.o2r is OURS: our copy is preferred and must match THIS build.
+    ReconcileO2r(d.selfDir, d.rootDir, "mm.o2r", (int)gBuildVersionMajor);
+    // oot.o2r is Ship's: its copy is preferred and must match Ship's build = the major stamped in
+    // the soh.o2r sitting next to soh.exe (unknown -> existence-only fallback).
+    ReconcileO2r(d.rootDir, d.selfDir, "oot.o2r", ReadO2rMajor(d.rootDir / "soh.o2r"));
+}
+
+bool FleetShipCombo_IsExtractOnly(void) {
+    return sExtractOnly;
+}
+
+bool FleetShipCombo_HaveValidMmArchive(void) {
+    std::error_code ec;
     std::filesystem::path selfDir = SelfExeDir();
-    std::filesystem::path shipExe = LocateShipExe();
-    if (selfDir.empty() || shipExe.empty()) {
-        return;
+    if (selfDir.empty()) {
+        return false;
     }
-    std::filesystem::path rootDir = shipExe.parent_path();
-    if (rootDir.empty() || rootDir == selfDir) {
-        return;
-    }
-    MirrorO2r(selfDir, rootDir, "mm.o2r");
-    MirrorO2r(selfDir, rootDir, "oot.o2r");
+    std::filesystem::path p = selfDir / "mm.o2r";
+    return std::filesystem::exists(p, ec) && ReadO2rMajor(p) == (int)gBuildVersionMajor;
 }
 
 bool FleetShipCombo_BootstrapMaybeRelaunch(int argc, char** argv) {
+    // Ship's MM archive gate: `2ship.exe --fleet-extract`. Run the extractor VISIBLY and exit; no
+    // shared memory (so GetActiveGame() stays -1 and nothing hides our window), no bounce to Ship.
+    if (HasArg(argc, argv, "--fleet-extract")) {
+        sExtractOnly = true;
+        SPDLOG_INFO("[FleetShipCombo] --fleet-extract: running the ROM extractor visibly for Ship, then exiting.");
+        return false;
+    }
+
     // Ship launches us with --fleet-child; never bounce again or we'd loop forever.
     if (HasArg(argc, argv, "--fleet-child")) {
         SPDLOG_INFO("[FleetShipCombo] Hosted by Ship (--fleet-child); continuing as 2ship child.");
@@ -407,7 +530,8 @@ bool FleetShipCombo_BootstrapMaybeRelaunch(int argc, char** argv) {
         bool here = !selfDir.empty() && std::filesystem::exists(selfDir / "mm.o2r", ec);
         bool atShip = std::filesystem::exists(shipExe.parent_path() / "mm.o2r", ec);
         if (!here && !atShip) {
-            SPDLOG_INFO("[FleetShipCombo] mm.o2r missing everywhere; staying in 2ship to run the extractor (no bounce).");
+            SPDLOG_INFO(
+                "[FleetShipCombo] mm.o2r missing everywhere; staying in 2ship to run the extractor (no bounce).");
             return false;
         }
     }
@@ -458,11 +582,11 @@ void FleetShipCombo_RequestWarp(int targetGame, int scene, float x, float y, flo
     s->warpZ = z;
     s->warpRotY = rotY;
     s->warpSaveFileNum = saveFile; // tell the target game which save slot to be in (set before the seq bump)
-    s->warpSeq += 1;            // mark a new request
-    sLastWarpSeq = s->warpSeq;  // we issued it; don't let THIS process consume its own warp
-    s->activeGame = targetGame; // flip: the target game becomes active (unfrozen) and applies it
-    s->uiFocus = targetGame;    // front window follows the active game (0=OoT, 1=MM); a peek tab may
-                                // override it afterwards without touching activeGame
+    s->warpSeq += 1;               // mark a new request
+    sLastWarpSeq = s->warpSeq;     // we issued it; don't let THIS process consume its own warp
+    s->activeGame = targetGame;    // flip: the target game becomes active (unfrozen) and applies it
+    s->uiFocus = targetGame;       // front window follows the active game (0=OoT, 1=MM); a peek tab may
+                                   // override it afterwards without touching activeGame
 }
 
 int FleetShipCombo_ConsumePendingWarp(int* scene, float* x, float* y, float* z, int* rotY) {
@@ -646,6 +770,10 @@ bool FleetShipCombo_IsThisGameActive(void) {
 int FleetShipCombo_GetUiFocus(void) {
     FscShared* s = LazyOpen();
     return s ? s->uiFocus : -1;
+}
+
+bool FleetShipCombo_ShowMenuUi(void) {
+    return CVarGetInteger("isFleetShipCombo.DevUi", 0) != 0;
 }
 
 void FleetShipCombo_SetUiFocus(int focus) {

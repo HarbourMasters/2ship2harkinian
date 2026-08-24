@@ -34,8 +34,8 @@ extern bool func_80831010(Player* this, PlayState* play);
 // z_player.c internal: MM's real sword jump-attack setup — plays the jumpslash anim, routes Link into
 // Player_Action_29, and launches him with speedXZ = linearVelocity (along shape.rot.y) + velocity.y =
 // yVelocity. Used by the whip's B-release so you let go INTO a jump slash. Non-static → linkable. NEI
-extern void func_808395F0(PlayState* play, Player* this, PlayerMeleeWeaponAnimation meleeWeaponAnim,
-                          f32 linearVelocity, f32 yVelocity);
+extern void func_808395F0(PlayState* play, Player* this, PlayerMeleeWeaponAnimation meleeWeaponAnim, f32 linearVelocity,
+                          f32 yVelocity);
 
 // =============================================================================
 // Static Data
@@ -747,7 +747,7 @@ static void WhipStateSwinging(Player* p, PlayState* play, ItemInputState* in) {
                 if (hMag > WHIP_MAX_RELEASE_SPEED) {
                     hMag = WHIP_MAX_RELEASE_SPEED;
                 }
-                Whip_Stop(p, play); // fully drop the whip (subcam + camera back to Link, clears state)
+                Whip_Stop(p, play);                 // fully drop the whip (subcam + camera back to Link, clears state)
                 p->actor.shape.rot.y = momentumYaw; // re-affirm facing (func_808395F0 launches along it)
                 p->yaw = momentumYaw;
                 // MM's real sword jump-attack: sets speedXZ + velocity.y from these + enters Player_Action_29.

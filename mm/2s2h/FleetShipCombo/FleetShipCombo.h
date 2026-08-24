@@ -30,7 +30,22 @@ bool FleetShipCombo_BootstrapMaybeRelaunch(int argc, char** argv);
 // Mirror mm.o2r + oot.o2r so both sit next to BOTH exes (combo layout: root + /2ship). Call around the
 // extractor: an o2r extracted by either game is copied into the sibling dir, and a missing one that's
 // present in the sibling is pulled in. No-op with no sibling (standalone).
+//
+// VERSION-AWARE: an archive is only mirrored when its "portVersion" major matches its OWNER build
+// (mm.o2r <-> this 2ship build, oot.o2r <-> the soh.o2r at the root), and then it OVERWRITES a copy
+// that doesn't match. Existence-only mirroring bounced an outdated archive straight back into the dir
+// the game had just deleted it from (re-deleted every boot / crash on the new resource format).
 void FleetShipCombo_ProvisionO2rBothDirs(void);
+
+// True when this process was launched by Ship as `2ship.exe --fleet-extract`: the ONLY job is to run
+// the ROM extractor VISIBLY (window on-screen, no shared memory, no bounce) so mm.o2r gets built, then
+// exit. Ship waits for us and runs its own extractor afterwards.
+bool FleetShipCombo_IsExtractOnly(void);
+
+// True when a mm.o2r matching THIS build sits next to 2ship.exe (after ProvisionO2rBothDirs pulled it
+// in from the root if needed). The hosted child only parks its window off-screen when this holds:
+// otherwise the extractor's popups must stay visible.
+bool FleetShipCombo_HaveValidMmArchive(void);
 
 // ---- Shared-memory coordination (Frente B) ----
 // A named shared-memory region carries the active-game flag (and later the D3D11
@@ -77,6 +92,24 @@ int FleetShipCombo_GetWarpSaveFile(void);
 void FleetShipCombo_BeginArrivalBlackout(int frames);
 int FleetShipCombo_ArrivalBlackoutActive(void);
 
+// ---- "this frame actually rendered the game" ----
+// The producer captures the game image through Window::GetGfxFrameBuffer(), which is a raw
+// uintptr_t holding the renderer's CACHED ID3D11ShaderResourceView for the internal framebuffer.
+// Two facts make that dangerous together:
+//   1. The renderer only writes it while processing a display list, and it does NOT clear it when a
+//      frame is skipped — so it keeps pointing at the previous frame's view.
+//   2. That view is destroyed and recreated whenever the framebuffers are resized (window shown or
+//      hidden, resolution multiplier changed).
+// The frozen game renders an EMPTY display list (or nothing at all), and becoming frozen is what
+// hides the window — so the producer could dereference a view the resize had already freed. Using a
+// released COM object corrupts the D3D runtime's heap, and the process then dies somewhere else
+// entirely, inside ntdll, with no exception and nothing in the log. That is the reported crash.
+//
+// So the render path marks the frames where the game display list really went through, and the
+// producer only touches the framebuffer handle on those. Marking is per frame: the producer
+// consumes the flag.
+void FleetShipCombo_MarkGameFrameRendered(void);
+
 // Sending-side fade overlay alpha (0..255): the active game ramps it while Link walks into the door
 // (no scene transition); the host PiP consumer draws black at this alpha over the scene for a real
 // fade-out, then flips at full black. Same-process (host) read/write.
@@ -106,8 +139,23 @@ int FleetShipCombo_PushPacket(const char* json);
 int FleetShipCombo_PopPacket(char* out, int cap);
 
 // True if THIS process is the active game, OR if shared memory is unavailable
-// (standalone). Drives the FrameAdvance freeze of the inactive game.
+// (standalone). Drives input blocking, audio mute and the warp triggers.
 bool FleetShipCombo_IsThisGameActive(void);
+
+// ---- Waiting room ("limbo") ----
+// The inactive game is no longer frozen: before handing over it parks Link in a sealed custom
+// scene ("fleet_scene") and keeps RUNNING there. These are what the two engine gates ask instead
+// of IsThisGameActive():
+//   IsGameSuspended  -> 1 only for an inactive game that is NOT parked (limbo unavailable, or a
+//                       title/file-select state with nothing to park). That is the old freeze,
+//                       kept purely as the fallback. 0 = tick and draw normally.
+//   IsParkedInLimbo  -> 1 while the loaded scene is the waiting room.
+// The save-shadow pair wraps a save write done while parked so the file records the player's real
+// place (entrance / cutscene / scene) and never the waiting room. Implemented in FleetWarpArrival.cpp.
+int FleetShipCombo_IsGameSuspended(void);
+int FleetShipCombo_IsParkedInLimbo(void);
+void FleetShipCombo_LimboSaveShadowBegin(void);
+void FleetShipCombo_LimboSaveShadowEnd(void);
 
 // ---- Picture-in-picture: shared D3D11 game texture (Frente B B2-B4) ----
 // 2ship (producer) copies its rendered game image into a D3D11 shared texture and
@@ -138,6 +186,9 @@ void FleetShipCombo_PollHostAlive(void);
 // its own window (so the user can reach 2ship's BenGui).
 int FleetShipCombo_GetUiFocus(void);
 void FleetShipCombo_SetUiFocus(int focus);
+
+// Read at menu-REGISTRATION time (boot), so "isFleetShipCombo.DevUi" needs a restart to take effect.
+bool FleetShipCombo_ShowMenuUi(void);
 
 // ---- FleetSync save-sync handshake (reservedU[1..3]) ----
 // The game that just SAVED signals; the other (frozen) exe applies the shared overlay from the

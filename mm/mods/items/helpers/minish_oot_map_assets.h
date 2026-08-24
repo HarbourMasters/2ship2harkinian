@@ -266,7 +266,6 @@ static const ALIGN_ASSET(2) char gWorldMapImageTex[] = dgWorldMapImageTex;
 #define dgWorldMapImageTLUT "__OTR__textures/icon_item_field_static/gWorldMapImageTLUT"
 static const ALIGN_ASSET(2) char gWorldMapImageTLUT[] = dgWorldMapImageTLUT;
 
-
 // Minish Cap item icon (Skijer-custom, not in OoT/MM) — OTR-path stub; add the real texture later.
 #define dgItemIconPecoriTex "__OTR__icon_item_custom/gItemIconPecoriTex"
 static const ALIGN_ASSET(2) char gItemIconPecoriTex[] = dgItemIconPecoriTex;

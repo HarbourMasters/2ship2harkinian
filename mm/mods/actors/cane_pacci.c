@@ -47,7 +47,7 @@ typedef enum {
 
 typedef struct {
     Actor* actor;
-    u8 mode;  // PacciFxMode
+    u8 mode; // PacciFxMode
     u8 phase;
     s16 timer;
     // Saved actor state, restored verbatim on release.
@@ -553,9 +553,9 @@ u8 Pacci_CastFlip(PlayState* play, Player* player) {
 // the move looked broken. Three is low enough to still be a finisher.
 #define PACCI_LIFT_MAX_HP 3
 #define PACCI_LIFT_RADIUS 220.0f
-#define PACCI_LIFT_DIST 70.0f    // held this far in front of Link
-#define PACCI_LIFT_HEIGHT 45.0f  // and this far above him
-#define PACCI_LIFT_FOLLOW 0.55f  // weight of the OLD position; snappier than Ultrahand
+#define PACCI_LIFT_DIST 70.0f   // held this far in front of Link
+#define PACCI_LIFT_HEIGHT 45.0f // and this far above him
+#define PACCI_LIFT_FOLLOW 0.55f // weight of the OLD position; snappier than Ultrahand
 #define PACCI_LIFT_THROW_SPEED 12.0f
 // Nearly flat. The object is ALREADY held PACCI_LIFT_HEIGHT above Link, so adding a
 // real upward kick on release lobbed it way over whatever you were aiming at — the
@@ -723,8 +723,7 @@ static s32 Pacci_LiftFilter(Actor* actor) {
 static const u8 sPacciLiftCats[3] = { ACTORCAT_ENEMY, ACTORCAT_PROP, ACTORCAT_BG };
 
 static Actor* Pacci_ScanLiftable(PlayState* play) {
-    return TargetSelect_ScanCats(play, sPacciLiftCats, 3, Pacci_LiftFilter, PACCI_LIFT_RADIUS,
-                                 TARGETSEL_DEFAULT_CONE);
+    return TargetSelect_ScanCats(play, sPacciLiftCats, 3, Pacci_LiftFilter, PACCI_LIFT_RADIUS, TARGETSEL_DEFAULT_CONE);
 }
 
 // ---------------------------------------------------------------------------
@@ -1259,11 +1258,9 @@ static void Pacci_UhTintedDraw(Actor* thisx, PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
     // Both buffers. Which one an actor draws into is its own business and plenty use both,
     // so setting it on one and not the other tints half a model.
-    gDPSetGrayscaleColor(POLY_OPA_DISP++, PACCI_UH_TINT_R, PACCI_UH_TINT_G, PACCI_UH_TINT_B,
-                         PACCI_UH_TINT_MIX);
+    gDPSetGrayscaleColor(POLY_OPA_DISP++, PACCI_UH_TINT_R, PACCI_UH_TINT_G, PACCI_UH_TINT_B, PACCI_UH_TINT_MIX);
     gSPGrayscale(POLY_OPA_DISP++, true);
-    gDPSetGrayscaleColor(POLY_XLU_DISP++, PACCI_UH_TINT_R, PACCI_UH_TINT_G, PACCI_UH_TINT_B,
-                         PACCI_UH_TINT_MIX);
+    gDPSetGrayscaleColor(POLY_XLU_DISP++, PACCI_UH_TINT_R, PACCI_UH_TINT_G, PACCI_UH_TINT_B, PACCI_UH_TINT_MIX);
     gSPGrayscale(POLY_XLU_DISP++, true);
     CLOSE_DISPS(play->state.gfxCtx);
 
@@ -1293,8 +1290,8 @@ static void Pacci_UhTintClear(void) {
 
 // Light this actor for THIS frame. Safe to call more than once on the same actor.
 static void Pacci_UhTintAdd(Actor* actor) {
-    if ((actor == NULL) || (actor->update == NULL) || (actor->draw == NULL) ||
-        (actor->draw == Pacci_UhTintedDraw) || (sUhTintCount >= PACCI_UH_TINT_SLOTS)) {
+    if ((actor == NULL) || (actor->update == NULL) || (actor->draw == NULL) || (actor->draw == Pacci_UhTintedDraw) ||
+        (sUhTintCount >= PACCI_UH_TINT_SLOTS)) {
         return;
     }
     sUhTint[sUhTintCount].actor = actor;
@@ -1309,7 +1306,6 @@ static void Pacci_RefreshPlayerPose(Player* player) {
     }
 }
 
-
 // A held object does nothing on its own — the cane drives its transform, and its
 // colliders must stay out of the collision pass so it cannot push the player.
 static void Pacci_UltrahandHeldUpdate(Actor* thisx, PlayState* play) {
@@ -1318,7 +1314,6 @@ static void Pacci_UltrahandHeldUpdate(Actor* thisx, PlayState* play) {
 // Lives with the rest of the VFX, far below; the release path has to be able to put the
 // light out and it runs long before that.
 static void Pacci_UhLightOff(PlayState* play);
-
 
 u8 Pacci_IsHoldingUltrahand(void) {
     return (sUltrahand.held != NULL) && !sUltrahand.dropping;
@@ -1540,8 +1535,7 @@ static void Pacci_UltrahandTake(Player* player, Actor* target) {
     sUltrahand.carryVel.x = 0.0f;
     sUltrahand.carryVel.y = 0.0f;
     sUltrahand.carryVel.z = 0.0f;
-    sUltrahand.faceOffsetYaw =
-        target->shape.rot.y - Math_Vec3f_Yaw(&target->world.pos, &player->actor.world.pos);
+    sUltrahand.faceOffsetYaw = target->shape.rot.y - Math_Vec3f_Yaw(&target->world.pos, &player->actor.world.pos);
     sUltrahand.vfxAge = 0;
     sUhHighlightTarget = NULL;
     sUltrahand.origUpdate = target->update;
@@ -1692,8 +1686,7 @@ void Pacci_UpdateUltrahand(PlayState* play, Player* player) {
         sUltrahand.carryVel.y = (sUltrahand.carryVel.y * 0.65f) + ((actor->world.pos.y - prevWorld.y) * 0.35f);
         sUltrahand.carryVel.z = (sUltrahand.carryVel.z * 0.65f) + ((actor->world.pos.z - prevWorld.z) * 0.35f);
         playerFacingYaw = Math_Vec3f_Yaw(&actor->world.pos, &player->actor.world.pos);
-        targetFacingYaw = playerFacingYaw + sUltrahand.faceOffsetYaw +
-                          (sUltrahand.baseRot.y - sUltrahand.grabRot.y);
+        targetFacingYaw = playerFacingYaw + sUltrahand.faceOffsetYaw + (sUltrahand.baseRot.y - sUltrahand.grabRot.y);
         actor->shape.rot.x = sUltrahand.baseRot.x;
         Math_SmoothStepToS(&actor->shape.rot.y, targetFacingYaw, 4, 0x1000, 0x20);
         actor->shape.rot.z = sUltrahand.baseRot.z;
@@ -1798,7 +1791,7 @@ void Pacci_UpdateUltrahand(PlayState* play, Player* player) {
 // cost is that two pieces can leave a seam between them; the benefit is that a piece stuck to
 // something is still the piece.
 #define PACCI_FUSE_MAX_PARTS 6
-#define PACCI_FUSE_PTS 27           // 8 corners + 12 edge mids + 6 face centres + centre
+#define PACCI_FUSE_PTS 27            // 8 corners + 12 edge mids + 6 face centres + centre
 #define PACCI_FUSE_WELD_RANGE 130.0f // the best point pair has to be at least this close
 // 80 was too strict once face centres were dropped: with only corners and edge midpoints
 // left, two boxes can be visibly touching while their nearest PAIR of those points is
@@ -1808,7 +1801,7 @@ void Pacci_UpdateUltrahand(PlayState* play, Player* player) {
 // surface, whatever their nearest pair of weld points happens to be doing. See the two gates
 // in Pacci_FuseSolve.
 #define PACCI_FUSE_NEAR_GAP 55.0f
-#define PACCI_FUSE_DETACH_HOLD 12   // frames of held R before a weld comes apart
+#define PACCI_FUSE_DETACH_HOLD 12 // frames of held R before a weld comes apart
 // The shake-to-detach knobs live HERE, not with the rest of the Ultrahand-mode tuning: the
 // detector is part of the fusion code and sits hundreds of lines above that block.
 #define PACCI_UH_WIGGLE_WINDOW 14 // frames a direction flip stays "recent"
@@ -1825,9 +1818,9 @@ void Pacci_UpdateUltrahand(PlayState* play, Player* player) {
 
 typedef struct {
     Actor* actor;
-    Vec3f offset;         // position in the root's local frame
-    Vec3s rot;            // rotation relative to the root
-    Vec3f weldLocal;      // where the two met, root-local, so the bead can be redrawn
+    Vec3f offset;    // position in the root's local frame
+    Vec3s rot;       // rotation relative to the root
+    Vec3f weldLocal; // where the two met, root-local, so the bead can be redrawn
     // The part's own update, which our wrapper calls before re-imposing the transform.
     ActorFunc origUpdate;
     u32 origFlags;
@@ -1857,8 +1850,7 @@ static struct {
     // target — and that pairing is the whole decision you are making.
     Vec3f heldPt;
     Vec3f targetPt;
-} sFusePv = { 0, NULL, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f },
-              { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };
+} sFusePv = { 0, NULL, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } };
 
 static s16 sFuseDetachHold = 0;
 
@@ -2139,8 +2131,8 @@ static f32 Pacci_FuseBoxGap(PacciFuseBox* a, PacciFuseBox* b) {
     return sqrtf((gx * gx) + (gy * gy) + (gz * gz));
 }
 
-static u8 Pacci_FuseSolve(PlayState* play, Actor* held, Actor* target, Vec3f* weld, Vec3f* snapPos,
-                          Vec3f* outHeldPt, Vec3f* outTargetPt) {
+static u8 Pacci_FuseSolve(PlayState* play, Actor* held, Actor* target, Vec3f* weld, Vec3f* snapPos, Vec3f* outHeldPt,
+                          Vec3f* outTargetPt) {
     PacciFuseBox hb;
     PacciFuseBox tb;
     Vec3f hp[PACCI_FUSE_PTS];
@@ -2247,8 +2239,7 @@ void Pacci_FuseUpdatePreview(PlayState* play, Player* player) {
     if ((target == NULL) || (target == held) || (target->update == NULL) || Pacci_FuseIsPart(target)) {
         return;
     }
-    if (!Pacci_FuseSolve(play, held, target, &sFusePv.weld, &sFusePv.snapPos, &sFusePv.heldPt,
-                         &sFusePv.targetPt)) {
+    if (!Pacci_FuseSolve(play, held, target, &sFusePv.weld, &sFusePv.snapPos, &sFusePv.heldPt, &sFusePv.targetPt)) {
         return;
     }
 
@@ -2271,8 +2262,7 @@ void Pacci_FuseUpdatePreview(PlayState* play, Player* player) {
 static u8 Pacci_FuseAdopt(Actor* root, Actor* part, Vec3f* localOff, Vec3s* relRot) {
     PacciFusePart* slot;
 
-    if ((root == NULL) || (part == NULL) || (part->update == NULL) ||
-        (sFuse.count >= PACCI_FUSE_MAX_PARTS)) {
+    if ((root == NULL) || (part == NULL) || (part->update == NULL) || (sFuse.count >= PACCI_FUSE_MAX_PARTS)) {
         return 0;
     }
     slot = &sFuse.parts[sFuse.count];
@@ -2471,18 +2461,14 @@ void Pacci_FuseFollow(PlayState* play) {
 // An octahedron, not a cube: at bead size the silhouette is all you read, and eight
 // faces round off where six would show corners.
 static Vtx sFuseBeadVtx[] = {
-    VTX(0, 1, 0, 0, 0, 0, 0, 0, 255),  VTX(0, -1, 0, 0, 0, 0, 0, 0, 255),
-    VTX(1, 0, 0, 0, 0, 0, 0, 0, 255),  VTX(-1, 0, 0, 0, 0, 0, 0, 0, 255),
-    VTX(0, 0, 1, 0, 0, 0, 0, 0, 255),  VTX(0, 0, -1, 0, 0, 0, 0, 0, 255),
+    VTX(0, 1, 0, 0, 0, 0, 0, 0, 255),  VTX(0, -1, 0, 0, 0, 0, 0, 0, 255), VTX(1, 0, 0, 0, 0, 0, 0, 0, 255),
+    VTX(-1, 0, 0, 0, 0, 0, 0, 0, 255), VTX(0, 0, 1, 0, 0, 0, 0, 0, 255),  VTX(0, 0, -1, 0, 0, 0, 0, 0, 255),
 };
 
 static Gfx sFuseBeadDL[] = {
-    gsSPVertex(sFuseBeadVtx, 6, 0),
-    gsSP2Triangles(0, 4, 2, 0, 0, 2, 5, 0),
-    gsSP2Triangles(0, 5, 3, 0, 0, 3, 4, 0),
-    gsSP2Triangles(1, 2, 4, 0, 1, 5, 2, 0),
-    gsSP2Triangles(1, 3, 5, 0, 1, 4, 3, 0),
-    gsSPEndDisplayList(),
+    gsSPVertex(sFuseBeadVtx, 6, 0),         gsSP2Triangles(0, 4, 2, 0, 0, 2, 5, 0),
+    gsSP2Triangles(0, 5, 3, 0, 0, 3, 4, 0), gsSP2Triangles(1, 2, 4, 0, 1, 5, 2, 0),
+    gsSP2Triangles(1, 3, 5, 0, 1, 4, 3, 0), gsSPEndDisplayList(),
 };
 
 static void Pacci_FuseDrawBead(PlayState* play, Vec3f* pos, f32 scale, u8 pulsing) {
@@ -2619,47 +2605,28 @@ void Pacci_FuseDrawPreview(PlayState* play) {
 // radius/100) and shares the beams' own orientation maths.
 
 static Vtx sPacciUhPrismVtx[] = {
-    VTX(100, 0, 0, 0, 0, 0, 0, 0, 255),
-    VTX(71, 0, 71, 0, 0, 0, 0, 0, 255),
-    VTX(0, 0, 100, 0, 0, 0, 0, 0, 255),
-    VTX(-71, 0, 71, 0, 0, 0, 0, 0, 255),
-    VTX(-100, 0, 0, 0, 0, 0, 0, 0, 255),
-    VTX(-71, 0, -71, 0, 0, 0, 0, 0, 255),
-    VTX(0, 0, -100, 0, 0, 0, 0, 0, 255),
-    VTX(71, 0, -71, 0, 0, 0, 0, 0, 255),
-    VTX(100, 100, 0, 0, 0, 0, 0, 0, 255),
-    VTX(71, 100, 71, 0, 0, 0, 0, 0, 255),
-    VTX(0, 100, 100, 0, 0, 0, 0, 0, 255),
-    VTX(-71, 100, 71, 0, 0, 0, 0, 0, 255),
-    VTX(-100, 100, 0, 0, 0, 0, 0, 0, 255),
-    VTX(-71, 100, -71, 0, 0, 0, 0, 0, 255),
-    VTX(0, 100, -100, 0, 0, 0, 0, 0, 255),
-    VTX(71, 100, -71, 0, 0, 0, 0, 0, 255),
+    VTX(100, 0, 0, 0, 0, 0, 0, 0, 255),    VTX(71, 0, 71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 0, 100, 0, 0, 0, 0, 0, 255),    VTX(-71, 0, 71, 0, 0, 0, 0, 0, 255),
+    VTX(-100, 0, 0, 0, 0, 0, 0, 0, 255),   VTX(-71, 0, -71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 0, -100, 0, 0, 0, 0, 0, 255),   VTX(71, 0, -71, 0, 0, 0, 0, 0, 255),
+    VTX(100, 100, 0, 0, 0, 0, 0, 0, 255),  VTX(71, 100, 71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 100, 100, 0, 0, 0, 0, 0, 255),  VTX(-71, 100, 71, 0, 0, 0, 0, 0, 255),
+    VTX(-100, 100, 0, 0, 0, 0, 0, 0, 255), VTX(-71, 100, -71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 100, -100, 0, 0, 0, 0, 0, 255), VTX(71, 100, -71, 0, 0, 0, 0, 0, 255),
 };
 
 static Gfx sPacciUhPrismDL[] = {
-    gsSPVertex(sPacciUhPrismVtx, 16, 0),
-    gsSP2Triangles(0, 1, 9, 0, 0, 9, 8, 0),
-    gsSP2Triangles(1, 2, 10, 0, 1, 10, 9, 0),
-    gsSP2Triangles(2, 3, 11, 0, 2, 11, 10, 0),
-    gsSP2Triangles(3, 4, 12, 0, 3, 12, 11, 0),
-    gsSP2Triangles(4, 5, 13, 0, 4, 13, 12, 0),
-    gsSP2Triangles(5, 6, 14, 0, 5, 14, 13, 0),
-    gsSP2Triangles(6, 7, 15, 0, 6, 15, 14, 0),
-    gsSP2Triangles(7, 0, 8, 0, 7, 8, 15, 0),
-    gsSPEndDisplayList(),
+    gsSPVertex(sPacciUhPrismVtx, 16, 0),       gsSP2Triangles(0, 1, 9, 0, 0, 9, 8, 0),
+    gsSP2Triangles(1, 2, 10, 0, 1, 10, 9, 0),  gsSP2Triangles(2, 3, 11, 0, 2, 11, 10, 0),
+    gsSP2Triangles(3, 4, 12, 0, 3, 12, 11, 0), gsSP2Triangles(4, 5, 13, 0, 4, 13, 12, 0),
+    gsSP2Triangles(5, 6, 14, 0, 5, 14, 13, 0), gsSP2Triangles(6, 7, 15, 0, 6, 15, 14, 0),
+    gsSP2Triangles(7, 0, 8, 0, 7, 8, 15, 0),   gsSPEndDisplayList(),
 };
 
 static Vtx sPacciUhConeVtx[] = {
-    VTX(0, 100, 0, 0, 0, 0, 0, 0, 255),
-    VTX(100, 0, 0, 0, 0, 0, 0, 0, 255),
-    VTX(71, 0, 71, 0, 0, 0, 0, 0, 255),
-    VTX(0, 0, 100, 0, 0, 0, 0, 0, 255),
-    VTX(-71, 0, 71, 0, 0, 0, 0, 0, 255),
-    VTX(-100, 0, 0, 0, 0, 0, 0, 0, 255),
-    VTX(-71, 0, -71, 0, 0, 0, 0, 0, 255),
-    VTX(0, 0, -100, 0, 0, 0, 0, 0, 255),
-    VTX(71, 0, -71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 100, 0, 0, 0, 0, 0, 0, 255),   VTX(100, 0, 0, 0, 0, 0, 0, 0, 255),  VTX(71, 0, 71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 0, 100, 0, 0, 0, 0, 0, 255),   VTX(-71, 0, 71, 0, 0, 0, 0, 0, 255), VTX(-100, 0, 0, 0, 0, 0, 0, 0, 255),
+    VTX(-71, 0, -71, 0, 0, 0, 0, 0, 255), VTX(0, 0, -100, 0, 0, 0, 0, 0, 255), VTX(71, 0, -71, 0, 0, 0, 0, 0, 255),
 };
 
 static Gfx sPacciUhConeDL[] = {
@@ -2705,8 +2672,7 @@ static void Pacci_UhGetStreamPoint(Vec3f* point, Vec3f* start, Vec3f* end, f32 t
         sideZ = -dx / xzLength;
     }
     point->x = start->x + ((end->x - start->x) * t) + (sideX * flutter * 3.8f);
-    point->y = start->y + ((end->y - start->y) * t) + (envelope * 10.0f) +
-               (Math_CosS(broadWave) * envelope * 1.8f);
+    point->y = start->y + ((end->y - start->y) * t) + (envelope * 10.0f) + (Math_CosS(broadWave) * envelope * 1.8f);
     point->z = start->z + ((end->z - start->z) * t) + (sideZ * flutter * 3.8f);
 }
 
@@ -2722,8 +2688,7 @@ static void Pacci_UhSolidBegin(Gfx** gfxP) {
     Gfx* gfx = *gfxP;
 
     gDPPipeSync(gfx++);
-    gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, 0, 0, 0, PRIMITIVE,
-                      0, 0, 0, PRIMITIVE, 0, 0, 0, PRIMITIVE);
+    gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, 0, 0, 0, PRIMITIVE, 0, 0, 0, PRIMITIVE, 0, 0, 0, PRIMITIVE);
     gSPClearGeometryMode(gfx++, G_LIGHTING | G_CULL_BACK);
     *gfxP = gfx;
 }
@@ -2736,8 +2701,8 @@ static void Pacci_UhSolidEnd(Gfx** gfxP) {
 }
 
 // Draw one solid primitive spanning start -> end. Must sit between a Begin/End pair.
-static void Pacci_UhDrawSolid(PlayState* play, Gfx** gfxP, Gfx* dl, Vec3f* start, Vec3f* end,
-                              f32 radius, u8 r, u8 g, u8 b, u8 alpha) {
+static void Pacci_UhDrawSolid(PlayState* play, Gfx** gfxP, Gfx* dl, Vec3f* start, Vec3f* end, f32 radius, u8 r, u8 g,
+                              u8 b, u8 alpha) {
     f32 dx = end->x - start->x;
     f32 dy = end->y - start->y;
     f32 dz = end->z - start->z;
@@ -2786,17 +2751,16 @@ static void Pacci_UhLightAt(PlayState* play, Vec3f* pos, f32 strength) {
     // together instead of drifting in and out of phase with each other.
     f32 pulse = strength * (0.86f + (Math_SinS((s16)(play->gameplayFrames * 0x0500)) * 0.14f));
 
-    Lights_PointNoGlowSetInfo(&sUhLightInfo, (s16)pos->x, (s16)pos->y, (s16)pos->z,
-                              (u8)(PACCI_UH_LIGHT_R * pulse), (u8)(PACCI_UH_LIGHT_G * pulse),
-                              (u8)(PACCI_UH_LIGHT_B * pulse), PACCI_UH_LIGHT_RADIUS);
+    Lights_PointNoGlowSetInfo(&sUhLightInfo, (s16)pos->x, (s16)pos->y, (s16)pos->z, (u8)(PACCI_UH_LIGHT_R * pulse),
+                              (u8)(PACCI_UH_LIGHT_G * pulse), (u8)(PACCI_UH_LIGHT_B * pulse), PACCI_UH_LIGHT_RADIUS);
     if (sUhLightNode == NULL) {
         sUhLightNode = LightContext_InsertLight(play, &play->lightCtx, &sUhLightInfo);
         sUhLightScene = play->sceneId;
     }
 }
 
-static void Pacci_UhDrawFlowPass(PlayState* play, Gfx** gfxP, Vec3f* hand, Vec3f* target, f32 reach,
-                                 s16 phase, f32 width, u8 r, u8 g, u8 b, u8 alpha) {
+static void Pacci_UhDrawFlowPass(PlayState* play, Gfx** gfxP, Vec3f* hand, Vec3f* target, f32 reach, s16 phase,
+                                 f32 width, u8 r, u8 g, u8 b, u8 alpha) {
     Vec3f points[PACCI_UH_VFX_POINTS];
     u8 i;
 
@@ -2813,8 +2777,8 @@ static void Pacci_UhDrawFlowPass(PlayState* play, Gfx** gfxP, Vec3f* hand, Vec3f
         // hand and dies into the object rather than being cut off flat.
         f32 edge = Math_SinS((s16)((i * 0x7FFF) / (PACCI_UH_VFX_POINTS - 2)));
 
-        Pacci_UhDrawSolid(play, gfxP, sPacciUhPrismDL, &points[i], &points[i + 1],
-                          width * (0.55f + (edge * 0.45f)), r, g, b, alpha);
+        Pacci_UhDrawSolid(play, gfxP, sPacciUhPrismDL, &points[i], &points[i + 1], width * (0.55f + (edge * 0.45f)), r,
+                          g, b, alpha);
     }
     Pacci_UhSolidEnd(gfxP);
 }
@@ -2822,8 +2786,8 @@ static void Pacci_UhDrawFlowPass(PlayState* play, Gfx** gfxP, Vec3f* hand, Vec3f
 // A Maya / Blender translate handle: solid shaft, solid cone head, flat colour. The
 // beam-segment version read as a spell rather than as a control, which is the one
 // thing a gizmo must not do.
-static void Pacci_UhDrawArrow(PlayState* play, Gfx** gfxP, Vec3f* center, Vec3f* direction, f32 startDist,
-                              f32 length, u8 r, u8 g, u8 b) {
+static void Pacci_UhDrawArrow(PlayState* play, Gfx** gfxP, Vec3f* center, Vec3f* direction, f32 startDist, f32 length,
+                              u8 r, u8 g, u8 b) {
     f32 headLength = CLAMP_MIN((length - startDist) * 0.34f, 16.0f);
     f32 shaftEnd = length - headLength;
     Vec3f start;
@@ -2852,8 +2816,8 @@ static void Pacci_UhDrawArrow(PlayState* play, Gfx** gfxP, Vec3f* center, Vec3f*
 // The rotate handle: a solid band around the axis, built from the same prism the
 // arrows use. One Begin/End wraps the whole ring, so a twenty-segment band costs
 // twenty matrices instead of twenty full state changes.
-static void Pacci_UhDrawRotationRing(PlayState* play, Gfx** gfxP, Vec3f* center, f32 radius, s16 yaw,
-                                     u8 vertical, u8 r, u8 g, u8 b) {
+static void Pacci_UhDrawRotationRing(PlayState* play, Gfx** gfxP, Vec3f* center, f32 radius, s16 yaw, u8 vertical, u8 r,
+                                     u8 g, u8 b) {
     Vec3f previous;
     f32 sinYaw = Math_SinS(yaw);
     f32 cosYaw = Math_CosS(yaw);
@@ -2876,8 +2840,7 @@ static void Pacci_UhDrawRotationRing(PlayState* play, Gfx** gfxP, Vec3f* center,
             point.z = center->z + (cos * radius);
         }
         if (i != 0) {
-            Pacci_UhDrawSolid(play, gfxP, sPacciUhPrismDL, &previous, &point, PACCI_UH_GIZMO_RING_R,
-                              r, g, b, 245);
+            Pacci_UhDrawSolid(play, gfxP, sPacciUhPrismDL, &previous, &point, PACCI_UH_GIZMO_RING_R, r, g, b, 245);
         }
         previous = point;
     }
@@ -2944,12 +2907,12 @@ void Pacci_UltrahandDrawVfx(PlayState* play, Player* player) {
             // untextured tube glow - a single pass of one colour is just a green stick. The
             // two outer strands run on different phases of the same wobble, so they cross the
             // core instead of sheathing it.
-            Pacci_UhDrawFlowPass(play, &POLY_XLU_DISP, &hand, &box.center, reach, 0x2AAA, 5.0f,
-                                 PACCI_UH_FLOW_HALO_R, PACCI_UH_FLOW_HALO_G, PACCI_UH_FLOW_HALO_B, 55);
-            Pacci_UhDrawFlowPass(play, &POLY_XLU_DISP, &hand, &box.center, reach, 0x6AAA, 2.4f,
-                                 PACCI_UH_FLOW_MID_R, PACCI_UH_FLOW_MID_G, PACCI_UH_FLOW_MID_B, 150);
-            Pacci_UhDrawFlowPass(play, &POLY_XLU_DISP, &hand, &box.center, reach, 0, 1.1f,
-                                 PACCI_UH_FLOW_CORE_R, PACCI_UH_FLOW_CORE_G, PACCI_UH_FLOW_CORE_B, 255);
+            Pacci_UhDrawFlowPass(play, &POLY_XLU_DISP, &hand, &box.center, reach, 0x2AAA, 5.0f, PACCI_UH_FLOW_HALO_R,
+                                 PACCI_UH_FLOW_HALO_G, PACCI_UH_FLOW_HALO_B, 55);
+            Pacci_UhDrawFlowPass(play, &POLY_XLU_DISP, &hand, &box.center, reach, 0x6AAA, 2.4f, PACCI_UH_FLOW_MID_R,
+                                 PACCI_UH_FLOW_MID_G, PACCI_UH_FLOW_MID_B, 150);
+            Pacci_UhDrawFlowPass(play, &POLY_XLU_DISP, &hand, &box.center, reach, 0, 1.1f, PACCI_UH_FLOW_CORE_R,
+                                 PACCI_UH_FLOW_CORE_G, PACCI_UH_FLOW_CORE_B, 255);
         }
 
         // The handles are only drawn while the control they describe is being used. They used
@@ -2968,10 +2931,10 @@ void Pacci_UltrahandDrawVfx(PlayState* play, Player* player) {
             f32 yawRadius = fmaxf(box.half.x, box.half.z) + 30.0f;
             f32 pitchRadius = fmaxf(box.half.y, box.half.z) + 30.0f;
             // Blue follows left/right (yaw), red follows up/down (pitch).
-            Pacci_UhDrawRotationRing(play, &POLY_XLU_DISP, &box.center, yawRadius, player->actor.focus.rot.y,
-                                     0, 40, 135, 255);
-            Pacci_UhDrawRotationRing(play, &POLY_XLU_DISP, &box.center, pitchRadius, player->actor.focus.rot.y,
-                                     1, 255, 75, 55);
+            Pacci_UhDrawRotationRing(play, &POLY_XLU_DISP, &box.center, yawRadius, player->actor.focus.rot.y, 0, 40,
+                                     135, 255);
+            Pacci_UhDrawRotationRing(play, &POLY_XLU_DISP, &box.center, pitchRadius, player->actor.focus.rot.y, 1, 255,
+                                     75, 55);
         } else if (buttons & BTN_R) {
             f32 maxHalf = fmaxf(fmaxf(box.half.x, box.half.y), box.half.z);
             f32 start = maxHalf * 0.35f;
@@ -2997,7 +2960,6 @@ void Pacci_UltrahandDrawVfx(PlayState* play, Player* player) {
             side.z = -side.z;
             Pacci_UhDrawArrow(play, &POLY_XLU_DISP, &box.center, &side, start, length, 45, 135, 255);
         }
-
     }
     CLOSE_DISPS(play->state.gfxCtx);
 }
@@ -3052,8 +3014,7 @@ static u8 Pacci_UhGroundUnder(PlayState* play, Actor* actor, f32* outY) {
         to.x = from.x;
         to.z = from.z;
         to.y = bottom - PACCI_UH_GROUND_PROBE;
-        if (BgCheck_ProjectileLineTest(&play->colCtx, &from, &to, &hit, &poly, true, true, true, true,
-                                       &bgId)) {
+        if (BgCheck_ProjectileLineTest(&play->colCtx, &from, &to, &hit, &poly, true, true, true, true, &bgId)) {
             // HIGHEST hit wins: that is the surface the body comes to rest on first, and it is
             // why a structure straddling a step ends up on the step and not through it.
             if (!found || (hit.y > best)) {
@@ -3128,8 +3089,7 @@ u8 Pacci_BlueprintSave(PlayState* play) {
     for (i = 0; i < sFuse.count; i++) {
         Actor* part = sFuse.parts[i].actor;
 
-        if ((part == NULL) || (part->update == NULL) || !Pacci_FuseGetBox(play, part, &box) ||
-            !box.dyna) {
+        if ((part == NULL) || (part->update == NULL) || !Pacci_FuseGetBox(play, part, &box) || !box.dyna) {
             Pacci_BlueprintDeny();
             return 0;
         }
@@ -3208,11 +3168,9 @@ u8 Pacci_BlueprintSummon(PlayState* play, Player* player) {
         Vec3f off = sBlueprint.piece[i].offset;
 
         spawned[i] =
-            Actor_Spawn(&play->actorCtx, play, sBlueprint.piece[i].actorId,
-                        base.x + ((off.x * cos) + (off.z * sin)), base.y + off.y,
-                        base.z + ((off.z * cos) - (off.x * sin)), sBlueprint.piece[i].rot.x,
-                        sBlueprint.piece[i].rot.y + yaw, sBlueprint.piece[i].rot.z,
-                        sBlueprint.piece[i].params);
+            Actor_Spawn(&play->actorCtx, play, sBlueprint.piece[i].actorId, base.x + ((off.x * cos) + (off.z * sin)),
+                        base.y + off.y, base.z + ((off.z * cos) - (off.x * sin)), sBlueprint.piece[i].rot.x,
+                        sBlueprint.piece[i].rot.y + yaw, sBlueprint.piece[i].rot.z, sBlueprint.piece[i].params);
         if (spawned[i] == NULL) {
             break;
         }
@@ -3255,13 +3213,13 @@ u8 Pacci_BlueprintSummon(PlayState* play, Player* player) {
 //
 // Roughly TotK's scheme: grab on A, cancel on B, a held modifier to switch the
 // D-pad from rotating to moving.
-#define PACCI_UH_ROT_SNAP 0x2000  // 45 degrees per press, TotK-style snapping
+#define PACCI_UH_ROT_SNAP 0x2000 // 45 degrees per press, TotK-style snapping
 // Movement is CONTINUOUS while the pad is held, not one step per press: a single
 // nudge of 20 was swallowed whole by the carry's easing, which is why raising and
 // lowering looked like it did nothing. Rotation stays per-press — snapping to 45
 // degrees is the whole point there.
-#define PACCI_UH_MOVE_RATE 6.0f  // height units per FRAME while held
-#define PACCI_UH_DIST_RATE 8.0f  // push/pull units per FRAME while held
+#define PACCI_UH_MOVE_RATE 6.0f // height units per FRAME while held
+#define PACCI_UH_DIST_RATE 8.0f // push/pull units per FRAME while held
 #define PACCI_UH_SIDE_MIN -120.0f
 #define PACCI_UH_SIDE_MAX 120.0f
 #define PACCI_UH_HEIGHT_MIN -80.0f

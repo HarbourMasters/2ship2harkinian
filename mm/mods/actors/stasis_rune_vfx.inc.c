@@ -17,51 +17,41 @@
 // ── Inline geometry (the Pacci gizmo shapes, kept local so this file owns its own art) ───────────
 // Modelled at radius/length 100 so the draw helpers can scale by (want / 100).
 static Vtx sStasisPrismVtx[] = {
-    VTX(100, 0, 0, 0, 0, 0, 0, 0, 255),   VTX(71, 0, 71, 0, 0, 0, 0, 0, 255),
-    VTX(0, 0, 100, 0, 0, 0, 0, 0, 255),   VTX(-71, 0, 71, 0, 0, 0, 0, 0, 255),
-    VTX(-100, 0, 0, 0, 0, 0, 0, 0, 255),  VTX(-71, 0, -71, 0, 0, 0, 0, 0, 255),
-    VTX(0, 0, -100, 0, 0, 0, 0, 0, 255),  VTX(71, 0, -71, 0, 0, 0, 0, 0, 255),
-    VTX(100, 100, 0, 0, 0, 0, 0, 0, 255), VTX(71, 100, 71, 0, 0, 0, 0, 0, 255),
-    VTX(0, 100, 100, 0, 0, 0, 0, 0, 255), VTX(-71, 100, 71, 0, 0, 0, 0, 0, 255),
+    VTX(100, 0, 0, 0, 0, 0, 0, 0, 255),    VTX(71, 0, 71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 0, 100, 0, 0, 0, 0, 0, 255),    VTX(-71, 0, 71, 0, 0, 0, 0, 0, 255),
+    VTX(-100, 0, 0, 0, 0, 0, 0, 0, 255),   VTX(-71, 0, -71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 0, -100, 0, 0, 0, 0, 0, 255),   VTX(71, 0, -71, 0, 0, 0, 0, 0, 255),
+    VTX(100, 100, 0, 0, 0, 0, 0, 0, 255),  VTX(71, 100, 71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 100, 100, 0, 0, 0, 0, 0, 255),  VTX(-71, 100, 71, 0, 0, 0, 0, 0, 255),
     VTX(-100, 100, 0, 0, 0, 0, 0, 0, 255), VTX(-71, 100, -71, 0, 0, 0, 0, 0, 255),
     VTX(0, 100, -100, 0, 0, 0, 0, 0, 255), VTX(71, 100, -71, 0, 0, 0, 0, 0, 255),
 };
 
 static Gfx sStasisPrismDL[] = {
-    gsSPVertex(sStasisPrismVtx, 16, 0),
-    gsSP2Triangles(0, 8, 9, 0, 0, 9, 1, 0),
-    gsSP2Triangles(1, 9, 10, 0, 1, 10, 2, 0),
-    gsSP2Triangles(2, 10, 11, 0, 2, 11, 3, 0),
-    gsSP2Triangles(3, 11, 12, 0, 3, 12, 4, 0),
-    gsSP2Triangles(4, 12, 13, 0, 4, 13, 5, 0),
-    gsSP2Triangles(5, 13, 14, 0, 5, 14, 6, 0),
-    gsSP2Triangles(6, 14, 15, 0, 6, 15, 7, 0),
-    gsSP2Triangles(7, 15, 8, 0, 7, 8, 0, 0),
-    gsSPEndDisplayList(),
+    gsSPVertex(sStasisPrismVtx, 16, 0),        gsSP2Triangles(0, 8, 9, 0, 0, 9, 1, 0),
+    gsSP2Triangles(1, 9, 10, 0, 1, 10, 2, 0),  gsSP2Triangles(2, 10, 11, 0, 2, 11, 3, 0),
+    gsSP2Triangles(3, 11, 12, 0, 3, 12, 4, 0), gsSP2Triangles(4, 12, 13, 0, 4, 13, 5, 0),
+    gsSP2Triangles(5, 13, 14, 0, 5, 14, 6, 0), gsSP2Triangles(6, 14, 15, 0, 6, 15, 7, 0),
+    gsSP2Triangles(7, 15, 8, 0, 7, 8, 0, 0),   gsSPEndDisplayList(),
 };
 
 static Vtx sStasisConeVtx[] = {
-    VTX(0, 100, 0, 0, 0, 0, 0, 0, 255),  VTX(100, 0, 0, 0, 0, 0, 0, 0, 255),
-    VTX(71, 0, 71, 0, 0, 0, 0, 0, 255),  VTX(0, 0, 100, 0, 0, 0, 0, 0, 255),
-    VTX(-71, 0, 71, 0, 0, 0, 0, 0, 255), VTX(-100, 0, 0, 0, 0, 0, 0, 0, 255),
-    VTX(-71, 0, -71, 0, 0, 0, 0, 0, 255), VTX(0, 0, -100, 0, 0, 0, 0, 0, 255),
-    VTX(71, 0, -71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 100, 0, 0, 0, 0, 0, 0, 255),   VTX(100, 0, 0, 0, 0, 0, 0, 0, 255),  VTX(71, 0, 71, 0, 0, 0, 0, 0, 255),
+    VTX(0, 0, 100, 0, 0, 0, 0, 0, 255),   VTX(-71, 0, 71, 0, 0, 0, 0, 0, 255), VTX(-100, 0, 0, 0, 0, 0, 0, 0, 255),
+    VTX(-71, 0, -71, 0, 0, 0, 0, 0, 255), VTX(0, 0, -100, 0, 0, 0, 0, 0, 255), VTX(71, 0, -71, 0, 0, 0, 0, 0, 255),
 };
 
 static Gfx sStasisConeDL[] = {
-    gsSPVertex(sStasisConeVtx, 9, 0),
-    gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
-    gsSP2Triangles(0, 3, 4, 0, 0, 4, 5, 0),
-    gsSP2Triangles(0, 5, 6, 0, 0, 6, 7, 0),
-    gsSP2Triangles(0, 7, 8, 0, 0, 8, 1, 0),
-    gsSPEndDisplayList(),
+    gsSPVertex(sStasisConeVtx, 9, 0),       gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
+    gsSP2Triangles(0, 3, 4, 0, 0, 4, 5, 0), gsSP2Triangles(0, 5, 6, 0, 0, 6, 7, 0),
+    gsSP2Triangles(0, 7, 8, 0, 0, 8, 1, 0), gsSPEndDisplayList(),
 };
 
 #define STASIS_ARROW_SHAFT_R 4.5f
 #define STASIS_ARROW_HEAD_R 13.0f
 #define STASIS_ARROW_HEAD_LEN 22.0f
-#define STASIS_ARROW_MIN_LEN 34.0f   // length with nothing stored
-#define STASIS_ARROW_GROWTH 110.0f   // ...and how much a full charge adds on top
+#define STASIS_ARROW_MIN_LEN 34.0f // length with nothing stored
+#define STASIS_ARROW_GROWTH 110.0f // ...and how much a full charge adds on top
 #define STASIS_CHAIN_COUNT 6
 
 // The yellow the chains end up as. Brighter than the body tint on purpose: a thin chain over open
@@ -107,7 +97,8 @@ static void Stasis_DrawSolid(PlayState* play, Gfx** gfxP, Gfx* dl, Vec3f* start,
     Matrix_Scale(radius / 100.0f, len / 100.0f, radius / 100.0f, MTXMODE_APPLY);
 
     gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
-    gSPMatrix(gfx++, Matrix_NewMtx(play->state.gfxCtx, __FILE__, __LINE__), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPMatrix(gfx++, Matrix_NewMtx(play->state.gfxCtx, __FILE__, __LINE__),
+              G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(gfx++, dl);
     *gfxP = gfx;
 }
@@ -298,9 +289,9 @@ static void Stasis_DrawChain(PlayState* play, Vec3f* start, Vec3f* end, u8 alpha
 // object being pinned in place from every direction rather than as a decorative burst.
 static void Stasis_DrawChains(PlayState* play) {
     static const f32 sChainAxis[STASIS_CHAIN_COUNT][3] = {
-        { 1.0f, 0.0f, 0.0f },  { -1.0f, 0.0f, 0.0f }, // X
-        { 0.0f, 1.0f, 0.0f },  { 0.0f, -1.0f, 0.0f }, // Y
-        { 0.0f, 0.0f, 1.0f },  { 0.0f, 0.0f, -1.0f }, // Z
+        { 1.0f, 0.0f, 0.0f }, { -1.0f, 0.0f, 0.0f }, // X
+        { 0.0f, 1.0f, 0.0f }, { 0.0f, -1.0f, 0.0f }, // Y
+        { 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, -1.0f }, // Z
     };
     Actor* actor = sStasis.actor;
     Vec3f center;

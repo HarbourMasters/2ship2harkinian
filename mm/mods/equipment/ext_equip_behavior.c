@@ -198,7 +198,8 @@ static void ExtEquip_DispatchBehavior(Player* player, PlayState* play) {
         Champion_Cleanup(play);
     }
 
-    if (gExtEquipState.currentExtSword > 0 && gExtEquipState.currentExtSword <= 3) {
+    // Trident reads current-frame input and owns player actions, so it runs late.
+    if (gExtEquipState.currentExtSword > 0 && gExtEquipState.currentExtSword < 3) {
         sExtSwordBehaviors[gExtEquipState.currentExtSword - 1](player, play);
     }
     if (gExtEquipState.currentExtShield > 0 && gExtEquipState.currentExtShield <= 3) {
@@ -242,5 +243,8 @@ static void ExtEquip_DrawDispatch(Player* player, PlayState* play) {
     // Four Sword: ghost clone Links
     if (gExtEquipState.currentExtSword == 2) {
         FourSword_Draw(player, play);
+    }
+    if (gExtEquipState.currentExtSword == 3) {
+        Trident_Draw(player, play);
     }
 }

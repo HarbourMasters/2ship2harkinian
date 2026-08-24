@@ -10,8 +10,6 @@ void TimeCtl_NoteAcCollider(Collider* collider);
 // before Actor_UpdateAll, so this is the only point in the frame where the list is whole.
 void Champion_NoteIncomingAttacks(PlayState* play);
 
-
-
 #include "stdbool.h"
 
 #include "macros.h"
@@ -68,6 +66,17 @@ f32 CollisionCheck_GetDamageAndEffectOnElementAC(Collider* atCol, ColliderElemen
     u32 dmgFlags;
     s32 i;
     f32 damage;
+    u8 tridentFierceDamage = 0;
+
+    // A damage table normally replaces the attacker's numeric damage with its own
+    // entry (Sword Beam is 2 on Odolwa/Twinmold and 0 on Gyorg). The six Trident
+    // boss projectiles deliberately carry a 12-damage FD payload: retain attack
+    // index 0x19 for the boss-specific Fierce Deity effect, but do not let that
+    // table erase the explicitly requested quantity.
+    if ((atCol != NULL) && (atCol->actor != NULL)) {
+        extern u8 TridentChargeBall_GetFierceDamage(Actor * projectile);
+        tridentFierceDamage = TridentChargeBall_GetFierceDamage(atCol->actor);
+    }
 
     *effect = 0;
     damage = CollisionCheck_GetElementATDamage(atCol, atElem, acCol, acElem);
@@ -101,8 +110,7 @@ f32 CollisionCheck_GetDamageAndEffectOnElementAC(Collider* atCol, ColliderElemen
             extern u8 Sm64Mario_IsReady(void);
             // MM doesn't define CVAR_ENHANCEMENT() as a macro (SoH-only
             // convention). Use the literal CVar name — equivalent expansion.
-            if (CVarGetInteger("gEnhancements.IvanCoopModeEnabled", 0) || gIvanPossessActive ||
-                Sm64Mario_IsReady()) {
+            if (CVarGetInteger("gEnhancements.IvanCoopModeEnabled", 0) || gIvanPossessActive || Sm64Mario_IsReady()) {
                 // CollisionCheck_GetDamageAndEffectOnElementAC takes no
                 // PlayState* — use the global gPlayState (variables.h:298)
                 // to reach the active Player.
@@ -115,6 +123,9 @@ f32 CollisionCheck_GetDamageAndEffectOnElementAC(Collider* atCol, ColliderElemen
             *effect = (acCol->actor->colChkInfo.damageTable->attack[i] >> 4) & 0xF;
         }
         // #endregion
+    }
+    if (tridentFierceDamage != 0) {
+        damage = tridentFierceDamage;
     }
     return damage;
 }
@@ -3585,8 +3596,7 @@ void CollisionCheck_ApplyDamage(struct PlayState* play, CollisionCheckContext* c
             extern u8 Sm64Mario_IsReady(void);
             // MM doesn't define CVAR_ENHANCEMENT() as a macro (SoH-only
             // convention). Use the literal CVar name — equivalent expansion.
-            if (CVarGetInteger("gEnhancements.IvanCoopModeEnabled", 0) || gIvanPossessActive ||
-                Sm64Mario_IsReady()) {
+            if (CVarGetInteger("gEnhancements.IvanCoopModeEnabled", 0) || gIvanPossessActive || Sm64Mario_IsReady()) {
                 col->actor->colChkInfo.damage *= GET_PLAYER(play)->ivanDamageMultiplier;
             }
         }

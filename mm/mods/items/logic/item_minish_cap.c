@@ -206,10 +206,10 @@ void Player_InitMinishCapIA(PlayState* play, Player* this) {
 // Tiny mode (Minish-size toggle, used away from pod soils)
 // ════════════════════════════════════════════════════════════════════════════
 
-#define MINISH_TINY_SCALE 0.001f                                       // 10% of normal — Minish size
-#define MINISH_TINY_FACTOR (MINISH_TINY_SCALE / MINISH_SCALE_NORMAL)   // 0.1
-#define MINISH_TINY_SPEED_FACTOR 0.2f                                  // 20% of normal movement speed
-#define MINISH_TINY_CAM_MIN 0.14f // camera zoom floor (keeps eye outside the near plane)
+#define MINISH_TINY_SCALE 0.001f                                     // 10% of normal — Minish size
+#define MINISH_TINY_FACTOR (MINISH_TINY_SCALE / MINISH_SCALE_NORMAL) // 0.1
+#define MINISH_TINY_SPEED_FACTOR 0.2f                                // 20% of normal movement speed
+#define MINISH_TINY_CAM_MIN 0.14f      // camera zoom floor (keeps eye outside the near plane)
 #define MINISH_TINY_WALL_SKIP_FRAMES 8 // wall-check-off linger after a crawlspace is last detected
 
 // Declared in transformation_masks.h, which is included AFTER this file in the

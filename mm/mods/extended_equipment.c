@@ -14,6 +14,7 @@
 #include "transformation_masks/transformation_masks.h"
 #include "transformation_masks/assets/mm_asset_loader.h"
 #include "pak_loader/pak_loader.h"
+#include "oot_asset_loader/oot_asset_loader.h" // Trident: Phantom Ganon's lance lives in oot.o2r
 
 extern MmPlayerTransformation MmForm_GetCurrentForm(void);
 // trade_items.c ships no header; declared locally, as the save editor does. The Pendant of
@@ -58,6 +59,9 @@ static Gfx* Byrna_GetCaneDL(void) {
 // mods/items/logic/weapon_upgrades.c (linked via the custom_items.c TU).
 #include "items/logic/weapon_upgrades.h"
 
+#include "actors/trident_charge_ball.h"
+#include "actors/trident_charge_ball.c"
+
 // Unity build includes
 #include "equipment/ext_equip_icon_assets.h" // custom equipment icon dg-macros (dgItemIcon*Tex)
 #include "equipment/ext_equip_icons.c"
@@ -83,11 +87,18 @@ static Gfx* Byrna_GetCaneDL(void) {
 //   SHIELD: Goddess Shield,   Kite Shield,   Shield of Ikana
 //   TUNIC:  Champion's Tunic, Magic Tunic,   Sage's
 //   BOOTS:  Pegasus Boots,    Climb Boots,   Roc Boots
+// ⚠️ El Trident (espada 3) va SIN edad aquí, al revés que en soh.
+//
+// En OoT es AGE_REQ_ADULT y tiene sentido: allí hay dos Links de verdad. Aquí la edad
+// sale de timeGateAdultMode (ver ExtEquip_CheckAgeReq justo debajo), que está apagado
+// salvo que uses el Time Gate — así que marcarlo de adulto lo dejaba PERMANENTEMENTE
+// inequipable en MM. Y como el kaleido de MM ni pita al rechazar, no se veía como un
+// bloqueo sino como si el arma no hubiera cruzado desde OoT. Skijer's NEI
 static const u8 sExtEquipAgeReqs[4][3] = {
-    { AGE_REQ_NONE,  AGE_REQ_CHILD, AGE_REQ_ADULT },
-    { AGE_REQ_NONE,  AGE_REQ_NONE,  AGE_REQ_CHILD },
-    { AGE_REQ_NONE,  AGE_REQ_NONE,  AGE_REQ_NONE },
-    { AGE_REQ_NONE,  AGE_REQ_NONE,  AGE_REQ_ADULT },
+    { AGE_REQ_NONE, AGE_REQ_CHILD, AGE_REQ_NONE },
+    { AGE_REQ_NONE, AGE_REQ_NONE, AGE_REQ_CHILD },
+    { AGE_REQ_NONE, AGE_REQ_NONE, AGE_REQ_NONE },
+    { AGE_REQ_NONE, AGE_REQ_NONE, AGE_REQ_ADULT },
 };
 
 u8 ExtEquip_GetAgeReq(s16 equipType, u8 index) {
@@ -129,9 +140,17 @@ static u8 sTransformBackupValid = 0;
 // Page management
 // ---------------------------------------------------------------------------
 
+void ExtEquip_OnPlayerSceneInit(void) {
+    Trident_OnPlayerInit();
+    TridentChargeBall_Forget();
+}
+
 void ExtEquip_Init(void) {
+    ExtEquip_OnPlayerSceneInit();
     memset(&gExtEquipState, 0, sizeof(gExtEquipState));
     memset(&gExtEquipBehavior, 0, sizeof(gExtEquipBehavior));
+    memset(sTransformBackup, 0, sizeof(sTransformBackup));
+    sTransformBackupValid = 0;
 
     // Load equipped state from save data (per-file, persisted only on game save) // Skijer's NEI
     gExtEquipState.currentExtSword = Nei_Save()->extEquipSword;
@@ -345,8 +364,7 @@ u8 ExtEquip_HasSagesResistance(SagesResistance resistance) {
         OOT_QUEST_MEDALLION_SHADOW, OOT_QUEST_MEDALLION_SPIRIT, OOT_QUEST_MEDALLION_FOREST,
     };
 
-    return ExtEquip_IsSagesTunic() && resistance >= SAGES_RESIST_ICE &&
-           resistance <= SAGES_RESIST_WIND &&
+    return ExtEquip_IsSagesTunic() && resistance >= SAGES_RESIST_ICE && resistance <= SAGES_RESIST_WIND &&
            (Nei_Save()->ootQuestItems & (1u << sQuestItems[resistance])) != 0;
 }
 
@@ -356,12 +374,12 @@ u8 ExtEquip_HasSagesResistance(SagesResistance resistance) {
 #define SAGES_FLASH_HOLD_FRAMES 20
 #define SAGES_FLASH_FADE_FRAMES 30
 static const u8 sSagesMedallionColors[6][3] = {
-    { 60, 130, 235 },  // ICE     <- Water Medallion
-    { 235, 60, 30 },   // FIRE    <- Fire Medallion
-    { 245, 225, 80 },  // THUNDER <- Light Medallion
-    { 155, 70, 220 },  // STUN    <- Shadow Medallion
-    { 240, 140, 40 },  // FALL    <- Spirit Medallion
-    { 70, 195, 90 },   // WIND    <- Forest Medallion
+    { 60, 130, 235 }, // ICE     <- Water Medallion
+    { 235, 60, 30 },  // FIRE    <- Fire Medallion
+    { 245, 225, 80 }, // THUNDER <- Light Medallion
+    { 155, 70, 220 }, // STUN    <- Shadow Medallion
+    { 240, 140, 40 }, // FALL    <- Spirit Medallion
+    { 70, 195, 90 },  // WIND    <- Forest Medallion
 };
 static s16 sSagesFlashTimer = 0;
 static u8 sSagesFlashResist = 0;
@@ -709,6 +727,8 @@ void ExtEquip_UpdateBehavior(void* playerVoid, void* playVoid) {
     Player* player = (Player*)playerVoid;
     PlayState* play = (PlayState*)playVoid;
 
+    TridentChargeBall_Tick();
+
     // NEI weapon upgrades are NOT extended equipment — they run whenever the upgrade is owned,
     // regardless of the ext-equipment cheat. Gate on the local player (read global save state +
     // local input for the throw).
@@ -741,10 +761,27 @@ void ExtEquip_UpdateBehavior(void* playerVoid, void* playVoid) {
 
     if (!ExtEquip_IsEnabled()) {
         Champion_Cleanup(play);
+        Trident_Cleanup();
+        // Kite Shield surfing takes the player over, so it must be released even when the cheat is
+        // switched off mid-ride — the dispatcher below (where every other _Cleanup lives) never
+        // runs in that case, and the surf would keep the shield hidden and fall damage off forever.
+        KiteShield_Cleanup();
         return;
     }
 
     ExtEquip_DispatchBehavior(player, play);
+}
+
+void ExtEquip_TridentPostUpdate(void* playerVoid, void* playVoid) {
+    Player* player = (Player*)playerVoid;
+    PlayState* play = (PlayState*)playVoid;
+
+    if (ExtEquip_IsEnabled() && (gExtEquipState.currentExtSword == 3) &&
+        (player->transformation == PLAYER_FORM_HUMAN)) {
+        Trident_Behavior(player, play);
+    } else {
+        Trident_Cleanup();
+    }
 }
 
 void ExtEquip_OnMeleeHit(void* playerVoid, void* playVoid) {
@@ -794,6 +831,112 @@ void ExtEquip_DrawBehavior(void* playerVoid, void* playVoid) {
     ExtEquip_DrawDispatch(player, play);
 }
 
+// ---------------------------------------------------------------------------
+// Trident (ext sword 3): Phantom Ganon's lance — limb 9 of gPhantomGanonSkel, an
+// asset MM does not ship, so it comes out of oot.o2r.
+//
+// ⚠️ LoadGfxDIRECT, no LoadGfx. object_gnd is not shadowed by an MM path, but the
+// non-direct wrapper goes through the resource-manager priority chain, where OoT
+// archives sit at LOWEST priority — that is the road that gives malformed textures
+// and the missing-child crash. Direct reads the OoT archive handle and nothing else.
+//
+// ⚠️ And the empty DL is MANDATORY. That display list branches to segment 8 twice
+// (gsSPDisplayList(0x08000001)) — the per-limb hook Phantom Ganon uses for his glow.
+// Drawing it without pointing segment 8 somewhere valid makes the interpreter jump
+// into whatever that segment last held and run it as opcodes: garbage geometry and
+// then an access violation. Skijer's NEI
+// ---------------------------------------------------------------------------
+static Gfx* Trident_GetLanceDL(void) {
+    static Gfx* sCached = NULL;
+    static u8 sTried = 0;
+
+    if (!sTried) {
+        sTried = 1;
+        sCached = (Gfx*)OotAssets_LoadGfxDirect("__OTR__objects/object_gnd/gPhantomGanonSkelLimbsLimb_00C610DL_009298");
+    }
+    return sCached;
+}
+
+static const Gfx sTridentEmptyDL[] = {
+    gsSPEndDisplayList(),
+};
+
+// Placement, dialled in on the OoT side and baked there too (TRIDENT_HELD_* in soh's
+// extended_equipment.c). Rotations in degrees.
+//
+// ⚠️ NO SE APOYAN EN LA MATRIZ DEL HUESO PELADA. En soh el llamador aplica antes una
+// base heredada del Cane of Byrna (soh z_player_lib.c:2503-2505) y estos números están
+// dialados ENCIMA de ella — el propio comentario de soh lo dice: "the caller has
+// already applied the Byrna-tuned limb transform". Aquí no hay ningún llamador que la
+// aplique, así que la reproducimos en ExtEquip_TridentApplyHeldTransform o la lanza
+// sale colocada mal aunque el resto esté bien. Skijer's NEI
+#define TRIDENT_BASE_OFF_X 2028.26f
+#define TRIDENT_BASE_OFF_Y 267.2f
+#define TRIDENT_BASE_OFF_Z (-33.82f)
+#define TRIDENT_BASE_SCALE 5.0f
+#define TRIDENT_HELD_SCALE 0.1f
+#define TRIDENT_HELD_ROT_X (-53.5f)
+#define TRIDENT_HELD_ROT_Y (-7.1f)
+#define TRIDENT_HELD_ROT_Z (-50.5f)
+#define TRIDENT_HELD_OFF_X 3000.0f
+#define TRIDENT_HELD_OFF_Y (-1148.5f)
+#define TRIDENT_HELD_OFF_Z (-2049.5f)
+#define TRIDENT_TRAIL_TIP 8000.0f
+#define TRIDENT_TRAIL_BASE 2000.0f
+#define TRIDENT_TRAIL_WIDTH 2.0f
+#define TRIDENT_THUNDER_OFF 2000.0f
+#define TRIDENT_THUNDER_LEN 2.4f
+#define TRIDENT_THUNDER_WIDTH 2.0f
+
+void ExtEquip_TridentApplyHeldTransform(void) {
+    // La base que en soh pone el llamador. Sin ella los TRIDENT_HELD_* de abajo están
+    // referidos a un marco que aquí no existe. Ver la nota sobre las constantes.
+    Matrix_Translate(TRIDENT_BASE_OFF_X, TRIDENT_BASE_OFF_Y, TRIDENT_BASE_OFF_Z, MTXMODE_APPLY);
+    Matrix_RotateZYX(-0x8000, 0, 0x4000, MTXMODE_APPLY);
+    Matrix_Scale(TRIDENT_BASE_SCALE, TRIDENT_BASE_SCALE, TRIDENT_BASE_SCALE, MTXMODE_APPLY);
+
+    Matrix_RotateZYX((s16)(TRIDENT_HELD_ROT_X * 182.04f), (s16)(TRIDENT_HELD_ROT_Y * 182.04f),
+                     (s16)(TRIDENT_HELD_ROT_Z * 182.04f), MTXMODE_APPLY);
+    Matrix_Scale(TRIDENT_HELD_SCALE, TRIDENT_HELD_SCALE, TRIDENT_HELD_SCALE, MTXMODE_APPLY);
+    Matrix_Translate(TRIDENT_HELD_OFF_X, TRIDENT_HELD_OFF_Y, TRIDENT_HELD_OFF_Z, MTXMODE_APPLY);
+}
+
+u8 ExtEquip_TridentTrailBegin(void) {
+    Player* player = (gPlayState != NULL) ? GET_PLAYER(gPlayState) : NULL;
+
+    if (!ExtEquip_IsEnabled() || (gExtEquipState.currentExtSword != 3) || (player == NULL) ||
+        (Player_GetMeleeWeaponHeld(player) == 0)) {
+        return 0;
+    }
+
+    Matrix_Push();
+    ExtEquip_TridentApplyHeldTransform();
+    Matrix_RotateY(-M_PI / 2.0f, MTXMODE_APPLY);
+    Matrix_Translate(TRIDENT_TRAIL_BASE, 0.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(1.0f, TRIDENT_TRAIL_WIDTH, TRIDENT_TRAIL_WIDTH, MTXMODE_APPLY);
+    return 1;
+}
+
+f32 ExtEquip_TridentTrailLength(void) {
+    return TRIDENT_TRAIL_TIP - TRIDENT_TRAIL_BASE;
+}
+
+u8 ExtEquip_TridentThunderTransform(void) {
+    Player* player = (gPlayState != NULL) ? GET_PLAYER(gPlayState) : NULL;
+
+    if (!ExtEquip_IsEnabled() || (gExtEquipState.currentExtSword != 3) || (player == NULL) ||
+        (Player_GetMeleeWeaponHeld(player) == 0)) {
+        return 0;
+    }
+
+    ExtEquip_TridentApplyHeldTransform();
+    Matrix_RotateY(-M_PI / 2.0f, MTXMODE_APPLY);
+    Matrix_Translate(TRIDENT_THUNDER_OFF, 0.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(-TRIDENT_THUNDER_LEN, -TRIDENT_THUNDER_WIDTH, -TRIDENT_THUNDER_WIDTH * 0.7f, MTXMODE_APPLY);
+    Matrix_RotateX(16384.0f, MTXMODE_APPLY);
+    return 1;
+}
+
 void ExtEquip_DrawSwordDL(void* playVoid) {
     PlayState* play = (PlayState*)playVoid;
 
@@ -812,6 +955,28 @@ void ExtEquip_DrawSwordDL(void* playVoid) {
             if (byrnaDL != NULL) {
                 OPEN_DISPS(play->state.gfxCtx);
                 gSPDisplayList(POLY_OPA_DISP++, byrnaDL);
+                CLOSE_DISPS(play->state.gfxCtx);
+            }
+        }
+    } else if (gExtEquipState.currentExtSword == 3) {
+        // Trident: the lance, on the same limb matrix the Byrna cane uses, with its
+        // own placement on top. Only while the weapon is actually out.
+        Player* drawPlayer = GET_PLAYER(play);
+
+        if (Player_GetMeleeWeaponHeld(drawPlayer) != 0) {
+            Gfx* lanceDL = Trident_GetLanceDL();
+
+            if (lanceDL != NULL) {
+                OPEN_DISPS(play->state.gfxCtx);
+                Matrix_Push();
+                ExtEquip_TridentApplyHeldTransform();
+                // Segment 8 first, then the matrix, then the lance — see the note on
+                // sTridentEmptyDL for why the segment is not optional.
+                gSPSegment(POLY_OPA_DISP++, 0x08, (void*)sTridentEmptyDL);
+                gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx),
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPDisplayList(POLY_OPA_DISP++, lanceDL);
+                Matrix_Pop();
                 CLOSE_DISPS(play->state.gfxCtx);
             }
         }
@@ -861,6 +1026,10 @@ u8 ExtEquip_ShouldHideSwordDL(void) {
 
     // Cane of Byrna replaces the sword model with its own draw
     if (gExtEquipState.currentExtSword == 1)
+        return 1;
+
+    // Trident: same deal — it draws Phantom Ganon's lance instead of the blade.
+    if (gExtEquipState.currentExtSword == 3)
         return 1;
 
     return 0;
@@ -956,13 +1125,13 @@ static Gfx* ExtEquip_GetDivineShieldDL(void) {
 // huge (~6000 N64 units across — the Hylian shield collider quad size in z_player_lib.c).
 // Divine + Kite share this placement (both modeled in the same space).
 // Final, visually-tuned values (degrees for rotation, N64 units for offset).
-#define CUSTOM_SHIELD_SCALE  44.2f
-#define CUSTOM_SHIELD_ROT_X  (-95.0f * (M_PI / 180.0f))
-#define CUSTOM_SHIELD_ROT_Y  (-27.0f * (M_PI / 180.0f))
-#define CUSTOM_SHIELD_ROT_Z  (-99.0f * (M_PI / 180.0f))
-#define CUSTOM_SHIELD_OFF_X  (-508.0f)
-#define CUSTOM_SHIELD_OFF_Y  (-372.0f)
-#define CUSTOM_SHIELD_OFF_Z  (-5.0f)
+#define CUSTOM_SHIELD_SCALE 44.2f
+#define CUSTOM_SHIELD_ROT_X (-95.0f * (M_PI / 180.0f))
+#define CUSTOM_SHIELD_ROT_Y (-27.0f * (M_PI / 180.0f))
+#define CUSTOM_SHIELD_ROT_Z (-99.0f * (M_PI / 180.0f))
+#define CUSTOM_SHIELD_OFF_X (-508.0f)
+#define CUSTOM_SHIELD_OFF_Y (-372.0f)
+#define CUSTOM_SHIELD_OFF_Z (-5.0f)
 
 // Shared custom-equipment draw template (see EquipDrawModel in extended_equipment.h). Collapses the
 // open/push/setup/color/TRS/load/draw/pop/close boilerplate that every ext-equipment DL repeated.
@@ -1007,19 +1176,47 @@ void ExtEquip_DrawModel(void* playVoid, const EquipDrawModel* m) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-static void DrawCustomShieldDL(void* playVoid, Gfx* dl) {
+// OoT's on-back shield placement, from z_player_lib.c: sSheathLimbModelShieldOnBackPos and
+// sSheathLimbModelShieldOnBackZyxRot = { 0, 0, 0x7FFF }, i.e. half a turn on Z.
+#define CUSTOM_SHIELD_BACK_OFF_X 630.0f
+#define CUSTOM_SHIELD_BACK_OFF_Y 100.0f
+#define CUSTOM_SHIELD_BACK_OFF_Z (-30.0f)
+
+static void DrawCustomShieldDL(void* playVoid, Gfx* dl, u8 onBack) {
     // Drawn on XLU (like the MM Ikana shield): a custom DL leaves its combiner/texture state on the
     // pipe; on OPA that bleeds onto the limbs drawn after it (black tunic). The XLU pass runs after all
     // OPA limbs, so the body stays clean. The DL supplies its own render state, so setupDL = 0.
+    // TEMP (2026-08-20): CVar-driven while the MM placement is dialled in — the OoT values did not
+    // carry over. Bake the results back into the CUSTOM_SHIELD_* defines and drop the CVars.
+    f32 sc = CVarGetFloat("gItemEditor.KiteSurf.ShieldScale", CUSTOM_SHIELD_SCALE);
     EquipDrawModel m = {
         .dl = dl,
         .xlu = 1,
         .setupDL = 0,
-        .translate = { CUSTOM_SHIELD_OFF_X, CUSTOM_SHIELD_OFF_Y, CUSTOM_SHIELD_OFF_Z },
-        .rotate = { CUSTOM_SHIELD_ROT_X, CUSTOM_SHIELD_ROT_Y, CUSTOM_SHIELD_ROT_Z },
-        .scale = { CUSTOM_SHIELD_SCALE, CUSTOM_SHIELD_SCALE, CUSTOM_SHIELD_SCALE },
+        .translate = { CVarGetFloat("gItemEditor.KiteSurf.ShieldOffX", CUSTOM_SHIELD_OFF_X),
+                       CVarGetFloat("gItemEditor.KiteSurf.ShieldOffY", CUSTOM_SHIELD_OFF_Y),
+                       CVarGetFloat("gItemEditor.KiteSurf.ShieldOffZ", CUSTOM_SHIELD_OFF_Z) },
+        .rotate = { CVarGetFloat("gItemEditor.KiteSurf.ShieldRotX", -95.0f) * (M_PI / 180.0f),
+                    CVarGetFloat("gItemEditor.KiteSurf.ShieldRotY", -27.0f) * (M_PI / 180.0f),
+                    CVarGetFloat("gItemEditor.KiteSurf.ShieldRotZ", -99.0f) * (M_PI / 180.0f) },
+        .scale = { sc, sc, sc },
         .setColor = 0,
     };
+
+    if (onBack) {
+        // MM draws the on-back shield straight in the SHEATH limb's raw space, because its own
+        // gPlayerShields DLs are self-positioning and need nothing. OoT instead applies the
+        // placement above first, and these custom models are built against THAT — so without it
+        // they land mirrored on his back. Own push/pop because ExtEquip_DrawModel does its own.
+        Matrix_Push();
+        Matrix_Translate(CVarGetFloat("gItemEditor.KiteSurf.BackOffX", CUSTOM_SHIELD_BACK_OFF_X),
+                         CVarGetFloat("gItemEditor.KiteSurf.BackOffY", CUSTOM_SHIELD_BACK_OFF_Y),
+                         CVarGetFloat("gItemEditor.KiteSurf.BackOffZ", CUSTOM_SHIELD_BACK_OFF_Z), MTXMODE_APPLY);
+        Matrix_RotateZF(CVarGetFloat("gItemEditor.KiteSurf.BackRotZ", 180.0f) * (M_PI / 180.0f), MTXMODE_APPLY);
+        ExtEquip_DrawModel(playVoid, &m);
+        Matrix_Pop();
+        return;
+    }
 
     ExtEquip_DrawModel(playVoid, &m);
 }
@@ -1030,12 +1227,17 @@ static void ExtEquip_DrawShieldCommon(void* playVoid, u8 onBack) {
     if (!ExtEquip_IsEnabled())
         return;
 
+    // Kite Shield: while shield surfing the board is under his feet (ExtEquip_DrawKiteSurfBoard
+    // from the ROOT limb), so neither the hand nor the back copy may draw. Skijer's NEI
+    if (KiteSurf_IsRiding())
+        return;
+
     switch (gExtEquipState.currentExtShield) {
         case 1: // Divine Shield: custom soh.o2r model
-            DrawCustomShieldDL(playVoid, ExtEquip_GetDivineShieldDL());
+            DrawCustomShieldDL(playVoid, ExtEquip_GetDivineShieldDL(), onBack);
             break;
         case 2: // Kite Shield: custom soh.o2r model
-            DrawCustomShieldDL(playVoid, ExtEquip_GetKiteShieldDL());
+            DrawCustomShieldDL(playVoid, ExtEquip_GetKiteShieldDL(), onBack);
             break;
         case 3: { // Shield of Ikana: MM Mirror Shield from mm.o2r
             ExtEquip_LoadMmShieldDLs();
@@ -1056,11 +1258,53 @@ void ExtEquip_DrawShieldBackDL(void* playVoid) {
     ExtEquip_DrawShieldCommon(playVoid, 1);
 }
 
+// Kite Shield SHIELD SURFING: the board under Link's feet. Called from Player_PostLimbDrawGameplay
+// on PLAYER_LIMB_ROOT, so the matrix is his body root rather than the shield limb — hence its own
+// transform block instead of the CUSTOM_SHIELD_* one. The extra pre-rotation is the trick spin a
+// hop sometimes throws; applied AFTER the translate and BEFORE the placement rotations so it turns
+// about the board's own centre (a shuvit) instead of swinging it around Link. Skijer's NEI
+void ExtEquip_DrawKiteSurfBoard(void* playVoid) {
+    PlayState* play = (PlayState*)playVoid;
+    Gfx* dl;
+    Gfx* gfx;
+    f32 scale;
+
+    if (!ExtEquip_IsEnabled() || !KiteSurf_IsRiding())
+        return;
+
+    dl = ExtEquip_GetKiteShieldDL();
+    if (dl == NULL)
+        return;
+
+    scale = CVarGetFloat("gItemEditor.KiteSurf.BoardScale", KSURF_BOARD_SCALE);
+
+    OPEN_DISPS(play->state.gfxCtx);
+    gfx = POLY_XLU_DISP; // XLU for the same reason DrawCustomShieldDL uses it
+
+    Matrix_Push();
+    Matrix_Translate(CVarGetFloat("gItemEditor.KiteSurf.BoardOffX", KSURF_BOARD_OFF_X),
+                     CVarGetFloat("gItemEditor.KiteSurf.BoardOffY", KSURF_BOARD_OFF_Y),
+                     CVarGetFloat("gItemEditor.KiteSurf.BoardOffZ", KSURF_BOARD_OFF_Z), MTXMODE_APPLY);
+    if (sKSurf.boardSpin != 0) {
+        Matrix_RotateYF(sKSurf.boardSpin * (M_PI / 32768.0f), MTXMODE_APPLY);
+    }
+    Matrix_RotateXF(CVarGetFloat("gItemEditor.KiteSurf.BoardRotX", KSURF_BOARD_ROT_X) * (M_PI / 180.0f), MTXMODE_APPLY);
+    Matrix_RotateYF(CVarGetFloat("gItemEditor.KiteSurf.BoardRotY", KSURF_BOARD_ROT_Y) * (M_PI / 180.0f), MTXMODE_APPLY);
+    Matrix_RotateZF(CVarGetFloat("gItemEditor.KiteSurf.BoardRotZ", KSURF_BOARD_ROT_Z) * (M_PI / 180.0f), MTXMODE_APPLY);
+    Matrix_Scale(scale, scale, scale, MTXMODE_APPLY);
+    gSPMatrix(gfx++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(gfx++, dl);
+    Matrix_Pop();
+
+    POLY_XLU_DISP = gfx;
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
 // Common prologue for the per-piece dispatch wrappers below: bail out unless
 // the cheat is enabled AND the given slot is currently equipped with `index`.
 // (ExtEquip_GetCurrent returns the same field these used to read directly.)
-#define EXT_EQUIP_REQUIRE(type, index)                                      \
-    if (!ExtEquip_IsEnabled() || ExtEquip_GetCurrent(type) != (index))      \
+#define EXT_EQUIP_REQUIRE(type, index)                                 \
+    if (!ExtEquip_IsEnabled() || ExtEquip_GetCurrent(type) != (index)) \
     return
 
 void ExtEquip_DrawWaistScale(void* playVoid) {

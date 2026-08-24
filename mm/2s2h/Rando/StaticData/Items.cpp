@@ -235,17 +235,17 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_OOT_NEI_BALL_AND_CHAIN,     "the",  "Ball and Chain",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_BEETLE,             "the",  "Beetle",                     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_BOMB_ARROWS,        "",     "Bomb Arrows",                RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_NEI_CANE_OF_SOMARIA,    "the",  "Cane of Somaria",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_OF_SOMARIA,    "the",  "Cane of Somaria (Statues)",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     // The other five Dual Cane skills. Each is its own check; whichever one is found
     // first is what hands the player the cane itself (see Cane_GiveSkill).
-    RI(RI_OOT_NEI_CANE_SOMARIA_BLOCK,    "the", "Somaria Block",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_NEI_CANE_SOMARIA_PLATFORM, "the", "Somaria Platform",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_NEI_CANE_PACCI_FLIP,       "the", "Cane of Pacci",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_NEI_CANE_PACCI_STONE,      "the", "Magic Powder",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_NEI_CANE_PACCI_ULTRAHAND,  "the", "Pacci Ultrahand",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_SOMARIA_BLOCK,    "the", "Cane of Somaria (Blocks)", RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_SOMARIA_PLATFORM, "the", "Cane of Somaria (Trirod)", RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_PACCI_FLIP,       "the", "Cane of Pacci (Flip)",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_PACCI_STONE,      "the", "Cane of Pacci (Lift)",     RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_CANE_PACCI_ULTRAHAND,  "the", "Cane of Pacci (Ultrahand)",RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_DEKU_LEAF,          "the",  "Deku Leaf",                  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_DEMISE_DESTRUCTION, "",     "Demise Destruction",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
-    RI(RI_OOT_NEI_DESIRE_SENSOR,      "the",  "Quartz of Motion",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_DESIRE_SENSOR,      "the",  "Desire Sensor",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_DOMINION_ROD,       "the",  "Dominion Rod",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_ELEMENTAL_WAND,     "the",  "Elemental Wand",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_NEI_WAND_SAND_ROD,      "the",  "Sand Rod",                   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
@@ -275,6 +275,21 @@ std::map<RandoItemId, RandoStaticItem> Items = {
     RI(RI_OOT_PROGRESSIVE_MASTER_SWORD, "a",  "Progressive Master Sword",   RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_PROGRESSIVE_NUT_CAPACITY,  "a", "Progressive Nut Capacity",   RITYPE_MAJOR,           ITEM_NONE,                       GI_DEKU_NUTS_1,              GID_DEKU_NUTS),
     RI(RI_OOT_PROGRESSIVE_ROC,        "a",    "Progressive Roc",            RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    // Per-tier identities the chains above resolve to (Rando::ConvertItem). These are what give the
+    // pickup its real NAME — "Master Sword" then "Real Master Sword" instead of "Progressive Master
+    // Sword" — exactly like MM's own RI_WALLET_ADULT / RI_QUIVER_40. ITEM/GI/GID stay NONE: the
+    // model comes from DrawItem's per-RI case, same as their parents. Skijer's NEI
+    RI(RI_OOT_HAMMER,                 "the",  "Megaton Hammer",             RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_IRON_KNUCKLE_AXE,       "the",  "Iron Knuckle's Axe",         RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_MASTER_SWORD,           "the",  "Master Sword",               RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_TRUE_MASTER_SWORD,      "the",  "Real Master Sword",          RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_BIGGORON_SWORD,         "the",  "Biggoron's Sword",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_QUARTZ_OF_MOTION,       "the",  "Quartz of Motion",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_GORONS_BRACELET,        "the",  "Goron's Bracelet",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_SILVER_GAUNTLETS,       "the",  "Silver Gauntlets",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_GOLDEN_GAUNTLETS,       "the",  "Golden Gauntlets",           RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
+    RI(RI_OOT_NEI_ROCS_FEATHER,       "a",    "Roc's Feather",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // Skijer's feather (SLOT_ROCS) — NOT RI_OOT_ROCS_FEATHER, which is the ship-vanilla one
+    RI(RI_OOT_NEI_ROCS_CAPE,          "the",  "Roc's Cape",                 RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE),
     RI(RI_OOT_PROGRESSIVE_STICK_CAPACITY, "a", "Progressive Stick Capacity", RITYPE_MAJOR,          ITEM_NONE,                       GI_DEKU_STICKS_1,            GID_DEKU_STICK),
     RI(RI_OOT_ROCS_FEATHER,           "a",    "Roc's Feather",              RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // SoH's ship-vanilla feather (Nayru's Love slot), NOT the progressive Skijer Roc above
     RI(RI_OOT_RUTOS_LETTER,           "a",    "Bottle with Ruto's Letter",  RITYPE_MAJOR,           ITEM_NONE,                       GI_NONE,                     GID_NONE), // OoT object_gi_bottle_letter (custom draw)
@@ -637,8 +652,7 @@ u8 GetIconForZMessage(RandoItemId randoItemId) {
         s16 size = 0;
         if (strstr(texturePath, "icon_item_24_static") != nullptr) {
             size = 24; // OoT + MM 24x24 rgba32 quest icons
-        } else if (strstr(texturePath, "icon_item_custom") != nullptr ||
-                   strstr(texturePath, "/gItemIcon") != nullptr) {
+        } else if (strstr(texturePath, "icon_item_custom") != nullptr || strstr(texturePath, "/gItemIcon") != nullptr) {
             size = 32; // custom (2ship.o2r) + OoT/MM native item icons, rgba32 32x32
         }
         if (size != 0) {
@@ -987,7 +1001,8 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return "__OTR__textures/icon_item_24_static/gQuestIconStoneOfAgonyTex";
         case RI_OOT_GERUDO_MEMBERSHIP_CARD:
             return "__OTR__textures/icon_item_24_static/gQuestIconGerudosCardTex";
-        case RI_OOT_SKELETON_KEY: // SoH's skeleton-key icon is custom (soh.o2r only) — reuse the OoT small-key quest icon
+        case RI_OOT_SKELETON_KEY: // SoH's skeleton-key icon is custom (soh.o2r only) — reuse the OoT small-key quest
+                                  // icon
             return "__OTR__textures/icon_item_24_static/gQuestIconSmallKeyTex";
         case RI_OOT_BOMBCHU_BAG: // SoH's bombchu-bag icon is custom — MM's native bombchu icon stands in
             return (const char*)gItemIcons[ITEM_BOMBCHU];
@@ -1103,6 +1118,7 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return "__OTR__textures/icon_item_custom/gItemIconWhipTex";
         case RI_OOT_NEI_ZONAI_PERMAFROST:
             return "__OTR__textures/icon_item_custom/gItemIconZonaiPermafrostTex";
+        case RI_OOT_NEI_ROCS_FEATHER:
         case RI_OOT_PROGRESSIVE_ROC:
             return "__OTR__textures/icon_item_custom/gItemIconRocsFeatherTex";
         case RI_OOT_PROGRESSIVE_STICK_CAPACITY: // MM's own stick/nut icons; no upgrade art exists
@@ -1148,7 +1164,8 @@ const char* GetIconTexturePath(RandoItemId randoItemId) {
             return "__OTR__textures/icon_item_custom/gItemIconMagicCapeTex";
         case RI_OOT_EXT_PEGASUS_ANKLET: // = the PEGASUS BOOTS (renamed 2026-07-29)
             return "__OTR__textures/icon_item_custom/gItemIconPegasusBootsTex";
-        case RI_OOT_EXT_SHEIKAH_SHIELD: // parity with SoH item_list, which uses the Gerudo Scimitar icon as its stand-in
+        case RI_OOT_EXT_SHEIKAH_SHIELD: // parity with SoH item_list, which uses the Gerudo Scimitar icon as its
+                                        // stand-in
             return "__OTR__textures/icon_item_custom/gItemIconGerudoScimitarTex";
         case RI_OOT_EXT_SPIRIT_BREASTPLATE: // = the MAGIC TUNIC (renamed 2026-07-29; same behavior)
             return "__OTR__textures/icon_item_custom/gItemIconMagicTunicTex";

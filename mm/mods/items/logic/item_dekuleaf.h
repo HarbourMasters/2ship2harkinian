@@ -15,8 +15,8 @@
 #define DEKULEAF_MODE_BLOWING 2
 
 // Physics — floaty paraglider descent + gentle forward glide. Skijer's NEI
-#define DEKULEAF_FALL_VELOCITY -1.0f   // slow, floaty descent (was -1.5)
-#define DEKULEAF_GLIDE_FWD_SPEED 6.0f  // gentle forward drift while gliding (paraglider momentum)
+#define DEKULEAF_FALL_VELOCITY -1.0f  // slow, floaty descent (was -1.5)
+#define DEKULEAF_GLIDE_FWD_SPEED 6.0f // gentle forward drift while gliding (paraglider momentum)
 // Canopy placement above the two-hand grip (paraglider look) — dialed in live, then baked. Skijer's NEI
 #define DEKULEAF_GLIDE_HAND_OFFSET 6.0f
 #define DEKULEAF_GLIDE_SCALE 0.16f
@@ -27,11 +27,11 @@
 #define DEKULEAF_BLOW_MAGIC_COST 3
 
 // Blow effect
-#define DEKULEAF_BLOW_RANGE 170.0f     // horizontal reach of the gust
-#define DEKULEAF_BLOW_FORCE 26.0f      // horizontal push speed (linear, NO height) — Skijer's NEI
+#define DEKULEAF_BLOW_RANGE 170.0f // horizontal reach of the gust
+#define DEKULEAF_BLOW_FORCE 26.0f  // horizontal push speed (linear, NO height) — Skijer's NEI
 #define DEKULEAF_BLOW_DURATION 60
 #define DEKULEAF_WIND_SPAWN_RATE 2
-#define DEKULEAF_BLOW_SPEED 2.0f       // anim playback (2x fast) — Skijer's NEI
+#define DEKULEAF_BLOW_SPEED 2.0f // anim playback (2x fast) — Skijer's NEI
 
 // Wind AT collider (DMG_DEKU_NUT native stun) — placed in front of Link during the gust. Skijer's NEI
 #define DEKULEAF_COL_RADIUS 55

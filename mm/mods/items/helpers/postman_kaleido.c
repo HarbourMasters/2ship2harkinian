@@ -82,12 +82,9 @@ static s16 sPostmanCloudPosY[] = {
 // Per-mailbox area name texture (IA8, 80x32) — order matches sMailboxTable.
 // Only ENG for now; per-language arrays can be added mirroring minish_kaleido.
 static void* sPostmanNameTexsENG[POSTMAN_MAILBOX_COUNT] = {
-    gKokiriForestPositionNameENGTex,
-    gMarketPositionNameENGTex,
-    gKakarikoVillagePositionNameENGTex,
-    gLonLonRanchPositionNameENGTex,
-    gDeathMountainTrailPositionNameENGTex,
-    gZorasRiverPositionNameENGTex,
+    gKokiriForestPositionNameENGTex,       gMarketPositionNameENGTex,
+    gKakarikoVillagePositionNameENGTex,    gLonLonRanchPositionNameENGTex,
+    gDeathMountainTrailPositionNameENGTex, gZorasRiverPositionNameENGTex,
     gGerudoValleyPositionNameENGTex,
 };
 
@@ -327,9 +324,9 @@ void PostmanKaleido_Draw(PlayState* play) {
                 s32 yh = MKY(sRowY[row + 1]);
                 s32 dtdy = 32 * 4096 / (yh - yl);
 
-                gDPLoadTextureBlock(OVERLAY_DISP++, sPostmanMapTexs[lang][col * 5 + row], G_IM_FMT_IA, G_IM_SIZ_8b, 80, 32, 0,
-                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                    G_TX_NOLOD, G_TX_NOLOD);
+                gDPLoadTextureBlock(OVERLAY_DISP++, sPostmanMapTexs[lang][col * 5 + row], G_IM_FMT_IA, G_IM_SIZ_8b, 80,
+                                    32, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                    G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 gSPWideTextureRectangle(OVERLAY_DISP++, xl, yl, xh, yh, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
             }
         }
@@ -384,9 +381,9 @@ void PostmanKaleido_Draw(PlayState* play) {
                 s32 cDsdx = sPostmanCloudWidths[i] * 4096 / (cxh - cxl);
                 s32 cDtdy = sPostmanCloudHeights[i] * 4096 / (cyh - cyl);
 
-                gDPLoadTextureBlock_4b(OVERLAY_DISP++, sPostmanCloudTexs[i], G_IM_FMT_I, sPostmanCloudWidths[i], sPostmanCloudHeights[i], 0,
-                                       G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, G_TX_NOMASK, G_TX_NOMASK,
-                                       G_TX_NOLOD, G_TX_NOLOD);
+                gDPLoadTextureBlock_4b(OVERLAY_DISP++, sPostmanCloudTexs[i], G_IM_FMT_I, sPostmanCloudWidths[i],
+                                       sPostmanCloudHeights[i], 0, G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR,
+                                       G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                 gSPWideTextureRectangle(OVERLAY_DISP++, cxl, cyl, cxh, cyh, G_TX_RENDERTILE, 0, 0, cDsdx, cDtdy);
             }
         }
@@ -502,8 +499,8 @@ void PostmanKaleido_Draw(PlayState* play) {
         s32 nDtdy = 32 * 4096 / (nYH - nYL);
 
         gDPLoadTextureBlock(OVERLAY_DISP++, sPostmanNameTexsENG[curIdx], G_IM_FMT_IA, G_IM_SIZ_8b, 80, 32, 0,
-                            G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, G_TX_NOMASK, G_TX_NOMASK,
-                            G_TX_NOLOD, G_TX_NOLOD);
+                            G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                            G_TX_NOLOD);
         gSPWideTextureRectangle(OVERLAY_DISP++, nXL, nYL, nXH, nYH, G_TX_RENDERTILE, 0, 0, nDsdx, nDtdy);
     } else {
         // Defensive: still restore 1-cycle mode even if curIdx is out-of-range.

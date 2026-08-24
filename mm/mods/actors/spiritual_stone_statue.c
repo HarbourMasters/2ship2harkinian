@@ -65,19 +65,28 @@ static const StoneJewel sStoneJewels[3] = {
     {
         "__OTR__objects/object_gi_jewel/gGiKokiriEmeraldGemDL",
         "__OTR__objects/object_gi_jewel/gGiKokiriEmeraldSettingDL",
-        { 255, 255, 160 }, { 0, 255, 0 }, { 255, 255, 170 }, { 150, 120, 0 },
+        { 255, 255, 160 },
+        { 0, 255, 0 },
+        { 255, 255, 170 },
+        { 150, 120, 0 },
     },
     // Goron Ruby — red
     {
         "__OTR__objects/object_gi_jewel/gGiGoronRubyGemDL",
         "__OTR__objects/object_gi_jewel/gGiGoronRubySettingDL",
-        { 255, 170, 255 }, { 255, 0, 100 }, { 255, 255, 170 }, { 150, 120, 0 },
+        { 255, 170, 255 },
+        { 255, 0, 100 },
+        { 255, 255, 170 },
+        { 150, 120, 0 },
     },
     // Zora Sapphire — blue
     {
         "__OTR__objects/object_gi_jewel/gGiZoraSapphireGemDL",
         "__OTR__objects/object_gi_jewel/gGiZoraSapphireSettingDL",
-        { 50, 255, 255 }, { 50, 0, 150 }, { 255, 255, 170 }, { 150, 120, 0 },
+        { 50, 255, 255 },
+        { 50, 0, 150 },
+        { 255, 255, 170 },
+        { 150, 120, 0 },
     },
 };
 
@@ -168,11 +177,11 @@ static void Statue_Update(Actor* thisx, PlayState* play) {
 // statue itself is tiny (STATUE_VISUAL_SCALE 0.005f) so we keep the jewel
 // just slightly above ground and lean on the larger jewel scale to read
 // against the small statue.
-#define JEWEL_HOVER_Y_BASE    35.0f // height above the statue's anchor
-#define JEWEL_HOVER_AMPLITUDE  2.0f // how much it bobs up/down
-#define JEWEL_HOVER_PERIOD_F  80.0f // ~80 frames for a full bob
-#define JEWEL_SPIN_DEG_PER_F   5.0f // ~72 frames for a full spin
-#define JEWEL_SCALE          0.12f  // markedly larger than the statue so it reads
+#define JEWEL_HOVER_Y_BASE 35.0f   // height above the statue's anchor
+#define JEWEL_HOVER_AMPLITUDE 2.0f // how much it bobs up/down
+#define JEWEL_HOVER_PERIOD_F 80.0f // ~80 frames for a full bob
+#define JEWEL_SPIN_DEG_PER_F 5.0f  // ~72 frames for a full spin
+#define JEWEL_SCALE 0.12f          // markedly larger than the statue so it reads
 
 static void Statue_Draw(Actor* thisx, PlayState* play) {
     s16 stone = STATUE_GET_STONE(thisx);
@@ -219,12 +228,10 @@ static void Statue_Draw(Actor* thisx, PlayState* play) {
         // not.
         gSPSegment(POLY_XLU_DISP++, 9,
                    (uintptr_t)Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, 0, 255, 64, 64, 1, 0, 255, 16, 16, 0, 0, 0, 0));
-        gSPSegment(POLY_OPA_DISP++, 8,
-                   (uintptr_t)Gfx_TexScrollEx(play->state.gfxCtx, 0, 0, 16, 16, 0, 0));
+        gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)Gfx_TexScrollEx(play->state.gfxCtx, 0, 0, 16, 16, 0, 0));
 
-        Matrix_Translate(thisx->world.pos.x,
-                         thisx->world.pos.y + JEWEL_HOVER_Y_BASE + bob,
-                         thisx->world.pos.z, MTXMODE_NEW);
+        Matrix_Translate(thisx->world.pos.x, thisx->world.pos.y + JEWEL_HOVER_Y_BASE + bob, thisx->world.pos.z,
+                         MTXMODE_NEW);
         Matrix_RotateYF(BINANG_TO_RAD((f32)spin), MTXMODE_APPLY); // MM: RotateYF (float), not RotateY
         Matrix_Scale(JEWEL_SCALE, JEWEL_SCALE, JEWEL_SCALE, MTXMODE_APPLY);
 
@@ -277,8 +284,8 @@ Actor* SpiritualStoneStatue_Spawn(PlayState* play, Vec3f* pos, s16 rotY, int sto
     }
 
     // Spawn the real actor; the stone index rides in params → read back in Statue_Init.
-    return Actor_Spawn(&play->actorCtx, play, ACTOR_SPIRITUAL_STONE_STATUE,
-                       pos->x, pos->y, pos->z, 0, rotY, 0, (s16)stone);
+    return Actor_Spawn(&play->actorCtx, play, ACTOR_SPIRITUAL_STONE_STATUE, pos->x, pos->y, pos->z, 0, rotY, 0,
+                       (s16)stone);
 }
 
 u8 SpiritualStoneStatue_IsStatue(Actor* actor) {

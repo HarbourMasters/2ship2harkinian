@@ -20,7 +20,7 @@
 // ---- Tuning shared by both motion helpers ----------------------------------
 // Turn rate for Math_SmoothStepToS(&world.rot.y, ...): scale 4 = ease toward the
 // target, capped at ~0x1000 (~22.5 deg) per frame, minimum 0x100 so it never stalls.
-#define REMAINS_ALLY_YAW_SCALE   4
+#define REMAINS_ALLY_YAW_SCALE 4
 #define REMAINS_ALLY_YAW_MAXSTEP 0x1000
 #define REMAINS_ALLY_YAW_MINSTEP 0x100
 

@@ -163,9 +163,7 @@ extern "C" void ColorPictograph_SetBuffer(const void* src) {
         SavePictoPng();
     } catch (const std::exception& e) {
         SPDLOG_WARN("[FleetPicto] could not re-save the colour PNG: {}", e.what());
-    } catch (...) {
-        SPDLOG_WARN("[FleetPicto] could not re-save the colour PNG");
-    }
+    } catch (...) { SPDLOG_WARN("[FleetPicto] could not re-save the colour PNG"); }
 }
 
 void ConvertImage(u16* destI, u16* srcRgba16, s32 rgba16Width, s32 pixelLeft, s32 pixelTop, s32 pixelRight,

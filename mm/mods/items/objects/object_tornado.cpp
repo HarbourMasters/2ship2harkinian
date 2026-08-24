@@ -85,8 +85,8 @@ void Tornado_Draw(PlayState* play, const TornadoParams* p) {
     Matrix_RotateY(BINANG_TO_RAD(p->yaw), MTXMODE_APPLY);
     Matrix_RotateX(DEG_TO_RAD(90.0f) + BINANG_TO_RAD(p->pitch), MTXMODE_APPLY);
     Matrix_RotateY(BINANG_TO_RAD(p->spin), MTXMODE_APPLY);
-    Matrix_Scale(p->radius / TORNADO_MODEL_RADIUS, p->length / TORNADO_MODEL_LENGTH,
-                 p->radius / TORNADO_MODEL_RADIUS, MTXMODE_APPLY);
+    Matrix_Scale(p->radius / TORNADO_MODEL_RADIUS, p->length / TORNADO_MODEL_LENGTH, p->radius / TORNADO_MODEL_RADIUS,
+                 MTXMODE_APPLY);
 
     gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx, (char*)__FILE__, __LINE__),
               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -98,9 +98,8 @@ void Tornado_Draw(PlayState* play, const TornadoParams* p) {
     // quarter-texels; the sampled texel is (vertex coord - offset), so a RISING offset makes the
     // pattern travel toward +T, i.e. out of the tip and toward the mouth. Both axes wrap in the
     // material and the texture's first/last rows are fully transparent, so this never seams.
-    gSPDisplayList(POLY_XLU_DISP++,
-                   Gfx_TexScroll(play->state.gfxCtx, (u32)p->scrollS, (u32)p->scrollT, TORNADO_TEX_WIDTH,
-                                 TORNADO_TEX_HEIGHT));
+    gSPDisplayList(POLY_XLU_DISP++, Gfx_TexScroll(play->state.gfxCtx, (u32)p->scrollS, (u32)p->scrollT,
+                                                  TORNADO_TEX_WIDTH, TORNADO_TEX_HEIGHT));
     gSPDisplayList(POLY_XLU_DISP++, sTornadoTriDL);
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -193,8 +192,8 @@ void Tornado_RibbonsUpdate(PlayState* play, TornadoRibbons* rb, const TornadoPar
     }
     // Restart on a colour change — blure colours are fixed at Effect_Add time, so switching
     // element mid-blow would otherwise keep the old damage type's streaks.
-    if (rb->active && ((rb->color.r != p->color.r) || (rb->color.g != p->color.g) ||
-                       (rb->color.b != p->color.b) || (rb->count != count))) {
+    if (rb->active && ((rb->color.r != p->color.r) || (rb->color.g != p->color.g) || (rb->color.b != p->color.b) ||
+                       (rb->count != count))) {
         Tornado_RibbonsStop(play, rb);
     }
     if (!rb->active) {

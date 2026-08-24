@@ -24,7 +24,7 @@ typedef struct MagicDark {
     /* 0x0160 */ char unk_160[0x4];
     /*        */ s16 shadowTimer; // Skijer's NEI: Shadow Medallion's OWN lifetime (Nayru uses the
                                   // global gSaveContext.nayrusLoveTimer; Shadow must not collide).
-} MagicDark; // original size = 0x0164; grown past it (the actor row uses sizeof)
+} MagicDark;                      // original size = 0x0164; grown past it (the actor row uses sizeof)
 
 // Skijer's NEI: which spell this diamond actor is — vanilla Nayru's Love has its OWN actor id
 // (ACTOR_OOT_NAYRUS_LOVE); the Shadow Medallion keeps ACTOR_SW97_MAGIC_DARK. Nayru = blue diamond
@@ -259,11 +259,11 @@ void MagicDark_DiamondUpdate(Actor* thisx, PlayState* play) {
     if (lifetime < 1100) {
         MagicDark_DimLighting(play, 1.0f);
         AudioSfx_PlaySfx(NA_SE_PL_ZORA_SPARK_BARRIER - SFX_FLAG, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                               &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     } else {
         MagicDark_DimLighting(play, -0.0075f * (-1199.0f + lifetime));
         AudioSfx_PlaySfx(NA_SE_PL_ZORA_SPARK_BARRIER - SFX_FLAG, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                               &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+                         &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     }
 }
 
@@ -276,7 +276,11 @@ void MagicDark_DimLighting(PlayState* play, f32 intensity) {
     // adjustable-fog layer (adjFogNear/adjFogColor) and Room has no behaviorType1. The dark
     // spell's screen-darken visual is a TODO (reimplement via Environment_LerpFog); the spell's
     // gameplay is unaffected.
-    (void)play; (void)intensity; (void)i; (void)temp_f0; (void)phi_f0;
+    (void)play;
+    (void)intensity;
+    (void)i;
+    (void)temp_f0;
+    (void)phi_f0;
 }
 
 void MagicDark_OrbUpdate(Actor* thisx, PlayState* play) {

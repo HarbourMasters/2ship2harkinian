@@ -25,7 +25,7 @@
 #define ITEM_ROD_COMMON_H
 
 #include "z64.h"
-#include "../helpers/fx_helper.h" // RodColor
+#include "../helpers/fx_helper.h"  // RodColor
 #include "../helpers/item_voice.h" // ItemVoice_PlayId (form-aware rod voice)
 
 // Number of concurrent projectile sets per rod. Mirrors the value historically
@@ -88,13 +88,13 @@ typedef void (*RodSpawnSparksFn)(PlayState* play, Vec3f* pos, f32 scale);
 
 typedef struct {
     // ---- Projectile tuning ----
-    f32 projSpeed;     // units/frame a projectile travels (was *_PROJ_SPEED)
-    s16 projLifetime;  // frames (was *_PROJ_LIFETIME)
+    f32 projSpeed;      // units/frame a projectile travels (was *_PROJ_SPEED)
+    s16 projLifetime;   // frames (was *_PROJ_LIFETIME)
     s16 singleTimerMax; // clamp for single-projectile timer (Fire/Ice 30, Light 25)
-    f32 slashRange;    // was *_SLASH_RANGE
+    f32 slashRange;     // was *_SLASH_RANGE
     s16 slashSpreadDeg; // was *_SLASH_SPREAD (degrees)
-    s16 projRotZStep;  // per-frame rotZ spin (Fire/Ice 5000, Light 6000)
-    f32 approachStep;  // Math_ApproachF step for scale (Fire 0.4, Ice 0.4, Light 0.5)
+    s16 projRotZStep;   // per-frame rotZ spin (Fire/Ice 5000, Light 6000)
+    f32 approachStep;   // Math_ApproachF step for scale (Fire 0.4, Ice 0.4, Light 0.5)
 
     // ---- Magic / backfire ----
     s16 magicSlash, magicStab, magicJump, magicSpinSmall, magicSpinBig;
@@ -116,7 +116,7 @@ typedef struct {
     const ColliderCylinderInit* spinColInit;
 
     // ---- Element-specific hooks ----
-    RodOnProjHitFn onProjHit;          // Fire explosion / Ice freeze / Light stun
+    RodOnProjHitFn onProjHit;           // Fire explosion / Ice freeze / Light stun
     RodUpdateColliderFn updateCollider; // radius/height formula
     RodSpawnSparksFn spawnSparks;       // in-flight trail particles
 } RodConfig;

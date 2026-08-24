@@ -45,27 +45,27 @@ typedef enum {
 #define BOTTLE_SLOT_EMPTY 0xFF // empty bottle slot (no bottle at all)
 
 // Content <-> MM inventory ITEM_ id. Bottle_ContentFromItemId returns BOTTLE_C_COUNT if not a content.
-uint16_t      Bottle_ContentItemId(BottleContent c);
+uint16_t Bottle_ContentItemId(BottleContent c);
 BottleContent Bottle_ContentFromItemId(uint16_t itemId);
 
 // Bottle inventory accessors (NeiSaveData.bottleSlots[8]; slotIndex 0..7). item id, ITEM_BOTTLE
 // (empty bottle), or BOTTLE_SLOT_EMPTY.
 uint8_t Bottle_GetSlot(uint8_t slotIndex);
-void    Bottle_SetSlot(uint8_t slotIndex, uint8_t item);
+void Bottle_SetSlot(uint8_t slotIndex, uint8_t item);
 
 // Kaleido wheel over a wheel's 4 bottle slots (cycling the non-empty ones). curItem = the kaleido
 // slot's current item. Returns curItem when nothing else to cycle.
 uint16_t Bottle_WheelPrevItem(uint8_t wheel, uint16_t curItem);
 uint16_t Bottle_WheelNextItem(uint8_t wheel, uint16_t curItem);
-uint8_t  Bottle_WheelCanCycle(uint8_t wheel);             // >1 non-empty bottle in the wheel
-uint16_t Bottle_WheelFirstItem(uint8_t wheel);            // first non-empty bottle item, or 0xFF
-uint8_t  Bottle_WheelContains(uint8_t wheel, uint16_t item); // is item one of the wheel's bottles?
+uint8_t Bottle_WheelCanCycle(uint8_t wheel);                // >1 non-empty bottle in the wheel
+uint16_t Bottle_WheelFirstItem(uint8_t wheel);              // first non-empty bottle item, or 0xFF
+uint8_t Bottle_WheelContains(uint8_t wheel, uint16_t item); // is item one of the wheel's bottles?
 
 // Index-based cycling: steps by SLOT so identical empty bottles (all ITEM_BOTTLE) are distinct,
 // reachable positions and the wheel stays cyclable even when every bottle is empty. Skijer's NEI
-uint8_t  Bottle_WheelBottleCount(uint8_t wheel);         // # bottles (incl. empty bottles) in the wheel
-uint16_t Bottle_WheelPeek(uint8_t wheel, int8_t dir);    // item at next(+1)/prev(-1) bottle slot (no change)
-uint16_t Bottle_WheelStep(uint8_t wheel, int8_t dir);    // move active to next/prev slot; returns its item
+uint8_t Bottle_WheelBottleCount(uint8_t wheel);       // # bottles (incl. empty bottles) in the wheel
+uint16_t Bottle_WheelPeek(uint8_t wheel, int8_t dir); // item at next(+1)/prev(-1) bottle slot (no change)
+uint16_t Bottle_WheelStep(uint8_t wheel, int8_t dir); // move active to next/prev slot; returns its item
 
 // Drink/refill persistence (call once per frame around the cycler):
 //   Bottle_WheelPersist(wheel, slotItem)      — at the START: if the slot changed in-game (drinking
@@ -91,18 +91,18 @@ uint8_t Bottle_ContentMaxUses(uint16_t itemId);
 
 // Ownership (persisted in NeiSaveData; reuses netEquipped / bottomlessBottleMode).
 uint8_t Bottle_NetOwned(void);
-void    Bottle_SetNetOwned(uint8_t owned);
+void Bottle_SetNetOwned(uint8_t owned);
 uint8_t Bottle_BottomlessOwned(void);
-void    Bottle_SetBottomlessOwned(uint8_t owned);
+void Bottle_SetBottomlessOwned(uint8_t owned);
 
 // Bottomless content + counter state.
-uint8_t Bottle_BottomlessContent(void);              // content id, or ITEM_BOTTLE/0xFF when empty
-uint8_t Bottle_BottomlessCount(void);                // remaining uses
-uint8_t Bottle_BottomlessIsEmpty(void);              // 1 = no usable content (show empty bottle)
-void    Bottle_BottomlessFill(uint16_t contentItem); // set content + reset counter to its max uses
-void    Bottle_BottomlessEmpty(void);                // force empty
-uint8_t Bottle_BottomlessConsume(void);              // decrement counter; returns remaining (0 = empty)
-void    Bottle_BottomlessSetCount(uint8_t count);    // set counter directly (save editor)
+uint8_t Bottle_BottomlessContent(void);           // content id, or ITEM_BOTTLE/0xFF when empty
+uint8_t Bottle_BottomlessCount(void);             // remaining uses
+uint8_t Bottle_BottomlessIsEmpty(void);           // 1 = no usable content (show empty bottle)
+void Bottle_BottomlessFill(uint16_t contentItem); // set content + reset counter to its max uses
+void Bottle_BottomlessEmpty(void);                // force empty
+uint8_t Bottle_BottomlessConsume(void);           // decrement counter; returns remaining (0 = empty)
+void Bottle_BottomlessSetCount(uint8_t count);    // set counter directly (save editor)
 
 // Net catch: put `content` into the first available empty bottle. Priority: empty Bottomless Bottle
 // ("si existe, la reemplaza") -> the ACTIVE slot of each wheel (the visible bottle; queues a visible

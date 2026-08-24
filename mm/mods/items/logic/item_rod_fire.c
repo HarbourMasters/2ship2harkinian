@@ -109,7 +109,8 @@ u8 FireRod_HasAnyActiveSet(void) {
 // rejecting new hit registrations across ALL custom items + the bow.
 // That manifested as "shooting items stop working after ~2 hours".
 static void FireRod_DestroySetColliders(RodProjSet* set, PlayState* play) {
-    if (!set->collidersInited) return;
+    if (!set->collidersInited)
+        return;
     for (s32 i = 0; i < 3; i++) {
         Collider_DestroyCylinder(play, &set->colliders[i]);
     }
@@ -388,7 +389,8 @@ static void FireRod_InitFlameColliders(Player* p, PlayState* play) {
 // activations leak collider records into the engine's global pool,
 // eventually breaking hit detection for ALL aim/shoot items.
 static void FireRod_DestroyFlameColliders(PlayState* play) {
-    if (!sFlameCollidersInited) return;
+    if (!sFlameCollidersInited)
+        return;
     for (s32 i = 0; i < FIRE_ROD_FLAME_COUNT; i++) {
         Collider_DestroyCylinder(play, &fireRodFlameColliders[i]);
     }

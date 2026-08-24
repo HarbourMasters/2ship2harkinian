@@ -33,7 +33,7 @@
 // flower has nothing to attach to and appears to float at random.
 // Left  hand stem = object_link_nuts_DL_008760
 // Right hand stem = object_link_nuts_DL_008660
-#define gLinkDekuLeftStemDL  "__OTR__objects/object_link_nuts/object_link_nuts_DL_008760"
+#define gLinkDekuLeftStemDL "__OTR__objects/object_link_nuts/object_link_nuts_DL_008760"
 #define gLinkDekuRightStemDL "__OTR__objects/object_link_nuts/object_link_nuts_DL_008660"
 
 // Underground flower petals (3 petals drawn at surface while burrowed)

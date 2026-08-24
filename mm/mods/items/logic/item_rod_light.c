@@ -116,7 +116,8 @@ u8 LightRod_HasAnyActiveSet(void) {
 // into the engine's global collider pool, breaking hit detection after
 // ~2 hours of sustained shooting.
 static void LightRod_DestroySetColliders(RodProjSet* set, PlayState* play) {
-    if (!set->collidersInited) return;
+    if (!set->collidersInited)
+        return;
     for (s32 i = 0; i < 3; i++) {
         Collider_DestroyCylinder(play, &set->colliders[i]);
     }

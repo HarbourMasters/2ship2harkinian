@@ -176,7 +176,7 @@ u8 Breastplate_HasPower(void) {
 // No rupees:  golden, fully opaque (armor materializes when magic is spent)
 #define BREASTPLATE_SET_MATERIAL()                                      \
     do {                                                                \
-        if (gSaveContext.save.saveInfo.playerData.rupees > 0) {                                  \
+        if (gSaveContext.save.saveInfo.playerData.rupees > 0) {         \
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 225, 205, 115, 51);  \
             gDPSetEnvColor(POLY_XLU_DISP++, 25, 20, 0, 255);            \
         } else {                                                        \

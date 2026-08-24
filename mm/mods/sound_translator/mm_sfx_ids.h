@@ -38,24 +38,24 @@ extern "C" {
 // Common Player SFX (used by all forms) - playerbank_table.h
 // =============================================================================
 
-#define MM_NA_SE_PL_WALK_GROUND 0x0800   // Walking
-#define MM_NA_SE_PL_WALK_SAND 0x0801     // Walking on sand
-#define MM_NA_SE_PL_WALK_CONCRETE 0x0802 // Walking on stone
-#define MM_NA_SE_PL_WALK_DIRT 0x0803     // Walking on dirt
-#define MM_NA_SE_PL_WALK_WATER 0x0804    // Walking in water
-#define MM_NA_SE_PL_JUMP 0x0811          // Jump
-#define MM_NA_SE_PL_LAND 0x0812          // Landing
-#define MM_NA_SE_PL_SLIPDOWN 0x0813      // Slipping
-#define MM_NA_SE_PL_CLIMB_CLIFF 0x0814   // Climbing
-#define MM_NA_SE_PL_SIT_ON_HORSE 0x0815  // Mount horse
-#define MM_NA_SE_PL_GET_OFF_HORSE 0x0816 // Dismount
-#define MM_NA_SE_PL_SWIM 0x0839          // Swimming/water movement
-#define MM_NA_SE_PL_CHANGE_ARMS 0x0835   // /* 0x835 */ Change arms (Deku shield-pose entry per MM)
+#define MM_NA_SE_PL_WALK_GROUND 0x0800     // Walking
+#define MM_NA_SE_PL_WALK_SAND 0x0801       // Walking on sand
+#define MM_NA_SE_PL_WALK_CONCRETE 0x0802   // Walking on stone
+#define MM_NA_SE_PL_WALK_DIRT 0x0803       // Walking on dirt
+#define MM_NA_SE_PL_WALK_WATER 0x0804      // Walking in water
+#define MM_NA_SE_PL_JUMP 0x0811            // Jump
+#define MM_NA_SE_PL_LAND 0x0812            // Landing
+#define MM_NA_SE_PL_SLIPDOWN 0x0813        // Slipping
+#define MM_NA_SE_PL_CLIMB_CLIFF 0x0814     // Climbing
+#define MM_NA_SE_PL_SIT_ON_HORSE 0x0815    // Mount horse
+#define MM_NA_SE_PL_GET_OFF_HORSE 0x0816   // Dismount
+#define MM_NA_SE_PL_SWIM 0x0839            // Swimming/water movement
+#define MM_NA_SE_PL_CHANGE_ARMS 0x0835     // /* 0x835 */ Change arms (Deku shield-pose entry per MM)
 #define MM_NA_SE_PL_CATCH_BOOMERANG 0x0836 // /* 0x836 */ Catch boomerang
-#define MM_NA_SE_PL_FACE_UP 0x0863       // /* 0x863 */ Face up (surfacing from underwater)
-#define MM_NA_SE_PL_SLIP_LEVEL 0x08D0    // Sliding on floor
-#define MM_NA_SE_PL_FREEZE_S 0x0874      // Freeze/static effect (transform cutscene frame 11)
-#define MM_NA_SE_PL_PUT_OUT_ITEM 0x0877  // Put out item/mask (transform cutscene frame 2)
+#define MM_NA_SE_PL_FACE_UP 0x0863         // /* 0x863 */ Face up (surfacing from underwater)
+#define MM_NA_SE_PL_SLIP_LEVEL 0x08D0      // Sliding on floor
+#define MM_NA_SE_PL_FREEZE_S 0x0874        // Freeze/static effect (transform cutscene frame 11)
+#define MM_NA_SE_PL_PUT_OUT_ITEM 0x0877    // Put out item/mask (transform cutscene frame 2)
 
 // =============================================================================
 // Transformation SFX (playerbank_table.h) - shared by all mask transforms
@@ -166,8 +166,8 @@ extern "C" {
 #define MM_NA_SE_IT_TRANSFORM_MASK_BROKEN 0x1858 // /* 0x1858 */ Mask energy break (frame 20)
 
 // Zora items
-#define MM_NA_SE_IT_ZORA_KICK_SWING 0x1859    // /* 0x1859 */ Kick swing whoosh
-#define MM_NA_SE_IT_SHIELD_SWING 0x181F       // /* 0x181F */ Shield swing (MM name for this ID; OOT calls it SHIELD_POSTURE)
+#define MM_NA_SE_IT_ZORA_KICK_SWING 0x1859 // /* 0x1859 */ Kick swing whoosh
+#define MM_NA_SE_IT_SHIELD_SWING 0x181F // /* 0x181F */ Shield swing (MM name for this ID; OOT calls it SHIELD_POSTURE)
 #define MM_NA_SE_IT_SHIELD_SWING_ZORA 0x1868  // /* 0x1868 */ Zora shield swing
 #define MM_NA_SE_IT_SHIELD_REMOVE_ZORA 0x1869 // /* 0x1869 */ Zora shield remove
 

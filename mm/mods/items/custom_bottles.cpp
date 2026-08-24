@@ -10,32 +10,32 @@
 
 // MM inventory ITEM_ id per content (mm/include/z64item.h). Unlike OoT, almost every bottle content
 // is NATIVE in MM (0x13..0x27) — only Ruto's Letter has no MM item and gets a custom sentinel.
-#define BC_ITEM_NONE         0xFF
-#define BC_ITEM_BOTTLE       0x12 // ITEM_BOTTLE (empty bottle) — MM value (OoT was 0x14)
+#define BC_ITEM_NONE 0xFF
+#define BC_ITEM_BOTTLE 0x12 // ITEM_BOTTLE (empty bottle) — MM value (OoT was 0x14)
 // Native MM contents
-#define BC_ITEM_POTION_RED       0x13 // ITEM_POTION_RED
-#define BC_ITEM_POTION_GREEN     0x14 // ITEM_POTION_GREEN
-#define BC_ITEM_POTION_BLUE      0x15 // ITEM_POTION_BLUE
-#define BC_ITEM_FAIRY            0x16 // ITEM_FAIRY
-#define BC_ITEM_DEKU_PRINCESS    0x17 // ITEM_DEKU_PRINCESS
-#define BC_ITEM_MILK             0x18 // ITEM_MILK_BOTTLE
-#define BC_ITEM_MILK_HALF        0x19 // ITEM_MILK_HALF
-#define BC_ITEM_FISH             0x1A // ITEM_FISH
-#define BC_ITEM_BUG              0x1B // ITEM_BUG
-#define BC_ITEM_BLUE_FIRE        0x1C // ITEM_BLUE_FIRE
-#define BC_ITEM_POE              0x1D // ITEM_POE
-#define BC_ITEM_BIG_POE          0x1E // ITEM_BIG_POE
-#define BC_ITEM_SPRING_WATER     0x1F // ITEM_SPRING_WATER
+#define BC_ITEM_POTION_RED 0x13       // ITEM_POTION_RED
+#define BC_ITEM_POTION_GREEN 0x14     // ITEM_POTION_GREEN
+#define BC_ITEM_POTION_BLUE 0x15      // ITEM_POTION_BLUE
+#define BC_ITEM_FAIRY 0x16            // ITEM_FAIRY
+#define BC_ITEM_DEKU_PRINCESS 0x17    // ITEM_DEKU_PRINCESS
+#define BC_ITEM_MILK 0x18             // ITEM_MILK_BOTTLE
+#define BC_ITEM_MILK_HALF 0x19        // ITEM_MILK_HALF
+#define BC_ITEM_FISH 0x1A             // ITEM_FISH
+#define BC_ITEM_BUG 0x1B              // ITEM_BUG
+#define BC_ITEM_BLUE_FIRE 0x1C        // ITEM_BLUE_FIRE
+#define BC_ITEM_POE 0x1D              // ITEM_POE
+#define BC_ITEM_BIG_POE 0x1E          // ITEM_BIG_POE
+#define BC_ITEM_SPRING_WATER 0x1F     // ITEM_SPRING_WATER
 #define BC_ITEM_HOT_SPRING_WATER 0x20 // ITEM_HOT_SPRING_WATER
-#define BC_ITEM_ZORA_EGG         0x21 // ITEM_ZORA_EGG
-#define BC_ITEM_GOLD_DUST        0x22 // ITEM_GOLD_DUST
-#define BC_ITEM_MAGIC_MUSHROOM   0x23 // ITEM_MUSHROOM
-#define BC_ITEM_SEAHORSE         0x24 // ITEM_SEAHORSE
-#define BC_ITEM_CHATEAU          0x25 // ITEM_CHATEAU
-#define BC_ITEM_HYLIAN_LOACH     0x26 // ITEM_HYLIAN_LOACH
-#define BC_ITEM_OBABA_DRINK      0x27 // ITEM_OBABA_DRINK
+#define BC_ITEM_ZORA_EGG 0x21         // ITEM_ZORA_EGG
+#define BC_ITEM_GOLD_DUST 0x22        // ITEM_GOLD_DUST
+#define BC_ITEM_MAGIC_MUSHROOM 0x23   // ITEM_MUSHROOM
+#define BC_ITEM_SEAHORSE 0x24         // ITEM_SEAHORSE
+#define BC_ITEM_CHATEAU 0x25          // ITEM_CHATEAU
+#define BC_ITEM_HYLIAN_LOACH 0x26     // ITEM_HYLIAN_LOACH
+#define BC_ITEM_OBABA_DRINK 0x27      // ITEM_OBABA_DRINK
 // OoT-only content (no MM item): custom sentinel right after ITEM_BOTTOMLESS_BOTTLE (0xF8).
-#define BC_ITEM_LETTER_RUTO      0xF9
+#define BC_ITEM_LETTER_RUTO 0xF9
 
 // Order MUST match the BottleContent enum.
 static const uint16_t sContentItem[BOTTLE_C_COUNT] = {
@@ -63,25 +63,30 @@ static const uint16_t sContentItem[BOTTLE_C_COUNT] = {
 };
 
 extern "C" uint16_t Bottle_ContentItemId(BottleContent c) {
-    if (c < 0 || c >= BOTTLE_C_COUNT) return BC_ITEM_NONE;
+    if (c < 0 || c >= BOTTLE_C_COUNT)
+        return BC_ITEM_NONE;
     return sContentItem[c];
 }
 
 extern "C" BottleContent Bottle_ContentFromItemId(uint16_t itemId) {
-    if (itemId == BC_ITEM_NONE) return BOTTLE_C_COUNT;
+    if (itemId == BC_ITEM_NONE)
+        return BOTTLE_C_COUNT;
     for (int i = 0; i < BOTTLE_C_COUNT; i++) {
-        if (sContentItem[i] == itemId) return (BottleContent)i;
+        if (sContentItem[i] == itemId)
+            return (BottleContent)i;
     }
     return BOTTLE_C_COUNT;
 }
 
 extern "C" uint8_t Bottle_GetSlot(uint8_t slotIndex) {
-    if (slotIndex >= 8) return BOTTLE_SLOT_EMPTY;
+    if (slotIndex >= 8)
+        return BOTTLE_SLOT_EMPTY;
     return Nei_Save()->bottleSlots[slotIndex];
 }
 
 extern "C" void Bottle_SetSlot(uint8_t slotIndex, uint8_t item) {
-    if (slotIndex >= 8) return;
+    if (slotIndex >= 8)
+        return;
     Nei_Save()->bottleSlots[slotIndex] = item;
 }
 
@@ -92,7 +97,8 @@ static int Bottle_BuildWheelList(uint8_t wheel, uint16_t out[4]) {
     int n = 0;
     for (int i = 0; i < 4; i++) {
         uint8_t it = slots[base + i];
-        if (it != BOTTLE_SLOT_EMPTY) out[n++] = it;
+        if (it != BOTTLE_SLOT_EMPTY)
+            out[n++] = it;
     }
     return n;
 }
@@ -112,7 +118,8 @@ extern "C" uint8_t Bottle_WheelContains(uint8_t wheel, uint16_t item) {
     uint16_t list[4];
     int n = Bottle_BuildWheelList(wheel, list);
     for (int i = 0; i < n; i++) {
-        if (list[i] == item) return 1;
+        if (list[i] == item)
+            return 1;
     }
     return 0;
 }
@@ -122,7 +129,7 @@ extern "C" uint8_t Bottle_WheelContains(uint8_t wheel, uint16_t item) {
 //   sLastSet = the item the wheel itself last placed in that slot. Used to tell an EXTERNAL change
 //              (drinking empties / catching refills the bottle in-game) apart from the wheel's own
 //              cycling, so a drink writes back to the ACTIVE slot (not a wrong slot found by search).
-static uint8_t  sBottleActive[2] = { 0, 0 };
+static uint8_t sBottleActive[2] = { 0, 0 };
 static uint16_t sBottleLastSet[2] = { BOTTLE_SLOT_EMPTY, BOTTLE_SLOT_EMPTY };
 
 // ── Index-based wheel cycling (Skijer's NEI) ──────────────────────────────────────────────────────
@@ -138,7 +145,8 @@ extern "C" uint8_t Bottle_WheelBottleCount(uint8_t wheel) {
     const uint8_t* slots = Nei_Save()->bottleSlots;
     uint8_t n = 0;
     for (int i = 0; i < 4; i++) {
-        if (slots[base + i] != BOTTLE_SLOT_EMPTY) n++;
+        if (slots[base + i] != BOTTLE_SLOT_EMPTY)
+            n++;
     }
     return n;
 }
@@ -205,8 +213,8 @@ extern "C" void Bottle_WheelPersist(uint8_t wheel, uint16_t slotItem) {
     uint8_t w = (wheel == BOTTLE_WHEEL_B) ? 1 : 0;
     int base = w * 4;
     uint8_t* slots = Nei_Save()->bottleSlots;
-    if (slotItem != sBottleLastSet[w] && sBottleLastSet[w] != BOTTLE_SLOT_EMPTY &&
-        slotItem != BOTTLE_SLOT_EMPTY && sBottleActive[w] < 4) {
+    if (slotItem != sBottleLastSet[w] && sBottleLastSet[w] != BOTTLE_SLOT_EMPTY && slotItem != BOTTLE_SLOT_EMPTY &&
+        sBottleActive[w] < 4) {
         slots[base + sBottleActive[w]] = (uint8_t)slotItem;
     }
 }
@@ -236,9 +244,11 @@ extern "C" void Bottle_WheelRecordActive(uint8_t wheel, uint16_t slotItem) {
 extern "C" uint16_t Bottle_WheelNextItem(uint8_t wheel, uint16_t curItem) {
     uint16_t list[4];
     int n = Bottle_BuildWheelList(wheel, list);
-    if (n == 0) return curItem;
+    if (n == 0)
+        return curItem;
     for (int i = 0; i < n; i++) {
-        if (list[i] == curItem) return list[(i + 1) % n];
+        if (list[i] == curItem)
+            return list[(i + 1) % n];
     }
     return list[0];
 }
@@ -253,20 +263,32 @@ extern "C" uint8_t Bottle_ContentMaxUses(uint16_t itemId) {
         case BC_ITEM_POTION_RED:
         case BC_ITEM_POTION_BLUE:
         case BC_ITEM_POTION_GREEN:
-        case BC_ITEM_MILK:             return 5;
-        case BC_ITEM_FISH:             return 6;
-        case BC_ITEM_BUG:              return 9;
-        case BC_ITEM_FAIRY:            return 3;
-        case BC_ITEM_BLUE_FIRE:        return 7;
-        case BC_ITEM_POE:              return 3;
-        case BC_ITEM_BIG_POE:          return 3;
-        case BC_ITEM_HOT_SPRING_WATER: return 7;
-        case BC_ITEM_CHATEAU:          return 3;
-        case BC_ITEM_MAGIC_MUSHROOM:   return 3;
-        case BC_ITEM_HYLIAN_LOACH:     return 3;
+        case BC_ITEM_MILK:
+            return 5;
+        case BC_ITEM_FISH:
+            return 6;
+        case BC_ITEM_BUG:
+            return 9;
+        case BC_ITEM_FAIRY:
+            return 3;
+        case BC_ITEM_BLUE_FIRE:
+            return 7;
+        case BC_ITEM_POE:
+            return 3;
+        case BC_ITEM_BIG_POE:
+            return 3;
+        case BC_ITEM_HOT_SPRING_WATER:
+            return 7;
+        case BC_ITEM_CHATEAU:
+            return 3;
+        case BC_ITEM_MAGIC_MUSHROOM:
+            return 3;
+        case BC_ITEM_HYLIAN_LOACH:
+            return 3;
         // Spring Water, Gold Dust, Obaba's Drink + "major-like" (seahorse, deku princess, zora egg,
         // ruto's letter, ...) = single-use normal bottle.
-        default:                       return 1;
+        default:
+            return 1;
     }
 }
 
@@ -386,9 +408,11 @@ extern "C" uint8_t Bottle_CatchIntoEmpty(uint16_t content) {
 extern "C" uint16_t Bottle_WheelPrevItem(uint8_t wheel, uint16_t curItem) {
     uint16_t list[4];
     int n = Bottle_BuildWheelList(wheel, list);
-    if (n == 0) return curItem;
+    if (n == 0)
+        return curItem;
     for (int i = 0; i < n; i++) {
-        if (list[i] == curItem) return list[(i + n - 1) % n];
+        if (list[i] == curItem)
+            return list[(i + n - 1) % n];
     }
     return list[0];
 }

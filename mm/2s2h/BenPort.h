@@ -116,6 +116,18 @@ char* ResourceMgr_LoadIfDListByName(const char* filePath);
 char* ResourceMgr_LoadPlayerAnimByName(const char* animPath);
 // Wraps a raw SOH_PlayerAnimation payload in a real header (cached). Skijer's NEI
 PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeader(const char* animPath);
+// Same, REWRITTEN: root frozen (stripY also pins Y), optionally cut to an inclusive
+// sub-range, optionally resampled to an exact length. The imported movesets need all
+// three — a clip carrying its own root would teleport the player, one packed clip
+// serves several engine rows, and the locomotion rows are SAMPLED so their length is
+// not free. firstFrame/lastFrame -1 = the whole clip; targetFrames 0 = keep length.
+// Cached by path AND parameters. Skijer's NEI
+PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeaderInPlaceRange(const char* animPath, uint8_t stripY,
+                                                                      int16_t firstFrame, int16_t lastFrame,
+                                                                      int16_t targetFrames);
+PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeaderInPlaceResampled(const char* animPath, uint8_t stripY,
+                                                                          int16_t targetFrames);
+PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeaderInPlace(const char* animPath, uint8_t stripY);
 AnimationHeaderCommon* ResourceMgr_LoadAnimByName(const char* path);
 char* ResourceMgr_GetNameByCRC(uint64_t crc, char* alloc);
 Gfx* ResourceMgr_LoadGfxByCRC(uint64_t crc);

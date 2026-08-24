@@ -48,9 +48,9 @@ extern "C" {
 #define MM_SFX_FLAG 0x800
 
 #define MM_SFX_BANK_SHIFT_OP(sfxId) (((sfxId) >> 12) & 0xFF)
-#define MM_SFX_BANK_MASK_OP(sfxId)  ((sfxId) & 0xF000)
-#define MM_SFX_INDEX_OP(sfxId)      ((sfxId) & 0x3FF)
-#define MM_SFX_BANK_OP(sfxId)       MM_SFX_BANK_SHIFT_OP(MM_SFX_BANK_MASK_OP(sfxId))
+#define MM_SFX_BANK_MASK_OP(sfxId) ((sfxId)&0xF000)
+#define MM_SFX_INDEX_OP(sfxId) ((sfxId)&0x3FF)
+#define MM_SFX_BANK_OP(sfxId) MM_SFX_BANK_SHIFT_OP(MM_SFX_BANK_MASK_OP(sfxId))
 
 // =============================================================================
 // SfxParams bit-packing — verbatim from mm/include/sfx.h:2418-2480

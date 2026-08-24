@@ -44,6 +44,19 @@ typedef enum TransformMaskId {
     TRANSFORM_MASK_GERUDO
 } TransformMaskId;
 
+typedef enum ExtPlayerChargeAnimPhase {
+    EXTPLAYER_CHARGE_START,
+    EXTPLAYER_CHARGE_START_L,
+    EXTPLAYER_CHARGE_WAIT,
+    EXTPLAYER_CHARGE_WAIT_END,
+    EXTPLAYER_CHARGE_WALK,
+    EXTPLAYER_CHARGE_SIDE_WALK,
+    EXTPLAYER_CHARGE_PHASE_MAX
+} ExtPlayerChargeAnimPhase;
+
+PlayerAnimationHeader* ExtPlayer_GetChargeAnim(s32 phase, s32 twoHanded);
+void ExtPlayer_SetChargeAnim(s32 phase, s32 twoHanded, PlayerAnimationHeader* anim);
+
 // =============================================================================
 // MmPlayer Struct - Minimal version for hook system
 // Full struct is in soh/mods/mm_sources/z64player.h
@@ -289,7 +302,7 @@ void MmForm_KillTrail(PlayState* play, s32* effectIndex, u8* active);
 // uses an OOT fallback SFX (NA_SE_VO_SK_LAUGH, Skull Kid taunt).
 #define VOICE_ACTION_ATTACK 0x00
 #define VOICE_ACTION_DAMAGE 0x05
-#define VOICE_ACTION_DEATH  0x0B
+#define VOICE_ACTION_DEATH 0x0B
 
 // Water entry: called when player enters deep water (swim depth).
 // Returns 1 if swimming was blocked (Goron/Deku can't swim), 0 if allowed (Zora/FD).

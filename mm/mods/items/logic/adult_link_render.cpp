@@ -100,8 +100,8 @@ static u8 sIsMod = 0; // 1 = a user alt-assets mod supplied the skeleton (full m
 // Equipment DLs chosen at draw time by the override (deep-patched adult DLs).
 static Gfx* sDL_LHOpen;
 static Gfx* sDL_LHClosed;
-static Gfx* sDL_LHSword;  // holding one-hand sword (Master Sword)
-static Gfx* sDL_LHBgs;    // two-hand (Biggoron/Great Fairy's)
+static Gfx* sDL_LHSword; // holding one-hand sword (Master Sword)
+static Gfx* sDL_LHBgs;   // two-hand (Biggoron/Great Fairy's)
 static Gfx* sDL_RHOpen;
 static Gfx* sDL_RHClosed;
 static Gfx* sDL_RHShield; // shield raised in hand (Hylian)
@@ -109,10 +109,10 @@ static Gfx* sDL_RHBow;
 static Gfx* sDL_RHOcarina;
 static Gfx* sDL_RHHookshot;
 static Gfx* sDL_Waist;
-static Gfx* sDL_SheathEmpty;   // both sword & shield off the back
-static Gfx* sDL_SheathSword;   // sword on back only (shield raised)
-static Gfx* sDL_SheathShield;  // shield on back only (sword drawn)
-static Gfx* sDL_SheathBoth;    // sword + shield on back (idle)
+static Gfx* sDL_SheathEmpty;  // both sword & shield off the back
+static Gfx* sDL_SheathSword;  // sword on back only (shield raised)
+static Gfx* sDL_SheathShield; // shield on back only (sword drawn)
+static Gfx* sDL_SheathBoth;   // sword + shield on back (idle)
 
 // A MOD head mesh binds its own eye/mouth via segments 0x08/0x09 (recomp/Fast64 preserves the vanilla
 // structure). We DISCOVER the mod's eye/mouth textures generically by matching each blink state as a
@@ -123,12 +123,14 @@ static Gfx* sDL_SheathBoth;    // sword + shield on back (idle)
 // directly — robust across archive formats (the new .o2r doesn't match a ResourceMgr_ListFiles wildcard,
 // which returned 0 and left every slot on the MM-child eye = garbage on the adult head).
 static const char* sOotEyeName[PLAYER_EYES_MAX] = {
-    "gLinkAdultEyesOpenTex",     "gLinkAdultEyesHalfTex",      "gLinkAdultEyesClosedfTex",
-    "gLinkAdultEyesRollLeftTex", "gLinkAdultEyesRollRightTex", "gLinkAdultEyesShockTex",
-    "gLinkAdultEyesUnk1Tex",     "gLinkAdultEyesUnk2Tex",
+    "gLinkAdultEyesOpenTex",      "gLinkAdultEyesHalfTex",  "gLinkAdultEyesClosedfTex", "gLinkAdultEyesRollLeftTex",
+    "gLinkAdultEyesRollRightTex", "gLinkAdultEyesShockTex", "gLinkAdultEyesUnk1Tex",    "gLinkAdultEyesUnk2Tex",
 };
 static const char* sOotMouthName[PLAYER_MOUTH_MAX] = {
-    "gLinkAdultMouth1Tex", "gLinkAdultMouth2Tex", "gLinkAdultMouth3Tex", "gLinkAdultMouth4Tex",
+    "gLinkAdultMouth1Tex",
+    "gLinkAdultMouth2Tex",
+    "gLinkAdultMouth3Tex",
+    "gLinkAdultMouth4Tex",
 };
 // sPlayerEyesTextures holds OTR PATH STRINGS (e.g. "__OTR__objects/.../gLinkHumanEyesOpenTex"), which
 // the gfx interpreter resolves at draw time — NOT raw pixel pointers. So we store the mod eye/mouth
@@ -205,8 +207,8 @@ static s32 AdultLink_Setup(void) {
 
     if (skel->sh.limbCount != ADULT_LINK_LIMB_COUNT) {
         sSetupFailedPermanently = 1;
-        SPDLOG_ERROR("[AdultLink] unexpected limbCount {} (expected {}) — adult mode disabled",
-                     (int)skel->sh.limbCount, ADULT_LINK_LIMB_COUNT);
+        SPDLOG_ERROR("[AdultLink] unexpected limbCount {} (expected {}) — adult mode disabled", (int)skel->sh.limbCount,
+                     ADULT_LINK_LIMB_COUNT);
         return 0;
     }
 
@@ -320,8 +322,8 @@ static s32 AdultLink_Setup(void) {
         for (int i = 0; i < (int)(sizeof(sProbe) / sizeof(sProbe[0])); i++) {
             std::string base = std::string("__OTR__") + sProbe[i];
             std::string alt = std::string("__OTR__alt/") + sProbe[i];
-            void* basePtr = ResourceMgr_FileExists(sProbe[i]) ? (void*)ResourceMgr_LoadTexOrDListByName(base.c_str())
-                                                              : NULL;
+            void* basePtr =
+                ResourceMgr_FileExists(sProbe[i]) ? (void*)ResourceMgr_LoadTexOrDListByName(base.c_str()) : NULL;
             std::string altc = std::string("alt/") + sProbe[i];
             int altExists = (int)ResourceMgr_FileExists(altc.c_str());
             void* ootPtr = MmAssets_LoadFromOotArchive(sProbe[i], NULL);
@@ -542,8 +544,8 @@ extern "C" void AdultLink_Draw(PlayState* play, Player* player) {
             if (ei >= PLAYER_EYES_MAX) {
                 ei = 0;
             }
-            SPDLOG_INFO("[AdultLink] FACE bind (mod={}): eyeIndex={} eyePath='{}' rawPtr={} headLimbDL={}",
-                        (int)sIsMod, ei, sModEyePath[ei].empty() ? "(none)" : sModEyePath[ei].c_str(), sModEye[ei],
+            SPDLOG_INFO("[AdultLink] FACE bind (mod={}): eyeIndex={} eyePath='{}' rawPtr={} headLimbDL={}", (int)sIsMod,
+                        ei, sModEyePath[ei].empty() ? "(none)" : sModEyePath[ei].c_str(), sModEye[ei],
                         (void*)((LodLimb*)sSkel->sh.segment[10])->dLists[0]);
         }
     }
@@ -551,8 +553,8 @@ extern "C" void AdultLink_Draw(PlayState* play, Player* player) {
     // Draw through the real engine path so held items / trails / colliders all work; our override
     // supplies adult equipment DLs. Feed MM's OWN jointTable (identical 21-limb hierarchy) 1:1.
     Player_DrawImpl(play, sSkel->sh.segment, player->skelAnime.jointTable, sSkel->dListCount, 0, PLAYER_FORM_HUMAN,
-                    player->currentBoots, player->actor.shape.face, AdultLink_OverrideLimb,
-                    Player_PostLimbDrawGameplay, &player->actor);
+                    player->currentBoots, player->actor.shape.face, AdultLink_OverrideLimb, Player_PostLimbDrawGameplay,
+                    &player->actor);
 
     for (int i = 0; i < PLAYER_EYES_MAX; i++) {
         sPlayerEyesTextures[PLAYER_FORM_HUMAN][i] = savedEyes[i];

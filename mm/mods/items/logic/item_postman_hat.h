@@ -21,7 +21,7 @@ typedef struct {
     Vec3f pos;         // World coords of the mailbox (and player respawn)
     s16 yaw;           // Player facing (rotY binang)
     u8 roomIndex;
-    s16 mapCX, mapCY;  // Kaleido map coords for the icon
+    s16 mapCX, mapCY; // Kaleido map coords for the icon
     const char* name;
 } PostmanMailboxPoint;
 

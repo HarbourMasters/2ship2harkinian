@@ -20,8 +20,8 @@
 
 #include "z64.h"
 
-#define TWILIGHT_UPGRADE_CLAWSHOT       (1 << 0)
-#define TWILIGHT_UPGRADE_BOMB_ARROWS    (1 << 1)
+#define TWILIGHT_UPGRADE_CLAWSHOT (1 << 0)
+#define TWILIGHT_UPGRADE_BOMB_ARROWS (1 << 1)
 #define TWILIGHT_UPGRADE_GALE_BOOMERANG (1 << 2)
 #define TWILIGHT_UPGRADE_ALL \
     (TWILIGHT_UPGRADE_CLAWSHOT | TWILIGHT_UPGRADE_BOMB_ARROWS | TWILIGHT_UPGRADE_GALE_BOOMERANG)
@@ -36,7 +36,7 @@ u8 TwilightUpgrade_HasBombArrows(void);
 u8 TwilightUpgrade_HasGaleBoomerang(void);
 
 // Whole-upgrade queries.
-u8 TwilightUpgrade_IsObtained(void); // returns 1 if any bit is set
+u8 TwilightUpgrade_IsObtained(void);      // returns 1 if any bit is set
 u8 TwilightUpgrade_IsFullyObtained(void); // returns 1 if all 3 bits are set
 
 // Grant the full upgrade. Idempotent.
@@ -52,8 +52,8 @@ void TwilightUpgrade_SetGaleBoomerang(u8 on);
 
 // Item-availability shortcuts. These combine the upgrade bit with the
 // prerequisite item (e.g. Clawshot requires hookshot OR longshot to be useful).
-u8 TwilightUpgrade_ClawshotAvailable(void); // upgrade + (hookshot || longshot)
-u8 TwilightUpgrade_BombArrowsAvailable(void); // == Sw97_BombArrowsOwned(): save flag OR upgrade OR "Bomb Bag" mode
+u8 TwilightUpgrade_ClawshotAvailable(void);      // upgrade + (hookshot || longshot)
+u8 TwilightUpgrade_BombArrowsAvailable(void);    // == Sw97_BombArrowsOwned(): save flag OR upgrade OR "Bomb Bag" mode
 u8 TwilightUpgrade_GaleBoomerangAvailable(void); // upgrade + boomerang owned
 
 // Mode toggle accessors — read/write the active mode for each upgraded item.

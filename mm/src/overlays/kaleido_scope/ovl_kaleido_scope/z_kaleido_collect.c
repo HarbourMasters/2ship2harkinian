@@ -49,7 +49,7 @@ static const s16 sOotMedGlowTargets[12][3] = {
 // D_8082B1F8 = size). 47 quads: 0-5 medallions, 6-17 songs, 18-20 stones, 21 agony, 22 gerudo,
 // 23 skulltula, 24 GS medal (48px), 25-40 ocarina staff, 41-46 GS-count digits.
 static const s16 sOotVtxX[47] = {
-    74,  74,  46,  18,  18,  46,  -108, -90, -72, -54, -36, -18, -108, -90, -72, -54,
+    74,  74,  46,  18,  18,  46,   -108, -90,  -72, -54, -36, -18, -108, -90, -72, -54,
     -36, -18, 20,  46,  72,  -110, -86,  -110, -54, -98, -86, -74, -62,  -50, -38, -26,
     -14, -98, -86, -74, -62, -50,  -38,  -26,  -14, -88, -81, -72, -90,  -83, -74,
 };
@@ -89,31 +89,31 @@ static const char* sOotSkulltulaIconPath = "__OTR__textures/icon_item_24_static/
 // Entries 13/16/17 are NEI-generated (mm/assets/custom/textures/item_name_custom/generate_names.py);
 // the rest come from the companion oot.o2r. Skijer's NEI.
 static const char* sOotNamePaths[OOT_QUEST_POINT_MAX + 1] = {
-    "__OTR__textures/item_name_static/gForestMedallionItemNameENGTex", // 0 Forest
-    "__OTR__textures/item_name_static/gFireMedallionItemNameENGTex",   // 1 Fire
-    "__OTR__textures/item_name_static/gWaterMedallionItemNameENGTex",  // 2 Water
-    "__OTR__textures/item_name_static/gSpiritMedallionItemNameENGTex", // 3 Spirit
-    "__OTR__textures/item_name_static/gShadowMedallionItemNameENGTex", // 4 Shadow
-    "__OTR__textures/item_name_static/gLightMedallionItemNameENGTex",  // 5 Light
-    "__OTR__textures/item_name_static/gMinuetOfForestItemNameENGTex",  // 6 Minuet
-    "__OTR__textures/item_name_static/gBoleroOfFireItemNameENGTex",    // 7 Bolero
-    "__OTR__textures/item_name_static/gSerenadeOfWaterItemNameENGTex", // 8 Serenade
-    "__OTR__textures/item_name_static/gRequiemOfSpiritItemNameENGTex", // 9 Requiem
-    "__OTR__textures/item_name_static/gNocturneOfShadowItemNameENGTex",// 10 Nocturne
-    "__OTR__textures/item_name_static/gPreludeOfLightItemNameENGTex",  // 11 Prelude
-    "__OTR__textures/item_name_static/gZeldasLullabyItemNameENGTex",   // 12 Lullaby
-    "__OTR__textures/item_name_custom/gFugueOfHomeNameTex",            // 13 Fugue of Home (custom)
-    "__OTR__textures/item_name_static/gSariasSongItemNameENGTex",      // 14 Saria
-    "__OTR__textures/item_name_static/gSunsSongItemNameENGTex",        // 15 Sun
-    "__OTR__textures/item_name_custom/gCommandMelodyNameTex",          // 16 Command Melody (custom)
-    "__OTR__textures/item_name_custom/gBalladOfHeroNameTex",           // 17 Ballad of Hero (custom)
-    "__OTR__textures/item_name_static/gKokiriEmeraldItemNameENGTex",   // 18 Kokiri Emerald
-    "__OTR__textures/item_name_static/gGoronsRubyItemNameENGTex",      // 19 Goron's Ruby
-    "__OTR__textures/item_name_static/gZorasSapphireItemNameENGTex",   // 20 Zora's Sapphire
-    "__OTR__textures/item_name_static/gStoneofAgonyItemNameENGTex",    // 21 Stone of Agony
-    "__OTR__textures/item_name_static/gGerudosCardItemNameENGTex",     // 22 Gerudo's Card
-    "__OTR__textures/item_name_static/gGoldSkulltulaItemNameENGTex",   // 23 Gold Skulltula
-    "__OTR__textures/item_name_static/gPieceofHeartItemNameENGTex",    // 0x18 Heart-piece pie
+    "__OTR__textures/item_name_static/gForestMedallionItemNameENGTex",  // 0 Forest
+    "__OTR__textures/item_name_static/gFireMedallionItemNameENGTex",    // 1 Fire
+    "__OTR__textures/item_name_static/gWaterMedallionItemNameENGTex",   // 2 Water
+    "__OTR__textures/item_name_static/gSpiritMedallionItemNameENGTex",  // 3 Spirit
+    "__OTR__textures/item_name_static/gShadowMedallionItemNameENGTex",  // 4 Shadow
+    "__OTR__textures/item_name_static/gLightMedallionItemNameENGTex",   // 5 Light
+    "__OTR__textures/item_name_static/gMinuetOfForestItemNameENGTex",   // 6 Minuet
+    "__OTR__textures/item_name_static/gBoleroOfFireItemNameENGTex",     // 7 Bolero
+    "__OTR__textures/item_name_static/gSerenadeOfWaterItemNameENGTex",  // 8 Serenade
+    "__OTR__textures/item_name_static/gRequiemOfSpiritItemNameENGTex",  // 9 Requiem
+    "__OTR__textures/item_name_static/gNocturneOfShadowItemNameENGTex", // 10 Nocturne
+    "__OTR__textures/item_name_static/gPreludeOfLightItemNameENGTex",   // 11 Prelude
+    "__OTR__textures/item_name_static/gZeldasLullabyItemNameENGTex",    // 12 Lullaby
+    "__OTR__textures/item_name_custom/gFugueOfHomeNameTex",             // 13 Fugue of Home (custom)
+    "__OTR__textures/item_name_static/gSariasSongItemNameENGTex",       // 14 Saria
+    "__OTR__textures/item_name_static/gSunsSongItemNameENGTex",         // 15 Sun
+    "__OTR__textures/item_name_custom/gCommandMelodyNameTex",           // 16 Command Melody (custom)
+    "__OTR__textures/item_name_custom/gBalladOfHeroNameTex",            // 17 Ballad of Hero (custom)
+    "__OTR__textures/item_name_static/gKokiriEmeraldItemNameENGTex",    // 18 Kokiri Emerald
+    "__OTR__textures/item_name_static/gGoronsRubyItemNameENGTex",       // 19 Goron's Ruby
+    "__OTR__textures/item_name_static/gZorasSapphireItemNameENGTex",    // 20 Zora's Sapphire
+    "__OTR__textures/item_name_static/gStoneofAgonyItemNameENGTex",     // 21 Stone of Agony
+    "__OTR__textures/item_name_static/gGerudosCardItemNameENGTex",      // 22 Gerudo's Card
+    "__OTR__textures/item_name_static/gGoldSkulltulaItemNameENGTex",    // 23 Gold Skulltula
+    "__OTR__textures/item_name_static/gPieceofHeartItemNameENGTex",     // 0x18 Heart-piece pie
 };
 
 // Cache one companion texture per unique path (small fixed set; loaded once).
@@ -136,24 +136,28 @@ static void* OotQuest_Tex(const char* path) {
 // COMMAND MELODY, BALLAD OF HERO). The 3 truly-doubled songs (Epona/Time/Storms — MM grants them
 // natively) are REPLACED by the NEI custom songs on this page. Used to draw the notes on hover.
 static const u8 sOotSongButtons[12][8] = {
-    { OCARINA_BTN_A, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT },
-    { OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT,
-      OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN }, // Bolero (real OoT: Cd,A,Cd,A,Cr,Cd,Cr,Cd)
+    { OCARINA_BTN_A, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT,
+      OCARINA_BTN_C_RIGHT },
+    { OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN,
+      OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN }, // Bolero (real OoT: Cd,A,Cd,A,Cr,Cd,Cr,Cd)
     { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT },
     { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN, OCARINA_BTN_A },
     { OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A, OCARINA_BTN_C_LEFT,
       OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN },
-    { OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_UP },
-    { OCARINA_BTN_C_LEFT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT },
+    { OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT,
+      OCARINA_BTN_C_UP },
+    { OCARINA_BTN_C_LEFT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_UP,
+      OCARINA_BTN_C_RIGHT },
     { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT,
       OCARINA_BTN_C_LEFT }, // Fugue of Home (replaces Epona's row)
     { OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT,
       OCARINA_BTN_C_LEFT },
-    { OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP },
-    { OCARINA_BTN_A, OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A,
-      OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT }, // Command Melody (replaces Song of Time's row)
-    { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT,
-      OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT }, // Ballad of Hero (replaces Song of Storms' row)
+    { OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN,
+      OCARINA_BTN_C_UP },
+    { OCARINA_BTN_A, OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A, OCARINA_BTN_C_LEFT,
+      OCARINA_BTN_A, OCARINA_BTN_C_RIGHT }, // Command Melody (replaces Song of Time's row)
+    { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT,
+      OCARINA_BTN_C_RIGHT }, // Ballad of Hero (replaces Song of Storms' row)
 };
 static const u8 sOotSongButtonCount[12] = { 6, 8, 5, 6, 7, 6, 6, 6, 6, 6, 8, 7 };
 
@@ -184,9 +188,9 @@ extern s16 sQuestSongPlayedOcarinaButtonsAlpha[];
 // (quick play + latched effect) INSTEAD of the learn-it minigame. OFF (default) = the minigame.
 #define CVAR_PAUSE_PLAY "gEnhancements.SkijerNEI.PausePlay"
 
-extern void SpiritualStone_TogglePassive(s32 stone); // A on a stone: flip its passive buff
-void Interface_LoadItemIconImpl(PlayState* play, u8 btn);                    // refresh a C-button icon
-void Interface_Dpad_LoadItemIcon(PlayState* play, u8 btn);                   // refresh a D-pad-button icon
+extern void SpiritualStone_TogglePassive(s32 stone);       // A on a stone: flip its passive buff
+void Interface_LoadItemIconImpl(PlayState* play, u8 btn);  // refresh a C-button icon
+void Interface_Dpad_LoadItemIcon(PlayState* play, u8 btn); // refresh a D-pad-button icon
 Gfx* Gfx_DrawTexQuad4b(Gfx* gfx, TexturePtr texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 point);
 Gfx* Gfx_DrawTexQuadIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, u16 point); // note buttons
 
@@ -735,8 +739,7 @@ void KaleidoScope_DrawOotQuestName(PlayState* play) {
     gDPSetEnvColor(POLY_OPA_DISP++, 20, 30, 40, 0);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
     gSPVertex(POLY_OPA_DISP++, nv, 4, 0);
-    POLY_OPA_DISP =
-        Gfx_DrawTexQuad4b(POLY_OPA_DISP, sOotNamePaths[sOotQuestCursorPoint], G_IM_FMT_IA, 128, 16, 0);
+    POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, sOotNamePaths[sOotQuestCursorPoint], G_IM_FMT_IA, 128, 16, 0);
 
     CLOSE_DISPS(gfxCtx);
 }
@@ -1133,8 +1136,7 @@ s32 OotQuest_HandleCursor(PlayState* play) {
         if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
             // Confirm: queue the activation and leave the pause menu. The heart
             // is charged in-world at the end of the attuning animation.
-            if (Rando_DesireCompass_RequestActivation((DesireCompassCategory)sQuartzMenuIndex,
-                                                       DCOMPASS_SUBCAT_ANY)) {
+            if (Rando_DesireCompass_RequestActivation((DesireCompassCategory)sQuartzMenuIndex, DCOMPASS_SUBCAT_ANY)) {
                 Audio_PlaySfx(NA_SE_SY_DECIDE);
                 sQuartzMenuOpen = 0;
                 sQuartzStickHeld = 0;

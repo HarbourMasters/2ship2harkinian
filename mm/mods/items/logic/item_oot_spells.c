@@ -180,15 +180,15 @@ static PlayerAnimationHeader* OotSpells_GetAnim(s32 which) {
 // reordered the actor table for the NAYRUS-before-DINS IA order but left these tables in the old
 // {kaze, honoo, tamashii} x2 layout, so Nayru's plays the honoo windup and Din's the tamashii one.
 static const u8 sOotSpellRaiseAnims[6] = {
-    OOT_SPELL_ANIM_KAZE1, OOT_SPELL_ANIM_HONOO1, OOT_SPELL_ANIM_TAMASHII1,
+    OOT_SPELL_ANIM_KAZE1, OOT_SPELL_ANIM_HONOO1,    OOT_SPELL_ANIM_TAMASHII1,
     OOT_SPELL_ANIM_KAZE1, OOT_SPELL_ANIM_TAMASHII1, OOT_SPELL_ANIM_HONOO1,
 };
 static const u8 sOotSpellHoldAnims[6] = {
-    OOT_SPELL_ANIM_KAZE2, OOT_SPELL_ANIM_HONOO2, OOT_SPELL_ANIM_TAMASHII2,
+    OOT_SPELL_ANIM_KAZE2, OOT_SPELL_ANIM_HONOO2,    OOT_SPELL_ANIM_TAMASHII2,
     OOT_SPELL_ANIM_KAZE2, OOT_SPELL_ANIM_TAMASHII2, OOT_SPELL_ANIM_HONOO2,
 };
 static const u8 sOotSpellLowerAnims[6] = {
-    OOT_SPELL_ANIM_KAZE3, OOT_SPELL_ANIM_HONOO3, OOT_SPELL_ANIM_TAMASHII3,
+    OOT_SPELL_ANIM_KAZE3, OOT_SPELL_ANIM_HONOO3,    OOT_SPELL_ANIM_TAMASHII3,
     OOT_SPELL_ANIM_KAZE3, OOT_SPELL_ANIM_TAMASHII3, OOT_SPELL_ANIM_HONOO3,
 };
 
@@ -221,12 +221,15 @@ static OotSpellsAnimSfx sOotSpellVoiceSfx[6][2] = {
     /* 2 (Din slot) */
     { { NA_SE_VO_LI_MAGIC_ATTACK, OOT_SPELL_ANIMSFX_GO(OOT_SPELL_SFXTYPE_VOICE, 20) },
       { NA_SE_IT_SWORD_SWING_HARD, OOT_SPELL_ANIMSFX_END(OOT_SPELL_SFXTYPE_GENERAL, 20) } },
-    /* 3 ice   */ { { NA_SE_PL_WALK_GROUND, OOT_SPELL_ANIMSFX_GO(OOT_SPELL_SFXTYPE_FLOOR, 20) },
-                    { NA_SE_VO_LI_MAGIC_FROL, OOT_SPELL_ANIMSFX_END(OOT_SPELL_SFXTYPE_VOICE, 30) } },
-    /* 4 light */ { { NA_SE_VO_LI_MAGIC_ATTACK, OOT_SPELL_ANIMSFX_GO(OOT_SPELL_SFXTYPE_VOICE, 20) },
-                    { NA_SE_IT_SWORD_SWING_HARD, OOT_SPELL_ANIMSFX_END(OOT_SPELL_SFXTYPE_GENERAL, 20) } },
-    /* 5 fire  */ { { NA_SE_PL_WALK_GROUND, OOT_SPELL_ANIMSFX_GO(OOT_SPELL_SFXTYPE_FLOOR, 20) },
-                    { NA_SE_VO_LI_MAGIC_NALE, OOT_SPELL_ANIMSFX_END(OOT_SPELL_SFXTYPE_VOICE, 44) } },
+    /* 3 ice   */
+    { { NA_SE_PL_WALK_GROUND, OOT_SPELL_ANIMSFX_GO(OOT_SPELL_SFXTYPE_FLOOR, 20) },
+      { NA_SE_VO_LI_MAGIC_FROL, OOT_SPELL_ANIMSFX_END(OOT_SPELL_SFXTYPE_VOICE, 30) } },
+    /* 4 light */
+    { { NA_SE_VO_LI_MAGIC_ATTACK, OOT_SPELL_ANIMSFX_GO(OOT_SPELL_SFXTYPE_VOICE, 20) },
+      { NA_SE_IT_SWORD_SWING_HARD, OOT_SPELL_ANIMSFX_END(OOT_SPELL_SFXTYPE_GENERAL, 20) } },
+    /* 5 fire  */
+    { { NA_SE_PL_WALK_GROUND, OOT_SPELL_ANIMSFX_GO(OOT_SPELL_SFXTYPE_FLOOR, 20) },
+      { NA_SE_VO_LI_MAGIC_NALE, OOT_SPELL_ANIMSFX_END(OOT_SPELL_SFXTYPE_VOICE, 44) } },
 };
 
 // Chain forward declarations.
@@ -403,7 +406,7 @@ void Player_Action_OotMagicSpell(Player* this, PlayState* play) {
                 sOotSw97SpellActive = false;
                 // Release the cast CS/invincibility raised in OotSpells_SetupCast.
                 this->stateFlags1 &= ~(PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000);
-                func_80836988(this, play);                              // OoT func_80839FFC → idle
+                func_80836988(this, play);                                 // OoT func_80839FFC → idle
                 Camera_SetFinishedFlag(Play_GetCamera(play, CAM_ID_MAIN)); // OoT func_8005B1A4
             }
         } else {
@@ -431,8 +434,8 @@ void Player_Action_OotMagicSpell(Player* this, PlayState* play) {
             }
             this->av2.actionVar2++;
         }
-    } else {                              // ---- anim still PLAYING ----
-        if (this->av2.actionVar2 < 0) {   // FW warp-point-save countdown (OoT z_player.c:17088)
+    } else {                            // ---- anim still PLAYING ----
+        if (this->av2.actionVar2 < 0) { // FW warp-point-save countdown (OoT z_player.c:17088)
             this->av2.actionVar2++;
             if (this->av2.actionVar2 == 0) {
                 NeiSaveData* nei = Nei_Save();

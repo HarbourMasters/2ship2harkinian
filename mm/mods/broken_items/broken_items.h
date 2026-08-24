@@ -30,12 +30,12 @@ s32 BrokenItems_Enabled(void);
 // The transform options are drawn IN the equipment grid (where swords/shields go)
 // as a 3rd equipment page; these expose the shared form data + toggle so there's
 // one source of truth (the Map overlay above is the deprecated path).
-s32 BrokenItems_FormCount(void);          // number of forms (Link / Mario / Pikachu)
-const char* BrokenItems_FormName(s32 i);  // "LINK MODE" etc.
-void* BrokenItems_FormIconTex(s32 i);     // grid icon texture for form i
-u16 BrokenItems_FormItem(s32 i);          // OOT item whose NAME texture labels form i
-s32 BrokenItems_CurrentForm(void);        // currently-equipped form index
-s32 BrokenItems_FormUnlocked(s32 i);      // ownership gate (Pikachu = pokeballOwned); 1 = equippable
+s32 BrokenItems_FormCount(void);                    // number of forms (Link / Mario / Pikachu)
+const char* BrokenItems_FormName(s32 i);            // "LINK MODE" etc.
+void* BrokenItems_FormIconTex(s32 i);               // grid icon texture for form i
+u16 BrokenItems_FormItem(s32 i);                    // OOT item whose NAME texture labels form i
+s32 BrokenItems_CurrentForm(void);                  // currently-equipped form index
+s32 BrokenItems_FormUnlocked(s32 i);                // ownership gate (Pikachu = pokeballOwned); 1 = equippable
 void BrokenItems_EquipForm(PlayState* play, s32 i); // equip form i (refuses + error beep when locked)
 
 #ifdef __cplusplus

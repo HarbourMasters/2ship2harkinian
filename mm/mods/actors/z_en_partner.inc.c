@@ -271,8 +271,7 @@ static void UseBow(Actor* thisx, PlayState* play, u8 started, u8 arrowType) {
     } else if (started == 0) {
         if (this->itemTimer <= 0) {
             if (AMMO(ITEM_BOW) > 0) {
-                if (arrowType >= 1 &&
-                    !Magic_Consume(play, sEnPartnerMagicArrowCosts[arrowType], MAGIC_CONSUME_NOW)) {
+                if (arrowType >= 1 && !Magic_Consume(play, sEnPartnerMagicArrowCosts[arrowType], MAGIC_CONSUME_NOW)) {
                     Audio_PlaySfx(NA_SE_SY_ERROR);
                     this->canMove = 1;
                     return;
@@ -283,10 +282,10 @@ static void UseBow(Actor* thisx, PlayState* play, u8 started, u8 arrowType) {
                 // OoT spawned ARROW_NORMAL then overwrote params; MM EnArrow_Init sets up the
                 // elemental effects at init time, so spawn with the final type directly.
                 static s16 sArrowTypes[] = { ARROW_TYPE_NORMAL, ARROW_TYPE_FIRE, ARROW_TYPE_ICE, ARROW_TYPE_LIGHT };
-                Actor* newarrow = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_ARROW,
-                                                     this->actor.world.pos.x, this->actor.world.pos.y + 7,
-                                                     this->actor.world.pos.z, 0, this->actor.world.rot.y, 0,
-                                                     sArrowTypes[arrowType]);
+                Actor* newarrow =
+                    Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_ARROW, this->actor.world.pos.x,
+                                       this->actor.world.pos.y + 7, this->actor.world.pos.z, 0, this->actor.world.rot.y,
+                                       0, sArrowTypes[arrowType]);
 
                 if (newarrow != NULL) {
                     GET_PLAYER(play)->unk_D57 = 4; // OoT unk_A73 = 4: keeps parentless EnArrow alive to fire
@@ -308,10 +307,10 @@ static void UseSlingshot(Actor* thisx, PlayState* play, u8 started) {
         if (this->itemTimer <= 0) {
             if (AMMO(ITEM_SLINGSHOT) > 0) {
                 this->itemTimer = 10;
-                Actor* newarrow = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_ARROW,
-                                                     this->actor.world.pos.x, this->actor.world.pos.y + 7,
-                                                     this->actor.world.pos.z, 0, this->actor.world.rot.y, 0,
-                                                     ARROW_TYPE_SLINGSHOT);
+                Actor* newarrow =
+                    Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_ARROW, this->actor.world.pos.x,
+                                       this->actor.world.pos.y + 7, this->actor.world.pos.z, 0, this->actor.world.rot.y,
+                                       0, ARROW_TYPE_SLINGSHOT);
                 if (newarrow != NULL) {
                     GET_PLAYER(play)->unk_D57 = 4;
                     newarrow->parent = NULL;
@@ -374,9 +373,9 @@ static void UseBombchus(Actor* thisx, PlayState* play, u8 started) {
             if (AMMO(ITEM_BOMBCHU) > 0) {
                 this->itemTimer = 10;
                 // SoH parity: bombchus are an instantly-exploding bomb (timer = 0)
-                EnBom* bomb = (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, this->actor.world.pos.x,
-                                                  this->actor.world.pos.y + 7, this->actor.world.pos.z, 0, 0, 0,
-                                                  BOMB_TYPE_BODY);
+                EnBom* bomb =
+                    (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, this->actor.world.pos.x,
+                                        this->actor.world.pos.y + 7, this->actor.world.pos.z, 0, 0, 0, BOMB_TYPE_BODY);
                 if (bomb != NULL) {
                     bomb->timer = 0;
                 }
@@ -514,9 +513,8 @@ static void UseNuts(Actor* thisx, PlayState* play, u8 started) {
         if (started == 1) {
             if (AMMO(ITEM_DEKU_NUT) > 0) {
                 this->itemTimer = 10;
-                Actor_Spawn(&play->actorCtx, play, ACTOR_EN_ARROW, this->actor.world.pos.x,
-                            this->actor.world.pos.y + 7, this->actor.world.pos.z, 0x1000, this->actor.world.rot.y, 0,
-                            ARROW_TYPE_DEKU_NUT);
+                Actor_Spawn(&play->actorCtx, play, ACTOR_EN_ARROW, this->actor.world.pos.x, this->actor.world.pos.y + 7,
+                            this->actor.world.pos.z, 0x1000, this->actor.world.rot.y, 0, ARROW_TYPE_DEKU_NUT);
                 Inventory_ChangeAmmo(ITEM_DEKU_NUT, -1);
             } else {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
@@ -822,15 +820,13 @@ void EnPartner_Update(Actor* thisx, PlayState* play) {
                 s32 dropType = itemActor->params & 0xFF; // MM packs the collectible flag in the high bits
                 // OoT list adapted to MM's Item00 set. TODO(MM): OoT also collected
                 // ITEM00_BOMBCHU and ITEM00_SEEDS — no MM drop equivalents.
-                if (dropType == ITEM00_RUPEE_GREEN || dropType == ITEM00_RUPEE_BLUE ||
-                    dropType == ITEM00_RUPEE_RED || dropType == ITEM00_RUPEE_PURPLE ||
-                    dropType == ITEM00_RUPEE_HUGE || dropType == ITEM00_RECOVERY_HEART ||
-                    dropType == ITEM00_BOMBS_A || dropType == ITEM00_BOMBS_B ||
-                    dropType == ITEM00_ARROWS_10 || dropType == ITEM00_ARROWS_30 ||
-                    dropType == ITEM00_ARROWS_40 || dropType == ITEM00_ARROWS_50 ||
-                    dropType == ITEM00_MAGIC_JAR_SMALL || dropType == ITEM00_MAGIC_JAR_BIG ||
-                    dropType == ITEM00_DEKU_NUTS_1 || dropType == ITEM00_DEKU_NUTS_10 ||
-                    dropType == ITEM00_DEKU_STICK) {
+                if (dropType == ITEM00_RUPEE_GREEN || dropType == ITEM00_RUPEE_BLUE || dropType == ITEM00_RUPEE_RED ||
+                    dropType == ITEM00_RUPEE_PURPLE || dropType == ITEM00_RUPEE_HUGE ||
+                    dropType == ITEM00_RECOVERY_HEART || dropType == ITEM00_BOMBS_A || dropType == ITEM00_BOMBS_B ||
+                    dropType == ITEM00_ARROWS_10 || dropType == ITEM00_ARROWS_30 || dropType == ITEM00_ARROWS_40 ||
+                    dropType == ITEM00_ARROWS_50 || dropType == ITEM00_MAGIC_JAR_SMALL ||
+                    dropType == ITEM00_MAGIC_JAR_BIG || dropType == ITEM00_DEKU_NUTS_1 ||
+                    dropType == ITEM00_DEKU_NUTS_10 || dropType == ITEM00_DEKU_STICK) {
                     f32 distanceToObject = Actor_WorldDistXYZToActor(&this->actor, itemActor);
                     if (distanceToObject <= 20.0f) {
                         itemActor->world.pos = GET_PLAYER(play)->actor.world.pos;
@@ -881,8 +877,8 @@ void EnPartner_Update(Actor* thisx, PlayState* play) {
             for (i = 0; i < buttonMax; i++) {
                 if (CHECK_BTN_ALL(sControlInput.press.button, partnerButtons[i])) {
                     // OoT: gSaveContext.equips.buttonItems[i + 1] (C-lefts then dpad).
-                    this->usedItem = (i < 3) ? GET_CUR_FORM_BTN_ITEM(i + 1)
-                                             : DPAD_GET_CUR_FORM_BTN_ITEM(partnerDpadSlots[i - 3]);
+                    this->usedItem =
+                        (i < 3) ? GET_CUR_FORM_BTN_ITEM(i + 1) : DPAD_GET_CUR_FORM_BTN_ITEM(partnerDpadSlots[i - 3]);
                     this->usedItemButton = i;
                     pressed = 1;
                 }
@@ -958,8 +954,8 @@ void EnPartner_Update(Actor* thisx, PlayState* play) {
     EnPartner_UpdateLights(this, play);
 }
 
-static s32 EnPartner_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
-                                      Actor* thisx, Gfx** gfx) {
+static s32 EnPartner_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx,
+                                      Gfx** gfx) {
     static Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
     f32 scale;
     Vec3f mtxMult;
@@ -1079,8 +1075,9 @@ void EnPartner_Draw(Actor* thisx, PlayState* play) {
 ActorProfile En_Partner_Profile = {
     /**/ ACTOR_EN_PARTNER,
     /**/ ACTORCAT_ITEMACTION,
-    /**/ (ACTOR_FLAG_UPDATE_CULLING_DISABLED | ACTOR_FLAG_DRAW_CULLING_DISABLED | ACTOR_FLAG_HOOKSHOT_PULLS_PLAYER |
-          ACTOR_FLAG_CAN_PRESS_SWITCHES),
+    /**/
+    (ACTOR_FLAG_UPDATE_CULLING_DISABLED | ACTOR_FLAG_DRAW_CULLING_DISABLED | ACTOR_FLAG_HOOKSHOT_PULLS_PLAYER |
+     ACTOR_FLAG_CAN_PRESS_SWITCHES),
     /**/ GAMEPLAY_KEEP,
     /**/ sizeof(EnPartner),
     /**/ EnPartner_Init,

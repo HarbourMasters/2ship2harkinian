@@ -110,18 +110,24 @@ s16 sHoldFrames[SPIRITUAL_STONE_COUNT] = { 0, 0, 0 };
 // Indexed by stone. > 0xFF, so they only ever compare equal through ExtButton_GetItem.
 inline s32 StoneItemId(int stone) {
     switch (stone) {
-        case SPIRITUAL_STONE_KOKIRI: return EXT_ITEM_SPIRITUAL_STONE_KOKIRI;
-        case SPIRITUAL_STONE_GORON:  return EXT_ITEM_SPIRITUAL_STONE_GORON;
-        case SPIRITUAL_STONE_ZORA:   return EXT_ITEM_SPIRITUAL_STONE_ZORA;
+        case SPIRITUAL_STONE_KOKIRI:
+            return EXT_ITEM_SPIRITUAL_STONE_KOKIRI;
+        case SPIRITUAL_STONE_GORON:
+            return EXT_ITEM_SPIRITUAL_STONE_GORON;
+        case SPIRITUAL_STONE_ZORA:
+            return EXT_ITEM_SPIRITUAL_STONE_ZORA;
     }
     return ITEM_NONE;
 }
 
 const char* StoneNameEnglish(int stone) {
     switch (stone) {
-        case SPIRITUAL_STONE_KOKIRI: return "Kokiri Emerald";
-        case SPIRITUAL_STONE_GORON:  return "Goron's Ruby";
-        case SPIRITUAL_STONE_ZORA:   return "Zora's Sapphire";
+        case SPIRITUAL_STONE_KOKIRI:
+            return "Kokiri Emerald";
+        case SPIRITUAL_STONE_GORON:
+            return "Goron's Ruby";
+        case SPIRITUAL_STONE_ZORA:
+            return "Zora's Sapphire";
     }
     return "Spiritual Stone";
 }
@@ -204,8 +210,7 @@ void OpenWarpPrompt(PlayState* play, Player* player, int stone) {
     // OCTAL control codes (a \x hex escape greedily eats following hex letters):
     //   \002 = CTRL_COLOR_GREEN, \021 = CTRL_NEWLINE (0x11), \302 = CTRL_TWO_CHOICE (0xC2).
     // The first option after the choice code is choiceIndex 0 (Yes).
-    std::string body =
-        std::string("Warp to your ") + StoneNameEnglish(stone) + " waypoint?\002\021\302Yes\021No";
+    std::string body = std::string("Warp to your ") + StoneNameEnglish(stone) + " waypoint?\002\021\302Yes\021No";
     CustomMessage::Entry entry;
     entry.textboxType = 0;
     CustomMessage::StartTextbox(body, entry);

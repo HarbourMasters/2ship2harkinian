@@ -9,7 +9,7 @@
 #include "twilight_upgrade.h"
 #include "macros.h"
 #include "functions.h"
-#include "../../nei_save.h" // Skijer's NEI
+#include "../../nei_save.h"           // Skijer's NEI
 #include "../../extended_inventory.h" // ExtInv_GetItemSlot — custom items must NOT use vanilla SLOT()/INV_CONTENT()
 
 u8 TwilightUpgrade_HasClawshot(void) {

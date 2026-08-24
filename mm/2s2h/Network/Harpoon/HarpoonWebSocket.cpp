@@ -12,16 +12,17 @@
 
 namespace {
 
-static const char kB64[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char kB64[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 static std::string Base64Encode(const uint8_t* data, size_t len) {
     std::string out;
     out.reserve(((len + 2) / 3) * 4);
     for (size_t i = 0; i < len; i += 3) {
         uint32_t v = (uint32_t)data[i] << 16;
-        if (i + 1 < len) v |= (uint32_t)data[i + 1] << 8;
-        if (i + 2 < len) v |= (uint32_t)data[i + 2];
+        if (i + 1 < len)
+            v |= (uint32_t)data[i + 1] << 8;
+        if (i + 2 < len)
+            v |= (uint32_t)data[i + 2];
         out.push_back(kB64[(v >> 18) & 0x3F]);
         out.push_back(kB64[(v >> 12) & 0x3F]);
         out.push_back(i + 1 < len ? kB64[(v >> 6) & 0x3F] : '=');
@@ -35,7 +36,8 @@ static std::string MakeWebSocketKey() {
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> dist(0, 255);
-    for (auto& b : buf) b = (uint8_t)dist(gen);
+    for (auto& b : buf)
+        b = (uint8_t)dist(gen);
     return Base64Encode(buf, sizeof(buf));
 }
 
@@ -47,7 +49,8 @@ static void EncodeTextFrame(const std::string& payload, std::string& out) {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<int> dist(0, 255);
-        for (auto& b : mask) b = (uint8_t)dist(gen);
+        for (auto& b : mask)
+            b = (uint8_t)dist(gen);
     }
     if (len < 126) {
         out.push_back((char)(0x80 | len));
@@ -57,7 +60,8 @@ static void EncodeTextFrame(const std::string& payload, std::string& out) {
         out.push_back((char)(len & 0xFF));
     } else {
         out.push_back((char)(0x80 | 127));
-        for (int i = 7; i >= 0; --i) out.push_back((char)((len >> (i * 8)) & 0xFF));
+        for (int i = 7; i >= 0; --i)
+            out.push_back((char)((len >> (i * 8)) & 0xFF));
     }
     out.append((const char*)mask, 4);
     size_t maskOff = out.size() - 4;
@@ -83,7 +87,8 @@ static void EncodePongFrame(const std::string& pingPayload, std::string& out) {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<int> dist(0, 255);
-        for (auto& b : mask) b = (uint8_t)dist(gen);
+        for (auto& b : mask)
+            b = (uint8_t)dist(gen);
     }
     if (len < 126) {
         out.push_back((char)(0x80 | len));
@@ -100,8 +105,7 @@ static void EncodePongFrame(const std::string& pingPayload, std::string& out) {
     }
 }
 
-enum class FrameOp { CONTINUATION = 0, TEXT = 1, BINARY = 2,
-                     CLOSE = 8, PING = 9, PONG = 10, INCOMPLETE = 0xFF };
+enum class FrameOp { CONTINUATION = 0, TEXT = 1, BINARY = 2, CLOSE = 8, PING = 9, PONG = 10, INCOMPLETE = 0xFF };
 
 struct ParsedFrame {
     FrameOp op = FrameOp::INCOMPLETE;
@@ -112,7 +116,8 @@ struct ParsedFrame {
 
 static ParsedFrame TryParseFrame(const std::string& buf) {
     ParsedFrame f;
-    if (buf.size() < 2) return f;
+    if (buf.size() < 2)
+        return f;
     uint8_t b0 = (uint8_t)buf[0];
     uint8_t b1 = (uint8_t)buf[1];
     f.fin = (b0 & 0x80) != 0;
@@ -122,22 +127,36 @@ static ParsedFrame TryParseFrame(const std::string& buf) {
     uint64_t len = b1 & 0x7F;
     size_t off = 2;
     if (len == 126) {
-        if (buf.size() < off + 2) { f.op = FrameOp::INCOMPLETE; return f; }
+        if (buf.size() < off + 2) {
+            f.op = FrameOp::INCOMPLETE;
+            return f;
+        }
         len = ((uint64_t)(uint8_t)buf[off] << 8) | (uint8_t)buf[off + 1];
         off += 2;
     } else if (len == 127) {
-        if (buf.size() < off + 8) { f.op = FrameOp::INCOMPLETE; return f; }
+        if (buf.size() < off + 8) {
+            f.op = FrameOp::INCOMPLETE;
+            return f;
+        }
         len = 0;
-        for (int i = 0; i < 8; ++i) len = (len << 8) | (uint8_t)buf[off + i];
+        for (int i = 0; i < 8; ++i)
+            len = (len << 8) | (uint8_t)buf[off + i];
         off += 8;
     }
     uint8_t maskKey[4] = {};
     if (masked) {
-        if (buf.size() < off + 4) { f.op = FrameOp::INCOMPLETE; return f; }
-        for (int i = 0; i < 4; ++i) maskKey[i] = (uint8_t)buf[off + i];
+        if (buf.size() < off + 4) {
+            f.op = FrameOp::INCOMPLETE;
+            return f;
+        }
+        for (int i = 0; i < 4; ++i)
+            maskKey[i] = (uint8_t)buf[off + i];
         off += 4;
     }
-    if (buf.size() < off + len) { f.op = FrameOp::INCOMPLETE; return f; }
+    if (buf.size() < off + len) {
+        f.op = FrameOp::INCOMPLETE;
+        return f;
+    }
     f.payload.assign(buf, off, (size_t)len);
     if (masked) {
         for (size_t i = 0; i < f.payload.size(); ++i) {
@@ -148,7 +167,7 @@ static ParsedFrame TryParseFrame(const std::string& buf) {
     return f;
 }
 
-}  // anonymous namespace
+} // anonymous namespace
 
 HarpoonWebSocket::HarpoonWebSocket() = default;
 
@@ -230,7 +249,8 @@ void HarpoonWebSocket::RunLoop() {
                 }
                 connectedAndHandshakeDone_.store(true);
                 SPDLOG_INFO("[HarpoonWS] WebSocket connected to {}:{}", host_, port_);
-                if (onConnected_) onConnected_();
+                if (onConnected_)
+                    onConnected_();
                 break;
             }
             std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -275,7 +295,8 @@ void HarpoonWebSocket::RunLoop() {
 
 bool HarpoonWebSocket::PerformHandshake() {
 #ifdef ENABLE_HARPOON
-    if (!socket_) return false;
+    if (!socket_)
+        return false;
     std::string key = MakeWebSocketKey();
     std::string req;
     req += "GET / HTTP/1.1\r\n";
@@ -331,7 +352,8 @@ bool HarpoonWebSocket::PerformHandshake() {
 
 void HarpoonWebSocket::ProcessOutbound() {
 #ifdef ENABLE_HARPOON
-    if (!socket_) return;
+    if (!socket_)
+        return;
     std::queue<std::string> drained;
     {
         std::lock_guard<std::mutex> lk(outMutex_);
@@ -353,7 +375,8 @@ void HarpoonWebSocket::ProcessInboundFrames() {
 #ifdef ENABLE_HARPOON
     while (true) {
         ParsedFrame f = TryParseFrame(rxBuffer_);
-        if (f.op == FrameOp::INCOMPLETE) break;
+        if (f.op == FrameOp::INCOMPLETE)
+            break;
         rxBuffer_.erase(0, f.consumed);
 
         switch (f.op) {
@@ -361,7 +384,8 @@ void HarpoonWebSocket::ProcessInboundFrames() {
             case FrameOp::CONTINUATION:
                 textAccum_.append(f.payload);
                 if (f.fin) {
-                    if (onText_) onText_(textAccum_);
+                    if (onText_)
+                        onText_(textAccum_);
                     textAccum_.clear();
                 }
                 break;

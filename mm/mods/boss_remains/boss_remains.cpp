@@ -96,15 +96,20 @@ constexpr s16 kRemainsPseudoSlotBase = 96;
 // Odolwa A-action: while the Odolwa remains is worn, Link's roll is suppressed (func_80836B3C) and he
 // just RUNS — human locomotion is always 1.5x (BossRemains_RunSpeedMul, read in Player_Action_13), the
 // red trail draws while moving, and Odolwa footstep SFX play on a cadence. No toggle needed.
-s16 sOdolwaRunSfxTimer = 0; // footstep-SFX cadence while running
+s16 sOdolwaRunSfxTimer = 0;     // footstep-SFX cadence while running
 s16 sOdolwaShieldFireTimer = 0; // cooldown between shield-deflect fire bursts
-bool sOdolwaRunBoost = false; // true while HOLDING A (worn) → 2x run + purple trail
+bool sOdolwaRunBoost = false;   // true while HOLDING A (worn) → 2x run + purple trail
 
 // ── Odolwa custom animations (retargeted to Link, from npc_link_anims.o2r) ───
 // Loaded once and cached: ResourceMgr_LoadPlayerAnimAsHeader already caches, but we also cache the pointer
 // so Player_GetIdleAnim can return the SAME header every call (the idle detection strcmps it).
-enum OdolwaAnimId { ODOLWA_ANIM_READY, ODOLWA_ANIM_SWING_DANCE, ODOLWA_ANIM_MOTH_DANCE, ODOLWA_ANIM_CROUCH,
-                    ODOLWA_ANIM_MAX };
+enum OdolwaAnimId {
+    ODOLWA_ANIM_READY,
+    ODOLWA_ANIM_SWING_DANCE,
+    ODOLWA_ANIM_MOTH_DANCE,
+    ODOLWA_ANIM_CROUCH,
+    ODOLWA_ANIM_MAX
+};
 const char* const kOdolwaAnimPath[ODOLWA_ANIM_MAX] = {
     "__OTR__misc/link_animetion/gPlayerAnim_mhr_npc_odolwa_ready",
     "__OTR__misc/link_animetion/gPlayerAnim_mhr_npc_odolwa_arm_swing_dance",
@@ -132,23 +137,23 @@ PlayerAnimationHeader* OdolwaAnim(OdolwaAnimId id) {
 //   0 = grounded/off, 1 = the moth-summon dance is playing (takeoff windup), 2 = airborne on the cloud.
 // Forced "spell-style" summon dance (bug/moth summon): a locked, uninterruptible dance we OWN frame by
 // frame (the locomotion func can't steal it), like a spell cast holds the player.
-s16 sOdolwaSummonLock = 0;             // frames left in the locked dance
+s16 sOdolwaSummonLock = 0; // frames left in the locked dance
 PlayerAnimationHeader* sOdolwaSummonAnim = nullptr;
-f32 sOdolwaSummonFrame = 0.0f;         // hand-driven cycle frame
-u16 sOdolwaSummonChant = 0;            // the chant sfx to sustain (played FLAGGED each locked frame, like
-                                       // the real Odolwa) so it auto-stops when the dance ends
+f32 sOdolwaSummonFrame = 0.0f; // hand-driven cycle frame
+u16 sOdolwaSummonChant = 0;    // the chant sfx to sustain (played FLAGGED each locked frame, like
+                               // the real Odolwa) so it auto-stops when the dance ends
 
 s16 sOdolwaFlightState = 0;
-s16 sOdolwaFlightWindup = 0;      // frames left in the summon-dance windup before liftoff
-s16 sOdolwaFlightTimer = 0;       // frames left before the flight auto-lands (10s timeout)
-s16 sOdolwaFlightPitch = 0;       // aim pitch (binang), steered by stick Y
-s16 sOdolwaFlightYaw = 0;         // aim yaw (binang), steered by stick X
-constexpr f32 kOdolwaFlightSpeed = 8.0f;      // forward advance speed (A held)
+s16 sOdolwaFlightWindup = 0;                    // frames left in the summon-dance windup before liftoff
+s16 sOdolwaFlightTimer = 0;                     // frames left before the flight auto-lands (10s timeout)
+s16 sOdolwaFlightPitch = 0;                     // aim pitch (binang), steered by stick Y
+s16 sOdolwaFlightYaw = 0;                       // aim yaw (binang), steered by stick X
+constexpr f32 kOdolwaFlightSpeed = 8.0f;        // forward advance speed (A held)
 constexpr f32 kOdolwaFlightPlantRange = 120.0f; // how near soft soil / a Deku Flower you must be to take off
-constexpr s16 kOdolwaFlightMaxFrames = 200;    // ~10s at the game's 20fps logic tick → auto-land
-constexpr s16 kOdolwaFlightTurnRate = 0x0A;    // yaw/pitch steer per stick unit (~7°/frame at full stick)
-constexpr s16 kOdolwaFlightPitchMax = 0x3800;  // clamp so you can't flip straight up/down
-constexpr s16 kOdolwaSummonDanceFrames = 45;   // hold the summon dance this long (chant length + a bit)
+constexpr s16 kOdolwaFlightMaxFrames = 200;     // ~10s at the game's 20fps logic tick → auto-land
+constexpr s16 kOdolwaFlightTurnRate = 0x0A;     // yaw/pitch steer per stick unit (~7°/frame at full stick)
+constexpr s16 kOdolwaFlightPitchMax = 0x3800;   // clamp so you can't flip straight up/down
+constexpr s16 kOdolwaSummonDanceFrames = 45;    // hold the summon dance this long (chant length + a bit)
 
 // Goht A-action state:
 //   A held        → BULL CHARGE: cl_nigeru anim + Majora-red cone + 3x forward speed. Drains 1 magic per
@@ -162,45 +167,45 @@ constexpr s16 kOdolwaSummonDanceFrames = 45;   // hold the summon dance this lon
 //   R + B         → bombchu toggle: throw ONE friendly bombchu (one at a time); press R+B AGAIN while it's
 //                   out to detonate it manually. It runs its own Real-Bombchu AI (hunts enemies, climbs any
 //                   wall/ceiling, wanders when there's no foe). Never targets Link.
-bool sGohtCharging = false;   // A held → bull charge
-s16 sGohtChargeCooldown = 0;  // lockout after a crash
-s16 sGohtSfxTimer = 0;        // hoof-stomp cadence while charging
-s16 sGohtQuakeState = 0;      // 0=idle, 1=airborne (jumpAT), 2=landed (jumpATend + damage burst)
-s16 sGohtQuakeDmgFrames = 0;  // frames the radial quake AT stays live
-s16 sGohtQuakeAnimDelay = 0;  // frames to wait after leaving the ground before playing jumpAT (rocscape-style)
-s16 sGohtJumpPlayTimer = 0;   // frames jumpAT is allowed to play before we FREEZE it on its last frame
-s16 sGohtRecoverFrames = 0;   // after the pound: force a human idle so the Zora jumpAT pose doesn't linger
+bool sGohtCharging = false;      // A held → bull charge
+s16 sGohtChargeCooldown = 0;     // lockout after a crash
+s16 sGohtSfxTimer = 0;           // hoof-stomp cadence while charging
+s16 sGohtQuakeState = 0;         // 0=idle, 1=airborne (jumpAT), 2=landed (jumpATend + damage burst)
+s16 sGohtQuakeDmgFrames = 0;     // frames the radial quake AT stays live
+s16 sGohtQuakeAnimDelay = 0;     // frames to wait after leaving the ground before playing jumpAT (rocscape-style)
+s16 sGohtJumpPlayTimer = 0;      // frames jumpAT is allowed to play before we FREEZE it on its last frame
+s16 sGohtRecoverFrames = 0;      // after the pound: force a human idle so the Zora jumpAT pose doesn't linger
 f32 sGohtChargeAnimFrame = 0.0f; // hand-driven cl_nigeru cycle frame (we OWN the pose while charging)
 ColliderCylinder sGohtQuakeCollider;
-bool sGohtQuakeColReady = false; // lazy Collider_InitCylinder done
+bool sGohtQuakeColReady = false;      // lazy Collider_InitCylinder done
 ColliderCylinder sGohtChargeCollider; // light goron-punch hit box while charging
 bool sGohtChargeColReady = false;
-bool sGohtSwordStashed = false; // true while the B-button sword is unequipped (stashed) for Goht
-bool sGohtNoSnapOwned = false;  // true while WE own BGCHECKFLAG_PLAYER_800 (bull-charge ledge/slope ignore)
-s16 sGohtChargeMagicTick = 0;   // bull-charge magic drain counter (Pegasus-style dedicated tick)
-s16 sGohtThunderCharge = 0;     // B-hold charge level (frames) → scales the bolt's distance + damage
+bool sGohtSwordStashed = false;    // true while the B-button sword is unequipped (stashed) for Goht
+bool sGohtNoSnapOwned = false;     // true while WE own BGCHECKFLAG_PLAYER_800 (bull-charge ledge/slope ignore)
+s16 sGohtChargeMagicTick = 0;      // bull-charge magic drain counter (Pegasus-style dedicated tick)
+s16 sGohtThunderCharge = 0;        // B-hold charge level (frames) → scales the bolt's distance + damage
 bool sGohtThunderCharging = false; // true while B (no R) is held (drives the charging light-orb VFX)
 
-constexpr f32 kGohtChargeSpeed = 18.0f;  // ~3x a normal run
+constexpr f32 kGohtChargeSpeed = 18.0f; // ~3x a normal run
 // Bull charge drains magic OVER TIME, 1:1 with the Pegasus Anklet dash (equip_pegasus.c): 1 magic every
 // 15 frames off a DEDICATED tick counter (not gameplayFrames%, so the cadence is identical no matter when
 // the charge starts). Like the Pegasus, running dry does NOT stop the charge — it just loses the
 // magic-powered parts (the contact-damage collider and the cone).
 constexpr s16 kGohtChargeMagicInterval = 15;
-constexpr f32 kGohtChargeAnimSpeed = 1.4f; // cl_nigeru advance per frame (8-frame loop)
-constexpr s16 kGohtTurnStep = 0x2AA;     // ~3.7°/frame — stiff bull steering, harder to turn than a Goron roll
-constexpr f32 kGohtJumpVel = 15.5f;      // high, snappy pound hop
+constexpr f32 kGohtChargeAnimSpeed = 1.4f;  // cl_nigeru advance per frame (8-frame loop)
+constexpr s16 kGohtTurnStep = 0x2AA;        // ~3.7°/frame — stiff bull steering, harder to turn than a Goron roll
+constexpr f32 kGohtJumpVel = 15.5f;         // high, snappy pound hop
 constexpr f32 kGohtJumpGravityBoost = 5.0f; // extra downward accel past the apex → fast, snappy descent
-constexpr s16 kGohtJumpAnimDelay = 3;    // rocscape-style: play jumpAT a few frames AFTER leaving the ground
-constexpr f32 kGohtBounceSpeed = -16.0f; // wall-crash recoil (backwards)
-constexpr f32 kGohtBounceHop = 6.0f;     // wall-crash recoil little hop
-constexpr s16 kGohtThunderMagicCost = 4;   // magic per thunder shot (flat, deducted directly like Odolwa)
-constexpr s16 kGohtThunderChargeMax = 45;  // frames of R+A hold for a full charge
-constexpr s16 kGohtThunderChargeMin = 5;   // minimum charge before a shot will fire (anti-spam)
-constexpr s16 kGohtThunderTtlMin = 12;     // bolt lifetime → distance at min charge
-constexpr s16 kGohtThunderTtlMax = 64;     // ... at full charge
-constexpr s16 kGohtThunderDmgMin = 2;      // bolt damage at min charge
-constexpr s16 kGohtThunderDmgMax = 10;     // ... at full charge
+constexpr s16 kGohtJumpAnimDelay = 3;       // rocscape-style: play jumpAT a few frames AFTER leaving the ground
+constexpr f32 kGohtBounceSpeed = -16.0f;    // wall-crash recoil (backwards)
+constexpr f32 kGohtBounceHop = 6.0f;        // wall-crash recoil little hop
+constexpr s16 kGohtThunderMagicCost = 4;    // magic per thunder shot (flat, deducted directly like Odolwa)
+constexpr s16 kGohtThunderChargeMax = 45;   // frames of R+A hold for a full charge
+constexpr s16 kGohtThunderChargeMin = 5;    // minimum charge before a shot will fire (anti-spam)
+constexpr s16 kGohtThunderTtlMin = 12;      // bolt lifetime → distance at min charge
+constexpr s16 kGohtThunderTtlMax = 64;      // ... at full charge
+constexpr s16 kGohtThunderDmgMin = 2;       // bolt damage at min charge
+constexpr s16 kGohtThunderDmgMax = 10;      // ... at full charge
 
 inline bool IsRemainsItem(s16 item) {
     return (item >= ITEM_REMAINS_ODOLWA) && (item <= ITEM_REMAINS_TWINMOLD);
@@ -930,9 +935,9 @@ extern "C" void BossRemains_GohtPostAction(PlayState* play, Player* player) {
     // ── GORON QUAKE POUND on SHIELD(R)+A ──────────────────────────────────────
     // (Swapped with the thunder charge: B now charges the bolt, R+A pounds.) The sword is UNEQUIPPED while
     // Goht is worn, so none of this goes through the melee path.
-    if (CHECK_BTN_ALL(in->press.button, BTN_A) && CHECK_BTN_ALL(in->cur.button, BTN_R) &&
-        (sGohtQuakeState == 0) && (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) &&
-        !(player->stateFlags1 & PLAYER_STATE1_CARRYING_ACTOR) && (play->msgCtx.msgMode == MSGMODE_NONE)) {
+    if (CHECK_BTN_ALL(in->press.button, BTN_A) && CHECK_BTN_ALL(in->cur.button, BTN_R) && (sGohtQuakeState == 0) &&
+        (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) && !(player->stateFlags1 & PLAYER_STATE1_CARRYING_ACTOR) &&
+        (play->msgCtx.msgMode == MSGMODE_NONE)) {
         BossRemains_GohtQuakeStart(play, player);
     }
 
@@ -1040,9 +1045,9 @@ extern "C" void BossRemains_GohtPostAction(PlayState* play, Player* player) {
             p.x += Math_SinS(player->actor.shape.rot.y) * 30.0f;
             p.z += Math_CosS(player->actor.shape.rot.y) * 30.0f;
             p.y += 20.0f;
-            EnBom* keg = (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, p.x, p.y, p.z,
-                                             BOMB_EXPLOSIVE_TYPE_POWDER_KEG, player->actor.shape.rot.y, 0,
-                                             BOMB_TYPE_BODY);
+            EnBom* keg =
+                (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, p.x, p.y, p.z, BOMB_EXPLOSIVE_TYPE_POWDER_KEG,
+                                    player->actor.shape.rot.y, 0, BOMB_TYPE_BODY);
             if (keg != NULL) {
                 keg->timer = 0; // blow NOW
             }
@@ -1075,8 +1080,8 @@ extern "C" void BossRemains_GohtPostAction(PlayState* play, Player* player) {
         } else {
             // jumpAT finished: LOOP on its LAST real frame (12) for the rest of the airtime, so the player's
             // action func can't drop us into the rest/bind pose. Re-asserted every frame (morph 0) to hold.
-            PlayerAnimation_Change(play, &player->skelAnime, (PlayerAnimationHeader*)gPlayerAnim_pz_jumpAT, 1.0f,
-                                   12.0f, 12.0f, ANIMMODE_LOOP, 0.0f);
+            PlayerAnimation_Change(play, &player->skelAnime, (PlayerAnimationHeader*)gPlayerAnim_pz_jumpAT, 1.0f, 12.0f,
+                                   12.0f, ANIMMODE_LOOP, 0.0f);
         }
         // Fast, snappy descent: pile on extra downward accel once past the apex.
         if (player->actor.velocity.y <= 0.0f) {
@@ -1121,8 +1126,8 @@ extern "C" void BossRemains_GohtPostAction(PlayState* play, Player* player) {
 
 // ── Majora-red bull-charge cone (pegasus cone geometry, retinted + Majora chant texture) ──────
 static Vtx sGohtConeVtx[] = {
-    { { { 0, 0, 0 }, 0, { 512, 2048 }, { 0xFF, 0xFF, 0xFF, 0xFF } } },      // tip (front)
-    { { { 4000, 8000, 0 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0x00 } } },     // base ring
+    { { { 0, 0, 0 }, 0, { 512, 2048 }, { 0xFF, 0xFF, 0xFF, 0xFF } } },  // tip (front)
+    { { { 4000, 8000, 0 }, 0, { 0, 0 }, { 0xFF, 0xFF, 0xFF, 0x00 } } }, // base ring
     { { { 2828, 8000, 2828 }, 0, { 256, 0 }, { 0xFF, 0xFF, 0xFF, 0x00 } } },
     { { { 0, 8000, 4000 }, 0, { 512, 0 }, { 0xFF, 0xFF, 0xFF, 0x00 } } },
     { { { -2828, 8000, 2828 }, 0, { 768, 0 }, { 0xFF, 0xFF, 0xFF, 0x00 } } },
@@ -1188,8 +1193,8 @@ extern "C" void BossRemains_DrawGohtCone(Player* player, PlayState* play) {
     // (uintptr_t) cast: Gfx_TwoTexScroll returns Gfx*, and this C++ TU has no implicit pointer→integer
     // conversion for gSPSegment's uintptr_t arg (same cast the Odolwa seg-0xC noop uses above).
     gSPSegment(POLY_XLU_DISP++, 0x08,
-               (uintptr_t)Gfx_TwoTexScroll(play->state.gfxCtx, 0, -(s32)(frames * 1), (s32)(frames * 20), 0x20, 0x40,
-                                           1, -(s32)(frames * 2), (s32)(frames * 10), 0x20, 0x40));
+               (uintptr_t)Gfx_TwoTexScroll(play->state.gfxCtx, 0, -(s32)(frames * 1), (s32)(frames * 20), 0x20, 0x40, 1,
+                                           -(s32)(frames * 2), (s32)(frames * 10), 0x20, 0x40));
 
     gSPDisplayList(POLY_XLU_DISP++, sGohtConeDL);
 
@@ -1495,8 +1500,8 @@ static void BossRemains_OdolwaSummonDance(PlayState* play, Player* player, Odolw
     sOdolwaSummonFrame = 0.0f;
     // Hold for a fixed span (chant length + a bit), LOOPING the dance so it repeats enough to be heard.
     sOdolwaSummonLock = kOdolwaSummonDanceFrames;
-    PlayerAnimation_Change(play, &player->skelAnime, anim, 1.0f, 0.0f, (f32)Animation_GetLastFrame(anim),
-                           ANIMMODE_LOOP, -4.0f);
+    PlayerAnimation_Change(play, &player->skelAnime, anim, 1.0f, 0.0f, (f32)Animation_GetLastFrame(anim), ANIMMODE_LOOP,
+                           -4.0f);
     player->speedXZ = 0.0f;
 }
 
@@ -1554,9 +1559,9 @@ extern "C" void BossRemains_OdolwaFlightTick(PlayState* play, Player* player) {
     }
 
     // ── TAKEOFF: A (no R) while grounded near soft soil or a Deku Flower ─────────────────
-    if ((sOdolwaFlightState == 0) && CHECK_BTN_ALL(in->press.button, BTN_A) &&
-        !CHECK_BTN_ALL(in->cur.button, BTN_R) && (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) &&
-        (play->msgCtx.msgMode == MSGMODE_NONE) && BossRemains_NearFlightPlant(play, player)) {
+    if ((sOdolwaFlightState == 0) && CHECK_BTN_ALL(in->press.button, BTN_A) && !CHECK_BTN_ALL(in->cur.button, BTN_R) &&
+        (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) && (play->msgCtx.msgMode == MSGMODE_NONE) &&
+        BossRemains_NearFlightPlant(play, player)) {
         // Odolwa's chant (VOICE2 for the moth summon — a different voice) + the moth-summon dance as windup.
         // Sustained flagged during the locked dance so it stops on its own when the windup ends.
         sOdolwaSummonChant = NA_SE_EN_MIBOSS_VOICE2_OLD;
@@ -1780,8 +1785,8 @@ static Gfx sOdolwaEquipSeg0xC_Noop[] = {
 };
 
 // Draw one boss DL at the current (hand-limb) matrix with a CVar-tuned scale/rot/offset.
-static void DrawOdolwaEquipDL(PlayState* play, const char* dlPath, f32 scale, s16 rx, s16 ry, s16 rz, f32 ox,
-                              f32 oy, f32 oz) {
+static void DrawOdolwaEquipDL(PlayState* play, const char* dlPath, f32 scale, s16 rx, s16 ry, s16 rz, f32 ox, f32 oy,
+                              f32 oz) {
     OPEN_DISPS(play->state.gfxCtx);
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
     gSPSegment(POLY_OPA_DISP++, 0x0C, (uintptr_t)sOdolwaEquipSeg0xC_Noop);
@@ -1801,13 +1806,12 @@ extern "C" void BossRemains_DrawOdolwaSword(PlayState* play, Player* player) {
     if (play == nullptr || player == nullptr || !BossRemains_IsOdolwaWorn()) {
         return;
     }
-    if ((player->transformation != PLAYER_FORM_HUMAN) ||
-        (player->leftHandType != PLAYER_MODELTYPE_LH_ONE_HAND_SWORD)) {
+    if ((player->transformation != PLAYER_FORM_HUMAN) || (player->leftHandType != PLAYER_MODELTYPE_LH_ONE_HAND_SWORD)) {
         return; // only while Link actually has a one-handed sword in hand
     }
     DrawOdolwaEquipDL(play, kOdolwaSwordDLPath, kOdolwaSwordScale, DegToBinang(kOdolwaSwordRotX),
-                      DegToBinang(kOdolwaSwordRotY), DegToBinang(kOdolwaSwordRotZ), kOdolwaSwordOffX,
-                      kOdolwaSwordOffY, kOdolwaSwordOffZ);
+                      DegToBinang(kOdolwaSwordRotY), DegToBinang(kOdolwaSwordRotZ), kOdolwaSwordOffX, kOdolwaSwordOffY,
+                      kOdolwaSwordOffZ);
 }
 
 extern "C" void BossRemains_DrawOdolwaShield(PlayState* play, Player* player) {

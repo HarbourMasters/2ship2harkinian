@@ -25,6 +25,8 @@
 #include "2s2h/Rando/Spoiler/Spoiler.h"
 #include "2s2h/SaveManager/SaveManager.h"
 #include "2s2h/BenJsonConversions.hpp"
+#include "2s2h/BenPort.h" // appShortName (randomizer/ folder of THIS 2ship's app dir)
+#include <libultraship/libultraship.h>
 #include <libultraship/bridge/consolevariablebridge.h>
 
 #include <filesystem>
@@ -116,9 +118,7 @@ bool ReadJson(const std::filesystem::path& p, nlohmann::json& out) {
         std::ifstream in(p);
         in >> out;
         return out.is_object();
-    } catch (...) {
-        return false;
-    }
+    } catch (...) { return false; }
 }
 
 void WriteJsonAtomic(const std::filesystem::path& p, const nlohmann::json& j) {
@@ -154,8 +154,20 @@ void WriteJsonAtomic(const std::filesystem::path& p, const nlohmann::json& j) {
             SPDLOG_WARN("[FleetOracle] failed writing the response (rename: {}) - the host will time out",
                         ec.message());
         }
-    } catch (...) {
-        SPDLOG_WARN("[FleetOracle] failed writing the response");
+    } catch (...) { SPDLOG_WARN("[FleetOracle] failed writing the response"); }
+}
+
+// ---- shop prices (5.0.0) ----
+// GeneratePools rolls a RANDOM price for every shuffled shop / Tingle check, and the wallet gate in
+// Logic.h reads it. The manifest freezes the prices rolled at manifest time (they travel to the host,
+// which writes them into the combo spoiler as {randoItemId, price}); every later crawl (reachable,
+// fillTurn) re-applies THESE prices so the logic the fill was validated against is the logic the
+// player gets. Without this the spoiler carried no price at all (every shop item cost 0).
+std::map<RandoCheckId, int> sComboPrices;
+
+void ApplyComboPrices() {
+    for (auto& [checkId, price] : sComboPrices) {
+        RANDO_SAVE_CHECKS[checkId].price = (uint16_t)price;
     }
 }
 
@@ -191,10 +203,17 @@ void BuildRandoBaseline() {
     if (!RANDO_SAVE_OPTIONS[RO_SHUFFLE_GOLD_SKULLTULAS]) {
         RANDO_SAVE_OPTIONS[RO_SKULLTULA_TOKENS_REQUIRED] = SPIDER_HOUSE_TOKENS_REQUIRED;
     }
+    // 5.0.0: starting with every Stray Fairy means the Great Fairies always have their full set
+    // (mirrors OnFileCreate; without it the oracle judged Great Fairy gates against the vanilla
+    // requirement while the real save uses the full set).
+    if (RANDO_SAVE_OPTIONS[RO_PLACEMENT_STRAY_FAIRIES] == RO_DUNGEON_ITEM_START_WITH) {
+        RANDO_SAVE_OPTIONS[RO_STRAY_FAIRIES_REQUIRED] = STRAY_FAIRY_SCATTERED_TOTAL;
+    }
 
     auto startingItems = Rando::GetStartingItemsFromConfig();
     Rando::SetStartingItemsInSave(gSaveContext.save.shipSaveInfo.rando, startingItems);
     Rando::GrantStartingItems();
+    ApplyComboPrices();
 }
 
 // Is this an ocarina song? MM has no RITYPE_SONG, and the song ids sit in one contiguous alphabetical
@@ -234,6 +253,26 @@ nlohmann::json HandleManifest() {
     std::vector<RandoCheckId> checkPool;
     std::vector<RandoItemId> itemPool;
     Rando::Logic::GeneratePools(gSaveContext.save.shipSaveInfo.rando, checkPool, itemPool);
+
+    // Freeze this generation's shop prices (see sComboPrices) and publish them, plus the checks
+    // 5.0.0's "excluded checks" turned into skipped junk (they are NOT in the check pool, but their
+    // vanilla item WAS put back into the item pool — the host must write them into the spoiler as
+    // skipped junk, or the spoiler-apply gives them their vanilla item AGAIN = duplicate).
+    sComboPrices.clear();
+    nlohmann::json checkPrices = nlohmann::json::object();
+    nlohmann::json skippedChecks = nlohmann::json::array();
+    for (auto& [checkId, staticCheck] : Rando::StaticData::Checks) {
+        if (staticCheck.randoCheckId == RC_UNKNOWN) {
+            continue;
+        }
+        if (staticCheck.randoCheckType == RCTYPE_SHOP || staticCheck.randoCheckType == RCTYPE_TINGLE_SHOP) {
+            sComboPrices[checkId] = RANDO_SAVE_CHECKS[checkId].price;
+            checkPrices[staticCheck.name] = RANDO_SAVE_CHECKS[checkId].price;
+        }
+        if (RANDO_SAVE_CHECKS[checkId].skipped) {
+            skippedChecks.push_back(staticCheck.name);
+        }
+    }
 
     nlohmann::json checks = nlohmann::json::array();
     // Readable area name per check (RC_name -> "Woodfall Temple"). OoT needs this to generate hints
@@ -295,6 +334,8 @@ nlohmann::json HandleManifest() {
 
     resp["checks"] = checks;
     resp["checkAreas"] = checkAreas;
+    resp["checkPrices"] = checkPrices;     // shop/Tingle: RC name -> rupee price rolled for this seed
+    resp["skippedChecks"] = skippedChecks; // 5.0.0 excluded checks the spoiler must mark as skipped junk
     // songChecks is the old songs-only field, kept so a host built before categoryChecks still gets
     // its song spots instead of silently placing every song inside Hyrule. Skijer's NEI
     resp["songChecks"] = songChecks;
@@ -310,17 +351,18 @@ nlohmann::json HandleManifest() {
 // (rando + contenido compartido NEI/enhancements/cheats) para que el canal no pueda tocar
 // cualquier cosa. Así el tab Shared de Ship edita las variables de MM sin tocar su GUI.
 bool SetOptionsCvarAllowed(const std::string& cvar) {
-    static const char* kAllowedPrefixes[] = { "gRando.",        "gMods.",     "gEnhancements.",
-                                              "gCheats.",       "gSettings.", "gNotifications." };
+    static const char* kAllowedPrefixes[] = { "gRando.",  "gMods.",     "gEnhancements.",
+                                              "gCheats.", "gSettings.", "gNotifications." };
     for (const char* prefix : kAllowedPrefixes) {
         if (cvar.rfind(prefix, 0) == 0) {
             return true;
         }
     }
     // LUS graphics/nav cvars que NO llevan prefijo gSettings (shared menu los vincula).
-    static const char* kAllowedExact[] = { "gInternalResolution",  "gMSAAValue",       "gVsyncEnabled",
-                                           "gSdlWindowedFullscreen", "gEnableMultiViewports", "gTextureFilter",
-                                           "gControlNav",          "gInterpolationFPS", "gMatchRefreshRate" };
+    static const char* kAllowedExact[] = {
+        "gInternalResolution", "gMSAAValue",  "gVsyncEnabled",     "gSdlWindowedFullscreen", "gEnableMultiViewports",
+        "gTextureFilter",      "gControlNav", "gInterpolationFPS", "gMatchRefreshRate"
+    };
     for (const char* exact : kAllowedExact) {
         if (cvar == exact) {
             return true;
@@ -392,6 +434,13 @@ nlohmann::json HandlePrepareSeed(const nlohmann::json& req) {
     if (!spoiler.contains("type") || spoiler["type"] != "2S2H_RANDO_SPOILER") {
         throw std::runtime_error("prepareSeed: spoiler is not 2S2H_RANDO_SPOILER");
     }
+    // 5.0.0's ApplyToSaveContext reads spoiler["sariaPriorityItems"] with no guard (a null there is
+    // a json type_error -> OnFileCreate's catch turns the slot into an INVALID vanilla file). Older
+    // hosts (and hand-made spoilers) don't emit the key: default it here so a combo seed can never
+    // fail to apply over a field the combo doesn't even use.
+    if (!spoiler.contains("sariaPriorityItems") || !spoiler["sariaPriorityItems"].is_array()) {
+        spoiler["sariaPriorityItems"] = nlohmann::json::array();
+    }
 
     Rando::Spoiler::SaveToFile(fileName, spoiler);
     CVarSetInteger("gRando.Enabled", 1);
@@ -407,6 +456,57 @@ nlohmann::json HandlePrepareSeed(const nlohmann::json& req) {
     resp["file"] = fileName;
     SPDLOG_INFO("[FleetOracle] prepareSeed OK: {} (index {})", fileName, index);
     return resp;
+}
+
+// finalSeed of a spoiler on disk in <appdir>/randomizer/, 0 if unreadable / not a spoiler.
+unsigned int SpoilerFinalSeed(const std::string& fileName) {
+    try {
+        nlohmann::json s = Rando::Spoiler::LoadFromFile(fileName);
+        return s.value("finalSeed", 0u);
+    } catch (...) { return 0; }
+}
+
+// Make sure the spoiler 2ship will APPLY on the next createSave is the one for `expected` (the
+// combo seed OoT published). The prepared spoiler (gRando.SpoilerFile) is simply "the last one
+// prepareSeed installed", which is the last seed GENERATED or LOADED — not necessarily the seed of
+// the OoT file the player just picked. Loading an older combo file therefore rebuilt MM's slot on
+// the wrong fill and looped on seedMismatch forever ("MM no pudo parear el slot"). Every combo seed
+// ever prepared here still sits in randomizer/ as combo_<inputSeed>.json, so look for one carrying
+// this finalSeed and select it. Returns true when the prepared spoiler now matches.
+bool PrepareSpoilerForComboSeed(unsigned int expected) {
+    if (expected == 0) {
+        return true; // no seed published: nothing to match against
+    }
+    std::string current = CVarGetString("gRando.SpoilerFile", "");
+    if (!current.empty() && CVarGetInteger("gRando.SpoilerFileIndex", 0) != 0 &&
+        SpoilerFinalSeed(current) == expected) {
+        return true;
+    }
+    std::error_code ec;
+    std::filesystem::path dir = Ship::Context::GetPathRelativeToAppDirectory("randomizer", appShortName);
+    for (const auto& entry : std::filesystem::directory_iterator(dir, ec)) {
+        if (!entry.is_regular_file() || entry.path().extension() != ".json") {
+            continue;
+        }
+        std::string fileName = entry.path().filename().string();
+        if (fileName.rfind("combo_ootareas_", 0) == 0) {
+            continue; // hint sidecar, not a spoiler
+        }
+        if (SpoilerFinalSeed(fileName) != expected) {
+            continue;
+        }
+        CVarSetInteger("gRando.Enabled", 1);
+        CVarSetString("gRando.SpoilerFile", fileName.c_str());
+        Rando::Spoiler::RefreshOptions();
+        CVarSave();
+        bool ok = CVarGetInteger("gRando.SpoilerFileIndex", 0) != 0;
+        SPDLOG_INFO("[FleetOracle] combo seed {}: selected spoiler {} from randomizer/ (index {})", expected, fileName,
+                    CVarGetInteger("gRando.SpoilerFileIndex", 0));
+        return ok;
+    }
+    SPDLOG_WARN("[FleetOracle] combo seed {}: no spoiler in randomizer/ carries it (prepared: '{}')", expected,
+                current);
+    return false;
 }
 
 // ASCII -> charset del file select (dígitos 0-9, A-Z=10..35, a-z=36..61, espacio=62)
@@ -439,6 +539,25 @@ nlohmann::json HandleCreateSave(const nlohmann::json& req) {
         throw std::runtime_error("createSave: invalid slot");
     }
 
+    // The slot is only useful if OnFileCreate APPLIES THE COMBO SPOILER. That takes gRando.Enabled
+    // (the player can switch it off in 2ship's own menu -> a VANILLA MM file would be written and
+    // "File N isn't a rando") and a prepared spoiler (SpoilerFileIndex == 0 makes OnFileCreate roll a
+    // brand-new RANDOM seed -> "MM plays another seed"). Refuse loudly instead of writing either.
+    CVarSetInteger("gRando.Enabled", 1);
+    if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
+        Rando::Spoiler::RefreshOptions(); // re-sync the index with gRando.SpoilerFile
+    }
+    if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
+        throw std::runtime_error("createSave: no combo spoiler prepared in this 2ship (prepareSeed first)");
+    }
+    // And it has to be THIS combo's seed when one is published (see PrepareSpoilerForComboSeed).
+    if (!PrepareSpoilerForComboSeed(FleetShipCombo_GetComboSeed())) {
+        throw std::runtime_error("createSave: the prepared spoiler is for another seed and no spoiler for combo "
+                                 "seed " +
+                                 std::to_string(FleetShipCombo_GetComboSeed()) +
+                                 " exists in randomizer/ (reload this combo's .fleet from OoT)");
+    }
+
     auto backup = std::make_unique<SaveContext>();
     memcpy(backup.get(), &gSaveContext, sizeof(SaveContext));
 
@@ -460,6 +579,19 @@ nlohmann::json HandleCreateSave(const nlohmann::json& req) {
         // OnSaveInit dispara Rando::MiscBehavior::OnFileCreate -> aplica el spoiler combo
         GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSaveInit>((s16)slot);
         bool randoApplied = gSaveContext.save.shipSaveInfo.saveType == SAVETYPE_RANDO;
+        // OnFileCreate's own catch (spoiler failed to apply) leaves saveType VANILLA and newf[0]=0.
+        // Writing that would give the player an invalid or vanilla "File N" — refuse; the host logs
+        // it as a failed save op and the next ensureSave retries.
+        if (!randoApplied || gSaveContext.save.saveInfo.playerData.newf[0] != 'Z') {
+            throw std::runtime_error("createSave: the combo spoiler did not apply (see 'Seed Failure' above)");
+        }
+        // Belt and braces: the file must carry the seed OoT published, or the two games desync.
+        unsigned int expected = FleetShipCombo_GetComboSeed();
+        if (expected != 0 && gSaveContext.save.shipSaveInfo.rando.finalSeed != expected) {
+            throw std::runtime_error("createSave: applied spoiler finalSeed " +
+                                     std::to_string(gSaveContext.save.shipSaveInfo.rando.finalSeed) +
+                                     " != combo seed " + std::to_string(expected));
+        }
 
         gSaveContext.save.saveInfo.checksum = 0;
         gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext.save, sizeof(Save));
@@ -561,21 +693,28 @@ nlohmann::json HandleEnsureSave(const nlohmann::json& req) {
         return resp;
     }
     SPDLOG_WARN("[FleetOracle] ensureSave: MM slot {} is missing or built for another seed -> rebuilding", slot);
+    // The rebuild must use THIS combo's spoiler, not "whatever prepareSeed installed last". Select the
+    // spoiler carrying the published seed (any combo seed ever prepared here is still in randomizer/);
+    // if none exists, keep the old file rather than replacing it with a wrong-seed one, and say so
+    // — silent is exactly how the two games end up on different fills.
+    if (!PrepareSpoilerForComboSeed(FleetShipCombo_GetComboSeed())) {
+        resp["rebuilt"] = false;
+        resp["seedMismatch"] = true;
+        SPDLOG_ERROR("[FleetOracle] ensureSave: no spoiler for combo seed {} in this 2ship -> slot {} NOT rebuilt "
+                     "(OoT must send prepareSeed from this combo's .fleet first)",
+                     FleetShipCombo_GetComboSeed(), slot);
+        return resp;
+    }
     DeleteSlotFiles(slot); // drop the stale half first: createSave overwrites the file, not the backup
     nlohmann::json createReq;
     createReq["slot"] = slot;
     createReq["name"] = req.value("name", "LINK");
-    HandleCreateSave(createReq);
+    HandleCreateSave(createReq); // throws (-> error response) if the spoiler didn't apply
     resp["rebuilt"] = true;
-    // The rebuild uses whatever spoiler THIS 2ship has installed (prepareSeed), which is not
-    // necessarily the one OoT's file was made from — loading an old combo file whose seed was never
-    // prepared here rebuilds the slot correctly-shaped but still on the wrong fill. Say so instead
-    // of reporting success: silent is exactly how the two games end up on different seeds.
     if (SlotNeedsRebuild(slot)) {
         resp["seedMismatch"] = true;
-        SPDLOG_ERROR("[FleetOracle] ensureSave: MM slot {} STILL does not match combo seed {} after the rebuild "
-                     "-- this 2ship has a different spoiler prepared (reload the .fleet from OoT)",
-                     slot, FleetShipCombo_GetComboSeed());
+        SPDLOG_ERROR("[FleetOracle] ensureSave: MM slot {} STILL does not match combo seed {} after the rebuild", slot,
+                     FleetShipCombo_GetComboSeed());
     }
     return resp;
 }
@@ -709,8 +848,8 @@ nlohmann::json HandleReachable(const nlohmann::json& req) {
         reachedPre.push_back(name);
     }
     resp["prePlacedReached"] = reachedPre;
-    SPDLOG_INFO("[FleetOracle] reachable: {} checks alcanzables, {} de {} pre-colocados alcanzados",
-                reachable.size(), prePlacedReached.size(), prePlaced.size());
+    SPDLOG_INFO("[FleetOracle] reachable: {} checks alcanzables, {} de {} pre-colocados alcanzados", reachable.size(),
+                prePlacedReached.size(), prePlaced.size());
     return resp;
 }
 
@@ -764,6 +903,7 @@ nlohmann::json HandleFillTurn(const nlohmann::json& req) {
     std::vector<RandoCheckId> checkPool;
     std::vector<RandoItemId> itemPool;
     Rando::Logic::GeneratePools(gSaveContext.save.shipSaveInfo.rando, checkPool, itemPool);
+    ApplyComboPrices(); // GeneratePools re-rolls shop prices; the crawl must see the manifest's
     std::set<RandoCheckId> shuffled(checkPool.begin(), checkPool.end());
 
     std::mt19937 rng((uint32_t)req.value("rngSeed", 0u));
@@ -871,6 +1011,11 @@ nlohmann::json HandleFillTurn(const nlohmann::json& req) {
         auto [reachable, portal] = crawlReachable(inventory);
         portalReachable = portalReachable || portal;
 
+        // 5.0.0 placement constraints (dungeon-item confinement: keys/boss keys/stray fairies to
+        // "own dungeon"): the native fill refuses such an item outside its dungeon, so must we, or
+        // the delegated fill hands MM a placement its own logic never accepts.
+        RandoItemId placingRi = Rando::StaticData::GetItemIdFromName(toPlace[idx].c_str());
+
         std::vector<RandoCheckId> candidates;
         for (RandoCheckId checkId : reachable) {
             if (!shuffled.contains(checkId)) {
@@ -878,6 +1023,9 @@ nlohmann::json HandleFillTurn(const nlohmann::json& req) {
             }
             const char* name = Rando::StaticData::Checks[checkId].name;
             if (used.contains(name) || takenThisTurn.contains(name)) {
+                continue;
+            }
+            if (placingRi != RI_UNKNOWN && !Rando::Logic::IsItemAllowedAtCheck(placingRi, checkId)) {
                 continue;
             }
             candidates.push_back(checkId);

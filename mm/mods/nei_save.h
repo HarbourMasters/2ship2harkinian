@@ -79,7 +79,7 @@ typedef struct NeiSaveData {
     uint8_t shovelOwned;
     uint8_t dominionOwned;
     uint8_t pokeballOwned;
-    uint32_t extEquipOwnedBits;  // ext-equipment ownership (was inventory.equipment high bits)
+    uint32_t extEquipOwnedBits; // ext-equipment ownership (was inventory.equipment high bits)
     uint8_t lanternFireType;
     uint8_t lanternCapturedTypes;
     uint8_t twilightUpgrade;
@@ -102,14 +102,14 @@ typedef struct NeiSaveData {
     // Bottomless Bottle "ammo": SLOT_BOTTLE_4 holds a real bottle content, but instead of emptying in
     // one use it has a per-content use-counter. Each empty (drink/sell) decrements bottomlessCount;
     // while >0 the content auto-refills, at 0 it becomes an empty Bottomless Bottle. (Net has none.)
-    uint8_t bottomlessContent;    // content id in the Bottomless Bottle, or ITEM_BOTTLE/0xFF when empty
-    uint8_t bottomlessCount;      // remaining uses of bottomlessContent (the counter shown on the icon)
-    uint8_t powerKegOwned;        // Power Keg owned (granted via menu); shares the Bomb slot via a
-                                  // kaleido wheel, USE gated by form + strength (see power_keg.c)
-    uint8_t powerKegCount;        // Power Keg "ammo": how many kegs the player carries (its own
-                                  // counter; each use consumes 1). Skijer's NEI
-    uint8_t powerKegMode;         // keg mode selected on the Bomb slot (kaleido wheel toggle) — persists
-                                  // so the slot doesn't revert to bombs on reload. Skijer's NEI
+    uint8_t bottomlessContent; // content id in the Bottomless Bottle, or ITEM_BOTTLE/0xFF when empty
+    uint8_t bottomlessCount;   // remaining uses of bottomlessContent (the counter shown on the icon)
+    uint8_t powerKegOwned;     // Power Keg owned (granted via menu); shares the Bomb slot via a
+                               // kaleido wheel, USE gated by form + strength (see power_keg.c)
+    uint8_t powerKegCount;     // Power Keg "ammo": how many kegs the player carries (its own
+                               // counter; each use consumes 1). Skijer's NEI
+    uint8_t powerKegMode;      // keg mode selected on the Bomb slot (kaleido wheel toggle) — persists
+                               // so the slot doesn't revert to bombs on reload. Skijer's NEI
     // MM adult trade-quest items (Skijer's NEI). Bitmask over a NEI trade index: 0-10 = the OoT items
     // (ITEM_POCKET_EGG..ITEM_CLAIM_CHECK), 11 = Moon's Tear, 12-15 = the four Title Deeds, 16 = Room Key,
     // 17 = Letter to Kafei, 18 = Special Delivery to Mama, 19 = Pendant of Memories. The 2D-grid wheel on
@@ -124,9 +124,9 @@ typedef struct NeiSaveData {
 
     // --- OoT page-0 items (Skijer's NEI, MM port: the OoT item-pause layout on MM's page 0).
     //     Appended at the END so older shipSaveInfo blobs stay readable. ---
-    uint8_t ootSpellsOwned;   // bit0 Din's Fire, bit1 Farore's Wind, bit2 Nayru's Love
-    uint8_t slingshotOwned;   // Fairy Slingshot owned
-    uint8_t slingshotSeeds;   // Deku Seed ammo
+    uint8_t ootSpellsOwned; // bit0 Din's Fire, bit1 Farore's Wind, bit2 Nayru's Love
+    uint8_t slingshotOwned; // Fairy Slingshot owned
+    uint8_t slingshotSeeds; // Deku Seed ammo
     uint8_t ootBoomerangOwned;
     uint8_t ootHammerOwned;   // Megaton Hammer (L1). Its upgrade (Iron Knuckle's Axe, L2) is the
                               // WEAPON_UPGRADE_HAMMER_AXE bit in `weaponUpgrades`.
@@ -147,7 +147,7 @@ typedef struct NeiSaveData {
     //     SaveContext lacks. Mirrors OoT FaroresWindData; restored into the transient
     //     gSaveContext.respawn[RESPAWN_MODE_TOP] on load (item_oot_spells.c). Appended at the END
     //     so older shipSaveInfo blobs stay readable. ---
-    uint8_t fwSet;          // OoT fw.set (a warp point exists)
+    uint8_t fwSet; // OoT fw.set (a warp point exists)
     float fwPosX;
     float fwPosY;
     float fwPosZ;
@@ -233,18 +233,18 @@ typedef struct NeiSaveData {
     // Dual Cane (Somaria / Pacci) — Skijer's NEI. Six SEPARATE obtainable items share one
     // kaleido slot; each lights its own bit here and they may be obtained in any order.
     // Appended at the END so older blobs stay readable.
-    uint8_t caneSkills;       // bitmask, CANE_SKILL_BIT(CANE_SKILL_*) — 0 = cane not owned at all
-    uint8_t caneType;         // active cane: CANE_TYPE_SOMARIA / CANE_TYPE_PACCI
-    uint8_t caneSkillSel[2];  // per-cane selected skill SLOT (0..2); index by caneType
+    uint8_t caneSkills;      // bitmask, CANE_SKILL_BIT(CANE_SKILL_*) — 0 = cane not owned at all
+    uint8_t caneType;        // active cane: CANE_TYPE_SOMARIA / CANE_TYPE_PACCI
+    uint8_t caneSkillSel[2]; // per-cane selected skill SLOT (0..2); index by caneType
     // Quartz of Motion (2nd level of the progressive Stone of Agony). The tracking
     // category is chosen by pressing A on the Stone of Agony quest slot in the
     // kaleido (Bombers'-Notebook-style list); activating spends one heart and runs
     // the sensor for 5 minutes. Only the SELECTION persists — the countdown itself
     // is session state in CustomItemState. Appended at the END so older blobs stay
     // readable.
-    uint8_t quartzOwned;      // 1 = Quartz of Motion obtained (2nd Stone of Agony copy)
-    uint8_t quartzCategory;   // DesireCompassCategory last selected in the kaleido
-    uint8_t quartzSubcat;     // subcategory within that category (0 = any)
+    uint8_t quartzOwned;    // 1 = Quartz of Motion obtained (2nd Stone of Agony copy)
+    uint8_t quartzCategory; // DesireCompassCategory last selected in the kaleido
+    uint8_t quartzSubcat;   // subcategory within that category (0 = any)
     // Ext BOOTS slots 2/3 became REAL boots (Climb Boots / Roc Boots) on 2026-07-29, so the Pendant
     // of Memories can no longer use the BOOTS-2 bit as its "combat owned" flag — its single source of
     // truth is the adult trade wheel (tradeAdultOwned, TRADE_ADULT_PENDANT). Old saves are migrated in
@@ -282,6 +282,14 @@ typedef struct NeiSaveData {
     // no levels). APPENDED AT THE END.
     uint8_t slateMode;       // SLATE_RUNE_* — the rune the cell is showing / the button casts
     uint8_t slateRunesOwned; // SLATE_RUNE_* bitmask (four bits) — 0 = slate not owned at all
+    // OoT "Grab" skill (Power Bracelet) — Skijer's NEI. When OoT's seed has Shuffle Grab ON, the
+    // FIRST Progressive Strength is not the Goron's Bracelet at all: it is RG_POWER_BRACELET, which
+    // sets RAND_INF_CAN_GRAB and leaves UPG_STRENGTH at 0 (soh item.cpp:354). MM has no use for the
+    // skill itself — Link can always lift here — but it has to be able to RECEIVE the copy and hand
+    // it to OoT, or the chain desyncs by one and OoT never gets its Grab. Kept OUT of the strength
+    // level on purpose: renumbering ootUpgrades strength@9 would silently demote every existing
+    // save's Golden Gauntlets to Silver. 0 = not granted yet, 1 = granted. APPENDED AT THE END.
+    uint8_t ootCanGrab;
 } NeiSaveData;
 
 // Hookshot-cell variant ids (which item currently fires from SLOT_HOOKSHOT). Returned by
@@ -358,18 +366,18 @@ uint8_t Nei_HookshotLevel(void);
 // ── Dual Cane (Somaria / Pacci) — Skijer's NEI ────────────────────────────────────────────────────
 // Thin wrappers over NeiSaveData.caneSkills/caneType/caneSkillSel so the C item code and the C++ HUD
 // share one source of truth. `skill` is a CANE_SKILL_* index (0..5), `type` a CANE_TYPE_*.
-uint8_t Nei_CaneHasSkill(uint8_t skill);  // does the player own that skill?
-void Nei_CaneGrantSkill(uint8_t skill);   // light its bit (idempotent)
-uint8_t Nei_CaneSkillMask(void);          // the whole 6-bit mask (0 = cane not owned)
-uint8_t Nei_CaneOwned(void);              // any skill owned -> the cane exists
-uint8_t Nei_CaneTypeOwned(uint8_t type);  // is that wheel entry unlocked (4 entries)
-uint8_t Nei_CaneTypeCount(void);          // how many of the four are owned
-uint8_t Nei_CaneNextType(int8_t dir);     // next owned entry, wrapping
-uint8_t Nei_CaneGetType(void);            // active cane (auto-corrected to one the player owns)
+uint8_t Nei_CaneHasSkill(uint8_t skill); // does the player own that skill?
+void Nei_CaneGrantSkill(uint8_t skill);  // light its bit (idempotent)
+uint8_t Nei_CaneSkillMask(void);         // the whole 6-bit mask (0 = cane not owned)
+uint8_t Nei_CaneOwned(void);             // any skill owned -> the cane exists
+uint8_t Nei_CaneTypeOwned(uint8_t type); // is that wheel entry unlocked (4 entries)
+uint8_t Nei_CaneTypeCount(void);         // how many of the four are owned
+uint8_t Nei_CaneNextType(int8_t dir);    // next owned entry, wrapping
+uint8_t Nei_CaneGetType(void);           // active cane (auto-corrected to one the player owns)
 void Nei_CaneSetType(uint8_t type);
 uint8_t Nei_CaneGetSkillSlot(uint8_t type); // selected slot 0..2 for that cane (auto-corrected)
 void Nei_CaneSetSkillSlot(uint8_t type, uint8_t slot);
-uint8_t Nei_CaneActiveSkill(void);        // CANE_SKILL_* the button would cast right now
+uint8_t Nei_CaneActiveSkill(void); // CANE_SKILL_* the button would cast right now
 
 // Single accessor — returns the live per-save state (never NULL).
 NeiSaveData* Nei_Save(void);

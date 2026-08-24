@@ -52,11 +52,11 @@ typedef struct MagicWind {
     // enemies / small props (filtered) and lifts them. Link is granted a
     // grace period before he becomes a valid target himself.
     u8 tornadoActive;
-    s16 tornadoTimer;          // counts up 0..TORNADO_TOTAL_FRAMES
-    s16 tornadoGraceFrames;    // counts down; while > 0 Link is immune
-    s16 tornadoDamageTick;     // counts down to next damage tick
-    f32 tornadoCurrentRadius;  // grows 40 → 200 during phase 1
-    Vec3f tornadoCenter;       // fixed at cast time
+    s16 tornadoTimer;         // counts up 0..TORNADO_TOTAL_FRAMES
+    s16 tornadoGraceFrames;   // counts down; while > 0 Link is immune
+    s16 tornadoDamageTick;    // counts down to next damage tick
+    f32 tornadoCurrentRadius; // grows 40 → 200 during phase 1
+    Vec3f tornadoCenter;      // fixed at cast time
 } MagicWind;
 
 // Runtime actor ID (assigned by ActorDB in sw97_init.cpp)
@@ -496,18 +496,18 @@ static u8 sAlphaUpdVals[] = {
 #define WIND_PUSH_DURATION 450 // 15 sec × 30fps (legacy push-enemy barrier — disabled when tornado runs)
 
 // ─── Tornado constants ───────────────────────────────────────
-#define TORNADO_TOTAL_FRAMES      300    // 10 sec @ 30fps tick
-#define TORNADO_GROW_FRAMES        90    // phase 1: grow (3 sec)
-#define TORNADO_GRACE_FRAMES       45    // 1.5 sec — VFX visible but no suction yet (warning window)
+#define TORNADO_TOTAL_FRAMES 300 // 10 sec @ 30fps tick
+#define TORNADO_GROW_FRAMES 90   // phase 1: grow (3 sec)
+#define TORNADO_GRACE_FRAMES 45  // 1.5 sec — VFX visible but no suction yet (warning window)
 // Venti-ulti style: massive outer attraction radius, dense particle column,
 // continuous damage core in the middle. Link is pulled in too unless he runs
 // far enough; if he reaches the core he gets locked in a falling animation.
-#define TORNADO_INITIAL_RADIUS   100.0f
-#define TORNADO_MAX_RADIUS       600.0f  // big attraction sphere
-#define TORNADO_CORE_RADIUS      100.0f  // inner kill / fall-anim zone
-#define TORNADO_LIFT_MAX         300.0f  // taller column
-#define TORNADO_DAMAGE_INTERVAL     8    // fast tick — feels like a black hole
-#define TORNADO_DAMAGE_PER_TICK     6    // small per-tick × fast rate = high DPS
+#define TORNADO_INITIAL_RADIUS 100.0f
+#define TORNADO_MAX_RADIUS 600.0f  // big attraction sphere
+#define TORNADO_CORE_RADIUS 100.0f // inner kill / fall-anim zone
+#define TORNADO_LIFT_MAX 300.0f    // taller column
+#define TORNADO_DAMAGE_INTERVAL 8  // fast tick — feels like a black hole
+#define TORNADO_DAMAGE_PER_TICK 6  // small per-tick × fast rate = high DPS
 
 // Heavy / armored / anchored enemies the tornado can't move. Bosses are
 // excluded automatically via ACTORCAT_BOSS in the suction loop.
@@ -544,8 +544,9 @@ static u8 MagicWind_IsSuckableProp(s16 id) {
 static void MagicWind_TornadoApplyActor(Actor* a, Vec3f* c, f32 R) {
     f32 dx = a->world.pos.x - c->x;
     f32 dz = a->world.pos.z - c->z;
-    f32 d  = sqrtf(SQ(dx) + SQ(dz));
-    if (d > R) return;
+    f32 d = sqrtf(SQ(dx) + SQ(dz));
+    if (d > R)
+        return;
 
     if (d > TORNADO_CORE_RADIUS) {
         // Hard inward pull — strength scales with distance so far enemies still
@@ -584,8 +585,9 @@ static void MagicWind_TornadoApplyActor(Actor* a, Vec3f* c, f32 R) {
 static void MagicWind_TornadoApplyPlayer(PlayState* play, Player* p, Vec3f* c, f32 R) {
     f32 dx = p->actor.world.pos.x - c->x;
     f32 dz = p->actor.world.pos.z - c->z;
-    f32 d  = sqrtf(SQ(dx) + SQ(dz));
-    if (d > R) return;
+    f32 d = sqrtf(SQ(dx) + SQ(dz));
+    if (d > R)
+        return;
 
     if (d > TORNADO_CORE_RADIUS) {
         // Pull — weaker on Link than on enemies so a determined player can still
@@ -621,13 +623,17 @@ static void MagicWind_TornadoApplyPlayer(PlayState* play, Player* p, Vec3f* c, f
 static void MagicWind_TornadoSuck(PlayState* play, Vec3f* c, f32 R) {
     Actor* a;
     for (a = play->actorCtx.actorLists[ACTORCAT_ENEMY].first; a != NULL; a = a->next) {
-        if (a->update == NULL) continue;
-        if (MagicWind_IsBlacklistedEnemy(a->id)) continue;
+        if (a->update == NULL)
+            continue;
+        if (MagicWind_IsBlacklistedEnemy(a->id))
+            continue;
         MagicWind_TornadoApplyActor(a, c, R);
     }
     for (a = play->actorCtx.actorLists[ACTORCAT_PROP].first; a != NULL; a = a->next) {
-        if (a->update == NULL) continue;
-        if (!MagicWind_IsSuckableProp(a->id)) continue;
+        if (a->update == NULL)
+            continue;
+        if (!MagicWind_IsSuckableProp(a->id))
+            continue;
         MagicWind_TornadoApplyActor(a, c, R);
     }
     Player* p = GET_PLAYER(play);
@@ -641,11 +647,14 @@ static void MagicWind_TornadoSuck(PlayState* play, Vec3f* c, f32 R) {
 static void MagicWind_TornadoDamageTick(PlayState* play, Vec3f* c) {
     Actor* a;
     for (a = play->actorCtx.actorLists[ACTORCAT_ENEMY].first; a != NULL; a = a->next) {
-        if (a->update == NULL) continue;
-        if (MagicWind_IsBlacklistedEnemy(a->id)) continue;
+        if (a->update == NULL)
+            continue;
+        if (MagicWind_IsBlacklistedEnemy(a->id))
+            continue;
         f32 dx = a->world.pos.x - c->x;
         f32 dz = a->world.pos.z - c->z;
-        if (sqrtf(SQ(dx) + SQ(dz)) > TORNADO_CORE_RADIUS) continue;
+        if (sqrtf(SQ(dx) + SQ(dz)) > TORNADO_CORE_RADIUS)
+            continue;
 
         s16 hp = a->colChkInfo.health;
         s16 drain = (hp > TORNADO_DAMAGE_PER_TICK) ? TORNADO_DAMAGE_PER_TICK : hp;
@@ -666,7 +675,7 @@ static void MagicWind_TornadoDamageTick(PlayState* play, Vec3f* c) {
 // func_8002836C is the same particle spawner used by GustJar VFX.
 static void MagicWind_SpawnTornadoVFX(PlayState* play, Vec3f* c, f32 R) {
     Color_RGBA8 prim = { 220, 250, 255, 220 };
-    Color_RGBA8 env  = { 150, 200, 230, 140 };
+    Color_RGBA8 env = { 150, 200, 230, 140 };
     Vec3f accel = { 0.0f, 0.3f, 0.0f };
 
     // Outer ring — broad swirling wall at the suction edge.
@@ -681,7 +690,7 @@ static void MagicWind_SpawnTornadoVFX(PlayState* play, Vec3f* c, f32 R) {
         Vec3f vel = {
             -sinf(angle) * 12.0f,
             5.0f + Rand_ZeroFloat(4.0f),
-             cosf(angle) * 12.0f,
+            cosf(angle) * 12.0f,
         };
         func_8002836C(play, &pos, &vel, &accel, &prim, &env, 200, 30, 16);
     }
@@ -698,7 +707,7 @@ static void MagicWind_SpawnTornadoVFX(PlayState* play, Vec3f* c, f32 R) {
         Vec3f vel = {
             -sinf(angle) * 6.0f,
             14.0f + Rand_ZeroFloat(6.0f),
-             cosf(angle) * 6.0f,
+            cosf(angle) * 6.0f,
         };
         func_8002836C(play, &pos, &vel, &accel, &prim, &env, 200, 30, 18);
     }
@@ -707,7 +716,7 @@ static void MagicWind_SpawnTornadoVFX(PlayState* play, Vec3f* c, f32 R) {
     // from the column. These read as the "rushing wind" trails going up and
     // serve as the EffectBlure-style support layer the user asked for.
     Color_RGBA8 streakPrim = { 255, 255, 255, 240 };
-    Color_RGBA8 streakEnv  = { 180, 220, 240, 160 };
+    Color_RGBA8 streakEnv = { 180, 220, 240, 160 };
     Vec3f streakAccel = { 0.0f, 0.0f, 0.0f };
     for (s32 i = 0; i < 6; i++) {
         f32 angle = Rand_ZeroFloat(2.0f * M_PI);
@@ -718,7 +727,7 @@ static void MagicWind_SpawnTornadoVFX(PlayState* play, Vec3f* c, f32 R) {
             c->z + sinf(angle) * streakR,
         };
         Vec3f vel = {
-            cosf(angle) * 1.5f,        // slight outward drift
+            cosf(angle) * 1.5f,           // slight outward drift
             22.0f + Rand_ZeroFloat(8.0f), // strong upward
             sinf(angle) * 1.5f,
         };
@@ -908,8 +917,7 @@ void MagicWind_Update(Actor* thisx, PlayState* play) {
 
         if (this->tornadoTimer < TORNADO_GROW_FRAMES) {
             f32 t = (f32)this->tornadoTimer / (f32)TORNADO_GROW_FRAMES;
-            this->tornadoCurrentRadius =
-                TORNADO_INITIAL_RADIUS + (TORNADO_MAX_RADIUS - TORNADO_INITIAL_RADIUS) * t;
+            this->tornadoCurrentRadius = TORNADO_INITIAL_RADIUS + (TORNADO_MAX_RADIUS - TORNADO_INITIAL_RADIUS) * t;
         } else {
             this->tornadoCurrentRadius = TORNADO_MAX_RADIUS;
         }

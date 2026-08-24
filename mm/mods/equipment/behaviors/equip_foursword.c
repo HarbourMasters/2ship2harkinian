@@ -82,7 +82,7 @@ static void FourSword_SpawnClone(PlayState* play, Player* player, Vec3f worldSpa
     int i = gExtEquipBehavior.fourSwordCloneCount;
     if (i >= FS_CLONE_MAX)
         return;
-    if (gSaveContext.save.saveInfo.playerData.magic< MAGIC_REQ(FS_CLONE_MP_COST))
+    if (gSaveContext.save.saveInfo.playerData.magic < MAGIC_REQ(FS_CLONE_MP_COST))
         return;
 
     gExtEquipBehavior.fourSwordClones[i].offset.x = worldSpawnPos.x - player->actor.world.pos.x;
@@ -91,9 +91,9 @@ static void FourSword_SpawnClone(PlayState* play, Player* player, Vec3f worldSpa
     gExtEquipBehavior.fourSwordClones[i].alive = 1;
     gExtEquipBehavior.fourSwordCloneCount++;
 
-    gSaveContext.save.saveInfo.playerData.magic-= MAGIC_REQ(FS_CLONE_MP_COST);
-    if (gSaveContext.save.saveInfo.playerData.magic< 0)
-        gSaveContext.save.saveInfo.playerData.magic= 0;
+    gSaveContext.save.saveInfo.playerData.magic -= MAGIC_REQ(FS_CLONE_MP_COST);
+    if (gSaveContext.save.saveInfo.playerData.magic < 0)
+        gSaveContext.save.saveInfo.playerData.magic = 0;
 
     Vec3f vel = { 0.0f, 1.5f, 0.0f };
     Vec3f accel = { 0.0f, 0.0f, 0.0f };
@@ -353,7 +353,7 @@ static void FourSword_Behavior(Player* player, PlayState* play) {
 
             s16 yaw = player->actor.shape.rot.y;
             for (int i = 0; i < FS_CLONE_MAX; i++) {
-                if (gSaveContext.save.saveInfo.playerData.magic< MAGIC_REQ(FS_CLONE_MP_COST))
+                if (gSaveContext.save.saveInfo.playerData.magic < MAGIC_REQ(FS_CLONE_MP_COST))
                     break;
                 Vec3f off = FourSword_FormationOffset(yaw, i);
                 Vec3f spawnPos = {

@@ -24,9 +24,9 @@ namespace mmsfx {
 // ---------------------------------------------------------------------------
 typedef struct AudioContext {
     /* note / layer / channel pools */
-    Note* notes;                         // -> static note array (numNotes)
+    Note* notes; // -> static note array (numNotes)
     s32 numNotes;
-    NoteSampleState* sampleStateList;    // -> static array (numNotes * updatesPerFrame)
+    NoteSampleState* sampleStateList; // -> static array (numNotes * updatesPerFrame)
     s32 sampleStateOffset;
     NotePool noteFreeLists;
     AudioListItem layerFreeList;
@@ -53,9 +53,9 @@ typedef struct AudioContext {
     AudioCache fontCache;
 
     /* fonts / adsr */
-    SoundFont* soundFontList;            // indexed by fontId (we register 0/1)
-    u8* fontLoadStatus;                  // all-loaded marker array
-    f32* adsrDecayTable;                 // -> static f32[256] built at init
+    SoundFont* soundFontList; // indexed by fontId (we register 0/1)
+    u8* fontLoadStatus;       // all-loaded marker array
+    f32* adsrDecayTable;      // -> static f32[256] built at init
 } AudioContext;
 
 extern AudioContext gMmSfx;

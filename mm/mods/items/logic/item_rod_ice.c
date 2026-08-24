@@ -96,7 +96,8 @@ u8 IceRod_HasAnyActiveSet(void) {
 // collider pool was leaking across rod fires after ~2 hours of sustained
 // shooting, breaking hit detection for every "aim/shoot" item.
 static void IceRod_DestroySetColliders(RodProjSet* set, PlayState* play) {
-    if (!set->collidersInited) return;
+    if (!set->collidersInited)
+        return;
     for (s32 i = 0; i < 3; i++) {
         Collider_DestroyCylinder(play, &set->colliders[i]);
     }

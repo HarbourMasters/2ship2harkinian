@@ -229,11 +229,11 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
         // deleting it, so the pool keeps exactly as many items as there are checks.
         auto gfs = std::find(itemPool.begin(), itemPool.end(), RI_GREAT_FAIRY_SWORD);
         if (gfs != itemPool.end()) {
-            *gfs = RI_OOT_PROGRESSIVE_BGS;                   // L1 Biggoron Sword (replaces the loose GFS)
+            *gfs = RI_OOT_PROGRESSIVE_BGS; // L1 Biggoron Sword (replaces the loose GFS)
         } else {
-            itemPool.push_back(RI_OOT_PROGRESSIVE_BGS);      // GFS check not shuffled: supply L1 ourselves
+            itemPool.push_back(RI_OOT_PROGRESSIVE_BGS); // GFS check not shuffled: supply L1 ourselves
         }
-        itemPool.push_back(RI_OOT_PROGRESSIVE_BGS);          // L2 Great Fairy's Sword
+        itemPool.push_back(RI_OOT_PROGRESSIVE_BGS); // L2 Great Fairy's Sword
 
         // The only OoT song with no MM counterpart, so it could never cross until now.
         itemPool.push_back(RI_OOT_SONG_ZELDAS_LULLABY);
@@ -276,9 +276,9 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
         // needs to be findable in MM, the same way Climb and Crawl are. 2 copies = OoT's pool count.
         itemPool.push_back(RI_OOT_ABILITY_CHESTS);
         itemPool.push_back(RI_OOT_ABILITY_CHESTS);
-        itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH);     // L1 Goron Bracelet
-        itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH);     // L2 Silver Gauntlets
-        itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH);     // L3 Gold Gauntlets
+        itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH); // L1 Goron Bracelet
+        itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH); // L2 Silver Gauntlets
+        itemPool.push_back(RI_OOT_PROGRESSIVE_STRENGTH); // L3 Gold Gauntlets
     }
 
     // ── 2026-08-06: cross-game categories for SOLO MM — user requirement #1 ──────────────────────
@@ -558,19 +558,35 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
         // 2026-08-06 re-layout: Hylia's Grace is OUT (item retired outright — its RI gives nothing
         // now); the four new page-2 cells are IN as behaviorless-but-real items.
         static const RandoItemId sNeiPoolItems[] = {
-            RI_OOT_NEI_BALL_AND_CHAIN, RI_OOT_NEI_BEETLE,        RI_OOT_NEI_DEKU_LEAF,
-            RI_OOT_NEI_DEMISE_DESTRUCTION, RI_OOT_NEI_DESIRE_SENSOR, RI_OOT_NEI_DOMINION_ROD,
-            RI_OOT_NEI_FIRE_ROD,       RI_OOT_NEI_GUST_JAR,      RI_OOT_NEI_ICE_ROD,
-            RI_OOT_NEI_LANTERN,        RI_OOT_NEI_LIGHT_ROD,     RI_OOT_NEI_MINISH_CAP,
-            RI_OOT_NEI_MOGMA_MITTS,    RI_OOT_NEI_POKE_BALL,     RI_OOT_NEI_SHOVEL,
-            RI_OOT_NEI_SPINNER,        RI_OOT_NEI_SWITCH_HOOK,   RI_OOT_NEI_TIME_GATE,
-            RI_OOT_NEI_WHIP,           RI_OOT_NEI_ZONAI_PERMAFROST,
+            RI_OOT_NEI_BALL_AND_CHAIN,
+            RI_OOT_NEI_BEETLE,
+            RI_OOT_NEI_DEKU_LEAF,
+            RI_OOT_NEI_DEMISE_DESTRUCTION,
+            RI_OOT_NEI_DESIRE_SENSOR,
+            RI_OOT_NEI_DOMINION_ROD,
+            RI_OOT_NEI_FIRE_ROD,
+            RI_OOT_NEI_GUST_JAR,
+            RI_OOT_NEI_ICE_ROD,
+            RI_OOT_NEI_LANTERN,
+            RI_OOT_NEI_LIGHT_ROD,
+            RI_OOT_NEI_MINISH_CAP,
+            RI_OOT_NEI_MOGMA_MITTS,
+            RI_OOT_NEI_POKE_BALL,
+            RI_OOT_NEI_SHOVEL,
+            RI_OOT_NEI_SPINNER,
+            RI_OOT_NEI_SWITCH_HOOK,
+            RI_OOT_NEI_TIME_GATE,
+            RI_OOT_NEI_WHIP,
+            RI_OOT_NEI_ZONAI_PERMAFROST,
             RI_OOT_NEI_PHANTOM_HOURGLASS,
-            RI_OOT_NEI_SHADOW_CRYSTAL, RI_OOT_NEI_ROD_OF_SEASONS,
+            RI_OOT_NEI_SHADOW_CRYSTAL,
+            RI_OOT_NEI_ROD_OF_SEASONS,
             // Sheikah Slate: the pool item is gone — the FOUR RUNES are the placeable siblings now
             // (wand idiom: any order, each with its own textbox; the first found hands over the slate).
-            RI_OOT_NEI_SLATE_RUNE_BOMB,   RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE,
-            RI_OOT_NEI_SLATE_RUNE_STASIS, RI_OOT_NEI_SLATE_RUNE_CRYONIS,
+            RI_OOT_NEI_SLATE_RUNE_BOMB,
+            RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE,
+            RI_OOT_NEI_SLATE_RUNE_STASIS,
+            RI_OOT_NEI_SLATE_RUNE_CRYONIS,
         };
         for (RandoItemId neiItem : sNeiPoolItems) {
             itemPool.push_back(neiItem);

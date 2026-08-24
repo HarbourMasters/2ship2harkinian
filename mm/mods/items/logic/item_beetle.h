@@ -41,11 +41,11 @@ extern "C" {
 #define BEETLE_PITCH_MAX 0x3000
 
 // A-button boost + Z-target lock-on (Skijer's NEI)
-#define BEETLE_BOOST_MULT 1.8f         // A held → fly this much faster
-#define BEETLE_TARGET_RANGE 700.0f     // max lock-on distance (nearest attention-enabled enemy)
-#define BEETLE_TARGET_HOMING_STEP 0x180  // gentle homing turn/frame while locked (you keep control)
+#define BEETLE_BOOST_MULT 1.8f            // A held → fly this much faster
+#define BEETLE_TARGET_RANGE 700.0f        // max lock-on distance (nearest attention-enabled enemy)
+#define BEETLE_TARGET_HOMING_STEP 0x180   // gentle homing turn/frame while locked (you keep control)
 #define BEETLE_TARGET_HOMING_STEP_A 0x500 // stronger redirect when A is held while locked (Z+A)
-#define BEETLE_KAMIKAZE_STEP 0x800       // hard homing/frame after B release (fly straight at target)
+#define BEETLE_KAMIKAZE_STEP 0x800        // hard homing/frame after B release (fly straight at target)
 #define BEETLE_CAM_DISTANCE 120.0f
 #define BEETLE_CAM_HEIGHT 30.0f
 

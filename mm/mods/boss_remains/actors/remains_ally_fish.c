@@ -60,37 +60,40 @@
 #define REMAINS_FISH_FLAGS (ACTOR_FLAG_UPDATE_CULLING_DISABLED | ACTOR_FLAG_DRAW_CULLING_DISABLED)
 
 // ---- Tuning ----------------------------------------------------------------
-#define REMAINS_FISH_SCALE            0.018f // small school member (EnTanron3 uses 0.02f)
-#define REMAINS_FISH_ATTACK_RANGE     220.0f // dart at the nearest enemy within this XZ range
-#define REMAINS_FISH_TETHER           180.0f // ~3 Link-heights: the fish is leashed to Link (its home) and
-                                              // never strays farther; past this it sprints straight back
-#define REMAINS_FISH_ATTACK_CLOSE     110.0f // only break off the orbit to bite an enemy THIS close
-#define REMAINS_FISH_FOLLOW_DIST      42.0f  // orbit/surround: hug this close to Link while idle
-#define REMAINS_FISH_SWIM_SPEED       4.0f   // idle cruise speed
-#define REMAINS_FISH_DART_SPEED       7.5f   // faster charge when attacking
+#define REMAINS_FISH_SCALE 0.018f        // small school member (EnTanron3 uses 0.02f)
+#define REMAINS_FISH_ATTACK_RANGE 220.0f // dart at the nearest enemy within this XZ range
+#define REMAINS_FISH_TETHER \
+    180.0f                               // ~3 Link-heights: the fish is leashed to Link (its home) and
+                                         // never strays farther; past this it sprints straight back
+#define REMAINS_FISH_ATTACK_CLOSE 110.0f // only break off the orbit to bite an enemy THIS close
+#define REMAINS_FISH_FOLLOW_DIST 42.0f   // orbit/surround: hug this close to Link while idle
+#define REMAINS_FISH_SWIM_SPEED 4.0f     // idle cruise speed
+#define REMAINS_FISH_DART_SPEED 7.5f     // faster charge when attacking
 // --- movement-aware school AI ---
-#define REMAINS_FISH_LINK_MOVE_SPEED  2.5f   // Link's speedXZ above this = "fast-swimming" (school regroups)
-#define REMAINS_FISH_CHASE_SPEED      14.0f  // catch-up to a cruising Link — MUST beat his ~9 swim speed or
-                                             // the school falls behind forever (that was the "stay far" bug)
-#define REMAINS_FISH_LUNGE_SPEED      13.0f  // idle-Link strike: a fast school lunge from range
+#define REMAINS_FISH_LINK_MOVE_SPEED 2.5f // Link's speedXZ above this = "fast-swimming" (school regroups)
+#define REMAINS_FISH_CHASE_SPEED \
+    14.0f                                     // catch-up to a cruising Link — MUST beat his ~9 swim speed or
+                                              // the school falls behind forever (that was the "stay far" bug)
+#define REMAINS_FISH_LUNGE_SPEED 13.0f        // idle-Link strike: a fast school lunge from range
 #define REMAINS_FISH_IDLE_ATTACK_RANGE 240.0f // when Link is still, hunt this far (>= the whirlpool suck radius)
 // --- Pikmin ball (trail behind Link, spaced apart) ---
-#define REMAINS_FISH_BALL_DIST        55.0f  // base distance the ball trails BEHIND Link
-#define REMAINS_FISH_BALL_SPACING     30.0f  // extra ring depth so they don't all sit at one radius
-#define REMAINS_FISH_SEPARATION       30.0f  // boids: min gap between two fish before they push apart
-#define REMAINS_FISH_SUBMERGE_MARGIN  25.0f  // stay at least this far below the water surface
-#define REMAINS_FISH_FLOOR_MARGIN     8.0f   // never sink below the floor by less than this
-#define REMAINS_FISH_TARGET_Y_OFFSET  10.0f  // aim slightly above the target's anchor
-#define REMAINS_FISH_Y_STEP           6.0f   // vertical ease-in cap per frame (Math_ApproachF)
-#define REMAINS_FISH_PITCH_REF        200.0f // XZ reference for the nose-pitch atan2 (gentle tilt)
-#define REMAINS_FISH_WIGGLE_SLOW      0x1F40 // procedural body-sway speed while cruising
-#define REMAINS_FISH_WIGGLE_FAST      0x4E20 // faster sway while darting (EnTanron3's attack value)
-#define REMAINS_FISH_WIGGLE_AMPL      5000.0f
-#define REMAINS_FISH_MAX_OUT_OF_WATER 85 // frames flopping on land before it suffocates (~2.8s) — long
-                                          // enough to hop around and land a few close bites, then dies
-#define REMAINS_FISH_FLOP_BITE_RANGE  22.0f // AT cylinder radius while beached — only bites what it flops onto
-#define REMAINS_FISH_WALL_H           20.0f
-#define REMAINS_FISH_WALL_R           10.0f
+#define REMAINS_FISH_BALL_DIST 55.0f       // base distance the ball trails BEHIND Link
+#define REMAINS_FISH_BALL_SPACING 30.0f    // extra ring depth so they don't all sit at one radius
+#define REMAINS_FISH_SEPARATION 30.0f      // boids: min gap between two fish before they push apart
+#define REMAINS_FISH_SUBMERGE_MARGIN 25.0f // stay at least this far below the water surface
+#define REMAINS_FISH_FLOOR_MARGIN 8.0f     // never sink below the floor by less than this
+#define REMAINS_FISH_TARGET_Y_OFFSET 10.0f // aim slightly above the target's anchor
+#define REMAINS_FISH_Y_STEP 6.0f           // vertical ease-in cap per frame (Math_ApproachF)
+#define REMAINS_FISH_PITCH_REF 200.0f      // XZ reference for the nose-pitch atan2 (gentle tilt)
+#define REMAINS_FISH_WIGGLE_SLOW 0x1F40    // procedural body-sway speed while cruising
+#define REMAINS_FISH_WIGGLE_FAST 0x4E20    // faster sway while darting (EnTanron3's attack value)
+#define REMAINS_FISH_WIGGLE_AMPL 5000.0f
+#define REMAINS_FISH_MAX_OUT_OF_WATER \
+    85                                     // frames flopping on land before it suffocates (~2.8s) — long
+                                           // enough to hop around and land a few close bites, then dies
+#define REMAINS_FISH_FLOP_BITE_RANGE 22.0f // AT cylinder radius while beached — only bites what it flops onto
+#define REMAINS_FISH_WALL_H 20.0f
+#define REMAINS_FISH_WALL_R 10.0f
 
 typedef struct RemainsAllyFish {
     /* 0x000 */ Actor actor;
@@ -98,7 +101,7 @@ typedef struct RemainsAllyFish {
     /* ..... */ Vec3s jointTable[GYORG_SMALL_FISH_LIMB_MAX];
     /* ..... */ Vec3s morphTable[GYORG_SMALL_FISH_LIMB_MAX];
     /* ..... */ ColliderCylinder atCollider; // FRIENDLY attack toucher only (no bumper: invulnerable)
-    /* ..... */ f32 waterSurfaceYPos;         // set from WaterBox_GetSurface1 each frame (NOT hardcoded)
+    /* ..... */ f32 waterSurfaceYPos;        // set from WaterBox_GetSurface1 each frame (NOT hardcoded)
     /* ..... */ s16 timer;
     /* ..... */ s16 outOfWaterTimer;
     /* ..... */ s32 currentRotationAngle; // accumulates nextRotationAngle for the wiggle
@@ -289,7 +292,8 @@ static void RemainsAllyFish_SwimInWater(RemainsAllyFish* self, PlayState* play) 
     // Keep the ball spaced.
     RemainsAllyFish_Separate(self, play);
 
-    target = linkMoving ? NULL : RemainsAlly_FindNearestEnemy(play, &player->actor.world.pos, REMAINS_FISH_IDLE_ATTACK_RANGE);
+    target = linkMoving ? NULL
+                        : RemainsAlly_FindNearestEnemy(play, &player->actor.world.pos, REMAINS_FISH_IDLE_ATTACK_RANGE);
 
     if (target != NULL) {
         RemainsAlly_HomeTowardPos(play, &self->actor, &target->world.pos, REMAINS_FISH_LUNGE_SPEED);
@@ -385,8 +389,8 @@ static void RemainsAllyFish_Update(Actor* thisx, PlayState* play) {
 
     // Re-query the waterbox at the fish's current position every frame. This tracks a
     // moving surface and works in any scene the player wanders into (no arena constant).
-    hasWater =
-        WaterBox_GetSurface1(play, &play->colCtx, self->actor.world.pos.x, self->actor.world.pos.z, &surfaceY, &waterBox);
+    hasWater = WaterBox_GetSurface1(play, &play->colCtx, self->actor.world.pos.x, self->actor.world.pos.z, &surfaceY,
+                                    &waterBox);
     if (hasWater) {
         self->waterSurfaceYPos = surfaceY;
     }

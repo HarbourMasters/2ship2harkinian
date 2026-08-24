@@ -367,8 +367,7 @@ void AudioPlayback_ProcessNotes(void) {
             if (sPnLog < 16) {
                 sPnLog++;
                 char b[208];
-                snprintf(b, sizeof(b),
-                         "PN note[%d]: prio=%d status=%d adsrStatus=%d parent=%p wanted=%p lt0x7FFF=%d",
+                snprintf(b, sizeof(b), "PN note[%d]: prio=%d status=%d adsrStatus=%d parent=%p wanted=%p lt0x7FFF=%d",
                          i, playbackState->priority, playbackState->status, playbackState->adsr.action.s.status,
                          (void*)playbackState->parentLayer, (void*)playbackState->wantedParentLayer,
                          (int)((uintptr_t)playbackState->parentLayer < 0x7FFFFFFF));
@@ -1155,11 +1154,13 @@ Note* AudioPlayback_AllocNote(SequenceLayer* layer) {
     }
     return note;
 
-null_return:
-    {
-        static int sNullLog = 0;
-        if (sNullLog < 8) { sNullLog++; MmSfxSynth_Log("AllocNote -> NULL (no free note in any pool)"); }
+null_return : {
+    static int sNullLog = 0;
+    if (sNullLog < 8) {
+        sNullLog++;
+        MmSfxSynth_Log("AllocNote -> NULL (no free note in any pool)");
     }
+}
     layer->bit3 = true;
     return NULL;
 }

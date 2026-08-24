@@ -75,8 +75,8 @@ static Actor* Sw97_TrySpawnMagicSpell(PlayState* play, Player* player, s32 spell
         return NULL;
     }
 
-    Actor* spawned = Actor_Spawn(&play->actorCtx, play, actorId, player->actor.world.pos.x,
-                                 player->actor.world.pos.y, player->actor.world.pos.z, 0, 0, 0, 0);
+    Actor* spawned = Actor_Spawn(&play->actorCtx, play, actorId, player->actor.world.pos.x, player->actor.world.pos.y,
+                                 player->actor.world.pos.z, 0, 0, 0, 0);
 
     // Tell teammates to spawn the same spell-effect actor on their side.
     // Spells follow the caster (attached_to_owner=1) — their visual stays
@@ -84,12 +84,12 @@ static Actor* Sw97_TrySpawnMagicSpell(PlayState* play, Player* player, s32 spell
     // spell index back to the corresponding HARPOON_VFX_KIND_SW97_MAGIC_*.
     if (spawned != NULL) {
         s32 vfxKindByIndex[] = {
-            HARPOON_VFX_KIND_SW97_MAGIC_WIND,   // 0
-            HARPOON_VFX_KIND_SW97_MAGIC_SOUL,   // 1
-            HARPOON_VFX_KIND_SW97_MAGIC_DARK,   // 2
-            HARPOON_VFX_KIND_SW97_MAGIC_ICE,    // 3
-            HARPOON_VFX_KIND_SW97_MAGIC_LIGHT,  // 4
-            HARPOON_VFX_KIND_SW97_MAGIC_FIRE,   // 5
+            HARPOON_VFX_KIND_SW97_MAGIC_WIND,  // 0
+            HARPOON_VFX_KIND_SW97_MAGIC_SOUL,  // 1
+            HARPOON_VFX_KIND_SW97_MAGIC_DARK,  // 2
+            HARPOON_VFX_KIND_SW97_MAGIC_ICE,   // 3
+            HARPOON_VFX_KIND_SW97_MAGIC_LIGHT, // 4
+            HARPOON_VFX_KIND_SW97_MAGIC_FIRE,  // 5
         };
         Harpoon_NotifyVfxSpawn(spawned, vfxKindByIndex[spell], /*attachedToOwner=*/1);
     }
@@ -130,7 +130,8 @@ static s32 Sw97_IsMedallionItem(s32 item) {
  * MmMaskWear_IsStoneMaskActive).
  */
 s32 Sw97_ShadowStealthActive(void) {
-    if (!SW97_MEDALLIONS_ENABLED()) return 0;
+    if (!SW97_MEDALLIONS_ENABLED())
+        return 0;
     return gSaveContext.nayrusLoveTimer > 0;
 }
 
@@ -147,18 +148,23 @@ s32 Sw97_ShadowStealthActive(void) {
  * Called from z_player.c Player_UpdateCommon each frame.
  */
 #define SHADOW_EXCHANGE_HOLD_FRAMES 20
-#define SHADOW_EXCHANGE_HEART_COST  (3 * 0x10)  // 3 hearts × 16 HP
-#define SHADOW_EXCHANGE_MAGIC_GAIN  24
+#define SHADOW_EXCHANGE_HEART_COST (3 * 0x10) // 3 hearts × 16 HP
+#define SHADOW_EXCHANGE_MAGIC_GAIN 24
 
 void Sw97_TickShadowExchange(PlayState* play, Player* player) {
-    if (!SW97_MEDALLIONS_ENABLED()) return;
-    if (play == NULL || player == NULL) return;
+    if (!SW97_MEDALLIONS_ENABLED())
+        return;
+    if (play == NULL || player == NULL)
+        return;
 
     // Find which C-slot has the Shadow medallion. buttonItems[0]=B, [1..3]=C-LDR.
     u16 medallionMask = 0;
-    if (gSaveContext.save.saveInfo.equips.buttonItems[1] == ITEM_MEDALLION_SHADOW) medallionMask |= BTN_CLEFT;
-    if (gSaveContext.save.saveInfo.equips.buttonItems[2] == ITEM_MEDALLION_SHADOW) medallionMask |= BTN_CDOWN;
-    if (gSaveContext.save.saveInfo.equips.buttonItems[3] == ITEM_MEDALLION_SHADOW) medallionMask |= BTN_CRIGHT;
+    if (gSaveContext.save.saveInfo.equips.buttonItems[1] == ITEM_MEDALLION_SHADOW)
+        medallionMask |= BTN_CLEFT;
+    if (gSaveContext.save.saveInfo.equips.buttonItems[2] == ITEM_MEDALLION_SHADOW)
+        medallionMask |= BTN_CDOWN;
+    if (gSaveContext.save.saveInfo.equips.buttonItems[3] == ITEM_MEDALLION_SHADOW)
+        medallionMask |= BTN_CRIGHT;
 
     static s16 sShadowHoldFrames = 0;
     static u8 sShadowExchanged = 0;
@@ -177,9 +183,12 @@ void Sw97_TickShadowExchange(PlayState* play, Player* player) {
     }
 
     sShadowHoldFrames++;
-    if (sShadowExchanged) return;
-    if (sShadowHoldFrames < SHADOW_EXCHANGE_HOLD_FRAMES) return;
-    if (gSaveContext.save.saveInfo.playerData.health <= SHADOW_EXCHANGE_HEART_COST) return;
+    if (sShadowExchanged)
+        return;
+    if (sShadowHoldFrames < SHADOW_EXCHANGE_HOLD_FRAMES)
+        return;
+    if (gSaveContext.save.saveInfo.playerData.health <= SHADOW_EXCHANGE_HEART_COST)
+        return;
 
     gSaveContext.save.saveInfo.playerData.health -= SHADOW_EXCHANGE_HEART_COST;
     gSaveContext.save.saveInfo.playerData.magic += SHADOW_EXCHANGE_MAGIC_GAIN;
@@ -207,17 +216,18 @@ void Sw97_TickShadowExchange(PlayState* play, Player* player) {
  * `framesRemaining` actually counts down.
  */
 #define SW97_BLIND_TABLE_SIZE 32
-#define SW97_BLIND_DURATION   300  // 10 sec at SW97's 30fps timer convention
+#define SW97_BLIND_DURATION 300 // 10 sec at SW97's 30fps timer convention
 
 typedef struct {
     Actor* actor;
-    s16    framesRemaining;
+    s16 framesRemaining;
 } Sw97BlindEntry;
 
 static Sw97BlindEntry sSw97Blinded[SW97_BLIND_TABLE_SIZE];
 
 void Sw97_TagBlinded(Actor* actor, s16 frames) {
-    if (actor == NULL || actor->update == NULL) return;
+    if (actor == NULL || actor->update == NULL)
+        return;
     s32 empty = -1;
     for (s32 i = 0; i < SW97_BLIND_TABLE_SIZE; i++) {
         if (sSw97Blinded[i].actor == actor) {
@@ -226,7 +236,8 @@ void Sw97_TagBlinded(Actor* actor, s16 frames) {
             }
             return;
         }
-        if (sSw97Blinded[i].actor == NULL && empty < 0) empty = i;
+        if (sSw97Blinded[i].actor == NULL && empty < 0)
+            empty = i;
     }
     if (empty >= 0) {
         sSw97Blinded[empty].actor = actor;
@@ -235,7 +246,8 @@ void Sw97_TagBlinded(Actor* actor, s16 frames) {
 }
 
 s32 Sw97_IsBlinded(Actor* actor) {
-    if (actor == NULL) return 0;
+    if (actor == NULL)
+        return 0;
     for (s32 i = 0; i < SW97_BLIND_TABLE_SIZE; i++) {
         if (sSw97Blinded[i].actor == actor && sSw97Blinded[i].framesRemaining > 0) {
             return 1;
@@ -246,7 +258,8 @@ s32 Sw97_IsBlinded(Actor* actor) {
 
 void Sw97_TickBlindness(void) {
     for (s32 i = 0; i < SW97_BLIND_TABLE_SIZE; i++) {
-        if (sSw97Blinded[i].actor == NULL) continue;
+        if (sSw97Blinded[i].actor == NULL)
+            continue;
         // Drop dead actors immediately so we don't keep their pointer.
         if (sSw97Blinded[i].actor->update == NULL) {
             sSw97Blinded[i].actor = NULL;
@@ -272,26 +285,26 @@ void Sw97_TickBlindness(void) {
  * State is global so other systems (player draw hook, input intercept, egg
  * spawner) can query without threading through a parameter.
  */
-#define CUCCO_MODE_FRAMES    1800  // 30 sec
-#define CUCCO_FLAP_VELOCITY  9.0f  // upward burst per A press while airborne
-#define CUCCO_GRAVITY       -1.2f  // Cucco terminal: gentle fall, not Link's -7
-#define CUCCO_MAX_VY_DOWN   -3.0f  // Cucco terminal velocity cap (float, not plummet)
-#define CUCCO_SPEED_MULT     1.15f // Slightly faster than Link
-#define CUCCO_SPEED_MAX      11.0f // Cap so flap doesn't compound forever
+#define CUCCO_MODE_FRAMES 1800   // 30 sec
+#define CUCCO_FLAP_VELOCITY 9.0f // upward burst per A press while airborne
+#define CUCCO_GRAVITY -1.2f      // Cucco terminal: gentle fall, not Link's -7
+#define CUCCO_MAX_VY_DOWN -3.0f  // Cucco terminal velocity cap (float, not plummet)
+#define CUCCO_SPEED_MULT 1.15f   // Slightly faster than Link
+#define CUCCO_SPEED_MAX 11.0f    // Cap so flap doesn't compound forever
 
-s32 gSw97CuccoModeActive  = 0;
+s32 gSw97CuccoModeActive = 0;
 // Pending → waiting for Link to leave PLAYER_STATE1_IN_ITEM_CS (the
 // first-person aim/throw cutscene). Same pattern as magic_soul.inc.c:117
 // where the diamond update returns until the player is free. Without this
 // the camera stays glued in first-person mode and breaks on entry.
 s32 gSw97CuccoModePending = 0;
-s32 gSw97CuccoModeTimer   = 0;
+s32 gSw97CuccoModeTimer = 0;
 // Once-shot exit fx flag — guarantees the un-transform flash/sound only
 // plays once even though Sw97_TickCuccoMode keeps running on inactive.
 static s32 gSw97CuccoExitFx = 0;
 // 180° flip animation on egg throw — counts down each frame, used by
 // Sw97_DrawCuccoModel to rotate the model. ~12 frames = ~0.4s flip.
-s32   gSw97CuccoFlipTimer = 0;
+s32 gSw97CuccoFlipTimer = 0;
 #define CUCCO_FLIP_FRAMES 12
 
 // Cucco draw — direct copy of HGrace's draw-override pattern (no actor
@@ -304,9 +317,9 @@ static Vec3s sCuccoMorphTable[16];
 static u8 sCuccoSkelInited = 0;
 
 static void Sw97_InitCuccoSkel(PlayState* play) {
-    if (sCuccoSkelInited) return;
-    SkelAnime_InitFlex(play, &sCuccoSkel, (FlexSkeletonHeader*)&gNiwSkel,
-                       (AnimationHeader*)&gNiwIdleAnim,
+    if (sCuccoSkelInited)
+        return;
+    SkelAnime_InitFlex(play, &sCuccoSkel, (FlexSkeletonHeader*)&gNiwSkel, (AnimationHeader*)&gNiwIdleAnim,
                        sCuccoJointTable, sCuccoMorphTable, 16);
     sCuccoSkelInited = 1;
 }
@@ -314,9 +327,13 @@ static void Sw97_InitCuccoSkel(PlayState* play) {
 // Null-body override — used to walk Link's skeleton without rendering any
 // limb geometry. Same idea as GaroForm_OverrideLimbDraw in
 // garo_post_limb.cpp:47.
-static s32 Sw97_CuccoLinkOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList,
-                                          Vec3f* pos, Vec3s* rot, void* arg) {
-    (void)play; (void)limbIndex; (void)pos; (void)rot; (void)arg;
+static s32 Sw97_CuccoLinkOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
+                                          void* arg) {
+    (void)play;
+    (void)limbIndex;
+    (void)pos;
+    (void)rot;
+    (void)arg;
     *dList = NULL;
     return 0;
 }
@@ -327,9 +344,9 @@ static s32 Sw97_CuccoLinkOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** 
 // transformation point. Copied from GaroForm_PostLimbDraw (the essential
 // shadow/Navi/bodyParts bits — Garo's sword-trail / held-actor branches are
 // not needed for the cucco model swap).
-static void Sw97_CuccoLinkPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList,
-                                       Vec3s* rot, void* thisx) {
-    (void)dList; (void)rot;
+static void Sw97_CuccoLinkPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx) {
+    (void)dList;
+    (void)rot;
     Player* player = (Player*)thisx;
     Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
 
@@ -344,16 +361,15 @@ static void Sw97_CuccoLinkPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dLi
         Matrix_MultVec3f(&headOffset, &player->actor.focus.pos);
     }
     if (limbIndex == PLAYER_LIMB_LEFT_FOOT || limbIndex == PLAYER_LIMB_RIGHT_FOOT) {
-        Actor_SetFeetPos(&player->actor, limbIndex,
-                         PLAYER_LIMB_LEFT_FOOT, &zeroVec,
-                         PLAYER_LIMB_RIGHT_FOOT, &zeroVec);
+        Actor_SetFeetPos(&player->actor, limbIndex, PLAYER_LIMB_LEFT_FOOT, &zeroVec, PLAYER_LIMB_RIGHT_FOOT, &zeroVec);
     }
 }
 
 // Cucco visual at thisx->world.pos. Same scaled translate + Y-flip on egg
 // throws as before, called from Sw97_DrawCuccoForm after the null-body pass.
 static void Sw97_DrawCuccoModel(Actor* thisx, PlayState* play) {
-    if (!sCuccoSkelInited) return;
+    if (!sCuccoSkelInited)
+        return;
     OPEN_DISPS(play->state.gfxCtx);
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
     Matrix_Translate(thisx->world.pos.x, thisx->world.pos.y, thisx->world.pos.z, MTXMODE_NEW);
@@ -366,8 +382,7 @@ static void Sw97_DrawCuccoModel(Actor* thisx, PlayState* play) {
     Matrix_RotateYF(baseYaw + flipYaw, MTXMODE_APPLY);
     f32 s = 0.015f;
     Matrix_Scale(s, s, s, MTXMODE_APPLY);
-    SkelAnime_DrawFlexOpa(play, sCuccoSkel.skeleton, sCuccoSkel.jointTable,
-                          sCuccoSkel.dListCount, NULL, NULL, NULL);
+    SkelAnime_DrawFlexOpa(play, sCuccoSkel.skeleton, sCuccoSkel.jointTable, sCuccoSkel.dListCount, NULL, NULL, NULL);
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
@@ -379,14 +394,15 @@ static void Sw97_DrawCuccoModel(Actor* thisx, PlayState* play) {
 void Sw97_DrawCuccoForm(PlayState* play, Player* player) {
     if (player->skelAnime.skeleton != NULL && player->skelAnime.jointTable != NULL) {
         SkelAnime_DrawFlexLod(play, player->skelAnime.skeleton, player->skelAnime.jointTable,
-                              player->skelAnime.dListCount, Sw97_CuccoLinkOverrideLimbDraw,
-                              Sw97_CuccoLinkPostLimbDraw, player, 0);
+                              player->skelAnime.dListCount, Sw97_CuccoLinkOverrideLimbDraw, Sw97_CuccoLinkPostLimbDraw,
+                              player, 0);
     }
     Sw97_DrawCuccoModel(&player->actor, play);
 }
 
 void Sw97_StartCuccoMode(void) {
-    if (gSw97CuccoModeActive || gSw97CuccoModePending) return; // idempotent
+    if (gSw97CuccoModeActive || gSw97CuccoModePending)
+        return; // idempotent
     // Don't activate immediately — Link is in first-person aim CS right
     // now. Set pending and let the per-frame tick activate once the
     // first-person camera setting releases (mirror magic_soul.inc.c:117).
@@ -395,16 +411,17 @@ void Sw97_StartCuccoMode(void) {
 
 static void Sw97_ActivateCuccoMode(void) {
     gSw97CuccoModePending = 0;
-    gSw97CuccoModeActive  = 1;
-    gSw97CuccoModeTimer   = CUCCO_MODE_FRAMES;
+    gSw97CuccoModeActive = 1;
+    gSw97CuccoModeTimer = CUCCO_MODE_FRAMES;
 }
 
 void Sw97_EndCuccoMode(void) {
-    if (!gSw97CuccoModeActive && !gSw97CuccoModePending) return;
-    gSw97CuccoModeActive  = 0;
+    if (!gSw97CuccoModeActive && !gSw97CuccoModePending)
+        return;
+    gSw97CuccoModeActive = 0;
     gSw97CuccoModePending = 0;
-    gSw97CuccoModeTimer   = 0;
-    gSw97CuccoExitFx      = 1;
+    gSw97CuccoModeTimer = 0;
+    gSw97CuccoExitFx = 1;
     // Player flag cleanup + draw restoration happens in the inactive branch
     // of Sw97_TickCuccoMode on the next frame.
 }
@@ -448,23 +465,19 @@ static s32 Sw97_CuccoEgg_ItemToParams(u8 item) {
     return -1;
 }
 
-#define CUCCO_EGG_SPEED      26.0f  // Forward velocity given to the egg
-#define CUCCO_EGG_SPAWN_FWD  20.0f  // Distance ahead of Link to spawn
+#define CUCCO_EGG_SPEED 26.0f     // Forward velocity given to the egg
+#define CUCCO_EGG_SPAWN_FWD 20.0f // Distance ahead of Link to spawn
 
 static void Sw97_CuccoEgg_Spawn(PlayState* play, Player* player, s16 arrowType) {
     s16 yaw = player->actor.shape.rot.y;
-    f32 fx  = Math_SinS(yaw);
-    f32 fz  = Math_CosS(yaw);
+    f32 fx = Math_SinS(yaw);
+    f32 fz = Math_CosS(yaw);
 
-    Actor* arrow = Actor_Spawn(
-        &play->actorCtx, play, ACTOR_EN_ARROW,
-        player->actor.world.pos.x + fx * CUCCO_EGG_SPAWN_FWD,
-        player->actor.world.pos.y + 30.0f,
-        player->actor.world.pos.z + fz * CUCCO_EGG_SPAWN_FWD,
-        0, yaw, 0,
-        arrowType);
+    Actor* arrow = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_ARROW,
+                               player->actor.world.pos.x + fx * CUCCO_EGG_SPAWN_FWD, player->actor.world.pos.y + 30.0f,
+                               player->actor.world.pos.z + fz * CUCCO_EGG_SPAWN_FWD, 0, yaw, 0, arrowType);
     if (arrow != NULL) {
-        arrow->speed   = CUCCO_EGG_SPEED;
+        arrow->speed = CUCCO_EGG_SPEED;
         arrow->velocity.x = fx * CUCCO_EGG_SPEED;
         arrow->velocity.z = fz * CUCCO_EGG_SPEED;
         arrow->velocity.y = 0.0f;
@@ -479,13 +492,13 @@ static void Sw97_CuccoEgg_Spawn(PlayState* play, Player* player, s16 arrowType) 
 }
 
 static void Sw97_TickCuccoEggs(PlayState* play, Player* player) {
-    if (!gSw97CuccoModeActive) return;
+    if (!gSw97CuccoModeActive)
+        return;
 
     // Same 7-button array Ivan uses (z_en_partner.c:829): 3 C-buttons +
     // 4 D-pad slots when DpadEquips CVar is on.
     static const u16 partnerButtons[7] = {
-        BTN_CLEFT, BTN_CDOWN, BTN_CRIGHT,
-        BTN_DUP, BTN_DDOWN, BTN_DLEFT, BTN_DRIGHT,
+        BTN_CLEFT, BTN_CDOWN, BTN_CRIGHT, BTN_DUP, BTN_DDOWN, BTN_DLEFT, BTN_DRIGHT,
     };
     u8 buttonMax = 3;
     if (CVarGetInteger(CVAR_ENHANCEMENT("DpadEquips"), 0) != 0) {
@@ -495,14 +508,17 @@ static void Sw97_TickCuccoEggs(PlayState* play, Player* player) {
     u16 pressedMask = play->state.input[0].press.button;
 
     for (u8 i = 0; i < buttonMax; i++) {
-        if (!CHECK_BTN_ALL(pressedMask, partnerButtons[i])) continue;
+        if (!CHECK_BTN_ALL(pressedMask, partnerButtons[i]))
+            continue;
 
         // C-button slot index = i + 1 (slot 0 is B-button = sword).
-        if ((s32)(i + 1) >= (s32)ARRAY_COUNT(gSaveContext.save.saveInfo.equips.buttonItems)) break;
+        if ((s32)(i + 1) >= (s32)ARRAY_COUNT(gSaveContext.save.saveInfo.equips.buttonItems))
+            break;
         u8 equipped = gSaveContext.save.saveInfo.equips.buttonItems[i + 1];
 
         s32 arrowType = Sw97_CuccoEgg_ItemToParams(equipped);
-        if (arrowType < 0) continue;
+        if (arrowType < 0)
+            continue;
 
         Sw97_CuccoEgg_Spawn(play, player, (s16)arrowType);
     }
@@ -546,14 +562,14 @@ void Sw97_TickCuccoMode(PlayState* play, Player* player) {
         return;
     }
 
-    if (player == NULL || play == NULL) return;
+    if (player == NULL || play == NULL)
+        return;
 
     // Scene change → skel seg pointers reference the old scene's gfxCtx; re-init.
     if (gSw97CuccoLastScene >= 0 && gSw97CuccoLastScene != play->sceneNum) {
         sCuccoSkelInited = 0;
     }
     gSw97CuccoLastScene = play->sceneNum;
-
 
     // ─── First-frame setup: init the cucco skel ─────────────────────────
     // We do NOT swap player->actor.draw — the customequipment.cpp
@@ -581,7 +597,7 @@ void Sw97_TickCuccoMode(PlayState* play, Player* player) {
 
     // 2) Cucco speed: small horizontal boost over vanilla.
     player->speedXZ *= CUCCO_SPEED_MULT;
-    player->actor.speed  *= CUCCO_SPEED_MULT;
+    player->actor.speed *= CUCCO_SPEED_MULT;
     if (player->speedXZ > CUCCO_SPEED_MAX) {
         player->speedXZ = CUCCO_SPEED_MAX;
     }
@@ -591,7 +607,7 @@ void Sw97_TickCuccoMode(PlayState* play, Player* player) {
 
     // 3) A press while airborne → flap burst (Flappy Bird).
     u8 grounded = (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) != 0;
-    u8 aPress   = CHECK_BTN_ALL(play->state.input[0].press.button, BTN_A);
+    u8 aPress = CHECK_BTN_ALL(play->state.input[0].press.button, BTN_A);
     if (aPress && !grounded) {
         player->actor.velocity.y = CUCCO_FLAP_VELOCITY;
         Actor_PlaySfx(&player->actor, NA_SE_EV_CHICKEN_CRY_A);
@@ -614,5 +630,6 @@ void Sw97_TickCuccoMode(PlayState* play, Player* player) {
     SkelAnime_Update(&sCuccoSkel);
 
     // Tick down the 180° flip timer used by Sw97_DrawCucco on egg throws.
-    if (gSw97CuccoFlipTimer > 0) gSw97CuccoFlipTimer--;
+    if (gSw97CuccoFlipTimer > 0)
+        gSw97CuccoFlipTimer--;
 }

@@ -23,10 +23,12 @@ extern "C" {
 
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
 u8 ResourceMgr_FileExists(const char* resName);
-void* OotAssets_LoadGfx(const char* otrPath); // Skijer's NEI — resolve an OoT model DL from oot.o2r
-void* OotAssets_LoadGfxDirect(const char* otrPath); // Skijer's NEI — archive-scoped load (defeats MM shadowing)
+void* OotAssets_LoadGfx(const char* otrPath);        // Skijer's NEI — resolve an OoT model DL from oot.o2r
+void* OotAssets_LoadGfxDirect(const char* otrPath);  // Skijer's NEI — archive-scoped load (defeats MM shadowing)
 void* OotAssets_LoadTexOrDList(const char* otrPath); // Skijer's NEI — texture/DL resource (Climb ladder seg-8 tex)
-uint16_t Nei_GetOwnedItem(uint8_t slot);      // mods/nei_save.cpp — Roc chain level for its draw (u16 store)
+uint16_t Nei_GetOwnedItem(uint8_t slot);             // mods/nei_save.cpp — Roc chain level for its draw (u16 store)
+u8 Cane_HasSkill(u8 skill);  // items/logic/item_cane_of_somaria.h — which cane skill this copy is
+extern Gfx gIKAxeInlineDL[]; // equipment/objects/ikaxe_DL — axe with segments pre-resolved
 }
 
 s32 StrayFairyOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx,
@@ -550,9 +552,14 @@ void DrawTycoonWallet() {
 // Fairy Slingshot). The get-item DL is pulled from the mounted oot.o2r by OTR path, cached, and drawn
 // exactly like MM's GetItem_DrawOpa0 (self-contained OoT get-item DLs). If oot.o2r isn't mounted the
 // cache stays NULL and the model is simply skipped (nothing to draw), retried on the next frame.
+// LoadGfxDirect, not LoadGfx (Skijer 2026-08-13): the shallow loader resolves only the PARENT DL and
+// leaves its child references (Vtx + textures) to the normal priority chain, where the OoT companion
+// archives mount LOWEST. The parent then draws with whatever MM data answers those child paths — the
+// Gerudo Mask rendered as flat grey stone that way. The deep loader patches every child reference to
+// a raw pointer from the OoT archive, which is also what stops the child-miss crashes.
 static void DrawOotGetItemOpa(const char* otrPath, Gfx** cache) {
     if (*cache == NULL) {
-        *cache = (Gfx*)OotAssets_LoadGfx(otrPath);
+        *cache = (Gfx*)OotAssets_LoadGfxDirect(otrPath);
     }
     if (*cache == NULL) {
         return;
@@ -624,16 +631,53 @@ void DrawOotBossSoul(RandoItemId randoItemId) {
 
     u8 r = 150, g = 150, b = 150; // default: Ganon/grey
     switch (randoItemId) {
-        case RI_SOUL_OOT_BOSS_GOHMA:        r = 0;   g = 255; b = 0;   break;
-        case RI_SOUL_OOT_BOSS_KING_DODONGO: r = 255; g = 0;   b = 100; break;
-        case RI_SOUL_OOT_BOSS_BARINADE:     r = 50;  g = 255; b = 255; break;
-        case RI_SOUL_OOT_BOSS_PHANTOM_GANON:r = 4;   g = 195; b = 46;  break;
-        case RI_SOUL_OOT_BOSS_VOLVAGIA:     r = 237; g = 95;  b = 95;  break;
-        case RI_SOUL_OOT_BOSS_MORPHA:       r = 85;  g = 180; b = 223; break;
-        case RI_SOUL_OOT_BOSS_BONGO_BONGO:  r = 126; g = 16;  b = 177; break;
-        case RI_SOUL_OOT_BOSS_TWINROVA:     r = 222; g = 158; b = 47;  break;
-        case RI_SOUL_OOT_BOSS_GANON:        r = 150; g = 150; b = 150; break;
-        default: break;
+        case RI_SOUL_OOT_BOSS_GOHMA:
+            r = 0;
+            g = 255;
+            b = 0;
+            break;
+        case RI_SOUL_OOT_BOSS_KING_DODONGO:
+            r = 255;
+            g = 0;
+            b = 100;
+            break;
+        case RI_SOUL_OOT_BOSS_BARINADE:
+            r = 50;
+            g = 255;
+            b = 255;
+            break;
+        case RI_SOUL_OOT_BOSS_PHANTOM_GANON:
+            r = 4;
+            g = 195;
+            b = 46;
+            break;
+        case RI_SOUL_OOT_BOSS_VOLVAGIA:
+            r = 237;
+            g = 95;
+            b = 95;
+            break;
+        case RI_SOUL_OOT_BOSS_MORPHA:
+            r = 85;
+            g = 180;
+            b = 223;
+            break;
+        case RI_SOUL_OOT_BOSS_BONGO_BONGO:
+            r = 126;
+            g = 16;
+            b = 177;
+            break;
+        case RI_SOUL_OOT_BOSS_TWINROVA:
+            r = 222;
+            g = 158;
+            b = 47;
+            break;
+        case RI_SOUL_OOT_BOSS_GANON:
+            r = 150;
+            g = 150;
+            b = 150;
+            break;
+        default:
+            break;
     }
 
     OPEN_DISPS(gPlayState->state.gfxCtx);
@@ -644,9 +688,8 @@ void DrawOotBossSoul(RandoItemId randoItemId) {
     if (sFlame != NULL) {
         Matrix_Push();
         gSPSegment(POLY_XLU_DISP++, 8,
-                   (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, 0, 0, 0, 16, 32, 1,
-                                                 gPlayState->state.frames, -(gPlayState->state.frames * 8), 16, 32, 0,
-                                                 0, 1, -8));
+                   (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, 0, 0, 0, 16, 32, 1, gPlayState->state.frames,
+                                                 -(gPlayState->state.frames * 8), 16, 32, 0, 0, 1, -8));
         Matrix_Translate(0.0f, -70.0f, 0.0f, MTXMODE_APPLY);
         Matrix_Scale(5.0f, 5.0f, 5.0f, MTXMODE_APPLY);
         Matrix_ReplaceRotation(&gPlayState->billboardMtxF);
@@ -679,11 +722,12 @@ void DrawOotBossSoul(RandoItemId randoItemId) {
 
 // Two opaque DLs drawn in sequence — OoT GetItem_DrawEggOrMedallion (material DL then geometry DL).
 static void DrawOotGetItemOpaOpa(const char* pathA, Gfx** cacheA, const char* pathB, Gfx** cacheB) {
+    // Deep loader — see the note on DrawOotGetItemOpa.
     if (*cacheA == NULL) {
-        *cacheA = (Gfx*)OotAssets_LoadGfx(pathA);
+        *cacheA = (Gfx*)OotAssets_LoadGfxDirect(pathA);
     }
     if (*cacheB == NULL) {
-        *cacheB = (Gfx*)OotAssets_LoadGfx(pathB);
+        *cacheB = (Gfx*)OotAssets_LoadGfxDirect(pathB);
     }
     if (*cacheA == NULL || *cacheB == NULL) {
         return; // oot.o2r not mounted yet — try again next frame
@@ -698,11 +742,13 @@ static void DrawOotGetItemOpaOpa(const char* pathA, Gfx** cacheA, const char* pa
 
 // One opaque DL then one translucent DL — OoT GetItem_DrawOpa0Xlu1 (body Opa, eyes/writing/glass Xlu).
 static void DrawOotGetItemOpaXlu(const char* opaPath, Gfx** opaCache, const char* xluPath, Gfx** xluCache) {
+    // Deep loader — see the note on DrawOotGetItemOpa. This helper is the one that crashed in the
+    // 2026-08-13 log (0xC0000005 inside ResourceMgr_LoadGfxByName on a null resource).
     if (*opaCache == NULL) {
-        *opaCache = (Gfx*)OotAssets_LoadGfx(opaPath);
+        *opaCache = (Gfx*)OotAssets_LoadGfxDirect(opaPath);
     }
     if (*xluCache == NULL) {
-        *xluCache = (Gfx*)OotAssets_LoadGfx(xluPath);
+        *xluCache = (Gfx*)OotAssets_LoadGfxDirect(xluPath);
     }
     if (*opaCache == NULL || *xluCache == NULL) {
         return; // oot.o2r not mounted yet — try again next frame
@@ -832,9 +878,25 @@ void DrawOotClaimCheck() {
 
 // Skijer's NEI — OoT (SoH) medallions ported into MM as get-items. OoT GetItem_DrawEggOrMedallion draws
 // the colored face DL then the shared gold ring (gGiMedallionDL), both opaque. All six share the one ring.
+// Exact vanilla recipe: the medallion DLs need the SETUPDL_26 state — under the generic 25 helper they
+// render NOTHING (same lesson as the SoH side of the Sage's Tunic medallion ring).
 static void DrawOotMedallion(const char* faceOtrPath, Gfx** faceCache) {
     static Gfx* sRingCache = NULL;
-    DrawOotGetItemOpaOpa(faceOtrPath, faceCache, "__OTR__objects/object_gi_medal/gGiMedallionDL", &sRingCache);
+    if (*faceCache == NULL) {
+        *faceCache = (Gfx*)OotAssets_LoadGfx(faceOtrPath);
+    }
+    if (sRingCache == NULL) {
+        sRingCache = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_medal/gGiMedallionDL");
+    }
+    if (*faceCache == NULL || sRingCache == NULL) {
+        return; // oot.o2r not mounted yet — try again next frame
+    }
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL26_Opa(gPlayState->state.gfxCtx);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_OPA_DISP++, *faceCache);
+    gSPDisplayList(POLY_OPA_DISP++, sRingCache);
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 void DrawOotMedallionFire() {
     static Gfx* c = NULL;
@@ -876,9 +938,9 @@ static void DrawOotStone(const char* gemPath, Gfx** gemCache, const char* settin
         return; // oot.o2r not mounted yet — try again next frame
     }
     OPEN_DISPS(gPlayState->state.gfxCtx);
-    gSPSegment(POLY_XLU_DISP++, 9,
-               (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, 0, 0, 255, 64, 64, 1, 0, 255, 16, 16, 0, 0, 0,
-                                             0));
+    gSPSegment(
+        POLY_XLU_DISP++, 9,
+        (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, 0, 0, 255, 64, 64, 1, 0, 255, 16, 16, 0, 0, 0, 0));
     gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)Gfx_TexScrollEx(gPlayState->state.gfxCtx, 0, 0, 16, 16, 0, 0));
     Matrix_RotateZYX(0, -0x4000, 0x4000, MTXMODE_APPLY);
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
@@ -911,8 +973,8 @@ void DrawOotStoneZoraSapphire() {
     static Gfx* gemCache = NULL;
     static Gfx* settingCache = NULL;
     DrawOotStone("__OTR__objects/object_gi_jewel/gGiZoraSapphireGemDL", &gemCache,
-                 "__OTR__objects/object_gi_jewel/gGiZoraSapphireSettingDL", &settingCache, 50, 255, 255, 50, 0, 150, 255,
-                 255, 170, 150, 120, 0);
+                 "__OTR__objects/object_gi_jewel/gGiZoraSapphireSettingDL", &settingCache, 50, 255, 255, 50, 0, 150,
+                 255, 255, 170, 150, 120, 0);
 }
 
 // Skijer's NEI — OoT (SoH) per-dungeon items ported into MM as get-items.
@@ -1283,6 +1345,32 @@ static bool DrawOotMirrorShieldReal(void) {
 // 8 MUST be set first — a replica of MM's own GetItem_DrawGoronSword (z_draw.c). DrawOotGetItemOpa did
 // NOT set segment 8, so the interpreter jumped to the unresolved 0x08000001 and crashed in the vertex
 // handler. Returns false if oot.o2r is unavailable so the caller can fall back.
+// ── Tier latch for progressive chains ────────────────────────────────────────────────────────────
+// The tier-aware draws pick their model from live save state, but the give lands in the MIDDLE of
+// the presentation (GiveItem sets ootHammerOwned & co. when the get-item event fires). Result: the
+// floating model changed tier while Link was holding it up — a Megaton Hammer on the floor that
+// became the Iron Knuckle's Axe the instant he lifted it.
+//
+// SoH never shows this because it resolves the tier ONCE, when the GetItemEntry is built, and that
+// entry carries a fixed drawFunc for the whole pickup. Upstream 2Ship has nothing to borrow here:
+// its own progressives (ConvertItem) read live state exactly the same way.
+//
+// So freeze it: a pickup is one run of consecutive frames in which a given draw is called, so the
+// tier is recomputed only when the previous frame did NOT draw this item. Skijer's NEI
+// Keyed on a SERIAL bumped by Rando::GiveItem, not on a frame gap. The frame-gap version looked
+// right until give_all ran: consecutive pickups of the same item are drawn on consecutive frames,
+// so it read them as ONE long pickup and never recomputed — which is why Master Sword and the Cane
+// stayed on level 1 for the whole sweep. One give == one pickup, so the give is the signal.
+extern "C" u32 gRandoPickupSerial; // defined in GiveItem.cpp, ++ on every Rando::GiveItem
+
+static bool TierLatch_NewPickup(u32* seen) {
+    if (*seen == gRandoPickupSerial) {
+        return false;
+    }
+    *seen = gRandoPickupSerial;
+    return true;
+}
+
 static bool DrawOotBiggoronSwordReal(void) {
     static Gfx* sCache = NULL;
     if (sCache == NULL) {
@@ -1308,17 +1396,49 @@ void DrawOotBoomerang() { // object_gi_boomerang (OoT-unique folder)
     static Gfx* sCache = NULL;
     DrawOotGetItemOpa("__OTR__objects/object_gi_boomerang/gGiBoomerangDL", &sCache);
 }
-void DrawOotHammer() { // object_gi_hammer (OoT-unique). FC 2-level chain: the floating model = the
-                       // tier you'll RECEIVE — L1 Megaton Hammer (base mesh), L2 Iron Knuckle's Axe
-                       // (hammer already owned) = the same mesh in a cold steel-blue grayscale tint
-                       // (there is no axe GI mesh in either archive; the tint is the tier signal).
-    if (Nei_Save()->ootHammerOwned) {
-        static Gfx* sAxeCache = NULL;
-        DrawOotGetItemOpaTint("__OTR__objects/object_gi_hammer/gGiHammerDL", &sAxeCache, 120, 145, 210);
-        return;
-    }
+// Forward declarations: the chain entry points above call their tiers, which are defined below.
+void DrawOotQuartzOfMotion(void);
+static bool DrawOotBiggoronSwordReal(void);
+
+// ── Per-tier draws for the OoT chains ────────────────────────────────────────────────────────────
+// One function per concrete tier, each unconditional. The chain functions below now just forward to
+// these via ConvertItem's result, so the tier can no longer change while Link is holding the item.
+// Skijer's NEI
+void DrawOotHammerBase() {
     static Gfx* sCache = NULL;
     DrawOotGetItemOpa("__OTR__objects/object_gi_hammer/gGiHammerDL", &sCache);
+}
+
+void DrawOotIronKnuckleAxe() {
+    // gIKAxeInlineDL, NOT objects/object_ik/gIronKnuckleAxeDL: the archive DL references segments 8
+    // and 0xA and nothing mounts them during a get-item (that crashed). Measured 7550 units long, so
+    // 88/7550 = 0.0117 by the trident calibration; RotateX stands it up and the translate re-centres
+    // it on its bounding box.
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_RotateXF(-M_PIf / 2.0f, MTXMODE_APPLY);
+    Matrix_Scale(0.0117f, 0.0117f, 0.0117f, MTXMODE_APPLY);
+    Matrix_Translate(-395.0f, 25.0f, 1571.0f, MTXMODE_APPLY);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_OPA_DISP++, gIKAxeInlineDL);
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void DrawOotBiggoronSwordTier() {
+    // Segment 8 (animated blade reflection) — must go through the helper that mounts it.
+    if (!DrawOotBiggoronSwordReal()) {
+        GetItem_Draw(gPlayState, GID_SWORD_BGS);
+    }
+}
+
+void DrawOotHammer() {
+    // Chain entry point (kept for callers that still pass the progressive id): forward to the tier
+    // ConvertItem would pick. The tier draws themselves read nothing.
+    if (Nei_Save()->ootHammerOwned) {
+        DrawOotIronKnuckleAxe();
+    } else {
+        DrawOotHammerBase();
+    }
 }
 void DrawOotHoverBoots() { // object_gi_hoverboots (OoT-unique)
     static Gfx* sCache = NULL;
@@ -1337,18 +1457,27 @@ void DrawOotStoneOfAgony() { // MM's own object_gi_map ALSO carries gGiStoneOfAg
     // in Blender and exported to 2ship.o2r). Same shape as DrawOotProgressiveBgs: the flag is set
     // by the give, so the SECOND copy is the one that draws the quartz.
     // Uses DrawNeiRealOpa, NOT DrawOotGetItemOpa — the latter loads from oot.o2r, and this is a
-    // CUSTOM asset in 2ship.o2r. Scale 0.25: the mesh is 135 units tall and the NEI convention here
-    // is the same as SoH's (object_nei_divine_shield is 68 tall at 0.5 => ~34 on screen).
+    // CUSTOM asset in 2ship.o2r. Scale 0.25: the mesh is 135 units tall, so it lands at ~34 on
+    // screen. NOTE that the two custom shields are NOT on this 34-unit convention any more — SoH
+    // found it too small against the vanilla shield get-item models and put both on 0.9 (68 tall
+    // -> 61 on screen). This item was never re-judged against that, so 0.25 stands as measured.
     // Skijer's NEI
     if (Nei_Save()->quartzOwned) {
-        static Gfx* sQuartz = NULL;
-        static u8 sQuartzTried = 0;
-        if (DrawNeiRealOpa("__OTR__objects/object_nei_quartz_of_motion/gNeiQuartzOfMotionDL", &sQuartz, &sQuartzTried,
-                           0.25f, false)) {
-            return;
-        }
-        // asset missing (2ship.o2r not regenerated) -> fall through to the vanilla stone
+        DrawOotQuartzOfMotion();
+        return;
     }
+    static Gfx* sCache = NULL;
+    DrawOotGetItemOpa("__OTR__objects/object_gi_map/gGiStoneOfAgonyDL", &sCache);
+}
+// Level 2 of the chain, drawn unconditionally. Skijer's NEI
+void DrawOotQuartzOfMotion() {
+    static Gfx* sQuartz = NULL;
+    static u8 sQuartzTried = 0;
+    if (DrawNeiRealOpa("__OTR__objects/object_nei_quartz_of_motion/gNeiQuartzOfMotionDL", &sQuartz, &sQuartzTried,
+                       0.25f, false)) {
+        return;
+    }
+    // asset missing (2ship.o2r not regenerated) -> fall back to the vanilla stone
     static Gfx* sCache = NULL;
     DrawOotGetItemOpa("__OTR__objects/object_gi_map/gGiStoneOfAgonyDL", &sCache);
 }
@@ -1357,10 +1486,25 @@ void DrawOotSkullMask() { // object_gi_skj_mask (OoT-unique)
     DrawOotGetItemOpa("__OTR__objects/object_gi_skj_mask/gGiSkullMaskDL", &sCache);
 }
 void DrawOotSpookyMask() { // object_gi_redead_mask (OoT-unique)
+    // DIRECT loader: the plain one leaves the DL's texture/vertex hash refs to be resolved in MM's
+    // context and they came out with broken textures (correct mesh, garbage surface). The Direct
+    // variant deep-patches the DL so its vtx/tex are inlined and resolve at draw time — the same
+    // reason the adult-Link limbs and the OoT hookshot chain use it. Skijer's NEI
+    static Gfx* sDirect = NULL;
+    if (DrawOotDirectOpa("__OTR__objects/object_gi_redead_mask/gGiSpookyMaskDL", &sDirect)) {
+        return;
+    }
     static Gfx* sCache = NULL;
     DrawOotGetItemOpa("__OTR__objects/object_gi_redead_mask/gGiSpookyMaskDL", &sCache);
 }
 void DrawOotGerudoMask() { // object_gi_gerudomask (OoT-unique)
+    // Same as the Spooky Mask above — and this one is CI (it ships a TLUT,
+    // object_gi_gerudomaskTLUT_000000), so an unresolved palette is exactly the "right model, wrong
+    // colours" symptom. Direct load inlines them. Skijer's NEI
+    static Gfx* sDirect = NULL;
+    if (DrawOotDirectOpa("__OTR__objects/object_gi_gerudomask/gGiGerudoMaskDL", &sDirect)) {
+        return;
+    }
     static Gfx* sCache = NULL;
     DrawOotGetItemOpa("__OTR__objects/object_gi_gerudomask/gGiGerudoMaskDL", &sCache);
 }
@@ -1368,25 +1512,129 @@ void DrawOotGerudoMask() { // object_gi_gerudomask (OoT-unique)
 // Iron Boots — object_gi_boots_2 (OoT-unique), boots Opa + rivets Xlu (OoT GetItem_DrawOpa0Xlu1).
 // Gauntlets — object_gi_gauntlets (OoT-unique). Same opa+xlu split as the boots: colour layer plus
 // the gauntlet geometry. Used for every level of the Progressive Strength chain. Skijer's NEI
-void DrawOotGauntlets() {
-    static Gfx* opaCache = NULL;
-    static Gfx* xluCache = NULL;
-    DrawOotGetItemOpaXlu("__OTR__objects/object_gi_gauntlets/gGiGauntletsColorDL", &opaCache,
-                         "__OTR__objects/object_gi_gauntlets/gGiGauntletsDL", &xluCache);
+// Progressive Strength. THIS WAS THE MM CRASH: it asked for "objects/object_gi_gauntlets/
+// gGiGauntletsColorDL" and ".../gGiGauntletsDL" — that object does not exist in ANY archive. OoT's
+// is object_gi_gloves, and there is no plain "gGiGauntletsColorDL" either; the colour DL is per
+// tier (gGiSilverGauntletsColorDL / gGiGoldenGauntletsColorDL). Both loads returned NULL and the
+// unresolved path bytes ended up executed as GBI opcodes -> 0xC0000005.
+//
+// Drawn the way OoT itself does it (z_draw.c: GetItem_DrawOpa10Xlu32 over four DLs — base + colour
+// opaque, plate + plate-colour translucent), and tier-aware like every other chain here: L1 is the
+// Goron Bracelet (a different object entirely), L2 silver, L3 gold. All of these are OoT-only paths,
+// so no archive shadowing to work around. Skijer's NEI
+static void DrawOotGauntletsTiered(u8 lvl, bool honourGrab) {
+    // The floating model is the tier you are ABOUT to receive (same idiom as the hookshot chain).
+    // Grab comes FIRST when the seed shuffles it, and OoT shows the Power Bracelet for that copy —
+    // object_gi_bracelet is the same model OoT uses for both, so the tier check just has to run
+    // after the Grab check rather than instead of it. Skijer's NEI
+    if (honourGrab && !Nei_Save()->ootCanGrab) {
+        static Gfx* sPowerBracelet = NULL;
+        DrawOotGetItemOpa("__OTR__objects/object_gi_bracelet/gGiGoronBraceletDL", &sPowerBracelet);
+        return;
+    }
+    if (lvl < 1) {
+        static Gfx* sBracelet = NULL;
+        DrawOotGetItemOpa("__OTR__objects/object_gi_bracelet/gGiGoronBraceletDL", &sBracelet);
+        return;
+    }
+
+    const char* colorPath = (lvl < 2) ? "__OTR__objects/object_gi_gloves/gGiSilverGauntletsColorDL"
+                                      : "__OTR__objects/object_gi_gloves/gGiGoldenGauntletsColorDL";
+    const char* plateColorPath = (lvl < 2) ? "__OTR__objects/object_gi_gloves/gGiSilverGauntletsPlateColorDL"
+                                           : "__OTR__objects/object_gi_gloves/gGiGoldenGauntletsPlateColorDL";
+    static Gfx* sBase = NULL;
+    static Gfx* sPlate = NULL;
+    static Gfx* sSilverColor = NULL;
+    static Gfx* sGoldColor = NULL;
+    static Gfx* sSilverPlate = NULL;
+    static Gfx* sGoldPlate = NULL;
+    Gfx** colorCache = (lvl < 2) ? &sSilverColor : &sGoldColor;
+    Gfx** plateColorCache = (lvl < 2) ? &sSilverPlate : &sGoldPlate;
+
+    if (sBase == NULL) {
+        sBase = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_gloves/gGiGauntletsDL");
+    }
+    if (sPlate == NULL) {
+        sPlate = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_gloves/gGiGauntletsPlateDL");
+    }
+    if (*colorCache == NULL) {
+        *colorCache = (Gfx*)OotAssets_LoadGfx(colorPath);
+    }
+    if (*plateColorCache == NULL) {
+        *plateColorCache = (Gfx*)OotAssets_LoadGfx(plateColorPath);
+    }
+    if (sBase == NULL || *colorCache == NULL) {
+        return; // oot.o2r not mounted yet — draw nothing rather than a bad pointer
+    }
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_OPA_DISP++, *colorCache);
+    gSPDisplayList(POLY_OPA_DISP++, sBase);
+    if (sPlate != NULL && *plateColorCache != NULL) {
+        Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+        MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+        gSPDisplayList(POLY_XLU_DISP++, *plateColorCache);
+        gSPDisplayList(POLY_XLU_DISP++, sPlate);
+    }
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+void DrawOotGauntlets() { // chain entry point — forwards to the tier ConvertItem would pick
+    u8 lvl = Nei_StrengthLevel();
+    u8 native = (u8)CUR_UPG_VALUE(UPG_STRENGTH);
+    if (native > lvl) {
+        lvl = native;
+    }
+    DrawOotGauntletsTiered(lvl, true);
+}
+// Concrete tiers: no Grab check and no state read, so the model cannot change while Link holds it.
+// Skijer's NEI
+void DrawOotStrengthTier(RandoItemId randoItemId) {
+    u8 lvl = (randoItemId == RI_OOT_SILVER_GAUNTLETS) ? 1 : (randoItemId == RI_OOT_GOLDEN_GAUNTLETS) ? 2 : 0;
+    DrawOotGauntletsTiered(lvl, false);
 }
 
 // Progressive Biggoron's Sword — the LAST of the ~430 rando items with no model at all (neither a
 // case here nor a GID in the table, so it fell to GetItem_Draw(GID_NONE) and drew nothing). L1 is
 // the Biggoron Sword mesh from oot.o2r; L2 (the Great Fairy's Sword upgrade) tints it pink as the
 // tier signal, same idiom as the Hammer->Axe and Longshot->Ultrashot chains. Skijer's NEI
-void DrawOotProgressiveBgs() {
+void DrawOotProgressiveBgs() { // chain entry point — forwards to the tier ConvertItem would pick
     if (Nei_Save()->comboObtained[FC_OOT_SWORD_BIGGORON] == 0) {
-        static Gfx* c1 = NULL;
-        DrawOotGetItemOpa("__OTR__objects/object_gi_longsword/gGiBiggoronSwordDL", &c1);
-    } else {
-        static Gfx* c2 = NULL;
-        DrawOotGetItemOpaTint("__OTR__objects/object_gi_longsword/gGiBiggoronSwordDL", &c2, 255, 150, 220);
+        // Tier 1 MUST go through DrawOotBiggoronSwordTier: gGiBiggoronSwordDL calls SEGMENT 8 for
+        // its animated blade reflection, and a plain draw leaves that segment pointing at whatever
+        // was there last, which the interpreter then executes — THIS was the Progressive BGS crash.
+        DrawOotBiggoronSwordTier();
+        return;
     }
+    // Tier 2 is the Great Fairy's Sword, and MM owns a REAL get-item model for it
+    // (object_gi_sword_4, blade + hilt emblem, MM-exclusive so nothing shadows it). This used to be
+    // the Biggoron mesh in a pink tint because the tier had no mesh of its own — it does.
+    // Skijer's NEI
+    static Gfx* sBlade = NULL;
+    static Gfx* sEmblem = NULL;
+    if (sBlade == NULL) {
+        sBlade = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_sword_4/gGiGreatFairysSwordBladeDL");
+    }
+    if (sEmblem == NULL) {
+        sEmblem = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_sword_4/gGiGreatFairysSwordHiltEmblemDL");
+    }
+    if (sBlade == NULL) {
+        static Gfx* c2 = NULL; // model unavailable — keep the old tinted tier signal
+        DrawOotGetItemOpaTint("__OTR__objects/object_gi_longsword/gGiBiggoronSwordDL", &c2, 255, 150, 220);
+        return;
+    }
+    // MM's table draws this as GetItem_DrawOpa0Xlu1: blade OPAQUE, hilt emblem TRANSLUCENT.
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gSPDisplayList(POLY_OPA_DISP++, sBlade);
+    if (sEmblem != NULL) {
+        Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+        MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+        gSPDisplayList(POLY_XLU_DISP++, sEmblem);
+    }
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
 void DrawOotIronBoots() {
@@ -1595,9 +1843,13 @@ void DrawOotWaterDragonScale() {
 }
 
 // Progressive Master Sword — SoH parity (Randomizer_DrawMasterSword): the Temple of Time pedestal Master
+// Boss-soul flame overlay (defined with the slate runes below). Shared tier signal: SoH marks the
+// True Master Sword and the Ultrashot with it, so MM matches. Skijer's NEI
+static void DrawOotSlateRuneFlame(u8 r, u8 g, u8 b);
+
 // Sword mesh from vanilla OoT object_toki_objects (OoT-unique folder), scaled/rotated to fit the get-item
 // cylinder, with its scrolling shine on segment 8.
-void DrawOotMasterSword() {
+static void DrawOotMasterSwordTiered(u8 trueTier) {
     static Gfx* sCache = NULL;
     if (sCache == NULL) {
         sCache = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_toki_objects/object_toki_objects_DL_001BD0");
@@ -1606,8 +1858,12 @@ void DrawOotMasterSword() {
         return; // oot.o2r not mounted yet — try again next frame
     }
     // FC 2-level chain (FCI_MASTER_SWORD): base already owned -> this pickup is the TRUE Master
-    // Sword (weaponUpgrades bit 3) — same mesh in a radiant gold grayscale tint (tier signal).
-    u8 trueTier = Nei_Save()->comboObtained[FC_OOT_SWORD_MASTER] != 0;
+    // Sword (weaponUpgrades bit 3) — same mesh in a radiant gold grayscale tint (tier signal),
+    // PLUS the sacred-blue boss-soul flame, which is how SoH presents it (Randomizer_DrawTrueMaster
+    // Sword). Skijer's NEI
+    if (trueTier) {
+        DrawOotSlateRuneFlame(120, 180, 255);
+    }
     OPEN_DISPS(gPlayState->state.gfxCtx);
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
     gSPSegment(POLY_OPA_DISP++, 0x08,
@@ -1625,6 +1881,15 @@ void DrawOotMasterSword() {
         gSPGrayscale(POLY_OPA_DISP++, false);
     }
     CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+void DrawOotMasterSwordBase() {
+    DrawOotMasterSwordTiered(0);
+}
+void DrawOotTrueMasterSword() {
+    DrawOotMasterSwordTiered(1);
+}
+void DrawOotMasterSword() { // chain entry point — forwards to the tier ConvertItem would pick
+    DrawOotMasterSwordTiered((Nei_Save()->comboObtained[FC_OOT_SWORD_MASTER] != 0) ? 1 : 0);
 }
 
 // Lantern — SoH parity (Randomizer_DrawLantern): the vanilla OoT Poe lantern mesh (object_poh, OoT-unique).
@@ -1753,14 +2018,71 @@ void DrawOotNeiLightRod() { // REAL mesh: converted from light_rodDL/Cylinder_00
     static Gfx* c = NULL;
     DrawOotRodStandIn(&c, 255, 255, 130);
 }
+// Dual Cane — the six skills share ONE slot, so the floating model has to say WHICH skill this
+// pickup is. Mirrors SoH (Randomizer_DrawCaneOfSomaria and friends): the give order is fixed
+// (Statue, Flip, Block, Stone, Platform, Ultrahand — kCaneOrder), so the number of skills already
+// owned identifies this copy. Somaria stays its red mesh, Pacci is the same mesh tinted gold, and
+// the upgrade skills add the boss-soul flame in their cane's colour. Skijer's NEI
 void DrawOotNeiCaneOfSomaria() { // REAL mesh (object_somaria give DL, SoH scale 0.25) — fallback: LTTP-red stick
+    static u32 sCaneFrame = 0;
+    static int sCaneOwned = 0;
+    if (TierLatch_NewPickup(&sCaneFrame)) {
+        sCaneOwned = 0;
+        for (u8 s = 0; s < 6; s++) {
+            sCaneOwned += Cane_HasSkill(s) ? 1 : 0;
+        }
+    }
+    int owned = sCaneOwned;
+    // 0 -> Statue (Somaria base), 1 -> Flip (Pacci base), 2/4 -> Somaria upgrades, 3/5 -> Pacci.
+    u8 isPacci = (owned == 1) || (owned == 3) || (owned == 5);
+    u8 isUpgrade = (owned >= 2);
+    if (isUpgrade) {
+        if (isPacci) {
+            DrawOotSlateRuneFlame(255, 215, 70); // Pacci gold
+        } else {
+            DrawOotSlateRuneFlame(255, 60, 60); // Somaria red
+        }
+    }
+
     static Gfx* real = NULL;
     static u8 tried = 0;
-    if (DrawNeiRealOpa("__OTR__objects/object_somaria/g_somaria_cane_give_dl", &real, &tried, 0.25f, false)) {
+    Gfx* dl = LoadNeiRealGfx("__OTR__objects/object_somaria/g_somaria_cane_give_dl", &real, &tried);
+    if (dl == NULL) {
+        static Gfx* c = NULL;
+        DrawOotRodStandIn(&c, isPacci ? 235 : 220, isPacci ? 200 : 60, isPacci ? 70 : 50);
         return;
     }
-    static Gfx* c = NULL;
-    DrawOotRodStandIn(&c, 220, 60, 50);
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Scale(0.25f, 0.25f, 0.25f, MTXMODE_APPLY);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    if (isPacci) {
+        // Same mesh, gold: the Pacci cane has no model of its own (SoH tints it identically).
+        gDPSetGrayscaleColor(POLY_OPA_DISP++, 255, 215, 70, 255);
+        gSPGrayscale(POLY_OPA_DISP++, true);
+        gSPDisplayList(POLY_OPA_DISP++, dl);
+        gSPGrayscale(POLY_OPA_DISP++, false);
+    } else {
+        gSPDisplayList(POLY_OPA_DISP++, dl);
+    }
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+// Ultrahand — the one Pacci skill that has a mesh of its own instead of the tinted cane: the glowing
+// hand (Opa) plus two translucent aura spheres (Xlu), object_nei_ultrahand in 2ship.o2r. SoH parity:
+// Randomizer_DrawCanePacciUltrahand at scale 0.17 (the mesh is 200 units across). If the archive
+// predates the asset, fall back to the shared cane draw — at 5 owned skills it already presents the
+// gold Pacci upgrade, which is exactly what this item used to look like.
+void DrawOotNeiUltrahand() {
+    static Gfx* opa = NULL;
+    static Gfx* xlu = NULL;
+    static u8 opaTried = 0;
+    static u8 xluTried = 0;
+    if (DrawNeiRealOpaXlu("__OTR__objects/object_nei_ultrahand/gUltrahandGiveDL", &opa, &opaTried,
+                          "__OTR__objects/object_nei_ultrahand/gUltrahandGiveXluDL", &xlu, &xluTried, 0.17f)) {
+        return;
+    }
+    DrawOotNeiCaneOfSomaria();
 }
 void DrawOotExtCaneOfByrna() { // REAL mesh (object_somaria blue Byrna give DL) — fallback: LTTP-blue stick
     static Gfx* real = NULL;
@@ -1928,6 +2250,31 @@ void DrawOotProgressiveRoc() { // REAL meshes (object_nei_rocs_feather/cape, SoH
     DrawOotGetItemOpaXlu("__OTR__objects/object_gi_butterfly/gGiButterflyContainerDL", &opaCache,
                          "__OTR__objects/object_gi_butterfly/gGiButterflyGlassDL", &xluCache);
 }
+// Level 1 of the Roc chain, drawn unconditionally. Skijer's NEI
+void DrawOotNeiRocsFeather() {
+    static Gfx* featherReal = NULL;
+    static u8 featherTried = 0;
+    if (DrawNeiRealOpa("__OTR__objects/object_nei_rocs_feather/rocs_feather_dl", &featherReal, &featherTried, 0.5f,
+                       false)) {
+        return;
+    }
+    static Gfx* opaCache = NULL;
+    static Gfx* xluCache = NULL;
+    DrawOotGetItemOpaXlu("__OTR__objects/object_gi_butterfly/gGiButterflyContainerDL", &opaCache,
+                         "__OTR__objects/object_gi_butterfly/gGiButterflyGlassDL", &xluCache);
+}
+// Level 2 of the Roc chain, drawn unconditionally. Skijer's NEI
+void DrawOotNeiRocsCape() {
+    static Gfx* capeReal = NULL;
+    static u8 capeTried = 0;
+    if (DrawNeiRealOpa("__OTR__objects/object_nei_rocs_cape/rocs_cape_mesh_dl", &capeReal, &capeTried, 0.6f, false)) {
+        return;
+    }
+    static Gfx* opaCache = NULL;
+    static Gfx* xluCache = NULL;
+    DrawOotGetItemOpaXlu("__OTR__objects/object_gi_butterfly/gGiButterflyContainerDL", &opaCache,
+                         "__OTR__objects/object_gi_butterfly/gGiButterflyGlassDL", &xluCache);
+}
 void DrawOotNeiMogmaMitts() { // REAL mesh (object_nei_mogma_mitts, SoH scale 0.5) — fallback: Silver Gauntlets
     static Gfx* real = NULL;
     static u8 tried = 0;
@@ -1973,10 +2320,14 @@ void DrawOotExtFourSword() { // Four Sword = Kokiri Sword mesh tinted Four-Sword
     DrawOotGetItemOpaOpaTint("__OTR__objects/object_gi_sword_1/gGiKokiriSwordGuardDL", &guardCache,
                              "__OTR__objects/object_gi_sword_1/gGiKokiriSwordBladeHiltDL", &bladeCache, 0, 180, 80);
 }
-void DrawOotExtDivineShield() { // REAL mesh (object_nei_divine_shield, SoH scale 0.5) — fallback: gold Hero's
+void DrawOotExtDivineShield() { // REAL mesh (object_nei_divine_shield) — fallback: gold Hero's
+    // 0.9, NOT the 0.5 this was ported with. SoH bumped both custom shields to 0.9 because at 0.5
+    // they read noticeably smaller than the vanilla shield get-item models, and that bump never
+    // came across (see Randomizer_DrawExtDivineShield in soh/Enhancements/randomizer/draw.cpp).
+    // Mesh measured out of the o2r: this one is 68 units tall, the Kite 84. Skijer's NEI
     static Gfx* real = NULL;
     static u8 tried = 0;
-    if (DrawNeiRealOpa("__OTR__objects/object_nei_divine_shield/g_divine_shield_dl", &real, &tried, 0.5f, false)) {
+    if (DrawNeiRealOpa("__OTR__objects/object_nei_divine_shield/g_divine_shield_dl", &real, &tried, 0.9f, false)) {
         return;
     }
     static Gfx* shieldCache = NULL;
@@ -1984,10 +2335,11 @@ void DrawOotExtDivineShield() { // REAL mesh (object_nei_divine_shield, SoH scal
     DrawOotGetItemOpaOpaTint("__OTR__objects/object_gi_shield_2/gGiHerosShieldDL", &shieldCache,
                              "__OTR__objects/object_gi_shield_2/gGiHerosShieldEmblemDL", &emblemCache, 255, 215, 100);
 }
-void DrawOotExtSheikahShield() { // REAL mesh (object_nei_kite_shield, SoH scale 0.5) — fallback: slate Deku
+void DrawOotExtSheikahShield() { // Kite Shield: REAL mesh (object_nei_kite_shield) — fallback: slate Deku
+    // 0.9 to match SoH, same stale-0.5 story as the Divine Shield above.
     static Gfx* real = NULL;
     static u8 tried = 0;
-    if (DrawNeiRealOpa("__OTR__objects/object_nei_kite_shield/g_kite_shield_dl", &real, &tried, 0.5f, false)) {
+    if (DrawNeiRealOpa("__OTR__objects/object_nei_kite_shield/g_kite_shield_dl", &real, &tried, 0.9f, false)) {
         return;
     }
     static Gfx* c = NULL;
@@ -2163,8 +2515,8 @@ void DrawOotBlueFireBottle() {
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
     gSPSegment(POLY_XLU_DISP++, 0x08,
                (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, G_TX_RENDERTILE, 0, 0, 16, 32, 1,
-                                             gPlayState->state.frames, -(gPlayState->state.frames * 8), 16, 32, 0, 0,
-                                             1, -8));
+                                             gPlayState->state.frames, -(gPlayState->state.frames * 8), 16, 32, 0, 0, 1,
+                                             -8));
     Matrix_Push();
     Matrix_Translate(-8.0f, -2.0f, 0.0f, MTXMODE_APPLY);
     Matrix_ReplaceRotation(&gPlayState->billboardMtxF);
@@ -2246,8 +2598,8 @@ static Gfx* Pegasus_GetRecoloredBootsDL() {
     }
     // Two-word (expanded) commands: the second word is payload, never an opcode.
     auto isTwoWord = [](u8 op) {
-        return op == 0x20 || op == 0x24 || op == 0x25 || op == 0x27 || op == 0x31 || op == 0x32 ||
-               op == 0x33 || op == 0x35 || op == 0x36 || op == 0x42;
+        return op == 0x20 || op == 0x24 || op == 0x25 || op == 0x27 || op == 0x31 || op == 0x32 || op == 0x33 ||
+               op == 0x35 || op == 0x36 || op == 0x42;
     };
     Gfx* src = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_hoverboots/gGiHoverBootsDL");
     if (src == NULL) {
@@ -2322,7 +2674,8 @@ void DrawOotExtTrident() {
     // Skijer's NEI
     static Gfx* sTrident = NULL;
     if (sTrident == NULL) {
-        sTrident = (Gfx*)OotAssets_LoadGfxDirect("__OTR__objects/object_gnd/gPhantomGanonSkelLimbsLimb_00C610DL_009298");
+        sTrident =
+            (Gfx*)OotAssets_LoadGfxDirect("__OTR__objects/object_gnd/gPhantomGanonSkelLimbsLimb_00C610DL_009298");
     }
     if (sTrident == NULL) {
         static Gfx* c = NULL; // oot.o2r not ready — keep the old tinted stand-in rather than nothing
@@ -2344,9 +2697,35 @@ void DrawOotExtTrident() {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
-void DrawOotExtClimbBoots() { // Iron Boots mesh tinted leather brown
-    static Gfx* c = NULL;
-    DrawOotGetItemOpaTint("__OTR__objects/object_gi_boots_2/gGiIronBootsDL", &c, 150, 95, 45);
+void DrawOotExtClimbBoots() { // Iron Boots GI, pacci-style bright grayscale = all-steel look
+    // Vanilla composition (GetItem_DrawOpa0Xlu1): main DL Opa + rivets Xlu. The near-white
+    // grayscale multiplier keeps the mesh's own shading and turns the brown leather sections
+    // steel gray (a dark tint would just blacken them — grayscale × color only darkens).
+    static Gfx* sMainCache = NULL;
+    static Gfx* sRivetsCache = NULL;
+    if (sMainCache == NULL) {
+        sMainCache = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_boots_2/gGiIronBootsDL");
+    }
+    if (sRivetsCache == NULL) {
+        sRivetsCache = (Gfx*)OotAssets_LoadGfx("__OTR__objects/object_gi_boots_2/gGiIronBootsRivetsDL");
+    }
+    if (sMainCache == NULL || sRivetsCache == NULL) {
+        return; // oot.o2r not mounted yet — try again next frame
+    }
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
+    gDPSetGrayscaleColor(POLY_OPA_DISP++, 245, 248, 255, 255);
+    gSPGrayscale(POLY_OPA_DISP++, true);
+    gSPDisplayList(POLY_OPA_DISP++, sMainCache);
+    gSPGrayscale(POLY_OPA_DISP++, false);
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+    MATRIX_FINALIZE_AND_LOAD(POLY_XLU_DISP++, gPlayState->state.gfxCtx);
+    gDPSetGrayscaleColor(POLY_XLU_DISP++, 245, 248, 255, 255);
+    gSPGrayscale(POLY_XLU_DISP++, true);
+    gSPDisplayList(POLY_XLU_DISP++, sRivetsCache);
+    gSPGrayscale(POLY_XLU_DISP++, false);
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
 void DrawOotExtRocBoots() { // Hover Boots mesh tinted feather white-blue (Pegasus already takes red)
@@ -2384,9 +2763,8 @@ static void DrawOotSlateRuneFlame(u8 r, u8 g, u8 b) {
     Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
     Matrix_Push();
     gSPSegment(POLY_XLU_DISP++, 8,
-               (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, 0, 0, 0, 16, 32, 1,
-                                             gPlayState->state.frames, -(gPlayState->state.frames * 8), 16, 32, 0, 0,
-                                             1, -8));
+               (uintptr_t)Gfx_TwoTexScrollEx(gPlayState->state.gfxCtx, 0, 0, 0, 16, 32, 1, gPlayState->state.frames,
+                                             -(gPlayState->state.frames * 8), 16, 32, 0, 0, 1, -8));
     Matrix_Translate(0.0f, -70.0f, 0.0f, MTXMODE_APPLY);
     Matrix_Scale(5.0f, 5.0f, 5.0f, MTXMODE_APPLY);
     Matrix_ReplaceRotation(&gPlayState->billboardMtxF);
@@ -2402,10 +2780,23 @@ static void DrawOotSlateRuneFlame(u8 r, u8 g, u8 b) {
 void DrawOotSlateRune(RandoItemId randoItemId) {
     u8 r = 95, g = 220, b = 235; // Remote Bomb — sheikah cyan
     switch (randoItemId) {
-        case RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE: r = 100; g = 230; b = 190; break; // teal (Master Cycle Zero)
-        case RI_OOT_NEI_SLATE_RUNE_STASIS:   r = 250; g = 200; b = 70;  break; // gold
-        case RI_OOT_NEI_SLATE_RUNE_CRYONIS:  r = 150; g = 215; b = 255; break; // ice blue
-        default: break;
+        case RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE:
+            r = 100;
+            g = 230;
+            b = 190;
+            break; // teal (Master Cycle Zero)
+        case RI_OOT_NEI_SLATE_RUNE_STASIS:
+            r = 250;
+            g = 200;
+            b = 70;
+            break; // gold
+        case RI_OOT_NEI_SLATE_RUNE_CRYONIS:
+            r = 150;
+            g = 215;
+            b = 255;
+            break; // ice blue
+        default:
+            break;
     }
     DrawOotSlateRuneFlame(r, g, b);
     DrawOotNeiSheikahSlate();
@@ -2793,6 +3184,37 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_OOT_BOOMERANG:
             DrawOotBoomerang();
             break;
+        // Concrete tiers: each draws its own model outright. No save reads, so nothing can change
+        // mid-pickup — the freeze is ConvertItem + CUSTOM_ITEM_PARAM, exactly like MM's natives.
+        case RI_OOT_HAMMER:
+            DrawOotHammerBase();
+            break;
+        case RI_OOT_IRON_KNUCKLE_AXE:
+            DrawOotIronKnuckleAxe();
+            break;
+        case RI_OOT_MASTER_SWORD:
+            DrawOotMasterSwordBase();
+            break;
+        case RI_OOT_TRUE_MASTER_SWORD:
+            DrawOotTrueMasterSword();
+            break;
+        case RI_OOT_BIGGORON_SWORD:
+            DrawOotBiggoronSwordTier();
+            break;
+        case RI_OOT_QUARTZ_OF_MOTION:
+            DrawOotQuartzOfMotion();
+            break;
+        case RI_OOT_GORONS_BRACELET:
+        case RI_OOT_SILVER_GAUNTLETS:
+        case RI_OOT_GOLDEN_GAUNTLETS:
+            DrawOotStrengthTier(randoItemId);
+            break;
+        case RI_OOT_NEI_ROCS_FEATHER:
+            DrawOotNeiRocsFeather();
+            break;
+        case RI_OOT_NEI_ROCS_CAPE:
+            DrawOotNeiRocsCape();
+            break;
         case RI_OOT_PROGRESSIVE_HAMMER:
             DrawOotHammer();
             break;
@@ -2976,15 +3398,18 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_OOT_NEI_WAND_SHADOW_SCEPTER:
             DrawOotNeiDominionRod();
             break;
-        // All six Dual Cane skills are the same physical cane in the world — they
-        // differ only in which skill bit they light, so they share one model.
+        // Five of the six Dual Cane skills are the same physical cane in the world — they
+        // differ only in which skill bit they light, so they share one model (Ultrahand,
+        // below, is the exception: it has its own).
         case RI_OOT_NEI_CANE_OF_SOMARIA:
         case RI_OOT_NEI_CANE_SOMARIA_BLOCK:
         case RI_OOT_NEI_CANE_SOMARIA_PLATFORM:
         case RI_OOT_NEI_CANE_PACCI_FLIP:
         case RI_OOT_NEI_CANE_PACCI_STONE:
-        case RI_OOT_NEI_CANE_PACCI_ULTRAHAND:
             DrawOotNeiCaneOfSomaria();
+            break;
+        case RI_OOT_NEI_CANE_PACCI_ULTRAHAND: // has its own mesh, unlike the other five skills
+            DrawOotNeiUltrahand();
             break;
         case RI_OOT_NEI_DEKU_LEAF:
             DrawOotNeiDekuLeaf();
@@ -3057,13 +3482,26 @@ void Rando::DrawItem(RandoItemId randoItemId, RandoCheckId randoCheckId, Actor* 
         case RI_OOT_NEI_ZONAI_PERMAFROST: { // REAL converted mesh (turquoise core) + tint fallback
             static Gfx* c = NULL;
             static u8 tr = 0;
-            DrawOotNeiSpellReal("__OTR__objects/object_nei_magic_spell/gZonaiPermafrostGiveDL", &c, &tr, 150, 230,
-                                255);
+            DrawOotNeiSpellReal("__OTR__objects/object_nei_magic_spell/gZonaiPermafrostGiveDL", &c, &tr, 150, 230, 255);
             break;
         }
         case RI_OOT_PROGRESSIVE_ROC:
-        case RI_OOT_ROCS_FEATHER: // same feather model; only the slot it lands in differs
-            DrawOotProgressiveRoc();
+        case RI_OOT_ROCS_FEATHER:
+            // The SHIP-VANILLA feather (Nayru's Love cell), NOT Skijer's. It used to call
+            // DrawOotProgressiveRoc, which draws Skijer's feather/cape chain — so both items
+            // presented as the same model and you could not tell which one you had picked up. They
+            // are separate items with separate models: SoH draws this one from its own
+            // object_rocs_feather asset (Randomizer_DrawRocsFeather), which is now mirrored into
+            // 2ship.o2r. Xlu like SoH's draw. Skijer's NEI
+            {
+                static Gfx* sVanillaFeather = NULL;
+                static u8 sTried = 0;
+                if (DrawNeiRealOpa("__OTR__objects/object_rocs_feather/gGiRocsFeatherDL", &sVanillaFeather, &sTried,
+                                   0.5f, false)) {
+                    break;
+                }
+                DrawOotProgressiveRoc(); // asset missing (2ship.o2r not regenerated) — old behaviour
+            }
             break;
         // Stick / nut capacity have no model of their own in either game (OoT draws the upgrade as the
         // plain item too), so they are NOT listed here: their GI/GID in the item table point at MM's

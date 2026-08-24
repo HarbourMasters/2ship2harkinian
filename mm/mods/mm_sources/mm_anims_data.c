@@ -711,7 +711,7 @@ const MmAnimDef gMmAnims[MM_ANIM_MAX] = {
     // ========================================
     // Bremen Mask: child Link marching with ocarina raised. MM Player_Action_11
     // uses this anim during the march. Frame count from MM decomp.
-    [MM_ANIM_CLINK_NORMAL_OKARINA_WALK]  = LINK_ANIM("gPlayerAnim_clink_normal_okarina_walk", 20),
+    [MM_ANIM_CLINK_NORMAL_OKARINA_WALK] = LINK_ANIM("gPlayerAnim_clink_normal_okarina_walk", 20),
     [MM_ANIM_CLINK_NORMAL_OKARINA_WALKB] = LINK_ANIM("gPlayerAnim_clink_normal_okarina_walkB", 20),
 
     // Mask of Scents: child Link sniff/idle "msbowait" anim. Replaces the
@@ -720,7 +720,7 @@ const MmAnimDef gMmAnims[MM_ANIM_MAX] = {
 
     // Giant's Mask: child Link mask-on cutscene (hands to face). FrameCounts from
     // MM decomp link_animetion.xml (cl_setmask=66, cl_setmaskend=3).
-    [MM_ANIM_CL_SETMASK]    = LINK_ANIM("gPlayerAnim_cl_setmask", 66),
+    [MM_ANIM_CL_SETMASK] = LINK_ANIM("gPlayerAnim_cl_setmask", 66),
     [MM_ANIM_CL_SETMASKEND] = LINK_ANIM("gPlayerAnim_cl_setmaskend", 3),
 
     // Remaining animations use placeholder definitions

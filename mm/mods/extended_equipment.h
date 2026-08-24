@@ -67,6 +67,7 @@ extern ExtendedEquipmentState gExtEquipState;
 
 /** Initialize state from CVars */
 void ExtEquip_Init(void);
+void ExtEquip_OnPlayerSceneInit(void);
 
 /** Update per frame (cooldown timer) */
 void ExtEquip_Update(void);
@@ -135,13 +136,13 @@ u8 ExtEquip_SlotRetired(s16 equipType, u8 index);
 // Left-column passives (equipment page rows 0/1) — ownership lives in nei save fields, NOT ext bits:
 u8 ExtEquip_CapeOwned(void);
 void ExtEquip_GiveCape(void);
-u8 ExtEquip_CapeVisible(void);          // owned && not hidden (draw the cloth)
+u8 ExtEquip_CapeVisible(void); // owned && not hidden (draw the cloth)
 void ExtEquip_ToggleCapeVisibility(void);
-u8 ExtEquip_PendantOwned(void);         // owns the Pendant as EQUIPMENT (permanent once granted)
-void ExtEquip_GivePendant(void);        // grant it (the adult trade slot does this automatically)
-u8 ExtEquip_PendantActive(void);        // owned && effect toggle ON (the moveset gate)
+u8 ExtEquip_PendantOwned(void);  // owns the Pendant as EQUIPMENT (permanent once granted)
+void ExtEquip_GivePendant(void); // grant it (the adult trade slot does this automatically)
+u8 ExtEquip_PendantActive(void); // owned && effect toggle ON (the moveset gate)
 void ExtEquip_TogglePendantEffect(void);
-void* ExtEquip_GetCapeIcon(void);    // left-column icons (the pieces are not in the grid anymore)
+void* ExtEquip_GetCapeIcon(void); // left-column icons (the pieces are not in the grid anymore)
 void* ExtEquip_GetPendantIcon(void);
 
 typedef enum {
@@ -224,6 +225,28 @@ void ExtEquip_RestoreFromTransform(void);
 void ExtEquip_ClearTransformBackup(void);
 
 // ---------------------------------------------------------------------------
+// Puertas a las tablas de animación del motor (definidas en z_player.c, DEBAJO del
+// include de este módulo — por eso van aquí como prototipos). Un arma custom instala
+// sus clips en las tablas que el pipeline ya lee, en vez de reimplementar el combate.
+//
+// ⚠️ Para reconocer qué fila está sonando NO compares skelAnime.animation por puntero
+// como se hace en OoT: en 2ship usa BEN_ANIM_EQUAL — las animaciones vienen del
+// resource manager y el puntero crudo no es identidad estable. Skijer's NEI
+// ---------------------------------------------------------------------------
+PlayerAnimationHeader* ExtPlayer_GetAnimGroupAnim(s32 group, s32 animType);
+void ExtPlayer_SetAnimGroupAnim(s32 group, s32 animType, PlayerAnimationHeader* anim);
+// NULL en una animación = deja ese hueco; 0xFF en una ventana = conserva la de vanilla.
+void ExtPlayer_GetMeleeAnim(s32 mwa, PlayerAnimationHeader** swing, PlayerAnimationHeader** end,
+                            PlayerAnimationHeader** endLockOn, u8* hitStart, u8* hitEnd);
+void ExtPlayer_SetMeleeAnim(s32 mwa, PlayerAnimationHeader* swing, PlayerAnimationHeader* end,
+                            PlayerAnimationHeader* endLockOn, u8 hitStart, u8 hitEnd);
+// Torso y brazos de skelAnimeUpper sobre las piernas de skelAnime.
+// ⚠️ El parámetro se llama `player` y NO `this` como en la definición: este header lo
+// incluyen TUs de C++, donde `this` es palabra reservada. En el .c de z_player da igual
+// (es C y el decomp lo usa por convención), pero en la declaración rompe la compilación.
+void ExtPlayer_CopyUpperBody(PlayState* play, Player* player);
+
+// ---------------------------------------------------------------------------
 // Divine Shield helpers (called from z_player_lib.c and z_player.c)
 // ---------------------------------------------------------------------------
 u8 DivineShield_IsWoodType(void);
@@ -258,11 +281,11 @@ typedef struct {
 
 typedef struct {
     // Cane of Byrna (Ext Sword 1)
-    u8 byrnaSavedSwordEquip; // Original equips.equipment sword nibble
-    u8 byrnaSavedButtonItem; // Original equips.buttonItems[0]
+    u8 byrnaSavedSwordEquip;   // Original equips.equipment sword nibble
+    u8 byrnaSavedButtonItem;   // Original equips.buttonItems[0]
     f32 byrnaSavedSwordHealth; // Original swordHealth (GK durability)
     u8 byrnaSavedBgsFlag;      // Original bgsFlag (1=BGS, 0=GK)
-    u8 byrnaActive;          // Whether Byrna has overridden sword state
+    u8 byrnaActive;            // Whether Byrna has overridden sword state
 
     // Pegasus Anklet
     u8 pegasusState;
@@ -285,8 +308,8 @@ typedef struct {
     u8 ikAxeDrawing; // 1 when hammer is out (hide vanilla sword DL), 0 in free mode
 
     // Four Sword (Ext Sword 2)
-    u8 fourSwordSavedSwordEquip; // Original equips.equipment sword nibble
-    u8 fourSwordSavedButtonItem; // Original equips.buttonItems[0]
+    u8 fourSwordSavedSwordEquip;       // Original equips.equipment sword nibble
+    u8 fourSwordSavedButtonItem;       // Original equips.buttonItems[0]
     u8 fourSwordActive;                // pak loader is live
     s16 fourSwordBHoldTimer;           // frames B has been held while shielding
     u8 fourSwordCharging;              // 1 while charge is armed (B+shield >= threshold)
@@ -316,6 +339,15 @@ extern f32 gChampionSlowFactor;
  * Dispatches to individual behavior handlers.
  */
 void ExtEquip_UpdateBehavior(void* player, void* play);
+void ExtEquip_TridentPostUpdate(void* player, void* play);
+
+u8 Trident_IsFlying(void);
+u8 Trident_OwnsPlayerAction(void);
+u8 Trident_GoldenArmor(void);
+u8 Trident_AllowsChargeFreeLook(void);
+u8 ExtEquip_TridentTrailBegin(void);
+f32 ExtEquip_TridentTrailLength(void);
+u8 ExtEquip_TridentThunderTransform(void);
 
 /**
  * Called from z_player.c when melee weapon quads register a hit (AT_HIT).
@@ -335,6 +367,24 @@ void ExtEquip_DrawBehavior(void* player, void* play);
  */
 u8 ExtEquip_ShouldHideSwordDL(void);
 
+// ---------------------------------------------------------------------------
+// Kite Shield — shield surfing (ext shield 2). State lives in
+// mods/equipment/behaviors/equip_kite_shield.c, the engine in mods/equipment/kite_surf.c.
+// ---------------------------------------------------------------------------
+
+/** True while the surf owns the player at all, mount and dismount included. */
+u8 KiteSurf_IsActive(void);
+
+/** True only while actually riding — the board is out and the hand/back shield must not draw. */
+u8 KiteSurf_IsRiding(void);
+
+/** Draws the board under Link's feet. Called from Player_PostLimbDrawGameplay on PLAYER_LIMB_ROOT. */
+void ExtEquip_DrawKiteSurfBoard(void* play);
+
+// KiteSurf_AdjustLimb (the riding stance) is NOT declared here on purpose: it takes a Vec3s*, and
+// this header is reached by translation units that have not seen z64math.h. z_player_lib.c declares
+// it locally, the way it already does for the BossRemains limb hooks.
+
 /**
  * Returns the MM Mirror Shield OTR path if Shield of Ikana is equipped, NULL otherwise.
  * Called from z_player_lib.c to override shield DL.
@@ -349,13 +399,13 @@ const char* ExtEquip_GetShieldDLOverride(void);
 // Rotation is RADIANS (X then Y then Z, applied after translate, before scale).
 // ---------------------------------------------------------------------------
 typedef struct EquipDrawModel {
-    Gfx* dl;           // display list to draw (NULL = no-op)
-    u8 xlu;            // 1 -> POLY_XLU pass (custom combiners that dirty the pipe); 0 -> POLY_OPA
-    u8 setupDL;        // 1 -> emit Gfx_SetupDL_25Opa/Xlu first; 0 -> the DL provides its own state
-    Vec3f translate;   // MTXMODE_APPLY, applied first
-    Vec3f rotate;      // radians X,Y,Z, after translate (all 0 = none)
-    Vec3f scale;       // applied last
-    u8 setColor;       // 1 -> apply prim/env below (for lit/tinted models)
+    Gfx* dl;         // display list to draw (NULL = no-op)
+    u8 xlu;          // 1 -> POLY_XLU pass (custom combiners that dirty the pipe); 0 -> POLY_OPA
+    u8 setupDL;      // 1 -> emit Gfx_SetupDL_25Opa/Xlu first; 0 -> the DL provides its own state
+    Vec3f translate; // MTXMODE_APPLY, applied first
+    Vec3f rotate;    // radians X,Y,Z, after translate (all 0 = none)
+    Vec3f scale;     // applied last
+    u8 setColor;     // 1 -> apply prim/env below (for lit/tinted models)
     Color_RGBA8 prim;
     Color_RGBA8 env;
 } EquipDrawModel;

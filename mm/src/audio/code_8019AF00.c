@@ -1482,47 +1482,68 @@ OcarinaNote sOcarinaSongNotes[OCARINA_SONG_MAX][20] = {
     // AND song-check them through MM's own machinery. Real OoT note data (rhythm + rests + dynamics).
     // OCARINA_SONG_OOT_MINUET
     {
-        { OCARINA_PITCH_D4, 18, 86, 0, 0, 0 },  { OCARINA_PITCH_D5, 18, 92, 0, 0, 0 },
-        { OCARINA_PITCH_B4, 72, 86, 0, 0, 0 },  { OCARINA_PITCH_A4, 18, 80, 0, 0, 0 },
-        { OCARINA_PITCH_B4, 18, 88, 0, 0, 0 },  { OCARINA_PITCH_A4, 144, 86, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 18, 86, 0, 0, 0 },
+        { OCARINA_PITCH_D5, 18, 92, 0, 0, 0 },
+        { OCARINA_PITCH_B4, 72, 86, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 18, 80, 0, 0, 0 },
+        { OCARINA_PITCH_B4, 18, 88, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 144, 86, 0, 0, 0 },
         { OCARINA_PITCH_NONE, 0, 86, 0, 0, 0 },
     },
     // OCARINA_SONG_OOT_BOLERO
     {
-        { OCARINA_PITCH_F4, 15, 80, 0, 0, 0 },  { OCARINA_PITCH_D4, 15, 72, 0, 0, 0 },
-        { OCARINA_PITCH_F4, 15, 84, 0, 0, 0 },  { OCARINA_PITCH_D4, 15, 76, 0, 0, 0 },
-        { OCARINA_PITCH_A4, 15, 84, 0, 0, 0 },  { OCARINA_PITCH_F4, 15, 74, 0, 0, 0 },
-        { OCARINA_PITCH_A4, 15, 78, 0, 0, 0 },  { OCARINA_PITCH_F4, 135, 66, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 15, 80, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 15, 72, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 15, 84, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 15, 76, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 15, 84, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 15, 74, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 15, 78, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 135, 66, 0, 0, 0 },
         { OCARINA_PITCH_NONE, 0, 66, 0, 0, 0 },
     },
     // OCARINA_SONG_OOT_SERENADE
     {
-        { OCARINA_PITCH_D4, 36, 60, 0, 0, 0 },  { OCARINA_PITCH_F4, 36, 78, 0, 0, 0 },
-        { OCARINA_PITCH_A4, 33, 82, 0, 0, 0 },  { OCARINA_PITCH_NONE, 3, 82, 0, 0, 0 },
-        { OCARINA_PITCH_A4, 36, 84, 0, 0, 0 },  { OCARINA_PITCH_B4, 144, 90, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 36, 60, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 36, 78, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 33, 82, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 3, 82, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 36, 84, 0, 0, 0 },
+        { OCARINA_PITCH_B4, 144, 90, 0, 0, 0 },
         { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
     },
     // OCARINA_SONG_OOT_REQUIEM
     {
-        { OCARINA_PITCH_D4, 45, 88, 0, 0, 0 },  { OCARINA_PITCH_F4, 23, 86, 0, 0, 0 },
-        { OCARINA_PITCH_D4, 22, 84, 0, 0, 0 },  { OCARINA_PITCH_A4, 45, 86, 0, 0, 0 },
-        { OCARINA_PITCH_F4, 45, 94, 0, 0, 0 },  { OCARINA_PITCH_D4, 180, 94, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 45, 88, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 23, 86, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 22, 84, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 45, 86, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 45, 94, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 180, 94, 0, 0, 0 },
         { OCARINA_PITCH_NONE, 0, 94, 0, 0, 0 },
     },
     // OCARINA_SONG_OOT_NOCTURNE
     {
-        { OCARINA_PITCH_B4, 36, 88, 0, 0, 0 },  { OCARINA_PITCH_A4, 33, 84, 0, 0, 0 },
-        { OCARINA_PITCH_NONE, 3, 84, 0, 0, 0 }, { OCARINA_PITCH_A4, 18, 82, 0, 0, 0 },
-        { OCARINA_PITCH_D4, 18, 60, 0, 0, 0 },  { OCARINA_PITCH_B4, 18, 90, 0, 0, 0 },
-        { OCARINA_PITCH_A4, 18, 88, 0, 0, 0 },  { OCARINA_PITCH_F4, 144, 96, 0, 0, 0 },
+        { OCARINA_PITCH_B4, 36, 88, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 33, 84, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 3, 84, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 18, 82, 0, 0, 0 },
+        { OCARINA_PITCH_D4, 18, 60, 0, 0, 0 },
+        { OCARINA_PITCH_B4, 18, 90, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 18, 88, 0, 0, 0 },
+        { OCARINA_PITCH_F4, 144, 96, 0, 0, 0 },
         { OCARINA_PITCH_NONE, 0, 96, 0, 0, 0 },
     },
     // OCARINA_SONG_OOT_PRELUDE
     {
-        { OCARINA_PITCH_D5, 15, 84, 0, 0, 0 },  { OCARINA_PITCH_A4, 45, 88, 0, 0, 0 },
-        { OCARINA_PITCH_D5, 15, 88, 0, 0, 0 },  { OCARINA_PITCH_A4, 15, 82, 0, 0, 0 },
-        { OCARINA_PITCH_B4, 15, 86, 0, 0, 0 },  { OCARINA_PITCH_D5, 60, 90, 0, 0, 0 },
-        { OCARINA_PITCH_NONE, 75, 90, 0, 0, 0 }, { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
+        { OCARINA_PITCH_D5, 15, 84, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 45, 88, 0, 0, 0 },
+        { OCARINA_PITCH_D5, 15, 88, 0, 0, 0 },
+        { OCARINA_PITCH_A4, 15, 82, 0, 0, 0 },
+        { OCARINA_PITCH_B4, 15, 86, 0, 0, 0 },
+        { OCARINA_PITCH_D5, 60, 90, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 75, 90, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
     },
 
     // Skijer's NEI custom songs (slots 30-32; pitches = sButtonToPitchMap of the fingering).
@@ -1530,29 +1551,53 @@ OcarinaNote sOcarinaSongNotes[OCARINA_SONG_MAX][20] = {
     // cycle transposed a whole tone up (+2 semitones): cycle2/3 pitches climb past the staff range,
     // which only affects the (cosmetic) staff button mapping — the audio plays them fine.
     {
-        { 2, 10, 86, 0, 0, 0 },  { 5, 10, 86, 0, 0, 0 },  { 9, 10, 88, 0, 0, 0 },
-        { 14, 10, 88, 0, 0, 0 }, { 9, 10, 88, 0, 0, 0 },  { 11, 10, 90, 0, 0, 0 },
-        { 4, 10, 86, 0, 0, 0 },  { 7, 10, 86, 0, 0, 0 },  { 11, 10, 88, 0, 0, 0 },
-        { 16, 10, 88, 0, 0, 0 }, { 11, 10, 88, 0, 0, 0 }, { 13, 10, 90, 0, 0, 0 },
-        { 6, 10, 88, 0, 0, 0 },  { 9, 10, 88, 0, 0, 0 },  { 13, 10, 90, 0, 0, 0 },
-        { 18, 10, 90, 0, 0, 0 }, { 13, 10, 90, 0, 0, 0 }, { 15, 40, 92, 0, 0, 0 },
+        { 2, 10, 86, 0, 0, 0 },
+        { 5, 10, 86, 0, 0, 0 },
+        { 9, 10, 88, 0, 0, 0 },
+        { 14, 10, 88, 0, 0, 0 },
+        { 9, 10, 88, 0, 0, 0 },
+        { 11, 10, 90, 0, 0, 0 },
+        { 4, 10, 86, 0, 0, 0 },
+        { 7, 10, 86, 0, 0, 0 },
+        { 11, 10, 88, 0, 0, 0 },
+        { 16, 10, 88, 0, 0, 0 },
+        { 11, 10, 88, 0, 0, 0 },
+        { 13, 10, 90, 0, 0, 0 },
+        { 6, 10, 88, 0, 0, 0 },
+        { 9, 10, 88, 0, 0, 0 },
+        { 13, 10, 90, 0, 0, 0 },
+        { 18, 10, 90, 0, 0, 0 },
+        { 13, 10, 90, 0, 0, 0 },
+        { 15, 40, 92, 0, 0, 0 },
         { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
     },
     // OCARINA_SONG_NEI_COMMAND_MELODY — A,Cl,A,Cr ×2; quarters (40) except the C-rights = halves (80),
     // at 90 BPM (quarter = 40 ticks, matching Song of Time's tempo).
     {
-        { 2, 40, 86, 0, 0, 0 },  { 11, 40, 86, 0, 0, 0 }, { 2, 40, 86, 0, 0, 0 },
-        { 9, 80, 90, 0, 0, 0 },  { 2, 40, 86, 0, 0, 0 },  { 11, 40, 86, 0, 0, 0 },
-        { 2, 40, 86, 0, 0, 0 },  { 9, 80, 90, 0, 0, 0 },  { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
+        { 2, 40, 86, 0, 0, 0 },
+        { 11, 40, 86, 0, 0, 0 },
+        { 2, 40, 86, 0, 0, 0 },
+        { 9, 80, 90, 0, 0, 0 },
+        { 2, 40, 86, 0, 0, 0 },
+        { 11, 40, 86, 0, 0, 0 },
+        { 2, 40, 86, 0, 0, 0 },
+        { 9, 80, 90, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
     },
     // OCARINA_SONG_NEI_BALLAD_OF_HERO — fingering A,Cd,Cu,Cl,Cr,Cl,Cr but the PLAYBACK ornaments the
     // 4th note as two eighths (C5 grace → B4): A, Cd, Cu, [Cl#, Cl], Cr, Cl, Cr. 185 BPM (quarter=19,
     // eighth=10, half=39, dotted-half=58): quarter, quarter, dotted-half, [eighth, eighth], half,
     // quarter, dotted-half. The UI still shows only the 7 fingering notes (staff pos clamp).
     {
-        { 2, 19, 86, 0, 0, 0 },  { 5, 19, 86, 0, 0, 0 },  { 14, 58, 90, 0, 0, 0 },
-        { 12, 10, 88, 0, 0, 0 }, { 11, 10, 88, 0, 0, 0 }, { 9, 39, 90, 0, 0, 0 },
-        { 11, 19, 88, 0, 0, 0 }, { 9, 58, 92, 0, 0, 0 },  { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
+        { 2, 19, 86, 0, 0, 0 },
+        { 5, 19, 86, 0, 0, 0 },
+        { 14, 58, 90, 0, 0, 0 },
+        { 12, 10, 88, 0, 0, 0 },
+        { 11, 10, 88, 0, 0, 0 },
+        { 9, 39, 90, 0, 0, 0 },
+        { 11, 19, 88, 0, 0, 0 },
+        { 9, 58, 92, 0, 0, 0 },
+        { OCARINA_PITCH_NONE, 0, 90, 0, 0, 0 },
     },
 };
 
@@ -2103,27 +2148,35 @@ OcarinaSongButtons gOcarinaSongButtons[OCARINA_SONG_MAX] = {
     },
 
     // Skijer's NEI: OoT warp-song button fingerings (slots 24-29) — match the note pitches above.
-    { 6, { OCARINA_BTN_A, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT,
-           OCARINA_BTN_C_RIGHT } }, // Minuet
-    { 8, { OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT,
-           OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN } }, // Bolero
-    { 5, { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT,
-           OCARINA_BTN_C_LEFT } }, // Serenade
-    { 6, { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN,
-           OCARINA_BTN_A } }, // Requiem
-    { 7, { OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A, OCARINA_BTN_C_LEFT,
-           OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN } }, // Nocturne
-    { 6, { OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT,
-           OCARINA_BTN_C_UP } }, // Prelude
+    { 6,
+      { OCARINA_BTN_A, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT,
+        OCARINA_BTN_C_RIGHT } }, // Minuet
+    { 8,
+      { OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN,
+        OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN } }, // Bolero
+    { 5,
+      { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT } }, // Serenade
+    { 6,
+      { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN,
+        OCARINA_BTN_A } }, // Requiem
+    { 7,
+      { OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A, OCARINA_BTN_C_LEFT,
+        OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_DOWN } }, // Nocturne
+    { 6,
+      { OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_LEFT,
+        OCARINA_BTN_C_UP } }, // Prelude
 
     // Skijer's NEI custom songs (slots 30-32). Fugue's RECOGNITION fingering is the 6-note base cycle
     // (playback plays 3 rising cycles of it).
-    { 6, { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT,
-           OCARINA_BTN_C_LEFT } }, // Fugue of Home
-    { 8, { OCARINA_BTN_A, OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A,
-           OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT } }, // Command Melody
-    { 7, { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT,
-           OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT } }, // Ballad of Hero
+    { 6,
+      { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_RIGHT, OCARINA_BTN_C_UP, OCARINA_BTN_C_RIGHT,
+        OCARINA_BTN_C_LEFT } }, // Fugue of Home
+    { 8,
+      { OCARINA_BTN_A, OCARINA_BTN_C_LEFT, OCARINA_BTN_A, OCARINA_BTN_C_RIGHT, OCARINA_BTN_A, OCARINA_BTN_C_LEFT,
+        OCARINA_BTN_A, OCARINA_BTN_C_RIGHT } }, // Command Melody
+    { 7,
+      { OCARINA_BTN_A, OCARINA_BTN_C_DOWN, OCARINA_BTN_C_UP, OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT,
+        OCARINA_BTN_C_LEFT, OCARINA_BTN_C_RIGHT } }, // Ballad of Hero
 };
 
 const u16 gAudioEnvironmentalSfx[] = {
@@ -2346,9 +2399,7 @@ void AudioOcarina_Start(u32 ocarinaFlags) {
 
     if (ocarinaFlags != 0xFFFF) {
         // NEI-DBG: pause-play tracing (remove after diagnosis)
-        {
-            lusprintf(__FILE__, __LINE__, 2, "NEI-PP: AudioOcarina_Start flags=0x%08X", ocarinaFlags);
-        }
+        { lusprintf(__FILE__, __LINE__, 2, "NEI-PP: AudioOcarina_Start flags=0x%08X", ocarinaFlags); }
         sOcarinaFlags = 0x80000000 + ocarinaFlags;
         sFirstOcarinaSongIndex = 0;
         // Skijer's NEI: clamp the vanilla recognition loops BELOW the custom slots (30-32). Their
@@ -2738,9 +2789,7 @@ void AudioOcarina_CheckSongsWithoutMusicStaff(void) {
                 // This conditional is true if songIndex = i is detected
                 if (j == gOcarinaSongButtons[songIndex].numButtons) {
                     // NEI-DBG: pause-play tracing (remove after diagnosis)
-                    {
-                        lusprintf(__FILE__, __LINE__, 2, "NEI-PP: audio recognized song=%d (hand-played)", songIndex);
-                    }
+                    { lusprintf(__FILE__, __LINE__, 2, "NEI-PP: audio recognized song=%d (hand-played)", songIndex); }
                     sPlayedOcarinaSongIndexPlusOne = songIndex + 1;
                     sIsOcarinaInputEnabled = false;
                     sOcarinaFlags = 0;
@@ -2764,9 +2813,7 @@ void AudioOcarina_CheckSongsWithoutMusicStaff(void) {
                     }
                 }
                 if (j == gOcarinaSongButtons[songIndex].numButtons) {
-                    {
-                        lusprintf(__FILE__, __LINE__, 2, "NEI-PP: audio recognized CUSTOM song=%d", songIndex);
-                    }
+                    { lusprintf(__FILE__, __LINE__, 2, "NEI-PP: audio recognized CUSTOM song=%d", songIndex); }
                     sPlayedOcarinaSongIndexPlusOne = songIndex + 1;
                     sIsOcarinaInputEnabled = false;
                     sOcarinaFlags = 0;
@@ -3078,7 +3125,7 @@ void NeiAudio_PlayOotSongFanfare(u8 songIndex) {
         { OCARINA_SONG_NEI_COMMAND_MELODY, "custom/music/NEI_Command_Melody" },
         { OCARINA_SONG_NEI_BALLAD_OF_HERO, "custom/music/NEI_Ballad_of_Hero" },
     };
-    extern char** gSequenceMap;   // audio/lib/load.c — seq id -> otr path
+    extern char** gSequenceMap; // audio/lib/load.c — seq id -> otr path
     extern size_t gSequenceMapSize;
     void Audio_PlayFanfare(u16 seqId); // defined below in this file
     const char* wanted = NULL;

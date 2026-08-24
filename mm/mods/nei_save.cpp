@@ -61,9 +61,9 @@ extern "C" void Nei_GiveAllOotItems(void) {
     nei->ootSpellsOwned = 0x7; // Din's + Farore's + Nayru's
     nei->slingshotOwned = 1;
     nei->ootBoomerangOwned = 1;
-    nei->ootHammerOwned = 1;    // Megaton Hammer
-    nei->ootHookshotLevel = 3;  // Ultrashot (1 Hookshot / 2 Longshot / 3 Ultrashot)
-    nei->clawshotOwned = 1;     // Clawshot (separate selectable variant on the hookshot cell)
+    nei->ootHammerOwned = 1;   // Megaton Hammer
+    nei->ootHookshotLevel = 3; // Ultrashot (1 Hookshot / 2 Longshot / 3 Ultrashot)
+    nei->clawshotOwned = 1;    // Clawshot (separate selectable variant on the hookshot cell)
     // Enable the existing L-tap clawshot toggle so Clawshot is selectable right away (the L-tap in
     // custom_items_common.c gates on TwilightUpgrade_HasClawshot). Bloque 5 will drive selection
     // from clawshotOwned directly; until then this lets the enemy-pull be tested via give-all.
@@ -72,7 +72,7 @@ extern "C" void Nei_GiveAllOotItems(void) {
     // Bullet bag capped at its real max level 3 (gUpgradeCapacities rows have 4 entries — a raw 7
     // read out of bounds); other upgrade fields keep the legacy "everything maxed" 7s.
     nei->ootUpgrades = (3 << 0) | (7 << 3) | (7 << 6) | (7 << 9) | (7 << 12);
-    nei->slingshotSeeds = 50; // full 50-seed bag (OoT ITEM_BULLET_BAG_50 give)
+    nei->slingshotSeeds = 50;      // full 50-seed bag (OoT ITEM_BULLET_BAG_50 give)
     WeaponUpgrade_SetHammerAxe(1); // + its upgrade (Iron Knuckle's Axe behavior)
 
     // OoT quest-status page: grant the whole collect_register so the OoT quest page (L-flip)
@@ -113,8 +113,8 @@ extern "C" void Nei_SetStrengthLevel(uint8_t level) {
     if (level > NEI_STRENGTH_MAX) {
         level = NEI_STRENGTH_MAX;
     }
-    nei->ootUpgrades = (uint16_t)((nei->ootUpgrades & ~(0x7 << NEI_STRENGTH_SHIFT)) |
-                                  ((uint16_t)level << NEI_STRENGTH_SHIFT));
+    nei->ootUpgrades =
+        (uint16_t)((nei->ootUpgrades & ~(0x7 << NEI_STRENGTH_SHIFT)) | ((uint16_t)level << NEI_STRENGTH_SHIFT));
 }
 
 // Skijer's NEI hookshot overhaul — tiny accessor for TUs that don't pull the NEI headers in

@@ -30,12 +30,12 @@
  * ACTORCAT_MISC (not ENEMY — must not pollute enemy-count / room-clear / battle BGM).
  */
 
-#include "remains_ally_common.h"                       // shared helpers + z64.h
+#include "remains_ally_common.h"                         // shared helpers + z64.h
 #include "objects/object_link_child/object_link_child.h" // gLinkHumanSkel + hand/sword DLs
 #include "objects/gameplay_keep/gameplay_keep.h"
-#include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"   // ArrowType (ARROW_TYPE_NORMAL / _DEKU_NUT)
-#include "overlays/actors/ovl_En_Bom/z_en_bom.h"       // EnBom + BOMB_EXPLOSIVE_TYPE_BOMB / BOMB_TYPE_BODY
-#include "../../nei_save.h"                            // Nei_Save() — the NEI custom-item save block
+#include "overlays/actors/ovl_En_Arrow/z_en_arrow.h" // ArrowType (ARROW_TYPE_NORMAL / _DEKU_NUT)
+#include "overlays/actors/ovl_En_Bom/z_en_bom.h"     // EnBom + BOMB_EXPLOSIVE_TYPE_BOMB / BOMB_TYPE_BODY
+#include "../../nei_save.h"                          // Nei_Save() — the NEI custom-item save block
 
 // Compiled as part of the C++ TU boss_remains.cpp, so the OTR-path asset symbols are `const char[]` and
 // need explicit casts to the pointer types the engine wants (implicit in C, not in C++).
@@ -44,37 +44,37 @@
 // TUNING
 // ============================================================================
 
-#define ALLY_LINK_SCALE        0.01f   // human Link's own scale
-#define ALLY_LINK_FOLLOW_DIST  90.0f   // how close it trails Link when idle
-#define ALLY_LINK_RUN_SPEED    5.2f
-#define ALLY_LINK_SEEK_RANGE   700.0f  // how far it looks for something to fight
-#define ALLY_LINK_MELEE_RANGE  70.0f   // inside this it swings instead of shooting
-#define ALLY_LINK_NUT_RANGE    140.0f  // deku-nut throw range (short, like the player's)
-#define ALLY_LINK_MELEE_FRAMES 8       // frames the swing's AT collider stays live
-#define ALLY_LINK_MELEE_CD     28      // frames between swings
-#define ALLY_LINK_SHOOT_CD     45      // frames between bow shots
-#define ALLY_LINK_BOMB_CD      70      // frames between bombs (slowest — it's the heavy option)
+#define ALLY_LINK_SCALE 0.01f       // human Link's own scale
+#define ALLY_LINK_FOLLOW_DIST 90.0f // how close it trails Link when idle
+#define ALLY_LINK_RUN_SPEED 5.2f
+#define ALLY_LINK_SEEK_RANGE 700.0f // how far it looks for something to fight
+#define ALLY_LINK_MELEE_RANGE 70.0f // inside this it swings instead of shooting
+#define ALLY_LINK_NUT_RANGE 140.0f  // deku-nut throw range (short, like the player's)
+#define ALLY_LINK_MELEE_FRAMES 8    // frames the swing's AT collider stays live
+#define ALLY_LINK_MELEE_CD 28       // frames between swings
+#define ALLY_LINK_SHOOT_CD 45       // frames between bow shots
+#define ALLY_LINK_BOMB_CD 70        // frames between bombs (slowest — it's the heavy option)
 
 // --- Tactical thresholds ----------------------------------------------------
-#define ALLY_LINK_BOMB_RANGE     280.0f // how far out it will place a bomb
+#define ALLY_LINK_BOMB_RANGE 280.0f     // how far out it will place a bomb
 #define ALLY_LINK_BOMB_CLUSTER_R 120.0f // foes within this of the target count as "a group"
 #define ALLY_LINK_BOMB_SAFE_DIST 170.0f // NEVER bomb if LINK is closer than this to the blast
-#define ALLY_LINK_BOMB_FUSE      35     // short fuse so it isn't dodged, long enough to be fair
-#define ALLY_LINK_AIRBORNE_Y     55.0f  // target this far overhead is out of sword reach
-#define ALLY_LINK_SWARM_COUNT    2      // foes at nut range that count as "swarmed"
+#define ALLY_LINK_BOMB_FUSE 35          // short fuse so it isn't dodged, long enough to be fair
+#define ALLY_LINK_AIRBORNE_Y 55.0f      // target this far overhead is out of sword reach
+#define ALLY_LINK_SWARM_COUNT 2         // foes at nut range that count as "swarmed"
 
 // Ground collision, matched to the other remains allies (remains_ally_common.c). FLAG_4 is the one that
 // actually snaps the actor onto the floor — without it the ally sinks through the ground the moment it
 // stops moving (e.g. planting itself to swing).
-#define ALLY_LINK_WALL_HEIGHT  26.0f
-#define ALLY_LINK_WALL_RADIUS  10.0f
+#define ALLY_LINK_WALL_HEIGHT 26.0f
+#define ALLY_LINK_WALL_RADIUS 10.0f
 #define ALLY_LINK_BGCHECK_FLAGS (UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4)
 
 // Animation slots (see AllyLink_SetAnim). Frame counts from link_animetion.xml; endFrame is
 // FrameCount-1 because the one-past-the-end frame renders the bind/rest pose.
-#define ALLY_LINK_ANIM_NONE  0xFF
-#define ALLY_LINK_ANIM_IDLE  0
-#define ALLY_LINK_ANIM_RUN   1
+#define ALLY_LINK_ANIM_NONE 0xFF
+#define ALLY_LINK_ANIM_IDLE 0
+#define ALLY_LINK_ANIM_RUN 1
 #define ALLY_LINK_ANIM_MELEE 2
 #define ALLY_LINK_ANIM_SHOOT 3
 
@@ -266,15 +266,13 @@ static void AllyLink_SetAnim(RemainsAllyLink* self, PlayState* play, u8 which) {
                                    1.0f, 0.0f, 4.0f, ANIMMODE_ONCE, -2.0f);
             break;
         case ALLY_LINK_ANIM_SHOOT: // bow_bow_shoot_next = 8 frames
-            PlayerAnimation_Change(play, &self->skelAnime,
-                                   (PlayerAnimationHeader*)gPlayerAnim_link_bow_bow_shoot_next, 1.0f, 0.0f, 7.0f,
-                                   ANIMMODE_ONCE, -2.0f);
+            PlayerAnimation_Change(play, &self->skelAnime, (PlayerAnimationHeader*)gPlayerAnim_link_bow_bow_shoot_next,
+                                   1.0f, 0.0f, 7.0f, ANIMMODE_ONCE, -2.0f);
             break;
         case ALLY_LINK_ANIM_IDLE: // waitR_free = 29 frames
         default:
-            PlayerAnimation_Change(play, &self->skelAnime,
-                                   (PlayerAnimationHeader*)gPlayerAnim_link_normal_waitR_free, 1.0f, 0.0f, 28.0f,
-                                   ANIMMODE_LOOP, -4.0f);
+            PlayerAnimation_Change(play, &self->skelAnime, (PlayerAnimationHeader*)gPlayerAnim_link_normal_waitR_free,
+                                   1.0f, 0.0f, 28.0f, ANIMMODE_LOOP, -4.0f);
             break;
     }
 }
@@ -314,9 +312,9 @@ static void AllyLink_StartMelee(RemainsAllyLink* self, PlayState* play, Actor* t
 // Place a live bomb right on the target. EN_BOM's blast is AT_TYPE_ALL — it hurts EVERYONE, Link
 // included — which is exactly why the chooser below refuses to bomb near him.
 static void AllyLink_PlaceBomb(RemainsAllyLink* self, PlayState* play, Actor* target) {
-    EnBom* bomb = (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, target->world.pos.x,
-                                      target->world.pos.y + 10.0f, target->world.pos.z, BOMB_EXPLOSIVE_TYPE_BOMB, 0, 0,
-                                      BOMB_TYPE_BODY);
+    EnBom* bomb =
+        (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, target->world.pos.x, target->world.pos.y + 10.0f,
+                            target->world.pos.z, BOMB_EXPLOSIVE_TYPE_BOMB, 0, 0, BOMB_TYPE_BODY);
     if (bomb != NULL) {
         bomb->timer = ALLY_LINK_BOMB_FUSE;
     }
@@ -411,8 +409,8 @@ static void RemainsAllyLink_Init(Actor* thisx, PlayState* play) {
     // The `1 | 8` flags matter: they're what make limbCount cover the WHOLE skeleton (flags & 2 == 0 would
     // leave it at 1 limb and nothing would animate).
     SkelAnime_InitPlayer(play, &self->skelAnime, (FlexSkeletonHeader*)gLinkHumanSkel,
-                         (PlayerAnimationHeader*)gPlayerAnim_link_normal_waitR_free, 1 | 8,
-                         self->jointTableBuffer, self->morphTableBuffer, PLAYER_LIMB_MAX);
+                         (PlayerAnimationHeader*)gPlayerAnim_link_normal_waitR_free, 1 | 8, self->jointTableBuffer,
+                         self->morphTableBuffer, PLAYER_LIMB_MAX);
     // Player sets this right after its own init; without it the skeleton's root sits at the wrong offset.
     {
         Vec3s baseTransl = { -57, 3377, 0 }; // sPlayerSkeletonBaseTransl (z_player.c:11641)
@@ -558,8 +556,7 @@ static void RemainsAllyLink_Draw(Actor* thisx, PlayState* play) {
     RemainsAllyLink* self = (RemainsAllyLink*)thisx;
     Player* player = GET_PLAYER(play);
 
-    if ((player == NULL) || (player->skelAnime.skeleton == NULL) ||
-        (player->transformation != PLAYER_FORM_HUMAN)) {
+    if ((player == NULL) || (player->skelAnime.skeleton == NULL) || (player->transformation != PLAYER_FORM_HUMAN)) {
         return;
     }
     if ((player->actor.objectSlot < 0) || !Object_IsLoaded(&play->objectCtx, player->actor.objectSlot)) {
@@ -567,11 +564,11 @@ static void RemainsAllyLink_Draw(Actor* thisx, PlayState* play) {
     }
 
     Player* dp = &sAllyLinkDrawTemplate;
-    *dp = *player;                                  // full, valid Player (equipment/boots/tunic come along)
-    dp->actor.world.pos = self->actor.world.pos;    // ...but OUR position,
-    dp->actor.shape.rot = self->actor.shape.rot;    // ...OUR facing,
+    *dp = *player;                                         // full, valid Player (equipment/boots/tunic come along)
+    dp->actor.world.pos = self->actor.world.pos;           // ...but OUR position,
+    dp->actor.shape.rot = self->actor.shape.rot;           // ...OUR facing,
     dp->skelAnime.jointTable = self->skelAnime.jointTable; // ...and OUR animation pose.
-    dp->currentMask = PLAYER_MASK_NONE;             // the companion doesn't wear Link's mask
+    dp->currentMask = PLAYER_MASK_NONE;                    // the companion doesn't wear Link's mask
 
     // Ground it the same way Actor_Draw does (z_actor.c): shape.yOffset scaled by the actor scale. Without
     // this the model hovers above the floor — the "floating" the companion had on spawn.
@@ -596,8 +593,8 @@ static void RemainsAllyLink_Draw(Actor* thisx, PlayState* play) {
     Matrix_Scale(dp->actor.scale.x, dp->actor.scale.y, dp->actor.scale.z, MTXMODE_APPLY);
 
     Player_DrawImpl(play, dp->skelAnime.skeleton, dp->skelAnime.jointTable, dp->skelAnime.dListCount, 0,
-                    PLAYER_FORM_HUMAN, dp->currentBoots, dp->actor.shape.face,
-                    Player_OverrideLimbDrawGameplayDefault, Player_PostLimbDrawGameplay, &dp->actor);
+                    PLAYER_FORM_HUMAN, dp->currentBoots, dp->actor.shape.face, Player_OverrideLimbDrawGameplayDefault,
+                    Player_PostLimbDrawGameplay, &dp->actor);
 
     gSPGrayscale(POLY_OPA_DISP++, false);
 

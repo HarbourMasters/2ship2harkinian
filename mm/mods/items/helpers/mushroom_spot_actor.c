@@ -28,8 +28,7 @@ extern void func_80853080(Player* this, PlayState* play);
 // RG_BOTTLE_WITH_MAGIC_MUSHROOM entry from the rando item table and starts
 // the get-item cutscene immediately.
 extern GetItemEntry ItemTable_RetrieveEntry(s16 modIndex, s16 getItemID);
-extern s32 GiveItemEntryFromActor(Actor* actor, PlayState* play, GetItemEntry getItemEntry,
-                                  f32 xzRange, f32 yRange);
+extern s32 GiveItemEntryFromActor(Actor* actor, PlayState* play, GetItemEntry getItemEntry, f32 xzRange, f32 yRange);
 
 #define MUSHROOM_SPOT_RADIUS 60.0f
 
@@ -37,11 +36,11 @@ extern s32 GiveItemEntryFromActor(Actor* actor, PlayState* play, GetItemEntry ge
 // Yaw set to 0 (mushrooms are radial). Heights tuned to ground level — refine
 // after first build using the dev pos-printer.
 const MushroomSpotPoint sMushroomSpots[MUSHROOM_SPOT_COUNT] = {
-    { SCENE_LOST_WOODS, 5, { -1180.0f,  0.0f,   980.0f } }, // Bridge area
-    { SCENE_LOST_WOODS, 1, {   300.0f,  0.0f,  -200.0f } }, // Central crossroads
-    { SCENE_LOST_WOODS, 6, {   650.0f,  0.0f, -1700.0f } }, // Forest Stage room
-    { SCENE_LOST_WOODS, 3, {  -800.0f, 20.0f, -1100.0f } }, // Saria's grotto branch
-    { SCENE_LOST_WOODS, 8, {  1450.0f,  0.0f,   250.0f } }, // Goron Shop branch
+    { SCENE_LOST_WOODS, 5, { -1180.0f, 0.0f, 980.0f } },   // Bridge area
+    { SCENE_LOST_WOODS, 1, { 300.0f, 0.0f, -200.0f } },    // Central crossroads
+    { SCENE_LOST_WOODS, 6, { 650.0f, 0.0f, -1700.0f } },   // Forest Stage room
+    { SCENE_LOST_WOODS, 3, { -800.0f, 20.0f, -1100.0f } }, // Saria's grotto branch
+    { SCENE_LOST_WOODS, 8, { 1450.0f, 0.0f, 250.0f } },    // Goron Shop branch
 };
 
 // ────────── Forward decls ──────────
@@ -189,8 +188,7 @@ static void MushroomSpot_Update(Actor* thisx, PlayState* play) {
             // the get-item cutscene. Same pattern as clm_behavior.cpp:185.
             // Randomizer_Item_Give dispatches via the RG_BOTTLE_WITH_MAGIC_MUSHROOM
             // switch (bottle-fill block in randomizer.cpp).
-            GetItemEntry entry = ItemTable_RetrieveEntry(MOD_RANDOMIZER,
-                                                         (s16)RG_BOTTLE_WITH_MAGIC_MUSHROOM);
+            GetItemEntry entry = ItemTable_RetrieveEntry(MOD_RANDOMIZER, (s16)RG_BOTTLE_WITH_MAGIC_MUSHROOM);
             GiveItemEntryFromActor(thisx, play, entry, 80.0f, 60.0f);
             MushroomSpot_MarkCollected(spotIdx);
         } else {
@@ -223,8 +221,7 @@ static void MushroomSpot_Draw(Actor* thisx, PlayState* play) {
     Matrix_RotateY(BINANG_TO_RAD(thisx->shape.rot.y), MTXMODE_APPLY);
     Matrix_Scale(0.5f, 0.5f, 0.5f, MTXMODE_APPLY);
 
-    gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx),
-              G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPDisplayList(POLY_OPA_DISP++, sMushroomDL);
 
     gDPPipeSync(POLY_OPA_DISP++);

@@ -23,8 +23,7 @@ extern f32 gChampionSlowFactor;
 // Categories worth hard-freezing. BG/SWITCH are included so moving platforms and
 // timed switches stop too; PLAYER is deliberately absent (Link always moves).
 static const u8 sTimeCtlFreezeCats[] = {
-    ACTORCAT_SWITCH, ACTORCAT_BG,   ACTORCAT_EXPLOSIVES, ACTORCAT_NPC,
-    ACTORCAT_ENEMY,  ACTORCAT_MISC, ACTORCAT_BOSS,
+    ACTORCAT_SWITCH, ACTORCAT_BG, ACTORCAT_EXPLOSIVES, ACTORCAT_NPC, ACTORCAT_ENEMY, ACTORCAT_MISC, ACTORCAT_BOSS,
 };
 
 typedef struct {

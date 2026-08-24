@@ -38,16 +38,16 @@
 // ---------------------------------------------------------------------------
 // z_player.c internals (defined later in this TU) — forward declarations
 // ---------------------------------------------------------------------------
-s32 func_80830B88(PlayState* play, Player* this);          // OoT func_80834758: R-shield gate
-bool func_80830F9C(PlayState* play);                       // bButtonAmmoPlusOne B-press check
-bool func_80831010(Player* this, PlayState* play);         // OoT func_80834EB8: aim camera
+s32 func_80830B88(PlayState* play, Player* this);  // OoT func_80834758: R-shield gate
+bool func_80830F9C(PlayState* play);               // bButtonAmmoPlusOne B-press check
+bool func_80831010(Player* this, PlayState* play); // OoT func_80834EB8: aim camera
 void Player_SetUpperAction(PlayState* play, Player* this, PlayerUpperActionFunc upperActionFunc);
 s32 Player_UpdateHostileLockOn(Player* this);
 void Player_SetParallel(Player* this);
 void Player_AnimSfx_PlayVoice(Player* this, u16 sfxId);
 s32 OotBoom_CopyMeleeAttackJoints(Player* this, PlayState* play); // defined next to sMeleeAttackAnimInfo
-extern s32 sPlayerUseHeldItem;              // OoT sUseHeldItem
-extern s32 sPlayerHeldItemButtonIsHeldDown; // OoT sHeldItemButtonIsHeldDown
+extern s32 sPlayerUseHeldItem;                                    // OoT sUseHeldItem
+extern s32 sPlayerHeldItemButtonIsHeldDown;                       // OoT sHeldItemButtonIsHeldDown
 
 // Native MM anims (gPlayerAnim_link_boom_throw_waitR / link_uma_anim_walk are already declared as
 // OTR path strings by objects/gameplay_keep/gameplay_keep.h, included earlier in this TU).

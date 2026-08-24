@@ -3171,8 +3171,8 @@ typedef enum {
     RI_WOODFALL_MAP,
     RI_WOODFALL_SMALL_KEY,
     RI_WOODFALL_STRAY_FAIRY,
-    RI_CLAWSHOT, // Skijer's NEI: Clawshot as a distinct MM rando item (separate from RI_HOOKSHOT).
-                 // Appended at the END so existing RandoItemId values stay stable.
+    RI_CLAWSHOT,          // Skijer's NEI: Clawshot as a distinct MM rando item (separate from RI_HOOKSHOT).
+                          // Appended at the END so existing RandoItemId values stay stable.
     RI_NET,               // Skijer's NEI bottle rando: Bug-Catching Net (netEquipped / SLOT_BOTTLE_3).
     RI_BOTTOMLESS_BOTTLE, // Skijer's NEI bottle rando: Bottomless Bottle (bottomlessBottleMode /
                           // SLOT_BOTTLE_4). Both appended at the END for RandoItemId stability.
@@ -3194,7 +3194,25 @@ typedef enum {
     RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE,
     RI_OOT_NEI_SLATE_RUNE_STASIS,
     RI_OOT_NEI_SLATE_RUNE_CRYONIS,
-    RI_MAX_TRAP, // Just used for ice trap ice cube model
+    // Per-tier identities of the OoT progressive chains, so they behave EXACTLY like MM's own
+    // progressives: Rando::ConvertItem resolves the chain to one of these, the give stores it in
+    // CUSTOM_ITEM_PARAM, and from then on the name, textbox and model are the concrete tier's.
+    // Without them the chains kept presenting as "Progressive Master Sword" and the draw had to
+    // guess the tier from live save state. Never placed in a seed — they are resolution targets,
+    // and they carry NO FleetComboItems row: the progressive parent is what crosses.
+    // APPENDED at the end: RandoItemId values are serialized. Skijer's NEI
+    RI_OOT_HAMMER,            // Progressive Hammer L1
+    RI_OOT_IRON_KNUCKLE_AXE,  // Progressive Hammer L2
+    RI_OOT_MASTER_SWORD,      // Progressive Master Sword L1
+    RI_OOT_TRUE_MASTER_SWORD, // Progressive Master Sword L2
+    RI_OOT_BIGGORON_SWORD,    // Progressive BGS L1 (L2 is the native RI_GREAT_FAIRY_SWORD)
+    RI_OOT_QUARTZ_OF_MOTION,  // Stone of Agony L2
+    RI_OOT_GORONS_BRACELET,   // Progressive Strength L1
+    RI_OOT_SILVER_GAUNTLETS,  // Progressive Strength L2
+    RI_OOT_GOLDEN_GAUNTLETS,  // Progressive Strength L3
+    RI_OOT_NEI_ROCS_FEATHER,  // Progressive Roc's L1 (Skijer's feather, SLOT_ROCS)
+    RI_OOT_NEI_ROCS_CAPE,     // Progressive Roc's L2
+    RI_MAX_TRAP,              // Just used for ice trap ice cube model
     RI_MAX,
 } RandoItemId;
 
@@ -3586,9 +3604,9 @@ typedef enum {
     RO_TRIFORCE_PIECES_MAX,
     RO_TRIFORCE_PIECES_REQUIRED,
     // Skijer's NEI — appended (raw values live in seeds, so the list is append-only).
-    RO_SHUFFLE_NEI_ITEMS,          // gate for the whole NEI custom-item pool block
-    RO_SHUFFLE_BOMB_ARROWS,        // RandoOptionBombArrows
-    RO_ELEMENTAL_WAND_SHUFFLE,     // RandoOptionElementalWand
+    RO_SHUFFLE_NEI_ITEMS,      // gate for the whole NEI custom-item pool block
+    RO_SHUFFLE_BOMB_ARROWS,    // RandoOptionBombArrows
+    RO_ELEMENTAL_WAND_SHUFFLE, // RandoOptionElementalWand
     // 2026-08-06 — symmetric cross-game pool categories (user requirement #1: each game can offer
     // the other's items WITHOUT the combo). One checkbox per category; combo mode keeps supplying
     // these through its own block/FC delegation, so the standalone blocks are combo-gated OFF.

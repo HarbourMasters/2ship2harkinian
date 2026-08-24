@@ -12,6 +12,7 @@
 #include "2s2h/BenGui/Notification.h"
 #include <vector>
 #include <string>
+#include <deque> // give_all: cola pausada para que cada item haga su animación
 #include <utility>
 #include <cctype>
 
@@ -387,15 +388,13 @@ static WalkSpec WalkSpecOf(RandoItemId randoItemId, const Rando::StaticData::Ran
     static const WalkSpec kExcluded = { nullptr, 0 };
 
     // Exclusiones: win conditions, retirada, targets discretos de progresivos, alias progresivos.
-    if (in({ "RI_TRIFORCE_PIECE", "RI_TRIFORCE_PIECE_PREVIOUS", "RI_OOT_NEI_HYLIAS_GRACE",
-             "RI_SWORD_KOKIRI", "RI_SWORD_RAZOR", "RI_SWORD_GILDED", "RI_BOW", "RI_QUIVER_40",
-             "RI_QUIVER_50", "RI_BOMB_BAG_20", "RI_BOMB_BAG_30", "RI_BOMB_BAG_40", "RI_SINGLE_MAGIC",
-             "RI_DOUBLE_MAGIC", "RI_WALLET_ADULT", "RI_WALLET_GIANT", "RI_WALLET_TYCOON",
-             "RI_PROGRESSIVE_LULLABY", "RI_TIME_PROGRESSIVE",
+    if (in({ "RI_TRIFORCE_PIECE", "RI_TRIFORCE_PIECE_PREVIOUS", "RI_OOT_NEI_HYLIAS_GRACE", "RI_SWORD_KOKIRI",
+             "RI_SWORD_RAZOR", "RI_SWORD_GILDED", "RI_BOW", "RI_QUIVER_40", "RI_QUIVER_50", "RI_BOMB_BAG_20",
+             "RI_BOMB_BAG_30", "RI_BOMB_BAG_40", "RI_SINGLE_MAGIC", "RI_DOUBLE_MAGIC", "RI_WALLET_ADULT",
+             "RI_WALLET_GIANT", "RI_WALLET_TYCOON", "RI_PROGRESSIVE_LULLABY", "RI_TIME_PROGRESSIVE",
              // skills sueltos del Dual Cane: los reparte RI_OOT_NEI_CANE_OF_SOMARIA x6
-             "RI_OOT_NEI_CANE_SOMARIA_BLOCK", "RI_OOT_NEI_CANE_SOMARIA_PLATFORM",
-             "RI_OOT_NEI_CANE_PACCI_FLIP", "RI_OOT_NEI_CANE_PACCI_STONE",
-             "RI_OOT_NEI_CANE_PACCI_ULTRAHAND" })) {
+             "RI_OOT_NEI_CANE_SOMARIA_BLOCK", "RI_OOT_NEI_CANE_SOMARIA_PLATFORM", "RI_OOT_NEI_CANE_PACCI_FLIP",
+             "RI_OOT_NEI_CANE_PACCI_STONE", "RI_OOT_NEI_CANE_PACCI_ULTRAHAND" })) {
         return kExcluded;
     }
 
@@ -429,15 +428,14 @@ static WalkSpec WalkSpecOf(RandoItemId randoItemId, const Rando::StaticData::Ran
     if (pre("RI_SOUL_OOT_BOSS_")) {
         return { "oot_dungeons", 1 };
     }
-    if (pre("RI_OOT_MAP_") || pre("RI_OOT_COMPASS_") || pre("RI_OOT_SMALL_KEY_") ||
-        pre("RI_OOT_BOSS_KEY_") || pre("RI_OOT_KEY_RING_") || id == "RI_OOT_SKELETON_KEY") {
+    if (pre("RI_OOT_MAP_") || pre("RI_OOT_COMPASS_") || pre("RI_OOT_SMALL_KEY_") || pre("RI_OOT_BOSS_KEY_") ||
+        pre("RI_OOT_KEY_RING_") || id == "RI_OOT_SKELETON_KEY") {
         return { "oot_dungeons", 1 };
     }
     if (pre("RI_OOT_PROGRESSIVE_")) {
         // Cadenas: una copia por nivel. Hammer/MS/BGS son upgrades NEI (su L1 = arma vanilla va
         // incluida en la primera copia); Roc es el item de Skijer (pluma→capa).
-        if (in({ "RI_OOT_PROGRESSIVE_HAMMER", "RI_OOT_PROGRESSIVE_MASTER_SWORD",
-                 "RI_OOT_PROGRESSIVE_BGS" })) {
+        if (in({ "RI_OOT_PROGRESSIVE_HAMMER", "RI_OOT_PROGRESSIVE_MASTER_SWORD", "RI_OOT_PROGRESSIVE_BGS" })) {
             return { "oot_nei_upgrades", 2 };
         }
         if (id == "RI_OOT_PROGRESSIVE_ROC") {
@@ -465,9 +463,8 @@ static WalkSpec WalkSpecOf(RandoItemId randoItemId, const Rando::StaticData::Ran
     if (pre("RI_SOUL_ENEMY_") || in({ "RI_ABILITY_SWIM", "RI_GREAT_SPIN_ATTACK" })) {
         return { "mm_skills", 1 }; // enemy souls habilitan enemigos, como las skills
     }
-    if (pre("RI_SONG_") || pre("RI_REMAINS_") || pre("RI_OWL_") || pre("RI_TINGLE_MAP_") ||
-        pre("RI_GS_TOKEN_") || pre("RI_FROG_") || pre("RI_TIME_") ||
-        in({ "RI_HEART_PIECE", "RI_HEART_CONTAINER", "RI_DOUBLE_DEFENSE" })) {
+    if (pre("RI_SONG_") || pre("RI_REMAINS_") || pre("RI_OWL_") || pre("RI_TINGLE_MAP_") || pre("RI_GS_TOKEN_") ||
+        pre("RI_FROG_") || pre("RI_TIME_") || in({ "RI_HEART_PIECE", "RI_HEART_CONTAINER", "RI_DOUBLE_DEFENSE" })) {
         return { "mm_collectables", 1 };
     }
     if (id.find("_STRAY_FAIRY") != std::string::npos || id.find("_SMALL_KEY") != std::string::npos ||
@@ -483,8 +480,7 @@ static WalkSpec WalkSpecOf(RandoItemId randoItemId, const Rando::StaticData::Ran
     if (id == "RI_PROGRESSIVE_MAGIC") {
         return { "mm_items", 2 };
     }
-    if (in({ "RI_PROGRESSIVE_BOW", "RI_PROGRESSIVE_BOMB_BAG", "RI_PROGRESSIVE_SWORD",
-             "RI_PROGRESSIVE_WALLET" })) {
+    if (in({ "RI_PROGRESSIVE_BOW", "RI_PROGRESSIVE_BOMB_BAG", "RI_PROGRESSIVE_SWORD", "RI_PROGRESSIVE_WALLET" })) {
         return { "mm_items", 3 };
     }
     return { "mm_items", 1 }; // pictobox, keg, bottles, ocarina, trade quest, notebook...
@@ -498,25 +494,24 @@ static const char* kWalkUsage = "all|progressive|oot_items|oot_nei_upgrades|oot_
 // alto — para verlas subir una tras otra in-game (give_next progressive + give_again por nivel, o
 // give_all progressive en masivo). Los items también viven en su categoría normal.
 static const RandoItemId kProgressiveWalk[] = {
-    RI_PROGRESSIVE_SWORD,                                          // Kokiri -> Razor -> Gilded (x3)
-    RI_OOT_PROGRESSIVE_MASTER_SWORD,                               // Master -> True Master (x2)
-    RI_OOT_PROGRESSIVE_BGS,                                        // Biggoron -> GFS (x2)
-    RI_OOT_PROGRESSIVE_HAMMER,                                     // Hammer -> IK Axe (x2)
-    RI_PROGRESSIVE_BOW, RI_PROGRESSIVE_BOMB_BAG,                   // x3 c/u
-    RI_PROGRESSIVE_MAGIC,                                          // x2
-    RI_PROGRESSIVE_WALLET,                                         // x3
-    RI_OOT_PROGRESSIVE_STRENGTH,                                   // x3
+    RI_PROGRESSIVE_SWORD,                                               // Kokiri -> Razor -> Gilded (x3)
+    RI_OOT_PROGRESSIVE_MASTER_SWORD,                                    // Master -> True Master (x2)
+    RI_OOT_PROGRESSIVE_BGS,                                             // Biggoron -> GFS (x2)
+    RI_OOT_PROGRESSIVE_HAMMER,                                          // Hammer -> IK Axe (x2)
+    RI_PROGRESSIVE_BOW, RI_PROGRESSIVE_BOMB_BAG,                        // x3 c/u
+    RI_PROGRESSIVE_MAGIC,                                               // x2
+    RI_PROGRESSIVE_WALLET,                                              // x3
+    RI_OOT_PROGRESSIVE_STRENGTH,                                        // x3
     RI_OOT_PROGRESSIVE_STICK_CAPACITY, RI_OOT_PROGRESSIVE_NUT_CAPACITY, // x2 c/u
-    RI_OOT_PROGRESSIVE_ROC,                                        // pluma -> capa (x2)
-    RI_OOT_STONE_OF_AGONY,                                         // piedra -> Quartz (x2)
-    RI_OOT_NEI_CANE_OF_SOMARIA,                                    // las 6 skills (x6)
+    RI_OOT_PROGRESSIVE_ROC,                                             // pluma -> capa (x2)
+    RI_OOT_STONE_OF_AGONY,                                              // piedra -> Quartz (x2)
+    RI_OOT_NEI_CANE_OF_SOMARIA,                                         // las 6 skills (x6)
     // Los 6 rods de la Elemental Wand: items hermanos sobre un slot (cada uno con su textbox).
-    RI_OOT_NEI_WAND_SAND_ROD, RI_OOT_NEI_WAND_TORNADO_ROD, RI_OOT_NEI_WAND_WATER_ROD,
-    RI_OOT_NEI_WAND_METEOR_ROD, RI_OOT_NEI_WAND_STORM_ROD, RI_OOT_NEI_WAND_SHADOW_SCEPTER,
+    RI_OOT_NEI_WAND_SAND_ROD, RI_OOT_NEI_WAND_TORNADO_ROD, RI_OOT_NEI_WAND_WATER_ROD, RI_OOT_NEI_WAND_METEOR_ROD,
+    RI_OOT_NEI_WAND_STORM_ROD, RI_OOT_NEI_WAND_SHADOW_SCEPTER,
     // Las 4 runas del Sheikah Slate: items hermanos sobre un slot (cada una con su textbox).
-    RI_OOT_NEI_SLATE_RUNE_BOMB, RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE,
-    RI_OOT_NEI_SLATE_RUNE_STASIS, RI_OOT_NEI_SLATE_RUNE_CRYONIS,
-    RI_SONG_LULLABY_INTRO, RI_SONG_LULLABY,                        // la "cadena" de la Lullaby
+    RI_OOT_NEI_SLATE_RUNE_BOMB, RI_OOT_NEI_SLATE_RUNE_MASTER_CYCLE, RI_OOT_NEI_SLATE_RUNE_STASIS,
+    RI_OOT_NEI_SLATE_RUNE_CRYONIS, RI_SONG_LULLABY_INTRO, RI_SONG_LULLABY, // la "cadena" de la Lullaby
 };
 
 // The walk order is the table order, which is also the order the audit script reports in.
@@ -631,11 +626,51 @@ static bool GiveResetHandler(std::shared_ptr<Ship::Console> Console, const std::
 
 // Masivo: sin cutscene ni textbox — encolar cientos de cutscenes sería inusable. Va directo a
 // Rando::GiveItem, que es el mismo camino que usa el arranque de una seed.
+// give_all queue. This used to call Rando::GiveItem in a tight loop, which grants the items but
+// shows NOTHING — no get-item animation, no textbox — because the presentation is a queued
+// GameInteractor event and only one can be in flight. Same shape as SoH's give_all now: hold the
+// list and hand one item over per frame, once the previous one's cutscene AND textbox are done, so
+// every item actually plays its animation. Skijer's NEI
+static std::deque<RandoItemId> sGiveAllQueue;
+
+static void EnsureGiveAllPump() {
+    static bool sHooked = false;
+    if (sHooked) {
+        return;
+    }
+    sHooked = true;
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() {
+        if (sGiveAllQueue.empty() || gPlayState == nullptr) {
+            return;
+        }
+        // Wait for the previous give to finish: its GIEventGiveItem must have been consumed AND the
+        // textbox closed. Handing over the next one early would overwrite the item being presented.
+        if (!GameInteractor::Instance->events.empty() || gPlayState->msgCtx.msgMode != MSGMODE_NONE) {
+            return;
+        }
+        Player* player = GET_PLAYER(gPlayState);
+        if (player == nullptr || Player_InBlockingCsMode(gPlayState, player)) {
+            return;
+        }
+        RandoItemId randoItemId = sGiveAllQueue.front();
+        sGiveAllQueue.pop_front();
+        QueueRandoItemGive(randoItemId);
+        if (sGiveAllQueue.empty()) {
+            INFO_MESSAGE("[2S2H] give_all: cola terminada.");
+        }
+    });
+}
+
 static bool GiveAllHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                            std::string* output) {
     if (args.size() < 2) {
-        ERROR_MESSAGE("[2S2H] Usage: give_all <%s>", kWalkUsage);
+        ERROR_MESSAGE("[2S2H] Usage: give_all <%s|stop>", kWalkUsage);
         return 1;
+    }
+    if (args[1] == "stop") {
+        INFO_MESSAGE("[2S2H] give_all: cola vaciada (%d pendientes).", (int)sGiveAllQueue.size());
+        sGiveAllQueue.clear();
+        return 0;
     }
     if (gPlayState == nullptr) {
         ERROR_MESSAGE("gPlayState == nullptr");
@@ -647,18 +682,19 @@ static bool GiveAllHandler(std::shared_ptr<Ship::Console> Console, const std::ve
         ERROR_MESSAGE("[2S2H] No items in category \"%s\"", args[1].c_str());
         return 1;
     }
-    int given = 0;
+    int queued = 0;
     for (RandoItemId randoItemId : list) {
         // Una copia por NIVEL de cadena (WalkSpecOf): las cadenas progresivas convierten al
-        // siguiente nivel en cada give (ConvertItem / los arms RI_OOT_PROGRESSIVE leen estado), y
-        // una copia sobre el tope re-otorga el máximo sin efecto visible (give_all es silencioso).
+        // siguiente nivel en cada give (ConvertItem / los arms RI_OOT_PROGRESSIVE leen estado);
+        // una copia sobre el tope re-otorga el máximo, que es inofensivo.
         for (int i = 0; i < WalkSpecOf(randoItemId, Rando::StaticData::Items[randoItemId]).copies; i++) {
-            Rando::GiveItem(randoItemId);
-            given++;
+            sGiveAllQueue.push_back(randoItemId);
+            queued++;
         }
     }
-    INFO_MESSAGE("[2S2H] Gave %d items from \"%s\" (cadenas progresivas repetidas hasta su tope)", given,
-                 args[1].c_str());
+    EnsureGiveAllPump();
+    INFO_MESSAGE("[2S2H] Encolados %d gives de \"%s\" — se presentan uno tras otro (give_all stop para cancelar)",
+                 queued, args[1].c_str());
     return 0;
 }
 
@@ -756,9 +792,9 @@ void DebugConsole_Init(void) {
     CMD_REGISTER("give_next", { GiveNextHandler,
                                 "Gives the next item of the walk, with cutscene and model.",
                                 { { "category", Ship::ArgumentType::TEXT, true } } });
-    CMD_REGISTER("give_prev", { GivePrevHandler,
-                                "Goes back one item in the walk.",
-                                { { "category", Ship::ArgumentType::TEXT, true } } });
+    CMD_REGISTER(
+        "give_prev",
+        { GivePrevHandler, "Goes back one item in the walk.", { { "category", Ship::ArgumentType::TEXT, true } } });
     CMD_REGISTER("give_again", { GiveAgainHandler,
                                  "Gives the CURRENT item again — next level of a progressive chain.",
                                  { { "category", Ship::ArgumentType::TEXT, true } } });

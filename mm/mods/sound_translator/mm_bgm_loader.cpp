@@ -15,7 +15,8 @@
  */
 #include "mm_bgm_loader.h"
 
-extern "C" void MmBgm_RegisterSequences(void) {}
+extern "C" void MmBgm_RegisterSequences(void) {
+}
 
 extern "C" s32 MmBgm_IsAvailable(void) {
     return 0;
@@ -38,6 +39,8 @@ extern "C" void MmBgm_PlayLoop(const char* mmBgmName) {
     (void)mmBgmName;
 }
 
-extern "C" void MmBgm_RestorePreviousBgm(void) {}
+extern "C" void MmBgm_RestorePreviousBgm(void) {
+}
 
-extern "C" void MmBgm_StopFanfare(void) {}
+extern "C" void MmBgm_StopFanfare(void) {
+}

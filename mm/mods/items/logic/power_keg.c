@@ -14,8 +14,8 @@
  * #included into custom_items.c AFTER item_spinner.c (DestroyBreakable/IsBreakableRock) and
  * weapon_upgrades.c (WeaponUpgrade_IKAxeStrike), so it shares their unity TU.
  */
-#include "../../nei_save.h"                    // Skijer's NEI
-#include "../helpers/combat_helper.h"          // Combat_DamageEnemiesInRadius
+#include "../../nei_save.h"                      // Skijer's NEI
+#include "../helpers/combat_helper.h"            // Combat_DamageEnemiesInRadius
 #include "overlays/actors/ovl_En_Bom/z_en_bom.h" // EnBom (the visible fuse bomb's timer)
 
 // Current transformation form (mm_player_form.cpp, extern "C"). Values mirror MmPlayerTransformation.
@@ -38,8 +38,9 @@ extern void* MmAssets_LoadResource(const char* path);
 #define POWER_KEG_OBSTACLE_RADIUS 350.0f // boulder + heavy-block reach (clears a cluster/wall)
 #define POWER_KEG_DAMAGE 8               // real bomb damage amount (z_en_bom.c explosion toucher = 8)
 #define POWER_KEG_FUSE 100               // fuse length in frames (~1.6s) — drop it and step back, MM-style
-#define PK_KEG_SCALE 0.333f              // ABSOLUTE draw scale of the GI keg model (1/3 of the original
-                                         // 1.0 that read too big; GI models sit near ~0.4) — tune
+#define PK_KEG_SCALE \
+    0.333f // ABSOLUTE draw scale of the GI keg model (1/3 of the original
+           // 1.0 that read too big; GI models sit near ~0.4) — tune
 
 static Actor* sKegBomb = NULL; // the En_Bom we spawned as the keg (held or dropped); drives its Draw + blast
 
@@ -187,8 +188,8 @@ static void PowerKeg_Explode(PlayState* play, Vec3f* center) {
     Vec3f zero = { 0.0f, 0.0f, 0.0f };
     EffectSsBomb2_SpawnLayered(play, center, &zero, &zero, 300, 57);
     EffectSsBlast_SpawnWhiteShockwave(play, center, &zero, &zero);
-    Audio_PlaySoundGeneral(NA_SE_IT_BOMB_EXPLOSION, center, 4, &gSfxDefaultFreqAndVolScale,
-                           &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+    Audio_PlaySoundGeneral(NA_SE_IT_BOMB_EXPLOSION, center, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
+                           &gSfxDefaultReverb);
 
     Combat_DamageEnemiesInRadius(play, center, POWER_KEG_RADIUS, 0, POWER_KEG_DAMAGE);
     PowerKeg_DestroyObstacles(play, center, POWER_KEG_OBSTACLE_RADIUS);

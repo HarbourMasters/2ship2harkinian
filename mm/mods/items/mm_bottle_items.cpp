@@ -90,8 +90,7 @@ static void BottleItems_Enforce(PlayState* play) {
     // [Wheel A][Wheel B][Net][Bottomless] (+5/6 emptied) and no vanilla remnants fight them again.
     {
         u8 cur3 = gSaveContext.save.saveInfo.inventory.items[SLOT_BOTTLE_3];
-        if (cur3 != ITEM_NET && BottleItems_IsVanillaBottle(cur3) &&
-            BottleItems_MigrateToWheel(cur3, BOTTLE_WHEEL_A)) {
+        if (cur3 != ITEM_NET && BottleItems_IsVanillaBottle(cur3) && BottleItems_MigrateToWheel(cur3, BOTTLE_WHEEL_A)) {
             gSaveContext.save.saveInfo.inventory.items[SLOT_BOTTLE_3] = ITEM_NONE; // Net refills below
             Bottle_SetNetOwned(1);
             Bottle_SetBottomlessOwned(1);
@@ -195,8 +194,7 @@ static void BottleItems_OnBottleUpdate(u8 item) {
 }
 
 static void BottleItems_Register() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnBottleContentsUpdate>(
-        BottleItems_OnBottleUpdate);
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnBottleContentsUpdate>(BottleItems_OnBottleUpdate);
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnInterfaceDrawStart>(
         []() { BottleItems_Enforce(gPlayState); });

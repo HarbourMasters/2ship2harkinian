@@ -105,19 +105,15 @@ namespace mmsfx {
 #define IS_SEQUENCE_CHANNEL_VALID(ptr) ((uintptr_t)(ptr) != (uintptr_t)&gMmSfx.sequenceChannelNone)
 
 #define MUTE_FLAGS_STOP_SAMPLES (1 << 3)
-#define MUTE_FLAGS_STOP_LAYER   (1 << 4)
-#define MUTE_FLAGS_SOFTEN       (1 << 5)
-#define MUTE_FLAGS_STOP_NOTES   (1 << 6)
-#define MUTE_FLAGS_STOP_SCRIPT  (1 << 7)
+#define MUTE_FLAGS_STOP_LAYER (1 << 4)
+#define MUTE_FLAGS_SOFTEN (1 << 5)
+#define MUTE_FLAGS_STOP_NOTES (1 << 6)
+#define MUTE_FLAGS_STOP_SCRIPT (1 << 7)
 
 #define ARRAY_COUNT(arr) (s32)(sizeof(arr) / sizeof(arr[0]))
 #define SQ(x) ((x) * (x))
 
-enum {
-    SEQPLAYER_STATE_0,
-    SEQPLAYER_STATE_FADE_IN,
-    SEQPLAYER_STATE_FADE_OUT
-};
+enum { SEQPLAYER_STATE_0, SEQPLAYER_STATE_FADE_IN, SEQPLAYER_STATE_FADE_OUT };
 
 // load.h enums (only the values referenced here)
 enum { SEQUENCE_TABLE, FONT_TABLE, SAMPLE_TABLE };
@@ -1455,7 +1451,7 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
 
                 case 0xC2: // channel: set dyntable
                     cmdArgU16 = (u16)cmdArgs[0];
-                    channel->dynTable = (u8(*)[][2])&seqPlayer->seqData[cmdArgU16];
+                    channel->dynTable = (u8(*)[][2]) & seqPlayer->seqData[cmdArgU16];
                     break;
 
                 case 0xC5: // channel: dyn set dyntable
@@ -1771,7 +1767,7 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
                     break;
 
                 case 0xB4: // channel: set dyntable large
-                    channel->dynTable = (u8(*)[][2])&seqPlayer->seqData[channel->unk_22];
+                    channel->dynTable = (u8(*)[][2]) & seqPlayer->seqData[channel->unk_22];
                     break;
 
                 case 0xB5: // channel: read dyntable large

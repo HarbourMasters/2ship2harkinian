@@ -731,8 +731,7 @@ s32 Player_UpperAction_CaneOfSomaria(Player* player, PlayState* play) {
             LinkAnimation_Update(play, &player->skelAnimeUpper);
             // Pitch the torso with the aim so the arm tracks the object up and down.
             // Without this he points flat at the horizon while it floats over his head.
-            player->upperLimbRot.x =
-                CLAMP(player->actor.focus.rot.x, -PACCI_UH_REACH_PITCH, PACCI_UH_REACH_PITCH);
+            player->upperLimbRot.x = CLAMP(player->actor.focus.rot.x, -PACCI_UH_REACH_PITCH, PACCI_UH_REACH_PITCH);
             player->upperLimbRot.y = 0;
             player->upperLimbRot.z = 0;
             sCanePoseHeld = 0;

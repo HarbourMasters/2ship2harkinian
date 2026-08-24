@@ -143,6 +143,8 @@ void EffectSsStone1_Spawn(struct PlayState* play, Vec3f* pos, s32 reg0);
 void EffectSsHitmark_SpawnFixedScale(struct PlayState* play, s32 type, Vec3f* pos);
 void EffectSsHitmark_SpawnCustomScale(struct PlayState* play, s32 type, s16 scale, Vec3f* pos);
 void EffectSsFhgFlash_SpawnShock(struct PlayState* play, struct Actor* actor, Vec3f* pos, s16 scale, u8 params);
+void EffectSsFhgFlash_SpawnLightBall(struct PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale,
+                                    u8 params);
 void EffectSsKFire_Spawn(struct PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scaleMax, u8 type);
 void EffectSsSolderSrchBall_Spawn(struct PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale, s16* playerDetected, s16 flags);
 void EffectSsKakera_Spawn(struct PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* arg3, s16 gravity, s16 arg5, s16 arg6, s16 arg7, s16 arg8, s16 scale, s16 arg10, s16 arg11, s32 life, s16 colorIdx, s16 objectId, Gfx* dList);

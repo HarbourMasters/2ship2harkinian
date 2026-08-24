@@ -77,7 +77,7 @@ void StasisSfx_MixInto(s16* outBuf, u32 numSamples);
 #define STASIS_LAUNCH_MAX 42.0f
 #define STASIS_LAUNCH_VEL_Y 6.0f
 #define STASIS_GRAVITY -1.4f
-#define STASIS_RECOIL_SPEED 7.0f  // how hard the attacker bounces off a frozen body
+#define STASIS_RECOIL_SPEED 7.0f // how hard the attacker bounces off a frozen body
 #define STASIS_RECOIL_HEIGHT 3.5f
 
 // A body has to be about Link's height before climbing it makes any sense. This is what "actor bg
@@ -120,12 +120,12 @@ typedef struct {
     s16 chainTimer; // chain-burst frames left
     s16 age;        // frames since the freeze started (drives the pulse)
     u16 accumDamage;
-    f32 force;   // accumulated launch speed — every blow adds, nothing ever subtracts
+    f32 force;    // accumulated launch speed — every blow adds, nothing ever subtracts
     Vec3f hitDir; // unit vector of the LAST blow, in full 3D. Direction is not accumulated:
                   // in BotW the newest hit re-aims the object and only the magnitude stacks.
     u8 hasHitDir;
-    s32 bgId;      // dynapoly id while frozen, or -1
-    u8 bgIsOurs;   // 1 = WE registered that bgId and must delete it on thaw
+    s32 bgId;    // dynapoly id while frozen, or -1
+    u8 bgIsOurs; // 1 = WE registered that bgId and must delete it on thaw
     // Saved actor state, restored verbatim (the Pacci_Restore field set).
     ActorFunc origUpdate;
     ActorFunc origDraw;
@@ -184,27 +184,25 @@ static ColliderCylinderInit sStasisColliderInit = {
 // Pushable blocks, block-like crates, platforms and elevators. Launchable, never climbable — a
 // pushblock you can climb would break every block puzzle in the game.
 static const s16 sStasisBlockIds[] = {
-    ACTOR_OBJ_OSHIHIKI,   ACTOR_OBJ_KIBAKO2,      ACTOR_OBJ_SKATEBLOCK, ACTOR_OBJ_PZLBLOCK,
-    ACTOR_OBJ_LIGHTBLOCK, ACTOR_OBJ_VISIBLOCK,    ACTOR_OBJ_ICEBLOCK,   ACTOR_OBJ_HSBLOCK,
-    ACTOR_BG_F40_BLOCK,   ACTOR_OBJ_LIFT,         ACTOR_OBJ_RAILLIFT,   ACTOR_OBJ_DRIFTICE,
-    ACTOR_OBJ_DANPEILIFT, ACTOR_OBJ_LUPYGAMELIFT, ACTOR_OBJ_Y2LIFT,     ACTOR_OBJ_OCARINALIFT,
-    ACTOR_OBJ_ROTLIFT,    ACTOR_BG_DBLUE_ELEVATOR, ACTOR_BG_FU_KAITEN,  ACTOR_BG_ICEFLOE,
-    ACTOR_BG_F40_FLIFT,   ACTOR_BG_F40_SWLIFT,
+    ACTOR_OBJ_OSHIHIKI,    ACTOR_OBJ_KIBAKO2,   ACTOR_OBJ_SKATEBLOCK,    ACTOR_OBJ_PZLBLOCK,     ACTOR_OBJ_LIGHTBLOCK,
+    ACTOR_OBJ_VISIBLOCK,   ACTOR_OBJ_ICEBLOCK,  ACTOR_OBJ_HSBLOCK,       ACTOR_BG_F40_BLOCK,     ACTOR_OBJ_LIFT,
+    ACTOR_OBJ_RAILLIFT,    ACTOR_OBJ_DRIFTICE,  ACTOR_OBJ_DANPEILIFT,    ACTOR_OBJ_LUPYGAMELIFT, ACTOR_OBJ_Y2LIFT,
+    ACTOR_OBJ_OCARINALIFT, ACTOR_OBJ_ROTLIFT,   ACTOR_BG_DBLUE_ELEVATOR, ACTOR_BG_FU_KAITEN,     ACTOR_BG_ICEFLOE,
+    ACTOR_BG_F40_FLIFT,    ACTOR_BG_F40_SWLIFT,
 };
 
 // Rocks, boulders and large breakables. These carry plain cylinder/sphere colliders, no dynapoly.
 static const s16 sStasisPropIds[] = {
-    ACTOR_OBJ_BOMBIWA,  ACTOR_OBJ_HAMISHI,   ACTOR_EN_GOROIWA, ACTOR_OBJ_HUGEBOMBIWA,
-    ACTOR_OBJ_SNOWBALL, ACTOR_OBJ_SNOWBALL2, ACTOR_BG_ICICLE,  ACTOR_OBJ_BIGICICLE,
-    ACTOR_OBJ_HAKAISI,  ACTOR_OBJ_GHAKA,     ACTOR_OBJ_ARMOS,  ACTOR_OBJ_HSSTUMP,
-    ACTOR_EN_MM,
+    ACTOR_OBJ_BOMBIWA,   ACTOR_OBJ_HAMISHI, ACTOR_EN_GOROIWA,    ACTOR_OBJ_HUGEBOMBIWA, ACTOR_OBJ_SNOWBALL,
+    ACTOR_OBJ_SNOWBALL2, ACTOR_BG_ICICLE,   ACTOR_OBJ_BIGICICLE, ACTOR_OBJ_HAKAISI,     ACTOR_OBJ_GHAKA,
+    ACTOR_OBJ_ARMOS,     ACTOR_OBJ_HSSTUMP, ACTOR_EN_MM,
 };
 
 // Enemies that shrug Stasis off. Same spirit as sPacciBlacklist: scripted heavyweights whose AI
 // does not survive being paused.
 static const s16 sStasisEnemyBlacklist[] = {
-    ACTOR_EN_WIZ, ACTOR_EN_DINOFOS, ACTOR_EN_BIGPO, ACTOR_EN_BIGSLIME, ACTOR_EN_WALLMAS,
-    ACTOR_EN_FLOORMAS, ACTOR_EN_RD, ACTOR_EN_FZ,
+    ACTOR_EN_WIZ,     ACTOR_EN_DINOFOS,  ACTOR_EN_BIGPO, ACTOR_EN_BIGSLIME,
+    ACTOR_EN_WALLMAS, ACTOR_EN_FLOORMAS, ACTOR_EN_RD,    ACTOR_EN_FZ,
 };
 
 static u8 Stasis_IdInList(s16 id, const s16* list, s32 count) {
@@ -306,7 +304,7 @@ static void Stasis_MakePoly(CollisionPoly* poly, u16 ia, u16 ib, u16 ic) {
         poly->normal.x = (s16)(n.x * 32767.0f);
         poly->normal.y = (s16)(n.y * 32767.0f);
         poly->normal.z = (s16)(n.z * 32767.0f);
-        poly->dist = (s16)-((n.x * a.x) + (n.y * a.y) + (n.z * a.z));
+        poly->dist = (s16) - ((n.x * a.x) + (n.y * a.y) + (n.z * a.z));
     }
 }
 
@@ -956,8 +954,7 @@ static void Stasis_CaptureHit(PlayState* play, Actor* actor) {
             dir.z = attacker->velocity.z / len;
         } else {
             dir.x = actor->world.pos.x - attacker->world.pos.x;
-            dir.y = (actor->world.pos.y + (actor->shape.yOffset * actor->scale.y)) - 
-                    (attacker->world.pos.y + 30.0f);
+            dir.y = (actor->world.pos.y + (actor->shape.yOffset * actor->scale.y)) - (attacker->world.pos.y + 30.0f);
             dir.z = actor->world.pos.z - attacker->world.pos.z;
             len = sqrtf((dir.x * dir.x) + (dir.y * dir.y) + (dir.z * dir.z));
             if (len > 0.001f) {

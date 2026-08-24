@@ -23,11 +23,9 @@ extern "C" {
 extern PlayState* gPlayState;
 }
 
-extern "C" void Harpoon_SpawnRemoteVfxActor(uint32_t /*srcCid*/, int16_t actorId,
-                                            float px, float py, float pz,
-                                            int16_t rx, int16_t ry, int16_t rz,
-                                            int16_t params) {
-    if (!gPlayState) return;
-    Actor_Spawn(&gPlayState->actorCtx, gPlayState, actorId,
-                px, py, pz, rx, ry, rz, params);
+extern "C" void Harpoon_SpawnRemoteVfxActor(uint32_t /*srcCid*/, int16_t actorId, float px, float py, float pz,
+                                            int16_t rx, int16_t ry, int16_t rz, int16_t params) {
+    if (!gPlayState)
+        return;
+    Actor_Spawn(&gPlayState->actorCtx, gPlayState, actorId, px, py, pz, rx, ry, rz, params);
 }

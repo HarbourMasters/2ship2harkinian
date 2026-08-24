@@ -58,8 +58,8 @@ static void ZPerm_Sfx(Player* p, u16 sfxId) {
     // sample is chosen by sfxId & 0x1FF, so clearing 0x800 changes the lifetime, never
     // which sound you hear. (NA_SE_EV_ICE_FREEZE is 0x28B2, NA_SE_EV_ICE_MELT 0x28A2 —
     // both carry it.)
-    Audio_PlaySoundGeneral(sfxId - SFX_FLAG, &sZPermSfxPos, 4, &gSfxDefaultFreqAndVolScale,
-                           &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+    Audio_PlaySoundGeneral(sfxId - SFX_FLAG, &sZPermSfxPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
+                           &gSfxDefaultReverb);
 }
 
 /** Kill every cue this item still has in flight. */
@@ -105,8 +105,8 @@ static void ZPerm_PlayEntryCue(void) {
 /** The freeze letting go: same chime, pitch pointer we are about to drag down. */
 static void ZPerm_PlayReleaseCue(void) {
     sZPermRevFreq = ZPERM_REV_FREQ_START;
-    Audio_PlaySoundGeneral(NA_SE_SY_SET_ICE_ARROW, &gSfxDefaultPos, 4, &sZPermRevFreq,
-                           &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+    Audio_PlaySoundGeneral(NA_SE_SY_SET_ICE_ARROW, &gSfxDefaultPos, 4, &sZPermRevFreq, &gSfxDefaultFreqAndVolScale,
+                           &gSfxDefaultReverb);
 }
 
 /** Bend the release cue down one step. Cheap no-op once it has bottomed out. */

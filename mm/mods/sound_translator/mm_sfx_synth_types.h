@@ -56,15 +56,15 @@ namespace mmsfx {
 #endif
 
 // ---- Base scalar types (MM uses these unqualified; keep ported code verbatim) ----
-typedef uint8_t  u8;
+typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
-typedef int8_t   s8;
-typedef int16_t  s16;
-typedef int32_t  s32;
-typedef float    f32;
-typedef double   f64;
-typedef u8       UNK_TYPE1;
+typedef int8_t s8;
+typedef int16_t s16;
+typedef int32_t s32;
+typedef float f32;
+typedef double f64;
+typedef u8 UNK_TYPE1;
 
 #define MM_SFX_ADPCMFSIZE 16
 #define MM_SFX_SAMPLES_PER_FRAME MM_SFX_ADPCMFSIZE
@@ -522,11 +522,7 @@ typedef struct NoteSynthesisState {
     struct OggOpusFile* opusFile;
 } NoteSynthesisState;
 
-typedef enum NotePlaybackStatus {
-    PLAYBACK_STATUS_0,
-    PLAYBACK_STATUS_1,
-    PLAYBACK_STATUS_2
-} NotePlaybackStatus;
+typedef enum NotePlaybackStatus { PLAYBACK_STATUS_0, PLAYBACK_STATUS_1, PLAYBACK_STATUS_2 } NotePlaybackStatus;
 
 typedef struct NotePlaybackState {
     /* 0x00 */ u8 priority;
@@ -605,15 +601,15 @@ typedef struct AudioBufferParameters {
     /* 0x06 */ s16 numSamplesPerFrameTarget;
     /* 0x08 */ s16 numSamplesPerFrameMax;
     /* 0x0A */ s16 numSamplesPerFrameMin;
-    /* 0x0C */ s16 updatesPerFrame;          // updates per audio frame
+    /* 0x0C */ s16 updatesPerFrame; // updates per audio frame
     /* 0x0E */ s16 numSamplesPerUpdate;
     /* 0x10 */ s16 numSamplesPerUpdateMax;
     /* 0x12 */ s16 numSamplesPerUpdateMin;
     /* 0x14 */ s16 numSequencePlayers;
     /* 0x18 */ f32 resampleRate;
-    /* 0x1C */ f32 updatesPerFrameInv;        // 1 / updatesPerFrame
-    /* 0x20 */ f32 updatesPerFrameInvScaled;  // updatesPerFrameInv / 256 (ADSR decay table)
-    /* 0x24 */ f32 updatesPerFrameScaled;     // updatesPerFrame / 4 (ADSR delay scaling)
+    /* 0x1C */ f32 updatesPerFrameInv;       // 1 / updatesPerFrame
+    /* 0x20 */ f32 updatesPerFrameInvScaled; // updatesPerFrameInv / 256 (ADSR decay table)
+    /* 0x24 */ f32 updatesPerFrameScaled;    // updatesPerFrame / 4 (ADSR delay scaling)
 } AudioBufferParameters;
 
 // Minimal stand-ins for the few aggregate context members the ported MM lib

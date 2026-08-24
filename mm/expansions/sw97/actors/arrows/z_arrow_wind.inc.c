@@ -336,7 +336,8 @@ static void ArrowWind_ApplyEffects(PlayState* play, Vec3f* center) {
     // Enemies — radial outward push from impact point.
     for (actor = play->actorCtx.actorLists[ACTORCAT_ENEMY].first; actor != NULL; actor = next) {
         next = actor->next;
-        if (actor->update == NULL) continue;
+        if (actor->update == NULL)
+            continue;
 
         u8 inHeavy = ArrowWind_InCylinder(actor, center, heavyRadius, heavyHalfH);
         u8 inLight = ArrowWind_InCylinder(actor, center, lightRadius, lightHalfH);
@@ -360,8 +361,10 @@ static void ArrowWind_ApplyEffects(PlayState* play, Vec3f* center) {
     // Props — cut grass / break pots in the heavy zone.
     for (actor = play->actorCtx.actorLists[ACTORCAT_PROP].first; actor != NULL; actor = next) {
         next = actor->next;
-        if (actor->update == NULL) continue;
-        if (!ArrowWind_InCylinder(actor, center, heavyRadius, heavyHalfH)) continue;
+        if (actor->update == NULL)
+            continue;
+        if (!ArrowWind_InCylinder(actor, center, heavyRadius, heavyHalfH))
+            continue;
 
         if (actor->id == ACTOR_EN_KUSA || actor->id == ACTOR_OBJ_TSUBO) {
             Actor_Kill(actor);
@@ -371,9 +374,12 @@ static void ArrowWind_ApplyEffects(PlayState* play, Vec3f* center) {
     // Torches — extinguish by clearing their lit-switch flag.
     for (actor = play->actorCtx.actorLists[ACTORCAT_PROP].first; actor != NULL; actor = next) {
         next = actor->next;
-        if (actor->update == NULL) continue;
-        if (actor->id != ACTOR_OBJ_SYOKUDAI) continue;
-        if (!ArrowWind_InCylinder(actor, center, heavyRadius, heavyHalfH)) continue;
+        if (actor->update == NULL)
+            continue;
+        if (actor->id != ACTOR_OBJ_SYOKUDAI)
+            continue;
+        if (!ArrowWind_InCylinder(actor, center, heavyRadius, heavyHalfH))
+            continue;
 
         s32 switchFlag = (actor->params >> 8) & 0x3F;
         if (switchFlag != 0x3F) {
@@ -384,9 +390,12 @@ static void ArrowWind_ApplyEffects(PlayState* play, Vec3f* center) {
     // Pickups (EnItem00 in ACTORCAT_MISC) — vacuum TOWARD Link.
     for (actor = play->actorCtx.actorLists[ACTORCAT_MISC].first; actor != NULL; actor = next) {
         next = actor->next;
-        if (actor->update == NULL) continue;
-        if (actor->id != ACTOR_EN_ITEM00) continue;
-        if (!ArrowWind_InCylinder(actor, center, lightRadius, lightHalfH)) continue;
+        if (actor->update == NULL)
+            continue;
+        if (actor->id != ACTOR_EN_ITEM00)
+            continue;
+        if (!ArrowWind_InCylinder(actor, center, lightRadius, lightHalfH))
+            continue;
 
         f32 dx = player->actor.world.pos.x - actor->world.pos.x;
         f32 dy = player->actor.world.pos.y - actor->world.pos.y;

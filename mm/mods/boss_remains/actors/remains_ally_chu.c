@@ -33,10 +33,10 @@
  * UPDATE_CULLING_DISABLED | DRAW_CULLING_DISABLED, no ACTOR_FLAG_HOSTILE.
  */
 
-#include "remains_ally_common.h"                  // shared helpers + z64.h (structs/prototypes)
-#include "objects/object_rat/object_rat.h"        // gRealBombchuSkel / gRealBombchuRunAnim + REAL_BOMBCHU_LIMB_*
-#include "objects/gameplay_keep/gameplay_keep.h"  // gBombBodyDL / gBombCapDL + GAMEPLAY_KEEP
-#include "overlays/actors/ovl_En_Bom/z_en_bom.h"  // EnBom + BOMB_EXPLOSIVE_TYPE_BOMB / BOMB_TYPE_BODY
+#include "remains_ally_common.h"                 // shared helpers + z64.h (structs/prototypes)
+#include "objects/object_rat/object_rat.h"       // gRealBombchuSkel / gRealBombchuRunAnim + REAL_BOMBCHU_LIMB_*
+#include "objects/gameplay_keep/gameplay_keep.h" // gBombBodyDL / gBombCapDL + GAMEPLAY_KEEP
+#include "overlays/actors/ovl_En_Bom/z_en_bom.h" // EnBom + BOMB_EXPLOSIVE_TYPE_BOMB / BOMB_TYPE_BODY
 
 // This file is compiled as part of the C++ TU boss_remains.cpp (unity include), so the
 // object_rat/gameplay_keep OTR-path symbols are `const char[]` and must be explicitly cast to
@@ -47,12 +47,12 @@
 // TUNING
 // ============================================================================
 
-#define REMAINS_ALLY_CHU_SCALE       0.010f  // 10/1000 (a touch bigger than the 0.005 tiny chu)
-#define REMAINS_ALLY_CHU_CHASE_SPEED 5.0f    // movement speed
-#define REMAINS_ALLY_CHU_IDLE_SPEED  5.0f    // wander speed
-#define REMAINS_ALLY_CHU_SEEK_RANGE  800.0f  // how far it looks for an enemy to charge
-#define REMAINS_ALLY_CHU_HIT_DIST    18.0f   // base XZ contact distance (+ target's cyl radius)
-#define REMAINS_ALLY_CHU_FUSE        250     // frames before it self-destructs
+#define REMAINS_ALLY_CHU_SCALE 0.010f      // 10/1000 (a touch bigger than the 0.005 tiny chu)
+#define REMAINS_ALLY_CHU_CHASE_SPEED 5.0f  // movement speed
+#define REMAINS_ALLY_CHU_IDLE_SPEED 5.0f   // wander speed
+#define REMAINS_ALLY_CHU_SEEK_RANGE 800.0f // how far it looks for an enemy to charge
+#define REMAINS_ALLY_CHU_HIT_DIST 18.0f    // base XZ contact distance (+ target's cyl radius)
+#define REMAINS_ALLY_CHU_FUSE 250          // frames before it self-destructs
 
 // ============================================================================
 // STRUCT
@@ -105,9 +105,9 @@ void RemainsAllyChu_DetonateActive(PlayState* play) {
     if ((self == NULL) || (self->actionFunc == RemainsAllyChu_PostDetonation) || (play == NULL)) {
         return;
     }
-    EnBom* bomb = (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, self->actor.world.pos.x,
-                                      self->actor.world.pos.y, self->actor.world.pos.z, BOMB_EXPLOSIVE_TYPE_BOMB, 0, 0,
-                                      BOMB_TYPE_BODY);
+    EnBom* bomb =
+        (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, self->actor.world.pos.x, self->actor.world.pos.y,
+                            self->actor.world.pos.z, BOMB_EXPLOSIVE_TYPE_BOMB, 0, 0, BOMB_TYPE_BODY);
     if (bomb != NULL) {
         bomb->timer = 0; // detonate this frame
     }
@@ -400,9 +400,9 @@ static void RemainsAllyChu_Detonate(RemainsAllyChu* self, PlayState* play) {
     }
 
     if (self->target != NULL) {
-        EnBom* bomb = (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, self->actor.world.pos.x,
-                                          self->actor.world.pos.y, self->actor.world.pos.z, BOMB_EXPLOSIVE_TYPE_BOMB,
-                                          0, 0, BOMB_TYPE_BODY);
+        EnBom* bomb =
+            (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, self->actor.world.pos.x, self->actor.world.pos.y,
+                                self->actor.world.pos.z, BOMB_EXPLOSIVE_TYPE_BOMB, 0, 0, BOMB_TYPE_BODY);
         if (bomb != NULL) {
             bomb->timer = 0; // detonate self frame
         }

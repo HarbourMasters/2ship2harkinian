@@ -27,13 +27,13 @@
 extern PlayState* gPlayState;
 
 // ────────── Persistent state (cleared only on death) ──────────
-static u8 sFollowerSpawnedThisRun = 0;   // 1 = chick OR adult has been seen this run
-static u8 sFollowerIsAdult = 0;          // 0 = chick mode, 1 = adult mode
-static Actor* sFollowerActor = NULL;     // Currently-tracked follower in this scene
+static u8 sFollowerSpawnedThisRun = 0; // 1 = chick OR adult has been seen this run
+static u8 sFollowerIsAdult = 0;        // 0 = chick mode, 1 = adult mode
+static Actor* sFollowerActor = NULL;   // Currently-tracked follower in this scene
 
 // Link trail ring buffer (60 frames = ~3 s history).
 #define TRAIL_LEN 60
-#define TRAIL_LAG 30  // 0.5 s lag
+#define TRAIL_LAG 30 // 0.5 s lag
 static Vec3f sLinkTrail[TRAIL_LEN];
 static s32 sTrailHead = 0;
 static u8 sTrailPrimed = 0;
@@ -93,8 +93,10 @@ static void BremenFollower_Update(Actor* thisx, PlayState* play) {
     // Y: pull toward target Y but apply gravity + bg check for ground snap.
     thisx->world.pos.y += thisx->velocity.y;
     thisx->velocity.y += thisx->gravity;
-    if (thisx->velocity.y < -8.0f) thisx->velocity.y = -8.0f;
-    if (thisx->world.pos.y < target.y - 40.0f) thisx->world.pos.y = target.y - 40.0f;
+    if (thisx->velocity.y < -8.0f)
+        thisx->velocity.y = -8.0f;
+    if (thisx->world.pos.y < target.y - 40.0f)
+        thisx->world.pos.y = target.y - 40.0f;
 
     // Face the direction of travel (Link's position).
     f32 dx = player->actor.world.pos.x - thisx->world.pos.x;
@@ -114,8 +116,8 @@ static void BremenFollower_Update(Actor* thisx, PlayState* play) {
 // ────────── Spawn helpers ──────────
 Actor* BremenFollower_SpawnChick(PlayState* play, Player* player) {
     Vec3f pos = player->actor.world.pos;
-    Actor* a = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_NWC, pos.x, pos.y, pos.z, 0,
-                           player->actor.shape.rot.y, 0, 0);
+    Actor* a =
+        Actor_Spawn(&play->actorCtx, play, ACTOR_EN_NWC, pos.x, pos.y, pos.z, 0, player->actor.shape.rot.y, 0, 0);
     if (a != NULL) {
         ConfigureAsPacificFollower(a);
         sFollowerActor = a;
@@ -139,8 +141,7 @@ Actor* BremenFollower_SpawnAdult(PlayState* play, const Vec3f* pos, s16 yaw) {
 
 // ────────── Public API ──────────
 void BremenFollower_UpgradeToAdult(PlayState* play, Player* player) {
-    Vec3f spawnPos = (sFollowerActor != NULL) ? sFollowerActor->world.pos
-                                              : player->actor.world.pos;
+    Vec3f spawnPos = (sFollowerActor != NULL) ? sFollowerActor->world.pos : player->actor.world.pos;
     if (sFollowerActor != NULL) {
         Actor_Kill(sFollowerActor);
         sFollowerActor = NULL;

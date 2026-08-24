@@ -135,8 +135,7 @@ void DrawSensor(ImDrawList* dl, ImGuiViewport* vp) {
         const int r = (int)(60 + 195 * prox);
         const int g = (int)(180 - 120 * prox);
         const int b = (int)(230 - 190 * prox);
-        dl->AddRectFilled(ImVec2(barX, barY), ImVec2(barX + barW * prox, barY + barH),
-                          IM_COL32(r, g, b, 235), 3.0f);
+        dl->AddRectFilled(ImVec2(barX, barY), ImVec2(barX + barW * prox, barY + barH), IM_COL32(r, g, b, 235), 3.0f);
     }
 }
 

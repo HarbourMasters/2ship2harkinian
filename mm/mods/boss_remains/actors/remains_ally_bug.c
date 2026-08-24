@@ -91,16 +91,16 @@ static const char* const sMothModelDLPath = "__OTR__overlays/ovl_En_Tanron1/ovl_
 // cloud that carries him. It only exists while Link is flying (BossRemains_IsOdolwaFlying) and never
 // attacks. hopTimer is repurposed as the orbit angle.
 #define BUG_MODE_CLOUD 3
-#define BUG_CLOUD_RADIUS 22.0f  // ring radius under Link
-#define BUG_CLOUD_BELOW 10.0f   // how far below Link the cloud sits
-#define BUG_CLOUD_ORBIT 0x0300  // orbit angular speed (binang/frame)
+#define BUG_CLOUD_RADIUS 22.0f // ring radius under Link
+#define BUG_CLOUD_BELOW 10.0f  // how far below Link the cloud sits
+#define BUG_CLOUD_ORBIT 0x0300 // orbit angular speed (binang/frame)
 
 // Pikmin ball (ground beetles trail Link like Gyorg's fish school): a loose spaced BALL BEHIND Link that
 // only breaks formation to attack when Link holds still, converging on the enemy nearest to LINK.
-#define BUG_BALL_DIST    50.0f  // base distance the ball trails behind Link
-#define BUG_BALL_SPACING 26.0f  // extra ring depth so they don't all sit at one radius
-#define BUG_BALL_SEP     22.0f  // boids separation radius (keeps the ball from merging to a dot)
-#define BUG_LINK_MOVE    2.5f   // Link speedXZ above this = "moving" → re-form (don't peel off to attack)
+#define BUG_BALL_DIST 50.0f    // base distance the ball trails behind Link
+#define BUG_BALL_SPACING 26.0f // extra ring depth so they don't all sit at one radius
+#define BUG_BALL_SEP 22.0f     // boids separation radius (keeps the ball from merging to a dot)
+#define BUG_LINK_MOVE 2.5f     // Link speedXZ above this = "moving" → re-form (don't peel off to attack)
 
 extern s32 BossRemains_IsOdolwaFlying(void); // defined later in the same TU (boss_remains.cpp)
 
@@ -532,7 +532,7 @@ Actor* RemainsAllyBug_SpawnThunderCharged(PlayState* play, Vec3f* pos, s16 rotY,
                            BUG_MODE_THUNDER);
     if (a != NULL) {
         RemainsAllyBug* self = (RemainsAllyBug*)a;
-        self->lifeTimer = ttl;                                  // TTL × speed = reach distance
+        self->lifeTimer = ttl; // TTL × speed = reach distance
         self->collider.elem.atDmgInfo.damage = (u8)damage;
     }
     return a;

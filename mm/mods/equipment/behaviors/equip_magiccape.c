@@ -155,7 +155,6 @@ static u8 sCapeFrameTimer = 0;
 static u8 sCapeUpdateHasRun = 0;
 static f32 sCapeBaseYaw = 0.0f;
 
-
 // On the first physics tick after Init (scene change, equip toggle, cutscene exit),
 // snap every joint of every strand to its current root position so the cape doesn't
 // settle from stale world coordinates left over from the previous scene.
@@ -177,7 +176,6 @@ static f32 sCapeSideSwayCoeff[CAPE_NUM_JOINTS] = {
 static f32 sCapeDistMult[CAPE_NUM_JOINTS] = {
     0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.1f, 1.2f, 1.3f, 1.4f, 1.5f, 1.6f, 1.7f,
 };
-
 
 // ---------------------------------------------------------------------------
 // Init
@@ -210,8 +208,6 @@ static void MagicCape_Reset(void) {
     sCapeInitialized = 0;
     sCapeNeedsRootSnap = 1;
 }
-
-
 
 // ---------------------------------------------------------------------------
 // Update single strand (adapted from EnGanonMant_UpdateStrand)
@@ -513,30 +509,30 @@ static void MagicCape_Draw(Player* player, PlayState* play) {
     // sample a tile we never loaded, and in LUS that pulls whatever texture the scene left bound —
     // the "random scene textures" bug. Forcing G_CYC_1CYCLE + our own render mode + combiner
     // guarantees only our single loaded tile is ever sampled.
-#define CAPE_EMIT(DISP, RM1, RM2)                                                                                  \
-    do {                                                                                                           \
-        s16 strip, j;                                                                                              \
-                                                                                                                   \
-        gSPMatrix(DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);          \
-        gSPClearGeometryMode(DISP++, G_CULL_BOTH); /* cloth is visible from both sides */                           \
-        gSPSetGeometryMode(DISP++, G_LIGHTING);                                                                     \
-        gDPPipeSync(DISP++);                                                                                        \
-        gDPSetCycleType(DISP++, G_CYC_1CYCLE);                                                                      \
-        gDPSetRenderMode(DISP++, RM1, RM2);                                                                         \
-        gDPSetTextureLUT(DISP++, G_TT_NONE);                                                                        \
-        gSPTexture(DISP++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);                                               \
-        gDPSetCombineMode(DISP++, G_CC_MODULATERGBA, G_CC_MODULATERGBA);                                            \
-        gDPSetPrimColor(DISP++, 0, 0, sCapeP.r, sCapeP.g, sCapeP.b, sCapeP.a);                                      \
-        gDPLoadTextureBlock(DISP++, sMantTexData, G_IM_FMT_RGBA, G_IM_SIZ_16b, CAPE_TEX_WIDTH, CAPE_TEX_HEIGHT, 0,  \
-                            G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, 5, 6, G_TX_NOLOD, G_TX_NOLOD);    \
-        /* 12 strands x 12 joints -> 11 strips: load 2 strands (24 vtx), emit the quads between. */  \
-        for (strip = 0; strip < CAPE_NUM_STRANDS - 1; strip++) {                                                    \
-            gSPVertex(DISP++, &sCapeVtxBuf[strip * CAPE_NUM_JOINTS], CAPE_NUM_JOINTS * 2, 0);                       \
-            for (j = 0; j < CAPE_NUM_JOINTS - 1; j++) {                                                             \
-                gSP2Triangles(DISP++, j, j + CAPE_NUM_JOINTS, j + CAPE_NUM_JOINTS + 1, 0, j,                        \
-                              j + CAPE_NUM_JOINTS + 1, j + 1, 0);                                                   \
-            }                                                                                                       \
-        }                                                                                                           \
+#define CAPE_EMIT(DISP, RM1, RM2)                                                                                     \
+    do {                                                                                                              \
+        s16 strip, j;                                                                                                 \
+                                                                                                                      \
+        gSPMatrix(DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);            \
+        gSPClearGeometryMode(DISP++, G_CULL_BOTH); /* cloth is visible from both sides */                             \
+        gSPSetGeometryMode(DISP++, G_LIGHTING);                                                                       \
+        gDPPipeSync(DISP++);                                                                                          \
+        gDPSetCycleType(DISP++, G_CYC_1CYCLE);                                                                        \
+        gDPSetRenderMode(DISP++, RM1, RM2);                                                                           \
+        gDPSetTextureLUT(DISP++, G_TT_NONE);                                                                          \
+        gSPTexture(DISP++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);                                                 \
+        gDPSetCombineMode(DISP++, G_CC_MODULATERGBA, G_CC_MODULATERGBA);                                              \
+        gDPSetPrimColor(DISP++, 0, 0, sCapeP.r, sCapeP.g, sCapeP.b, sCapeP.a);                                        \
+        gDPLoadTextureBlock(DISP++, sMantTexData, G_IM_FMT_RGBA, G_IM_SIZ_16b, CAPE_TEX_WIDTH, CAPE_TEX_HEIGHT, 0,    \
+                            G_TX_WRAP | G_TX_NOMIRROR, G_TX_WRAP | G_TX_NOMIRROR, 5, 6, G_TX_NOLOD, G_TX_NOLOD);      \
+        /* 12 strands x 12 joints -> 11 strips: load 2 strands (24 vtx), emit the quads between. */                   \
+        for (strip = 0; strip < CAPE_NUM_STRANDS - 1; strip++) {                                                      \
+            gSPVertex(DISP++, &sCapeVtxBuf[strip * CAPE_NUM_JOINTS], CAPE_NUM_JOINTS * 2, 0);                         \
+            for (j = 0; j < CAPE_NUM_JOINTS - 1; j++) {                                                               \
+                gSP2Triangles(DISP++, j, j + CAPE_NUM_JOINTS, j + CAPE_NUM_JOINTS + 1, 0, j, j + CAPE_NUM_JOINTS + 1, \
+                              j + 1, 0);                                                                              \
+            }                                                                                                         \
+        }                                                                                                             \
     } while (0)
 
     if (sCapeP.a >= 255) {

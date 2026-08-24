@@ -750,3 +750,9 @@
 /* 0x2C2 */ DEFINE_ACTOR(         EnMiniblin,          ACTOR_EN_MINIBLIN,         ALLOCTYPE_NORMAL,    "EnMiniblin",          "Trutefel Miniblin (rupee thief)")
 /* 0x2C3 */ DEFINE_ACTOR(         EnHammergeist,       ACTOR_EN_HAMMERGEIST,      ALLOCTYPE_NORMAL,    "EnHammergeist",       "Trutefel Molmauk (fire/ice hammers)")
 /* 0x2C4 */ DEFINE_ACTOR(         EnSbeetle,           ACTOR_EN_SBEETLE,          ALLOCTYPE_NORMAL,    "EnSbeetle",           "Trutefel Scissors Beetle (pincer thrower)")
+// Harpoon multiplayer: one invisible collider carrier per remote player. Actor code lives in
+// mm/2s2h/Network/Harpoon/HarpoonDummyPlayer.cpp (inside its extern "C" block, so HarpoonPeer_Profile
+// gets C linkage); the visible body is still drawn by HarpoonDummyPlayer_DrawAll from
+// OnPlayDrawWorldEnd, so this profile has no draw. objectId is GAMEPLAY_KEEP — always loaded, so
+// Actor_Spawn never fails on Object_GetSlot in any scene.
+/* 0x2C5 */ DEFINE_ACTOR(         HarpoonPeer,         ACTOR_HARPOON_PEER,        ALLOCTYPE_NORMAL,    "HarpoonPeer",         "Harpoon remote player (collider carrier)")

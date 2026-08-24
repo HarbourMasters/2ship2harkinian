@@ -38,20 +38,20 @@
 #define SI_CHAIN_NONE 0
 
 /* Chains (progression groups). */
-#define SI_CHAIN_ROC 1        /* Feather -> Cape */
+#define SI_CHAIN_ROC 1          /* Feather -> Cape */
 #define SI_CHAIN_CANE_SOMARIA 2 /* Statue -> Block -> Platform (L3 unlocks the Trirod wheel entry) */
 #define SI_CHAIN_CANE_PACCI 3   /* Flip -> Stone -> Ultrahand (L3 unlocks the Ultrahand wheel entry) */
 #define SI_CHAIN_WAND 4         /* the six rods share the wand cell */
 #define SI_CHAIN_SLATE 5        /* the four runes share the slate cell */
 
 /* Categories == pool checkboxes (2ship RO_* / soh RSK_* map onto these 1:1). */
-#define SIC_NEI_PAGE2 0    /* 2ship RO_SHUFFLE_NEI_ITEMS  | soh RSK_SKIJER_CUSTOM_ITEMS */
-#define SIC_EQUIPMENT 1    /* 2ship RO_SHUFFLE_OOT_EQUIPMENT | soh RSK_EXT_EQUIPMENT */
-#define SIC_OOT_GEAR 2     /* 2ship RO_SHUFFLE_OOT_GEAR   | soh: native pool */
-#define SIC_OOT_QUEST 3    /* 2ship RO_SHUFFLE_OOT_QUEST  | soh: native pool */
-#define SIC_OOT_MASKS 4    /* 2ship RO_SHUFFLE_OOT_MASKS  | soh: native pool */
-#define SIC_MM_SONGS 5     /* 2ship: native pool          | soh RSK_MM_SONGS */
-#define SIC_MM_MASKS 6     /* 2ship: native pool          | soh RSK_MM_MASKS_ALL */
+#define SIC_NEI_PAGE2 0 /* 2ship RO_SHUFFLE_NEI_ITEMS  | soh RSK_SKIJER_CUSTOM_ITEMS */
+#define SIC_EQUIPMENT 1 /* 2ship RO_SHUFFLE_OOT_EQUIPMENT | soh RSK_EXT_EQUIPMENT */
+#define SIC_OOT_GEAR 2  /* 2ship RO_SHUFFLE_OOT_GEAR   | soh: native pool */
+#define SIC_OOT_QUEST 3 /* 2ship RO_SHUFFLE_OOT_QUEST  | soh: native pool */
+#define SIC_OOT_MASKS 4 /* 2ship RO_SHUFFLE_OOT_MASKS  | soh: native pool */
+#define SIC_MM_SONGS 5  /* 2ship: native pool          | soh RSK_MM_SONGS */
+#define SIC_MM_MASKS 6  /* 2ship: native pool          | soh RSK_MM_MASKS_ALL */
 
 /* clang-format off */
 #define SHARED_ITEM_TABLE(SI) \

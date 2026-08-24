@@ -80,9 +80,9 @@
 #define BALLCHAIN_SPIN_SCALE 0.1f
 
 // Pose lean
-#define BALLCHAIN_LEAN_MULT 3500.0f          // Upper body lean factor
-#define BALLCHAIN_LEAN_TILT 40.0f            // Orbit tilt from stick
-#define BALLCHAIN_STICK_DEADZONE 8.0f        // Lib_GetControlStickData magnitude deadzone
+#define BALLCHAIN_LEAN_MULT 3500.0f   // Upper body lean factor
+#define BALLCHAIN_LEAN_TILT 40.0f     // Orbit tilt from stick
+#define BALLCHAIN_STICK_DEADZONE 8.0f // Lib_GetControlStickData magnitude deadzone
 
 // =============================================================================
 // Collision
@@ -93,12 +93,13 @@
 #define BALLCHAIN_WALL_HEIGHT 20.0f
 // Proximity reach for shattering ICE actors — the throw is fast (tunnels past thin icicles), so ice
 // is destroyed by proximity here instead of relying on the collider overlapping. Skijer's NEI
-#define BALLCHAIN_ICE_REACH 140.0f       // icicles + ice enemies (freezard/Eeno)
-#define BALLCHAIN_BIGICE_REACH 240.0f    // LARGE blocks (Obj_Ice_Poly / Bigicicle / Iceblock) — huge actors,
-                                         // measured to world.pos, so they need a bigger reach to register
+#define BALLCHAIN_ICE_REACH 140.0f // icicles + ice enemies (freezard/Eeno)
+#define BALLCHAIN_BIGICE_REACH \
+    240.0f                              // LARGE blocks (Obj_Ice_Poly / Bigicicle / Iceblock) — huge actors,
+                                        // measured to world.pos, so they need a bigger reach to register
 #define BALLCHAIN_BREAKABLE_REACH 80.0f // pots/crates/grass/rocks
-#define BALLCHAIN_BALL_RADIUS 12.0f // Visual/floor-contact radius of the ball
-#define BALLCHAIN_DAMAGE 4          // Hammer tier
+#define BALLCHAIN_BALL_RADIUS 12.0f     // Visual/floor-contact radius of the ball
+#define BALLCHAIN_DAMAGE 4              // Hammer tier
 
 // Goron-punch damage ONLY — NO fire. Skijer's NEI:
 //  - A fire flag would light torches (Obj_Syokudai) and other fire triggers, which we do NOT want.
@@ -118,33 +119,33 @@
 // Sound Effects
 // =============================================================================
 #define BALLCHAIN_SFX_SWING NA_SE_IT_HAMMER_SWING
-#define BALLCHAIN_SFX_HIT NA_SE_IT_HAMMER_HIT             // enemy hit + ground thud
-#define BALLCHAIN_SFX_WHOOSH NA_SE_IT_SWORD_SWING_HARD    // once per orbit revolution
+#define BALLCHAIN_SFX_HIT NA_SE_IT_HAMMER_HIT          // enemy hit + ground thud
+#define BALLCHAIN_SFX_WHOOSH NA_SE_IT_SWORD_SWING_HARD // once per orbit revolution
 // Retract clink — MUST be a ONE-SHOT. NA_SE_IT_HOOKSHOT_CHAIN is a LOOPING sample (the hookshot
 // re-triggers it every frame as a flagged sfx); fired via Audio_PlaySoundGeneral it starts a loop
 // that never stops — that was the "sonido de volver a mano nunca se detiene" bug. Skijer's NEI
-#define BALLCHAIN_SFX_CHAIN NA_SE_IT_HOOKSHOT_REFLECT      // one-shot metallic clink while reeling in
-#define BALLCHAIN_SFX_WALL_BOUNCE NA_SE_IT_SHIELD_BOUND   // metal clank on wall hit
+#define BALLCHAIN_SFX_CHAIN NA_SE_IT_HOOKSHOT_REFLECT   // one-shot metallic clink while reeling in
+#define BALLCHAIN_SFX_WALL_BOUNCE NA_SE_IT_SHIELD_BOUND // metal clank on wall hit
 #define BALLCHAIN_SFX_VOICE_ADULT NA_SE_VO_LI_SWORD_N
 #define BALLCHAIN_SFX_VOICE_CHILD NA_SE_VO_LI_SWORD_N_KID
 
 // =============================================================================
 // State Aliases (mapped to gCustomItemState fields)
 // =============================================================================
-#define bcActive gCustomItemState.ballAndChainThrown     // u8: Item is active
-#define bcState gCustomItemState.timer2                  // s16: Current state (INACTIVE/EQUIP/SPINNING/THROWN)
-#define bcCharge gCustomItemState.timer1                 // s16: Wind-up frames (0..CHARGE_MAX); thrown-safety counter
-#define bcSpinAngle gCustomItemState.somariaCooldown     // s16: Current spin angle (binary angle)
-#define bcThrowYaw gCustomItemState.sharedYaw            // s16: Link facing / throw direction yaw
-#define bcBallPos gCustomItemState.sharedProjectilePos   // Vec3f: Ball world position
-#define bcBallVel gCustomItemState.ballAndChainVel       // Vec3f: Ball velocity (thrown) — Skijer's NEI
-#define bcPhase gCustomItemState.ballAndChainPhase       // u8: Thrown sub-phase — Skijer's NEI
-#define bcBounces gCustomItemState.ballAndChainBounces   // u8: Floor bounces this throw — Skijer's NEI
+#define bcActive gCustomItemState.ballAndChainThrown       // u8: Item is active
+#define bcState gCustomItemState.timer2                    // s16: Current state (INACTIVE/EQUIP/SPINNING/THROWN)
+#define bcCharge gCustomItemState.timer1                   // s16: Wind-up frames (0..CHARGE_MAX); thrown-safety counter
+#define bcSpinAngle gCustomItemState.somariaCooldown       // s16: Current spin angle (binary angle)
+#define bcThrowYaw gCustomItemState.sharedYaw              // s16: Link facing / throw direction yaw
+#define bcBallPos gCustomItemState.sharedProjectilePos     // Vec3f: Ball world position
+#define bcBallVel gCustomItemState.ballAndChainVel         // Vec3f: Ball velocity (thrown) — Skijer's NEI
+#define bcPhase gCustomItemState.ballAndChainPhase         // u8: Thrown sub-phase — Skijer's NEI
+#define bcBounces gCustomItemState.ballAndChainBounces     // u8: Floor bounces this throw — Skijer's NEI
 #define bcRestTimer gCustomItemState.ballAndChainRestTimer // s16: Rest beat / retract clink counter — Skijer's NEI
-#define bcCollider gCustomItemState.ballAndChainCollider // ColliderCylinder: Damage collider
+#define bcCollider gCustomItemState.ballAndChainCollider   // ColliderCylinder: Damage collider
 #define bcFirstPerson gCustomItemState.ballAndChainFirstPersonActive // u8: First person aim mode
-#define bcTrailIndex gCustomItemState.ballAndChainTrailIndex   // s32: EffectBlure trail index — Skijer's NEI
-#define bcTrailActive gCustomItemState.ballAndChainTrailActive // u8: trail allocated
-#define bcTrailTick gCustomItemState.ballAndChainTrailTick     // u8: sparse-feed frame counter
+#define bcTrailIndex gCustomItemState.ballAndChainTrailIndex         // s32: EffectBlure trail index — Skijer's NEI
+#define bcTrailActive gCustomItemState.ballAndChainTrailActive       // u8: trail allocated
+#define bcTrailTick gCustomItemState.ballAndChainTrailTick           // u8: sparse-feed frame counter
 
 #endif

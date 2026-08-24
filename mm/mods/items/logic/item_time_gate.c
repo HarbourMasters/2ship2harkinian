@@ -64,7 +64,8 @@ static void TimeGate_Stop(Player* p, PlayState* play) {
     p->stateFlags1 &= ~(PLAYER_STATE1_IN_ITEM_CS | PLAYER_STATE1_INPUT_DISABLED | PLAYER_STATE1_IN_CUTSCENE);
 
     // Reset camera
-    Camera_ChangeSetting(Play_GetCamera(play, 0), CAM_SET_NORMAL0); // real MM camera reset (func_8005B1A4 is a no-op stub)
+    Camera_ChangeSetting(Play_GetCamera(play, 0),
+                         CAM_SET_NORMAL0); // real MM camera reset (func_8005B1A4 is a no-op stub)
 
     // Reset state
     tgActive = 0;
@@ -317,7 +318,8 @@ static void TimeGate_StateSwitching(Player* p, PlayState* play) {
 
     // Release player state before SwitchAge (it triggers scene reload)
     p->stateFlags1 &= ~(PLAYER_STATE1_IN_ITEM_CS | PLAYER_STATE1_INPUT_DISABLED | PLAYER_STATE1_IN_CUTSCENE);
-    Camera_ChangeSetting(Play_GetCamera(play, 0), CAM_SET_NORMAL0); // real MM camera reset (func_8005B1A4 is a no-op stub)
+    Camera_ChangeSetting(Play_GetCamera(play, 0),
+                         CAM_SET_NORMAL0); // real MM camera reset (func_8005B1A4 is a no-op stub)
 
     // Reset our state (scene will reload anyway)
     tgActive = 0;
@@ -373,7 +375,8 @@ static void TimeGate_StateCancel(Player* p, PlayState* play) {
     // End after cancel duration
     if (tgTimer >= TGATE_CANCEL_DURATION) {
         p->stateFlags1 &= ~(PLAYER_STATE1_IN_ITEM_CS | PLAYER_STATE1_INPUT_DISABLED | PLAYER_STATE1_IN_CUTSCENE);
-        Camera_ChangeSetting(Play_GetCamera(play, 0), CAM_SET_NORMAL0); // real MM camera reset (func_8005B1A4 is a no-op stub)
+        Camera_ChangeSetting(Play_GetCamera(play, 0),
+                             CAM_SET_NORMAL0); // real MM camera reset (func_8005B1A4 is a no-op stub)
 
         tgActive = 0;
         tgState = TGATE_STATE_IDLE;

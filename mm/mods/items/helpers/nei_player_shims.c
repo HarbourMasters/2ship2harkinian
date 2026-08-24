@@ -18,28 +18,28 @@ extern u8 ResourceMgr_FileExists(const char* resName);
 // OoT gPlayerLimbToBodyPart — rebuilt for MM's PlayerLimb/PlayerBodyPart enums (used by the
 // extended-equipment draws to anchor gear to body parts). -1 = structural limb with no body part.
 const s8 gPlayerLimbToBodyPart[PLAYER_LIMB_MAX] = {
-    -1,                            // PLAYER_LIMB_NONE
-    -1,                            // PLAYER_LIMB_ROOT
-    PLAYER_BODYPART_WAIST,         // PLAYER_LIMB_WAIST
-    -1,                            // PLAYER_LIMB_LOWER_ROOT
-    PLAYER_BODYPART_RIGHT_THIGH,   // PLAYER_LIMB_RIGHT_THIGH
-    PLAYER_BODYPART_RIGHT_SHIN,    // PLAYER_LIMB_RIGHT_SHIN
-    PLAYER_BODYPART_RIGHT_FOOT,    // PLAYER_LIMB_RIGHT_FOOT
-    PLAYER_BODYPART_LEFT_THIGH,    // PLAYER_LIMB_LEFT_THIGH
-    PLAYER_BODYPART_LEFT_SHIN,     // PLAYER_LIMB_LEFT_SHIN
-    PLAYER_BODYPART_LEFT_FOOT,     // PLAYER_LIMB_LEFT_FOOT
-    -1,                            // PLAYER_LIMB_UPPER_ROOT
-    PLAYER_BODYPART_HEAD,          // PLAYER_LIMB_HEAD
-    PLAYER_BODYPART_HAT,           // PLAYER_LIMB_HAT
-    PLAYER_BODYPART_COLLAR,        // PLAYER_LIMB_COLLAR
-    PLAYER_BODYPART_LEFT_SHOULDER, // PLAYER_LIMB_LEFT_SHOULDER
-    PLAYER_BODYPART_LEFT_FOREARM,  // PLAYER_LIMB_LEFT_FOREARM
-    PLAYER_BODYPART_LEFT_HAND,     // PLAYER_LIMB_LEFT_HAND
+    -1,                             // PLAYER_LIMB_NONE
+    -1,                             // PLAYER_LIMB_ROOT
+    PLAYER_BODYPART_WAIST,          // PLAYER_LIMB_WAIST
+    -1,                             // PLAYER_LIMB_LOWER_ROOT
+    PLAYER_BODYPART_RIGHT_THIGH,    // PLAYER_LIMB_RIGHT_THIGH
+    PLAYER_BODYPART_RIGHT_SHIN,     // PLAYER_LIMB_RIGHT_SHIN
+    PLAYER_BODYPART_RIGHT_FOOT,     // PLAYER_LIMB_RIGHT_FOOT
+    PLAYER_BODYPART_LEFT_THIGH,     // PLAYER_LIMB_LEFT_THIGH
+    PLAYER_BODYPART_LEFT_SHIN,      // PLAYER_LIMB_LEFT_SHIN
+    PLAYER_BODYPART_LEFT_FOOT,      // PLAYER_LIMB_LEFT_FOOT
+    -1,                             // PLAYER_LIMB_UPPER_ROOT
+    PLAYER_BODYPART_HEAD,           // PLAYER_LIMB_HEAD
+    PLAYER_BODYPART_HAT,            // PLAYER_LIMB_HAT
+    PLAYER_BODYPART_COLLAR,         // PLAYER_LIMB_COLLAR
+    PLAYER_BODYPART_LEFT_SHOULDER,  // PLAYER_LIMB_LEFT_SHOULDER
+    PLAYER_BODYPART_LEFT_FOREARM,   // PLAYER_LIMB_LEFT_FOREARM
+    PLAYER_BODYPART_LEFT_HAND,      // PLAYER_LIMB_LEFT_HAND
     PLAYER_BODYPART_RIGHT_SHOULDER, // PLAYER_LIMB_RIGHT_SHOULDER
-    PLAYER_BODYPART_RIGHT_FOREARM, // PLAYER_LIMB_RIGHT_FOREARM
-    PLAYER_BODYPART_RIGHT_HAND,    // PLAYER_LIMB_RIGHT_HAND
-    PLAYER_BODYPART_SHEATH,        // PLAYER_LIMB_SHEATH
-    PLAYER_BODYPART_TORSO,         // PLAYER_LIMB_TORSO
+    PLAYER_BODYPART_RIGHT_FOREARM,  // PLAYER_LIMB_RIGHT_FOREARM
+    PLAYER_BODYPART_RIGHT_HAND,     // PLAYER_LIMB_RIGHT_HAND
+    PLAYER_BODYPART_SHEATH,         // PLAYER_LIMB_SHEATH
+    PLAYER_BODYPART_TORSO,          // PLAYER_LIMB_TORSO
 };
 
 // OoT Player_AnimPlayLoop → MM Player_Anim_PlayLoop (identical semantics).
@@ -78,16 +78,14 @@ s32 func_8083485C(Player* this, PlayState* play) {
 // MM port: morph to MM's idle anim + resync yaw (MM's action machine keeps its current action;
 // good enough for the visual reset the items want). TODO: wire a real MM idle action switch.
 void func_80853080(Player* this, PlayState* play) {
-    PlayerAnimation_Change(play, &this->skelAnime, Player_GetIdleAnim(this), 1.0f, 0.0f, 0.0f, ANIMMODE_ONCE,
-                           -6.0f);
+    PlayerAnimation_Change(play, &this->skelAnime, Player_GetIdleAnim(this), 1.0f, 0.0f, 0.0f, ANIMMODE_ONCE, -6.0f);
     this->yaw = this->actor.shape.rot.y;
     Player_StopHorizontalMovement(this);
 }
 
 // OoT AnimationContext_SetLoadFrame → MM AnimTaskQueue_AddLoadPlayerFrame (identical args).
 // Restores the async pose loads (gust-jar carry, foursword stance, pegasus stab).
-void AnimationContext_SetLoadFrame(PlayState* play, LinkAnimationHeader* anim, s32 frame, s32 limbCount,
-                                   Vec3s* dst) {
+void AnimationContext_SetLoadFrame(PlayState* play, LinkAnimationHeader* anim, s32 frame, s32 limbCount, Vec3s* dst) {
     AnimTaskQueue_AddLoadPlayerFrame(play, anim, frame, limbCount, dst);
 }
 

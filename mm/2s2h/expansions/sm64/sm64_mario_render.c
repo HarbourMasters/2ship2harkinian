@@ -41,7 +41,7 @@ static u8* sMarioTextureAtlas = NULL;
 // Wing-cap halo: authoritative tile classification.
 // Per libsm64 references/libsm64/src/load_tex_data.h: wings are tiles 9 & 10.
 // =============================================================================
-#define SM64_ATLAS_NUM_TILES   (704 / 64)  // 11 tiles
+#define SM64_ATLAS_NUM_TILES (704 / 64) // 11 tiles
 static u8 sWingTileMask[SM64_ATLAS_NUM_TILES] = { 0 };
 static u8 sWingTilesDetected = 0;
 
@@ -58,11 +58,12 @@ static u8 sSm64MetalTexBuilt = 0;
 
 static void Sm64Render_ExtractMetalTextureFromAtlas(void) {
     s32 x, y;
-    if (sMarioTextureAtlas == NULL) return;
+    if (sMarioTextureAtlas == NULL)
+        return;
     for (y = 0; y < SM64_METAL_TEX_H; y++) {
         for (x = 0; x < SM64_METAL_TEX_W; x++) {
             s32 src = (y * SM64_TEXTURE_WIDTH + x) * 4;
-            s32 dst = (y * SM64_METAL_TEX_W   + x) * 4;
+            s32 dst = (y * SM64_METAL_TEX_W + x) * 4;
             sSm64MetalTex[dst + 0] = sMarioTextureAtlas[src + 0];
             sSm64MetalTex[dst + 1] = sMarioTextureAtlas[src + 1];
             sSm64MetalTex[dst + 2] = sMarioTextureAtlas[src + 2];
@@ -74,8 +75,9 @@ static void Sm64Render_ExtractMetalTextureFromAtlas(void) {
 
 static void Sm64Render_ClassifyAtlasTiles(void) {
     s32 t;
-    for (t = 0; t < SM64_ATLAS_NUM_TILES; t++) sWingTileMask[t] = 0;
-    sWingTileMask[9]  = 1;
+    for (t = 0; t < SM64_ATLAS_NUM_TILES; t++)
+        sWingTileMask[t] = 0;
+    sWingTileMask[9] = 1;
     sWingTileMask[10] = 1;
     sWingTilesDetected = 1;
 }
@@ -92,12 +94,16 @@ void Sm64Render_SetTextureAtlas(u8* atlas) {
 // because u=1.0 clamps to tile 10.
 static u8 Sm64Render_IsWingTile(f32 fu, f32 fv) {
     s32 tile;
-    if (!sWingTilesDetected) return 0;
+    if (!sWingTilesDetected)
+        return 0;
     // Body sentinel guard: anything at or above the atlas corner is body fill.
-    if (fu >= 0.999f || fv >= 0.999f) return 0;
+    if (fu >= 0.999f || fv >= 0.999f)
+        return 0;
     tile = (s32)(fu * (f32)SM64_ATLAS_NUM_TILES);
-    if (tile < 0) tile = 0;
-    if (tile >= SM64_ATLAS_NUM_TILES) tile = SM64_ATLAS_NUM_TILES - 1;
+    if (tile < 0)
+        tile = 0;
+    if (tile >= SM64_ATLAS_NUM_TILES)
+        tile = SM64_ATLAS_NUM_TILES - 1;
     return sWingTileMask[tile];
 }
 
@@ -121,8 +127,14 @@ static inline void Sm64Render_SampleChrome(const f32* nrm, u8* outR, u8* outG, u
     f32 sphU = (nrm[0] + 1.0f) * 0.5f;
     f32 sphV = (nrm[1] + 1.0f) * 0.5f;
     s32 mtx, mty, mtIdx;
-    if (sphU < 0.0f) sphU = 0.0f; if (sphU > 1.0f) sphU = 1.0f;
-    if (sphV < 0.0f) sphV = 0.0f; if (sphV > 1.0f) sphV = 1.0f;
+    if (sphU < 0.0f)
+        sphU = 0.0f;
+    if (sphU > 1.0f)
+        sphU = 1.0f;
+    if (sphV < 0.0f)
+        sphV = 0.0f;
+    if (sphV > 1.0f)
+        sphV = 1.0f;
     mtx = (s32)(sphU * (f32)(SM64_METAL_TEX_W - 1));
     mty = (s32)(sphV * (f32)(SM64_METAL_TEX_H - 1));
     mtIdx = (mty * SM64_METAL_TEX_W + mtx) * 4;
@@ -143,15 +155,14 @@ static inline void Sm64Render_SampleChrome(const f32* nrm, u8* outR, u8* outG, u
 // `metalActive` — sample chrome envmap per vertex into the SHADE color.
 // `wingCapActive` — drop SHADE.A to 0 for wing-tile verts so the wing-cap
 //   combiner kills the alpha-cutout halo.
-static void emitTrisSingle(PlayState* play, struct SM64MarioGeometryBuffers* buffers,
-                           float ox, float oy, float oz, u8 vAlpha, u8 useXlu,
-                           u8 metalActive, u8 wingCapActive, u8 fireActive,
-                           u8 recolor, u8 tintR, u8 tintG, u8 tintB) {
+static void emitTrisSingle(PlayState* play, struct SM64MarioGeometryBuffers* buffers, float ox, float oy, float oz,
+                           u8 vAlpha, u8 useXlu, u8 metalActive, u8 wingCapActive, u8 fireActive, u8 recolor, u8 tintR,
+                           u8 tintG, u8 tintB) {
     u16 numTris = buffers->numTrianglesUsed;
     float* pos = buffers->position;
     float* nrm = buffers->normal;
     float* col = buffers->color;
-    float* uv  = buffers->uv;
+    float* uv = buffers->uv;
     Vtx* vtx;
     u16 vCount = 0;
     u16 i, v;
@@ -162,7 +173,7 @@ static void emitTrisSingle(PlayState* play, struct SM64MarioGeometryBuffers* buf
 
     for (i = 0; i < numTris; i++) {
         for (v = 0; v < 3; v++) {
-            u32 vIdx  = (i * 3 + v) * 3;
+            u32 vIdx = (i * 3 + v) * 3;
             u32 uvIdx = (i * 3 + v) * 2;
             float px = pos[vIdx + 0] * SM64_SCALE + ox;
             float py = pos[vIdx + 1] * SM64_SCALE + oy;
@@ -171,10 +182,10 @@ static void emitTrisSingle(PlayState* play, struct SM64MarioGeometryBuffers* buf
             vtx[vCount].v.ob[0] = (s16)px;
             vtx[vCount].v.ob[1] = (s16)py;
             vtx[vCount].v.ob[2] = (s16)pz;
-            vtx[vCount].v.flag  = 0;
+            vtx[vCount].v.flag = 0;
 
             // N64 s10.5: normalized_uv × texel_count × 32.
-            vtx[vCount].v.tc[0] = (s16)(uv[uvIdx + 0] * SM64_TEXTURE_WIDTH  * 32.0f);
+            vtx[vCount].v.tc[0] = (s16)(uv[uvIdx + 0] * SM64_TEXTURE_WIDTH * 32.0f);
             vtx[vCount].v.tc[1] = (s16)(uv[uvIdx + 1] * SM64_TEXTURE_HEIGHT * 32.0f);
 
             // Vertex color = SHADE.
@@ -271,9 +282,9 @@ static void emitTrisSingle(PlayState* play, struct SM64MarioGeometryBuffers* buf
 // gameplay / Harpoon path. Non-NULL = use this matrix as the MODELVIEW (the kaleido
 // pause doll sets up its own projection + a scale/translate model matrix to frame a
 // puppet posed at the origin).
-void Sm64Render_DrawMarioMesh(PlayState* play, struct SM64MarioGeometryBuffers* buffers,
-                               float cx, float cy, float cz, u8 translucent, u8 metalTint, u8 wingCap,
-                               u8 fireActive, u8 recolor, u8 tintR, u8 tintG, u8 tintB, Mtx* modelMtx) {
+void Sm64Render_DrawMarioMesh(PlayState* play, struct SM64MarioGeometryBuffers* buffers, float cx, float cy, float cz,
+                              u8 translucent, u8 metalTint, u8 wingCap, u8 fireActive, u8 recolor, u8 tintR, u8 tintG,
+                              u8 tintB, Mtx* modelMtx) {
     // Single-pass for all states. Standard combiner mix(SHADE, TEXEL0, T0_A).
     // emitTrisSingle decides what SHADE encodes per vertex:
     //   Normal: libsm64 baked lighting (red overalls / skin / blue shirt).
@@ -327,15 +338,11 @@ void Sm64Render_DrawMarioMesh(PlayState* play, struct SM64MarioGeometryBuffers* 
     gSPTexture((*dispList)++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
     gDPSetTexturePersp((*dispList)++, G_TP_PERSP);
     gDPSetTextureFilter((*dispList)++, G_TF_BILERP);
-    gDPSetTileCustom((*dispList)++, G_IM_FMT_RGBA, G_IM_SIZ_32b,
-                     SM64_TEXTURE_WIDTH, SM64_TEXTURE_HEIGHT, 0,
-                     G_TX_CLAMP, G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
-                     G_TX_NOLOD, G_TX_NOLOD);
-    gDPSetTextureImage((*dispList)++, G_IM_FMT_RGBA, G_IM_SIZ_32b,
-                       SM64_TEXTURE_WIDTH, sMarioTextureAtlas);
+    gDPSetTileCustom((*dispList)++, G_IM_FMT_RGBA, G_IM_SIZ_32b, SM64_TEXTURE_WIDTH, SM64_TEXTURE_HEIGHT, 0, G_TX_CLAMP,
+                     G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+    gDPSetTextureImage((*dispList)++, G_IM_FMT_RGBA, G_IM_SIZ_32b, SM64_TEXTURE_WIDTH, sMarioTextureAtlas);
     gDPLoadSync((*dispList)++);
-    gDPLoadTile((*dispList)++, G_TX_LOADTILE, 0, 0,
-                (SM64_TEXTURE_WIDTH - 1) << 2, (SM64_TEXTURE_HEIGHT - 1) << 2);
+    gDPLoadTile((*dispList)++, G_TX_LOADTILE, 0, 0, (SM64_TEXTURE_WIDTH - 1) << 2, (SM64_TEXTURE_HEIGHT - 1) << 2);
 
     // Combiner.
     //   Translucent (vanish): mix(SHADE, TEXEL0, T0_A) with SHADE alpha.
@@ -343,23 +350,20 @@ void Sm64Render_DrawMarioMesh(PlayState* play, struct SM64MarioGeometryBuffers* 
     //   Default + metal: vanilla mix(SHADE, TEXEL0, T0_A). For metal,
     //     emitTrisSingle has set SHADE = sphere-mapped envmap pixel.
     if (translucent) {
-        gDPSetCombineLERP((*dispList)++,
-            TEXEL0, SHADE, TEXEL0_ALPHA, SHADE,   0, 0, 0, SHADE,
-            TEXEL0, SHADE, TEXEL0_ALPHA, SHADE,   0, 0, 0, SHADE);
+        gDPSetCombineLERP((*dispList)++, TEXEL0, SHADE, TEXEL0_ALPHA, SHADE, 0, 0, 0, SHADE, TEXEL0, SHADE,
+                          TEXEL0_ALPHA, SHADE, 0, 0, 0, SHADE);
     } else if (wingCap) {
         gDPSetEnvColor((*dispList)++, 0, 0, 0, 255);
-        gDPSetCombineLERP((*dispList)++,
-            TEXEL0, SHADE, TEXEL0_ALPHA, SHADE,   TEXEL0, 0, ENVIRONMENT, SHADE,
-            TEXEL0, SHADE, TEXEL0_ALPHA, SHADE,   TEXEL0, 0, ENVIRONMENT, SHADE);
+        gDPSetCombineLERP((*dispList)++, TEXEL0, SHADE, TEXEL0_ALPHA, SHADE, TEXEL0, 0, ENVIRONMENT, SHADE, TEXEL0,
+                          SHADE, TEXEL0_ALPHA, SHADE, TEXEL0, 0, ENVIRONMENT, SHADE);
     } else {
-        gDPSetCombineLERP((*dispList)++,
-            TEXEL0, SHADE, TEXEL0_ALPHA, SHADE,   0, 0, 0, 1,
-            TEXEL0, SHADE, TEXEL0_ALPHA, SHADE,   0, 0, 0, 1);
+        gDPSetCombineLERP((*dispList)++, TEXEL0, SHADE, TEXEL0_ALPHA, SHADE, 0, 0, 0, 1, TEXEL0, SHADE, TEXEL0_ALPHA,
+                          SHADE, 0, 0, 0, 1);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
 
     u8 vAlpha = translucent ? 100 : 255;
-    emitTrisSingle(play, buffers, cx, cy, cz, vAlpha, useXluForMario, metalTint, wingCap, fireActive,
-                   recolor, tintR, tintG, tintB);
+    emitTrisSingle(play, buffers, cx, cy, cz, vAlpha, useXluForMario, metalTint, wingCap, fireActive, recolor, tintR,
+                   tintG, tintB);
 }

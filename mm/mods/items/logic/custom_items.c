@@ -69,7 +69,7 @@
 // NEI files were the OoT port of exactly that, so in 2ship they were pure duplication (snap.c
 // even collided at link time with z_snap.c). Everything picto in this repo now goes through
 // the vanilla path + its enhancements (BetterPictoMessage, ColorPictograph, PictoBoxOnCUp).
-#include "power_keg.c" // Skijer's NEI: Power Keg (Bomb-slot wheel, form/strength gated)
+#include "power_keg.c"   // Skijer's NEI: Power Keg (Bomb-slot wheel, form/strength gated)
 #include "trade_items.c" // Skijer's NEI: MM adult trade-quest items (SLOT_TRADE_ADULT 2D-grid wheel)
 #include "item_gustjar.c"
 #include "item_beetle.c"
@@ -80,7 +80,7 @@
 // Ocarina song effect for the 3 NEI custom songs (Fugue/Command/Ballad rings) — ACTOR_OCEFF_NEI,
 // spawned by Message_SpawnSongEffect for ocarina slots 30-32. Skijer's NEI
 #include "../../actors/z_oceff_nei.inc.c"
-#include "item_oot_spells.c"    // Skijer's NEI: OoT spells 1:1 (Din's/Farore's/Nayru's + SW97 medallions)
+#include "item_oot_spells.c" // Skijer's NEI: OoT spells 1:1 (Din's/Farore's/Nayru's + SW97 medallions)
 // Skijer's NEI: the SHIP-VANILLA Roc's Feather (Nayru's Love cell), 1:1 from Shipwright. NOT
 // item_rocsfeather.c above — that one is Skijer's own feather on page 2. Two different items.
 #include "item_rocs_feather_vanilla.c"

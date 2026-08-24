@@ -31,7 +31,7 @@ typedef struct SpiritualStoneWarpSave {
 } SpiritualStoneWarpSave;
 
 typedef struct SpiritualStonesSaveData {
-    uint8_t passive[SPIRITUAL_STONE_SAVE_COUNT];           // 0/1 buff toggle per stone
+    uint8_t passive[SPIRITUAL_STONE_SAVE_COUNT]; // 0/1 buff toggle per stone
     SpiritualStoneWarpSave warp[SPIRITUAL_STONE_SAVE_COUNT];
 } SpiritualStonesSaveData;
 

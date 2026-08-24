@@ -83,8 +83,8 @@ static void Demise_StateWindup(Player* p, PlayState* play) {
         LinkAnimationHeader* anim = NeiAnim_Load(NEI_ANIM_DEMISE_DESTRUCTION);
 
         if (anim != NULL) {
-            LinkAnimation_Change(play, &p->skelAnime, anim, 0.65f, 0.0f, Animation_GetLastFrame(anim),
-                                 ANIMMODE_ONCE, -8.0f);
+            LinkAnimation_Change(play, &p->skelAnime, anim, 0.65f, 0.0f, Animation_GetLastFrame(anim), ANIMMODE_ONCE,
+                                 -8.0f);
         }
     }
 

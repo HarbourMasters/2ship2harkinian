@@ -31,7 +31,7 @@
 #include "soh/GameVersions.h"
 #include "soh/ResourceManagerHelpers.h"
 #include "soh/resource/type/Text.h"
-#include "functions.h" // For Audio_SetFontInstrument, AudioLoad_IsFontLoadComplete
+#include "functions.h"           // For Audio_SetFontInstrument, AudioLoad_IsFontLoadComplete
 #include "message_data_static.h" // MessageTableEntry struct
 
 // SoH globals that hold pointers into Text-resource std::string buffers. After
@@ -264,15 +264,13 @@ static bool LoadMmO2r() {
             if (archive->HasGameVersion()) {
                 uint32_t mmVer = archive->GetGameVersion();
                 if (mmVer != MM_NTSC_US_10) {
-                    SDL_ShowSimpleMessageBox(
-                        SDL_MESSAGEBOX_ERROR, "Incompatible mm.o2r",
-                        "Your mm.o2r file is not compatible.\n"
-                        "Required: MM 1.0 USA (NTSC).\n\n"
-                        "Please re-extract using 2Ship2Harkinian (Keiichi Alfa 4.0.0+) "
-                        "with an MM 1.0 USA (NTSC) ROM.",
-                        nullptr);
-                    MMASSETS_LOG("[MM Assets] Incompatible mm.o2r (got 0x%08X, required 0x%08X)",
-                                 mmVer, MM_NTSC_US_10);
+                    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Incompatible mm.o2r",
+                                             "Your mm.o2r file is not compatible.\n"
+                                             "Required: MM 1.0 USA (NTSC).\n\n"
+                                             "Please re-extract using 2Ship2Harkinian (Keiichi Alfa 4.0.0+) "
+                                             "with an MM 1.0 USA (NTSC) ROM.",
+                                             nullptr);
+                    MMASSETS_LOG("[MM Assets] Incompatible mm.o2r (got 0x%08X, required 0x%08X)", mmVer, MM_NTSC_US_10);
                     // Don't kill the whole app (was exit(1), which also skipped SDL/graphics
                     // teardown). Remove the incompatible archive so it can't shadow OOT
                     // resources and assertion-crash, then decline MM features and let the
@@ -947,7 +945,8 @@ char** MmAssets_ListFiles(const char* searchMask, int* resultSize) {
  * Same return convention as MmAssets_ListFiles: caller must free each entry + the array.
  */
 char** MmAssets_ListMmArchiveFiles(const char* searchMask, int* resultSize) {
-    if (resultSize) *resultSize = 0;
+    if (resultSize)
+        *resultSize = 0;
     if (!sMmO2rLoaded || !sMmArchive || searchMask == nullptr || resultSize == nullptr) {
         return nullptr;
     }
@@ -1497,7 +1496,6 @@ void MmSfxBridge_RefreshProperties(u16 mmSfxId, Vec3f* pos, f32 freqScale) {
     (void)freqScale;
 }
 
-
 // =============================================================================
 // MM Masks Inventory: Icon and Name Texture Loaders (24 masks)
 // =============================================================================
@@ -1685,8 +1683,7 @@ void* MmAssets_LoadHookshotBodyDL(void) {
     // hand and changes Link's visible hand style). z_player_lib.c builds a
     // compound DL that prepends OOT's hand DL before this one, so Link
     // keeps his OOT hand silhouette and only the hookshot model is MM.
-    sCachedMmHookshotBodyDL =
-        MmAssets_LoadResource("__OTR__objects/object_link_child/gLinkHumanHookshotDL");
+    sCachedMmHookshotBodyDL = MmAssets_LoadResource("__OTR__objects/object_link_child/gLinkHumanHookshotDL");
     if (sCachedMmHookshotBodyDL) {
         MMASSETS_LOG("[MM Assets] Loaded MM hookshot body DL (no hand)");
     }
@@ -1712,8 +1709,7 @@ void* MmAssets_LoadHookshotTipDL(void) {
     // body's nose) AND while flying (chain extended). The previous path
     // `object_lbfshot/object_lbfshot_DL_000228` was actually MM's wall
     // anchor/target geometry (the Bg_Lbfshot actor), not the held tip.
-    sCachedMmHookshotTipDL =
-        MmAssets_LoadResource("__OTR__objects/object_link_child/object_link_child_DL_01D960");
+    sCachedMmHookshotTipDL = MmAssets_LoadResource("__OTR__objects/object_link_child/object_link_child_DL_01D960");
     if (sCachedMmHookshotTipDL) {
         MMASSETS_LOG("[MM Assets] Loaded MM hookshot tip DL");
     }

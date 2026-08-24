@@ -50,13 +50,13 @@ void Actor_GetProjectedPos(PlayState* play, Vec3f* worldPos, Vec3f* projectedPos
 
 // Cap timer accessors (sm64_mario_items.c). Slot index order matches the HUD
 // top→bottom: 0 = Wing, 1 = Metal, 2 = Vanish, 3 = Fire.
-uint8_t  Sm64MarioCaps_GetPhase(int32_t idx);            // 0 ready, 1 active, 2 cooldown
-float    Sm64MarioCaps_GetCharge(int32_t idx);           // 0..1
-int32_t  Sm64MarioCaps_GetRemainingSeconds(int32_t idx);
-int32_t  Sm64MarioCaps_GetActiveIndex(void);
+uint8_t Sm64MarioCaps_GetPhase(int32_t idx); // 0 ready, 1 active, 2 cooldown
+float Sm64MarioCaps_GetCharge(int32_t idx);  // 0..1
+int32_t Sm64MarioCaps_GetRemainingSeconds(int32_t idx);
+int32_t Sm64MarioCaps_GetActiveIndex(void);
 
 // Mario's independent health as 0..8 wedges (SM64 power-meter segments).
-int32_t  Sm64Mario_GetHealthWedges(void);
+int32_t Sm64Mario_GetHealthWedges(void);
 
 // Resource existence check (used to fall back to a shipped button texture when
 // the user's d-right.png hasn't been packed into the o2r yet).
@@ -72,10 +72,10 @@ constexpr int kPhaseActive = 1;
 constexpr int kPhaseCooldown = 2;
 
 struct CapSlot {
-    const char* texName;   // GUI texture registration name
-    const char* resPath;   // OTR resource path
-    const char* bind;      // D-pad bind label (literal button text)
-    int rot;               // d-right.png CW quarter-turns to point at this cap's D-pad dir
+    const char* texName; // GUI texture registration name
+    const char* resPath; // OTR resource path
+    const char* bind;    // D-pad bind label (literal button text)
+    int rot;             // d-right.png CW quarter-turns to point at this cap's D-pad dir
 };
 
 // Slot order Wing, Metal, Vanish, Fire. Binds: Wing=D-Down, Metal=D-Left,
@@ -83,17 +83,17 @@ struct CapSlot {
 // rot: the base button texture (d-right.png) points RIGHT; rotate it CW to face
 // each cap's D-pad direction. Down=1 (90°), Left=2 (180°), Right=0, Up=3 (270°).
 const CapSlot kSlots[kSlotCount] = {
-    { "Sm64Cap_Wing",   "textures/icon_item_custom/gItemIconWingCapTex",   "D-Down",  1 },
-    { "Sm64Cap_Metal",  "textures/icon_item_custom/gItemIconMetalCapTex",  "D-Left",  2 },
+    { "Sm64Cap_Wing", "textures/icon_item_custom/gItemIconWingCapTex", "D-Down", 1 },
+    { "Sm64Cap_Metal", "textures/icon_item_custom/gItemIconMetalCapTex", "D-Left", 2 },
     { "Sm64Cap_Vanish", "textures/icon_item_custom/gItemIconVanishCapTex", "D-Right", 0 },
-    { "Sm64Cap_Fire",   "textures/icon_item_custom/gItemIconFireFlowerTex", "D-Up",   3 },
+    { "Sm64Cap_Fire", "textures/icon_item_custom/gItemIconFireFlowerTex", "D-Up", 3 },
 };
 
 // Button indicators are raw PNGs (textures/buttons/), loaded via the InputViewer's
 // LoadTextureFromRawImage path (NOT LoadGuiTexture, which is for compiled textures).
 // d-right.png is rotated per-cap; CDown.png labels the C-Down item row.
-const char* kDpadBtnTexName  = "Sm64DPadBtn";   // textures/buttons/d-right.png
-const char* kCDownBtnTexName = "Sm64CDownBtn";  // textures/buttons/CDown.png
+const char* kDpadBtnTexName = "Sm64DPadBtn";   // textures/buttons/d-right.png
+const char* kCDownBtnTexName = "Sm64CDownBtn"; // textures/buttons/CDown.png
 
 // HUD display order (top -> bottom). Swaps Wing and Fire visually (panel position
 // only — bindings/timers stay tied to their real slot). Real slots: 0=Wing,
@@ -127,9 +127,8 @@ void EnsureTextures() {
     // RIGHT-pointing orientation, so the per-cap rotation still works). The guard
     // matters because LoadTextureFromResource dereferences a NULL resource (crash)
     // — never feed it a path that isn't in the archive.
-    const char* dpadPath = ResourceMgr_FileExists("textures/buttons/d-right.png")
-                               ? "textures/buttons/d-right.png"
-                               : "textures/buttons/DPadRight.png";
+    const char* dpadPath = ResourceMgr_FileExists("textures/buttons/d-right.png") ? "textures/buttons/d-right.png"
+                                                                                  : "textures/buttons/DPadRight.png";
     gui->LoadTextureFromRawImage(kDpadBtnTexName, dpadPath);
     gui->LoadTextureFromRawImage(kCDownBtnTexName, "textures/buttons/CDown.png");
     sTexturesLoaded = true;
@@ -163,10 +162,26 @@ void DrawDirBadge(ImDrawList* dl, ImVec2 c, float size, int dir, bool cButton) {
     float a = rr * 0.52f;
     ImVec2 tip, b1, b2;
     switch (((dir % 4) + 4) % 4) {
-        case 0: tip = ImVec2(c.x + a, c.y); b1 = ImVec2(c.x - a * 0.5f, c.y - a); b2 = ImVec2(c.x - a * 0.5f, c.y + a); break;
-        case 1: tip = ImVec2(c.x, c.y + a); b1 = ImVec2(c.x - a, c.y - a * 0.5f); b2 = ImVec2(c.x + a, c.y - a * 0.5f); break;
-        case 2: tip = ImVec2(c.x - a, c.y); b1 = ImVec2(c.x + a * 0.5f, c.y - a); b2 = ImVec2(c.x + a * 0.5f, c.y + a); break;
-        default: tip = ImVec2(c.x, c.y - a); b1 = ImVec2(c.x - a, c.y + a * 0.5f); b2 = ImVec2(c.x + a, c.y + a * 0.5f); break;
+        case 0:
+            tip = ImVec2(c.x + a, c.y);
+            b1 = ImVec2(c.x - a * 0.5f, c.y - a);
+            b2 = ImVec2(c.x - a * 0.5f, c.y + a);
+            break;
+        case 1:
+            tip = ImVec2(c.x, c.y + a);
+            b1 = ImVec2(c.x - a, c.y - a * 0.5f);
+            b2 = ImVec2(c.x + a, c.y - a * 0.5f);
+            break;
+        case 2:
+            tip = ImVec2(c.x - a, c.y);
+            b1 = ImVec2(c.x + a * 0.5f, c.y - a);
+            b2 = ImVec2(c.x + a * 0.5f, c.y + a);
+            break;
+        default:
+            tip = ImVec2(c.x, c.y - a);
+            b1 = ImVec2(c.x - a, c.y + a * 0.5f);
+            b2 = ImVec2(c.x + a, c.y + a * 0.5f);
+            break;
     }
     dl->AddTriangleFilled(tip, b1, b2, arrow);
 }
@@ -190,9 +205,12 @@ ImU32 ChargeColor(int phase, float charge) {
 class Sm64CapsHudWindow final : public Ship::GuiWindow {
   public:
     using GuiWindow::GuiWindow;
-    void InitElement() override {}
-    void DrawElement() override {}
-    void UpdateElement() override {}
+    void InitElement() override {
+    }
+    void DrawElement() override {
+    }
+    void UpdateElement() override {
+    }
     void Draw() override;
 };
 
@@ -241,12 +259,12 @@ void Sm64CapsHudWindow::Draw() {
     const float radius = diameter * 0.5f;
     const float ringThick = 5.0f * s;
     const float iconSize = diameter * 0.60f;
-    const float pitch = diameter + 7.0f * s;  // tighter: rings nearly touch (was +20)
+    const float pitch = diameter + 7.0f * s; // tighter: rings nearly touch (was +20)
     const float rightMargin = 26.0f * s;
     const float topY = 56.0f * s;
     const float timerFontSize = 15.0f * s;
-    const float btnSize = 22.0f * s;          // D-pad / C-Down indicator size
-    const float btnGap = 7.0f * s;            // gap between ring and its button
+    const float btnSize = 22.0f * s; // D-pad / C-Down indicator size
+    const float btnGap = 7.0f * s;   // gap between ring and its button
 
     const float centerX = disp.x - rightMargin - radius;
 
@@ -274,9 +292,7 @@ void Sm64CapsHudWindow::Draw() {
 
             // GET_PLAYER lives in macros.h (not included here) — inline it.
             Player* player =
-                (gPlayState != nullptr)
-                    ? (Player*)gPlayState->actorCtx.actorLists[ACTORCAT_PLAYER].first
-                    : nullptr;
+                (gPlayState != nullptr) ? (Player*)gPlayState->actorCtx.actorLists[ACTORCAT_PLAYER].first : nullptr;
             if (player != nullptr) {
                 // Project a point above Mario's head to screen pixels.
                 Vec3f world = player->actor.world.pos;
@@ -328,8 +344,8 @@ void Sm64CapsHudWindow::Draw() {
         dl->AddCircle(center, radius, IM_COL32(0, 0, 0, 130), 64, ringThick);
         if (charge > 0.001f) {
             ImU32 col = ChargeColor(phase, charge);
-            float a0 = -kPi * 0.5f;                 // start at top
-            float a1 = a0 + charge * (kPi * 2.0f);  // clockwise
+            float a0 = -kPi * 0.5f;                // start at top
+            float a1 = a0 + charge * (kPi * 2.0f); // clockwise
             dl->PathArcTo(center, radius, a0, a1, 64);
             dl->PathStroke(col, 0, ringThick);
         }

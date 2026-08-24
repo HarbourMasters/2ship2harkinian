@@ -15,8 +15,7 @@ void ItemVoice_Play(Player* p, u16 ootAdult, u16 ootChild) {
     // The mapping is keyed on the OOT base (adult) action id (0x6800..0x681F);
     // TryPlayMmVoice returns 1 when it handled it (or deliberately stayed silent
     // because the sample is absent), so we must not also play Link's voice.
-    if (TransformMasks_IsTransformedAny() &&
-        TransformMasks_TryPlayMmVoice(ootAdult, &p->actor.projectedPos)) {
+    if (TransformMasks_IsTransformedAny() && TransformMasks_TryPlayMmVoice(ootAdult, &p->actor.projectedPos)) {
         return;
     }
 

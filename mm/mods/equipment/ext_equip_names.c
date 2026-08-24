@@ -44,9 +44,8 @@ static void* ExtEquip_LookupNameTex(u16 itemId, u8 language) {
         case ITEM_EXT_BOOTS_2:
             // Shared id: the grid slot is the Climb Boots, the inventory/trade-wheel item with this id
             // is still the Pendant of Memories (mm.o2r name texture). Skijer 2026-07-29
-            return gExtEquipGridNameContext
-                       ? (void*)gClimbBootsNameTex
-                       : (void*)"__OTR__item_name_static/gItemNamePendantOfMemoriesENGTex";
+            return gExtEquipGridNameContext ? (void*)gClimbBootsNameTex
+                                            : (void*)"__OTR__item_name_static/gItemNamePendantOfMemoriesENGTex";
         case ITEM_EXT_BOOTS_3:
             return (void*)gRocBootsNameTex;
 

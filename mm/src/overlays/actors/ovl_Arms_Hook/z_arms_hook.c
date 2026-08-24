@@ -180,7 +180,7 @@ void ArmsHook_Wait(ArmsHook* this, PlayState* play) {
         // the shot simply doesn't come out (error beep, hook stays in hand).
         if (variant == 4) {
             extern s32 SwitchHook_ConsumeCharge(void);
-            extern void SwitchHook_OnFired(Player* p);
+            extern void SwitchHook_OnFired(Player * p);
 
             if (!SwitchHook_ConsumeCharge()) {
                 // Should not be reached (func_80831194 blocks the launch player-side first), but if
@@ -304,8 +304,8 @@ void ArmsHook_AttachToActor(ArmsHook* this, Actor* actor) {
 // target if it's an enemy (blue freeze, like the hookshot), SILENCE the flying-hook rattle, play the
 // warp sfx, and hand off to the animated swap state.
 static void ArmsHook_StartSwap(ArmsHook* this, PlayState* play, Player* player, Actor* target) {
-    sSwapLinkStart = player->actor.world.pos;  // Link's original spot = target's destination
-    sSwapTargetStart = target->world.pos;      // target's original spot = Link's destination
+    sSwapLinkStart = player->actor.world.pos; // Link's original spot = target's destination
+    sSwapTargetStart = target->world.pos;     // target's original spot = Link's destination
     sSwapTarget = target;
     sSwapTimer = 0;
     // Full player noclip (the gCheats.NoClip mechanism) through the swap + a few settle frames.

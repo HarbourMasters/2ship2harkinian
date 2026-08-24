@@ -576,7 +576,7 @@
 #define SEGMENTED_TO_VIRTUAL(x) Lib_SegmentedToVirtual((void*)(x))
 #endif
 #ifndef SEG_ADDR
-#define SEG_ADDR(seg, offset) ((void*)(uintptr_t)(((seg) << 24) | ((offset) & 0x00FFFFFF)))
+#define SEG_ADDR(seg, offset) ((void*)(uintptr_t)(((seg) << 24) | ((offset)&0x00FFFFFF)))
 #endif
 #ifndef MATRIX_TOMTX
 #define MATRIX_TOMTX(mtx) Matrix_ToMtx(mtx)
@@ -615,12 +615,12 @@
  * real effect (GET_PLAYER + EffectSsGSpk_SpawnAccel are in scope at every call site in this TU).
  * SpawnSmall has no scale/step args → small fixed values. Skijer's NEI */
 #ifndef EffectSsKiraKira_SpawnDispersed
-#define EffectSsKiraKira_SpawnDispersed(play, pos, vel, accel, prim, env, scale, step) \
+#define EffectSsKiraKira_SpawnDispersed(play, pos, vel, accel, prim, env, scale, step)              \
     EffectSsGSpk_SpawnAccel((play), &GET_PLAYER(play)->actor, (pos), (vel), (accel), (prim), (env), \
                             (s16)((scale) / 10), (step))
 #endif
 #ifndef EffectSsKiraKira_SpawnFocused
-#define EffectSsKiraKira_SpawnFocused(play, pos, vel, accel, prim, env, scale, step) \
+#define EffectSsKiraKira_SpawnFocused(play, pos, vel, accel, prim, env, scale, step)                \
     EffectSsGSpk_SpawnAccel((play), &GET_PLAYER(play)->actor, (pos), (vel), (accel), (prim), (env), \
                             (s16)((scale) / 10), (step))
 #endif
@@ -638,13 +638,6 @@
 /* OoT Lens-of-Truth disable → MM deactivate. */
 #ifndef Actor_DisableLens
 #define Actor_DisableLens Actor_DeactivateLens
-#endif
-/* OoT FhgFlash light-ball particle (play,pos,vel,accel,scale,color) has no MM equivalent —
- * MM's only FhgFlash spawn is SpawnShock (actor-attached, different args/semantics). A NULL-
- * actor wrapper would risk a deref crash, so no-op it: the dominion-rod green sparkle visual
- * is absent (cosmetic); the rod itself works. TODO: port a real light-ball effect. */
-#ifndef EffectSsFhgFlash_SpawnLightBall
-#define EffectSsFhgFlash_SpawnLightBall(...) ((void)0)
 #endif
 /* OoT individual float-radian matrix rotates → MM *F forms (same (f32, MatrixMode) sig). */
 #ifndef Matrix_RotateX

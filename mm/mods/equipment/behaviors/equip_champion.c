@@ -49,10 +49,10 @@
 #define CHAMPION_TINT_ALPHA 30      // subtle blue tint (BOTW has no heavy overlay)
 
 // Flurry Rush trigger + blink.
-#define CHAMPION_DODGE_RANGE 140.0f    // how close an incoming attack must sweep
-#define CHAMPION_DODGE_COOLDOWN 20     // frames before the same hop may re-trigger
-#define CHAMPION_TELEPORT_DIST 65.0f   // where Link lands relative to the enemy
-#define CHAMPION_MAX_TELEPORT 600.0f   // never blink across the room to a far target
+#define CHAMPION_DODGE_RANGE 140.0f     // how close an incoming attack must sweep
+#define CHAMPION_DODGE_COOLDOWN 20      // frames before the same hop may re-trigger
+#define CHAMPION_TELEPORT_DIST 65.0f    // where Link lands relative to the enemy
+#define CHAMPION_MAX_TELEPORT 600.0f    // never blink across the room to a far target
 #define CHAMPION_ATTACK_SNAPSHOT_MAX 24 // incoming attacks tracked per frame
 
 #ifndef BGCHECKFLAG_GROUND

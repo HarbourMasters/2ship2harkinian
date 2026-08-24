@@ -30,7 +30,7 @@ extern u8 ResourceMgr_FileExists(const char* resName);
 
 // z-targetable, hostile, update outside cull zone, hookshot pulls the actor
 // (OoT FLAG_0|2|4|9; OoT FLAG_18 = Navi dialogue dropped — see header note)
-#define SBEETLE_FLAGS \
+#define SBEETLE_FLAGS                                                                         \
     (ACTOR_FLAG_ATTENTION_ENABLED | ACTOR_FLAG_HOSTILE | ACTOR_FLAG_UPDATE_CULLING_DISABLED | \
      ACTOR_FLAG_HOOKSHOT_PULLS_ACTOR)
 
@@ -266,7 +266,8 @@ void EnSbeetle_Init(Actor* thisx, PlayState* play) {
     EnSbeetle* self = (EnSbeetle*)thisx;
 
     // O2R gate: without trutefel-enemies.o2r the skeleton's limb DL paths can't resolve.
-    if (!ResourceMgr_FileExists("__OTR__objects/trutefel/object_sbeetle/gScissorsBeetleSkel_bodyfront_mesh_layer_Opaque")) {
+    if (!ResourceMgr_FileExists(
+            "__OTR__objects/trutefel/object_sbeetle/gScissorsBeetleSkel_bodyfront_mesh_layer_Opaque")) {
         Actor_Kill(&self->actor);
         return;
     }
@@ -327,8 +328,8 @@ void EnSbeetle_Update(Actor* thisx, PlayState* play) {
         }
     }
 
-    if (self->actionFunc != EnSbeetle_Die) {        // Enemy can't take more damage after death
-        if (DECR(self->hurtboxCooldown) == 0) {     // Player is not able to spam the sword
+    if (self->actionFunc != EnSbeetle_Die) {    // Enemy can't take more damage after death
+        if (DECR(self->hurtboxCooldown) == 0) { // Player is not able to spam the sword
             CollisionCheck_SetAC(play, &play->colChkCtx, &self->collider.base);
         }
 
@@ -732,10 +733,10 @@ void EnSbeetle_CheckHurt(EnSbeetle* self, PlayState* play) {
  *  Updates the beetle's collision state with the environment (ground, walls, ceilings, water).
  */
 void EnSbeetle_UpdateBgCheck(EnSbeetle* self, PlayState* play) {
-    Actor_UpdateBgCheckInfo(play, &self->actor, self->actor.colChkInfo.cylHeight, self->actor.colChkInfo.cylRadius,
-                            self->actor.colChkInfo.cylHeight,
-                            (UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_8 |
-                             UPDBGCHECKINFO_FLAG_10));
+    Actor_UpdateBgCheckInfo(
+        play, &self->actor, self->actor.colChkInfo.cylHeight, self->actor.colChkInfo.cylRadius,
+        self->actor.colChkInfo.cylHeight,
+        (UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_8 | UPDBGCHECKINFO_FLAG_10));
 }
 
 #define ENSBEETLE_FORGET_DISTANCE 460.0f

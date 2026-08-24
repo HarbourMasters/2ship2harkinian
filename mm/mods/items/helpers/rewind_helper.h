@@ -25,10 +25,10 @@
 
 #include "z64.h"
 
-#define REWIND_SLOTS 8              // 1 for Link + 7 world actors
-#define REWIND_FRAMES 200           // ~10 s of history at 20 fps gameplay
-#define REWIND_TRACK_RANGE 700.0f   // how far out world actors get recorded
-#define REWIND_RESCAN_INTERVAL 20   // frames between pool re-evaluations
+#define REWIND_SLOTS 8            // 1 for Link + 7 world actors
+#define REWIND_FRAMES 200         // ~10 s of history at 20 fps gameplay
+#define REWIND_TRACK_RANGE 700.0f // how far out world actors get recorded
+#define REWIND_RESCAN_INTERVAL 20 // frames between pool re-evaluations
 #define REWIND_LINK_SLOT 0
 
 /** One recorded frame. Motion only — see the header comment. */

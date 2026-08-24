@@ -416,8 +416,8 @@ static void SwitchHook_ReanchorOne(SwitchHookAnchorSlot* slot, SwitchHookAnchor*
 
     // The owner rebuilt this collider itself since our last pass — its result wins. Re-derive the
     // offset from it so we stay in step if it ever stops maintaining it.
-    if (anchor->hasLastSet && ((refPos.x != anchor->lastSet.x) || (refPos.y != anchor->lastSet.y) ||
-                               (refPos.z != anchor->lastSet.z))) {
+    if (anchor->hasLastSet &&
+        ((refPos.x != anchor->lastSet.x) || (refPos.y != anchor->lastSet.y) || (refPos.z != anchor->lastSet.z))) {
         anchor->offset.x = refPos.x - slot->owner->world.pos.x;
         anchor->offset.y = refPos.y - slot->owner->world.pos.y;
         anchor->offset.z = refPos.z - slot->owner->world.pos.z;
@@ -471,9 +471,9 @@ void SwitchHook_ReanchorSwapColliders(PlayState* play) {
 
         // Same treatment for the lock-on/aim point: a plain world-space field that actors setting it
         // once at init would otherwise keep offering at the spot they came from.
-        if (slot->hasFocusLast && ((slot->owner->focus.pos.x != slot->focusLastSet.x) ||
-                                   (slot->owner->focus.pos.y != slot->focusLastSet.y) ||
-                                   (slot->owner->focus.pos.z != slot->focusLastSet.z))) {
+        if (slot->hasFocusLast &&
+            ((slot->owner->focus.pos.x != slot->focusLastSet.x) || (slot->owner->focus.pos.y != slot->focusLastSet.y) ||
+             (slot->owner->focus.pos.z != slot->focusLastSet.z))) {
             slot->focusOffset.x = slot->owner->focus.pos.x - slot->owner->world.pos.x;
             slot->focusOffset.y = slot->owner->focus.pos.y - slot->owner->world.pos.y;
             slot->focusOffset.z = slot->owner->focus.pos.z - slot->owner->world.pos.z;
@@ -1044,7 +1044,7 @@ void Handle_SwitchHook(Player* p, PlayState* play) {
     // (ITEM_SWITCH_HOOK -> PLAYER_IA_HOOKSHOT in extended_player.c + arms_hook). This handler only
     // owns the C-Up manual-aim toggle; the old custom first-person/projectile handler below is dead
     // (it produced the boomerang pose and never aimed properly).
-    extern bool func_80831010(Player* this, PlayState* play);
+    extern bool func_80831010(Player * this, PlayState * play);
 
     if (p->heldItemId != ITEM_SWITCH_HOOK) {
         if (sShAimManual) { // put away mid-aim: drop the aim camera cleanly

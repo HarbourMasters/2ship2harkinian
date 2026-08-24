@@ -128,7 +128,7 @@ static void Beetle_UpdateSubCam(PlayState* play) {
 
 static void Beetle_Stop(Player* p, PlayState* play) {
     if (beetleFirstPerson) {
-        p->unk_AA5 = PLAYER_UNKAA5_0; // exit MM's aim camera
+        p->unk_AA5 = PLAYER_UNKAA5_0;       // exit MM's aim camera
         p->stateFlags1 &= ~PLAYER_STATE1_8; // clear ITEM_IN_HAND
         beetleFirstPerson = 0;
     }
@@ -188,7 +188,7 @@ static void Beetle_Launch(Player* p, PlayState* play) {
 
     LinkAnimation_PlayOnce(play, &p->skelAnimeUpper, &gPlayerAnim_link_boom_throwR);
 
-    p->unk_AA5 = PLAYER_UNKAA5_0; // exit MM's aim camera
+    p->unk_AA5 = PLAYER_UNKAA5_0;       // exit MM's aim camera
     p->stateFlags1 &= ~PLAYER_STATE1_8; // clear ITEM_IN_HAND — beetle is now flying, not aiming
     beetleFirstPerson = 0;
     Beetle_CreateSubCam(play);
@@ -263,8 +263,8 @@ static u8 Beetle_CheckActorCollision(Player* p, PlayState* play) {
 
     // OC hits — the stray fairy En_Elforg has ONLY an OC collider (no AC), so the AT pass above misses
     // it. Grab it via the beetle's OC contact. Skijer's NEI
-    if ((beetleCollider.base.ocFlags1 & OC1_HIT) && (beetleGrabbed == NULL) &&
-        (beetleCollider.base.oc != NULL) && (beetleCollider.base.oc->id == ACTOR_EN_ELFORG)) {
+    if ((beetleCollider.base.ocFlags1 & OC1_HIT) && (beetleGrabbed == NULL) && (beetleCollider.base.oc != NULL) &&
+        (beetleCollider.base.oc->id == ACTOR_EN_ELFORG)) {
         beetleGrabbed = beetleCollider.base.oc;
         beetleGrabbed->flags |= ACTOR_FLAG_HOOKSHOT_ATTACHED;
     }
@@ -378,8 +378,7 @@ static u8 Beetle_IsTargetable(Actor* a) {
     if ((a->category == ACTORCAT_ENEMY) || (a->category == ACTORCAT_BOSS)) {
         return (a->flags & ACTOR_FLAG_ATTENTION_ENABLED) ? 1 : 0;
     }
-    return (a->id == ACTOR_EN_ELFORG || a->id == ACTOR_EN_ELFBUB || a->id == ACTOR_EN_ITEM00 ||
-            a->id == ACTOR_EN_SI ||
+    return (a->id == ACTOR_EN_ELFORG || a->id == ACTOR_EN_ELFBUB || a->id == ACTOR_EN_ITEM00 || a->id == ACTOR_EN_SI ||
             (a->id == ACTOR_EN_G_SWITCH && (a->params & 0x0F) == ENGSWITCH_SILVER_RUPEE))
                ? 1
                : 0;
@@ -509,10 +508,10 @@ static void Beetle_StateFlying(Player* p, PlayState* play) {
     // locked it kamikaze-homes to hit it (then returns); otherwise it flies straight back to Link.
     if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
         sBeetleAutonomous = 1;
-        Beetle_DestroySubCam(play);                           // camera back to Link
-        p->stateFlags1 &= ~PLAYER_STATE1_BOOMERANG_THROWN;    // control back to Link
+        Beetle_DestroySubCam(play);                        // camera back to Link
+        p->stateFlags1 &= ~PLAYER_STATE1_BOOMERANG_THROWN; // control back to Link
         p->stateFlags2 &= ~PLAYER_STATE2_DISABLE_ROTATION_Z_TARGET;
-        p->focusActor = NULL;                                 // drop the lock reticle
+        p->focusActor = NULL; // drop the lock reticle
         if (sBeetleTarget != NULL) {
             sBeetleKamikaze = 1;
         }

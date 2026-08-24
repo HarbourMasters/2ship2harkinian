@@ -41,7 +41,8 @@ void Sw97_HatPhysics_CaptureHead(void) {
         return;
     }
 
-    Physics_GetHeadProperties(&sHatPhysicsStrand[gSaveContext.save.linkAge], &sHatOffsets[gSaveContext.save.linkAge], false);
+    Physics_GetHeadProperties(&sHatPhysicsStrand[gSaveContext.save.linkAge], &sHatOffsets[gSaveContext.save.linkAge],
+                              false);
 }
 
 /**
@@ -74,9 +75,9 @@ void Sw97_HatPhysics_DrawAfterSkeleton(PlayState* play, Player* player) {
             &play->colCtx, &player->actor.floorPoly, &bgId, &player->actor, &player->actor.world.pos);
 
         // Draw the physics hat
-        POLY_OPA_DISP =
-            Physics_DrawDynamicStrand(play->state.gfxCtx, POLY_OPA_DISP, sHatPhysicsJoints,
-                                      &sHatPhysicsStrand[gSaveContext.save.linkAge], Sw97_HatPhysicsCallback, play, NULL);
+        POLY_OPA_DISP = Physics_DrawDynamicStrand(play->state.gfxCtx, POLY_OPA_DISP, sHatPhysicsJoints,
+                                                  &sHatPhysicsStrand[gSaveContext.save.linkAge],
+                                                  Sw97_HatPhysicsCallback, play, NULL);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);

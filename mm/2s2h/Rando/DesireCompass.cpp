@@ -33,7 +33,7 @@ extern "C" {
 #include "variables.h"
 #include "functions.h"
 #include "macros.h"
-#include "overlays/actors/ovl_En_Si/z_en_si.h"     // ENSI_GET_CHEST_FLAG
+#include "overlays/actors/ovl_En_Si/z_en_si.h"         // ENSI_GET_CHEST_FLAG
 #include "overlays/actors/ovl_Obj_Grass/z_obj_grass.h" // ObjGrass groups + elements
 extern PlayState* gPlayState;
 // The live grass manager (one per scene). Grass patches are NOT one actor each:
@@ -92,8 +92,10 @@ bool ItemMatchesCategory(RandoItemId id, DesireCompassCategory cat, s32 subcat) 
         case DCOMPASS_CAT_SKILLS:
             return IsSkill(id);
         case DCOMPASS_CAT_KEYS:
-            if (subcat == 1) return type == RITYPE_SMALL_KEY;
-            if (subcat == 2) return type == RITYPE_BOSS_KEY;
+            if (subcat == 1)
+                return type == RITYPE_SMALL_KEY;
+            if (subcat == 2)
+                return type == RITYPE_BOSS_KEY;
             return type == RITYPE_SMALL_KEY || type == RITYPE_BOSS_KEY;
         case DCOMPASS_CAT_JUNK:
             return type == RITYPE_JUNK;
@@ -105,8 +107,8 @@ bool ItemMatchesCategory(RandoItemId id, DesireCompassCategory cat, s32 subcat) 
             if (IsBossSoul(id) || IsOtherSoul(id) || IsTriforce(id) || IsSkill(id)) {
                 return false;
             }
-            if (type == RITYPE_SMALL_KEY || type == RITYPE_BOSS_KEY || type == RITYPE_JUNK ||
-                type == RITYPE_MAJOR || type == RITYPE_MASK) {
+            if (type == RITYPE_SMALL_KEY || type == RITYPE_BOSS_KEY || type == RITYPE_JUNK || type == RITYPE_MAJOR ||
+                type == RITYPE_MASK) {
                 return false;
             }
             return true;
@@ -139,10 +141,10 @@ RandoCheckId ResolveActorCheck(Actor* actor) {
                 return DCOMPASS_RC_FROM_ROT_Z(actor);
             }
             return RC_UNKNOWN;
-        case ACTOR_EN_BOX:       // chests
-        case ACTOR_EN_GAMELUPY:  // Deku playground rupees
-        case ACTOR_EN_ELFORG:    // stray fairies
-        case ACTOR_EN_TAKARAYA:  // treasure chest game
+        case ACTOR_EN_BOX:      // chests
+        case ACTOR_EN_GAMELUPY: // Deku playground rupees
+        case ACTOR_EN_ELFORG:   // stray fairies
+        case ACTOR_EN_TAKARAYA: // treasure chest game
             return DCOMPASS_RC_FROM_ROT_X(actor);
         case ACTOR_EN_SI: // gold skulltula token — resolved by flag, never stored
             return Rando::StaticData::GetCheckFromFlag(FLAG_CYCL_SCENE_CHEST, ENSI_GET_CHEST_FLAG(actor),

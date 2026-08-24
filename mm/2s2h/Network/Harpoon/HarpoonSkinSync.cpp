@@ -27,15 +27,17 @@ std::filesystem::path SkinsDir() {
 std::filesystem::path GamemodesDir() {
     return HarpoonRoot() / "gamemodes";
 }
-}
+} // namespace
 
 std::vector<std::string> GetInstalledGamemodes() {
     std::vector<std::string> out;
     std::error_code ec;
     auto dir = GamemodesDir();
-    if (!std::filesystem::exists(dir, ec)) return out;
+    if (!std::filesystem::exists(dir, ec))
+        return out;
     for (auto& entry : std::filesystem::directory_iterator(dir, ec)) {
-        if (!entry.is_directory()) continue;
+        if (!entry.is_directory())
+            continue;
         if (std::filesystem::exists(entry.path() / "gamemode.yaml", ec)) {
             out.push_back(entry.path().filename().string());
         }
@@ -47,9 +49,11 @@ std::vector<std::string> ScanLocalCatalog() {
     std::vector<std::string> out;
     std::error_code ec;
     auto dir = SkinsDir();
-    if (!std::filesystem::exists(dir, ec)) return out;
+    if (!std::filesystem::exists(dir, ec))
+        return out;
     for (auto& entry : std::filesystem::directory_iterator(dir, ec)) {
-        if (!entry.is_regular_file()) continue;
+        if (!entry.is_regular_file())
+            continue;
         auto p = entry.path();
         if (p.extension() == ".o2r") {
             out.push_back(p.stem().string());
@@ -60,7 +64,8 @@ std::vector<std::string> ScanLocalCatalog() {
 
 void AnnounceCatalogAndSlots() {
     auto* h = Harpoon::Instance();
-    if (h->State() < HarpoonConnState::Connected) return;
+    if (h->State() < HarpoonConnState::Connected)
+        return;
 
     auto catalog = ScanLocalCatalog();
     nlohmann::json announce = {
@@ -71,25 +76,30 @@ void AnnounceCatalogAndSlots() {
 
     nlohmann::json slots = {
         { "type", HarpoonPT::APPEARANCE_SKIN_UPDATE },
-        { "payload", {
-            { "clientId", h->OwnClientId() },
-            { "adultSkinName", CVarGetString("gNetwork.Harpoon.Skin.Adult", "") },
-            { "equipSkinName", CVarGetString("gNetwork.Harpoon.Skin.Equip", "") },
-        }},
+        { "payload",
+          {
+              { "clientId", h->OwnClientId() },
+              { "adultSkinName", CVarGetString("gNetwork.Harpoon.Skin.Adult", "") },
+              { "equipSkinName", CVarGetString("gNetwork.Harpoon.Skin.Equip", "") },
+          } },
     };
     h->SendJson(slots);
 }
 
 void SetSlot(const std::string& slotKey, const std::string& skinName) {
-    if (slotKey == "adult")      CVarSetString("gNetwork.Harpoon.Skin.Adult", skinName.c_str());
-    else if (slotKey == "equip") CVarSetString("gNetwork.Harpoon.Skin.Equip", skinName.c_str());
+    if (slotKey == "adult")
+        CVarSetString("gNetwork.Harpoon.Skin.Adult", skinName.c_str());
+    else if (slotKey == "equip")
+        CVarSetString("gNetwork.Harpoon.Skin.Equip", skinName.c_str());
     AnnounceCatalogAndSlots();
 }
 
 std::string ResolveSlot(const std::string& announcedName) {
     auto catalog = ScanLocalCatalog();
-    for (const auto& s : catalog) if (s == announcedName) return s;
-    return "";  // fallback to vanilla rendering
+    for (const auto& s : catalog)
+        if (s == announcedName)
+            return s;
+    return ""; // fallback to vanilla rendering
 }
 
-}  // namespace HarpoonSkinSync
+} // namespace HarpoonSkinSync

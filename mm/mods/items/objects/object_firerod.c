@@ -92,8 +92,8 @@ void CustomItems_DrawFireRod(Player* player, PlayState* play) {
     // Remote dummies have no local sets — fall back to gCustomItemState fields
     // (single set, mirrored from the network sync) so teammates see the projectile.
     u8 hasLocalSets = FireRod_HasAnyActiveSet();
-    u8 hasRemoteSync = !hasLocalSets && fireRodProjActive && fireRodProjScale > 0.001f &&
-                       gCustomItemState.fireRodProjCount > 0;
+    u8 hasRemoteSync =
+        !hasLocalSets && fireRodProjActive && fireRodProjScale > 0.001f && gCustomItemState.fireRodProjCount > 0;
 
     if (hasLocalSets || hasRemoteSync) {
         sFireRodFlameScroll -= 20;

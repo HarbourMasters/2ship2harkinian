@@ -64,6 +64,13 @@ void ApplyToSaveContext(nlohmann::json spoiler) {
                 RANDO_SAVE_CHECKS[randoCheckId].price =
                     spoiler["checks"][randoStaticCheck.name]["price"].get<uint16_t>();
             }
+            // Excluded check carried by a spoiler (OoT+MM combo writes {"randoItemId":"RI_JUNK","skipped":true}
+            // for the checks GeneratePools turned into skipped junk): keep it skipped, not a live junk check.
+            // Skijer's NEI
+            if (spoiler["checks"][randoStaticCheck.name].contains("skipped")) {
+                RANDO_SAVE_CHECKS[randoCheckId].skipped =
+                    spoiler["checks"][randoStaticCheck.name]["skipped"].get<bool>();
+            }
         } else {
             std::string itemName = spoiler["checks"][randoStaticCheck.name].get<std::string>();
             RandoItemId randoItemId = Rando::StaticData::GetItemIdFromName(itemName.c_str());

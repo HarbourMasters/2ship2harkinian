@@ -196,8 +196,8 @@ typedef struct {
 // COLLIDER CONFIGS
 // =============================================================================
 
-static ColliderCylinderInit sIceRodProjColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_NONE,
-                                                     COLSHAPE_CYLINDER },
+static ColliderCylinderInit sIceRodProjColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE,
+                                                     OC2_NONE, COLSHAPE_CYLINDER },
                                                    { ELEM_MATERIAL_UNK2,
                                                      { DMG_ICE_ARROW, 0x01, ICE_ROD_PROJ_DAMAGE },
                                                      { 0, 0, 0 },
@@ -206,8 +206,8 @@ static ColliderCylinderInit sIceRodProjColInit = { { COL_MATERIAL_NONE, AT_ON | 
                                                      OCELEM_NONE },
                                                    { ICE_ROD_PROJ_RADIUS, ICE_ROD_PROJ_HEIGHT, 0, { 0, 0, 0 } } };
 
-static ColliderCylinderInit sIceRodSpinColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_NONE,
-                                                     COLSHAPE_CYLINDER },
+static ColliderCylinderInit sIceRodSpinColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE,
+                                                     OC2_NONE, COLSHAPE_CYLINDER },
                                                    { ELEM_MATERIAL_UNK2,
                                                      { DMG_ICE_ARROW | DMG_SWORD, 0x01, ICE_ROD_SPIN_DAMAGE },
                                                      { 0, 0, 0 },
@@ -216,8 +216,8 @@ static ColliderCylinderInit sIceRodSpinColInit = { { COL_MATERIAL_NONE, AT_ON | 
                                                      OCELEM_NONE },
                                                    { 50, 80, 0, { 0, 0, 0 } } };
 
-static ColliderCylinderInit sIceRodWaveColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_NONE,
-                                                     COLSHAPE_CYLINDER },
+static ColliderCylinderInit sIceRodWaveColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE,
+                                                     OC2_NONE, COLSHAPE_CYLINDER },
                                                    { ELEM_MATERIAL_UNK2,
                                                      { DMG_ICE_ARROW, 0x01, ICE_ROD_WAVE_DAMAGE },
                                                      { 0, 0, 0 },

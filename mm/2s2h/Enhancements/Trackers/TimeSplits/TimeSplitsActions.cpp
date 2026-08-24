@@ -100,11 +100,10 @@ void HandlePopUpContext(uint32_t popupId) {
         uint32_t slotIndex = 0;
         for (auto& list : itemList) {
             SplitsPushImageButtonStyle();
-            if (ImGui::ImageButton(
-                    std::to_string(list).c_str(),
-                    Ship_GetFast3dGui()->GetTextureByName(GetItemImageById(list)),
-                    GetItemImageSizeById(list) * 1.5f, ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                    Ship_GetItemColorTint(list))) {
+            if (ImGui::ImageButton(std::to_string(list).c_str(),
+                                   Ship_GetFast3dGui()->GetTextureByName(GetItemImageById(list)),
+                                   GetItemImageSizeById(list) * 1.5f, ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                                   Ship_GetItemColorTint(list))) {
                 AddSplitEntryById(list);
                 ImGui::CloseCurrentPopup();
                 shouldPopUpOpen = false;
@@ -127,9 +126,9 @@ void HandleDragAndDrop(size_t i) {
     if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) {
         ImGui::SetDragDropPayload("SPLIT_DRAG", &i, sizeof(size_t));
         ImGui::ImageButton(std::to_string(splitList[i].splitId).c_str(),
-                           Ship_GetFast3dGui()->GetTextureByName(
-                               splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageById(splitList[i].splitId)
-                                                                           : gPauseUnusedCursorTex),
+                           Ship_GetFast3dGui()->GetTextureByName(splitList[i].splitType == SPLIT_TYPE_NORMAL
+                                                                     ? GetItemImageById(splitList[i].splitId)
+                                                                     : gPauseUnusedCursorTex),
                            splitList[i].splitType == SPLIT_TYPE_NORMAL ? GetItemImageSizeById(splitList[i].splitId)
                                                                        : ImVec2(32.0f, 32.0f),
                            ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),

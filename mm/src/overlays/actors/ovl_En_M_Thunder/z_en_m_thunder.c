@@ -11,6 +11,7 @@
 
 #include "2s2h/BenGui/CosmeticEditor.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "mods/extended_equipment.h"
 
 #define FLAGS (ACTOR_FLAG_UPDATE_CULLING_DISABLED)
 
@@ -552,7 +553,7 @@ void EnMThunder_Draw(Actor* thisx, PlayState* play2) {
 
     Matrix_Mult(&player->leftHandMf, MTXMODE_NEW);
 
-    if (GameInteractor_Should(VB_TRANSFORM_THUNDER_MATRIX, true, this)) {
+    if (!ExtEquip_TridentThunderTransform() && GameInteractor_Should(VB_TRANSFORM_THUNDER_MATRIX, true, this)) {
         if (this->type == ENMTHUNDER_TYPE_GILDED_SWORD) {
             Matrix_Translate(0.0f, 220.0f, 0.0f, MTXMODE_APPLY);
             Matrix_Scale(-1.2f, -0.8f, -0.6f, MTXMODE_APPLY);

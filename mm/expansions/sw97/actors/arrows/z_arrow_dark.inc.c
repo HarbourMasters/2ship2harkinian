@@ -377,8 +377,7 @@ void ArrowDark_Fly(ArrowDark* this, PlayState* play) {
         // (same pointer the Dark lifesteal hook reads).
         Actor* hit = arrow->collider.base.at;
         if (hit != NULL && hit->update != NULL &&
-            (hit->category == ACTORCAT_ENEMY || hit->category == ACTORCAT_NPC ||
-             (hit->flags & ACTOR_FLAG_HOSTILE))) {
+            (hit->category == ACTORCAT_ENEMY || hit->category == ACTORCAT_NPC || (hit->flags & ACTOR_FLAG_HOSTILE))) {
             extern void Sw97_TagBlinded(Actor*, s16);
             Sw97_TagBlinded(hit, 300);
         }

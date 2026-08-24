@@ -46,21 +46,23 @@
 #define WHIP_MAX_RELEASE_SPEED 25.0f  // Max horizontal speed on swing release
 #define WHIP_MIN_LAUNCH_VY 1.0f       // Minimum upward velocity on release
 #define WHIP_A_RELEASE_VY_FRAC 0.25f  // A-release keeps forward momentum but only 1/4 of the vertical
-#define WHIP_JUMPSLASH_LOCKOUT 15     // Frames after a B-release jumpslash where a held item button
-                                      // must NOT re-equip the whip (else it cancels the jump attack)
-#define WHIP_SWING_BOUNCE 0.3f        // Velocity retention factor on angle clamp bounce
-#define WHIP_YAW_TURN_RATE 1536       // Swing-plane turn rate: s16 units/frame at full lateral stick
-                                      // (~8.4 deg/frame). Was 256 (~1.4 deg) which barely steered.
-                                      // Steering the plane (not the absolute direction) is what keeps
-                                      // the back-swing from flipping. Raise for snappier steering.
-#define WHIP_LAUNCH_COAST_FRAMES 10   // Frames to preserve momentum after release
+#define WHIP_JUMPSLASH_LOCKOUT \
+    15                         // Frames after a B-release jumpslash where a held item button
+                               // must NOT re-equip the whip (else it cancels the jump attack)
+#define WHIP_SWING_BOUNCE 0.3f // Velocity retention factor on angle clamp bounce
+#define WHIP_YAW_TURN_RATE \
+    1536                            // Swing-plane turn rate: s16 units/frame at full lateral stick
+                                    // (~8.4 deg/frame). Was 256 (~1.4 deg) which barely steered.
+                                    // Steering the plane (not the absolute direction) is what keeps
+                                    // the back-swing from flipping. Raise for snappier steering.
+#define WHIP_LAUNCH_COAST_FRAMES 10 // Frames to preserve momentum after release
 
 // Swing camera (Wind-Waker-style: behind Link along the swing direction, semi-fixed, gently follows)
-#define WHIP_CAM_DISTANCE 200.0f      // How far behind Link the eye sits
-#define WHIP_CAM_HEIGHT 60.0f         // How high above Link's pivot the eye sits
-#define WHIP_CAM_AT_HEIGHT 20.0f      // Look-at point raised above Link's feet
-#define WHIP_CAM_FOLLOW_STEP 0x0400   // Per-frame s16 step the cam yaw chases the swing yaw (semi-follow)
-#define WHIP_CAM_FOLLOW_FRAC 8        // Math_SmoothStepToS scale (higher = looser/slower follow)
+#define WHIP_CAM_DISTANCE 200.0f    // How far behind Link the eye sits
+#define WHIP_CAM_HEIGHT 60.0f       // How high above Link's pivot the eye sits
+#define WHIP_CAM_AT_HEIGHT 20.0f    // Look-at point raised above Link's feet
+#define WHIP_CAM_FOLLOW_STEP 0x0400 // Per-frame s16 step the cam yaw chases the swing yaw (semi-follow)
+#define WHIP_CAM_FOLLOW_FRAC 8      // Math_SmoothStepToS scale (higher = looser/slower follow)
 
 // =============================================================================
 // Combat
@@ -202,8 +204,8 @@ static const WhipDisarmEntry sWhipDisarmTable[] = {
 // =============================================================================
 // Collider Init
 // =============================================================================
-static ColliderCylinderInit sWhipColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_TYPE_PLAYER,
-                                               COLSHAPE_CYLINDER },
+static ColliderCylinderInit sWhipColInit = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE,
+                                               OC2_TYPE_PLAYER, COLSHAPE_CYLINDER },
                                              { ELEM_MATERIAL_UNK2,
                                                { DMG_BOOMERANG, 0x00, WHIP_DAMAGE },
                                                { 0, 0, 0 },

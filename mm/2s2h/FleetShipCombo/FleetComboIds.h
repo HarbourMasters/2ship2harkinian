@@ -169,14 +169,14 @@ typedef enum {
 #define FC_MMQ_SONG_NEW_WAVE (1 << 8)
 #define FC_MMQ_SONG_ELEGY (1 << 9)
 #define FC_MMQ_SONG_OATH (1 << 10)
-#define FC_MMQ_SONG_SARIA (1 << 11)      // shared with OoT questItems (kept for display parity)
-#define FC_MMQ_SONG_TIME (1 << 12)       // shared
+#define FC_MMQ_SONG_SARIA (1 << 11) // shared with OoT questItems (kept for display parity)
+#define FC_MMQ_SONG_TIME (1 << 12)  // shared
 #define FC_MMQ_SONG_HEALING (1 << 13)
-#define FC_MMQ_SONG_EPONA (1 << 14)      // shared
+#define FC_MMQ_SONG_EPONA (1 << 14) // shared
 #define FC_MMQ_SONG_SOARING (1 << 15)
-#define FC_MMQ_SONG_STORMS (1 << 16)     // shared
-#define FC_MMQ_SONG_SUN (1 << 17)        // shared
-#define FC_MMQ_BOMBERS_NOTEBOOK (1 << 18) // matches MM native QUEST_BOMBERS_NOTEBOOK (0x12)
+#define FC_MMQ_SONG_STORMS (1 << 16)        // shared
+#define FC_MMQ_SONG_SUN (1 << 17)           // shared
+#define FC_MMQ_BOMBERS_NOTEBOOK (1 << 18)   // matches MM native QUEST_BOMBERS_NOTEBOOK (0x12)
 #define FC_MMQ_SONG_TIME_INVERTED (1 << 19) // playing-variant knowledge flags (info-only)
 #define FC_MMQ_SONG_TIME_DOUBLE (1 << 20)
 // Mask of the bits that come 1:1 from MM's native inventory.questItems (remains 0-3, songs 6-17,
@@ -264,10 +264,11 @@ static const FcBottleContentPair kFcBottleContentMap[] = {
     { 0x1B, 0xFE }, // ITEM_LETTER_RUTO              <-> (no MM relative: sentinel 0xFE, kept OoT-side)
 };
 #define FC_BOTTLE_CONTENT_MAP_COUNT (sizeof(kFcBottleContentMap) / sizeof(kFcBottleContentMap[0]))
-#define FC_BOTTLE_SLOT_EMPTY 0xFF    // NeiSaveData.bottleSlots "no bottle in this slot"
-#define FC_BOTTLE_UNMAPPED 0xFE      // translation result for a content with no relative: the
-                                     // applier must replace it with the LOCAL empty-bottle id
-                                     // (never store 0xFE — big ids crash icon/digit lookups)
+#define FC_BOTTLE_SLOT_EMPTY 0xFF // NeiSaveData.bottleSlots "no bottle in this slot"
+#define FC_BOTTLE_UNMAPPED \
+    0xFE // translation result for a content with no relative: the
+         // applier must replace it with the LOCAL empty-bottle id
+         // (never store 0xFE — big ids crash icon/digit lookups)
 
 static inline uint8_t FcBottle_OotToMm(uint8_t ootId) {
     unsigned int i;

@@ -26,7 +26,7 @@
 #include "interface/parameter_static/parameter_static.h"
 #include "archives/icon_item_static/icon_item_static_yar.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
-#include "2s2h/FleetShipCombo/FleetComboIds.h" // FC_SHIELD_* / FC_OOT_TUNIC/BOOTS ownership bits
+#include "2s2h/FleetShipCombo/FleetComboIds.h"  // FC_SHIELD_* / FC_OOT_TUNIC/BOOTS ownership bits
 #include "2s2h/FleetShipCombo/FleetShipCombo.h" // FleetShipCombo_GetActiveGame (combo ownership gate)
 #include <libultraship/bridge/consolevariablebridge.h>
 
@@ -66,7 +66,7 @@ u8 WeaponUpgrade_HasGreatFairy(void);
 // ---------------------------------------------------------------------------
 // Doll framebuffer (OoT pause-Link dimensions)
 // ---------------------------------------------------------------------------
-#define EQUIP_DOLL_WIDTH 64   // on-screen size (OoT pause-Link dimensions)
+#define EQUIP_DOLL_WIDTH 64 // on-screen size (OoT pause-Link dimensions)
 #define EQUIP_DOLL_HEIGHT 112
 #define EQUIP_DOLL_RES 3 // framebuffer supersampling factor (renders at 3x, shown at 1x)
 #define EQUIP_DOLL_FBW (EQUIP_DOLL_WIDTH * EQUIP_DOLL_RES)
@@ -93,7 +93,7 @@ static s16 sTransformCursor = 0;
 // cursorXIndex/cursorYIndex) position the drawn cursor for free.
 #define EQUIP_GRID_COL_BASE 2
 #define EQUIP_MASK_COL(col) ((col) == 0 ? 0 : ((col) + EQUIP_GRID_COL_BASE))
-#define EQUIP_CELL(row, col) (((row) * MASK_GRID_COLS) + EQUIP_MASK_COL(col))
+#define EQUIP_CELL(row, col) (((row)*MASK_GRID_COLS) + EQUIP_MASK_COL(col))
 
 // Upgrade column (col 0) OWN vertices — OoT places its upgrade column at page x = -114 (the carved
 // sockets on the page's left edge, z_kaleido_scope_PAL.c D_8082B12C), further left than maskVtx
@@ -123,8 +123,8 @@ static void KaleidoEquip_BuildUpgradeColVtx(PauseContext* pauseCtx) {
 
     for (row = 0; row < 4; row++) {
         Vtx* v = &sUpgradeColVtx[row * 4];
-        s16 y0 = (MASK_GRID_ROWS * MASK_GRID_CELL_HEIGHT) / 2 - 6 - (row * MASK_GRID_CELL_HEIGHT) +
-                 pauseCtx->offsetY - MASK_GRID_QUAD_MARGIN;
+        s16 y0 = (MASK_GRID_ROWS * MASK_GRID_CELL_HEIGHT) / 2 - 6 - (row * MASK_GRID_CELL_HEIGHT) + pauseCtx->offsetY -
+                 MASK_GRID_QUAD_MARGIN;
 
         v[0].v.ob[0] = v[2].v.ob[0] = EQUIP_UPGRADE_COL_X;
         v[1].v.ob[0] = v[3].v.ob[0] = EQUIP_UPGRADE_COL_X + MASK_GRID_QUAD_WIDTH;
@@ -151,13 +151,13 @@ typedef struct {
 
 #define CELL_EMPTY (-1)
 #define CELL_UPGRADE (-2)
-#define CELL_SWORD (-3)   // Kokiri progressive line (Kokiri -> Razor -> Gilded, MM native)
+#define CELL_SWORD (-3) // Kokiri progressive line (Kokiri -> Razor -> Gilded, MM native)
 #define CELL_SHIELD (-4)
 #define CELL_DISPLAY (-5)
-#define CELL_SWORD_MASTER (-6) // Master line (Master -> True Master; own IA, OoT blade, full-HP beam)
-#define CELL_SWORD_BGS (-7)    // Longsword line (Biggoron -> Great Fairy's Sword; two-handed IA)
-#define CELL_TUNIC (-8)        // OoT tunic (Kokiri/Goron/Zora): Nei_Save()->vanillaTunic, index 0..2
-#define CELL_BOOTS (-9)        // OoT boots (Kokiri/Iron/Hover): Nei_Save()->vanillaBoots, index 0..2
+#define CELL_SWORD_MASTER (-6)       // Master line (Master -> True Master; own IA, OoT blade, full-HP beam)
+#define CELL_SWORD_BGS (-7)          // Longsword line (Biggoron -> Great Fairy's Sword; two-handed IA)
+#define CELL_TUNIC (-8)              // OoT tunic (Kokiri/Goron/Zora): Nei_Save()->vanillaTunic, index 0..2
+#define CELL_BOOTS (-9)              // OoT boots (Kokiri/Iron/Hover): Nei_Save()->vanillaBoots, index 0..2
 #define CELL_SHIELD_DEKU (-10)       // Deku shield: equips AS Hero (index 1) but sets the Deku skin flag
 #define CELL_SHIELD_OOT_MIRROR (-11) // OoT Mirror: equips AS Mirror (2) + skin flag 2 (draws OoT mirror)
 
@@ -300,7 +300,7 @@ static void KaleidoEquip_GetCell(s16 subPage, s16 row, s16 col, EquipCell* out) 
         } else if (row == 2) {
             // OoT tunics (functional): Kokiri / Goron (fireproof) / Zora (gas-immune).
             out->equipType = CELL_TUNIC;
-            out->index = col - 1; // 0=Kokiri, 1=Goron, 2=Zora
+            out->index = col - 1;                     // 0=Kokiri, 1=Goron, 2=Zora
             out->item = ITEM_EXT_TUNIC_1 + (col - 1); // fallback icon when the OoT archive is absent
             out->ootIcon = sOotIcons[0][col - 1];
         } else if (row == 3) {
@@ -731,8 +731,7 @@ void KaleidoScope_UpdateEquipmentCursor(PlayState* play) {
             }
         }
         // Nothing selectable at all — bounce to the opposite special position (OoT behavior)
-        KaleidoScope_MoveCursorToSpecialPos(play,
-                                            fromLeft ? PAUSE_CURSOR_PAGE_RIGHT : PAUSE_CURSOR_PAGE_LEFT);
+        KaleidoScope_MoveCursorToSpecialPos(play, fromLeft ? PAUSE_CURSOR_PAGE_RIGHT : PAUSE_CURSOR_PAGE_LEFT);
         return;
     CURSOR_PLACED:;
     } else {
@@ -827,8 +826,7 @@ void KaleidoScope_UpdateEquipmentCursor(PlayState* play) {
         KaleidoEquip_GetCell(sEquipSubPage, sEquipCursorY, sEquipCursorX, &cell);
         // Name-panel guard: NEI custom ids (>= 0xE0) have no vanilla name texture (ext names
         // wired later via ExtEquip_GetNameTex).
-        pauseCtx->cursorItem[PAUSE_MASK] =
-            (cell.item >= 0 && cell.item < 0xE0) ? (u16)cell.item : PAUSE_ITEM_NONE;
+        pauseCtx->cursorItem[PAUSE_MASK] = (cell.item >= 0 && cell.item < 0xE0) ? (u16)cell.item : PAUSE_ITEM_NONE;
     }
     pauseCtx->cursorSlot[PAUSE_MASK] = EQUIP_CELL(sEquipCursorY, sEquipCursorX);
     // Keep the shared cursor machinery in sync — the kaleido re-derives the drawn cursor from
@@ -986,8 +984,8 @@ static void KaleidoEquip_DrawDollImage(PlayState* play) {
     gSPMatrix(OVERLAY_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPSetEnvColor(OVERLAY_DISP++, 255, 255, 255, pauseCtx->alpha);
     gDPSetOtherMode(OVERLAY_DISP++,
-                    G_AD_NOISE | G_CD_NOISE | G_CK_NONE | G_TC_FILT | G_TF_POINT | G_TT_NONE | G_TL_TILE |
-                        G_TD_CLAMP | G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
+                    G_AD_NOISE | G_CD_NOISE | G_CK_NONE | G_TC_FILT | G_TF_POINT | G_TT_NONE | G_TL_TILE | G_TD_CLAMP |
+                        G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
                     G_AC_NONE | G_ZS_PRIM | G_RM_CLD_SURF | G_RM_CLD_SURF2);
     gSPClearGeometryMode(OVERLAY_DISP++, G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR);
     gSPSetGeometryMode(OVERLAY_DISP++, G_ZBUFFER | G_SHADE | G_SHADING_SMOOTH);

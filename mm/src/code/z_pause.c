@@ -35,10 +35,10 @@ void FrameAdvance_Init(FrameAdvanceContext* frameAdvCtx) {
  * Returns true when frame advance is not active (game will run normally)
  */
 s32 FrameAdvance_Update(FrameAdvanceContext* frameAdvCtx, Input* input) {
-    // Fleet Ship Combo: while this game is the inactive one, freeze it completely
-    // (never advance) so Link, the day/night clock and the Moon stay put in the
-    // background and the player can't die / trigger the Moon crash.
-    if (!FleetShipCombo_IsThisGameActive()) {
+    // Fleet Ship Combo: an inactive game is normally PARKED in the waiting room (a sealed scene
+    // with time speed 0) and keeps running there. The full freeze only remains as the fallback for
+    // an inactive game that could not be parked.
+    if (FleetShipCombo_IsGameSuspended()) {
         return false;
     }
 

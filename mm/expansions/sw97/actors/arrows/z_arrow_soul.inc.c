@@ -421,8 +421,7 @@ static void ArrowSoul_Fly(ArrowSoul* this, PlayState* play) {
         // (harvesting the target's "spirit"). Skip pots, breakable walls,
         // doors, etc. — only ENEMY / BOSS targets count.
         Actor* hit = arrow->collider.base.at;
-        if (hit != NULL && hit->update != NULL &&
-            (hit->category == ACTORCAT_ENEMY || hit->category == ACTORCAT_BOSS)) {
+        if (hit != NULL && hit->update != NULL && (hit->category == ACTORCAT_ENEMY || hit->category == ACTORCAT_BOSS)) {
             gSaveContext.save.saveInfo.playerData.magic += 6;
             if (gSaveContext.save.saveInfo.playerData.magic > gSaveContext.magicCapacity) {
                 gSaveContext.save.saveInfo.playerData.magic = gSaveContext.magicCapacity;

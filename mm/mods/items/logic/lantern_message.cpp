@@ -36,7 +36,8 @@ void Lantern_OpenCatchTextbox(void) {
             msg = "You caught %bBlue Fire%w!\nIts flame %bfreezes%w what it touches.";
             break;
         case 3: // POE / shadow
-            msg = "You caught %pShadow Fire%w!\nHold the lantern to %preveal the\ninvisible%w and %pdispel illusions%w.";
+            msg =
+                "You caught %pShadow Fire%w!\nHold the lantern to %preveal the\ninvisible%w and %pdispel illusions%w.";
             break;
         case 4: // GREEN
             msg = "You caught %gGreen Fire%w!\nIt burns far longer and %grestores\nhealth and magic%w while you rest.";

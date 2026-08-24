@@ -19,7 +19,7 @@
 #include "../helpers/equip_helper.h"
 #include "../helpers/fx_helper.h"
 #include "../objects/object_tornado.h" // shared wind cone + spiral ribbons
-#include "mods/nei_save.h" // ootQuestItems — MM's stand-in for OoT's medallion quest bits
+#include "mods/nei_save.h"             // ootQuestItems — MM's stand-in for OoT's medallion quest bits
 #include "macros.h"
 #include "functions.h"
 #include "variables.h"
@@ -34,12 +34,18 @@ void Player_InitGustJarIA(PlayState* play, Player* this) {
 // if the element is WIND (default — no medallion overlay needed).
 s32 GustJar_GetActiveMedallionItem(void) {
     switch (gjElement) {
-        case GUST_ELEMENT_FIRE:   return ITEM_MEDALLION_FIRE;
-        case GUST_ELEMENT_ICE:    return ITEM_MEDALLION_WATER;
-        case GUST_ELEMENT_SHADOW: return ITEM_MEDALLION_SHADOW;
-        case GUST_ELEMENT_SPIRIT: return ITEM_MEDALLION_SPIRIT;
-        case GUST_ELEMENT_LIGHT:  return ITEM_MEDALLION_LIGHT;
-        default:                  return -1; // WIND or unknown
+        case GUST_ELEMENT_FIRE:
+            return ITEM_MEDALLION_FIRE;
+        case GUST_ELEMENT_ICE:
+            return ITEM_MEDALLION_WATER;
+        case GUST_ELEMENT_SHADOW:
+            return ITEM_MEDALLION_SHADOW;
+        case GUST_ELEMENT_SPIRIT:
+            return ITEM_MEDALLION_SPIRIT;
+        case GUST_ELEMENT_LIGHT:
+            return ITEM_MEDALLION_LIGHT;
+        default:
+            return -1; // WIND or unknown
     }
 }
 
@@ -147,8 +153,8 @@ u8 GustJar_ElementNeighbor(u8 element, s32 dir) {
     return GustJar_ElementAt(0);
 }
 
-static void GustJar_ClearScaleCache(void);          // Forward declaration
-static void GustJar_TornadoStop(PlayState* play);   // Forward declaration
+static void GustJar_ClearScaleCache(void);        // Forward declaration
+static void GustJar_TornadoStop(PlayState* play); // Forward declaration
 
 // =============================================================================
 // Equip / Unequip
@@ -760,15 +766,15 @@ static void GustJar_ApplyCarryPose(Player* player, PlayState* play) {
     // AnimationContext_SetLoadFrame does an immediate synchronous memcpy of
     // the frame's joint table into frameBuf (z_skelanime.c:909) — values are
     // available right away.
-    AnimationContext_SetLoadFrame(play, (LinkAnimationHeader*)&gPlayerAnim_link_normal_carryB_free,
-                                  8, PLAYER_LIMB_MAX, frameBuf);
+    AnimationContext_SetLoadFrame(play, (LinkAnimationHeader*)&gPlayerAnim_link_normal_carryB_free, 8, PLAYER_LIMB_MAX,
+                                  frameBuf);
 
     player->skelAnime.jointTable[PLAYER_LIMB_L_SHOULDER] = frameBuf[PLAYER_LIMB_L_SHOULDER];
-    player->skelAnime.jointTable[PLAYER_LIMB_L_FOREARM]  = frameBuf[PLAYER_LIMB_L_FOREARM];
-    player->skelAnime.jointTable[PLAYER_LIMB_L_HAND]     = frameBuf[PLAYER_LIMB_L_HAND];
+    player->skelAnime.jointTable[PLAYER_LIMB_L_FOREARM] = frameBuf[PLAYER_LIMB_L_FOREARM];
+    player->skelAnime.jointTable[PLAYER_LIMB_L_HAND] = frameBuf[PLAYER_LIMB_L_HAND];
     player->skelAnime.jointTable[PLAYER_LIMB_R_SHOULDER] = frameBuf[PLAYER_LIMB_R_SHOULDER];
-    player->skelAnime.jointTable[PLAYER_LIMB_R_FOREARM]  = frameBuf[PLAYER_LIMB_R_FOREARM];
-    player->skelAnime.jointTable[PLAYER_LIMB_R_HAND]     = frameBuf[PLAYER_LIMB_R_HAND];
+    player->skelAnime.jointTable[PLAYER_LIMB_R_FOREARM] = frameBuf[PLAYER_LIMB_R_FOREARM];
+    player->skelAnime.jointTable[PLAYER_LIMB_R_HAND] = frameBuf[PLAYER_LIMB_R_HAND];
 }
 
 // Re-stamp the hold pose from CustomItems_LatePose.
@@ -869,8 +875,8 @@ void Handle_GustJar(Player* this, PlayState* play) {
     // instead of trusting ItemInput_CheckOtherButtons, which lists R as an
     // "action button" globally for all other items.
     {
-        static const u16 sGjUnequipButtons = BTN_A | BTN_B | BTN_START | BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT |
-                                             BTN_DUP | BTN_DDOWN | BTN_DLEFT | BTN_DRIGHT;
+        static const u16 sGjUnequipButtons = BTN_A | BTN_B | BTN_START | BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT | BTN_DUP |
+                                             BTN_DDOWN | BTN_DLEFT | BTN_DRIGHT;
         u16 mask = sGjUnequipButtons & ~input.equippedButton;
         if (play->state.input[0].press.button & mask) {
             GustJar_Unequip(play, this);
@@ -947,8 +953,8 @@ void Handle_GustJar(Player* this, PlayState* play) {
     // absorbs, release C blows proportional to charge) and BLOW (manual —
     // hold C directly blows with current element, no charge mechanic).
     // Works in any mode while the gust jar is equipped.
-    u8 lrCurr = CHECK_BTN_ALL(play->state.input[0].cur.button, BTN_L) &&
-                CHECK_BTN_ALL(play->state.input[0].cur.button, BTN_R);
+    u8 lrCurr =
+        CHECK_BTN_ALL(play->state.input[0].cur.button, BTN_L) && CHECK_BTN_ALL(play->state.input[0].cur.button, BTN_R);
     u8 lrPress = CHECK_BTN_ALL(play->state.input[0].press.button, BTN_L) ||
                  CHECK_BTN_ALL(play->state.input[0].press.button, BTN_R);
     u8 lrToggled = 0;

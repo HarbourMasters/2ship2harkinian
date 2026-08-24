@@ -51,7 +51,8 @@ const PostmanMailboxPoint sMailboxTable[POSTMAN_MAILBOX_COUNT] = {
         { -1441.042f, -76.593f, -175.555f },
         16774,
         0,
-        73, -12,
+        73,
+        -12,
         "Kokiri Forest",
     },
     // #1 Market — in front of the fountain (day + night)
@@ -62,7 +63,8 @@ const PostmanMailboxPoint sMailboxTable[POSTMAN_MAILBOX_COUNT] = {
         { -4.156f, 0.0f, 124.724f },
         0,
         0,
-        14, 4,
+        14,
+        4,
         "Hyrule Castle Town",
     },
     // #2 Kakariko Village — near the main gate guard
@@ -73,7 +75,8 @@ const PostmanMailboxPoint sMailboxTable[POSTMAN_MAILBOX_COUNT] = {
         { -2162.320f, 138.0f, 1158.205f },
         -21923,
         0,
-        38, 15,
+        38,
+        15,
         "Kakariko Village",
     },
     // #3 Lon Lon Ranch — entrance
@@ -84,7 +87,8 @@ const PostmanMailboxPoint sMailboxTable[POSTMAN_MAILBOX_COUNT] = {
         { 986.0f, 0.0f, -3376.015f },
         -16291,
         0,
-        10, -15,
+        10,
+        -15,
         "Lon Lon Ranch",
     },
     // #4 Death Mountain Trail
@@ -95,7 +99,8 @@ const PostmanMailboxPoint sMailboxTable[POSTMAN_MAILBOX_COUNT] = {
         { -540.559f, 1194.025f, -1858.751f },
         8402,
         0,
-        35, 44,
+        35,
+        44,
         "Death Mtn Trail",
     },
     // #5 Zora's River
@@ -106,7 +111,8 @@ const PostmanMailboxPoint sMailboxTable[POSTMAN_MAILBOX_COUNT] = {
         { 4095.814f, 960.0f, -1684.251f },
         -203,
         0,
-        78, 18,
+        78,
+        18,
         "Zora's River",
     },
     // #6 Gerudo Valley — before the bridge
@@ -117,7 +123,8 @@ const PostmanMailboxPoint sMailboxTable[POSTMAN_MAILBOX_COUNT] = {
         { 427.205f, 36.000f, 7.694f },
         16342,
         0,
-        -51, 10,
+        -51,
+        10,
         "Gerudo Valley",
     },
 };
@@ -276,8 +283,7 @@ void Handle_PostmanHat(Player* p, PlayState* play) {
 
     // Detect a scene load as EITHER a sceneNum change OR a frame-counter
     // rewind (fresh PlayState → frames back to 0, catches same-scene warps).
-    s32 sceneLoaded = (play->sceneNum != sPostmanLastSceneSpawned) ||
-                      (play->state.frames < sPostmanLastFrameCount);
+    s32 sceneLoaded = (play->sceneNum != sPostmanLastSceneSpawned) || (play->state.frames < sPostmanLastFrameCount);
     if (sceneLoaded) {
         sPostmanLastSceneSpawned = play->sceneNum;
         PostmanHat_SpawnMailboxesForScene(play);

@@ -172,8 +172,7 @@ static void Mailbox_Update(Actor* thisx, PlayState* play) {
         player->actor.flags &= ~ACTOR_FLAG_TALK;
         func_80853080(player, play);
 
-        if (mailboxIdx >= 0 && mailboxIdx < POSTMAN_MAILBOX_COUNT &&
-            PostmanHat_IsMailboxUnlocked(mailboxIdx)) {
+        if (mailboxIdx >= 0 && mailboxIdx < POSTMAN_MAILBOX_COUNT && PostmanHat_IsMailboxUnlocked(mailboxIdx)) {
             // TryTriggerWarpMode re-verifies owned+worn+scene-safe guards.
             PostmanHat_TryTriggerWarpMode(play);
         }
@@ -212,8 +211,7 @@ static void Mailbox_Draw(Actor* thisx, PlayState* play) {
     Matrix_RotateY(BINANG_TO_RAD(thisx->shape.rot.y), MTXMODE_APPLY);
     Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
 
-    gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx),
-              G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPMatrix(POLY_OPA_DISP++, MATRIX_NEWMTX(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPDisplayList(POLY_OPA_DISP++, sMailboxFrameDL);
 
     gDPPipeSync(POLY_OPA_DISP++);
@@ -243,8 +241,7 @@ u8 Mailbox_IsMailboxActor(Actor* actor) {
 }
 
 Actor* Mailbox_Spawn(PlayState* play, const Vec3f* pos, s16 yaw, s32 mailboxIdx) {
-    Actor* mailbox =
-        Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHTBOX, pos->x, pos->y, pos->z, 0, yaw, 0, 0);
+    Actor* mailbox = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_LIGHTBOX, pos->x, pos->y, pos->z, 0, yaw, 0, 0);
 
     if (mailbox == NULL)
         return NULL;

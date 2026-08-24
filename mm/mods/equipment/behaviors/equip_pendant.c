@@ -66,11 +66,15 @@ static u8 sPendantWasHopping = 0;
 // Shared attack collider (ground pound shockwave + parry leap)
 static ColliderCylinder sPendantAtkCol;
 static u8 sPendantAtkColInit = 0;
-static ColliderCylinderInit sPendantAtkColInit_data = {
-    { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_NONE, COLSHAPE_CYLINDER },
-    { ELEM_MATERIAL_UNK2, { 0x00000100, 0x00, 0x08 }, { 0, 0, 0 }, ATELEM_ON | ATELEM_SFX_NORMAL, ACELEM_NONE, OCELEM_NONE },
-    { 80, 80, 0, { 0, 0, 0 } }
-};
+static ColliderCylinderInit sPendantAtkColInit_data = { { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE,
+                                                          OC2_NONE, COLSHAPE_CYLINDER },
+                                                        { ELEM_MATERIAL_UNK2,
+                                                          { 0x00000100, 0x00, 0x08 },
+                                                          { 0, 0, 0 },
+                                                          ATELEM_ON | ATELEM_SFX_NORMAL,
+                                                          ACELEM_NONE,
+                                                          OCELEM_NONE },
+                                                        { 80, 80, 0, { 0, 0, 0 } } };
 
 static void Pendant_InitAtkCol(PlayState* play, Player* player) {
     if (!sPendantAtkColInit) {
@@ -407,8 +411,7 @@ static u8 Pendant_CheckParryLeap(Player* player, PlayState* play) {
     // Count hops (rising edge). MM fix (Skijer 2026-07-16): the OoT-compat PLAYER_STATE2_HOPPING is
     // a 0-stub in MM (the count never advanced) — MM's jump launcher (func_80834CD0, used by the
     // Z-target side hops/backflips) raises PLAYER_STATE1_40000 while airborne; that IS the hop.
-    u8 isHopping =
-        ((player->stateFlags1 & PLAYER_STATE1_40000) && !(player->actor.bgCheckFlags & 1)) ? 1 : 0;
+    u8 isHopping = ((player->stateFlags1 & PLAYER_STATE1_40000) && !(player->actor.bgCheckFlags & 1)) ? 1 : 0;
     if (isHopping && !sPendantWasHopping) {
         sPendantSideHopCount++;
         sPendantHopTimer = 0;

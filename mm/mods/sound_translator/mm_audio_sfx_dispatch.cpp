@@ -46,8 +46,8 @@ void MmSfxBridge_RefreshProperties(u16 mmSfxId, Vec3f* pos, f32 freqScale);
 extern "C" {
 void MmSfxSynth_WriteChannelIO(int channelIndex, int ioPort, signed char value);
 int MmSfxSynth_ReadChannelIO(int channelIndex, int ioPort);
-void MmSfxSynth_SetChannelState(int channelIndex, float volume, float freqScale,
-                                signed char panSigned, signed char stereoBits);
+void MmSfxSynth_SetChannelState(int channelIndex, float volume, float freqScale, signed char panSigned,
+                                signed char stereoBits);
 int MmSfxSynth_IsReady(void);
 }
 
@@ -72,11 +72,11 @@ static void MmSfx_DriveNewEngine(MmSfxBankEntry* entry, u8 channelIndex, f32 fre
     MmSfxSynth_SetChannelState(channelIndex, 1.0f, freqScale, 0x40, 0);
     if (firstTrigger) {
         u16 sfxId = entry->sfxId;
-        MmSfxSynth_WriteChannelIO(channelIndex, 0, 1);                 // enable
-        MmSfxSynth_WriteChannelIO(channelIndex, 2, 0x7F);              // volume (full; TODO spatial)
+        MmSfxSynth_WriteChannelIO(channelIndex, 0, 1);                           // enable
+        MmSfxSynth_WriteChannelIO(channelIndex, 2, 0x7F);                        // volume (full; TODO spatial)
         MmSfxSynth_WriteChannelIO(channelIndex, 4, (signed char)(sfxId & 0xFF)); // sfxId low
-        u8 hi = (u8)(((sfxId & 0x300) >> 7) + ((sfxId & 0xFF) >> 7));  // sfx.c:660 (large-bank bits)
-        MmSfxSynth_WriteChannelIO(channelIndex, 5, (signed char)hi);   // sfxId high bits
+        u8 hi = (u8)(((sfxId & 0x300) >> 7) + ((sfxId & 0xFF) >> 7));            // sfx.c:660 (large-bank bits)
+        MmSfxSynth_WriteChannelIO(channelIndex, 5, (signed char)hi);             // sfxId high bits
     }
 }
 
@@ -132,7 +132,8 @@ void MmSfxDispatch_RefreshEntry(u8 bankId, MmSfxBankEntry* entry, u8 channelInde
 // Returns 1 if the entry's MmDirectAudio playback slot is still alive.
 // Used by the bank engine to clean up entries whose sample has finished.
 s32 MmSfxDispatch_IsEntryActive(u8 bankId, MmSfxBankEntry* entry) {
-    if (entry == nullptr) return 0;
+    if (entry == nullptr)
+        return 0;
     if (MmSfx_UseNewEngine()) {
         // MM (sfx.c:678): the SFX is finished when seq_0 writes SEQ_IO_VAL_NONE
         // (-1 / 0xFF) to the channel's ioPort 1. Until then it's still active.

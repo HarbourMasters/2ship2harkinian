@@ -6,6 +6,7 @@
 extern "C" {
 #include "macros.h"
 #include "functions.h"
+#include "mods/extended_equipment.h"
 extern PlayState* gPlayState;
 extern PlayState* sCamPlayState;
 extern f32 Camera_ScaledStepToCeilF(f32 target, f32 cur, f32 stepScale, f32 minDiff);
@@ -41,9 +42,14 @@ void UpdateFreeLookState(Camera* camera) {
         case CAM_MODE_HANGZ:
         case CAM_MODE_DEKUFLYZ:
         case CAM_MODE_BOOMERANG:
-        case CAM_MODE_CHARGEZ:
         case CAM_MODE_ZORAFINZ:
             sCanFreeLook = false;
+            break;
+        case CAM_MODE_CHARGEZ:
+            if (!Trident_AllowsChargeFreeLook()) {
+                sCanFreeLook = false;
+            }
+            break;
     }
 }
 
@@ -191,7 +197,9 @@ void RegisterCameraFreeLook() {
                 }
                 break;
             case CAM_FUNC_PARALLEL1:
-                if (camera->mode == CAM_MODE_HANG) {
+                if ((camera->mode == CAM_MODE_HANG) ||
+                    ((camera->mode == CAM_MODE_CHARGE) && Trident_AllowsChargeFreeLook()) ||
+                    ((camera->mode == CAM_MODE_CHARGEZ) && Trident_AllowsChargeFreeLook())) {
                     if (Camera_CanFreeLook(camera)) {
                         Camera_FreeLook(camera);
                         *should = false;

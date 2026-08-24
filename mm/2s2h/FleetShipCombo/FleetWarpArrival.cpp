@@ -19,13 +19,13 @@
 #include "2s2h/ShipInit.hpp"
 #include "FleetShipCombo.h"
 #include "FleetSync.h"
-#include "FleetOracle.h"                // FleetOracle_RecreateSaveSlot (rebuild a rejected MM slot)
-#include "2s2h/BenGui/Notification.h"   // tell the player their MM file was rebuilt
+#include "FleetOracle.h"                  // FleetOracle_RecreateSaveSlot (rebuild a rejected MM slot)
+#include "2s2h/BenGui/Notification.h"     // tell the player their MM file was rebuilt
 #include "2s2h/SaveManager/SaveManager.h" // read a slot's seed off disk without loading it
 #include <nlohmann/json.hpp>
 #include <string>
 #include <libultraship/bridge/consolevariablebridge.h> // CVar: persist the combo slot for auto-resume
-#include <spdlog/spdlog.h> // [FleetArrive] diagnostics
+#include <spdlog/spdlog.h>                             // [FleetArrive] diagnostics
 
 extern "C" {
 #include "z64.h"
@@ -35,9 +35,11 @@ extern "C" {
 #include "src/overlays/gamestates/ovl_file_choose/z_file_select.h"
 extern PlayState* gPlayState;
 extern SaveContext gSaveContext;
-extern FileSelectState* gFileSelectState;     // non-null only while at the file-select screen
+extern FileSelectState* gFileSelectState;          // non-null only while at the file-select screen
 extern void FileSelect_LoadGame(GameState* thisx); // SM_LOAD_GAME handler (non-static; not in the header)
 extern void Play_Init(GameState* thisx);           // last-resort scene reload (watchdog recovery)
+extern SceneEntranceTableEntry sSceneEntranceTable[ENTR_SCENE_MAX]; // z_scene_table.c (non-static, see BetterMapSelect)
+u8 ResourceMgr_FileExists(const char* resName); // BenPort.cpp (C-side prototype only; see DrawItem.cpp)
 }
 
 namespace {
@@ -67,9 +69,9 @@ constexpr float kMmHoleY = 100.0f;
 constexpr float kMmHoleZ = -1173.719f;
 constexpr s16 kMmHoleExitYaw = -16384; // facing -X, leaping away from the hole
 
-bool sArmed = false;    // Lost Woods door: don't re-trigger while standing on it
+bool sArmed = false;     // Lost Woods door: don't re-trigger while standing on it
 bool sHoleArmed = false; // Clock Town fleet hole: re-arms when Link steps off the hole spot
-s16 sCooldown = 0;   // suppress the trigger right after any warp (bridges the scene reload)
+s16 sCooldown = 0;       // suppress the trigger right after any warp (bridges the scene reload)
 bool sSendFlip = false;
 s16 sSendAlpha = 0;
 int sSendScene = 0x5B;
@@ -96,27 +98,27 @@ int sArrivalRotY = 0;
 // The escalation is always the same shape: wait -> retry the normal path -> force the destination
 // the blunt way (Play_Init on the entrance we already computed). The blunt way is not pretty, but a
 // scene reload at the right entrance is never worse than a frozen screen.
-constexpr s16 kSendHoldMaxFrames = 300;    // 5s held at full black waiting for transitionMode==OFF
-constexpr s16 kArrivalHookFrames = 240;    // 4s waiting for OnSaveLoad after FileSelect_LoadGame
+constexpr s16 kSendHoldMaxFrames = 300;      // 5s held at full black waiting for transitionMode==OFF
+constexpr s16 kArrivalHookFrames = 240;      // 4s waiting for OnSaveLoad after FileSelect_LoadGame
 constexpr s16 kArrivalLoadRetryFrames = 180; // 3s waiting for FileSelect_LoadGame to do anything
-constexpr s16 kArrivalArmFrames = 40;      // frames an armed arrival transition may fail to start
-constexpr s16 kArrivalMaxRetries = 3;      // re-arms before we force Play_Init outright
-constexpr s16 kTransStuckFrames = 600;     // 10s of a transition FSM that never completes
-constexpr s16 kFadeStuckFrames = 120;      // 2s of full-black send fade with no flip in progress
-constexpr s16 kArrivalGraceFrames = 30;    // our own trigger is protected from the squash guards
-constexpr s16 kArrivalWindowFrames = 1800; // 30s after a warp: the blunt recoveries stay allowed. A
-                                           // vanilla transition that hangs LONG after a warp is not
-                                           // ours to teleport out of — it only gets cancelled.
+constexpr s16 kArrivalArmFrames = 40;        // frames an armed arrival transition may fail to start
+constexpr s16 kArrivalMaxRetries = 3;        // re-arms before we force Play_Init outright
+constexpr s16 kTransStuckFrames = 600;       // 10s of a transition FSM that never completes
+constexpr s16 kFadeStuckFrames = 120;        // 2s of full-black send fade with no flip in progress
+constexpr s16 kArrivalGraceFrames = 30;      // our own trigger is protected from the squash guards
+constexpr s16 kArrivalWindowFrames = 1800;   // 30s after a warp: the blunt recoveries stay allowed. A
+                                             // vanilla transition that hangs LONG after a warp is not
+                                             // ours to teleport out of — it only gets cancelled.
 
 s16 sSendHoldFrames = 0;
 s16 sArrivalPendingFrames = 0;
 s16 sArrivalLoadRetries = 0;
 s16 sArrivalWatchFrames = 0;
 s16 sArrivalRetries = 0;
-bool sArrivalArmed = false;   // an in-game arrival transition is armed and being watched
-u16 sArrivalEntrance = 0;     // the entrance it was armed with (re-arm / forced reload use it)
-s16 sArrivalGrace = 0;        // >0: don't let the squash guards touch our own transition
-s16 sArrivalWindow = 0;       // >0: a warp arrival is still in flight (bounds the blunt recoveries)
+bool sArrivalArmed = false; // an in-game arrival transition is armed and being watched
+u16 sArrivalEntrance = 0;   // the entrance it was armed with (re-arm / forced reload use it)
+s16 sArrivalGrace = 0;      // >0: don't let the squash guards touch our own transition
+s16 sArrivalWindow = 0;     // >0: a warp arrival is still in flight (bounds the blunt recoveries)
 s16 sTransStuckFrames = 0;
 s16 sFadeStuckFrames = 0;
 
@@ -125,6 +127,165 @@ s16 sFadeStuckFrames = 0;
 // 2026-07-31 logs show killing 2ship, so the draw hook now only decides, and the flip itself
 // happens with no render in progress.
 bool sFlipCommitPending = false;
+
+// =================================================================================================
+// LIMBO — the inactive game is PARKED, not frozen
+// =================================================================================================
+// A frozen game is a half-alive one: FrameAdvance never ticks it, so it never finishes the
+// transition it was in, never completes the flash write it started, never refreshes the framebuffer
+// the producer captures — every one of those was a crash or a hang this month. So the inactive game
+// no longer freezes. Instead, BEFORE handing over, it walks Link into a sealed room with no exits,
+// no actors, no music and time speed 0 ("fleet_scene", a custom scene in 2ship.o2r), and only THEN
+// flips. It keeps running normally in there — a real scene, drawn every frame — with input blocked
+// (BenPort already blocks game input for the inactive process). Becoming active again is an
+// ordinary in-game transition out of the room to wherever the peer sent us.
+//
+// This also gives every portal a FIXED exit: leaving is always "go to limbo", and the DESTINATION is
+// whatever the other game says. Adding a portal is one exit actor, not a pair of agreed coordinates.
+//
+// The room is a vanilla-format scene at a scene id the game never used (SCENE_UNSET_01) reached
+// through an entrance-table slot the game never used (ENTR_SCENE_UNSET_08); both tables are patched
+// at init below, so no engine file changes.
+constexpr s32 kLimboSceneId = SCENE_UNSET_01;                       // 0x01, a hole in the scene table
+constexpr s32 kLimboEntrSceneIdx = ENTR_SCENE_UNSET_08;             // 0x08, a hole in the entrance table
+constexpr u16 kLimboEntrance = (u16)(kLimboEntrSceneIdx << 9);      // spawn 0, layer 0 -> 0x1000
+constexpr s16 kLimboWaitMaxFrames = 300;                            // 5s to reach the room before we
+                                                                    // flip anyway (old behaviour)
+constexpr u16 kLimboTransFlags = (u16)(TRANS_TYPE_FADE_BLACK << 7); // Play_Init: (flags >> 7) & 0x7F
+
+EntranceTableEntry sLimboEntries[4] = { { kLimboSceneId, 0, kLimboTransFlags },
+                                        { kLimboSceneId, 0, kLimboTransFlags },
+                                        { kLimboSceneId, 0, kLimboTransFlags },
+                                        { kLimboSceneId, 0, kLimboTransFlags } };
+EntranceTableEntry* sLimboSpawnTable[] = { sLimboEntries }; // one spawn, four scene layers
+
+// The state Link had BEFORE being parked, so a RESUME (or the save written while parked) describes
+// the real save and not the waiting room.
+struct LimboReturnState {
+    bool valid = false;
+    u16 entrance = 0;
+    s32 cutsceneIndex = 0;
+    u16 nextCutsceneIndex = 0xFFEF;
+    u8 isOwlSave = 0;
+    s32 respawnFlag = 0;
+    s16 savedSceneId = 0;
+    u16 time = 0; // MM's clock: frozen while parked (room time speed 0) and restored on the way out
+    s32 day = 0;
+};
+LimboReturnState sLimboReturn;
+
+// "Heading into the room": set when the limbo transition starts, cleared once the room is loaded
+// (or after kLimboWaitMaxFrames). While set, the game is NOT suspended even though it is already
+// inactive (the flip happens the same frame the transition starts), and the frozen-game guards
+// leave its transition trigger alone -- otherwise the handover would freeze it mid-transition, the
+// exact half-alive state the waiting room exists to abolish.
+bool sLimboInFlight = false;
+s16 sLimboInFlightFrames = 0;
+bool sBootIntoLimbo = false; // cold boot as the INACTIVE game: land straight in the room
+
+bool LimboInRoom() {
+    return gPlayState != NULL && gPlayState->sceneId == kLimboSceneId;
+}
+
+// Is the waiting room actually in an archive? 2ship's OTRPlay_SpawnScene does NOT null-check the
+// scene it loads (soh does), so booting a scene whose file is missing is a hard crash inside
+// OTRScene_ExecuteCommands — which is exactly what a 2ship.o2r built before the asset existed
+// produces. Checked once, on first use, and if the room is missing the whole limbo feature turns
+// itself off: every caller falls back to the old freeze-in-place behaviour and says why.
+bool sLimboAvailable = false;
+bool sLimboChecked = false;
+bool LimboAvailable() {
+    if (!sLimboChecked) {
+        sLimboChecked = true;
+        sLimboAvailable = ResourceMgr_FileExists("scenes/nonmq/fleet_scene/fleet_scene") &&
+                          ResourceMgr_FileExists("scenes/nonmq/fleet_scene/fleet_scene_room_0") &&
+                          ResourceMgr_FileExists("scenes/nonmq/fleet_scene/fleet_scene_col");
+        if (!sLimboAvailable) {
+            SPDLOG_ERROR("[FleetLimbo] fleet_scene is NOT in any archive — 2ship.o2r was packed before the asset "
+                         "existed (run the Generate2ShipOtr target). Waiting room disabled; inactive MM will "
+                         "freeze in place as before.");
+        }
+    }
+    return sLimboAvailable;
+}
+
+void LimboStashReturnState() {
+    sLimboReturn.valid = true;
+    sLimboReturn.entrance = (u16)gSaveContext.save.entrance;
+    sLimboReturn.cutsceneIndex = gSaveContext.save.cutsceneIndex;
+    sLimboReturn.nextCutsceneIndex = gSaveContext.nextCutsceneIndex;
+    sLimboReturn.isOwlSave = gSaveContext.save.isOwlSave;
+    sLimboReturn.respawnFlag = gSaveContext.respawnFlag;
+    sLimboReturn.savedSceneId = gSaveContext.save.saveInfo.playerData.savedSceneId;
+    sLimboReturn.time = gSaveContext.save.time;
+    sLimboReturn.day = gSaveContext.save.day;
+}
+
+// Point the save at the waiting room. Only touches what Play_Init reads to pick a scene; the stash
+// above is what brings the real values back.
+void LimboSetSaveToRoom() {
+    gSaveContext.save.entrance = kLimboEntrance;
+    gSaveContext.save.cutsceneIndex = 0;
+    gSaveContext.nextCutsceneIndex = 0xFFEF;
+    gSaveContext.sceneLayer = 0;
+    gSaveContext.save.isOwlSave = false;
+    gSaveContext.respawnFlag = 0; // spawn from the room's own spawn point, never a stale respawn
+    gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK;
+    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+    gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
+    gSaveContext.nextDayTime = NEXT_TIME_NONE;
+}
+
+// Bring back what the stash holds (the save's own place). Used by RESUME arrivals and by the
+// frozen-save writer, which must never persist the waiting room as the player's location.
+void LimboRestoreReturnState() {
+    if (!sLimboReturn.valid) {
+        return;
+    }
+    gSaveContext.save.entrance = sLimboReturn.entrance;
+    gSaveContext.save.cutsceneIndex = sLimboReturn.cutsceneIndex;
+    gSaveContext.nextCutsceneIndex = sLimboReturn.nextCutsceneIndex;
+    gSaveContext.save.isOwlSave = sLimboReturn.isOwlSave;
+    gSaveContext.respawnFlag = sLimboReturn.respawnFlag;
+    gSaveContext.save.saveInfo.playerData.savedSceneId = sLimboReturn.savedSceneId;
+    gSaveContext.save.time = sLimboReturn.time;
+    gSaveContext.save.day = sLimboReturn.day;
+}
+
+// Start walking into the room from live gameplay (the departing game, still ACTIVE at this point).
+// The transition is INSTANT because the send fade is already at full black.
+void LimboEnterFromGameplay() {
+    if (gPlayState == NULL || !LimboAvailable()) {
+        return; // no room to go to: the caller's wait loop expires and flips in place (old behaviour)
+    }
+    LimboStashReturnState();
+    LimboSetSaveToRoom();
+    gPlayState->nextEntrance = kLimboEntrance;
+    gPlayState->transitionTrigger = TRANS_TRIGGER_START;
+    gPlayState->transitionType = TRANS_TYPE_INSTANT;
+    sLimboInFlight = true;
+    sLimboInFlightFrames = 0;
+    SPDLOG_INFO("[FleetLimbo] MM heading into the waiting room (was at entrance {:#06x})", (int)sLimboReturn.entrance);
+}
+
+// Patch the two engine tables so the waiting room is a real, bootable scene. Runs once at init.
+void LimboInstallScene() {
+    SceneTableEntry* entry = &gSceneTable[kLimboSceneId];
+    entry->segment.vromStart = 0;
+    entry->segment.vromEnd = 0;
+    entry->segment.fileName = (char*)"fleet_scene"; // -> scenes/nonmq/fleet_scene/fleet_scene (2ship.o2r)
+    entry->titleTextId = 0;
+    entry->unk_A = 0;
+    entry->drawConfig = SCENE_DRAW_CFG_DEFAULT;
+    entry->unk_C = 0;
+    entry->unk_D = 0;
+
+    sSceneEntranceTable[kLimboEntrSceneIdx].tableCount = 1;
+    sSceneEntranceTable[kLimboEntrSceneIdx].table = sLimboSpawnTable;
+    sSceneEntranceTable[kLimboEntrSceneIdx].name = (char*)"FLEET_LIMBO";
+    SPDLOG_INFO("[FleetLimbo] waiting room installed: scene {:#x}, entrance {:#06x}", kLimboSceneId,
+                (int)kLimboEntrance);
+}
 
 // Emergency destination reload: gSaveContext already holds the destination (save.entrance +
 // respawn[TOP] + respawnFlag=3 from ApplyDestinationOverrides), so a plain Play_Init lands exactly
@@ -210,8 +371,21 @@ bool EnsureComboSlot(int slot) {
     if (SLOT_OCCUPIED(gFileSelectState, slot) && onDisk && !wrongSeed) {
         return true;
     }
+    static const char kNewf[6] = { 'Z', 'E', 'L', 'D', 'A', '3' };
+    if (onDisk && !wrongSeed) {
+        // A good file that the menu simply hasn't seen: it was written AFTER this file select was
+        // built (OoT's oracle created or rebuilt it while MM sat here — the normal order now that MM
+        // auto-loads its slot as the inactive game). Refresh the cached listing and use it as is;
+        // rebuilding would throw away a file that is already right.
+        for (int i = 0; i < 6; i++) {
+            gFileSelectState->newf[slot][i] = kNewf[i];
+        }
+        SPDLOG_INFO("[FleetArrive] MM slot {} exists on disk with the right seed -> refreshed the file-select listing",
+                    slot);
+        return true;
+    }
     SPDLOG_WARN("[FleetArrive] MM slot {} unusable ({}) -> rebuilding it from the combo seed", slot,
-                wrongSeed  ? "built for a different seed"
+                wrongSeed ? "built for a different seed"
                 : !onDisk ? "no file on disk (erased with OoT's half)"
                           : "missing, or rejected and backed up");
     if (!FleetOracle_RecreateSaveSlot(slot, "Link")) {
@@ -221,7 +395,6 @@ bool EnsureComboSlot(int slot) {
     // Refresh the file-select's cached listing: it is only read at menu init, and SLOT_OCCUPIED (and
     // FileSelect_LoadGame) consult it rather than the disk. The file itself is now on disk, so
     // Sram_OpenSave will read the real thing.
-    static const char kNewf[6] = { 'Z', 'E', 'L', 'D', 'A', '3' };
     for (int i = 0; i < 6; i++) {
         gFileSelectState->newf[slot][i] = kNewf[i];
     }
@@ -274,15 +447,22 @@ void ApplyDestinationOverrides() {
     // the player to a portal they never used. Note this is also why isOwlSave must be left alone:
     // an owl save legitimately re-derives its own entrance.
     if (sArrivalScene == FC_WARP_SCENE_RESUME) {
+        // Parked in the waiting room, the save's "own place" is the one we stashed on the way in —
+        // gSaveContext currently says "waiting room", which is the one place a resume must NOT
+        // land. (Not parked = the file-select load just ran and gSaveContext is already right.)
+        if (LimboInRoom()) {
+            LimboRestoreReturnState();
+        }
         SPDLOG_INFO("[FleetArrive] MM RESUME arrival: keeping the save's own entrance {:#06x} (fileNum={})",
                     (int)(u16)gSaveContext.save.entrance, gSaveContext.fileNum);
         sArrivalPending = false;
         sArrivalPendingFrames = 0;
         sArrivalLoadRetries = 0;
         sArrivalEntrance = (u16)gSaveContext.save.entrance;
-        sArmed = true;     // don't let a door/hole we happen to spawn next to flip us straight back
+        sArmed = true; // don't let a door/hole we happen to spawn next to flip us straight back
         sHoleArmed = true;
         sCooldown = 40;
+        FleetShipCombo_SetSendFadeAlpha(0); // destination settled: lower the curtain the peer left up
         return;
     }
 
@@ -348,6 +528,7 @@ void ApplyDestinationOverrides() {
     sArmed = true;     // Lost Woods door: don't instantly flip back
     sHoleArmed = true; // Clock Town hole: Link pops OUT on the spot -> suppress until he steps off
     sCooldown = 40;
+    FleetShipCombo_SetSendFadeAlpha(0); // destination settled: lower the curtain the peer left up
 }
 
 // Arm the in-game arrival transition (gameplay arrivals) and put it under watch. The OUT is
@@ -362,6 +543,7 @@ void ArmArrivalTransition() {
     if (gPlayState == NULL) {
         return;
     }
+    sLimboReturn.valid = false; // leaving the waiting room (or never in it): the stash is spent
     sArrivalEntrance = (u16)gSaveContext.save.entrance;
     gPlayState->nextEntrance = sArrivalEntrance;
     gPlayState->transitionTrigger = TRANS_TRIGGER_START;
@@ -372,8 +554,11 @@ void ArmArrivalTransition() {
     sArrivalWatchFrames = 0;
     sArrivalGrace = kArrivalGraceFrames;   // the squash guards must not eat our own trigger
     sArrivalWindow = kArrivalWindowFrames; // blunt recoveries are in scope for the next 30s
+    // Destination armed: the black curtain the DEPARTING game left up can come down now. The
+    // transition out of the waiting room is INSTANT and the destination fades in from black, so
+    // nothing but black is ever on screen between the portal and the new scene.
+    FleetShipCombo_SetSendFadeAlpha(0);
 }
-
 
 void FleetWarp_Tick() {
     if (FleetShipCombo_GetActiveGame() < 0) {
@@ -395,8 +580,7 @@ void FleetWarp_Tick() {
 
     // (0) CRASH GUARD — kill any transition primed with a GARBAGE entrance before
     // Play_UpdateTransition dereferences it. Valid MM entrances have scene index < 0x71.
-    if (gPlayState->transitionTrigger != TRANS_TRIGGER_OFF &&
-        ((((u16)gPlayState->nextEntrance) >> 9) & 0x7F) >= 0x71) {
+    if (gPlayState->transitionTrigger != TRANS_TRIGGER_OFF && ((((u16)gPlayState->nextEntrance) >> 9) & 0x7F) >= 0x71) {
         gPlayState->transitionTrigger = TRANS_TRIGGER_OFF;
         gPlayState->transitionMode = TRANS_MODE_OFF;
         // If it was OUR arrival that got killed, the entrance we computed is known-good: put it
@@ -417,7 +601,7 @@ void FleetWarp_Tick() {
     // otherwise eat the arrival transition and strand the player in the departure scene — with the
     // warp already consumed, i.e. frozen with nothing pending.
     if (!FleetShipCombo_IsThisGameActive() && gPlayState->transitionTrigger != TRANS_TRIGGER_OFF &&
-        gPlayState->transitionMode == TRANS_MODE_OFF && sArrivalGrace == 0) {
+        gPlayState->transitionMode == TRANS_MODE_OFF && sArrivalGrace == 0 && !sLimboInFlight) {
         gPlayState->transitionTrigger = TRANS_TRIGGER_OFF;
     }
 
@@ -608,6 +792,32 @@ void FleetWarp_FileSelectTick() {
                     gPlayState ? (int)gPlayState->transitionMode : -1, FleetShipCombo_GetSendFadeAlpha(),
                     (int)(u16)gSaveContext.save.entrance, (int)sSendFlip);
     }
+    // ---- WAITING-ROOM UPKEEP (runs every frame, in or out of the room) ----
+    if (LimboInRoom()) {
+        // Time stands still while parked. The room's own time speed is 0, so this is only a
+        // backstop against anything else that moves the clock (a song, a debug tool, a peer delta).
+        if (sLimboReturn.valid) {
+            gSaveContext.save.time = sLimboReturn.time;
+            gSaveContext.save.day = sLimboReturn.day;
+        }
+        // Parked with the WRONG file: OoT loaded a different combo slot after we parked (it went
+        // back to its file select and picked another file). Everything we hold belongs to the old
+        // slot, so go back through the file select and park again with the right one — the same
+        // path a cold boot takes, so it needs no second loader.
+        if (!FleetShipCombo_IsThisGameActive() && gPlayState->transitionMode == TRANS_MODE_OFF) {
+            const int comboSlot = FleetShipCombo_GetComboSlot();
+            if (comboSlot >= 0 && comboSlot <= 2 && comboSlot != gSaveContext.fileNum) {
+                SPDLOG_WARN("[FleetLimbo] parked with slot {} but OoT is on slot {} -> re-parking with the right file",
+                            (int)gSaveContext.fileNum, comboSlot);
+                sComboAutoLoaded = false;
+                sLimboReturn.valid = false;
+                STOP_GAMESTATE(&gPlayState->state);
+                SET_NEXT_GAMESTATE(&gPlayState->state, FileSelect_Init, sizeof(FileSelectState));
+                return;
+            }
+        }
+    }
+
     // ---- DEFERRED FLIP COMMIT (MM -> OoT) ----
     // The send fade reached full black in the draw hook; the actual handover happens HERE, where no
     // display list is being built. Everything about it is ordered for one reason: the flip must
@@ -637,18 +847,39 @@ void FleetWarp_FileSelectTick() {
             SPDLOG_ERROR("[FleetWatchdog] departure write threw: {} — flipping anyway (the peer keeps its "
                          "last known state; FleetNet will reconcile)",
                          e.what());
-        } catch (...) {
-            SPDLOG_ERROR("[FleetWatchdog] departure write threw a non-std exception — flipping anyway");
-        }
-        SPDLOG_INFO("[FleetArrive] MM committing flip to OoT (scene={:#x}) from the update hook", sSendScene);
-        // 2ship dies within ~2s of THIS point (process gone, no throw, nothing logged). Arm the
-        // fine-grained trace so the frozen game's next frames announce every step they take: the
-        // last [FleetTrace] line in the log is the one that killed it.
+        } catch (...) { SPDLOG_ERROR("[FleetWatchdog] departure write threw a non-std exception — flipping anyway"); }
+        // Departure written. Start walking Link into the waiting room AND hand over in the same
+        // frame: the room finishes loading in the background (sLimboInFlight keeps this game ticking
+        // although it is already inactive), while OoT gets the player right away. The black curtain
+        // (send fade) stays UP across the flip on purpose -- it is the ARRIVING game that lowers it,
+        // the moment its destination transition is armed, so the player never sees the waiting room
+        // on either side: black from the portal until the destination fades in.
+        LimboEnterFromGameplay(); // no-op if the room is unavailable -> plain flip in place (old behaviour)
+        FleetShipCombo_SetSendFadeAlpha(255);
+        SPDLOG_INFO("[FleetArrive] MM committing flip to OoT (scene={:#x}) -- heading into the waiting room",
+                    sSendScene);
         FleetSync_BeginPostFlipTrace();
-        FleetShipCombo_SetSendFadeAlpha(0); // OoT (now active) owns the black from here
         FleetShipCombo_RequestWarp(kOoTGame, sSendScene, sSendX, sSendY, sSendZ, sSendRotY, gSaveContext.fileNum);
-        SPDLOG_INFO("[FleetArrive] MM flip committed — OoT is active, MM is now the frozen game");
-        return; // nothing else to do this frame; we are the inactive game from here
+        SPDLOG_INFO("[FleetArrive] MM flip committed -- OoT is active, MM is parking");
+        return;
+    }
+
+    // ---- IN-FLIGHT BOOKKEEPING (MM -> waiting room, already inactive) ----
+    // Clear the in-flight window once the room is up; bounded so a room that never loads cannot
+    // keep an inactive game ticking forever (it then falls back to the old freeze).
+    if (sLimboInFlight) {
+        if (LimboInRoom() && gPlayState->transitionMode == TRANS_MODE_OFF) {
+            sLimboInFlight = false;
+            sLimboInFlightFrames = 0;
+            SPDLOG_INFO("[FleetLimbo] MM parked in the waiting room");
+        } else if (++sLimboInFlightFrames > kLimboWaitMaxFrames) {
+            sLimboInFlight = false;
+            sLimboInFlightFrames = 0;
+            SPDLOG_ERROR("[FleetLimbo] waiting room not reached after {} frames (scene={:#x} mode={}) -- giving up, "
+                         "inactive MM falls back to the freeze",
+                         (int)kLimboWaitMaxFrames, gPlayState ? (int)gPlayState->sceneId : -1,
+                         gPlayState ? (int)gPlayState->transitionMode : -1);
+        }
     }
 
     // One-shot per process: reaching the file select after launch wipes the temp file.
@@ -690,6 +921,14 @@ void FleetWarp_FileSelectTick() {
             ArmArrivalTransition();
             return;
         }
+        // Never take a warp while a scene transition is still running (typically: we are parked
+        // and the room's own fade-in has not finished, or the room is still loading). Consuming it
+        // now would arm a second transition on top of a live one; the FSM then reads our START as
+        // the completion of ITS fade and loads whatever nextEntrance holds. The warp is not lost —
+        // it stays pending in shared memory until the FSM is idle a frame or two later.
+        if (gPlayState->transitionMode != TRANS_MODE_OFF) {
+            return;
+        }
         int scene = 0, rotY = 0;
         float wx = 0.0f, wy = 0.0f, wz = 0.0f;
         if (FleetShipCombo_ConsumePendingWarp(&scene, &wx, &wy, &wz, &rotY)) {
@@ -704,10 +943,19 @@ void FleetWarp_FileSelectTick() {
             sArrivalRotY = rotY;
             ApplyDestinationOverrides(); // respawn[TOP] + respawnFlag=3 + save.entrance
             if (scene == FC_WARP_SCENE_RESUME) {
+                if (LimboInRoom()) {
+                    // Parked: "resume" means walk out of the waiting room back to the save's own
+                    // place, which ApplyDestinationOverrides just restored into gSaveContext.
+                    SPDLOG_INFO("[FleetArrive] MM RESUME warp while parked — leaving the waiting room to {:#06x}",
+                                (int)(u16)gSaveContext.save.entrance);
+                    ArmArrivalTransition();
+                    return;
+                }
                 // A resume warp aimed at a game that is ALREADY running its save: there is nowhere
                 // to travel to. Take the state overlay (done above) and stay put — reloading the
                 // scene here would yank the player out of whatever they were doing.
                 SPDLOG_INFO("[FleetArrive] MM RESUME warp while already in gameplay — no transition needed");
+                FleetShipCombo_SetSendFadeAlpha(0); // nothing to wait for: lower the curtain
                 return;
             }
             ArmArrivalTransition(); // in-game transition, under watchdog from here
@@ -811,16 +1059,24 @@ void FleetWarp_FileSelectTick() {
             slot = 0;
         }
         SPDLOG_INFO("[FleetArrive] MM FILE-SELECT arrival: scene={:#x} slot={} -> FileSelect_LoadGame", scene, slot);
-        gFileSelectState->buttonIndex = (u16)slot; // slot already ensured before the consume above
+        gFileSelectState->buttonIndex = (u16)slot;     // slot already ensured before the consume above
         FileSelect_LoadGame(&gFileSelectState->state); // -> Sram_OpenSave -> defaults -> OnSaveLoad hook
         return;
     }
 
-    // No manual warp pending. COMBO file-select BYPASS (OoT drives everything): when MM is the
-    // ACTIVE game, auto-load the designated combo slot so entering MM (start-in-MM at boot, or the
-    // Switch button) drops STRAIGHT into the paired save — MM never shows a pickable file select.
-    // When MM is INACTIVE it just sits here frozen/off-screen (OoT is on screen), so no auto-load.
-    if (!FleetShipCombo_IsThisGameActive() || sComboAutoLoaded) {
+    // No manual warp pending. COMBO file-select BYPASS (OoT drives everything): auto-load the
+    // designated combo slot so MM never shows a pickable file select.
+    //   ACTIVE   -> load the slot at its own entrance (start-in-MM / Switch button), as before.
+    //   INACTIVE -> load the slot too, but land in the WAITING ROOM: both saves are then live from
+    //               the moment OoT loads a combo file, and the first portal is an ordinary in-game
+    //               transition out of the room instead of a cold boot. Only once OoT has actually
+    //               published a combo slot (a combo file is loaded over there) — before that MM
+    //               waits on the file select as it always did.
+    if (sComboAutoLoaded) {
+        return;
+    }
+    const bool activeNow = FleetShipCombo_IsThisGameActive();
+    if (!activeNow && FleetShipCombo_GetComboSlot() < 0) {
         return;
     }
     // Prefer the slot OoT published for this combo file (cross-process); fall back to the last warp
@@ -840,8 +1096,10 @@ void FleetWarp_FileSelectTick() {
         return;
     }
     sComboAutoLoaded = true;
+    sBootIntoLimbo = !activeNow; // consumed by FleetWarp_OnSaveLoad: redirect the boot into the room
     gFileSelectState->buttonIndex = (u16)slot;
-    SPDLOG_INFO("[FleetArrive] MM COMBO auto-load (active, fleet mode): slot={} -> FileSelect_LoadGame", slot);
+    SPDLOG_INFO("[FleetArrive] MM COMBO auto-load ({}, fleet mode): slot={} -> FileSelect_LoadGame{}",
+                activeNow ? "active" : "inactive", slot, sBootIntoLimbo ? " -> waiting room" : "");
     FileSelect_LoadGame(&gFileSelectState->state); // loads the slot at its OWN entrance (resume or fresh)
 }
 
@@ -849,7 +1107,24 @@ void FleetWarp_FileSelectTick() {
 // is fully in gSaveContext and nothing else will touch it before Play_Init.
 void FleetWarp_OnSaveLoad(s16 fileNum) {
     (void)fileNum;
-    if (FleetShipCombo_GetActiveGame() < 0 || !sArrivalPending) {
+    if (FleetShipCombo_GetActiveGame() < 0) {
+        return;
+    }
+    // Cold boot as the INACTIVE game: the file-select loader has just filled gSaveContext with the
+    // save's own place. Remember it, then point the boot at the waiting room instead. Play_Init
+    // (next gamestate) loads the room; a later warp/RESUME walks Link out of it.
+    if (sBootIntoLimbo) {
+        sBootIntoLimbo = false;
+        if (!LimboAvailable()) {
+            return; // boot the save at its own entrance instead; the freeze fallback covers it
+        }
+        LimboStashReturnState();
+        LimboSetSaveToRoom();
+        SPDLOG_INFO("[FleetLimbo] MM booting into the waiting room (fileNum={}, save's own entrance {:#06x})", fileNum,
+                    (int)sLimboReturn.entrance);
+        return;
+    }
+    if (!sArrivalPending) {
         return;
     }
     SPDLOG_INFO("[FleetArrive] MM OnSaveLoad fired (fileNum={}) -> ApplyDestinationOverrides", fileNum);
@@ -865,14 +1140,58 @@ template <typename Fn> void GuardedTick(const char* what, Fn&& fn) {
         fn();
     } catch (const std::exception& e) {
         SPDLOG_ERROR("[FleetWatchdog] {} threw: {} — frame skipped, watchdogs still armed", what, e.what());
-    } catch (...) {
-        SPDLOG_ERROR("[FleetWatchdog] {} threw a non-std exception — frame skipped", what);
-    }
+    } catch (...) { SPDLOG_ERROR("[FleetWatchdog] {} threw a non-std exception — frame skipped", what); }
 }
 
 } // namespace
 
+// ---- C-callable limbo queries (declared in FleetShipCombo.h) ----
+extern "C" {
+
+// "Should this process stop ticking its game?" — the freeze/render gates ask this instead of
+// IsThisGameActive(). Parked in the waiting room the game keeps RUNNING (that is the whole point);
+// the freeze only remains as the fallback for an inactive game that is NOT parked (limbo failed to
+// load, or a title/file-select state where there is nothing to park).
+int FleetShipCombo_IsGameSuspended(void) {
+    if (FleetShipCombo_IsThisGameActive()) {
+        return 0;
+    }
+    if (sLimboInFlight) {
+        return 0; // still walking into the room: the transition must be allowed to finish
+    }
+    return LimboInRoom() ? 0 : 1;
+}
+
+int FleetShipCombo_IsParkedInLimbo(void) {
+    return LimboInRoom() ? 1 : 0;
+}
+
+// Wrap a save write done while parked: the file must record the player's REAL place, never the
+// waiting room. Begin swaps the stash in, End swaps the room back. Nesting is not supported (and
+// not needed: the only caller is FleetSync's frozen-slot writer).
+void FleetShipCombo_LimboSaveShadowBegin(void) {
+    if (!LimboInRoom() || !sLimboReturn.valid) {
+        return;
+    }
+    gSaveContext.save.entrance = sLimboReturn.entrance;
+    gSaveContext.save.cutsceneIndex = sLimboReturn.cutsceneIndex;
+    // The scene the file select shows / an owl resume lands in: the return entrance's scene, not
+    // whatever the room set (the frozen writer stamps gPlayState->sceneId first).
+    gSaveContext.save.saveInfo.playerData.savedSceneId = (s16)Entrance_GetSceneIdAbsolute(sLimboReturn.entrance);
+}
+void FleetShipCombo_LimboSaveShadowEnd(void) {
+    if (!LimboInRoom() || !sLimboReturn.valid) {
+        return;
+    }
+    gSaveContext.save.entrance = kLimboEntrance;
+    gSaveContext.save.cutsceneIndex = 0;
+    gSaveContext.save.saveInfo.playerData.savedSceneId = kLimboSceneId;
+}
+
+} // extern "C"
+
 static void RegisterFleetWarpArrival() {
+    LimboInstallScene(); // patch the scene + entrance tables before anything can boot a scene
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayDrawWorldEnd>(
         []() { GuardedTick("FleetWarp_Tick", FleetWarp_Tick); });
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>(

@@ -16,12 +16,12 @@
 // slingshot seeds) and the SW97 bow arrows moved to 0x0F..0x14 (ARROW_TYPE_SW97_FIRE..WIND).
 // Raw values (not enum refs) so this header stays include-order independent; keep in sync.
 #ifndef ARROW_SW97_FIRE
-#define ARROW_SW97_FIRE  0x0F
-#define ARROW_SW97_ICE   0x10
+#define ARROW_SW97_FIRE 0x0F
+#define ARROW_SW97_ICE 0x10
 #define ARROW_SW97_LIGHT 0x11
-#define ARROW_SW97_DARK  0x12
-#define ARROW_SW97_SOUL  0x13
-#define ARROW_SW97_WIND  0x14
+#define ARROW_SW97_DARK 0x12
+#define ARROW_SW97_SOUL 0x13
+#define ARROW_SW97_WIND 0x14
 #endif
 
 #endif // SW97_CONFIG_H

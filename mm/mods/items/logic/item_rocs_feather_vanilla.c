@@ -43,7 +43,7 @@
 #include "macros.h"
 #include "functions.h"
 #include "variables.h"
-#include "z64effect_ss.h" // EffectSsGRipple_Spawn / EffectSsGSplash_Spawn (not pulled in by z64.h)
+#include "z64effect_ss.h"            // EffectSsGRipple_Spawn / EffectSsGSplash_Spawn (not pulled in by z64.h)
 #include "mods/extended_inventory.h" // NayrusWheel_HasRocs
 #include "mods/items/anim/nei_anims.h"
 

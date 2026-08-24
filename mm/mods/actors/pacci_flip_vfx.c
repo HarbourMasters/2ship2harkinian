@@ -55,8 +55,7 @@ static void PacciFlipVfx_GetTargetPos(Vec3f* pos) {
     pos->y += sFlipVfx.grabHeight;
 }
 
-static void PacciFlipVfx_GetCurvePoint(Vec3f* pos, Vec3f* start, Vec3f* end, f32 t, f32 sideOffset,
-                                       u32 frame) {
+static void PacciFlipVfx_GetCurvePoint(Vec3f* pos, Vec3f* start, Vec3f* end, f32 t, f32 sideOffset, u32 frame) {
     f32 inv = 1.0f - t;
     f32 dx = end->x - start->x;
     f32 dz = end->z - start->z;
@@ -115,8 +114,8 @@ static void PacciFlipVfx_DrawSprite(PlayState* play, Gfx** gfxP, Vec3f* pos, f32
     *gfxP = gfx;
 }
 
-static void PacciFlipVfx_DrawBeamSegment(PlayState* play, Gfx** gfxP, Vec3f* start, Vec3f* end, f32 radius, u8 r,
-                                         u8 g, u8 b, u8 alpha) {
+static void PacciFlipVfx_DrawBeamSegment(PlayState* play, Gfx** gfxP, Vec3f* start, Vec3f* end, f32 radius, u8 r, u8 g,
+                                         u8 b, u8 alpha) {
     f32 dx = end->x - start->x;
     f32 dy = end->y - start->y;
     f32 dz = end->z - start->z;
@@ -142,8 +141,8 @@ static void PacciFlipVfx_DrawBeamSegment(PlayState* play, Gfx** gfxP, Vec3f* sta
     *gfxP = gfx;
 }
 
-static void PacciFlipVfx_DrawBeamPass(PlayState* play, Gfx** gfxP, Vec3f* hand, Vec3f* target, f32 reach,
-                                      f32 width, f32 sideBias, u8 r, u8 g, u8 b, u8 alpha) {
+static void PacciFlipVfx_DrawBeamPass(PlayState* play, Gfx** gfxP, Vec3f* hand, Vec3f* target, f32 reach, f32 width,
+                                      f32 sideBias, u8 r, u8 g, u8 b, u8 alpha) {
     Vec3f centers[PACCI_FLIP_VFX_RIBBON_POINTS];
 
     if (sFlipVfx.persistent) {
@@ -160,8 +159,8 @@ static void PacciFlipVfx_DrawBeamPass(PlayState* play, Gfx** gfxP, Vec3f* hand, 
     }
     for (u8 i = 0; i < PACCI_FLIP_VFX_RIBBON_POINTS - 1; i++) {
         f32 edge = Math_SinS((s16)((i * 0x7FFF) / (PACCI_FLIP_VFX_RIBBON_POINTS - 2)));
-        PacciFlipVfx_DrawBeamSegment(play, gfxP, &centers[i], &centers[i + 1],
-                                     width * (0.65f + (edge * 0.35f)), r, g, b, alpha);
+        PacciFlipVfx_DrawBeamSegment(play, gfxP, &centers[i], &centers[i + 1], width * (0.65f + (edge * 0.35f)), r, g,
+                                     b, alpha);
     }
 }
 
@@ -292,9 +291,7 @@ void PacciFlipVfx_Draw(PlayState* play, Player* player) {
 
     PacciFlipVfx_GetHandPos(player, &hand);
     PacciFlipVfx_GetTargetPos(&target);
-    reach = (sFlipVfx.age < PACCI_FLIP_VFX_REACH_FRAMES)
-                ? (f32)sFlipVfx.age / (f32)PACCI_FLIP_VFX_REACH_FRAMES
-                : 1.0f;
+    reach = (sFlipVfx.age < PACCI_FLIP_VFX_REACH_FRAMES) ? (f32)sFlipVfx.age / (f32)PACCI_FLIP_VFX_REACH_FRAMES : 1.0f;
     if (sFlipVfx.releasing) {
         alpha = (u8)((255 * sFlipVfx.releaseTimer) / PACCI_FLIP_VFX_RELEASE_FRAMES);
     }
@@ -328,8 +325,8 @@ void PacciFlipVfx_Draw(PlayState* play, Player* player) {
     }
     gripRadius = 42.0f - (18.0f * reach);
     for (u8 i = 0; i < PACCI_FLIP_VFX_GRIP_POINTS; i++) {
-        s16 angle = (s16)((i * (0x10000 / PACCI_FLIP_VFX_GRIP_POINTS)) +
-                          (sFlipVfx.target->shape.rot.z - sFlipVfx.startRotZ));
+        s16 angle =
+            (s16)((i * (0x10000 / PACCI_FLIP_VFX_GRIP_POINTS)) + (sFlipVfx.target->shape.rot.z - sFlipVfx.startRotZ));
         f32 side = Math_CosS(angle) * gripRadius;
         f32 up = Math_SinS(angle) * gripRadius;
         point.x = target.x + (sideX * side);
@@ -338,8 +335,8 @@ void PacciFlipVfx_Draw(PlayState* play, Player* player) {
         PacciFlipVfx_DrawSprite(play, &POLY_XLU_DISP, &point, 0.014f * pulse, gEffSparklesDL);
     }
     gDPPipeSync(POLY_XLU_DISP++);
-    gDPSetCombineLERP(POLY_XLU_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE,
-                      TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetCombineLERP(POLY_XLU_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0,
+                      PRIMITIVE, 0);
     gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 30, 225, 255, alpha);
     PacciFlipVfx_DrawSprite(play, &POLY_XLU_DISP, &target, 0.065f * pulse, gLensFlareRingDL);
     Gfx_SetupDL_25Xlu(play->state.gfxCtx);

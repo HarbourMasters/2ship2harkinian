@@ -82,8 +82,7 @@ void RegisterBowReticle() {
     // BowReticle CVar) so the throw always shows aim feedback.
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnPlayerPostLimbDraw>(
         PLAYER_LIMB_LEFT_HAND, [](Player* player, s32 limbIndex) {
-            if ((player->actor.scale.y >= 0.0f) && (player->heldItemAction == PLAYER_IA_HAMMER) &&
-                IKAxe_IsAiming()) {
+            if ((player->actor.scale.y >= 0.0f) && (player->heldItemAction == PLAYER_IA_HAMMER) && IKAxe_IsAiming()) {
                 Matrix_RotateZYX(-31200, -8700, 17000, MTXMODE_APPLY);
                 Matrix_Translate(500.0f, 300.0f, 0.0f, MTXMODE_APPLY);
                 DrawBowReticle(gPlayState, player, 341000.0f);

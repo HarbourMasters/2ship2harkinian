@@ -85,7 +85,9 @@ static std::vector<IoCmd> sIoQueue;
 static bool sReady = false;
 static const s32 kPlayerIdx = 0; // our SFX sequence runs on isolated player 0
 
-void MmSfxSynth_MarkReady(bool ready) { sReady = ready; } // called by loader
+void MmSfxSynth_MarkReady(bool ready) {
+    sReady = ready;
+} // called by loader
 
 } // namespace mmsfx
 
@@ -100,8 +102,8 @@ extern "C" void MmSfxSynth_WriteChannelIO(int channelIndex, int ioPort, int8_t v
     sIoQueue.push_back(c);
 }
 
-extern "C" void MmSfxSynth_SetChannelState(int channelIndex, float volume, float freqScale,
-                                           int8_t panSigned, int8_t stereoBits) {
+extern "C" void MmSfxSynth_SetChannelState(int channelIndex, float volume, float freqScale, int8_t panSigned,
+                                           int8_t stereoBits) {
     using namespace mmsfx;
     std::lock_guard<std::mutex> lk(sIoMutex);
     IoCmd c{};
@@ -122,7 +124,8 @@ extern "C" int MmSfxSynth_ReadChannelIO(int channelIndex, int ioPort) {
     // `using namespace mmsfx` above + the PCH's MM-global SequenceChannel make a
     // bare `SequenceChannel` ambiguous; we want this mod's isolated type.
     mmsfx::SequenceChannel* ch = gMmSfx.seqPlayers[kPlayerIdx].channels[channelIndex];
-    if (ch == &gMmSfx.sequenceChannelNone) return 0;
+    if (ch == &gMmSfx.sequenceChannelNone)
+        return 0;
     return ch->seqScriptIO[ioPort];
 }
 
@@ -140,7 +143,8 @@ static void DrainIoQueue(void) {
     }
     SequencePlayer* sp = &gMmSfx.seqPlayers[kPlayerIdx];
     for (const IoCmd& c : pending) {
-        if (c.channelIndex < 0 || c.channelIndex >= SEQ_NUM_CHANNELS) continue;
+        if (c.channelIndex < 0 || c.channelIndex >= SEQ_NUM_CHANNELS)
+            continue;
         if (c.kind == 1) {
             SfxChannelState* st = &sSfxChannelState[c.channelIndex];
             st->volume = c.volume;
@@ -148,7 +152,8 @@ static void DrainIoQueue(void) {
             st->panSigned = c.panSigned;
             st->stereoBits = c.stereoBits;
         } else {
-            if (c.ioPort < 0 || c.ioPort >= 8) continue;
+            if (c.ioPort < 0 || c.ioPort >= 8)
+                continue;
             SequenceChannel* ch = sp->channels[c.channelIndex];
             if (ch != &gMmSfx.sequenceChannelNone) {
                 ch->seqScriptIO[c.ioPort] = c.value;
@@ -193,9 +198,9 @@ static void AudioSynth_SyncSampleStates(s32 updateIndex) {
 // ===========================================================================
 
 // --- MM audio constants (from z64audio.h / abi.h) ---
-static const s32 MM_SAMPLES_PER_FRAME = 16;   // ADPCMFSIZE
-static const s32 MM_SAMPLE_SIZE = 2;          // sizeof(s16)
-static const s32 MM_DMEM_1CH_SIZE = 13 * 16 * 2; // 0x1A0
+static const s32 MM_SAMPLES_PER_FRAME = 16;               // ADPCMFSIZE
+static const s32 MM_SAMPLE_SIZE = 2;                      // sizeof(s16)
+static const s32 MM_DMEM_1CH_SIZE = 13 * 16 * 2;          // 0x1A0
 static const s32 MM_DMEM_2CH_SIZE = 2 * MM_DMEM_1CH_SIZE; // 0x340
 
 // DMEM addresses — identical to synthesis.c so the math lands in the same slots.
@@ -310,8 +315,7 @@ static void ProcessSample(s32 noteIndex, NoteSampleState* sampleState, NoteSynth
 
     // numSamplesToLoad from frequency (UQ16.16 accumulator).
     u16 frequencyFixedPoint = sampleState->frequencyFixedPoint;
-    u32 numSamplesToLoadFixedPoint =
-        (frequencyFixedPoint * numSamplesPerUpdate * 2) + synthState->samplePosFrac;
+    u32 numSamplesToLoadFixedPoint = (frequencyFixedPoint * numSamplesPerUpdate * 2) + synthState->samplePosFrac;
     s32 numSamplesToLoad = numSamplesToLoadFixedPoint >> 16;
     synthState->samplePosFrac = numSamplesToLoadFixedPoint & 0xFFFF;
     synthState->numParts = 1; // we do not split into two parts; see summary.
@@ -363,8 +367,8 @@ static void ProcessSample(s32 noteIndex, NoteSampleState* sampleState, NoteSynth
         s32 numTrailingSamplesToIgnore;
         s32 numFramesToDecode;
         if (numSamplesToProcess < numSamplesUntilEnd) {
-            numFramesToDecode = (s32)(numSamplesToProcess - numSamplesInFirstFrame + MM_SAMPLES_PER_FRAME - 1) /
-                                MM_SAMPLES_PER_FRAME;
+            numFramesToDecode =
+                (s32)(numSamplesToProcess - numSamplesInFirstFrame + MM_SAMPLES_PER_FRAME - 1) / MM_SAMPLES_PER_FRAME;
             numSamplesToDecode = numFramesToDecode * MM_SAMPLES_PER_FRAME;
             numTrailingSamplesToIgnore = numSamplesInFirstFrame + numSamplesToDecode - numSamplesToProcess;
         } else {
@@ -433,8 +437,8 @@ static void ProcessSample(s32 noteIndex, NoteSampleState* sampleState, NoteSynth
             // Move the compressed raw sample chunk from RAM into DMEM.
             s32 sampleDataChunkAlignPad = 0;
             if (numFramesToDecode != 0) {
-                s32 frameIndex =
-                    (synthState->samplePosInt + skipInitialSamples - numFirstFrameSamplesToIgnore) / MM_SAMPLES_PER_FRAME;
+                s32 frameIndex = (synthState->samplePosInt + skipInitialSamples - numFirstFrameSamplesToIgnore) /
+                                 MM_SAMPLES_PER_FRAME;
                 s32 sampleAddrOffset = frameIndex * frameSize;
                 u8* samplesToLoadAddr = sampleAddr + (zeroOffset + sampleAddrOffset);
 
@@ -454,8 +458,7 @@ static void ProcessSample(s32 noteIndex, NoteSampleState* sampleState, NoteSynth
                 synthState->atLoopPoint = false;
             }
 
-            s32 numSamplesInThisIteration =
-                numSamplesToDecode + numSamplesInFirstFrame - numTrailingSamplesToIgnore;
+            s32 numSamplesInThisIteration = numSamplesToDecode + numSamplesInFirstFrame - numTrailingSamplesToIgnore;
 
             if (numSamplesProcessed == 0) {
                 skipBytes = numFirstFrameSamplesToIgnore * MM_SAMPLE_SIZE;
@@ -490,11 +493,10 @@ static void ProcessSample(s32 noteIndex, NoteSampleState* sampleState, NoteSynth
             }
 
             if (numSamplesProcessed != 0) {
-                aDMEMMoveImpl(
-                    (u16)(MM_DMEM_UNCOMPRESSED_NOTE + dmemUncompressedAddrOffset2 +
-                          (numFirstFrameSamplesToIgnore * MM_SAMPLE_SIZE)),
-                    (u16)(MM_DMEM_UNCOMPRESSED_NOTE + dmemUncompressedAddrOffset1),
-                    numSamplesInThisIteration * MM_SAMPLE_SIZE);
+                aDMEMMoveImpl((u16)(MM_DMEM_UNCOMPRESSED_NOTE + dmemUncompressedAddrOffset2 +
+                                    (numFirstFrameSamplesToIgnore * MM_SAMPLE_SIZE)),
+                              (u16)(MM_DMEM_UNCOMPRESSED_NOTE + dmemUncompressedAddrOffset1),
+                              numSamplesInThisIteration * MM_SAMPLE_SIZE);
             }
 
             numSamplesProcessed += numSamplesInThisIteration;
@@ -556,7 +558,8 @@ static void ProcessSample(s32 noteIndex, NoteSampleState* sampleState, NoteSynth
     if (frequencyFixedPoint == 0) {
         aClearBufferImpl((u16)MM_DMEM_TEMP, numSamplesPerUpdate * MM_SAMPLE_SIZE);
     } else {
-        aSetBufferImpl(0, (u16)sampleDmemBeforeResampling, (u16)MM_DMEM_TEMP, (u16)(numSamplesPerUpdate * MM_SAMPLE_SIZE));
+        aSetBufferImpl(0, (u16)sampleDmemBeforeResampling, (u16)MM_DMEM_TEMP,
+                       (u16)(numSamplesPerUpdate * MM_SAMPLE_SIZE));
         aResampleImpl(resampleFlags, frequencyFixedPoint, synthState->synthesisBuffers->finalResampleState);
     }
 
@@ -606,8 +609,8 @@ static void SynthUpdate(s32* acc, s32 n) {
                 char b[176];
                 double tun = (ss->tunedSample && ss->tunedSample->sample) ? (double)ss->tunedSample->tuning : -1.0;
                 snprintf(b, sizeof(b),
-                         "ENABLED note i=%d twoParts=%d tuning=%.4f freq=%u(ratio=%.3f) volL=%u volR=%u gain=%u",
-                         i, ss->bitField1.hasTwoParts, tun, ss->frequencyFixedPoint,
+                         "ENABLED note i=%d twoParts=%d tuning=%.4f freq=%u(ratio=%.3f) volL=%u volR=%u gain=%u", i,
+                         ss->bitField1.hasTwoParts, tun, ss->frequencyFixedPoint,
                          (double)ss->frequencyFixedPoint / 32768.0 * (ss->bitField1.hasTwoParts ? 2.0 : 1.0),
                          ss->targetVolLeft, ss->targetVolRight, ss->gain);
                 MmSfxSynth_Log(b);
@@ -685,7 +688,8 @@ static void SynthUpdate(s32* acc, s32 n) {
 // ===========================================================================
 extern "C" void MmSfxSynth_RenderInto(int16_t* outBuf, uint32_t numSamples) {
     using namespace mmsfx;
-    if (!sReady) return;
+    if (!sReady)
+        return;
 
     DrainIoQueue();
 
@@ -697,8 +701,8 @@ extern "C" void MmSfxSynth_RenderInto(int16_t* outBuf, uint32_t numSamples) {
     f32 sfxVol = (f32)CVarGetInteger("gSettings.Volume.SFX", 100) / 100.0f;
     f32 outScale = masterVol * sfxVol;
 
-    static s32 sUpdateIndex = 0;       // cycles 0..updatesPerFrame-1
-    static s32 sSamplesUntilTick = 0;  // samples remaining before next seq tick
+    static s32 sUpdateIndex = 0;      // cycles 0..updatesPerFrame-1
+    static s32 sSamplesUntilTick = 0; // samples remaining before next seq tick
 
     // Private scratch accumulator so the master*sfx volume is applied to OUR
     // contribution only, then additively mixed into the shared output buffer.
@@ -707,12 +711,18 @@ extern "C" void MmSfxSynth_RenderInto(int16_t* outBuf, uint32_t numSamples) {
 
     // One-shot stage markers: pinpoint an audio-thread crash on first run.
     static bool sLogEntry = false, sLogTick = false, sLogSynth = false, sLogDone = false;
-    if (!sLogEntry) { sLogEntry = true; MmSfxSynth_Log("RenderInto: first call entered"); }
+    if (!sLogEntry) {
+        sLogEntry = true;
+        MmSfxSynth_Log("RenderInto: first call entered");
+    }
 
     s32 produced = 0;
     while (produced < (s32)numSamples) {
         if (sSamplesUntilTick <= 0) {
-            if (!sLogTick) { sLogTick = true; MmSfxSynth_Log("RenderInto: calling ProcessSequences (first tick)"); }
+            if (!sLogTick) {
+                sLogTick = true;
+                MmSfxSynth_Log("RenderInto: calling ProcessSequences (first tick)");
+            }
             s32 arg0 = updatesPerFrame - 1 - sUpdateIndex;
             // Tick OUR isolated SFX engine, not MM's global one (the PCH pulls in
             // ::AudioScript_ProcessSequences, so the bare call is ambiguous).
@@ -720,18 +730,28 @@ extern "C" void MmSfxSynth_RenderInto(int16_t* outBuf, uint32_t numSamples) {
             // 2ship synthesis.c:230 — sync the per-update sampleStateList right
             // after processing sequences (clears stale enabled slots).
             mmsfx::AudioSynth_SyncSampleStates(gMmSfx.numNotes > 0 ? gMmSfx.sampleStateOffset / gMmSfx.numNotes : 0);
-            if (sLogTick && !sLogSynth) { MmSfxSynth_Log("RenderInto: ProcessSequences returned OK"); }
+            if (sLogTick && !sLogSynth) {
+                MmSfxSynth_Log("RenderInto: ProcessSequences returned OK");
+            }
             sUpdateIndex = (sUpdateIndex + 1) % (updatesPerFrame > 0 ? updatesPerFrame : 1);
             sSamplesUntilTick = perUpdate > 0 ? perUpdate : (s32)numSamples;
         }
         s32 chunk = sSamplesUntilTick;
-        if (chunk > (s32)numSamples - produced) chunk = (s32)numSamples - produced;
-        if (chunk > kScratchMax) chunk = kScratchMax;
+        if (chunk > (s32)numSamples - produced)
+            chunk = (s32)numSamples - produced;
+        if (chunk > kScratchMax)
+            chunk = kScratchMax;
 
         memset(sScratch, 0, sizeof(s32) * chunk * 2);
-        if (!sLogSynth) { sLogSynth = true; MmSfxSynth_Log("RenderInto: calling SynthUpdate (first synth)"); }
+        if (!sLogSynth) {
+            sLogSynth = true;
+            MmSfxSynth_Log("RenderInto: calling SynthUpdate (first synth)");
+        }
         mmsfx::SynthUpdate(sScratch, chunk);
-        if (!sLogDone) { sLogDone = true; MmSfxSynth_Log("RenderInto: SynthUpdate returned OK — first frame mixed"); }
+        if (!sLogDone) {
+            sLogDone = true;
+            MmSfxSynth_Log("RenderInto: SynthUpdate returned OK — first frame mixed");
+        }
 
         for (s32 k = 0; k < chunk * 2; k++) {
             s32 mixed = (s32)outBuf[produced * 2 + k] + (s32)(sScratch[k] * outScale);
@@ -750,18 +770,23 @@ extern "C" void MmSfxSynth_RenderInto(int16_t* outBuf, uint32_t numSamples) {
         int enCh = 0, ioSet = 0, actNotes = 0;
         for (int c = 0; c < SEQ_NUM_CHANNELS; c++) {
             mmsfx::SequenceChannel* ch = sp->channels[c];
-            if (ch == &gMmSfx.sequenceChannelNone) continue;
-            if (ch->enabled) enCh++;
+            if (ch == &gMmSfx.sequenceChannelNone)
+                continue;
+            if (ch->enabled)
+                enCh++;
             for (int p = 0; p < 8; p++) {
-                if (ch->seqScriptIO[p] != 0 && ch->seqScriptIO[p] != -1) { ioSet++; break; }
+                if (ch->seqScriptIO[p] != 0 && ch->seqScriptIO[p] != -1) {
+                    ioSet++;
+                    break;
+                }
             }
         }
         for (int i = 0; i < gMmSfx.numNotes; i++) {
-            if (gMmSfx.sampleStateList[i].bitField0.enabled) actNotes++;
+            if (gMmSfx.sampleStateList[i].bitField0.enabled)
+                actNotes++;
         }
         char b[176];
-        snprintf(b, sizeof(b),
-                 "diag: seqEnabled=%d scriptCtr=%u tempoAcc=%u enabledCh=%d chWithIO=%d activeNotes=%d",
+        snprintf(b, sizeof(b), "diag: seqEnabled=%d scriptCtr=%u tempoAcc=%u enabledCh=%d chWithIO=%d activeNotes=%d",
                  (int)sp->enabled, sp->scriptCounter, sp->tempoAcc, enCh, ioSet, actNotes);
         MmSfxSynth_Log(b);
     }

@@ -1840,6 +1840,28 @@ void Boss03_UpdateCollision(Boss03* this, PlayState* play) {
     u32 phi_v0;
     Boss03ActionFunc stunnedActionFunc = Boss03_Stunned;
 
+    // Gyorg normally consumes the first head hit only to enter Stunned, then
+    // accepts health damage from a later hit. The six max-charge Trident balls
+    // arrive together, so vanilla would spend the whole FD volley on that first
+    // transition. A confirmed 12-damage Trident projectile is the boss-room OTK:
+    // bypass only this vulnerability gate and enter Gyorg's own death cutscene.
+    {
+        extern u8 TridentChargeBall_GetFierceDamage(Actor * projectile);
+        Actor* headAttacker = (this->headCollider.base.acFlags & AC_HIT) ? this->headCollider.base.ac : NULL;
+        Actor* bodyAttacker = (this->bodyCollider.base.acFlags & AC_HIT) ? this->bodyCollider.base.ac : NULL;
+
+        if ((TridentChargeBall_GetFierceDamage(headAttacker) == 12) ||
+            (TridentChargeBall_GetFierceDamage(bodyAttacker) == 12)) {
+            this->actor.colChkInfo.health = 0;
+            Boss03_PlayUnderwaterSfx(&D_809E9848, NA_SE_EN_KONB_DEAD_OLD);
+            Boss03_PlayUnderwaterSfx(&D_809E9848, NA_SE_EN_KONB_DEAD2_OLD);
+            Enemy_StartFinishingBlow(play, &this->actor);
+            Boss03_SetupDeathCutscene(this, play);
+            GameInteractor_ExecuteOnBossDefeated(this->actor.id);
+            return;
+        }
+    }
+
     if (((KREG(20) + (this->waterHeight - 50.0f)) < player->actor.world.pos.y) &&
         (player->transformation != PLAYER_FORM_FIERCE_DEITY)) {
         sp4B = false;

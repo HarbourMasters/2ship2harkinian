@@ -407,8 +407,8 @@ void EnWdhand_LungeForPlayer(EnWdhand* this, PlayState* play) {
         }
     }
 
-    if ((this->collider.base.atFlags & AT_HIT) &&
-        GameInteractor_Should(VB_ENEMY_GRAB_PLAYER, true, this) && play->grabPlayer(play, player)) {
+    if ((this->collider.base.atFlags & AT_HIT) && GameInteractor_Should(VB_ENEMY_GRAB_PLAYER, true, this) &&
+        play->grabPlayer(play, player)) {
         // Touched the player, grab
         EnWdhand_SetupGrabbedPlayer(this, play);
     } else if (allStepsDone) {

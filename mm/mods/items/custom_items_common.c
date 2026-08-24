@@ -19,7 +19,7 @@
 #include "logic/item_postman_hat.h"
 #include "../extended_inventory.h" // ExtInv_GetItemSlot — custom items must NOT use vanilla SLOT()/INV_CONTENT()
 #include "overlays/actors/ovl_En_Boom/z_en_boom.h" // EnBoom struct for Gale Boomerang multi-target override
-#include "soh/FleetShipCombo/FleetShipCombo.h"      // cross-game world-connector (loading zone)
+#include "soh/FleetShipCombo/FleetShipCombo.h"     // cross-game world-connector (loading zone)
 
 // Forward declarations for items included after this file in unity build
 extern void Handle_Pokeball(Player* p, PlayState* play);
@@ -286,8 +286,8 @@ static void CustomItems_CleanupUnequipped(Player* p, PlayState* play) {
 //      baked in the binary scene and can't be edited/out-sized) and FLIP to MM instead.
 // ============================================================================
 static u8 sFleetWarpArmed = 0;
-static u8 sFlipPending = 0; // OoT->MM: a manual fade-out overlay is ramping; flip to MM at full black
-static s16 sSendAlpha = 0;  // 0..255 ramp for the sending fade overlay (drawn by the PiP consumer)
+static u8 sFlipPending = 0;   // OoT->MM: a manual fade-out overlay is ramping; flip to MM at full black
+static s16 sSendAlpha = 0;    // 0..255 ramp for the sending fade overlay (drawn by the PiP consumer)
 static s16 sWarpCooldown = 0; // suppress the trigger right after any warp (bridges the scene reload)
 
 static void FleetWarp_Tick(Player* p, PlayState* play) {
@@ -311,11 +311,15 @@ static void FleetWarp_Tick(Player* p, PlayState* play) {
             // and gives the engine's own "walk in across the bridge" entry + a fade-in. The custom
             // pos/rot out-params are intentionally ignored here. Fast fade-out minimizes the brief
             // glimpse of Link's old (pre-flip) position.
-            (void)scene; (void)wx; (void)wy; (void)wz; (void)rotY;
+            (void)scene;
+            (void)wx;
+            (void)wy;
+            (void)wz;
+            (void)rotY;
             play->nextEntrance = ENTR_LOST_WOODS_SOUTH_EXIT; // arrive in the main Lost Woods (Kokiri-side spawn)
             play->transitionTrigger = TRANS_TRIGGER_START;
             play->transitionType = TRANS_TYPE_INSTANT;               // no fade-out (would show OoT's old scene)
-            gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK;  // slow fade-in reveal (Link walks out)
+            gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK; // slow fade-in reveal (Link walks out)
             gSaveContext.respawnFlag = 0; // natural entrance spawn (NO position override) -> resources OK
             // No BeginArrivalBlackout here: the consumer's post-flip hold covers the pre-load frames and
             // OoT's own scene-load is black, then the fade-in reveals. (A 55-frame blackout would instead
@@ -339,8 +343,7 @@ static void FleetWarp_Tick(Player* p, PlayState* play) {
             sSendAlpha = 255;
             sFlipPending = 0;
             FleetShipCombo_SetSendFadeAlpha(0); // MM (now active) owns the black from here
-            FleetShipCombo_RequestWarp(1 /*MM*/, 0x65, -1092.578f, 0.0f, 487.082f, 24585,
-                                       gSaveContext.fileNum);
+            FleetShipCombo_RequestWarp(1 /*MM*/, 0x65, -1092.578f, 0.0f, 487.082f, 24585, gSaveContext.fileNum);
         } else {
             FleetShipCombo_SetSendFadeAlpha((int)sSendAlpha);
         }
@@ -422,7 +425,7 @@ void CustomItems_Update(Player* p, PlayState* play) {
     // Minish tiny-mode upkeep runs ALWAYS (scene-load auto-reset, per-frame scale
     // guard, shrink/grow animation) — even while blocked or with the cap unequipped
     {
-        extern void MinishTiny_Update(Player* p, PlayState* play);
+        extern void MinishTiny_Update(Player * p, PlayState * play);
         MinishTiny_Update(p, play);
     }
 
@@ -469,8 +472,7 @@ void CustomItems_Update(Player* p, PlayState* play) {
         extern u8 TwilightUpgrade_HasClawshot(void);
         extern u8 TwilightUpgrade_IsClawshotActive(void);
         extern void TwilightUpgrade_SetClawshotActive(u8 active);
-        if (TwilightUpgrade_HasClawshot() &&
-            CHECK_BTN_ALL(play->state.input[0].press.button, BTN_L) &&
+        if (TwilightUpgrade_HasClawshot() && CHECK_BTN_ALL(play->state.input[0].press.button, BTN_L) &&
             !(p->stateFlags1 & PLAYER_STATE1_USING_BOOMERANG)) {
             s8 act = p->heldItemAction;
             s16 itemId = p->heldItemId;
@@ -481,9 +483,8 @@ void CustomItems_Update(Player* p, PlayState* play) {
                 TwilightUpgrade_SetClawshotActive(newMode);
                 // Distinct sound per mode so the player gets audible
                 // confirmation of WHICH direction the toggle went.
-                Audio_PlaySoundGeneral(newMode ? NA_SE_SY_GET_ITEM : NA_SE_SY_DECIDE,
-                                       &p->actor.world.pos, 4, &gSfxDefaultFreqAndVolScale,
-                                       &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+                Audio_PlaySoundGeneral(newMode ? NA_SE_SY_GET_ITEM : NA_SE_SY_DECIDE, &p->actor.world.pos, 4,
+                                       &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
                 // Swallow L so the gust-jar / shield / boomerang multi-target
                 // block below doesn't also consume the same press.
                 play->state.input[0].cur.button &= ~BTN_L;
@@ -522,9 +523,8 @@ void CustomItems_Update(Player* p, PlayState* play) {
             // isn't Z-targeting — silent failures were confusing.
             if (lJustPressed && !gCustomItemState.galeBoomerangLockHeld &&
                 (p->focusActor == NULL || p->focusActor->update == NULL)) {
-                Audio_PlaySoundGeneral(NA_SE_SY_ERROR, &p->actor.world.pos, 4,
-                                       &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
-                                       &gSfxDefaultReverb);
+                Audio_PlaySoundGeneral(NA_SE_SY_ERROR, &p->actor.world.pos, 4, &gSfxDefaultFreqAndVolScale,
+                                       &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
                 gCustomItemState.galeBoomerangLockHeld = 1; // debounce
             }
 
@@ -550,8 +550,7 @@ void CustomItems_Update(Player* p, PlayState* play) {
                     if (gCustomItemState.galeBoomerangTargetCount == 0) {
                         prevPos = &p->actor.world.pos;
                     } else {
-                        prevPos = &gCustomItemState
-                                       .galeBoomerangTargets[gCustomItemState.galeBoomerangTargetCount - 1]
+                        prevPos = &gCustomItemState.galeBoomerangTargets[gCustomItemState.galeBoomerangTargetCount - 1]
                                        ->world.pos;
                     }
                     f32 dx = p->focusActor->world.pos.x - prevPos->x;
@@ -559,8 +558,7 @@ void CustomItems_Update(Player* p, PlayState* play) {
                     f32 dz = p->focusActor->world.pos.z - prevPos->z;
                     f32 distSq = dx * dx + dy * dy + dz * dz;
                     if (distSq <= (500.0f * 500.0f)) {
-                        gCustomItemState
-                            .galeBoomerangTargets[gCustomItemState.galeBoomerangTargetCount++] =
+                        gCustomItemState.galeBoomerangTargets[gCustomItemState.galeBoomerangTargetCount++] =
                             p->focusActor;
                         Audio_PlaySoundGeneral(NA_SE_SY_LOCK_ON_HUMAN, &p->actor.world.pos, 4,
                                                &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
@@ -568,9 +566,8 @@ void CustomItems_Update(Player* p, PlayState* play) {
                     } else {
                         // Out of chain range — error chirp so the user knows
                         // the press registered but the target was rejected.
-                        Audio_PlaySoundGeneral(NA_SE_SY_ERROR, &p->actor.world.pos, 4,
-                                               &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
-                                               &gSfxDefaultReverb);
+                        Audio_PlaySoundGeneral(NA_SE_SY_ERROR, &p->actor.world.pos, 4, &gSfxDefaultFreqAndVolScale,
+                                               &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
                     }
                 }
             } else if (!lHeld) {
@@ -613,10 +610,9 @@ void CustomItems_Update(Player* p, PlayState* play) {
     // chain mobility off thrown boomerangs.
     {
         extern u8 TwilightUpgrade_IsGaleBoomerangActive(void);
-        if (TwilightUpgrade_IsGaleBoomerangActive() &&
-            (p->stateFlags1 & PLAYER_STATE1_BOOMERANG_THROWN) &&
-            p->zoraBoomerangActor != NULL && p->zoraBoomerangActor->update != NULL &&
-            Player_IsZTargeting(p) && CHECK_BTN_ALL(play->state.input[0].press.button, BTN_B)) {
+        if (TwilightUpgrade_IsGaleBoomerangActive() && (p->stateFlags1 & PLAYER_STATE1_BOOMERANG_THROWN) &&
+            p->zoraBoomerangActor != NULL && p->zoraBoomerangActor->update != NULL && Player_IsZTargeting(p) &&
+            CHECK_BTN_ALL(play->state.input[0].press.button, BTN_B)) {
             // Vector from Link to boomerang
             f32 dx = p->zoraBoomerangActor->world.pos.x - p->actor.world.pos.x;
             f32 dy = p->zoraBoomerangActor->world.pos.y - p->actor.world.pos.y;
@@ -641,7 +637,7 @@ void CustomItems_Update(Player* p, PlayState* play) {
     // and gravity stays suspended while Link is hanging from the anchor.
     // The state machine itself lives in the ClawshotBT_* block below.
     {
-        extern void ClawshotBT_Update(Player* player, PlayState* play);
+        extern void ClawshotBT_Update(Player * player, PlayState * play);
         ClawshotBT_Update(p, play);
     }
 
@@ -877,7 +873,7 @@ void CustomItems_Update(Player* p, PlayState* play) {
 void CustomItems_LatePose(Player* p, PlayState* play) {
     BallChain_RefreshPose(p);
     GustJar_RefreshPose(p, play); // both hands up holding the jar (see item_gustjar.c)
-    Beetle_LateReticle(p, play); // point MM's lock-on reticle at the beetle's target/candidate
+    Beetle_LateReticle(p, play);  // point MM's lock-on reticle at the beetle's target/candidate
 }
 
 s32 CustomItems_OverrideDraw(Player* p, PlayState* play) {
@@ -1047,8 +1043,8 @@ typedef enum {
     CLAWSHOT_BT_HIT_OTHER,
 } ClawshotBTHitKind;
 
-static u8  sClawshotBTActive = 0;
-static u8  sClawshotBTLastHitKind = CLAWSHOT_BT_HIT_NONE;
+static u8 sClawshotBTActive = 0;
+static u8 sClawshotBTLastHitKind = CLAWSHOT_BT_HIT_NONE;
 static Vec3f sClawshotBTLastHitNormal = { 0.0f, 0.0f, 0.0f };
 static s16 sClawshotBTLockedYaw = 0;
 static Vec3f sClawshotBTAnchorPos = { 0.0f, 0.0f, 0.0f };
@@ -1076,7 +1072,9 @@ void ClawshotBT_NoteHitSurface(f32 nx, f32 ny, f32 nz) {
         sClawshotBTLastHitKind = CLAWSHOT_BT_HIT_OTHER;
     }
 }
-void ClawshotBT_NoteHitActor(void)    { sClawshotBTLastHitKind = CLAWSHOT_BT_HIT_NONE; }
+void ClawshotBT_NoteHitActor(void) {
+    sClawshotBTLastHitKind = CLAWSHOT_BT_HIT_NONE;
+}
 // Called when a new hookshot leaves Link's hand. Cancels any active hang so
 // the new shot's vanilla pull isn't fighting against the pin. Gravity will
 // self-restore via Player_UpdateCommon next frame.
@@ -1085,7 +1083,9 @@ void ClawshotBT_NoteShotFired(void) {
     sClawshotBTActive = 0;
 }
 
-u8 ClawshotBT_IsActive(void) { return sClawshotBTActive; }
+u8 ClawshotBT_IsActive(void) {
+    return sClawshotBTActive;
+}
 
 // Called by z_arms_hook.c at the arrival moment (phi_f16 == 0.0f) so we can
 // suppress the vanilla -20 velocity.y kick AND enter bullet time when the
@@ -1120,8 +1120,7 @@ u8 ClawshotBT_TryStartOnArrival(Player* player, PlayState* play) {
         case CLAWSHOT_BT_HIT_WALL: {
             sClawshotBTAnchorPos.x += 30.0f * sClawshotBTLastHitNormal.x;
             sClawshotBTAnchorPos.z += 30.0f * sClawshotBTLastHitNormal.z;
-            sClawshotBTLockedYaw =
-                Math_Atan2S(sClawshotBTLastHitNormal.z, sClawshotBTLastHitNormal.x);
+            sClawshotBTLockedYaw = Math_Atan2S(sClawshotBTLastHitNormal.z, sClawshotBTLastHitNormal.x);
             break;
         }
         case CLAWSHOT_BT_HIT_CEILING: {
@@ -1140,9 +1139,8 @@ u8 ClawshotBT_TryStartOnArrival(Player* player, PlayState* play) {
     // subsystem (bow/hookshot first-person) only engages from idle-ish actions;
     // FreeFall / HookshotFly etc. refuse to enter aim, which is why pressing
     // the hookshot C-button did nothing while hanging.
-    extern void Player_Action_Idle(Player* this, PlayState* play);
-    extern s32 Player_SetupAction(PlayState* play, Player* this,
-                                  PlayerActionFunc actionFunc, s32 flags);
+    extern void Player_Action_Idle(Player * this, PlayState * play);
+    extern s32 Player_SetupAction(PlayState * play, Player * this, PlayerActionFunc actionFunc, s32 flags);
 
     player->actor.velocity.x = 0.0f;
     player->actor.velocity.y = 0.0f;
@@ -1174,8 +1172,8 @@ u8 ClawshotBT_TryStartOnArrival(Player* player, PlayState* play) {
     // floor at all below Link) aim will still glitch, but at least we don't
     // visually spawn the target actor.
 
-    Audio_PlaySoundGeneral(NA_SE_SY_ATTENTION_ON, &player->actor.world.pos, 4,
-                           &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+    Audio_PlaySoundGeneral(NA_SE_SY_ATTENTION_ON, &player->actor.world.pos, 4, &gSfxDefaultFreqAndVolScale,
+                           &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
     return 1;
 }
 
@@ -1239,8 +1237,7 @@ void ClawshotBT_Update(Player* player, PlayState* play) {
     // so the player can rotate freely to look at new targets. Otherwise the
     // pin glues the body to the original facing and the user can't sweep
     // the camera during aim.
-    u8 isAiming = (player->stateFlags1 &
-                   (PLAYER_STATE1_FIRST_PERSON | PLAYER_STATE1_READY_TO_FIRE)) != 0;
+    u8 isAiming = (player->stateFlags1 & (PLAYER_STATE1_FIRST_PERSON | PLAYER_STATE1_READY_TO_FIRE)) != 0;
     if (sClawshotBTLastHitKind == CLAWSHOT_BT_HIT_WALL && !isAiming) {
         player->actor.shape.rot.y = sClawshotBTLockedYaw;
         player->yaw = sClawshotBTLockedYaw;

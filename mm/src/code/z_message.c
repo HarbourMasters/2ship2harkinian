@@ -1126,10 +1126,10 @@ void Message_DrawItemIcon(PlayState* play, Gfx** gfxP) {
     } else if (msgCtx->itemId == ITEM_STRAY_FAIRIES) {
         // 2S2H [Rando] Prefer the per-message fairy index (sentinel icon bytes 0xF1-0xF4); the vanilla
         // dungeonSceneSharedIndex (u16) is garbage outside the four dungeons, so clamp it as a fallback.
-        index = (sMsgStrayFairyIndex >= 0) ? sMsgStrayFairyIndex
-                                           : ((gSaveContext.dungeonSceneSharedIndex < 4)
-                                                  ? ((void)0, gSaveContext.dungeonSceneSharedIndex)
-                                                  : 0);
+        index =
+            (sMsgStrayFairyIndex >= 0)
+                ? sMsgStrayFairyIndex
+                : ((gSaveContext.dungeonSceneSharedIndex < 4) ? ((void)0, gSaveContext.dungeonSceneSharedIndex) : 0);
         msgCtx->unk12016 = 0x18;
         gDPPipeSync(gfx++);
         gDPSetPrimColor(gfx++, 0, 0, sStrayFairyIconPrimColors[index].r, sStrayFairyIconPrimColors[index].g,
@@ -2154,7 +2154,8 @@ void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
         extern unsigned char ExtInv_GetItemIconSize(unsigned short itemId);
         u8 neiSize = ExtInv_GetItemIconSize(itemId);
 
-        msgCtx->unk12010 = (msgCtx->unk11FF8 - ((neiSize == 24) ? D_801CFF7C : D_801CFF70)[gSaveContext.options.language]);
+        msgCtx->unk12010 =
+            (msgCtx->unk11FF8 - ((neiSize == 24) ? D_801CFF7C : D_801CFF70)[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + ((neiSize == 24) ? 0xA : 6));
         msgCtx->unk12014 = (neiSize == 24) ? 0x18 : 0x20;
         msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = ExtInv_GetItemIcon(itemId);
@@ -3864,8 +3865,9 @@ void Message_DisplayOcarinaStaffImpl(PlayState* play, u16 ocarinaAction) {
         }
         // NEI-DBG: pause-play tracing (remove after diagnosis)
         {
-            lusprintf(__FILE__, __LINE__, 2, "NEI-PP: staff open action=%d availSongs=0x%08X custom=0x%X ootQuest=0x%08X",
-                      ocarinaAction, msgCtx->ocarinaAvailableSongs, gNeiCustomSongsAvailable, ootSongs);
+            lusprintf(__FILE__, __LINE__, 2,
+                      "NEI-PP: staff open action=%d availSongs=0x%08X custom=0x%X ootQuest=0x%08X", ocarinaAction,
+                      msgCtx->ocarinaAvailableSongs, gNeiCustomSongsAvailable, ootSongs);
         }
     }
 

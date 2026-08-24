@@ -47,7 +47,8 @@ s32 sSavedDListCount = 0;
 void RegisterImpl(const char* name, const char* skelOtrPath);
 
 void EnsureInit() {
-    if (sInitialized) return;
+    if (sInitialized)
+        return;
     sInitialized = true;
     // Register known o2r-based models. Add additional entries here as needed.
     RegisterImpl("garo", "__OTR__objects/garo/gGaroSkel");
@@ -70,7 +71,8 @@ void EnsureInit() {
 }
 
 s32 FindByName(const char* name) {
-    if (!name || !*name) return -1;
+    if (!name || !*name)
+        return -1;
     for (size_t i = 0; i < sModels.size(); i++) {
         if (std::strcmp(sModels[i].name, name) == 0) {
             return (s32)i;
@@ -86,15 +88,19 @@ s32 FindByName(const char* name) {
 // guaranteed crash inside the flex walker (SkelAnime_DrawFlexLod). A real OOT-Link skel
 // has limbCount in [1, 32] and a non-NULL segment (the limb/dList pointer table).
 bool IsValidLinkSkel(SkeletonHeader* hdr) {
-    if (hdr == nullptr) return false;
-    if (hdr->limbCount == 0 || hdr->limbCount > 32) return false;
-    if (hdr->segment == nullptr) return false;
+    if (hdr == nullptr)
+        return false;
+    if (hdr->limbCount == 0 || hdr->limbCount > 32)
+        return false;
+    if (hdr->segment == nullptr)
+        return false;
     return true;
 }
 
 // Attempt to resolve the skeleton resource. Returns true on success.
 bool LazyLoad(O2rEntry& e) {
-    if (e.loaded) return true;
+    if (e.loaded)
+        return true;
     SkeletonHeader* hdr = ResourceMgr_LoadSkeletonByName(e.skelOtrPath, nullptr);
     if (!IsValidLinkSkel(hdr)) {
         O2R_LOG("LazyLoad FAIL: '{}' could not resolve a valid Link skel at '{}' "
@@ -104,14 +110,15 @@ bool LazyLoad(O2rEntry& e) {
     }
     e.skel = (FlexSkeletonHeader*)hdr;
     e.loaded = true;
-    O2R_LOG("LazyLoad OK: '{}' (limbCount={}, dListCount={})",
-            e.name, e.skel->sh.limbCount, e.skel->dListCount);
+    O2R_LOG("LazyLoad OK: '{}' (limbCount={}, dListCount={})", e.name, e.skel->sh.limbCount, e.skel->dListCount);
     return true;
 }
 
 void RegisterImpl(const char* name, const char* skelOtrPath) {
-    if (!name || !*name || !skelOtrPath || !*skelOtrPath) return;
-    if (FindByName(name) >= 0) return; // already registered
+    if (!name || !*name || !skelOtrPath || !*skelOtrPath)
+        return;
+    if (FindByName(name) >= 0)
+        return; // already registered
 
     O2rEntry e{};
     std::strncpy(e.name, name, sizeof(e.name) - 1);
@@ -145,7 +152,8 @@ extern "C" void O2rLoader_ForceModel(const char* name) {
         O2R_LOG("ForceModel FAIL: no registered entry named '{}'", name);
         return;
     }
-    if (!LazyLoad(sModels[idx])) return;
+    if (!LazyLoad(sModels[idx]))
+        return;
     sForcedIdx = idx;
     O2R_LOG("ForceModel ACTIVE: '{}' (idx={})", name, idx);
 }
@@ -160,16 +168,19 @@ extern "C" u8 O2rLoader_HasActiveModel(void) {
 }
 
 extern "C" const char* O2rLoader_GetForcedName(void) {
-    if (!O2rLoader_HasActiveModel()) return nullptr;
+    if (!O2rLoader_HasActiveModel())
+        return nullptr;
     return sModels[sForcedIdx].name;
 }
 
 extern "C" void O2rLoader_SwapSkeleton(Player* player) {
-    if (!O2rLoader_HasActiveModel() || !player) return;
+    if (!O2rLoader_HasActiveModel() || !player)
+        return;
     FlexSkeletonHeader* flex = sModels[sForcedIdx].skel;
     // Re-validate before writing into player->skelAnime. Skipping the swap here
     // leaves Link's vanilla skeleton intact instead of crashing the flex walker.
-    if (!flex || !IsValidLinkSkel(&flex->sh)) return;
+    if (!flex || !IsValidLinkSkel(&flex->sh))
+        return;
 
     sSavedSkeleton = player->skelAnime.skeleton;
     sSavedDListCount = player->skelAnime.dListCount;
@@ -179,7 +190,8 @@ extern "C" void O2rLoader_SwapSkeleton(Player* player) {
 }
 
 extern "C" void O2rLoader_RestoreSkeleton(Player* player) {
-    if (!sSavedSkeleton || !player) return;
+    if (!sSavedSkeleton || !player)
+        return;
     player->skelAnime.skeleton = sSavedSkeleton;
     player->skelAnime.dListCount = sSavedDListCount;
     sSavedSkeleton = nullptr;

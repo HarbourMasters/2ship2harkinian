@@ -69,8 +69,8 @@ u8 Sm64Remote_CanRender(void);
 // is recolored to (tintR,tintG,tintB) except where metal/fire override it. Returns
 // 1 on success, 0 if it couldn't render (caller should then draw the normal Link
 // dummy). Uses a single shared libsm64 renderer instance, re-posed per call.
-u8 Sm64Remote_DrawPuppet(PlayState* play, f32 x, f32 y, f32 z, s16 faceYaw, s32 animId,
-                         s16 animFrame, u32 marioFlags, u8 tintR, u8 tintG, u8 tintB);
+u8 Sm64Remote_DrawPuppet(PlayState* play, f32 x, f32 y, f32 z, s16 faceYaw, s32 animId, s16 animFrame, u32 marioFlags,
+                         u8 tintR, u8 tintG, u8 tintB);
 
 // Kaleido equipment-page doll: when the local player is in Mario mode, draws a real
 // libsm64 Mario into the pause framebuffer in place of the Link model and returns 1.
@@ -128,8 +128,8 @@ void Sm64Mario_HandleItems(PlayState* play, Player* player);
 // Slot index order matches the corner HUD top→bottom:
 //   0 = Wing, 1 = Metal, 2 = Vanish, 3 = Fire.
 #define SM64_CAP_HUD_SLOT_COUNT 4
-#define SM64_CAP_PHASE_READY    0
-#define SM64_CAP_PHASE_ACTIVE   1
+#define SM64_CAP_PHASE_READY 0
+#define SM64_CAP_PHASE_ACTIVE 1
 #define SM64_CAP_PHASE_COOLDOWN 2
 
 // Advance the active use timer + every cooling slot by one frame. Called from
@@ -143,11 +143,11 @@ void Sm64MarioCaps_Tick(void);
 void Sm64MarioCaps_OnSuspend(void);
 
 // HUD read accessors (used by the corner power-up HUD in z_parameter.c).
-u8  Sm64MarioCaps_GetPhase(s32 idx);            // SM64_CAP_PHASE_*
+u8 Sm64MarioCaps_GetPhase(s32 idx);             // SM64_CAP_PHASE_*
 f32 Sm64MarioCaps_GetCharge(s32 idx);           // 0..1 (ACTIVE drains, COOLDOWN fills, READY=1)
 s32 Sm64MarioCaps_GetRemainingSeconds(s32 idx); // whole seconds left in ACTIVE/COOLDOWN (0 if READY)
 s32 Sm64MarioCaps_GetActiveIndex(void);         // active slot index, or -1
-u8  Sm64MarioCaps_IsFireActive(void);           // true while the Fire cap (D-Up) is active
+u8 Sm64MarioCaps_IsFireActive(void);            // true while the Fire cap (D-Up) is active
 
 // Fire Flower: launch a bouncing fireball forward on a fresh B press (Fire cap
 // only). The ball arcs with gravity, bounces off floors, and deals fire damage.
@@ -164,8 +164,8 @@ void Sm64Mario_KillAllFireballs(void);
 
 // Boss super-damage hooks: a Fire Flower fireball in flight is treated as an
 // active super attack by boss_super_damage so the fire can break/kill bosses.
-u8 Sm64Mario_FireballActive(void);                 // any fireball in flight
-u8 Sm64Mario_FireballNear(Vec3f* pos, f32 range);  // a fireball within range of pos
+u8 Sm64Mario_FireballActive(void);                // any fireball in flight
+u8 Sm64Mario_FireballNear(Vec3f* pos, f32 range); // a fireball within range of pos
 
 // Draw one camera-facing flame billboard per in-flight fireball at its absolute
 // world position (independent of Mario's facing). Call from Sm64Mario_Draw.
@@ -175,9 +175,9 @@ void Sm64Mario_DrawFireballs(PlayState* play);
 // advance the projectile (out/hover/orbit/return + bounce detection + stun
 // collider) each frame, draw it, and free it on suspend. `homing` locks the
 // flight onto the nearest enemy (ignored for SPIN).
-#define SM64_CAPPY_FWD   0  // forward
-#define SM64_CAPPY_DIVE  2  // fast down-forward (air throw)
-#define SM64_CAPPY_SPIN  3  // orbits Mario (wide hit)
+#define SM64_CAPPY_FWD 0  // forward
+#define SM64_CAPPY_DIVE 2 // fast down-forward (air throw)
+#define SM64_CAPPY_SPIN 3 // orbits Mario (wide hit)
 void Sm64Cappy_Throw(PlayState* play, s32 mode, u8 homing);
 void Sm64Cappy_Update(PlayState* play);
 void Sm64Cappy_Draw(PlayState* play);

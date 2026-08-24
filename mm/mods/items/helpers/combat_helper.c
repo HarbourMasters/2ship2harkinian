@@ -10,15 +10,15 @@
 void Combat_InitCylinder(PlayState* play, ColliderCylinder* col, Actor* owner, CombatColliderConfig* cfg) {
     Collider_InitCylinder(play, col);
     Collider_SetCylinder(play, col, owner,
-                         &(ColliderCylinderInit){
-                             { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE, OC2_NONE, COLSHAPE_CYLINDER },
-                             { ELEM_MATERIAL_UNK2,
-                               { cfg->dmgFlags, cfg->effect, cfg->damage },
-                               { 0, 0, 0 },
-                               ATELEM_ON | ATELEM_SFX_NORMAL,
-                               ACELEM_NONE,
-                               OCELEM_NONE },
-                             { (s16)cfg->radius, (s16)cfg->height, 0, { 0, 0, 0 } } });
+                         &(ColliderCylinderInit){ { COL_MATERIAL_NONE, AT_ON | AT_TYPE_PLAYER, AC_NONE, OC1_NONE,
+                                                    OC2_NONE, COLSHAPE_CYLINDER },
+                                                  { ELEM_MATERIAL_UNK2,
+                                                    { cfg->dmgFlags, cfg->effect, cfg->damage },
+                                                    { 0, 0, 0 },
+                                                    ATELEM_ON | ATELEM_SFX_NORMAL,
+                                                    ACELEM_NONE,
+                                                    OCELEM_NONE },
+                                                  { (s16)cfg->radius, (s16)cfg->height, 0, { 0, 0, 0 } } });
 }
 
 void Combat_UpdateCylinder(ColliderCylinder* col, Vec3f* pos, CombatColliderConfig* cfg) {

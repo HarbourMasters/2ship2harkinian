@@ -137,6 +137,7 @@ inline void to_json(json& j, const NeiSaveData& n) {
         { "sw97LayoutVersion", n.sw97LayoutVersion },
         { "slateMode", n.slateMode },
         { "slateRunesOwned", n.slateRunesOwned },
+        { "ootCanGrab", n.ootCanGrab },
     };
 }
 
@@ -261,6 +262,7 @@ inline void from_json(const json& j, NeiSaveData& n) {
     n.sw97LayoutVersion = j.value("sw97LayoutVersion", (uint8_t)0);
     n.slateMode = j.value("slateMode", (uint8_t)0);
     n.slateRunesOwned = j.value("slateRunesOwned", (uint8_t)0);
+    n.ootCanGrab = j.value("ootCanGrab", (uint8_t)0);
 }
 
 // Spiritual Stones — per-save state (gSaveContext.save.shipSaveInfo.spiritualStones).

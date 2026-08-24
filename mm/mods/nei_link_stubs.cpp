@@ -26,10 +26,18 @@ extern "C" {
 // func_8002836C (OoT dust/soft-sprite spawn) is now a REAL effect via a function-like macro in
 // nei_oot_compat.h → EffectSsDust_Spawn. Removing the stub makes Deku Leaf / Gust Jar wind + Ivan
 // sparkle actually render. (The macro only affects the C item TU; this .cpp doesn't include it.)
-int func_8002829C() { return 0; } // effect spawn
-int func_80033480() { return 0; } // spark/dust ring spawn
-int func_8083821C() { return 0; } // set Link's body on fire
-int func_8002F6D4() { return 0; } // apply knockback
+int func_8002829C() {
+    return 0;
+} // effect spawn
+int func_80033480() {
+    return 0;
+} // spark/dust ring spawn
+int func_8083821C() {
+    return 0;
+} // set Link's body on fire
+int func_8002F6D4() {
+    return 0;
+} // apply knockback
 // func_80837948 (OoT "setup melee-weapon attack") → forward to MM's REAL equivalent func_80833864
 // (z_player.c:6088 — func_8083375C damage/cylinder + Player_SetAction(Player_Action_84) + sets
 // meleeWeaponAnimation). Without this the custom rods' charged SPIN attack never triggered Link's
@@ -39,8 +47,12 @@ void func_80833864(void* play, void* thisx, int meleeWeaponAnim);
 void func_80837948(void* play, void* thisx, int meleeWeaponAnim) {
     func_80833864(play, thisx, meleeWeaponAnim);
 }
-int func_80837C0C() { return 0; } // player hit response + freeze
-int func_8005B1A4() { return 0; } // camera helper
+int func_80837C0C() {
+    return 0;
+} // player hit response + freeze
+int func_8005B1A4() {
+    return 0;
+} // camera helper
 // OoT func_800AA000(f32 distSq, u16 sourceIntensity, u16 decayTimer, u16 decayStep) — controller
 // rumble. Forward to MM's REAL rumble system (Rumble_Request, z_rumble.c) instead of a no-op.
 // The C callers have no prototype in scope (see file header), so the arguments arrive
@@ -53,13 +65,23 @@ int func_800AA000(double distSq, int sourceIntensity, int decayTimer, int decayS
                    (unsigned char)(decayStep > 255 ? 255 : decayStep));
     return 0;
 }
-int func_8009728C() { return 0; } // room request/load
-int func_80097534() { return 0; } // room finish/free
-int func_80077D10() { return 0; } // stick input processing
-int func_80839FFC() { return 0; } // player state helper
+int func_8009728C() {
+    return 0;
+} // room request/load
+int func_80097534() {
+    return 0;
+} // room finish/free
+int func_80077D10() {
+    return 0;
+} // stick input processing
+int func_80839FFC() {
+    return 0;
+} // player state helper
 
 /* ── OoT-only player internals still without an MM port ── */
-int Player_UpperAction_Sword() { return 0; }  // NeiItem updateFn for sword-like items (TODO)
+int Player_UpperAction_Sword() {
+    return 0;
+} // NeiItem updateFn for sword-like items (TODO)
 // Player_StartLanternSwing / Player_Action_SwingLantern: now REAL MM implementations at the end of
 // mods/items/logic/item_lantern.c (z_player.c TU) — ported from SoH on top of MM's own bottle-swing
 // action, so the lantern catches fire through the same animation + catch window it does in OoT.
@@ -72,24 +94,42 @@ int Player_UpperAction_Sword() { return 0; }  // NeiItem updateFn for sword-like
  * sparkles globally (fire rod sparks, the whole light rod, desire sensor, hylia's grace, etc.). */
 
 /* ── Misc engine helpers with no clean MM map (functional → TODO) ── */
-int Sfx_PlaySfxCentered() { return 0; }
-int Magic_RequestChange() { return 0; }                // magic cost/restore (items free for now)
-int SkelAnime_DrawSkeleton2() { return 0; }            // skeletal draw
-int Entrance_OverrideNextIndex() { return 0; }         // warp override
-int Scene_SetTransitionForNextEntrance() { return 0; }
-int Flags_GetItemGetInf() { return 0; }                // one-time item flags: always "not obtained"
-int Flags_SetItemGetInf() { return 0; }
+int Sfx_PlaySfxCentered() {
+    return 0;
+}
+int Magic_RequestChange() {
+    return 0;
+} // magic cost/restore (items free for now)
+int SkelAnime_DrawSkeleton2() {
+    return 0;
+} // skeletal draw
+int Entrance_OverrideNextIndex() {
+    return 0;
+} // warp override
+int Scene_SetTransitionForNextEntrance() {
+    return 0;
+}
+int Flags_GetItemGetInf() {
+    return 0;
+} // one-time item flags: always "not obtained"
+int Flags_SetItemGetInf() {
+    return 0;
+}
 // Randomizer_GetSceneHint stub removed: the Desire Sensor was reworked into the
 // Desire Compass, whose real brain lives in 2s2h/Rando/DesireCompass.cpp.
 // Picto_SyncWrite stub removed with the NEI pictobox: MM's pictograph is vanilla here, so a future
 // OoT<->MM photo bridge writes gSaveContext.pictoPhotoI5 directly.
 // Play_CameraSetAtEye (OoT name) → the beetle now calls MM's real Play_SetCameraAtEye directly, so
 // its flying subcam actually tracks the beetle. Stub removed.
-int SwitchAge() { return 0; }                          // MM has no child/adult age
+int SwitchAge() {
+    return 0;
+} // MM has no child/adult age
 
 /* ── Data globals ─────────────────────────────────────────────────────────────────────── */
 // Tunic colors (kokiri/goron/zora). Layout matches Color_RGB8 (3 bytes). Only [0] read now.
-struct NeiRGB8 { unsigned char r, g, b; };
+struct NeiRGB8 {
+    unsigned char r, g, b;
+};
 NeiRGB8 sTunicColors[3] = { { 30, 105, 27 }, { 200, 50, 0 }, { 0, 60, 200 } };
 
 // gEnPartnerId moved: it's now the REAL actor id (ACTOR_EN_PARTNER), defined in

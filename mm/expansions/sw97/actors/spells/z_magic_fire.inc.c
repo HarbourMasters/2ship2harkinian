@@ -35,11 +35,11 @@ typedef struct MagicFire {
     /*        */ f32 scalingSpeed;
     /*        */ s16 action;
     /*        */ s16 actionTimer;
-    /*        */ s16 screenTintBehaviour;       // Din's Fire (sphere) only
-    /*        */ s16 screenTintBehaviourTimer;  // Din's Fire (sphere) only
-    /*        */ f32 screenTintIntensity;       // Din's Fire (sphere) only
-    /*        */ SkelCurve skelCurve;           // Fire Medallion (SkelCurve dome) only
-    /*        */ Vec3f colliderScale;           // Fire Medallion (SkelCurve dome) only
+    /*        */ s16 screenTintBehaviour;      // Din's Fire (sphere) only
+    /*        */ s16 screenTintBehaviourTimer; // Din's Fire (sphere) only
+    /*        */ f32 screenTintIntensity;      // Din's Fire (sphere) only
+    /*        */ SkelCurve skelCurve;          // Fire Medallion (SkelCurve dome) only
+    /*        */ Vec3f colliderScale;          // Fire Medallion (SkelCurve dome) only
 } MagicFire;
 
 // Runtime actor ID (assigned by ActorDB in sw97_init.cpp)
@@ -645,8 +645,8 @@ static Gfx sMedDList1[] = {
     gsDPPipeSync(),
     gsDPSetTextureLUT(G_TT_NONE),
     gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock_4b(sMedTexture0, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_CLAMP, 6, 6,
-                            1, G_TX_NOLOD),
+    gsDPLoadTextureBlock_4b(sMedTexture0, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_CLAMP, 6,
+                            6, 1, G_TX_NOLOD),
     gsDPLoadMultiBlock_4b(sMedTexture1, 0x0100, 1, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_WRAP,
                           G_TX_NOMIRROR | G_TX_WRAP, 6, 6, 15, G_TX_NOLOD),
     gsDPSetCombineLERP(TEXEL1, PRIMITIVE, PRIM_LOD_FRAC, TEXEL0, TEXEL1, 1, PRIM_LOD_FRAC, TEXEL0, PRIMITIVE,
@@ -669,8 +669,8 @@ static Gfx sMedDList2[] = {
     gsDPPipeSync(),
     gsDPSetTextureLUT(G_TT_NONE),
     gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock_4b(sMedTexture0, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_CLAMP, 6, 6,
-                            G_TX_NOLOD, G_TX_NOLOD),
+    gsDPLoadTextureBlock_4b(sMedTexture0, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_CLAMP, 6,
+                            6, G_TX_NOLOD, G_TX_NOLOD),
     gsDPLoadMultiBlock_4b(sMedTexture1, 0x0100, 1, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_WRAP,
                           G_TX_NOMIRROR | G_TX_WRAP, 6, 6, 15, G_TX_NOLOD),
     gsDPSetCombineLERP(TEXEL1, PRIMITIVE, PRIM_LOD_FRAC, TEXEL0, TEXEL1, 1, PRIM_LOD_FRAC, TEXEL0, PRIMITIVE,
@@ -693,8 +693,8 @@ static Gfx sMedDList3[] = {
     gsDPPipeSync(),
     gsDPSetTextureLUT(G_TT_NONE),
     gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock_4b(sMedTexture0, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_CLAMP, 6, 6,
-                            15, G_TX_NOLOD),
+    gsDPLoadTextureBlock_4b(sMedTexture0, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_CLAMP, 6,
+                            6, 15, G_TX_NOLOD),
     gsDPLoadMultiBlock_4b(sMedTexture1, 0x0100, 1, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_WRAP,
                           G_TX_NOMIRROR | G_TX_WRAP, 6, 6, 15, G_TX_NOLOD),
     gsDPSetCombineLERP(TEXEL1, PRIMITIVE, PRIM_LOD_FRAC, TEXEL0, TEXEL1, 1, PRIM_LOD_FRAC, TEXEL0, PRIMITIVE,
@@ -935,8 +935,11 @@ static void MagicFireMed_Draw(Actor* thisx, PlayState* play) {
 
 void MagicFire_Init(Actor* thisx, PlayState* play) {
     // Keep the retired SkelCurve-dome path referenced so it isn't warned/stripped as unused.
-    (void)MagicFireMed_Init; (void)MagicFireMed_Destroy; (void)MagicFireMed_UpdateBeforeCast;
-    (void)MagicFireMed_Update; (void)MagicFireMed_Draw;
+    (void)MagicFireMed_Init;
+    (void)MagicFireMed_Destroy;
+    (void)MagicFireMed_UpdateBeforeCast;
+    (void)MagicFireMed_Update;
+    (void)MagicFireMed_Draw;
     MagicFireDins_Init(thisx, play);
 }
 

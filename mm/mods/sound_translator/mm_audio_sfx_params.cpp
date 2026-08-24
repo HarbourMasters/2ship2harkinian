@@ -26,34 +26,34 @@
 // TU-local SFX_FLAG_* aliases so the verbatim bank tables compile
 // =============================================================================
 
-#define SFX_PARAM_DIST_RANGE_SHIFT          MM_SFX_PARAM_DIST_RANGE_SHIFT
-#define SFX_PARAM_DIST_RANGE_MASK           MM_SFX_PARAM_DIST_RANGE_MASK
-#define SFX_FLAG_LOWER_VOLUME_BGM           MM_SFX_FLAG_LOWER_VOLUME_BGM
-#define SFX_FLAG_PRIORITY_NO_DIST           MM_SFX_FLAG_PRIORITY_NO_DIST
-#define SFX_FLAG_BLOCK_EQUAL_IMPORTANCE     MM_SFX_FLAG_BLOCK_EQUAL_IMPORTANCE
-#define SFX_PARAM_RAND_FREQ_RAISE_SHIFT     MM_SFX_PARAM_RAND_FREQ_RAISE_SHIFT
-#define SFX_PARAM_RAND_FREQ_RAISE_MASK      MM_SFX_PARAM_RAND_FREQ_RAISE_MASK
-#define SFX_FLAG_8                          MM_SFX_FLAG_8
-#define SFX_FLAG_SURROUND_LOWPASS_FILTER    MM_SFX_FLAG_SURROUND_LOWPASS_FILTER
-#define SFX_FLAG_BEHIND_SCREEN_Z_INDEX      MM_SFX_FLAG_BEHIND_SCREEN_Z_INDEX
-#define SFX_PARAM_RAND_FREQ_SCALE           MM_SFX_PARAM_RAND_FREQ_SCALE
-#define SFX_FLAG_REVERB_NO_DIST             MM_SFX_FLAG_REVERB_NO_DIST
-#define SFX_FLAG_VOLUME_NO_DIST             MM_SFX_FLAG_VOLUME_NO_DIST
-#define SFX_PARAM_RAND_FREQ_LOWER           MM_SFX_PARAM_RAND_FREQ_LOWER
-#define SFX_FLAG_FREQ_NO_DIST               MM_SFX_FLAG_FREQ_NO_DIST
-#define SFX_FLAG2_FORCE_RESET               MM_SFX_FLAG2_FORCE_RESET
-#define SFX_FLAG2_UNUSED2                   MM_SFX_FLAG2_UNUSED2
-#define SFX_FLAG2_UNUSED4                   MM_SFX_FLAG2_UNUSED4
+#define SFX_PARAM_DIST_RANGE_SHIFT MM_SFX_PARAM_DIST_RANGE_SHIFT
+#define SFX_PARAM_DIST_RANGE_MASK MM_SFX_PARAM_DIST_RANGE_MASK
+#define SFX_FLAG_LOWER_VOLUME_BGM MM_SFX_FLAG_LOWER_VOLUME_BGM
+#define SFX_FLAG_PRIORITY_NO_DIST MM_SFX_FLAG_PRIORITY_NO_DIST
+#define SFX_FLAG_BLOCK_EQUAL_IMPORTANCE MM_SFX_FLAG_BLOCK_EQUAL_IMPORTANCE
+#define SFX_PARAM_RAND_FREQ_RAISE_SHIFT MM_SFX_PARAM_RAND_FREQ_RAISE_SHIFT
+#define SFX_PARAM_RAND_FREQ_RAISE_MASK MM_SFX_PARAM_RAND_FREQ_RAISE_MASK
+#define SFX_FLAG_8 MM_SFX_FLAG_8
+#define SFX_FLAG_SURROUND_LOWPASS_FILTER MM_SFX_FLAG_SURROUND_LOWPASS_FILTER
+#define SFX_FLAG_BEHIND_SCREEN_Z_INDEX MM_SFX_FLAG_BEHIND_SCREEN_Z_INDEX
+#define SFX_PARAM_RAND_FREQ_SCALE MM_SFX_PARAM_RAND_FREQ_SCALE
+#define SFX_FLAG_REVERB_NO_DIST MM_SFX_FLAG_REVERB_NO_DIST
+#define SFX_FLAG_VOLUME_NO_DIST MM_SFX_FLAG_VOLUME_NO_DIST
+#define SFX_PARAM_RAND_FREQ_LOWER MM_SFX_PARAM_RAND_FREQ_LOWER
+#define SFX_FLAG_FREQ_NO_DIST MM_SFX_FLAG_FREQ_NO_DIST
+#define SFX_FLAG2_FORCE_RESET MM_SFX_FLAG2_FORCE_RESET
+#define SFX_FLAG2_UNUSED2 MM_SFX_FLAG2_UNUSED2
+#define SFX_FLAG2_UNUSED4 MM_SFX_FLAG2_UNUSED4
 #define SFX_FLAG2_SURROUND_NO_HIGHPASS_FILTER MM_SFX_FLAG2_SURROUND_NO_HIGHPASS_FILTER
-#define SFX_FLAG2_UNUSED6                   MM_SFX_FLAG2_UNUSED6
-#define SFX_FLAG2_APPLY_LOWPASS_FILTER      MM_SFX_FLAG2_APPLY_LOWPASS_FILTER
+#define SFX_FLAG2_UNUSED6 MM_SFX_FLAG2_UNUSED6
+#define SFX_FLAG2_APPLY_LOWPASS_FILTER MM_SFX_FLAG2_APPLY_LOWPASS_FILTER
 
 // =============================================================================
 // DEFINE_SFX macro — verbatim from sfx_params.c:3-6
 // =============================================================================
 
-#define DEFINE_SFX(_0, importance, distParam, randParam, flags2, flags1)           \
-    { (u8)(importance), (u8)(flags2),                                              \
+#define DEFINE_SFX(_0, importance, distParam, randParam, flags2, flags1)                \
+    { (u8)(importance), (u8)(flags2),                                                   \
       (u16)((((distParam) << SFX_PARAM_DIST_RANGE_SHIFT) & SFX_PARAM_DIST_RANGE_MASK) | \
             (((randParam) << SFX_PARAM_RAND_FREQ_RAISE_SHIFT) & SFX_PARAM_RAND_FREQ_RAISE_MASK) | (flags1)) },
 
@@ -96,7 +96,7 @@ static MmSfxParams sMmVoiceBankParams[] = {
 // =============================================================================
 
 MmSfxParams* gMmSfxParams[7] = {
-    sMmPlayerBankParams, sMmItemBankParams,    sMmEnvBankParams,    sMmEnemyBankParams,
+    sMmPlayerBankParams, sMmItemBankParams,    sMmEnvBankParams,   sMmEnemyBankParams,
     sMmSystemBankParams, sMmOcarinaBankParams, sMmVoiceBankParams,
 };
 
@@ -106,8 +106,7 @@ MmSfxParams* gMmSfxParams[7] = {
 // field can exceed a bank's table length and read OOB otherwise.
 #define MM_ARRAY_COUNT(x) ((size_t)(sizeof(x) / sizeof((x)[0])))
 size_t gMmSfxParamsCount[7] = {
-    MM_ARRAY_COUNT(sMmPlayerBankParams), MM_ARRAY_COUNT(sMmItemBankParams),
-    MM_ARRAY_COUNT(sMmEnvBankParams),    MM_ARRAY_COUNT(sMmEnemyBankParams),
-    MM_ARRAY_COUNT(sMmSystemBankParams), MM_ARRAY_COUNT(sMmOcarinaBankParams),
+    MM_ARRAY_COUNT(sMmPlayerBankParams), MM_ARRAY_COUNT(sMmItemBankParams),   MM_ARRAY_COUNT(sMmEnvBankParams),
+    MM_ARRAY_COUNT(sMmEnemyBankParams),  MM_ARRAY_COUNT(sMmSystemBankParams), MM_ARRAY_COUNT(sMmOcarinaBankParams),
     MM_ARRAY_COUNT(sMmVoiceBankParams),
 };

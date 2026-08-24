@@ -259,9 +259,8 @@ u8 CaneSummon_PlacementValid(PlayState* play, CaneSummonKind kind, Vec3f* pos) {
 // A self-contained unit cube (+-1 on every axis), so the preview needs no asset
 // from any object bank. Scaled per summon kind at draw time.
 static Vtx sPreviewCubeVtx[] = {
-    VTX(-1, -1, -1, 0, 0, 0, 0, 0, 255), VTX(1, -1, -1, 0, 0, 0, 0, 0, 255),
-    VTX(1, -1, 1, 0, 0, 0, 0, 0, 255),   VTX(-1, -1, 1, 0, 0, 0, 0, 0, 255),
-    VTX(-1, 1, -1, 0, 0, 0, 0, 0, 255),  VTX(1, 1, -1, 0, 0, 0, 0, 0, 255),
+    VTX(-1, -1, -1, 0, 0, 0, 0, 0, 255), VTX(1, -1, -1, 0, 0, 0, 0, 0, 255), VTX(1, -1, 1, 0, 0, 0, 0, 0, 255),
+    VTX(-1, -1, 1, 0, 0, 0, 0, 0, 255),  VTX(-1, 1, -1, 0, 0, 0, 0, 0, 255), VTX(1, 1, -1, 0, 0, 0, 0, 0, 255),
     VTX(1, 1, 1, 0, 0, 0, 0, 0, 255),    VTX(-1, 1, 1, 0, 0, 0, 0, 0, 255),
 };
 
@@ -313,8 +312,8 @@ void CaneSummon_DrawPreview(PlayState* play, CaneSummonKind kind, Vec3f* pos, s1
 
 // The Elegy shell. GAMEPLAY_KEEP is always resident, so this spawns anywhere.
 static Actor* CaneSummon_SpawnStatue(PlayState* play, Vec3f* pos, s16 yaw) {
-    Actor* statue =
-        Actor_Spawn(&play->actorCtx, play, ACTOR_EN_TORCH2, pos->x, pos->y, pos->z, 0, yaw, 0, CaneSummon_CurrentForm());
+    Actor* statue = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_TORCH2, pos->x, pos->y, pos->z, 0, yaw, 0,
+                                CaneSummon_CurrentForm());
 
     if (statue == NULL) {
         return NULL;
@@ -334,8 +333,8 @@ static Actor* CaneSummon_SpawnBlock(PlayState* play, Vec3f* pos, s16 yaw) {
         return NULL; // not resident yet this frame
     }
 
-    Actor* block = Actor_Spawn(&play->actorCtx, play, ACTOR_OBJ_OSHIHIKI, pos->x, pos->y, pos->z, 0, yaw, 0,
-                               CANE_BLOCK_PARAMS);
+    Actor* block =
+        Actor_Spawn(&play->actorCtx, play, ACTOR_OBJ_OSHIHIKI, pos->x, pos->y, pos->z, 0, yaw, 0, CANE_BLOCK_PARAMS);
     if (block == NULL) {
         return NULL;
     }

@@ -39,17 +39,26 @@ u8 Cane_GiveSkill(u8 skill);
 // (Pendant of Memories) also sets its Ext Boots 2 combat-ownership bit (FCI_F_DUAL_GRANT).
 void TradeAdult_GiveIndex(s32 index);
 // weapon_upgrades.c — progressive L2 bits in nei->weaponUpgrades (weapon_upgrades.h layout).
-void WeaponUpgrade_SetRazor(u8 on);       // Kokiri chain L1: Razor (kaleido cell tier via KokiriLevel)
-void WeaponUpgrade_SetGilded(u8 on);      // Kokiri chain L2: Gilded
-void WeaponUpgrade_SetHammerAxe(u8 on);   // bit 0: Hammer -> Iron Knuckle's Axe
-void WeaponUpgrade_SetTrueMaster(u8 on);  // bit 3: Master -> True Master Sword
-void WeaponUpgrade_SetGreatFairy(u8 on);  // bit 4: BGS -> Great Fairy's Sword
+void WeaponUpgrade_SetRazor(u8 on);      // Kokiri chain L1: Razor (kaleido cell tier via KokiriLevel)
+void WeaponUpgrade_SetGilded(u8 on);     // Kokiri chain L2: Gilded
+void WeaponUpgrade_SetHammerAxe(u8 on);  // bit 0: Hammer -> Iron Knuckle's Axe
+void WeaponUpgrade_SetTrueMaster(u8 on); // bit 3: Master -> True Master Sword
+void WeaponUpgrade_SetGreatFairy(u8 on); // bit 4: BGS -> Great Fairy's Sword
 // custom_bottles.cpp — Net / Bottomless Bottle ownership (netEquipped / bottomlessBottleMode; the
 // per-frame enforcer in mm_bottle_items.cpp projects them into SLOT_BOTTLE_3/4).
 void Bottle_SetNetOwned(u8 owned);
 void Bottle_SetBottomlessOwned(u8 owned);
 void Bottle_BottomlessEmpty(void);
 u8 Bottle_GiveBottle(u16 contentItem); // add a filled bottle to the first free NEI wheel slot
+}
+
+// One pickup = one outermost Rando::GiveItem. DrawItem.cpp's progressive draws latch their tier on
+// this serial: they read live save state, but the give lands in the MIDDLE of the presentation, so
+// without a latch the floating model flipped tier while Link held it up (a Megaton Hammer becoming
+// the Iron Knuckle's Axe on the way up). A frame-gap latch was not enough — give_all draws
+// back-to-back pickups on consecutive frames and they all read as one. Skijer's NEI
+extern "C" {
+u32 gRandoPickupSerial = 0;
 }
 
 void Rando::GiveItem(RandoItemId randoItemId) {
@@ -60,6 +69,9 @@ void Rando::GiveItem(RandoItemId randoItemId) {
     static int sGiveDepth = 0;
     struct DepthGuard {
         DepthGuard() {
+            if (sGiveDepth == 0) {
+                gRandoPickupSerial++; // outermost call only — progressives recurse through here
+            }
             sGiveDepth++;
         }
         ~DepthGuard() {
@@ -86,6 +98,11 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             default:
                 break;
         }
+        // NOTE: progressive chains arrive here already CONVERTED to their tier (RI_SINGLE_MAGIC,
+        // RI_BOW, RI_WALLET_ADULT...) and deliberately do NOT fold back into the chain's FC row:
+        // those natives cross through the shared-state sync (FleetSync ExtractShared/ApplyShared:
+        // inventory, upgrades, magic flags), and counting them here too would make the peer's FC
+        // deficit grant a SECOND tier on top of the synced one. Skijer's NEI
         int fc = FcCombo_ItemForNative((int)recordId);
         if (fc != FCI_NO_ITEM) {
             NeiSaveData* nei = Nei_Save();
@@ -396,7 +413,7 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             if (nei->comboObtained[FC_OOT_SWORD_BIGGORON] == 0) {
                 nei->comboObtained[FC_OOT_SWORD_BIGGORON] = 1;
             } else {
-                WeaponUpgrade_SetGreatFairy(1); // weaponUpgrades |= (1 << 4)
+                WeaponUpgrade_SetGreatFairy(1);                                      // weaponUpgrades |= (1 << 4)
                 Item_Give(gPlayState, Rando::StaticData::Items[randoItemId].itemId); // native GFS
             }
             break;
@@ -889,6 +906,17 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             // either side (soh defines the index and never consumes it), so a strength upgrade
             // obtained in MM was silently lost in both games. comboObtained is still written for the
             // combo registry/tracker, but it is no longer the source of truth. Skijer's NEI
+            // GRAB FIRST, exactly as soh resolves it (item.cpp:354): while RAND_INF_CAN_GRAB is
+            // unset, a Progressive Strength is RG_POWER_BRACELET — the Grab skill — and it does NOT
+            // advance UPG_STRENGTH. Only once Grab is held does the Bracelet/Silver/Gold chain move.
+            // With Shuffle Grab OFF, OoT sets that flag at logic init, so we seed ootCanGrab the same
+            // way on a fresh combo save and this branch never fires. Skipping it left MM one copy
+            // behind OoT for the whole seed, and OoT never received its Grab. Skijer's NEI
+            if (!Nei_Save()->ootCanGrab) {
+                Nei_Save()->ootCanGrab = 1;
+                Nei_Save()->comboObtained[FC_OOT_STRENGTH] = Nei_StrengthLevel();
+                break;
+            }
             u8 lvl = Nei_StrengthLevel();
             // FleetSync imports into the native field as well and exports max(native, ootUpgrades),
             // so start from whichever is higher — otherwise a level that arrived from OoT would be
@@ -916,6 +944,51 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             } else {
                 WeaponUpgrade_SetGreatFairy(1);
             }
+            break;
+        // Concrete tiers. ConvertItem resolves the chains to these, so a give can arrive as either
+        // the chain (in-game pickups convert first) or the tier itself (FleetSync / oracle hand over
+        // an already-resolved id). Both must land on the same state, so each tier writes exactly what
+        // its chain's branch writes. Skijer's NEI
+        case RI_OOT_HAMMER:
+            Nei_Save()->ootHammerOwned = 1;
+            break;
+        case RI_OOT_IRON_KNUCKLE_AXE:
+            Nei_Save()->ootHammerOwned = 1; // heal L1 so the chain can never skip a tier
+            WeaponUpgrade_SetHammerAxe(1);
+            break;
+        case RI_OOT_MASTER_SWORD:
+            Nei_Save()->comboObtained[FC_OOT_SWORD_MASTER] = 1;
+            break;
+        case RI_OOT_TRUE_MASTER_SWORD:
+            Nei_Save()->comboObtained[FC_OOT_SWORD_MASTER] = 1;
+            WeaponUpgrade_SetTrueMaster(1);
+            break;
+        case RI_OOT_BIGGORON_SWORD:
+            Nei_Save()->comboObtained[FC_OOT_SWORD_BIGGORON] = 1;
+            break;
+        case RI_OOT_QUARTZ_OF_MOTION:
+            Nei_Save()->quartzOwned = 1;
+            break;
+        case RI_OOT_GORONS_BRACELET:
+        case RI_OOT_SILVER_GAUNTLETS:
+        case RI_OOT_GOLDEN_GAUNTLETS: {
+            u8 want = (randoItemId == RI_OOT_GORONS_BRACELET) ? 1 : (randoItemId == RI_OOT_SILVER_GAUNTLETS) ? 2 : 3;
+            if (want > Nei_StrengthLevel()) {
+                Nei_SetStrengthLevel(want);
+            }
+            if (want > (u8)CUR_UPG_VALUE(UPG_STRENGTH)) {
+                Inventory_ChangeUpgrade(UPG_STRENGTH, want);
+            }
+            Nei_Save()->comboObtained[FC_OOT_STRENGTH] = want;
+            break;
+        }
+        case RI_OOT_NEI_ROCS_FEATHER:
+            ExtInv_GiveItem(SLOT_ROCS, ITEM_ROCS_FEATHER_SKIJER);
+            break;
+        case RI_OOT_NEI_ROCS_CAPE:
+            // The cape REPLACES the feather in the same cell, so granting L2 straight (a seed can
+            // place the second copy first) needs no L1 healing — the cell only ever holds one.
+            ExtInv_GiveItem(SLOT_ROCS, ITEM_ROCS_CAPE);
             break;
         case RI_OOT_PROGRESSIVE_MASTER_SWORD:
             // FC 2-level chain (FCI_MASTER_SWORD): L1 base ownership (comboObtained registry — the
@@ -1220,12 +1293,12 @@ void Rando::GiveItem(RandoItemId randoItemId) {
             ExtEquip_GiveItem(EQUIP_TYPE_BOOTS, 3); // bit 27
             break;
         case RI_OOT_EXT_DIVINE_SHIELD:
-            ExtEquip_GiveItem(EQUIP_TYPE_SHIELD, 1);      // bit 19
-            Nei_Save()->shieldOwned |= FC_SHIELD_DIVINE;  // unified shield mask stays coherent
+            ExtEquip_GiveItem(EQUIP_TYPE_SHIELD, 1);     // bit 19
+            Nei_Save()->shieldOwned |= FC_SHIELD_DIVINE; // unified shield mask stays coherent
             break;
         case RI_OOT_EXT_SHEIKAH_SHIELD:
-            ExtEquip_GiveItem(EQUIP_TYPE_SHIELD, 2);    // bit 20 (Kite Shield slot)
-            Nei_Save()->shieldOwned |= FC_SHIELD_KITE;  // unified shield mask stays coherent
+            ExtEquip_GiveItem(EQUIP_TYPE_SHIELD, 2);   // bit 20 (Kite Shield slot)
+            Nei_Save()->shieldOwned |= FC_SHIELD_KITE; // unified shield mask stays coherent
             break;
         case RI_OOT_EXT_MAGIC_CAPE:
             ExtEquip_GiveCape();
@@ -1278,8 +1351,17 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_JUNK:
         case RI_NONE:
             break;
-        default:
-            Item_Give(gPlayState, Rando::StaticData::Items[randoItemId].itemId);
+        default: {
+            // CheckQueue marks the check obtained right after this returns, so a missing arm eats
+            // the item in silence.
+            ItemId itemId = Rando::StaticData::Items[randoItemId].itemId;
+            if (itemId == ITEM_NONE) {
+                SPDLOG_ERROR("[Rando] GiveItem has no behaviour for {} ({}); check marked, nothing given.",
+                             Rando::StaticData::Items[randoItemId].spoilerName, (int)randoItemId);
+                break;
+            }
+            Item_Give(gPlayState, itemId);
             break;
+        }
     }
 }

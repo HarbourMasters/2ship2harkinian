@@ -53,7 +53,7 @@ const uint8_t gPage2Items[24] = { ITEM_ROCS_FEATHER_SKIJER,
 // Desire Sensor (slot 15/39) = AGE_REQ_NONE (both adult and child can use)
 // Index 3 (slot 27) was AGE_REQ_ADULT for Bomb Arrows; the Elemental Wand that replaced it is
 // age-free (MM has no age gate anyway — the medallions are what gate it).
-const uint8_t gPage2ItemAgeReqs[24] = { AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_NONE, AGE_REQ_NONE, AGE_REQ_NONE,
+const uint8_t gPage2ItemAgeReqs[24] = { AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_NONE,
                                         AGE_REQ_NONE, AGE_REQ_CHILD, AGE_REQ_NONE, AGE_REQ_ADULT, AGE_REQ_CHILD,
                                         AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_NONE, AGE_REQ_CHILD, AGE_REQ_ADULT,
                                         AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_NONE, AGE_REQ_NONE,  AGE_REQ_CHILD,
@@ -155,13 +155,33 @@ bool ExtInv_IsOnlyTransformation(void) {
 // by NeiSaveData). Wheels (keg/SW97/claw/rocs/trade) fold extra items onto these cells.
 static const uint8_t sOotPage0Map[24] = {
     // ROW 1: Sticks | Nuts | Bombs(keg wheel) | Arrows(SW97 wheel) | Fire Arrows | Din's Fire
-    SLOT_DEKU_STICK, SLOT_DEKU_NUT, SLOT_BOMB, SLOT_BOW, SLOT_ARROW_FIRE, VSLOT_DINS,
+    SLOT_DEKU_STICK,
+    SLOT_DEKU_NUT,
+    SLOT_BOMB,
+    SLOT_BOW,
+    SLOT_ARROW_FIRE,
+    VSLOT_DINS,
     // ROW 2: Slingshot(SW97) | Ocarina | Bombchu | Hookshot(claw wheel) | Ice Arrows | Farore's
-    VSLOT_SLINGSHOT, SLOT_OCARINA, SLOT_BOMBCHU, SLOT_HOOKSHOT, SLOT_ARROW_ICE, VSLOT_FARORES,
+    VSLOT_SLINGSHOT,
+    SLOT_OCARINA,
+    SLOT_BOMBCHU,
+    SLOT_HOOKSHOT,
+    SLOT_ARROW_ICE,
+    VSLOT_FARORES,
     // ROW 3: Boomerang | Lens | Beans | Hammer | Light Arrows | Nayru's(rocs wheel)
-    VSLOT_OOT_BOOMERANG, SLOT_LENS_OF_TRUTH, SLOT_MAGIC_BEANS, VSLOT_HAMMER, SLOT_ARROW_LIGHT, VSLOT_NAYRUS,
+    VSLOT_OOT_BOOMERANG,
+    SLOT_LENS_OF_TRUTH,
+    SLOT_MAGIC_BEANS,
+    VSLOT_HAMMER,
+    SLOT_ARROW_LIGHT,
+    VSLOT_NAYRUS,
     // ROW 4: Bottles A | Bottles B | Net | Bottomless | Trade wheel | OoT Masks
-    SLOT_BOTTLE_1, SLOT_BOTTLE_2, SLOT_BOTTLE_3, SLOT_BOTTLE_4, SLOT_TRADE_DEED, VSLOT_OOT_MASKS,
+    SLOT_BOTTLE_1,
+    SLOT_BOTTLE_2,
+    SLOT_BOTTLE_3,
+    SLOT_BOTTLE_4,
+    SLOT_TRADE_DEED,
+    VSLOT_OOT_MASKS,
 };
 
 int ExtInv_GetInventorySlot(int visualSlot) {
@@ -301,7 +321,7 @@ void OotMask_SetOwnedIndex(int index, uint8_t on) {
     if (on) {
         Nei_Save()->ootMasksOwned |= (uint16_t)(1u << index);
     } else {
-        Nei_Save()->ootMasksOwned &= (uint16_t)~(1u << index);
+        Nei_Save()->ootMasksOwned &= (uint16_t) ~(1u << index);
     }
 }
 
@@ -366,9 +386,8 @@ uint8_t OotMask_CellItem(void) {
 }
 
 uint8_t OotMask_NeighborCellItem(int dir) {
-    return (OotMask_NeighborIndex(dir) < 0)
-               ? ITEM_NONE
-               : (uint8_t)((dir < 0) ? ITEM_OOT_MASK_PREV : ITEM_OOT_MASK_NEXT);
+    return (OotMask_NeighborIndex(dir) < 0) ? ITEM_NONE
+                                            : (uint8_t)((dir < 0) ? ITEM_OOT_MASK_PREV : ITEM_OOT_MASK_NEXT);
 }
 
 const char* OotMask_IconPath(int index) {
@@ -383,12 +402,12 @@ void ExtInv_SetOotSlotItem(int slot, uint8_t itemId) {
     NeiSaveData* nei = Nei_Save();
     switch (slot) {
         case VSLOT_DINS:
-            nei->ootSpellsOwned = (itemId == ITEM_DINS_FIRE) ? (nei->ootSpellsOwned | 0x1)
-                                                             : (nei->ootSpellsOwned & ~0x1);
+            nei->ootSpellsOwned =
+                (itemId == ITEM_DINS_FIRE) ? (nei->ootSpellsOwned | 0x1) : (nei->ootSpellsOwned & ~0x1);
             break;
         case VSLOT_FARORES:
-            nei->ootSpellsOwned = (itemId == ITEM_FARORES_WIND) ? (nei->ootSpellsOwned | 0x2)
-                                                                : (nei->ootSpellsOwned & ~0x2);
+            nei->ootSpellsOwned =
+                (itemId == ITEM_FARORES_WIND) ? (nei->ootSpellsOwned | 0x2) : (nei->ootSpellsOwned & ~0x2);
             break;
         case VSLOT_NAYRUS:
             // Wheel writes flip the SELECTION only — never ownership. This used to OR in the
@@ -549,41 +568,41 @@ typedef struct {
 } CustomItemAsset;
 
 static const CustomItemAsset sCustomItemAssets[] = {
-    { ITEM_ROCS_FEATHER_SKIJER, (void*)gItemIconRocsFeatherTex,       (void*)gRocsFeatherNameTex },       // 0x9D
-    { ITEM_ROCS_CAPE,           (void*)gItemIconRocsCapeTex,          (void*)gRocsCapeNameTex },          // 0x9E
-    { ITEM_DESIRE_SENSOR,       (void*)gItemIconDesireSensorTex,      (void*)gDesireSensorNameTex },      // 0x9F
-    { ITEM_HYLIAS_GRACE,        (void*)gItemIconHyliaGraceTex,        (void*)gHyliaGraceNameTex },        // 0xA0
-    { ITEM_ZONAI_PERMAFROST,    (void*)gItemIconZonaiPermafrostTex,   (void*)gZonaiPermafrostNameTex },   // 0xA1
-    { ITEM_DEMISE_DESTRUCTION,  (void*)gItemIconDemiseDestructionTex, (void*)gDemiseDestructionNameTex }, // 0xA2
-    { ITEM_DEKU_LEAF,           (void*)gItemIconDekuLeafTex,          (void*)gDekuLeafNameTex },          // 0xA3
-    { ITEM_SWITCH_HOOK,         (void*)gItemIconSwitchHookTex,        (void*)gSwitchHookNameTex },        // 0xA4
-    { ITEM_MOGMA_MITTS,         (void*)gItemIconMogmaMittsTex,        (void*)gMogmaMittsNameTex },        // 0xA5
-    { ITEM_GUST_JAR,            (void*)gItemIconGustJarTex,           (void*)gGustJarNameTex },           // 0xA6
-    { ITEM_BALL_AND_CHAIN,      (void*)gItemIconBallAndChainTex,      (void*)gBallAndChainNameTex },      // 0xA7
-    { ITEM_WHIP,                (void*)gItemIconWhipTex,              (void*)gWhipNameTex },              // 0xA8
-    { ITEM_SPINNER,             (void*)gItemIconSpinnerTex,           (void*)gSpinnerNameTex },           // 0xA9
-    { ITEM_CANE_OF_SOMARIA,     (void*)gItemIconCaneOfSomariaTex,     (void*)gCaneOfSomariaNameTex },     // 0xAA
-    { ITEM_DOMINION_ROD,        (void*)gItemIconDominionRodTex,       (void*)gDominionRodNameTex },       // 0xAB
-    { ITEM_TIME_GATE,           (void*)gItemIconTimeGateTex,          (void*)gTimeGateNameTex },          // 0xAC
+    { ITEM_ROCS_FEATHER_SKIJER, (void*)gItemIconRocsFeatherTex, (void*)gRocsFeatherNameTex },            // 0x9D
+    { ITEM_ROCS_CAPE, (void*)gItemIconRocsCapeTex, (void*)gRocsCapeNameTex },                            // 0x9E
+    { ITEM_DESIRE_SENSOR, (void*)gItemIconDesireSensorTex, (void*)gDesireSensorNameTex },                // 0x9F
+    { ITEM_HYLIAS_GRACE, (void*)gItemIconHyliaGraceTex, (void*)gHyliaGraceNameTex },                     // 0xA0
+    { ITEM_ZONAI_PERMAFROST, (void*)gItemIconZonaiPermafrostTex, (void*)gZonaiPermafrostNameTex },       // 0xA1
+    { ITEM_DEMISE_DESTRUCTION, (void*)gItemIconDemiseDestructionTex, (void*)gDemiseDestructionNameTex }, // 0xA2
+    { ITEM_DEKU_LEAF, (void*)gItemIconDekuLeafTex, (void*)gDekuLeafNameTex },                            // 0xA3
+    { ITEM_SWITCH_HOOK, (void*)gItemIconSwitchHookTex, (void*)gSwitchHookNameTex },                      // 0xA4
+    { ITEM_MOGMA_MITTS, (void*)gItemIconMogmaMittsTex, (void*)gMogmaMittsNameTex },                      // 0xA5
+    { ITEM_GUST_JAR, (void*)gItemIconGustJarTex, (void*)gGustJarNameTex },                               // 0xA6
+    { ITEM_BALL_AND_CHAIN, (void*)gItemIconBallAndChainTex, (void*)gBallAndChainNameTex },               // 0xA7
+    { ITEM_WHIP, (void*)gItemIconWhipTex, (void*)gWhipNameTex },                                         // 0xA8
+    { ITEM_SPINNER, (void*)gItemIconSpinnerTex, (void*)gSpinnerNameTex },                                // 0xA9
+    { ITEM_CANE_OF_SOMARIA, (void*)gItemIconCaneOfSomariaTex, (void*)gCaneOfSomariaNameTex },            // 0xAA
+    { ITEM_DOMINION_ROD, (void*)gItemIconDominionRodTex, (void*)gDominionRodNameTex },                   // 0xAB
+    { ITEM_TIME_GATE, (void*)gItemIconTimeGateTex, (void*)gTimeGateNameTex },                            // 0xAC
     // Bomb Arrows keeps its icon/name row even though it owns no inventory cell any more: the
     // wheel's corner badge and the get-item textbox still look them up by item id.
-    { ITEM_BOMB_ARROWS,         (void*)gItemIconBombArrowsTex,        (void*)gBombArrowsNameTex },        // 0xAD
+    { ITEM_BOMB_ARROWS, (void*)gItemIconBombArrowsTex, (void*)gBombArrowsNameTex }, // 0xAD
     // Elemental Wand's icon/name are per-MODE, resolved in ExtInv_GetItemIcon /
     // ExtInv_GetCustomItemNameTex; this row is only the fallback.
-    { ITEM_ELEMENTAL_WAND,      (void*)gItemIconSandRodTex,           (void*)gSandRodNameTex },           // 0xD0
-    { ITEM_ROD_FIRE,            (void*)gItemIconFireRodTex,           (void*)gFireRodNameTex },           // 0xAE
-    { ITEM_ROD_ICE,             (void*)gItemIconIceRodTex,            (void*)gIceRodNameTex },            // 0xAF
-    { ITEM_ROD_LIGHT,           (void*)gItemIconLightRodTex,          (void*)gLightRodNameTex },          // 0xB0
-    { ITEM_BEETLE,              (void*)gItemIconBeetleTex,            (void*)gBeetleNameTex },            // 0xB1
-    { ITEM_SHOVEL,              (void*)gItemIconShovelTex,            (void*)gShovelNameTex },            // 0xB2
-    { ITEM_MINISH_CAP,          (void*)gItemIconMinishCapTex,         (void*)gMinishCapNameTex },         // 0xB3
+    { ITEM_ELEMENTAL_WAND, (void*)gItemIconSandRodTex, (void*)gSandRodNameTex }, // 0xD0
+    { ITEM_ROD_FIRE, (void*)gItemIconFireRodTex, (void*)gFireRodNameTex },       // 0xAE
+    { ITEM_ROD_ICE, (void*)gItemIconIceRodTex, (void*)gIceRodNameTex },          // 0xAF
+    { ITEM_ROD_LIGHT, (void*)gItemIconLightRodTex, (void*)gLightRodNameTex },    // 0xB0
+    { ITEM_BEETLE, (void*)gItemIconBeetleTex, (void*)gBeetleNameTex },           // 0xB1
+    { ITEM_SHOVEL, (void*)gItemIconShovelTex, (void*)gShovelNameTex },           // 0xB2
+    { ITEM_MINISH_CAP, (void*)gItemIconMinishCapTex, (void*)gMinishCapNameTex }, // 0xB3
     // Lantern: name texture is constant, but the icon is chosen dynamically by
     // fire type -> icon left NULL so the icon getter handles it below.
-    { ITEM_LANTERN,             NULL,                                 (void*)gLanternNameTex },           // 0xB4
-    { ITEM_POKEBALL,            (void*)gItemIconPokeballTex,          (void*)gPokeballNameTex },
+    { ITEM_LANTERN, NULL, (void*)gLanternNameTex }, // 0xB4
+    { ITEM_POKEBALL, (void*)gItemIconPokeballTex, (void*)gPokeballNameTex },
     // Bottle Randomizer extra items (Skijer's NEI). Net + Bottomless Bottle; SLOT_BOTTLE_3/4.
-    { ITEM_NET,                 (void*)gItemIconNetTex,               (void*)gNetNameTex },               // 0xF4
-    { ITEM_BOTTOMLESS_BOTTLE,   (void*)gItemIconBottomlessBottleTex,  (void*)gBottomlessBottleNameTex },  // 0xF5
+    { ITEM_NET, (void*)gItemIconNetTex, (void*)gNetNameTex },                                         // 0xF4
+    { ITEM_BOTTOMLESS_BOTTLE, (void*)gItemIconBottomlessBottleTex, (void*)gBottomlessBottleNameTex }, // 0xF5
 };
 
 static const CustomItemAsset* ExtInv_FindCustomItemAsset(uint16_t itemId) {
@@ -686,15 +705,32 @@ void* ExtInv_GetCustomItemNameTex(uint16_t itemId, uint8_t language) {
         extern u8 ResourceMgr_FileExists(const char* resName);
         const char* ootPath = NULL;
         switch (itemId) {
-            case ITEM_DINS_FIRE:       ootPath = "__OTR__textures/item_name_static/gDinsFireItemNameENGTex"; break;
-            case ITEM_FARORES_WIND:    ootPath = "__OTR__textures/item_name_static/gFaroresWindItemNameENGTex"; break;
-            case ITEM_NAYRUS_LOVE:     ootPath = "__OTR__textures/item_name_static/gNayrusLoveItemNameENGTex"; break;
-            case ITEM_FAIRY_SLINGSHOT: ootPath = "__OTR__textures/item_name_static/gFairySlingshotItemNameENGTex"; break;
-            case ITEM_HOOKSHOT_OOT:    ootPath = "__OTR__textures/item_name_static/gHookshotItemNameENGTex"; break;
-            case ITEM_LONGSHOT_OOT:    ootPath = "__OTR__textures/item_name_static/gLongshotItemNameENGTex"; break;
-            case ITEM_BOOMERANG:       ootPath = "__OTR__textures/item_name_static/gBoomerangItemNameENGTex"; break;
-            case ITEM_HAMMER:          ootPath = "__OTR__textures/item_name_static/gMegatonHammerItemNameENGTex"; break;
-            default: break;
+            case ITEM_DINS_FIRE:
+                ootPath = "__OTR__textures/item_name_static/gDinsFireItemNameENGTex";
+                break;
+            case ITEM_FARORES_WIND:
+                ootPath = "__OTR__textures/item_name_static/gFaroresWindItemNameENGTex";
+                break;
+            case ITEM_NAYRUS_LOVE:
+                ootPath = "__OTR__textures/item_name_static/gNayrusLoveItemNameENGTex";
+                break;
+            case ITEM_FAIRY_SLINGSHOT:
+                ootPath = "__OTR__textures/item_name_static/gFairySlingshotItemNameENGTex";
+                break;
+            case ITEM_HOOKSHOT_OOT:
+                ootPath = "__OTR__textures/item_name_static/gHookshotItemNameENGTex";
+                break;
+            case ITEM_LONGSHOT_OOT:
+                ootPath = "__OTR__textures/item_name_static/gLongshotItemNameENGTex";
+                break;
+            case ITEM_BOOMERANG:
+                ootPath = "__OTR__textures/item_name_static/gBoomerangItemNameENGTex";
+                break;
+            case ITEM_HAMMER:
+                ootPath = "__OTR__textures/item_name_static/gMegatonHammerItemNameENGTex";
+                break;
+            default:
+                break;
         }
         if (ootPath != NULL && ResourceMgr_FileExists(ootPath)) {
             return (void*)ootPath;
@@ -721,11 +757,16 @@ extern const char* MmAssets_GetChateauIconPath(void);
 // 3 = Fire Flower. Used by the corner power-up HUD draw in z_parameter.c.
 void* ExtInv_GetCapIcon(uint8_t cap) {
     switch (cap) {
-        case 0: return (void*)gItemIconVanishCapTex;
-        case 1: return (void*)gItemIconMetalCapTex;
-        case 2: return (void*)gItemIconWingCapTex;
-        case 3: return (void*)gItemIconFireFlowerTex;
-        default: return NULL;
+        case 0:
+            return (void*)gItemIconVanishCapTex;
+        case 1:
+            return (void*)gItemIconMetalCapTex;
+        case 2:
+            return (void*)gItemIconWingCapTex;
+        case 3:
+            return (void*)gItemIconFireFlowerTex;
+        default:
+            return NULL;
     }
 }
 
@@ -754,9 +795,8 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
 
     // OoT child-trade mask wheel — same three-marker scheme (cell / prev / next).
     if (itemId == ITEM_OOT_MASK_PLACEHOLDER || itemId == ITEM_OOT_MASK_PREV || itemId == ITEM_OOT_MASK_NEXT) {
-        int mi = (itemId == ITEM_OOT_MASK_PLACEHOLDER)
-                     ? OotMask_CursorIndex()
-                     : OotMask_NeighborIndex(itemId == ITEM_OOT_MASK_PREV ? -1 : 1);
+        int mi = (itemId == ITEM_OOT_MASK_PLACEHOLDER) ? OotMask_CursorIndex()
+                                                       : OotMask_NeighborIndex(itemId == ITEM_OOT_MASK_PREV ? -1 : 1);
         const char* maskPath = OotMask_IconPath(mi);
         if (maskPath != NULL && ResourceMgr_FileExists(maskPath)) {
             return (void*)maskPath;
@@ -789,16 +829,35 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
         extern u8 ResourceMgr_FileExists(const char* resName);
         const char* ootPath = NULL;
         switch (itemId) {
-            case ITEM_DINS_FIRE:       ootPath = "__OTR__textures/icon_item_static/gItemIconDinsFireTex"; break;
-            case ITEM_FARORES_WIND:    ootPath = "__OTR__textures/icon_item_static/gItemIconFaroresWindTex"; break;
-            case ITEM_NAYRUS_LOVE:     ootPath = "__OTR__textures/icon_item_static/gItemIconNayrusLoveTex"; break;
-            case ITEM_FAIRY_SLINGSHOT: ootPath = "__OTR__textures/icon_item_static/gItemIconSlingshotTex"; break;
-            case ITEM_HOOKSHOT_OOT:    ootPath = "__OTR__textures/icon_item_static/gItemIconHookshotTex"; break;
-            case ITEM_LONGSHOT_OOT:    ootPath = "__OTR__textures/icon_item_static/gItemIconLongshotTex"; break;
-            case ITEM_BOOMERANG:       ootPath = "__OTR__textures/icon_item_static/gItemIconBoomerangTex"; break;
-            case ITEM_HAMMER:          ootPath = "__OTR__textures/icon_item_static/gItemIconHammerTex"; break;
-            case ITEM_ROCS_FEATHER:    ootPath = "__OTR__textures/icon_item_static/gRocsFeatherTex"; break; // ship-vanilla art (baked)
-            default: break;
+            case ITEM_DINS_FIRE:
+                ootPath = "__OTR__textures/icon_item_static/gItemIconDinsFireTex";
+                break;
+            case ITEM_FARORES_WIND:
+                ootPath = "__OTR__textures/icon_item_static/gItemIconFaroresWindTex";
+                break;
+            case ITEM_NAYRUS_LOVE:
+                ootPath = "__OTR__textures/icon_item_static/gItemIconNayrusLoveTex";
+                break;
+            case ITEM_FAIRY_SLINGSHOT:
+                ootPath = "__OTR__textures/icon_item_static/gItemIconSlingshotTex";
+                break;
+            case ITEM_HOOKSHOT_OOT:
+                ootPath = "__OTR__textures/icon_item_static/gItemIconHookshotTex";
+                break;
+            case ITEM_LONGSHOT_OOT:
+                ootPath = "__OTR__textures/icon_item_static/gItemIconLongshotTex";
+                break;
+            case ITEM_BOOMERANG:
+                ootPath = "__OTR__textures/icon_item_static/gItemIconBoomerangTex";
+                break;
+            case ITEM_HAMMER:
+                ootPath = "__OTR__textures/icon_item_static/gItemIconHammerTex";
+                break;
+            case ITEM_ROCS_FEATHER:
+                ootPath = "__OTR__textures/icon_item_static/gRocsFeatherTex";
+                break; // ship-vanilla art (baked)
+            default:
+                break;
         }
         if (ootPath != NULL && ResourceMgr_FileExists(ootPath)) {
             return (void*)ootPath;
@@ -885,7 +944,7 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
     if (itemId == ITEM_SWORD_KOKIRI && WeaponUpgrade_KokiriLevel() >= 1) {
         u8 showGilded = WeaponUpgrade_HasGilded() && CVarGetInteger("gEnhancements.SkijerNEI.GildedUsesGildedLook", 1);
         void* up = MmAssets_LoadResource(showGilded ? "__OTR__icon_item_static_yar/gItemIconGildedSwordTex"
-                                                     : "__OTR__icon_item_static_yar/gItemIconRazorSwordTex");
+                                                    : "__OTR__icon_item_static_yar/gItemIconRazorSwordTex");
         if (up)
             return up;
     }
@@ -958,15 +1017,24 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
     // gItemIconChateauRomaniTex; Magic Mushroom 0xDD keeps its own.) Skijer's NEI
     {
         void* t = NULL;
-        if (itemId == ITEM_GOLD_DUST)             t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledGoldDustTex");
-        else if (itemId == ITEM_HOT_SPRING_WATER) t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconHotSpringWaterTex");
-        else if (itemId == ITEM_DEKU_PRINCESS)    t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledDekuPrincessTex");
-        else if (itemId == ITEM_SEAHORSE)         t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledSeahorseTex");
-        else if (itemId == ITEM_SPRING_WATER)     t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconSpringWaterTex");
-        else if (itemId == ITEM_ZORA_EGG)         t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledZoraEggTex");
-        else if (itemId == ITEM_HYLIAN_LOACH)     t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledHylianLoachTex");
-        else if (itemId == ITEM_OBABA_DRINK)      t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconEmptyBottle2Tex");
-        if (t) return t;
+        if (itemId == ITEM_GOLD_DUST)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledGoldDustTex");
+        else if (itemId == ITEM_HOT_SPRING_WATER)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconHotSpringWaterTex");
+        else if (itemId == ITEM_DEKU_PRINCESS)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledDekuPrincessTex");
+        else if (itemId == ITEM_SEAHORSE)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledSeahorseTex");
+        else if (itemId == ITEM_SPRING_WATER)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconSpringWaterTex");
+        else if (itemId == ITEM_ZORA_EGG)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledZoraEggTex");
+        else if (itemId == ITEM_HYLIAN_LOACH)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconBottledHylianLoachTex");
+        else if (itemId == ITEM_OBABA_DRINK)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconEmptyBottle2Tex");
+        if (t)
+            return t;
     }
 
     // MM adult trade-quest items (Skijer's NEI) — shown in the SLOT_TRADE_ADULT 2D-grid wheel. Icons
@@ -974,15 +1042,24 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
     // from the ext-equipment block below. Special Delivery to Mama reuses MM's "Letter to Mama" icon.
     {
         void* t = NULL;
-        if (itemId == ITEM_MM_MOONS_TEAR)            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconMoonsTearTex");
-        else if (itemId == ITEM_MM_DEED_LAND)        t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconLandDeedTex");
-        else if (itemId == ITEM_MM_DEED_SWAMP)       t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconSwampDeedTex");
-        else if (itemId == ITEM_MM_DEED_MOUNTAIN)    t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconMountainDeedTex");
-        else if (itemId == ITEM_MM_DEED_OCEAN)       t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconOceanDeedTex");
-        else if (itemId == ITEM_MM_ROOM_KEY)         t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconRoomKeyTex");
-        else if (itemId == ITEM_MM_LETTER_KAFEI)     t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconLetterToKafeiTex");
-        else if (itemId == ITEM_MM_SPECIAL_DELIVERY) t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconLetterToMamaTex");
-        if (t) return t;
+        if (itemId == ITEM_MM_MOONS_TEAR)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconMoonsTearTex");
+        else if (itemId == ITEM_MM_DEED_LAND)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconLandDeedTex");
+        else if (itemId == ITEM_MM_DEED_SWAMP)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconSwampDeedTex");
+        else if (itemId == ITEM_MM_DEED_MOUNTAIN)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconMountainDeedTex");
+        else if (itemId == ITEM_MM_DEED_OCEAN)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconOceanDeedTex");
+        else if (itemId == ITEM_MM_ROOM_KEY)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconRoomKeyTex");
+        else if (itemId == ITEM_MM_LETTER_KAFEI)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconLetterToKafeiTex");
+        else if (itemId == ITEM_MM_SPECIAL_DELIVERY)
+            t = MmAssets_LoadResource("__OTR__icon_item_static_yar/gItemIconLetterToMamaTex");
+        if (t)
+            return t;
     }
 
     if (itemId < 156) {
@@ -1032,12 +1109,18 @@ void* ExtInv_GetItemIcon(uint16_t itemId) {
         // Prop Hunt button icons (0xD7-0xDC). Shown only while a hider is
         // in "prop mode" — the C-buttons + D-pad display these cycling/
         // category hints instead of vanilla item art.
-        case ITEM_PH_ICON_POT:    return (void*)gItemIconPropHuntPotTex;
-        case ITEM_PH_ICON_ENEMY:  return (void*)gItemIconPropHuntEnemyTex;
-        case ITEM_PH_ICON_NPC:    return (void*)gItemIconPropHuntNpcTex;
-        case ITEM_PH_ICON_CHANGE: return (void*)gItemIconPropHuntChangeTex;
-        case ITEM_PH_ICON_PREV:   return (void*)gItemIconPropHuntPrevTex;
-        case ITEM_PH_ICON_NEXT:   return (void*)gItemIconPropHuntNextTex;
+        case ITEM_PH_ICON_POT:
+            return (void*)gItemIconPropHuntPotTex;
+        case ITEM_PH_ICON_ENEMY:
+            return (void*)gItemIconPropHuntEnemyTex;
+        case ITEM_PH_ICON_NPC:
+            return (void*)gItemIconPropHuntNpcTex;
+        case ITEM_PH_ICON_CHANGE:
+            return (void*)gItemIconPropHuntChangeTex;
+        case ITEM_PH_ICON_PREV:
+            return (void*)gItemIconPropHuntPrevTex;
+        case ITEM_PH_ICON_NEXT:
+            return (void*)gItemIconPropHuntNextTex;
 
         case ITEM_LANTERN: { // 0xB4
             extern u8 Lantern_GetFireType(void);
@@ -1296,6 +1379,26 @@ void Sw97_RefreshButtonIcons(PlayState* play) {
         uint8_t item = BUTTON_ITEM_EQUIP(0, i);
         if (Sw97_IsBowItem(item) || Sw97_IsSlingItem(item)) {
             Interface_LoadItemIconImpl(play, (u8)i);
+        }
+    }
+}
+
+// Same iconItemSegment caching, generalized: any button (C or D-pad) holding `itemId` gets its icon
+// re-resolved. For the mode-following items (Elemental Wand rods, Sheikah Slate runes) whose icon
+// changes without the button item ever changing.
+void ExtInv_RefreshButtonIconsForItem(PlayState* play, uint16_t itemId) {
+    void Interface_LoadItemIconImpl(PlayState * play, u8 btn);
+    void Interface_Dpad_LoadItemIconImpl(PlayState * play, u8 btn);
+    for (int32_t i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
+        uint8_t it = GET_CUR_FORM_BTN_ITEM(i);
+        uint16_t eff = (it == ITEM_EXT_BUTTON) ? EXT_BUTTON_ITEM(0, i) : it; // u16 items park a marker
+        if (eff == itemId) {
+            Interface_LoadItemIconImpl(play, (u8)i);
+        }
+    }
+    for (int32_t i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++) {
+        if (DPAD_GET_CUR_FORM_BTN_ITEM(i) == itemId) { // D-pad has no EXT-marker slots
+            Interface_Dpad_LoadItemIconImpl(play, (u8)i);
         }
     }
 }

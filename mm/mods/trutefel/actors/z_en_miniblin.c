@@ -30,7 +30,7 @@
 extern u8 ResourceMgr_FileExists(const char* resName);
 
 // z-targetable, hostile, update outside cull zone, hookshot pulls the actor (OoT FLAG_0|2|4|9)
-#define MINIBLIN_FLAGS \
+#define MINIBLIN_FLAGS                                                                        \
     (ACTOR_FLAG_ATTENTION_ENABLED | ACTOR_FLAG_HOSTILE | ACTOR_FLAG_UPDATE_CULLING_DISABLED | \
      ACTOR_FLAG_HOOKSHOT_PULLS_ACTOR)
 
@@ -408,10 +408,10 @@ void EnMiniblin_CheckDamage(EnMiniblin* self, PlayState* play) {
 }
 
 void EnMiniblin_UpdateBgCheck(EnMiniblin* self, PlayState* play) {
-    Actor_UpdateBgCheckInfo(play, &self->actor, self->actor.colChkInfo.cylHeight, self->actor.colChkInfo.cylRadius,
-                            self->actor.colChkInfo.cylHeight,
-                            (UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_8 |
-                             UPDBGCHECKINFO_FLAG_10));
+    Actor_UpdateBgCheckInfo(
+        play, &self->actor, self->actor.colChkInfo.cylHeight, self->actor.colChkInfo.cylRadius,
+        self->actor.colChkInfo.cylHeight,
+        (UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_8 | UPDBGCHECKINFO_FLAG_10));
 }
 
 void EnMiniblin_SetupDoNothing(EnMiniblin* self, PlayState* play) {

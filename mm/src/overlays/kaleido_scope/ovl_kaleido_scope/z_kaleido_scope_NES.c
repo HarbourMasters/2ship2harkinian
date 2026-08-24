@@ -930,7 +930,8 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
             MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gfxCtx);
 
-            POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx, KaleidoNei_GetQuestPageBgTextures());
+            POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx,
+                                                          KaleidoNei_GetQuestPageBgTextures());
 
             GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_QUEST);
             KaleidoScope_DrawQuestStatus(play);
@@ -954,7 +955,8 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
             MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gfxCtx);
 
-            POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx, KaleidoNei_GetMaskPageBgTextures());
+            POLY_OPA_DISP =
+                KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx, KaleidoNei_GetMaskPageBgTextures());
 
             GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_MASK);
             KaleidoScope_DrawEquipment(play); // NEI: was KaleidoScope_DrawMaskSelect
@@ -1054,8 +1056,8 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
                 MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gfxCtx);
 
-                POLY_OPA_DISP =
-                    KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx, KaleidoNei_GetQuestPageBgTextures());
+                POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx,
+                                                              KaleidoNei_GetQuestPageBgTextures());
 
                 GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, pauseCtx->pageIndex);
                 KaleidoScope_DrawQuestStatus(play);
@@ -1077,8 +1079,8 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
                 MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gfxCtx);
 
-                POLY_OPA_DISP =
-                    KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx, KaleidoNei_GetMaskPageBgTextures());
+                POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx,
+                                                              KaleidoNei_GetMaskPageBgTextures());
 
                 GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, pauseCtx->pageIndex);
                 KaleidoScope_DrawEquipment(play); // NEI: was KaleidoScope_DrawMaskSelect
@@ -3127,7 +3129,7 @@ void KaleidoScope_UpdateCursorSize(PlayState* play) {
                 // KaleidoScope_DrawCursor, so nothing stomps it afterwards.
                 {
                     f32 upgradeCursorX;
-                    extern s32 KaleidoEquip_GetUpgradeCursorX(f32* outX);
+                    extern s32 KaleidoEquip_GetUpgradeCursorX(f32 * outX);
 
                     if (KaleidoEquip_GetUpgradeCursorX(&upgradeCursorX)) {
                         pauseCtx->cursorX = upgradeCursorX;

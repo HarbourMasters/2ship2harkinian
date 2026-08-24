@@ -378,7 +378,9 @@ void PikaCompanion_Update(PikachuCompanion* comp, PlayState* play, Player* playe
                         radius = 30;
                         height = 30;
                         damage = 4;
-                        dmgFlags = DMG_ZORA_BOOMERANG | DMG_SWORD; // 2ship: DMG_BOOMERANG(1<<4)->DMG_ZORA_BOOMERANG, DMG_SLASH_MASTER->DMG_SWORD
+                        dmgFlags =
+                            DMG_ZORA_BOOMERANG |
+                            DMG_SWORD; // 2ship: DMG_BOOMERANG(1<<4)->DMG_ZORA_BOOMERANG, DMG_SLASH_MASTER->DMG_SWORD
                         break;
                     case PCOMP_ATK_THUNDER_JOLT:
                         radius = 25;
@@ -390,13 +392,16 @@ void PikaCompanion_Update(PikachuCompanion* comp, PlayState* play, Player* playe
                         radius = 80;
                         height = 100;
                         damage = 8;
-                        dmgFlags = DMG_LIGHT_ARROW; // 2ship: DMG_MAGIC_LIGHT->DMG_LIGHT_ARROW, DMG_ARROW_LIGHT(1<<0xD)==DMG_LIGHT_ARROW (same bit; merged)
+                        dmgFlags = DMG_LIGHT_ARROW; // 2ship: DMG_MAGIC_LIGHT->DMG_LIGHT_ARROW,
+                                                    // DMG_ARROW_LIGHT(1<<0xD)==DMG_LIGHT_ARROW (same bit; merged)
                         break;
                     case PCOMP_ATK_GMAX_CRASH:
                         radius = 100;
                         height = 100;
                         damage = 8;
-                        dmgFlags = DMG_UNBLOCKABLE | DMG_SWORD | DMG_ZORA_BOOMERANG | DMG_LIGHT_ARROW; // 2ship: SLASH_MASTER->SWORD, BOOMERANG->ZORA_BOOMERANG, ARROW_LIGHT->LIGHT_ARROW
+                        dmgFlags = DMG_UNBLOCKABLE | DMG_SWORD | DMG_ZORA_BOOMERANG |
+                                   DMG_LIGHT_ARROW; // 2ship: SLASH_MASTER->SWORD, BOOMERANG->ZORA_BOOMERANG,
+                                                    // ARROW_LIGHT->LIGHT_ARROW
                         break;
                 }
 

@@ -32,7 +32,7 @@
 extern u8 ResourceMgr_FileExists(const char* resName);
 
 // z-targetable, hostile, update + draw outside cull zone (OoT FLAG_0|2|4|5)
-#define HAMMERGEIST_FLAGS \
+#define HAMMERGEIST_FLAGS                                                                     \
     (ACTOR_FLAG_ATTENTION_ENABLED | ACTOR_FLAG_HOSTILE | ACTOR_FLAG_UPDATE_CULLING_DISABLED | \
      ACTOR_FLAG_DRAW_CULLING_DISABLED)
 
@@ -420,7 +420,7 @@ void EnHammergeist_UpdateCollision(EnHammergeist* self, PlayState* play) {
 void EnHammergeist_UpdateHammerCollider(EnHammergeist* self, PlayState* play) {
     // MM player hit effects: 1 = fire, 2 = freeze (verified against z_en_firefly.c) — same
     // values the OoT original used. The infused hammers just hit harder + carry the effect.
-    if (self->leftHammerInfused) { // More damage and ice effect
+    if (self->leftHammerInfused) {                          // More damage and ice effect
         self->hammerLeftCollider.elem.atDmgInfo.effect = 2; // Ice
         self->hammerLeftCollider.elem.atDmgInfo.damage = 0x18;
     } else {
@@ -428,7 +428,7 @@ void EnHammergeist_UpdateHammerCollider(EnHammergeist* self, PlayState* play) {
         self->hammerLeftCollider.elem.atDmgInfo.damage = 0x10;
     }
 
-    if (self->rightHammerInfused) { // More damage and fire effect
+    if (self->rightHammerInfused) {                          // More damage and fire effect
         self->hammerRightCollider.elem.atDmgInfo.effect = 1; // Fire
         self->hammerRightCollider.elem.atDmgInfo.damage = 0x18;
     } else {
@@ -695,10 +695,10 @@ void EnHammergeist_DeadPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList,
 }
 
 void EnHammergeist_UpdateBgCheck(EnHammergeist* self, PlayState* play) {
-    Actor_UpdateBgCheckInfo(play, &self->actor, self->actor.colChkInfo.cylHeight, self->actor.colChkInfo.cylRadius,
-                            self->actor.colChkInfo.cylHeight,
-                            (UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_8 |
-                             UPDBGCHECKINFO_FLAG_10));
+    Actor_UpdateBgCheckInfo(
+        play, &self->actor, self->actor.colChkInfo.cylHeight, self->actor.colChkInfo.cylRadius,
+        self->actor.colChkInfo.cylHeight,
+        (UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_8 | UPDBGCHECKINFO_FLAG_10));
 }
 
 // Move towards Link, stand still if right infront of him

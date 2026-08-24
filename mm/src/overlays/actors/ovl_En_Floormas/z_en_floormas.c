@@ -693,9 +693,8 @@ void func_808D2040(EnFloormas* this, PlayState* play) {
         this->actor.speed = 0.0f;
         Actor_PlaySfx(&this->actor, NA_SE_EN_FLOORMASTER_SM_LAND);
         func_808D1740(this);
-    } else if (GameInteractor_Should(VB_ENEMY_GRAB_PLAYER, true, this) &&
-               (this->actor.playerHeightRel < -10.0f) && (this->collider.base.ocFlags1 & OC1_HIT) &&
-               (&player->actor == this->collider.base.oc)) {
+    } else if (GameInteractor_Should(VB_ENEMY_GRAB_PLAYER, true, this) && (this->actor.playerHeightRel < -10.0f) &&
+               (this->collider.base.ocFlags1 & OC1_HIT) && (&player->actor == this->collider.base.oc)) {
         play->grabPlayer(play, player);
         func_808D217C(this, player);
     }

@@ -182,9 +182,7 @@ OTRGlobals::OTRGlobals() {
         BTN_CUSTOM_OCARINA_PITCH_DOWN,
     }));
     context->InitControlDeck(controlDeck);
-    {
-        context->InitResourceManager({ portArchivePath }, {}, 3, true);
-    }
+    { context->InitResourceManager({ portArchivePath }, {}, 3, true); }
     context->InitConsole();
 
 #ifdef _WIN32
@@ -944,8 +942,7 @@ void OTRAudio_Thread() {
         // already holds the FULL mix (BGM + fanfare + ambience + SFX + SM64), so zeroing the used
         // span here mutes everything without stopping any sequence (positions keep advancing).
         if (gFscAudioMuted.load(std::memory_order_relaxed)) {
-            memset(audio_buffer, 0,
-                   num_audio_samples * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE * sizeof(int16_t));
+            memset(audio_buffer, 0, num_audio_samples * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE * sizeof(int16_t));
         }
 
         AudioPlayer_Play((u8*)audio_buffer,
@@ -1070,14 +1067,33 @@ extern "C" void InitOTR(int argc, char* argv[]) {
     sFleetArgv = argv;
     OTRGlobals::Instance = new OTRGlobals();
 
-    // Fleet Ship Combo child: hide our window NOW (right after it was created in the ctor),
-    // before the extractor/boot run, so only Ship's single window is ever visible.
-    if (FleetShipCombo_GetActiveGame() >= 0) {
-        FleetShipCombo_HideGuestWindow();
-    }
     FleetShipCombo_ProvisionO2rBothDirs(); // pull a sibling-extracted o2r in BEFORE the presence check
+
+    // Fleet Ship Combo child: hide our window NOW (right after it was created in the ctor),
+    // before the extractor/boot run, so only Ship's single window is ever visible — BUT ONLY when
+    // mm.o2r is already there and matches this build. Otherwise RunExtract is about to ask "No O2R
+    // Files - Generate one now?" (or "outdated -> re-extract"), and hiding first parks that popup at
+    // -32000,-32000 where nobody can see or click it: MM never comes up, the combo looks dead. So the
+    // extractor stays visible and we hide right after it (below).
+    const bool hostedChild = FleetShipCombo_GetActiveGame() >= 0;
+    bool hidden = false;
+    if (hostedChild && FleetShipCombo_HaveValidMmArchive()) {
+        FleetShipCombo_HideGuestWindow();
+        hidden = true;
+    }
     OTRGlobals::Instance->RunExtract(argc, argv);
+    if (hostedChild && !hidden) {
+        FleetShipCombo_HideGuestWindow(); // extractor done (visible); now behave as the hidden child
+    }
     FleetShipCombo_ProvisionO2rBothDirs(); // push our freshly-extracted o2r out to the sibling dir
+
+    // `2ship.exe --fleet-extract` (Ship's MM archive gate): our only job was the extractor above.
+    // Ship is waiting on this process; the mirror just pushed mm.o2r next to soh.exe. Done.
+    if (FleetShipCombo_IsExtractOnly()) {
+        SPDLOG_INFO("[FleetShipCombo] --fleet-extract finished (mm.o2r valid here = {}); exiting.",
+                    FleetShipCombo_HaveValidMmArchive());
+        exit(0);
+    }
 
     OTRGlobals::Instance->Initialize();
 
@@ -1306,11 +1322,16 @@ void RunCommands(Gfx* Commands, int time, int step, int denom, int count) {
     // becomes active again. (Standalone: IsThisGameActive() is always true, so this never
     // triggers.)
     static Gfx sFleetEmptyDL[] = { gsSPEndDisplayList() };
-    if (!FleetShipCombo_IsThisGameActive() && FleetShipCombo_GetUiFocus() != 1) {
+    bool fleetRealGameFrame = true; // false once the game's display list is replaced by an empty one
+    // Parked in the waiting room the inactive game DRAWS normally (a running scene always has a
+    // fresh framebuffer, and viewers of both windows see Link waiting); the empty-DL gate is only
+    // for an inactive game that could not be parked.
+    if (FleetShipCombo_IsGameSuspended() && FleetShipCombo_GetUiFocus() != 1) {
         if (!CVarGetInteger("gFleetShipCombo.UiOverlay", 1)) {
             return;
         }
         Commands = sFleetEmptyDL;
+        fleetRealGameFrame = false;
     }
 
     // Fleet arrival blackout: while warping IN, paint black (empty DL) so this game's stale frame and
@@ -1318,6 +1339,7 @@ void RunCommands(Gfx* Commands, int time, int step, int denom, int count) {
     // Unlike the gate above we do NOT return -> a black frame is still drawn + published to the PiP.
     if (FleetShipCombo_ArrivalBlackoutActive()) {
         Commands = sFleetEmptyDL;
+        fleetRealGameFrame = false;
     }
 
     auto intp = wnd->GetInterpreterWeak().lock().get();
@@ -1335,6 +1357,15 @@ void RunCommands(Gfx* Commands, int time, int step, int denom, int count) {
         intp->mInterpolationIndex++;
     }
     ImGui::PopStyleColor();
+
+    // The game display list really went through the interpreter this frame, so the renderer just
+    // wrote a FRESH framebuffer view — the only condition under which the producer may read it.
+    // An empty display list does not qualify: the renderer leaves the previous frame's handle in
+    // place, and that one may already have been freed by a resize. See
+    // FleetShipCombo_MarkGameFrameRendered.
+    if (fleetRealGameFrame) {
+        FleetShipCombo_MarkGameFrameRendered();
+    }
 }
 
 // C->C++ Bridge
@@ -1417,11 +1448,8 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
         // vector, which RunCommands builds per sub-frame internally.
         RunCommands(commands, start_time, step, next_original_frame, count);
     } catch (const std::exception& e) {
-        SPDLOG_ERROR("[FrameGuard] render/frame threw: {} — frame skipped (would have terminated 2ship)",
-                     e.what());
-    } catch (...) {
-        SPDLOG_ERROR("[FrameGuard] render/frame threw a non-std exception — frame skipped");
-    }
+        SPDLOG_ERROR("[FrameGuard] render/frame threw: {} — frame skipped (would have terminated 2ship)", e.what());
+    } catch (...) { SPDLOG_ERROR("[FrameGuard] render/frame threw a non-std exception — frame skipped"); }
     FleetSync_PostFlipTrace("7. render: RunCommands done");
 
     // Host-death watchdog must run EVERY frame, independent of the render gating below: an
@@ -1739,6 +1767,121 @@ extern "C" PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeader(const char*
     return &wrapper;
 }
 
+// ---------------------------------------------------------------------------
+// Player animations, REWRITTEN: root frozen, sub-ranged, and/or resampled.
+//
+// Port of SoH's ResourceMgr_LoadPlayerAnimAsHeaderInPlaceRange (ResourceManagerHelpers.cpp:471).
+// The payload format is identical between the two games — PLAYER_LIMB_MAX is 0x16 on
+// both, so a frame is the same 67 s16 — which is what lets a clip authored for one
+// play on the other.
+//
+// Three things it does, all needed by the imported movesets:
+//   · stripY / root freeze: a clip that carries its own root translation would
+//     TELEPORT the player, because the engine owns the movement. Every frame's root
+//     is pinned to frame 0's.
+//   · sub-range: one packed clip cut into several engine rows (a long guard idle
+//     gives both the raise and the hold).
+//   · resample: OOT/MM locomotion is not played back, it is SAMPLED at fixed frame
+//     ratios, so those rows must be an exact length or the stride desyncs.
+//
+// Nearest-frame resampling on purpose: these are packed s16 angles and interpolating
+// them would smear anything crossing the +-180 wrap. Cached by path AND parameters,
+// so the returned pointer stays valid for the session. Skijer's NEI
+// ---------------------------------------------------------------------------
+extern "C" PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeaderInPlaceRange(const char* animPath, uint8_t stripY,
+                                                                                 int16_t firstFrame, int16_t lastFrame,
+                                                                                 int16_t targetFrames) {
+    if (animPath == nullptr) {
+        return nullptr;
+    }
+    auto res = GetResourceByName(animPath);
+    if (res == nullptr) {
+        return nullptr;
+    }
+    if (res->GetInitData()->Type != static_cast<uint32_t>(SOH::ResourceType::SOH_PlayerAnimation)) {
+        return nullptr;
+    }
+    auto playerAnim = std::static_pointer_cast<SOH::PlayerAnimation>(res);
+    if (playerAnim == nullptr || playerAnim->GetPointer() == nullptr || playerAnim->GetPointerSize() == 0) {
+        return nullptr;
+    }
+
+    constexpr size_t kS16PerFrame = 67; // sizeof(Vec3s) * PLAYER_LIMB_MAX + 2
+
+    struct InPlaceAnim {
+        PlayerAnimationHeader header;
+        std::vector<int16_t> data;
+    };
+    static std::unordered_map<std::string, InPlaceAnim> sInPlaceAnims;
+
+    // Keyed by path AND every parameter: the same clip is legitimately wanted at
+    // several lengths and ranges at once (walk wants 29 frames, run wants 20).
+    const std::string key = std::string(animPath) + (stripY ? "#xyz" : "#xz") + "#" + std::to_string(targetFrames) +
+                            "#" + std::to_string(firstFrame) + "-" + std::to_string(lastFrame);
+    auto it = sInPlaceAnims.find(key);
+    if (it != sInPlaceAnims.end()) {
+        return &it->second.header;
+    }
+
+    const size_t totalS16 = playerAnim->GetPointerSize() / sizeof(int16_t);
+    const size_t clipFrames = totalS16 / kS16PerFrame;
+    if (clipFrames == 0) {
+        return nullptr;
+    }
+
+    // Clamp the requested range into the clip. A range entirely past the end collapses
+    // to the last frame rather than returning null, so a mistyped window shows a frozen
+    // pose instead of silently reverting the row to vanilla.
+    size_t rangeBegin = (firstFrame > 0) ? (size_t)firstFrame : 0;
+    if (rangeBegin >= clipFrames) {
+        rangeBegin = clipFrames - 1;
+    }
+    size_t rangeEnd = ((lastFrame >= 0) && ((size_t)lastFrame < clipFrames)) ? (size_t)lastFrame : (clipFrames - 1);
+    if (rangeEnd < rangeBegin) {
+        rangeEnd = rangeBegin;
+    }
+    const size_t frameCount = rangeEnd - rangeBegin + 1;
+
+    InPlaceAnim& entry = sInPlaceAnims[key];
+    const int16_t* src = (const int16_t*)playerAnim->GetPointer() + (rangeBegin * kS16PerFrame);
+
+    const size_t outFrames = (targetFrames > 0) ? (size_t)targetFrames : frameCount;
+    entry.data.resize(outFrames * kS16PerFrame);
+    for (size_t f = 0; f < outFrames; ++f) {
+        size_t srcFrame = (outFrames == frameCount) ? f : ((f * frameCount) / outFrames);
+        if (srcFrame >= frameCount) {
+            srcFrame = frameCount - 1;
+        }
+        std::copy(src + (srcFrame * kS16PerFrame), src + ((srcFrame + 1) * kS16PerFrame),
+                  entry.data.begin() + (f * kS16PerFrame));
+    }
+
+    const int16_t baseX = entry.data[0];
+    const int16_t baseY = entry.data[1];
+    const int16_t baseZ = entry.data[2];
+    for (size_t f = 0; f < outFrames; ++f) {
+        int16_t* frame = &entry.data[f * kS16PerFrame];
+        frame[0] = baseX;
+        frame[2] = baseZ;
+        if (stripY) {
+            frame[1] = baseY;
+        }
+    }
+
+    entry.header.common.frameCount = (s16)outFrames;
+    entry.header.segmentVoid = (void*)entry.data.data();
+    return &entry.header;
+}
+
+extern "C" PlayerAnimationHeader*
+ResourceMgr_LoadPlayerAnimAsHeaderInPlaceResampled(const char* animPath, uint8_t stripY, int16_t targetFrames) {
+    return ResourceMgr_LoadPlayerAnimAsHeaderInPlaceRange(animPath, stripY, -1, -1, targetFrames);
+}
+
+extern "C" PlayerAnimationHeader* ResourceMgr_LoadPlayerAnimAsHeaderInPlace(const char* animPath, uint8_t stripY) {
+    return ResourceMgr_LoadPlayerAnimAsHeaderInPlaceRange(animPath, stripY, -1, -1, 0);
+}
+
 extern "C" void ResourceMgr_PushCurrentDirectory(char* path) {
     Fast::gfx_push_current_dir(path);
 }
@@ -1747,6 +1890,19 @@ extern "C" Gfx* ResourceMgr_LoadGfxByName(const char* path) {
     ResourceMgr_PreloadAltWhenItExists(path);
 
     auto res = std::static_pointer_cast<Fast::DisplayList>(GetResourceByName(path));
+    // A missing resource makes LoadResource hand back an empty shared_ptr, and &res->Instructions[0]
+    // then dereferences null -> 0xC0000005 inside this function (seen in the wild from
+    // DrawOotGetItemOpaXlu asking for an OoT path). Callers all treat NULL as "not ready, retry next
+    // frame", so returning NULL degrades a hard crash into a missing model. Logged once per path so a
+    // silently absent asset still names itself. Skijer's NEI
+    if (res == nullptr || res->Instructions.empty()) {
+        // unordered_map (not set) to match the container already proven available in this TU.
+        static std::unordered_map<std::string, bool> sReported;
+        if (path != nullptr && sReported.emplace(path, true).second) {
+            SPDLOG_ERROR("[ResourceMgr] LoadGfxByName: no display list for '{}' (returning NULL)", path);
+        }
+        return nullptr;
+    }
     return (Gfx*)&res->Instructions[0];
 }
 

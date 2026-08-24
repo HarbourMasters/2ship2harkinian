@@ -105,8 +105,7 @@ extern "C" void FleetPicto_OnPhotoKept(void) {
         if (!rgba.empty()) {
             std::ofstream f(rgba, std::ios::binary | std::ios::trunc);
             if (f) {
-                f.write(reinterpret_cast<const char*>(ColorPictograph_GetBuffer()),
-                        ColorPictograph_GetBufferSize());
+                f.write(reinterpret_cast<const char*>(ColorPictograph_GetBuffer()), ColorPictograph_GetBufferSize());
             }
         }
     }

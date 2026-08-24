@@ -2643,11 +2643,11 @@ s32 Entrance_GetSceneIdAbsolute(u16 entrance);
 static LightInfo sOotFwLightInfo;
 static LightNode* sOotFwLightNode = NULL;
 static s32 sOotFwLightInserted = false;
-static s32 sOotFwData = 0;            // OoT gSaveContext.respawn[RESPAWN_MODE_TOP].data
-static Vec3f sOotFwCurPos;            // OoT gSaveContext.respawn[RESPAWN_MODE_TOP].pos
-static s32 sOotFwFlyTimer = 0;        // OoT D_8015BC14
-static f32 sOotFwFlyProgress = 0.0f;  // OoT D_8015BC18
-static s32 sOotFwSceneMatch = false;  // OoT entranceIndex match (MM: same absolute scene)
+static s32 sOotFwData = 0;           // OoT gSaveContext.respawn[RESPAWN_MODE_TOP].data
+static Vec3f sOotFwCurPos;           // OoT gSaveContext.respawn[RESPAWN_MODE_TOP].pos
+static s32 sOotFwFlyTimer = 0;       // OoT D_8015BC14
+static f32 sOotFwFlyProgress = 0.0f; // OoT D_8015BC18
+static s32 sOotFwSceneMatch = false; // OoT entranceIndex match (MM: same absolute scene)
 static u8 sOotFwRoomIndex = 0;
 
 // OoT func_8002FA60 — called from Actor_InitContext on every scene load.
@@ -2659,8 +2659,8 @@ void OotFw_OnSceneInit(PlayState* play) {
         sOotFwCurPos.x = nei->fwPosX;
         sOotFwCurPos.y = nei->fwPosY;
         sOotFwCurPos.z = nei->fwPosZ;
-        sOotFwSceneMatch = (Entrance_GetSceneIdAbsolute(nei->fwEntrance) ==
-                            Entrance_GetSceneIdAbsolute(gSaveContext.save.entrance));
+        sOotFwSceneMatch =
+            (Entrance_GetSceneIdAbsolute(nei->fwEntrance) == Entrance_GetSceneIdAbsolute(gSaveContext.save.entrance));
         sOotFwRoomIndex = nei->fwRoomIndex;
     } else {
         sOotFwData = 0;
@@ -3025,8 +3025,7 @@ Actor* Actor_UpdateActor(UpdateActor_Params* params) {
                 // AI timers slow with it. The interval is derived from the requested factor,
                 // so 0.33 really is a third of normal speed. A FULL stop is not handled here
                 // — timestop_helper drives that directly so newly spawned actors are caught.
-                if ((gChampionSlowFactor > 0.0f) && (gChampionSlowFactor < 1.0f) &&
-                    !TimeCtl_IsActorExempt(actor)) {
+                if ((gChampionSlowFactor > 0.0f) && (gChampionSlowFactor < 1.0f) && !TimeCtl_IsActorExempt(actor)) {
                     actor->freezeTimer = TimeCtl_GetStutterFrames();
                 }
             }
@@ -4566,18 +4565,18 @@ u32 sArrowDmgFlags[] = {
     // Skijer's NEI: the OoT Fairy Slingshot seed hits with the Deku-bubble damage bit (user
     // decision — MM has no DMG_SLINGSHOT; the bubble is MM's closest "small magical pellet"
     // and every enemy damage table has an entry for it). Was DMG_DEKU_NUT (vestigial).
-    DMG_DEKU_BUBBLE,  // ARROW_TYPE_SLINGSHOT
-    DMG_DEKU_BUBBLE,  // ARROW_TYPE_DEKU_BUBBLE
-    DMG_DEKU_NUT,     // ARROW_TYPE_DEKU_NUT
+    DMG_DEKU_BUBBLE, // ARROW_TYPE_SLINGSHOT
+    DMG_DEKU_BUBBLE, // ARROW_TYPE_DEKU_BUBBLE
+    DMG_DEKU_NUT,    // ARROW_TYPE_DEKU_NUT
     // Skijer's NEI: SW97 elemental seeds — fire/ice/light carry the real elemental arrow bits
     // (fork parity: soh z_en_arrow.c seedElemDmg[]); dark/soul/wind have no MM damage bit, so
     // they hit like the plain seed (glow/VFX still elemental).
-    DMG_FIRE_ARROW,   // ARROW_TYPE_SEED_FIRE
-    DMG_ICE_ARROW,    // ARROW_TYPE_SEED_ICE
-    DMG_LIGHT_ARROW,  // ARROW_TYPE_SEED_LIGHT
-    DMG_DEKU_BUBBLE,  // ARROW_TYPE_SEED_DARK
-    DMG_DEKU_BUBBLE,  // ARROW_TYPE_SEED_SOUL
-    DMG_DEKU_BUBBLE,  // ARROW_TYPE_SEED_WIND
+    DMG_FIRE_ARROW,  // ARROW_TYPE_SEED_FIRE
+    DMG_ICE_ARROW,   // ARROW_TYPE_SEED_ICE
+    DMG_LIGHT_ARROW, // ARROW_TYPE_SEED_LIGHT
+    DMG_DEKU_BUBBLE, // ARROW_TYPE_SEED_DARK
+    DMG_DEKU_BUBBLE, // ARROW_TYPE_SEED_SOUL
+    DMG_DEKU_BUBBLE, // ARROW_TYPE_SEED_WIND
     // Skijer's NEI: SW97 medallion bow arrows — fire/ice/light real elemental bits (fork
     // sw97DmgFlags[]); dark/soul/wind hit like a normal arrow (no MM bit for them).
     DMG_FIRE_ARROW,   // ARROW_TYPE_SW97_FIRE

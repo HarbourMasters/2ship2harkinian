@@ -36,9 +36,9 @@ static void BombArrows_Stop(Player* p, PlayState* play);
 static void BombArrows_FireArrow(Player* p, PlayState* play);
 static void BombArrows_SpawnInstantBomb(PlayState* play, Vec3f* pos);
 static s8 sBombArrowPrevInvinc = 0;
-static s16 sBaChargeTimer = 0; // Frames C has been held continuously this charge cycle
-static s8 sBaWasHeld = 0;      // Was C held last frame (release-edge detection for fire)
-static s8 sBaShouldFire = 0;   // FireArrow sets this; upper action picks it up next frame
+static s16 sBaChargeTimer = 0;  // Frames C has been held continuously this charge cycle
+static s8 sBaWasHeld = 0;       // Was C held last frame (release-edge detection for fire)
+static s8 sBaShouldFire = 0;    // FireArrow sets this; upper action picks it up next frame
 static u8 sBaUpperPrevHeld = 0; // Was C held last frame in upper action (press-edge detection for re-DRAW)
 
 // Upper-action animation phase. Matches vanilla bow flow:
@@ -338,8 +338,8 @@ static void BombArrows_UpdateAim(Player* p, PlayState* play, ItemInputState* in)
             // Audible "fuse trigger" sound so the user gets a clear cue this
             // path fired — separately from the bomb's own explosion VFX/SFX,
             // which lands ~2 frames later when EnBom transitions to EXPLOSION.
-            Audio_PlaySoundGeneral(NA_SE_IT_BOMB_EXPLOSION, &p->actor.world.pos, 4,
-                                   &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+            Audio_PlaySoundGeneral(NA_SE_IT_BOMB_EXPLOSION, &p->actor.world.pos, 4, &gSfxDefaultFreqAndVolScale,
+                                   &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
             Vec3f bombPos = p->actor.world.pos;
             bombPos.y += 20.0f; // chest-level so the AT collider hits Link squarely
             BombArrows_SpawnInstantBomb(play, &bombPos);

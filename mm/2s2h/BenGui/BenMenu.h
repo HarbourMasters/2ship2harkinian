@@ -28,6 +28,8 @@ class BenMenu : public Ship::Menu {
     void AddNEI();
 
   private:
+    void AddFleetComboSection(WidgetPath& path);
+
     bool mMenuElementsInitialized = false;
 };
 } // namespace BenGui

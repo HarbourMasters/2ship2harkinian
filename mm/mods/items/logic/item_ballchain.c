@@ -311,7 +311,7 @@ static void BallChain_CheckDestructibles(PlayState* play, Vec3f* ballPos) {
                 case ACTOR_EN_FZ: { // Freezard — drive its own fire-melt reaction (melt + drop), no fire
                     EnFz* fz = (EnFz*)actor;
                     if ((dist < BALLCHAIN_ICE_REACH) && (fz->unk_BD8 == 0)) { // unk_BD8 != 0 = already dying
-                        fz->actor.colChkInfo.damageEffect = 2; // fire-melt effect
+                        fz->actor.colChkInfo.damageEffect = 2;                // fire-melt effect
                         fz->collider1.base.acFlags |= AC_HIT;
                     }
                     break;
@@ -575,7 +575,7 @@ static void StateSpinning(Player* p, PlayState* play, ItemInputState* in) {
             bcBallVel.x = dx / flightT;
             bcBallVel.z = dz / flightT;
             bcBallVel.y = (dy / flightT) - (0.5f * BALLCHAIN_GRAVITY * flightT); // gravity compensation
-            throwYaw = Math_Atan2S(dx, dz); // MM arg order: yaw of (dx, dz)
+            throwYaw = Math_Atan2S(dx, dz);                                      // MM arg order: yaw of (dx, dz)
         } else {
             bcBallVel.x = Math_SinS(throwYaw) * Math_CosS(throwPitch) * launchSpeed;
             bcBallVel.z = Math_CosS(throwYaw) * Math_CosS(throwPitch) * launchSpeed;
@@ -749,7 +749,8 @@ static void StateThrown(Player* p, PlayState* play) {
     BallChain_CheckDestructibles(play, &bcBallPos);
     BallChain_CheckHit(&bcBallPos);
     if (bcPhase != BALLCHAIN_PHASE_REST) {
-        BallChain_FeedTrail(play, &bcBallPos); // streak while airborne (fly + retract), not while resting — Skijer's NEI
+        BallChain_FeedTrail(play,
+                            &bcBallPos); // streak while airborne (fly + retract), not while resting — Skijer's NEI
     }
 }
 

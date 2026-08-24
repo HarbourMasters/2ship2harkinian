@@ -22,9 +22,9 @@ extern "C" {
 #endif
 
 #define SPIRITUAL_STONE_KOKIRI 0
-#define SPIRITUAL_STONE_GORON  1
-#define SPIRITUAL_STONE_ZORA   2
-#define SPIRITUAL_STONE_COUNT  3
+#define SPIRITUAL_STONE_GORON 1
+#define SPIRITUAL_STONE_ZORA 2
+#define SPIRITUAL_STONE_COUNT 3
 
 #define SPIRITUAL_STONE_SUMMON_HOLD_FRAMES 40 // MM player logic ~20fps → ~2s hold to summon
 
