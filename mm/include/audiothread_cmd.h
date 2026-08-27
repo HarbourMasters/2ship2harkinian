@@ -247,9 +247,8 @@ typedef enum {
  * @param channelIndex the index of the seqPlayer to modify
  * @param sfxState
  */
-#define AUDIOCMD_CHANNEL_SET_SFX_STATE(seqPlayerIndex, channelIndex, sfxState)                                \
-    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_CHANNEL_SET_SFX_STATE, seqPlayerIndex, channelIndex, 0), \
-                            (void*)sfxState)
+#define AUDIOCMD_CHANNEL_SET_SFX_STATE(seqPlayerIndex, channelIndex, sfxState) \
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_CHANNEL_SET_SFX_STATE, seqPlayerIndex, channelIndex, 0), (void*)sfxState)
 
 /**
  * Set the reverb index.
@@ -416,9 +415,8 @@ typedef enum {
  * @param fadeInTimer (s32) number of ticks to fade in the sequence to the requested volume
  */
 // 2S2H [Custom Audio] encode the seqId into the second part of the command to use 16 bits for the id
-#define AUDIOCMD_GLOBAL_INIT_SEQPLAYER(seqPlayerIndex, seqId, fadeInTimer)                         \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_INIT_SEQPLAYER, seqPlayerIndex, 0, 0), \
-                            (seqId << 16) | fadeInTimer)
+#define AUDIOCMD_GLOBAL_INIT_SEQPLAYER(seqPlayerIndex, seqId, fadeInTimer) \
+    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_INIT_SEQPLAYER, seqPlayerIndex, 0, 0), (seqId << 16) | fadeInTimer)
 
 /**
  * Disable a sequence player
@@ -438,7 +436,7 @@ typedef enum {
  * @param skipTicks (s32) number of ticks to skip before starting the sequence
  */
 // 2S2H [Custom Audio] encode the seqId into the second part of the command to use 16 bits for the id
-#define AUDIOCMD_GLOBAL_INIT_SEQPLAYER_SKIP_TICKS(seqPlayerIndex, seqId, skipTicks)                           \
+#define AUDIOCMD_GLOBAL_INIT_SEQPLAYER_SKIP_TICKS(seqPlayerIndex, seqId, skipTicks)                               \
     AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_INIT_SEQPLAYER_SKIP_TICKS, seqPlayerIndex, 0, 0), \
                             (seqId << 16) | skipTicks)
 
