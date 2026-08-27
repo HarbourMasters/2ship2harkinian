@@ -1348,6 +1348,10 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
 
     numFonts = fntListSize;
 
+    // Every sound font load is a permanent cache entry, so the table needs room for every font and sequence
+    gAudioCtx.permanentEntriesCapacity = gFontMapSize + gSequenceMapSize;
+    gAudioCtx.permanentEntries = calloc(gAudioCtx.permanentEntriesCapacity, sizeof(AudioCacheEntry));
+
     // #end region
     gAudioCtx.soundFontList = AudioHeap_Alloc(&gAudioCtx.initPool, numFonts * sizeof(SoundFont));
 
