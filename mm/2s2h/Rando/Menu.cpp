@@ -9,6 +9,8 @@
 #include "2s2h/BenGui/BenGui.hpp"
 #include "2s2h/Rando/Logic/Logic.h"
 #include "2s2h/ShipInit.hpp"
+#include "PresetManager/PresetManager.h"
+#include "PresetManager/PresetDescriptions.h"
 
 extern "C" {
 #include "overlays/actors/ovl_En_Sth/z_en_sth.h"
@@ -18,6 +20,7 @@ extern "C" {
 
 // TODO: This block should come from elsewhere, tied to data in Rando::StaticData::Options
 std::unordered_map<int32_t, const char*> logicOptions = {
+    { RO_LOGIC_VOYAGE_3, "Voyage 3" },
     { RO_LOGIC_GLITCHLESS, "Glitchless" },
     { RO_LOGIC_NO_LOGIC, "No Logic" },
     { RO_LOGIC_NEARLY_NO_LOGIC, "Nearly No Logic" },
@@ -50,6 +53,7 @@ std::unordered_map<int32_t, const char*> trapItemsOptions = {
     { 1, "Static" },
 };
 
+//ProxySaw's item constraint addition.
 std::unordered_map<int32_t, const char*> dungeonItemPlacementOptions = {
     { RO_DUNGEON_ITEM_ANYWHERE, "Anywhere" },
     { RO_DUNGEON_ITEM_OWN_DUNGEON, "Own Dungeon" },
@@ -57,6 +61,7 @@ std::unordered_map<int32_t, const char*> dungeonItemPlacementOptions = {
     { RO_DUNGEON_ITEM_VANILLA, "Vanilla" },
 };
 
+// ---
 // clang-format off
 std::vector<int32_t> incompatibleWithVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
@@ -596,7 +601,7 @@ static void DrawGeneralTab() {
         UIWidgets::PopStyleSlider();
 
         UIWidgets::CVarCheckbox("Generate Spoiler File", "gRando.GenerateSpoiler",
-                                CheckboxOptions().DefaultValue(true));
+                                CheckboxOptions().DefaultValue(false));
     }
 
     ImGui::SeparatorText("Seed Health");
@@ -633,7 +638,9 @@ static void DrawLogicConditionsTab() {
     if (UIWidgets::CVarCombobox("Logic", Rando::StaticData::Options[RO_LOGIC].cvar, &logicOptions)) {
         ClearIncompatibleSetting();
     }
+    // Note: Voyage 3 logic is a placeholder used for conditionals to automatically set presets.
     UIWidgets::Tooltip(
+        "Voyage 3 - Same as Glitchless logic.\n\n"
         "Glitchless - The items are shuffled in a way that guarantees the seed is beatable without "
         "glitches. With this setting, \"Save Game on Moon Crash\" is automatically enabled.\n\n"
         "No Logic - The items are shuffled completely randomly, this can result in unbeatable seeds, and "
@@ -1694,10 +1701,30 @@ static void DrawHintsTab() {
     ImGui::EndChild();
 }
 
+void DrawRacesTab() {
+    ImGui::BeginChild("randoRacesColumn1", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y));
+    ImGui::Text("Apply the Voyage 3 Preset and then create your File.");
+    ImGui::PushID("Voyage3Set");
+    if (UIWidgets::Button("Apply Preset", { .color = COLOR_GREEN })) {
+        PresetManager_ApplyPreset(voyage3PresetJ);
+    }
+    DrawVoyage3Description();
+    ImGui::PopID();
+    ImGui::EndChild();
+}
+
 void Rando::RegisterMenu() {
     mBenMenu->AddMenuEntry("Rando", "gSettings.Menu.RandoSidebarSection");
+
+     // New Race Menu
+    mBenMenu->AddSidebarEntry("Rando", "Races", 1);
+    WidgetPath path = { "Rando", "Races", SECTION_COLUMN_1 };
+    path.sidebarName = "Races";
+    mBenMenu->AddWidget(path, "Races", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawRacesTab(); });
+
+    // Existing Rando Menu
     mBenMenu->AddSidebarEntry("Rando", "General", 1);
-    WidgetPath path = { "Rando", "General", SECTION_COLUMN_1 };
+    path = { "Rando", "General", SECTION_COLUMN_1 };
     mBenMenu->AddWidget(path, "General", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawGeneralTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Logic/Conditions", 1);
     path.sidebarName = "Logic/Conditions";

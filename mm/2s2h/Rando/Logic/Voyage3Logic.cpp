@@ -1,3 +1,4 @@
+//Copy of GlitchlessLogic created to replicate Caladius's reload of settings on File Load.
 #include "Logic.h"
 #include "2s2h/Rando/Types.h"
 
@@ -15,7 +16,7 @@ namespace Rando {
 
 namespace Logic {
 
-void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool) {
+void ApplyVoyage3LogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool) {
     uint64_t tick = GetUnixTimestamp();
 
     SaveContext copiedSaveContext;
@@ -108,7 +109,7 @@ void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std
                     if (inPool) {
                         checkPool.erase(it);
                         // randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId = itemPool.back();
-                        // ProxySaw's addition for Item constraints. 
+                        // ProxySaw's item constraint addition.
                         size_t pickIndex = SelectItemForCheck(itemPool, checkPool, randoCheckId);
                         if (pickIndex == itemPool.size()) {
                             handleError("No allowed item remains for reachable check: " +
@@ -116,12 +117,14 @@ void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std
                         }
 
                         randoItemId = RANDO_SAVE_CHECKS[randoCheckId].randoItemId = itemPool[pickIndex];
+                        // ---
                         RANDO_SAVE_CHECKS[randoCheckId].shuffled = true;
 
                         // itemPool.pop_back();
-                        // ProxySaw's addition for Item constraints. 
+                        // ProxySaw's item constraint addition. 
                         itemPool.erase(itemPool.begin() + pickIndex);
-
+                        // ---
+                        
                         if (Rando::StaticData::Items[randoItemId].randoItemType == RITYPE_JUNK ||
                             Rando::StaticData::Items[randoItemId].randoItemType == RITYPE_HEALTH) {
                             checksWithJunk.push_back(randoCheckId);
@@ -200,9 +203,10 @@ void ApplyGlitchlessLogicToSaveContext(std::vector<RandoCheckId>& checkPool, std
                     Rando::StaticData::Items[itemPool[i]].randoItemType != RITYPE_HEALTH) {
                     anyNonJunkItemsLeft = true;
                     // if (nonJunkItemsThatWeHaveTried.find(itemPool[i]) == nonJunkItemsThatWeHaveTried.end()) {
-                    // ProxySaw's addition for Item constraints. 
+                    // ProxySaw's item constraint addition.
                     if (nonJunkItemsThatWeHaveTried.find(itemPool[i]) == nonJunkItemsThatWeHaveTried.end() &&
                         IsItemAllowedAtCheck(itemPool[i], checkWithJunk)) {
+                    // ---
                         nonJunkItemsThatWeHaveNotTried.push_back({ itemPool[i], i });
                     }
                 }

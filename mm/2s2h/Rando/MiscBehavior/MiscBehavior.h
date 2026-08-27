@@ -25,6 +25,8 @@ void OfferTrapItem();
 void SariasSongHint();
 void BankSignHint();
 void InitTycoonWallet();
+// Attempting to implement Caladius's reload of settings on file load.
+void OnRaceFileInit();
 
 typedef struct {
     char tex[512];

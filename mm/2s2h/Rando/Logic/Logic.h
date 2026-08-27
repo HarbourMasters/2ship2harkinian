@@ -133,6 +133,9 @@ bool IsItemAllowedAtCheck(RandoItemId itemId, RandoCheckId checkId);
 size_t SelectItemForCheck(const std::vector<RandoItemId>& itemPool, const std::vector<RandoCheckId>& checkPool,
                           RandoCheckId checkId);
 void PreplaceConfinedItems(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
+// ---
+// Used to apply Caladius's reload of settings upon load of file.
+void ApplyVoyage3LogicToSaveContext(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool);
 
 struct RandoRegionExit {
     s32 returnEntrance;

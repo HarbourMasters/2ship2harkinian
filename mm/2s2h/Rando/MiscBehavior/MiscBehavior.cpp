@@ -19,6 +19,8 @@ void Rando::MiscBehavior::OnFileLoad() {
     Rando::MiscBehavior::SariasSongHint();
     Rando::MiscBehavior::BankSignHint();
     Rando::MiscBehavior::InitTycoonWallet();
+    // Attempting to add Caladius's implementation of settings reload on file load.
+    Rando::MiscBehavior::OnRaceFileInit();
 
     COND_HOOK(OnFlagSet, IS_RANDO, Rando::MiscBehavior::OnFlagSet);
     COND_HOOK(OnSceneFlagSet, IS_RANDO, Rando::MiscBehavior::OnSceneFlagSet);

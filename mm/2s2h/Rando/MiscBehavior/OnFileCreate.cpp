@@ -86,7 +86,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 // Persist SariaPriorityItems to the save
                 auto priorityItems = Rando::GetSariaPriorityItemsFromConfig();
                 Rando::SetSariaPriorityItemsInSave(gSaveContext.save.shipSaveInfo.rando, priorityItems);
-
+                
                 std::vector<RandoCheckId> checkPool;
                 std::vector<RandoItemId> itemPool;
                 Rando::Logic::GeneratePools(gSaveContext.save.shipSaveInfo.rando, checkPool, itemPool);
@@ -173,6 +173,9 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_NEARLY_NO_LOGIC) {
                     Rando::Logic::ApplyNearlyNoLogicToSaveContext(checkPool, itemPool);
                 } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_GLITCHLESS) {
+                    // Rando::Logic::ApplyGlitchlessLogicToSaveContext(checkPool, itemPool);
+
+                    // ProxySaw's item constraint addtion.
                     // Various things can result in failed generation now (confined placement, junked items,
                     // too many traps, etc), so we retry a few times before giving up
                     const int maxAttempts = 10;
@@ -189,6 +192,27 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                             SPDLOG_WARN("Glitchless generation attempt {} failed ({}), retrying", attempt, e.what());
                         }
                     }
+                    // ---
+                } else if (RANDO_SAVE_OPTIONS[RO_LOGIC] == RO_LOGIC_VOYAGE_3) {
+                    //Rando::Logic::ApplyVoyage3LogicToSaveContext(checkPool, itemPool);
+                    // ProxySaw's item constraint addtion.
+                    // Various things can result in failed generation now (confined placement, junked items,
+                    // too many traps, etc), so we retry a few times before giving up
+                    const int maxAttempts = 10;
+                    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+                        std::vector<RandoCheckId> attemptCheckPool = checkPool;
+                        std::vector<RandoItemId> attemptItemPool = itemPool;
+                        try {
+                            Rando::Logic::ApplyVoyage3LogicToSaveContext(attemptCheckPool, attemptItemPool);
+                            break;
+                        } catch (const std::exception& e) {
+                            if (attempt >= maxAttempts) {
+                                throw;
+                            }
+                            SPDLOG_WARN("Voyage 3 generation attempt {} failed ({}), retrying", attempt, e.what());
+                        }
+                    }
+                    // ---
                 } else {
                     throw std::runtime_error("Logic option not implemented: " +
                                              std::to_string(RANDO_SAVE_OPTIONS[RO_LOGIC]));

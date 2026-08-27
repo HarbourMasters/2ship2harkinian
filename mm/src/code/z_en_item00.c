@@ -1337,7 +1337,7 @@ u8 sDropTableAmounts[DROP_TABLE_SIZE * DROP_TABLE_NUMBER] = {
 };
 
 void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnPos, s16 params) {
-
+    
     EnItem00* spawnedActor;
     u8 dropId;
     s32 dropQuantity;
@@ -1350,10 +1350,13 @@ void Item_DropCollectibleRandom(PlayState* play, Actor* fromActor, Vec3f* spawnP
     if (params < 0x101) {
         dropId = sDropTable[params + dropTableIndex];
         dropQuantity = sDropTableAmounts[params + dropTableIndex];
+       
+        // New Features: No random drops + No heart/healing drops
         if (!(GameInteractor_Should(VB_DROP_COLLECTIBLE, true, *spawnPos, dropId))) {
             return;
         }
-
+        // ---
+        
         if (dropId == ITEM00_MASK) {
             switch (GET_PLAYER_FORM) {
                 case PLAYER_FORM_HUMAN:

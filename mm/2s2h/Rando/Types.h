@@ -3291,9 +3291,11 @@ typedef enum {
     RO_HINTS_SPIDER_HOUSES,
     RO_HINTS_TRANSFORMATIONS,
     RO_LOGIC,
+    // ProxySaw's item constraint addition.
     RO_PLACEMENT_BOSS_KEYS,
     RO_PLACEMENT_SMALL_KEYS,
     RO_PLACEMENT_STRAY_FAIRIES,
+    // ---
     RO_PLENTIFUL_ITEMS,
     RO_PURCHASE_INFINITE_RUPEES,
     RO_SHUFFLE_BARREL_DROPS,
@@ -3351,6 +3353,7 @@ typedef enum {
 } RandoOptionGenericNoYes;
 
 typedef enum {
+    RO_LOGIC_VOYAGE_3,
     RO_LOGIC_GLITCHLESS,
     RO_LOGIC_NO_LOGIC,
     RO_LOGIC_NEARLY_NO_LOGIC,
@@ -3373,6 +3376,7 @@ typedef enum {
     RO_ACCESS_TRIALS_OPEN,
 } RandoOptionAccessTrials;
 
+// ProxySaw's item constraint addition.
 typedef enum {
     RO_DUNGEON_ITEM_ANYWHERE,
     RO_DUNGEON_ITEM_OWN_DUNGEON,
@@ -3380,6 +3384,7 @@ typedef enum {
     RO_DUNGEON_ITEM_VANILLA,
 } RandoOptionDungeonItemPlacement;
 
+// ---
 typedef enum {
     RO_CLOCK_SHUFFLE_RANDOM,
     RO_CLOCK_SHUFFLE_ASCENDING,
