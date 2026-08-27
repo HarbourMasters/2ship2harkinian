@@ -130,9 +130,9 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
                     gActiveSeqs[seqPlayerIndex].startAsyncSeqCmd =
                         (cmd & ~(SEQ_FLAG_ASYNC | SEQCMD_ASYNC_ACTIVE)) + SEQCMD_ASYNC_ACTIVE;
                     gActiveSeqs[seqPlayerIndex].isWaitingForFonts = true;
-                    u16* fontBuff[16];
-                    u16* prevFontBuff[16];
-                    u16* font = AudioThread_GetFontsForSequence(seqId, &outNumFonts, fontBuff);
+                    u8* fontBuff[16];
+                    u8* prevFontBuff[16];
+                    u8* font = AudioThread_GetFontsForSequence(seqId, &outNumFonts, fontBuff);
                     gActiveSeqs[seqPlayerIndex].fontId = *font;
                     AudioSeq_StopSequence(seqPlayerIndex, 1);
 

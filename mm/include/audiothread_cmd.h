@@ -458,9 +458,8 @@ typedef enum {
  * @param drumId the id of the drum to set
  * @param drumPtr (s32) the ptr to the `Drum` struct
  */
-// 2S2H [Custom Audio] arg0 was originally unused. Encode a 16 bit font id in arg0 and arg1
 #define AUDIOCMD_GLOBAL_SET_DRUM_FONT(fontId, drumId, drumPtr) \
-    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT, fontId, fontId >> 8, drumId), drumPtr)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT, 0, fontId, drumId), drumPtr)
 
 /**
  * Set a soundeffect ptr within a soundfont
@@ -469,10 +468,8 @@ typedef enum {
  * @param soundEffectId the id of the sound effect to set
  * @param soundEffectPtr (s32) the ptr to the `SoundEffect` struct
  */
-// 2S2H [Custom Audio] arg0 was originally unused. Encode a 16 bit font id in arg0 and arg1
-#define AUDIOCMD_GLOBAL_SET_SFX_FONT(fontId, soundEffectId, soundEffectPtr)                                    \
-    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_SFX_FONT, fontId, fontId >> 8, soundEffectId), \
-                            soundEffectPtr)
+#define AUDIOCMD_GLOBAL_SET_SFX_FONT(fontId, soundEffectId, soundEffectPtr) \
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_SFX_FONT, 0, fontId, soundEffectId), soundEffectPtr)
 
 /**
  * Set an instrument ptr within a soundfont
@@ -481,9 +478,8 @@ typedef enum {
  * @param instId the id of the instrument to set
  * @param instPtr (s32) the ptr to the `Instrument` struct
  */
-// 2S2H [Custom Audio] arg0 was originally unused. Encode a 16 bit font id in arg0 and arg1
 #define AUDIOCMD_GLOBAL_SET_INSTRUMENT_FONT(fontId, instId, instPtr) \
-    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_INSTRUMENT_FONT, fontId, fontId >> 8, instId), instPtr)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_INSTRUMENT_FONT, 0, fontId, instId), instPtr)
 
 /**
  * Pop the persistent cache of the specified table
@@ -555,9 +551,8 @@ typedef enum {
  * @param instId If below 0x7F, the id of the instrument to use. If equal to 0x7F, load the drum using the drumId
  * @param drumId the id of the drum to use
  */
-// 2S2H [Custom Audio] encode the fontId into the second part of the command to use 16 bits for the id
 #define AUDIOCMD_GLOBAL_SYNC_LOAD_INSTRUMENT(fontId, instId, drumId) \
-    AudioThread_QueueCmdU16(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SYNC_LOAD_INSTRUMENT, 0, instId, drumId), fontId)
+    AudioThread_QueueCmdS8(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SYNC_LOAD_INSTRUMENT, fontId, instId, drumId), 0)
 
 /**
  * Asynchronously load a sample bank
@@ -574,9 +569,8 @@ typedef enum {
  * @param fontId the id of the soundfont to load
  * @param retData return data from `externalLoadQueue`
  */
-// 2S2H [Custom Audio] encode the fontId into the second part of the command to use 16 bits for the id
 #define AUDIOCMD_GLOBAL_ASYNC_LOAD_FONT(fontId, retData) \
-    AudioThread_QueueCmdU16(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_FONT, 0, 20, retData), fontId)
+    AudioThread_QueueCmdS8(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_FONT, fontId, 20, retData), 0)
 
 /**
  * Discard sequence fonts
@@ -628,7 +622,7 @@ typedef enum {
  */
 // 2S2H [Custom Audio] encode the seqId into the second part of the command to use 16 bits for the id
 #define AUDIOCMD_GLOBAL_ASYNC_LOAD_SEQ(seqId, retData) \
-    AudioThread_QueueCmdU16(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_SEQ, 0, 0, retData), seqId)
+    AudioThread_QueueCmdS8(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_SEQ, 0, 0, retData), seqId)
 
 /**
  * No Operation. No code exists for this OP

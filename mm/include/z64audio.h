@@ -583,8 +583,7 @@ typedef struct {
     /* 0x2854 */ AudioTable* soundFontTable;
     /* 0x2858 */ AudioTable* sampleBankTable;
     /* 0x285C */ char unk_285C[0x4];
-    // 2S2H [Custom Audio]. Was originally u8* sequenceFontTable. Made 16 bit to allow for more than 255 sound fonts.
-    /* 0x2860 */ u16* sequenceFontTable;
+    /* 0x2860 */ u8* sequenceFontTable;
     /* 0x2864 */ u16 numSequences;
     /* 0x2868 */ SoundFont* soundFontList;
     /* 0x286C */ AudioBufferParameters audioBufferParameters;

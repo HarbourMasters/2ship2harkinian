@@ -416,7 +416,7 @@ SoundFontData* AudioLoad_SyncLoadSeqFonts(s32 seqId, u32* outDefaultFontId) {
         return NULL;
     }
 
-    fontId = 0xFFFF;
+    fontId = 0xFF;
     index = ((u16*)gAudioCtx.sequenceFontTable)[seqId];
     numFonts = gAudioCtx.sequenceFontTable[index++];
 

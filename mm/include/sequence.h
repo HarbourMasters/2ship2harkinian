@@ -324,8 +324,7 @@ typedef struct {
     /* 0x20C */ u16 prevSeqId; // last seqId played on a player
     /* 0x20E */ u16 channelPortMask;
     /* 0x210 */ u8 isWaitingForFonts;
-    // 2S2H [Custom Audio]. Was originally u8 fontId. Made 16 bit to allow for more than 255 sound fonts.
-    /* 0x211 */ u16 fontId;
+    /* 0x211 */ u8 fontId;
     /* 0x212 */ u8 volScales[VOL_SCALE_INDEX_MAX];
     /* 0x216 */ u8 volFadeTimer;
     /* 0x217 */ u8 fadeVolUpdate;
