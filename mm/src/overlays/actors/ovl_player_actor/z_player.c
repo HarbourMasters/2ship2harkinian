@@ -3868,7 +3868,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
             // #endregion
 
-            if (btn <= EQUIP_SLOT_NONE) {
+            if (GameInteractor_Should(VB_UNEQUIP_MASK_NOT_ON_BUTTON, btn <= EQUIP_SLOT_NONE, this, &btn)) {
                 // #region 2S2H [Dpad] - need to convert between helditem value to actual item
                 ItemId maskItem;
                 if (IS_HELD_DPAD(this->unk_154)) {
@@ -17341,8 +17341,10 @@ void Player_Action_56(Player* this, PlayState* play) {
     s16 sp3C;
     s16 sp3A;
     s8 stickX = sPlayerControlInput->rel.stick_x;
+    s8 stickY = sPlayerControlInput->rel.stick_y;
 
     stickX *= GameInteractor_InvertControl(GI_INVERT_ZORA_SWIM_X);
+    stickY *= -GameInteractor_InvertControl(GI_INVERT_ZORA_SWIM_Y);
 
     this->stateFlags2 |= PLAYER_STATE2_20;
 
@@ -17408,7 +17410,7 @@ void Player_Action_56(Player* this, PlayState* play) {
         }
 
         // Y
-        sp3E = sPlayerControlInput->rel.stick_y * 0xC8;
+        sp3E = stickY * 0xC8;
         if (this->unk_B8C != 0) {
             this->unk_B8C--;
             sp3E = CLAMP_MAX(sp3E, (s16)(this->floorPitch - 0xFA0));

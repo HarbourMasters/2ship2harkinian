@@ -13,6 +13,9 @@ void OnFileLoad();
 RandoCheckId GetObjectRandoCheckId(void* actor);
 void SetObjectRandoCheckId(const void* object, RandoCheckId rc);
 
+void SpawnWonderItemSparkle(Vec3f* pos);
+void DrawWonderItemSparkle(Actor* actor, PlayState* play);
+
 void InitDmChar01Behavior();
 void InitDmChar05Behavior();
 void InitDmChar08Behavior();
@@ -103,6 +106,7 @@ void InitObjWarpstoneBehavior();
 void InitPlayerBehavior();
 void InitSoulsBehavior();
 void InitTrapsBehavior();
+void InitWonderItemsBehavior();
 
 } // namespace ActorBehavior
 

@@ -358,6 +358,11 @@ int GameInteractor_InvertControl(GIInvertType type) {
                 result *= -1;
             }
             break;
+        case GI_INVERT_ZORA_SWIM_Y:
+            if (CVarGetInteger("gEnhancements.Player.InvertZoraSwimY", 1)) {
+                result *= -1;
+            }
+            break;
     }
 
     // Invert all X axis inputs if the Mirrored World mode is enabled
@@ -586,6 +591,13 @@ void ProcessEvents(Actor* actor) {
 
     GameInteractor::Instance->events.erase(GameInteractor::Instance->events.begin());
 }
+
+// On MSVC this is defined inline in the header instead; see the declaration for why.
+#ifndef _MSC_VER
+void GameInteractor::RemoveAllQueuedHooks() {
+#include "GameInteractor_RemoveAllQueuedHooks.inc"
+}
+#endif
 
 void GameInteractor::RegisterOwnHooks() {
     // Cleanup all hooks at the start of each frame

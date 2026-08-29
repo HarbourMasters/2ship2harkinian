@@ -52,6 +52,6 @@ void Rando::ActorBehavior::InitEnBomBowlManBehavior() {
     // Override the original requirement, which is the absence of the Bombers' Notebook
     COND_VB_SHOULD(VB_BE_ELIGIBLE_FOR_BOMBERS_NOTEBOOK, IS_RANDO, {
         *should = CHECK_WEEKEVENTREG(WEEKEVENTREG_ENTERED_BOMBERS_CODE) &&
-                  !RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_BOMBERS_NOTEBOOK].obtained;
+                  !RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_BOMBERS_NOTEBOOK].cycleObtained;
     });
 };

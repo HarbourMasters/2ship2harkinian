@@ -89,6 +89,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `s32` (sDistortionRequest.type)
+    VB_APPLY_SCREEN_DISTORTION,
+
+    // #### `result`
+    // ```c
     // !play->interfaceCtx.perfectLettersOn
     // ```
     // #### `args`
@@ -548,6 +556,14 @@ typedef enum {
     // #### `args`
     // - `s16` (file index)
     VB_DRAW_FILE_SELECT_SMALL_EXTRA_INFO_BOX,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*FileSelectState`
+    VB_FILE_SELECT_ROTATE_TO_NAME_ENTRY,
 
     // #### `result`
     // ```c
@@ -1027,6 +1043,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `ObjDora*`
+    VB_GONG_DROP_COLLECTIBLE,
+
+    // #### `result`
+    // ```c
     // phi_f0 > 0.0f
     // ```
     // #### `args`
@@ -1221,6 +1245,22 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // bubble != NULL
+    // ```
+    // #### `args`
+    // - `*Player`
+    VB_DEKU_COMMON_HEAD_OVERRIDE_HELD_ACTOR,
+
+    // #### `result`
+    // ```c
+    // player->heldActor != NULL
+    // ```
+    // #### `args`
+    // - `*Actor` (player->heldActor)
+    VB_DEKU_COMMON_UPPER_LIMB_OVERRIDE_HELD_ACTOR,
+
+    // #### `result`
+    // ```c
     // true
     // ```
     // #### `args`
@@ -1308,6 +1348,23 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*EnKusa2`
+    // - `s32` (index within the patch)
+    VB_KEATON_GRASS_ATTACH_CHILD,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*EnKusa2`
+    VB_KEATON_GRASS_DRAW,
+
+    // #### `result`
+    // ```c
     // CHECK_WEEKEVENTREG(WEEKEVENTREG_08_80)
     // ```
     // #### `args`
@@ -1336,7 +1393,7 @@ typedef enum {
     // ```
     // #### `args`
     // - `*EnKusa`
-    VB_KUSA_BUSH_DRAW_BE_OVERRIDDEN,
+    VB_KUSA_DRAW_BE_OVERRIDDEN,
 
     // #### `result`
     // ```c
@@ -1419,6 +1476,14 @@ typedef enum {
     // #### `args`
     // - `*EnMnk`
     VB_MONKEY_WAIT_TO_TALK_AFTER_APPROACH,
+
+    // #### `result`
+    // ```c
+    // CHECK_BTN_ALL(controller->press.button, BTN_A) || ...
+    // ```
+    // #### `args`
+    // - None
+    VB_MSG_ADVANCE,
 
     // #### `result`
     // ```c
@@ -1590,6 +1655,14 @@ typedef enum {
     // #### `args`
     // - `*OcarinaStaff` (the currently playing staff; state can be overridden to force a song)
     VB_OVERRIDE_OCARINA_STAFF_STATE,
+
+    // #### `result`
+    // ```c
+    // player->stateFlags3 & PLAYER_STATE3_10000000
+    // ```
+    // #### `args`
+    // - `*EnOwl`
+    VB_OWL_DESPAWN_FEATHER,
 
     // #### `result`
     // ```c
@@ -2398,6 +2471,15 @@ typedef enum {
     // #### `args`
     // - `*ObjYasi`
     VB_TREE_DROP_COLLECTIBLE,
+
+    // #### `result`
+    // ```c
+    // btn <= EQUIP_SLOT_NONE
+    // ```
+    // #### `args`
+    // - `*Player`
+    // - `*s32` (button)
+    VB_UNEQUIP_MASK_NOT_ON_BUTTON,
 
     // #### `result`
     // ```c
