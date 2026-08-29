@@ -314,7 +314,7 @@ static uint32_t checkPoolGeneration = 0;
 void RefreshMetrics() {
     setOfItemsInPool.clear();
     setOfChecksInPool.clear();
-    RandoSaveInfo randoSaveInfo;
+    RandoSaveInfo randoSaveInfo{};
     std::vector<RandoCheckId> checkPool;
     std::vector<RandoItemId> itemPool;
 

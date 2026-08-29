@@ -46,11 +46,9 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
         try {
             // SpoilerFileIndex == 0 means we're generating a new one
             if (CVarGetInteger("gRando.SpoilerFileIndex", 0) == 0) {
-                bool hadInputSeed = true;
                 std::string inputSeed = Ship_RemoveSpecialCharacters(CVarGetString("gRando.InputSeed", ""));
                 if (inputSeed.empty()) {
                     inputSeed = std::to_string(Ship_Random(0, 1000000));
-                    hadInputSeed = false;
                 }
 
                 SPDLOG_INFO("Generating new randomizer with seed: {}", inputSeed);
@@ -196,9 +194,6 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     std::string fileName = inputSeed + ".json";
                     Rando::Spoiler::SaveToFile(fileName, spoiler);
 
-                    if (hadInputSeed) {
-                        CVarSetString("gRando.SpoilerFile", fileName.c_str());
-                    }
                     Rando::Spoiler::RefreshOptions();
                 }
 
