@@ -1405,7 +1405,8 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // WaterBox_GetSurface1(play, &play->colCtx, sp4C.x, sp4C.z, &sp44, &waterBox) && ((sp44 - sp48) > 50.0f)
+    // BgCheck_GetWaterSurfaceNoBgIdAlt(play, &play->colCtx, sp4C.x, sp4C.z, &sp44, &waterBox) &&
+    // ((sp44 - sp48) > 50.0f)
     // ```
     // #### `args`
     // - None

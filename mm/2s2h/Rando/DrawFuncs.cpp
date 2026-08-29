@@ -330,7 +330,7 @@ extern void DrawBoe() {
 
     gSPDisplayList(POLY_OPA_DISP++, gSetupDLs[SETUPDL_25]);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0xFF, 0, 0, 0, 255);
-    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)D_801AEFA0);
+    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gActorSetupOpaDL);
     MATRIX_FINALIZE_AND_LOAD(POLY_OPA_DISP++, gPlayState->state.gfxCtx);
     gSPDisplayList(POLY_OPA_DISP++, (Gfx*)gBlackBoeEndDL);
 
@@ -593,7 +593,7 @@ extern void DrawGaro() {
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
     SETUP_FLEX_SKEL(GARO_LIMB_MAX, gGaroSkel, gGaroIdleAnim);
 
-    gSPSegment(POLY_OPA_DISP++, 0x0C, (uintptr_t)D_801AEFA0);
+    gSPSegment(POLY_OPA_DISP++, 0x0C, (uintptr_t)gActorSetupOpaDL);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -862,7 +862,7 @@ extern void DrawOctorok() {
 
     Gfx* gfxPtr = POLY_OPA_DISP;
     gSPDisplayList(&gfxPtr[0], gSetupDLs[SETUPDL_25]);
-    gSPSegment(&gfxPtr[1], 0x08, (uintptr_t)D_801AEFA0);
+    gSPSegment(&gfxPtr[1], 0x08, (uintptr_t)gActorSetupOpaDL);
     POLY_OPA_DISP = &gfxPtr[2];
     SkelAnime_DrawOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL);
 
@@ -909,7 +909,7 @@ extern void DrawPoe() {
     Gfx* gfx = POLY_OPA_DISP;
     gSPDisplayList(&gfx[0], gSetupDLs[SETUPDL_25]);
     gDPSetEnvColor(&gfx[1], 255, 255, 255, 255);
-    gSPSegment(&gfx[2], 0x08, (uintptr_t)D_801AEFA0);
+    gSPSegment(&gfx[2], 0x08, (uintptr_t)gActorSetupOpaDL);
     gfx = SkelAnime_Draw(gPlayState, skelAnime.skeleton, skelAnime.jointTable, NULL, NULL, NULL, &gfx[3]);
     POLY_OPA_DISP = gfx;
 
@@ -972,7 +972,7 @@ extern void DrawRedead() {
         SkelAnime_Update(&skelAnime);
     }
 
-    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)D_801AEFA0);
+    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gActorSetupOpaDL);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, skelAnime.dListCount, NULL, NULL, NULL);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);

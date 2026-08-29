@@ -7673,10 +7673,10 @@ void func_8083827C(Player* this, PlayState* play) {
                                 sp48 = func_80835CD8(play, this, &D_8085D154, &sp4C, &sp60, &sp5C);
                                 sp44 = this->actor.world.pos.y;
 
-                                if (GameInteractor_Should(
-                                        VB_LINK_DIVE_OVER_WATER,
-                                        BgCheck_GetWaterSurfaceNoBgIdAlt(play, &play->colCtx, sp4C.x, sp4C.z, &sp44, &waterBox) &&
-                                            ((sp44 - sp48) > 50.0f))) {
+                                if (GameInteractor_Should(VB_LINK_DIVE_OVER_WATER,
+                                                          BgCheck_GetWaterSurfaceNoBgIdAlt(play, &play->colCtx, sp4C.x,
+                                                                                           sp4C.z, &sp44, &waterBox) &&
+                                                              ((sp44 - sp48) > 50.0f))) {
                                     func_80834DB8(this, &gPlayerAnim_link_normal_run_jump_water_fall, 6.0f, play);
                                     Player_SetAction(play, this, Player_Action_27, 0);
                                     return;

@@ -5021,7 +5021,7 @@ void Npc_TrackPoint(Actor* actor, NpcInteractInfo* interactInfo, s16 presetIndex
 //     gsDPSetAlphaCompare(G_AC_THRESHOLD),
 //     gsSPEndDisplayList(),
 // };
-// 
+//
 // Gfx gActorSetupOpaDL[] = {
 //     gsSPEndDisplayList(),
 // };

@@ -88,7 +88,7 @@
         <Texture Name="gHilite1Tex" OutName="hilite_1" Format="rgba16" Width="16" Height="16" Offset="0xC830" />
         <Texture Name="gHilite2Tex" OutName="hilite_2" Format="rgba16" Width="16" Height="16" Offset="0xCA30" />
         <!-- 2S2H [Port] Additional entry for authentic overflowed texture usage. This entry has its offset off by "one pixel" due to ZAPD not allowing duplicates -->
-        <Texture Name="gameplay_keep_Tex_00CA30_Overflow" OutName="tex_00CA30_overflow" Format="rgba16" Width="32" Height="32" Offset="0xCA2E" />
+        <Texture Name="gHilite2Tex_Overflow" OutName="tex_00CA30_overflow" Format="rgba16" Width="32" Height="32" Offset="0xCA2E" />
 
         <!-- 2S2H [Port] - gDekuStickDL loads this as a 16x16 texture, despite it being 8x8. We need to extract this extra 'garbage' data too -->
         <Texture Name="gDekuStickTex" OutName="deku_stick" Format="i8" Width="16" Height="16" Offset="0xCC30" />

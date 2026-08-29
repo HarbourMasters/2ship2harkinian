@@ -73,8 +73,8 @@ static InitChainEntry sInitChain[] = {
     ICHAIN_F32(cullingVolumeDownward, 500, ICHAIN_STOP),
 };
 
-// extern Gfx D_801AEF88[];
-// extern Gfx D_801AEFA0[];
+// extern Gfx gActorSetupXluDL[];
+// extern Gfx gActorSetupOpaDL[];
 
 void ObjLightblock_SpawnEffect(ObjLightblock* this, PlayState* play) {
     LightblockTypeVars* typeVars = &sLightblockTypeVars[LIGHTBLOCK_TYPE(&this->dyna.actor)];
