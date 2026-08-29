@@ -1139,7 +1139,7 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
 }
 
 void Environment_EnableUnderwaterLights(PlayState* play, s32 waterLightsIndex) {
-    if (waterLightsIndex == 0x1F) {
+    if (waterLightsIndex == WATERBOX_LIGHT_INDEX_NONE) {
         waterLightsIndex = 0;
     }
 
