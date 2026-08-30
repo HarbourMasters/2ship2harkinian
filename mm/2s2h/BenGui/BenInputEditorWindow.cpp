@@ -1398,7 +1398,7 @@ void BenInputEditorWindow::DrawPortTabContents(uint8_t portIndex) {
     }
 
     if (ImGui::CollapsingHeader("Z-Targeting Mode", NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
-        u8 *zTargetSetting = &gSaveContext.options.zTargetSetting;
+        u8* zTargetSetting = &gSaveContext.options.zTargetSetting;
         if (ImGui::Checkbox("Hold", reinterpret_cast<bool*>(zTargetSetting))) {
             CVarSetInteger("gSettings.ZTargetSetting", *zTargetSetting);
             Ship::Context::GetRawInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
