@@ -36,6 +36,7 @@
 #include "overlays/actors/ovl_En_Door/z_en_door.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_UPDATE_CULLING_DISABLED)
 
@@ -1173,7 +1174,7 @@ void EnInvadepoh_InvasionHandler_SetInitialInvasionState(EnInvadepoh* this, Play
             if ((currentTime < CLOCK_TIME(2, 30)) || (currentTime >= CLOCK_TIME(6, 00))) {
                 // It's before 2:30 AM on the first day, so the invasion hasn't started yet.
                 sInvasionState = INVASION_STATE_WAIT;
-            } else if (currentTime < CLOCK_TIME(5, 15)) {
+            } else if (GameInteractor_Should(VB_ALIENS_INVADE_RANCH, currentTime < CLOCK_TIME(5, 15), this)) {
                 s32 i;
                 s32 firstSpawn = CLOCK_TIME(5, 15);
                 s32 spawnTime;
@@ -2322,7 +2323,8 @@ void EnInvadepoh_InvasionHandler_SetupWaitForInvasion(EnInvadepoh* this) {
  * Waits until 2:30 AM, then spawns the UFO and Aliens and starts the invasion intro cutscene.
  */
 void EnInvadepoh_InvasionHandler_WaitForInvasion(EnInvadepoh* this, PlayState* play) {
-    if ((CURRENT_TIME < CLOCK_TIME(6, 00)) && (CURRENT_TIME >= CLOCK_TIME(2, 30))) {
+    if (GameInteractor_Should(VB_ALIENS_INVADE_RANCH,
+                              (CURRENT_TIME < CLOCK_TIME(6, 00)) && (CURRENT_TIME >= CLOCK_TIME(2, 30)), this)) {
         EnInvadepoh_InvasionHandler_SpawnUfo(this, play);
         EnInvadepoh_InvasionHandler_SpawnAliens(this, play);
         EnInvadepoh_InvasionHandler_SetupStartIntroCutscene(this);

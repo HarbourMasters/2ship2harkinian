@@ -1895,6 +1895,11 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(10)
                      .DefaultValue(10));
+    AddWidget(path, "Skip Alien Invasion", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.SkipRanchInvasion")
+        .Options(CheckboxOptions().Tooltip("Link automatically succeeds in defending Romani Ranch from the invasion. "
+                                           "In order for this to happen, you must be present at the ranch between "
+                                           "2:30 and 5:15 AM. Automatically advances to 5:15 AM."));
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
         .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.").ComboVec(&alwaysWinDoggyraceOptions));
