@@ -12,6 +12,9 @@ void EnInvadepoh_InvasionHandler_SuccessEnd(EnInvadepoh* enInvadepoh, PlayState*
 #define CVAR_NAME "gEnhancements.Minigames.SkipRanchInvasion"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
+// Needed to prevent debug warp from always skipping to 5:15 AM
+static bool sInvasionSkipped = false;
+
 static void EnInvadepoh_SkipToReward(Actor* actor, bool* should) {
     if ((CURRENT_DAY != 1) || (CURRENT_TIME >= CLOCK_TIME(5, 15)) || (CURRENT_TIME < CLOCK_TIME(2, 30)) ||
         (EN_INVADEPOH_GET_TYPE(actor) != EN_INVADEPOH_TYPE_INVASION_HANDLER)) {
@@ -25,12 +28,14 @@ static void EnInvadepoh_SkipToReward(Actor* actor, bool* should) {
 
     EnInvadepoh_InvasionHandler_SuccessCutscene(enInvadepoh, gPlayState);
     SET_WEEKEVENTREG(WEEKEVENTREG_DEFENDED_AGAINST_ALIENS);
+    sInvasionSkipped = true;
     *should = false;
 }
 
 static void AdvanceToEnd(s16 sceneId, s8 spawnNum) {
-    if (spawnNum == 6) {
+    if (spawnNum == 6 && sInvasionSkipped) {
         gSaveContext.save.time = CLOCK_TIME(5, 15);
+        sInvasionSkipped = false;
     }
 }
 
