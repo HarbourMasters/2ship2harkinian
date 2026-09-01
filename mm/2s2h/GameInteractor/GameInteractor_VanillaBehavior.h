@@ -49,14 +49,6 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // (CURRENT_TIME < CLOCK_TIME(6, 00)) && (CURRENT_TIME >= CLOCK_TIME(2, 30))
-    // ```
-    // #### `args`
-    // - `*EnInvadepoh`
-    VB_ALIENS_INVADE_RANCH,
-
-    // #### `result`
-    // ```c
     // (CURRENT_DAY != 3) || (gSaveContext.save.isNight == 0)
     // ```
     // #### `args`
