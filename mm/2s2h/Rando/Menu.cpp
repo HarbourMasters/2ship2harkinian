@@ -316,7 +316,7 @@ static uint32_t checkPoolGeneration = 0;
 void RefreshMetrics() {
     setOfItemsInPool.clear();
     setOfChecksInPool.clear();
-    RandoSaveInfo randoSaveInfo;
+    RandoSaveInfo randoSaveInfo{};
     std::vector<RandoCheckId> checkPool;
     std::vector<RandoItemId> itemPool;
 
@@ -608,11 +608,6 @@ static void DrawGeneralTab() {
         "Container Style Matches Contents", "gRando.CSMC",
         UIWidgets::CheckboxOptions().Tooltip("This will make the contents of a container match the container itself. "
                                              "Eg chests, pots, crates, grass, etc."));
-
-    UIWidgets::CVarCheckbox(
-        "Unique Key Models", "gRando.UniqueKeyModels",
-        UIWidgets::CheckboxOptions().DefaultValue(true).Tooltip(
-            "This will make Small Keys and Boss Keys have unique models depending on their corresponding dungeon."));
 
     UIWidgets::CVarCombobox(
         "Junk Items", "gRando.JunkItems", &junkItemsOptions,
