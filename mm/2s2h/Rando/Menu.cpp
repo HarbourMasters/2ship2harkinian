@@ -57,6 +57,12 @@ std::unordered_map<int32_t, const char*> dungeonItemPlacementOptions = {
     { RO_DUNGEON_ITEM_VANILLA, "Vanilla" },
 };
 
+std::unordered_map<int32_t, const char*> remainsShuffleOptions = {
+    { RO_REMAINS_SHUFFLE_ANYWHERE, "Anywhere" },
+    { RO_REMAINS_SHUFFLE_OWN_DUNGEON, "Own Dungeon" },
+    { RO_REMAINS_SHUFFLE_VANILLA, "Vanilla" },
+};
+
 std::unordered_map<int32_t, const char*> songShuffleOptions = {
     { RO_SONG_SHUFFLE_ANYWHERE, "Anywhere" },
     { RO_SONG_SHUFFLE_SONG_LOCATIONS, "Song Locations" },
@@ -734,6 +740,23 @@ static void DrawCheckPoolTab() {
         auto it = counts.find(RCTYPE_SONG);
         PoolCountSuffix(it != counts.end() ? it->second : 0);
     }
+    UIWidgets::CVarCombobox(
+        "Boss Remains", Rando::StaticData::Options[RO_SHUFFLE_BOSS_REMAINS].cvar, &remainsShuffleOptions,
+        UIWidgets::ComboboxOptions()
+            .ComponentAlignment(UIWidgets::ComponentAlignment::Right)
+            .LabelPosition(UIWidgets::LabelPosition::Near)
+            .Tooltip("Where each temple boss's remains may be found.\n\n"
+                     "Anywhere - Defeating a boss rewards a shuffled item, and its remains can be found anywhere in "
+                     "the world.\n\n"
+                     "Own Dungeon - Defeating a boss rewards a shuffled item, and each boss's remains are somewhere "
+                     "inside that boss's own temple.\n\n"
+                     "Vanilla - Every boss still rewards its own remains, and the boss warps are not checks."));
+    if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_BOSS_REMAINS].cvar, RO_REMAINS_SHUFFLE_VANILLA) !=
+        RO_REMAINS_SHUFFLE_VANILLA) {
+        auto& counts = GetCheckCountsByType();
+        auto it = counts.find(RCTYPE_REMAINS);
+        PoolCountSuffix(it != counts.end() ? it->second : 0);
+    }
     CheckPoolCheckbox("Owl Statues", RO_SHUFFLE_OWL_STATUES, RCTYPE_OWL,
                       "Activating an owl statue is a check. Song of Soaring destinations are unaffected.");
     CheckPoolCheckbox("Shops", RO_SHUFFLE_SHOPS, RCTYPE_SHOP,
@@ -741,8 +764,6 @@ static void DrawCheckPoolTab() {
                       "and the Bomb Shop's bomb bags are always shuffled, even with this off.");
     CheckPoolCheckbox("Tingle Maps", RO_SHUFFLE_TINGLE_SHOPS, RCTYPE_TINGLE_SHOP,
                       "Maps sold by Tingle are checks, with randomized prices.");
-    CheckPoolCheckbox("Boss Remains", RO_SHUFFLE_BOSS_REMAINS, RCTYPE_REMAINS,
-                      "Defeating each temple boss rewards a shuffled item instead of that boss's remains.");
     CheckPoolCheckbox("Cows", RO_SHUFFLE_COWS, RCTYPE_COW, "Playing Epona's Song to a cow is a check.");
     UIWidgets::EndCard();
 

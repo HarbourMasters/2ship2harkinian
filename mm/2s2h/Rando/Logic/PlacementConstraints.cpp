@@ -34,21 +34,25 @@ int DungeonItemToDungeon(RandoItemId itemId) {
         case RI_WOODFALL_SMALL_KEY:
         case RI_WOODFALL_BOSS_KEY:
         case RI_WOODFALL_STRAY_FAIRY:
+        case RI_REMAINS_ODOLWA:
             dungeon = DUNGEON_SCENE_INDEX_WOODFALL_TEMPLE;
             break;
         case RI_SNOWHEAD_SMALL_KEY:
         case RI_SNOWHEAD_BOSS_KEY:
         case RI_SNOWHEAD_STRAY_FAIRY:
+        case RI_REMAINS_GOHT:
             dungeon = DUNGEON_SCENE_INDEX_SNOWHEAD_TEMPLE;
             break;
         case RI_GREAT_BAY_SMALL_KEY:
         case RI_GREAT_BAY_BOSS_KEY:
         case RI_GREAT_BAY_STRAY_FAIRY:
+        case RI_REMAINS_GYORG:
             dungeon = DUNGEON_SCENE_INDEX_GREAT_BAY_TEMPLE;
             break;
         case RI_STONE_TOWER_SMALL_KEY:
         case RI_STONE_TOWER_BOSS_KEY:
         case RI_STONE_TOWER_STRAY_FAIRY:
+        case RI_REMAINS_TWINMOLD:
             dungeon = DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE;
             break;
         default:
@@ -89,6 +93,18 @@ bool StaysAtVanillaCheck(RandoItemId itemId, const RandoSaveInfo& saveInfo) {
 }
 
 int RandoItemIdToDungeon(RandoItemId itemId) {
+    switch (itemId) {
+        case RI_REMAINS_ODOLWA:
+        case RI_REMAINS_GOHT:
+        case RI_REMAINS_GYORG:
+        case RI_REMAINS_TWINMOLD:
+            return RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_REMAINS] == RO_REMAINS_SHUFFLE_OWN_DUNGEON
+                       ? DungeonItemToDungeon(itemId)
+                       : -1;
+        default:
+            break;
+    }
+
     RandoOptionId placementOption = DungeonItemPlacementOption(itemId);
     if (placementOption == RO_MAX || RANDO_SAVE_OPTIONS[placementOption] != RO_DUNGEON_ITEM_OWN_DUNGEON) {
         return -1;
