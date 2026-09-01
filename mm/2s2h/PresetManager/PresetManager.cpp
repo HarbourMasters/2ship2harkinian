@@ -28,6 +28,7 @@ nlohmann::json defaultsPresetJ = R"(
     "ClearCVars": [
         "gCheats",
         "gCollisionViewer",
+        "gCosmetic",
         "gDeveloperTools",
         "gEnhancements",
         "gEventLog",
