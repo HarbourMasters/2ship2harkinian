@@ -3391,6 +3391,12 @@ typedef enum {
 } RandoOptionSongShuffle;
 
 typedef enum {
+    RO_REMAINS_SHUFFLE_VANILLA,
+    RO_REMAINS_SHUFFLE_ANYWHERE,
+    RO_REMAINS_SHUFFLE_OWN_DUNGEON,
+} RandoOptionRemainsShuffle;
+
+typedef enum {
     RO_CLOCK_SHUFFLE_RANDOM,
     RO_CLOCK_SHUFFLE_ASCENDING,
     RO_CLOCK_SHUFFLE_DESCENDING,

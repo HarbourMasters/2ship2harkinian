@@ -138,7 +138,7 @@ void GeneratePools(RandoSaveInfo& saveInfo, std::vector<RandoCheckId>& checkPool
             }
 
             if (randoStaticCheck.randoCheckType == RCTYPE_REMAINS &&
-                saveInfo.randoSaveOptions[RO_SHUFFLE_BOSS_REMAINS] == RO_GENERIC_NO) {
+                saveInfo.randoSaveOptions[RO_SHUFFLE_BOSS_REMAINS] == RO_REMAINS_SHUFFLE_VANILLA) {
                 continue;
             }
 
