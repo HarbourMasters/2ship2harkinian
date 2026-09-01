@@ -33,7 +33,7 @@ static void EnInvadepoh_SkipToReward(Actor* actor, bool* should) {
 }
 
 static void AdvanceToEnd(s16 sceneId, s8 spawnNum) {
-    if (spawnNum == 6 && sInvasionSkipped) {
+    if (sInvasionSkipped) {
         gSaveContext.save.time = CLOCK_TIME(5, 15);
         sInvasionSkipped = false;
     }
