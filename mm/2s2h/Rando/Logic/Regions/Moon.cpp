@@ -40,10 +40,8 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(THE_MOON, 0),                              ONE_WAY_EXIT, CAN_BE_GORON && HAS_MAGIC), // Exit from Mask NPC
         },
     };
-    Regions[RR_MOON_LINK_TRIAL] = RandoRegion{ .sceneId = SCENE_LAST_LINK,
+    Regions[RR_MOON_LINK_TRIAL_ENTRANCE] = RandoRegion{ .sceneId = SCENE_LAST_LINK,
         .checks = {
-            CHECK(RC_MOON_TRIAL_LINK_GARO_MASTER_CHEST, HAS_ITEM(ITEM_HOOKSHOT)),
-            CHECK(RC_MOON_TRIAL_LINK_IRON_KNUCKLE_CHEST, HAS_ITEM(ITEM_HOOKSHOT)),
             CHECK(RC_MOON_TRIAL_LINK_POT_01, true),
             CHECK(RC_MOON_TRIAL_LINK_POT_02, true),
             CHECK(RC_MOON_TRIAL_LINK_POT_03, true),
@@ -52,15 +50,44 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_MOON_TRIAL_LINK_POT_06, true),
             CHECK(RC_MOON_TRIAL_LINK_POT_07, true),
             CHECK(RC_MOON_TRIAL_LINK_POT_08, true),
-            CHECK(RC_MOON_TRIAL_LINK_PIECE_OF_HEART, HAS_ITEM(ITEM_HOOKSHOT) && HAS_ITEM(ITEM_BOMBCHU) && HAS_ITEM(ITEM_BOW)),
-            CHECK(RC_ENEMY_DROP_IRON_KNUCKLE, CanKillEnemy(ACTOR_EN_IK)),
-            CHECK(RC_ENEMY_DROP_GARO_MASTER, CanKillEnemy(ACTOR_EN_JSO2)),
-            CHECK(RC_ENEMY_DROP_WIZROBE, CanKillEnemy(ACTOR_EN_WIZ)),
             CHECK(RC_ENEMY_DROP_DINOLFOS, CanKillEnemy(ACTOR_EN_DINOFOS)),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(THE_MOON, 0),                     ENTRANCE(MOON_LINK_TRIAL, 0), true),
-            EXIT(ENTRANCE(THE_MOON, 0),                              ONE_WAY_EXIT, HAS_ITEM(ITEM_HOOKSHOT) && HAS_ITEM(ITEM_BOMBCHU) && HAS_ITEM(ITEM_BOW)), // Exit from Mask NPC
+        },
+        .connections = {
+            CONNECTION(RR_MOON_LINK_TRIAL_GARO_ROOM, CanKillEnemy(ACTOR_EN_DINOFOS)),
+        },
+    };
+    Regions[RR_MOON_LINK_TRIAL_GARO_ROOM] = RandoRegion{ .sceneId = SCENE_LAST_LINK,
+        .checks = {
+            CHECK(RC_ENEMY_DROP_GARO_MASTER, CanKillEnemy(ACTOR_EN_JSO2)),
+            CHECK(RC_MOON_TRIAL_LINK_GARO_MASTER_CHEST, HAS_ITEM(ITEM_HOOKSHOT)),
+        },
+        .connections = {
+            CONNECTION(RR_MOON_LINK_TRIAL_ENTRANCE, CanKillEnemy(ACTOR_EN_DINOFOS)),
+            CONNECTION(RR_MOON_LINK_TRIAL_KNUCKLE_ROOM, CanKillEnemy(ACTOR_EN_JSO2) && HAS_ITEM(ITEM_HOOKSHOT)),
+        },
+    };
+    Regions[RR_MOON_LINK_TRIAL_KNUCKLE_ROOM] = RandoRegion{ .sceneId = SCENE_LAST_LINK,
+        .checks = {
+            CHECK(RC_MOON_TRIAL_LINK_IRON_KNUCKLE_CHEST, CanKillEnemy(ACTOR_EN_IK)),
+            CHECK(RC_ENEMY_DROP_IRON_KNUCKLE, CanKillEnemy(ACTOR_EN_IK)),
+        },
+        .connections = {
+            CONNECTION(RR_MOON_LINK_TRIAL_FINAL_ROOM, CanKillEnemy(ACTOR_EN_IK) && HAS_ITEM(ITEM_BOMBCHU) && HAS_ITEM(ITEM_BOW)),
+            CONNECTION(RR_MOON_LINK_TRIAL_GARO_ROOM, CanKillEnemy(ACTOR_EN_IK)),
+        },
+    };
+    Regions[RR_MOON_LINK_TRIAL_FINAL_ROOM] = RandoRegion{ .sceneId = SCENE_LAST_LINK,
+        .checks = {
+            CHECK(RC_MOON_TRIAL_LINK_PIECE_OF_HEART, true),
+        },
+        .exits = { //     TO                                         FROM
+            EXIT(ENTRANCE(THE_MOON, 0),                              ONE_WAY_EXIT, HAS_ITEM(ITEM_BOMBCHU) && CAN_USE_MAGIC_ARROW(FIRE)), // Exit from Mask NPC
+        },
+        .connections = {
+            CONNECTION(RR_MOON_LINK_TRIAL_GARO_ROOM, true),
         },
     };
     Regions[RR_MOON_MAJORAS_LAIR] = RandoRegion{ .sceneId = SCENE_LAST_BS,
