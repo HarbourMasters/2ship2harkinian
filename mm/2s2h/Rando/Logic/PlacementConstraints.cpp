@@ -5,6 +5,9 @@ namespace Rando {
 
 namespace Logic {
 
+// if we keep adding more groups we should probably make this an enum or somthing
+static constexpr int CONFINEMENT_GROUP_SONGS = DUNGEON_SCENE_INDEX_STONE_TOWER_TEMPLE_BOSS + 1;
+
 int SceneIdToDungeon(SceneId sceneId) {
     switch (sceneId) {
         case SCENE_MITURIN:
@@ -93,31 +96,60 @@ int RandoItemIdToDungeon(RandoItemId itemId) {
     return DungeonItemToDungeon(itemId);
 }
 
+bool IsSongLocationItem(RandoItemId itemId) {
+    static const std::array<bool, RI_MAX> songLocationItems = [] {
+        std::array<bool, RI_MAX> items{};
+        for (auto& [randoCheckId, randoStaticCheck] : Rando::StaticData::Checks) {
+            if (randoStaticCheck.randoCheckType == RCTYPE_SONG) {
+                items[randoStaticCheck.randoItemId] = true;
+            }
+        }
+        return items;
+    }();
+    return itemId < RI_MAX && songLocationItems[itemId];
+}
+
+int CheckIdToConfinementGroup(RandoCheckId checkId) {
+    auto& randoStaticCheck = Rando::StaticData::Checks[checkId];
+    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SONGS] == RO_SONG_SHUFFLE_SONG_LOCATIONS &&
+        randoStaticCheck.randoCheckType == RCTYPE_SONG) {
+        return CONFINEMENT_GROUP_SONGS;
+    }
+    return SceneIdToDungeon(randoStaticCheck.sceneId);
+}
+
+int RandoItemIdToConfinementGroup(RandoItemId itemId) {
+    if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_SONGS] == RO_SONG_SHUFFLE_SONG_LOCATIONS && IsSongLocationItem(itemId)) {
+        return CONFINEMENT_GROUP_SONGS;
+    }
+    return RandoItemIdToDungeon(itemId);
+}
+
 bool IsItemAllowedAtCheck(RandoItemId itemId, RandoCheckId checkId) {
-    int confinedDungeon = RandoItemIdToDungeon(itemId);
-    return confinedDungeon < 0 || confinedDungeon == SceneIdToDungeon(Rando::StaticData::Checks[checkId].sceneId);
+    int confinedGroup = RandoItemIdToConfinementGroup(itemId);
+    return confinedGroup < 0 || confinedGroup == CheckIdToConfinementGroup(checkId);
 }
 
 size_t SelectItemForCheck(const std::vector<RandoItemId>& itemPool, const std::vector<RandoCheckId>& checkPool,
                           RandoCheckId checkId) {
-    int dungeon = SceneIdToDungeon(Rando::StaticData::Checks[checkId].sceneId);
-    if (dungeon >= 0) {
+    int group = CheckIdToConfinementGroup(checkId);
+    if (group >= 0) {
         int confinedItems = 0;
         for (RandoItemId itemId : itemPool) {
-            if (RandoItemIdToDungeon(itemId) == dungeon) {
+            if (RandoItemIdToConfinementGroup(itemId) == group) {
                 confinedItems++;
             }
         }
         if (confinedItems > 0) {
-            int dungeonChecks = 1; // this check was already removed from checkPool
+            int groupChecks = 1; // this check was already removed from checkPool
             for (RandoCheckId other : checkPool) {
-                if (SceneIdToDungeon(Rando::StaticData::Checks[other].sceneId) == dungeon) {
-                    dungeonChecks++;
+                if (CheckIdToConfinementGroup(other) == group) {
+                    groupChecks++;
                 }
             }
-            if (confinedItems >= dungeonChecks) {
+            if (confinedItems >= groupChecks) {
                 for (size_t i = itemPool.size(); i-- > 0;) {
-                    if (RandoItemIdToDungeon(itemPool[i]) == dungeon) {
+                    if (RandoItemIdToConfinementGroup(itemPool[i]) == group) {
                         return i;
                     }
                 }
@@ -134,22 +166,22 @@ size_t SelectItemForCheck(const std::vector<RandoItemId>& itemPool, const std::v
 }
 
 void PreplaceConfinedItems(std::vector<RandoCheckId>& checkPool, std::vector<RandoItemId>& itemPool) {
-    std::map<int, std::vector<RandoCheckId>> dungeonChecks;
+    std::map<int, std::vector<RandoCheckId>> groupChecks;
     for (RandoCheckId checkId : checkPool) {
-        int dungeon = SceneIdToDungeon(Rando::StaticData::Checks[checkId].sceneId);
-        if (dungeon >= 0) {
-            dungeonChecks[dungeon].push_back(checkId);
+        int group = CheckIdToConfinementGroup(checkId);
+        if (group >= 0) {
+            groupChecks[group].push_back(checkId);
         }
     }
 
     std::set<RandoCheckId> placedChecks;
     std::set<size_t> placedItems;
     for (size_t i = 0; i < itemPool.size(); i++) {
-        int dungeon = RandoItemIdToDungeon(itemPool[i]);
-        if (dungeon < 0) {
+        int group = RandoItemIdToConfinementGroup(itemPool[i]);
+        if (group < 0) {
             continue; // not confined to a dungeon
         }
-        auto& checks = dungeonChecks[dungeon];
+        auto& checks = groupChecks[group];
         if (checks.empty()) {
             continue; // dungeon out of room: leave it for the general pool
         }
