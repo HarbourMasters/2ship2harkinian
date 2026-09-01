@@ -57,6 +57,12 @@ std::unordered_map<int32_t, const char*> dungeonItemPlacementOptions = {
     { RO_DUNGEON_ITEM_VANILLA, "Vanilla" },
 };
 
+std::unordered_map<int32_t, const char*> songShuffleOptions = {
+    { RO_SONG_SHUFFLE_ANYWHERE, "Anywhere" },
+    { RO_SONG_SHUFFLE_SONG_LOCATIONS, "Song Locations" },
+    { RO_SONG_SHUFFLE_VANILLA, "Vanilla" },
+};
+
 // clang-format off
 std::vector<int32_t> incompatibleWithVanilla = {
     RO_SHUFFLE_BOSS_SOULS,
@@ -409,6 +415,7 @@ static RegisterShipInitFunc refreshMetricsInit(RefreshMetrics, {
                                                                    "gRando.Options.RO_SHUFFLE_SHOPS",
                                                                    "gRando.Options.RO_SHUFFLE_SKELETON_KEY",
                                                                    "gRando.Options.RO_SHUFFLE_SNOWBALL_DROPS",
+                                                                   "gRando.Options.RO_SHUFFLE_SONGS",
                                                                    "gRando.Options.RO_SHUFFLE_SONG_DOUBLE_TIME",
                                                                    "gRando.Options.RO_SHUFFLE_SONG_INVERTED_TIME",
                                                                    "gRando.Options.RO_SHUFFLE_SONG_SARIA",
@@ -711,11 +718,22 @@ static void DrawCheckPoolTab() {
 
     UIWidgets::BeginCard("checkPoolWorld");
     ImGui::SeparatorText("World & NPCs");
-    CVarCheckbox("Songs", "gPlaceholderBool",
-                 CheckboxOptions({ { .disabled = true,
-                                     .disabledTooltip = "Songs are currently always shuffled. The option to "
-                                                        "disable this is coming soon." } })
-                     .DefaultValue(true));
+    UIWidgets::CVarCombobox(
+        "Songs", Rando::StaticData::Options[RO_SHUFFLE_SONGS].cvar, &songShuffleOptions,
+        UIWidgets::ComboboxOptions()
+            .ComponentAlignment(UIWidgets::ComponentAlignment::Right)
+            .LabelPosition(UIWidgets::LabelPosition::Near)
+            .Tooltip("Where the songs taught in the world may be found. Extra songs have no location of their own, "
+                     "so they are always shuffled into the item pool like any other item.\n\n"
+                     "Anywhere - Song locations are checks, and their songs can be found anywhere in the world.\n\n"
+                     "Song Locations - Song locations are checks, and their songs are shuffled among them.\n\n"
+                     "Vanilla - Every song stays where it is, and song locations are not checks."));
+    if (CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_SONGS].cvar, RO_SONG_SHUFFLE_ANYWHERE) !=
+        RO_SONG_SHUFFLE_VANILLA) {
+        auto& counts = GetCheckCountsByType();
+        auto it = counts.find(RCTYPE_SONG);
+        PoolCountSuffix(it != counts.end() ? it->second : 0);
+    }
     CheckPoolCheckbox("Owl Statues", RO_SHUFFLE_OWL_STATUES, RCTYPE_OWL,
                       "Activating an owl statue is a check. Song of Soaring destinations are unaffected.");
     CheckPoolCheckbox("Shops", RO_SHUFFLE_SHOPS, RCTYPE_SHOP,
