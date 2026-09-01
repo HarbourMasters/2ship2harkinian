@@ -4,9 +4,8 @@
 
 extern "C" {
 #include "src/overlays/actors/ovl_En_Invadepoh/z_en_invadepoh.h"
-#include "z64horse.h"
 
-void EnInvadepoh_InvasionHandler_SetupSuccessEnd(EnInvadepoh* enInvadepoh);
+void EnInvadepoh_InvasionHandler_SuccessCutscene(EnInvadepoh* enInvadepoh, PlayState* play);
 void EnInvadepoh_InvasionHandler_SuccessEnd(EnInvadepoh* enInvadepoh, PlayState* play);
 }
 
@@ -24,14 +23,7 @@ static void EnInvadepoh_SkipToReward(Actor* actor, bool* should) {
         return;
     }
 
-    gPlayState->nextEntrance = ENTRANCE(ROMANI_RANCH, 6);
-    gSaveContext.nextCutsceneIndex = 0;
-    gPlayState->transitionTrigger = TRANS_TRIGGER_START;
-    gPlayState->transitionType = TRANS_TYPE_73;
-    gSaveContext.nextTransitionType = TRANS_TYPE_72;
-    D_801BDAA0 = true;
-    gHorseIsMounted = false;
-    EnInvadepoh_InvasionHandler_SetupSuccessEnd(enInvadepoh);
+    EnInvadepoh_InvasionHandler_SuccessCutscene(enInvadepoh, gPlayState);
     SET_WEEKEVENTREG(WEEKEVENTREG_DEFENDED_AGAINST_ALIENS);
     *should = false;
 }
