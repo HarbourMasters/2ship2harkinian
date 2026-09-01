@@ -416,7 +416,7 @@ SoundFontData* AudioLoad_SyncLoadSeqFonts(s32 seqId, u32* outDefaultFontId) {
         return NULL;
     }
 
-    fontId = 0xFFFF;
+    fontId = 0xFF;
     index = ((u16*)gAudioCtx.sequenceFontTable)[seqId];
     numFonts = gAudioCtx.sequenceFontTable[index++];
 
@@ -1347,6 +1347,10 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     free(customSeqList);
 
     numFonts = fntListSize;
+
+    // Every sound font load is a permanent cache entry, so the table needs room for every font and sequence
+    gAudioCtx.permanentEntriesCapacity = gFontMapSize + gSequenceMapSize;
+    gAudioCtx.permanentEntries = calloc(gAudioCtx.permanentEntriesCapacity, sizeof(AudioCacheEntry));
 
     // #end region
     gAudioCtx.soundFontList = AudioHeap_Alloc(&gAudioCtx.initPool, numFonts * sizeof(SoundFont));
