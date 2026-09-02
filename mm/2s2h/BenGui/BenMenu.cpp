@@ -441,7 +441,7 @@ void BenMenu::AddSettings() {
         ImGui::BeginChild("about");
         ImGui::PushStyleColor(ImGuiCol_Text, ColorValues.at(Colors::Gray));
         if (gGitCommitTag[0] == 0) {
-            ImGui::Text("%s | %s", (char*)gGitBranch, (char*)gGitCommitHash);
+            ImGui::Text("%s | %s | %s", (char*)gBuildVersion, (char*)gGitBranch, (char*)gGitCommitHash);
         } else {
             ImGui::Text("%s", (char*)gBuildVersion);
         }

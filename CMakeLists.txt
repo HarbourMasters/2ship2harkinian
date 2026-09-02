@@ -21,6 +21,17 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+# Github Actions checks out a detached HEAD, so check environment for the branch name instead
+if(NOT GIT_BRANCH)
+    if(DEFINED ENV{GITHUB_HEAD_REF} AND NOT "$ENV{GITHUB_HEAD_REF}" STREQUAL "")
+        set(GIT_BRANCH "$ENV{GITHUB_HEAD_REF}")
+    elseif(DEFINED ENV{GITHUB_REF_NAME} AND NOT "$ENV{GITHUB_REF_NAME}" STREQUAL "")
+        set(GIT_BRANCH "$ENV{GITHUB_REF_NAME}")
+    else()
+        set(GIT_BRANCH "detached")
+    endif()
+endif()
+
 set(CMAKE_PROJECT_GIT_BRANCH "${GIT_BRANCH}" CACHE STRING "Git branch" FORCE)
 
 execute_process(
@@ -29,6 +40,15 @@ execute_process(
     OUTPUT_VARIABLE GIT_COMMIT_HASH
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
+
+# CI builds a PR from an ephemeral merge commit, so report the head commit GitHub shows instead
+if(DEFINED ENV{GITHUB_EVENT_PATH} AND EXISTS "$ENV{GITHUB_EVENT_PATH}")
+    file(READ "$ENV{GITHUB_EVENT_PATH}" GITHUB_EVENT_JSON)
+    string(JSON PR_HEAD_SHA ERROR_VARIABLE PR_HEAD_SHA_ERROR GET "${GITHUB_EVENT_JSON}" "pull_request" "head" "sha")
+    if(PR_HEAD_SHA AND PR_HEAD_SHA_ERROR STREQUAL "NOTFOUND")
+        set(GIT_COMMIT_HASH "${PR_HEAD_SHA}")
+    endif()
+endif()
 
 # Get only the first 7 characters of the hash
 string(SUBSTRING "${GIT_COMMIT_HASH}" 0 7 SHORT_COMMIT_HASH)
