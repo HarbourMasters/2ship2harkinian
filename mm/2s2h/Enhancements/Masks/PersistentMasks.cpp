@@ -16,7 +16,7 @@ extern const char* D_801C0B20[28];
 #define CVAR_NAME "gEnhancements.Masks.PersistentBunnyHood.Enabled"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-void UpdatePersistentMasksState() {
+static void UpdatePersistentMasksState() {
     static Vtx* persistentMasksVtx;
     static HOOK_ID beforePageDrawHook = 0;
     static HOOK_ID onPlayerPostLimbDrawHook = 0;
@@ -142,7 +142,7 @@ void UpdatePersistentMasksState() {
         });
 }
 
-void RegisterPersistentMasks() {
+static void RegisterPersistentMasks() {
     UpdatePersistentMasksState();
 
     // Easiest way to handle things like loading into a different file, debug warping, etc.
