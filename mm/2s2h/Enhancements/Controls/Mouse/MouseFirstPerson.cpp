@@ -16,10 +16,8 @@ static void HandleTelescopeAim(s16* inputX, s16* inputY) {
         return;
     }
     MouseCoords d = Mouse_GetDelta();
-    *inputX -= (s16)(d.x * 12.0f * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f) *
-                     GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X));
-    *inputY += (s16)(d.y * 12.0f * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f) *
-                     GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y));
+    *inputX -= (s16)(d.x * 12.0f * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f));
+    *inputY += (s16)(d.y * 12.0f * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f));
 }
 
 static void HandleOvershoulderAim(bool* should, Player* player) {
