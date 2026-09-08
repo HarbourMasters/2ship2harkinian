@@ -144,6 +144,12 @@ static const std::vector<const char*> speedModifierModeOptions = {
     "Toggle Buttons",
 };
 
+static const std::vector<const char*> dashAfterRollOptions = {
+    "Off",                   // DASH_AFTER_ROLL_OFF
+    "On",                    // DASH_AFTER_ROLL_ON
+    "Stack with Bunny Hood", // DASH_AFTER_ROLL_STACK
+};
+
 static const std::vector<const char*> notificationPosition = {
     "Top Left", "Top Right", "Bottom Left", "Bottom Right", "Hidden",
 };
@@ -1096,6 +1102,14 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.ManualJump")
         .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack."));
+    AddWidget(path, "Dash After Roll", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Player.DashAfterRoll")
+        .Options(ComboboxOptions()
+                     .Tooltip("Keep holding A after a roll to dash.\n\n"
+                              "- On: Dashing runs at Bunny Hood speed, wearing the bunny hood adds nothing extra.\n"
+                              "- Stack with Bunny Hood: Dashing while wearing the Bunny Hood combines both boosts to "
+                              "run even faster.")
+                     .ComboVec(&dashAfterRollOptions));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your D-pad."));
