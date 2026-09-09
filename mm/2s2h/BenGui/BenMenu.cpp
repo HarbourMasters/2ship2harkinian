@@ -1798,41 +1798,8 @@ void BenMenu::AddEnhancements() {
     // Difficulty Options
     path = { "Enhancements", "Difficulty Options", SECTION_COLUMN_1 };
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
-    AddWidget(path, "Combat", WIDGET_SEPARATOR_TEXT);
-    AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
-        .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
-    AddWidget(path, "Boss Health Multiplier", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.BossHealthMultiplier")
-        .Options(ComboboxOptions()
-                     .Tooltip("Multiply the health of all bosses. Requires a Scene Reload to take effect.")
-                     .ComboMap(&bossHealthOptions));
-    AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
-        .Options(ComboboxOptions()
-                     .Tooltip("Adjusts the amount of damage Link takes from all sources.")
-                     .ComboMap(&damageMultiplierOptions));
-    AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
-        .Options(CheckboxOptions().Tooltip(
-            "When you lose 4 quarters of a heart you will permanently lose that heart container.\n\nDisabling this "
-            "after the fact will not restore any received heart containers."));
-    AddWidget(path, "Delete File on Death", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.DifficultyOptions.DeleteFileOnDeath")
-        .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE
-                                           " WARNING " ICON_FA_EXCLAMATION_TRIANGLE
-                                           "\nTHIS IS NOT REVERSIBLE\nUSE AT YOUR OWN RISK!"));
-    AddWidget(path, "Jinxed Timer: %d seconds", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.DifficultyOptions.JinxedTimer")
-        .Options(
-            IntSliderOptions()
-                .Tooltip("Set the duration of the Jinxed effect. Setting it to 0 will prevent the effect entirely.")
-                .Min(0)
-                .Max(60)
-                .DefaultValue(60));
 
-    path.column = SECTION_COLUMN_2;
-    AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Clock Town Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Bombers Hide-and-Seek Count", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.BombersHideAndSeek")
         .Options(IntSliderOptions()
@@ -1868,6 +1835,16 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(16)
                      .DefaultValue(16));
+    AddWidget(path, "Treasure Chest Shop Maze", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Minigames.TreasureChestShopShowFullMaze")
+        .Options(ComboboxOptions()
+                     .Tooltip("Shows the entire maze layout in the Treasure Chest Shop minigame instead of only "
+                              "revealing tiles near Link.\n"
+                              "-Off: Only tiles near Link are revealed\n"
+                              "-Full Height: The whole maze is raised to the same height\n"
+                              "-Tiered: Tiles are raised higher the further back they are, so the front rows "
+                              "don't hide the rest")
+                     .ComboVec(&treasureChestShopMazeOptions));
     AddWidget(path, "Town Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.TownArcheryScore")
         .Options(IntSliderOptions()
@@ -1880,6 +1857,8 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Minigames.RandomizeShootingGalleryOctoroks")
         .Options(CheckboxOptions().Tooltip("Randomizes the positions of Octoroks in the Town Shooting Gallery minigame "
                                            "each time they appear."));
+
+    AddWidget(path, "Southern Swamp Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.SwampArcheryScore")
         .Options(IntSliderOptions()
@@ -1888,6 +1867,33 @@ void BenMenu::AddEnhancements() {
                      .Min(1000)
                      .Max(2180)
                      .DefaultValue(2180));
+    AddWidget(path, "Swamp Boat Archery Target Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BoatArcheryScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the initial target score of the Swamp Boat Archery minigame. The target score "
+                              "gets set the first time you play the minigame in each cycle.")
+                     .Min(1)
+                     .Max(50)
+                     .DefaultValue(20));
+    AddWidget(path, "Koume's Health", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BoatArcheryHealth")
+        .PreFunc([](WidgetInfo& info) {
+            if (mBenMenu->disabledMap.at(DISABLE_FOR_KOUME_INVINCIBLE).active) {
+                info.activeDisables.push_back(DISABLE_FOR_KOUME_INVINCIBLE);
+            }
+        })
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets Koume's health in the Swamp Boat Archery minigame. If Koume is hit this many "
+                              "times, the minigame will end.")
+                     .Min(1)
+                     .Max(30)
+                     .DefaultValue(10));
+    AddWidget(path, "Invincible", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.BoatArcheryInvincible")
+        .Options(CheckboxOptions().Tooltip("Koume's health does not decrease when hit."));
+
+    path.column = SECTION_COLUMN_2;
+    AddWidget(path, "Milk Road Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Romani Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.RomaniTargetPractice")
         .Options(IntSliderOptions()
@@ -1914,6 +1920,19 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Gorman Horse Race", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Minigames.SkipHorseRace")
         .Options(CheckboxOptions().Tooltip("Instantly win the Gorman Horse Race"));
+
+    AddWidget(path, "Goron Minigames", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Goron Race", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.GoronRace")
+        .Options(ComboboxOptions()
+                     .Tooltip("Set CPU behavior for the Goron Race:\n"
+                              "- Vanilla: Gorons ahead of Link slow down, and Gorons behind speed up.\n"
+                              "- Balanced: Gorons ahead of Link slow down, but Gorons behind do not speed up.\n"
+                              "- Skip: Instantly win the race.\n")
+                     .DefaultIndex(GoronRaceDifficultyOptions::GORON_RACE_DIFFICULTY_VANILLA)
+                     .ComboVec(&goronRaceDifficultyOptions));
+
+    AddWidget(path, "Great Bay Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Beaver Race Rings Collected", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.BeaverRaceRingsCollected")
         .Options(IntSliderOptions()
@@ -1926,51 +1945,41 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Little Beaver Brother Races", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Minigames.SkipLittleBeaver")
         .Options(CheckboxOptions().Tooltip("Only Race the Older Beaver."));
-    AddWidget(path, "Goron Race", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.DifficultyOptions.GoronRace")
-        .Options(ComboboxOptions()
-                     .Tooltip("Set CPU behavior for the Goron Race:\n"
-                              "- Vanilla: Gorons ahead of Link slow down, and Gorons behind speed up.\n"
-                              "- Balanced: Gorons ahead of Link slow down, but Gorons behind do not speed up.\n"
-                              "- Skip: Instantly win the race.\n")
-                     .DefaultIndex(GoronRaceDifficultyOptions::GORON_RACE_DIFFICULTY_VANILLA)
-                     .ComboVec(&goronRaceDifficultyOptions));
-    AddWidget(path, "Swamp Boat Archery Target Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BoatArcheryScore")
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets the initial target score of the Swamp Boat Archery minigame. The target score "
-                              "gets set the first time you play the minigame in each cycle.")
-                     .Min(1)
-                     .Max(50)
-                     .DefaultValue(20));
-    AddWidget(path, "Koume's Health", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.BoatArcheryHealth")
-        .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_KOUME_INVINCIBLE).active) {
-                info.activeDisables.push_back(DISABLE_FOR_KOUME_INVINCIBLE);
-            }
-        })
-        .Options(IntSliderOptions()
-                     .Tooltip("Sets Koume's health in the Swamp Boat Archery minigame. If Koume is hit this many "
-                              "times, the minigame will end.")
-                     .Min(1)
-                     .Max(30)
-                     .DefaultValue(10));
-    AddWidget(path, "Invincible", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.BoatArcheryInvincible")
-        .Options(CheckboxOptions().Tooltip("Koume's health does not decrease when hit."));
-    AddWidget(path, "Treasure Chest Shop Maze", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Minigames.TreasureChestShopShowFullMaze")
-        .Options(ComboboxOptions()
-                     .Tooltip("Shows the entire maze layout in the Treasure Chest Shop minigame instead of only "
-                              "revealing tiles near Link.\n"
-                              "-Off: Only tiles near Link are revealed\n"
-                              "-Full Height: The whole maze is raised to the same height\n"
-                              "-Tiered: Tiles are raised higher the further back they are, so the front rows "
-                              "don't hide the rest")
-                     .ComboVec(&treasureChestShopMazeOptions));
 
     path.column = SECTION_COLUMN_3;
+    AddWidget(path, "Combat", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
+        .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
+    AddWidget(path, "Boss Health Multiplier", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.BossHealthMultiplier")
+        .Options(ComboboxOptions()
+                     .Tooltip("Multiply the health of all bosses. Requires a Scene Reload to take effect.")
+                     .ComboMap(&bossHealthOptions));
+    AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
+        .Options(ComboboxOptions()
+                     .Tooltip("Adjusts the amount of damage Link takes from all sources.")
+                     .ComboMap(&damageMultiplierOptions));
+    AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
+        .Options(CheckboxOptions().Tooltip(
+            "When you lose 4 quarters of a heart you will permanently lose that heart container.\n\nDisabling this "
+            "after the fact will not restore any received heart containers."));
+    AddWidget(path, "Delete File on Death", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.DeleteFileOnDeath")
+        .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE
+                                           " WARNING " ICON_FA_EXCLAMATION_TRIANGLE
+                                           "\nTHIS IS NOT REVERSIBLE\nUSE AT YOUR OWN RISK!"));
+    AddWidget(path, "Jinxed Timer: %d seconds", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.DifficultyOptions.JinxedTimer")
+        .Options(
+            IntSliderOptions()
+                .Tooltip("Set the duration of the Jinxed effect. Setting it to 0 will prevent the effect entirely.")
+                .Min(0)
+                .Max(60)
+                .DefaultValue(60));
+
     AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Lower Bank Reward Thresholds", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.LowerBankRewardThresholds")
