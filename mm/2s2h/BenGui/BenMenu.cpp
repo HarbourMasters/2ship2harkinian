@@ -1895,7 +1895,21 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(10)
                      .DefaultValue(10));
-    AddWidget(path, "Skip Alien Invasion", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Alien Speed: %.1fx", WIDGET_CVAR_SLIDER_FLOAT)
+        .CVar("gEnhancements.Minigames.AlienSpeed")
+        .PreFunc([](WidgetInfo& info) {
+            if (mBenMenu->disabledMap.at(DISABLE_FOR_INVASION_SKIP).active) {
+                info.activeDisables.push_back(DISABLE_FOR_INVASION_SKIP);
+            }
+        })
+        .Options(FloatSliderOptions()
+                     .Tooltip("Changes the movement speed of the aliens during the Romani Ranch invasion.")
+                     .Format("%.1fx")
+                     .Min(0.5f)
+                     .Max(5.0f)
+                     .Step(0.1f)
+                     .DefaultValue(1.0f));
+    AddWidget(path, "Skip Invasion", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Minigames.SkipRanchInvasion")
         .Options(CheckboxOptions().Tooltip("Link automatically succeeds in defending Romani Ranch from the invasion. "
                                            "In order for this to happen, you must be present at the ranch between "
@@ -2371,6 +2385,11 @@ void BenMenu::InitElement() {
                return CVarGetInteger("gEnhancements.Minigames.BoatArcheryInvincible", 0);
            },
             "Koume is Invincible" } },
+        { DISABLE_FOR_INVASION_SKIP,
+          { [](disabledInfo& info) -> bool {
+               return CVarGetInteger("gEnhancements.Minigames.SkipRanchInvasion", 0);
+           },
+            "Alien Invasion Skipped" } }
     };
 }
 
