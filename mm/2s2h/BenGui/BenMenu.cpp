@@ -2386,9 +2386,7 @@ void BenMenu::InitElement() {
            },
             "Koume is Invincible" } },
         { DISABLE_FOR_INVASION_SKIP,
-          { [](disabledInfo& info) -> bool {
-               return CVarGetInteger("gEnhancements.Minigames.SkipRanchInvasion", 0);
-           },
+          { [](disabledInfo& info) -> bool { return CVarGetInteger("gEnhancements.Minigames.SkipRanchInvasion", 0); },
             "Alien Invasion Skipped" } }
     };
 }
