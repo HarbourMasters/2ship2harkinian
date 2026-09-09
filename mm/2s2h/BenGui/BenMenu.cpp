@@ -1935,10 +1935,6 @@ void BenMenu::AddEnhancements() {
                               "- Skip: Instantly win the race.\n")
                      .DefaultIndex(GoronRaceDifficultyOptions::GORON_RACE_DIFFICULTY_VANILLA)
                      .ComboVec(&goronRaceDifficultyOptions));
-    AddWidget(path, "Always Find Rock Sirloin", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Minigames.AlwaysFindRockSirloin")
-        .Options(CheckboxOptions().Tooltip(
-            "Breaking any pot on the Goron Shrine's chandelier will reveal the Rock Sirloin."));
     AddWidget(path, "Swamp Boat Archery Target Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.BoatArcheryScore")
         .Options(IntSliderOptions()
@@ -1993,6 +1989,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "No Random Drops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.NoRandomDrops")
         .Options(CheckboxOptions().Tooltip("Prevents spawning of any collectibles."));
+    AddWidget(path, "Always Find Rock Sirloin", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.AlwaysFindRockSirloin")
+        .Options(CheckboxOptions().Tooltip(
+            "Breaking any pot on the Goron Shrine's chandelier will reveal the Rock Sirloin."));
     AddWidget(path, "Deku Guard Search Balls", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.DekuGuardSearchBalls")
         .Options(
