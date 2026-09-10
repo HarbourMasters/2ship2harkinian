@@ -186,6 +186,12 @@ static const std::vector<const char*> goronRaceDifficultyOptions = {
     "Skip",     // GORON_RACE_DIFFICULTY_SKIP
 };
 
+static const std::vector<const char*> torchTimeLimitOptions = {
+    "Normal",   // TORCH_TIME_LIMIT_NORMAL
+    "Double",   // TORCH_TIME_LIMIT_DOUBLE
+    "Infinity", // TORCH_TIME_LIMIT_INFINITY
+};
+
 static const std::vector<const char*> timerDisplayOptions = {
     "Off",          // TIMER_DISPLAY_NONE
     "Real-Time",    // TIMER_DISPLAY_RTA
@@ -1959,6 +1965,26 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip Little Beaver Brother Races", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Minigames.SkipLittleBeaver")
         .Options(CheckboxOptions().Tooltip("Only Race the Older Beaver."));
+    AddWidget(path, "Fisherman's Jumping Game Torch Time Limit", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Minigames.FishermanJumpingGame.TorchTimeLimit")
+        .Options(ComboboxOptions()
+                     .Tooltip("Sets the time limit for Link to jump to each torch in the Fisherman's Jumping Game."
+                              "\n- Normal: 5 seconds."
+                              "\n- Double: 10 seconds."
+                              "\n- Infinity: No time limit.")
+                     .DefaultIndex(TorchTimeLimitOptions::TORCH_TIME_LIMIT_NORMAL)
+                     .ComboVec(&torchTimeLimitOptions));
+    AddWidget(path, "Fisherman's Jumping Game Target Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.FishermanJumpingGame.TargetScore")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the target score for the Fisherman's Jumping Game.")
+                     .Min(1)
+                     .Max(40)
+                     .DefaultValue(20));
+    AddWidget(path, "Win Jumping Game Early", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Minigames.FishermanJumpingGame.EarlyWin")
+        .Options(CheckboxOptions().Tooltip(
+            "Link wins the Fisherman's Jumping Game immediately upon reaching the target score."));
 
     path.column = SECTION_COLUMN_3;
     AddWidget(path, "Combat", WIDGET_SEPARATOR_TEXT);
