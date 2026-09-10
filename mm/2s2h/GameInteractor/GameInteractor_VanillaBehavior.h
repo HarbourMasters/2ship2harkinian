@@ -2104,6 +2104,15 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // false
+    // ```
+    // #### `args`
+    // - `*s32` (spawn time)
+    // - `s32` (index)
+    VB_SET_ALIEN_SPEED,
+
+    // #### `result`
+    // ```c
     // true
     // ```
     // #### `args`
