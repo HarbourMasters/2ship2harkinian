@@ -1998,6 +1998,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "No Random Drops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.NoRandomDrops")
         .Options(CheckboxOptions().Tooltip("Prevents spawning of any collectibles."));
+    AddWidget(path, "Always Find Rock Sirloin", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.AlwaysFindRockSirloin")
+        .Options(CheckboxOptions().Tooltip(
+            "Breaking any pot on the Goron Shrine's chandelier will reveal the Rock Sirloin."));
     AddWidget(path, "Deku Guard Search Balls", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.DekuGuardSearchBalls")
         .Options(

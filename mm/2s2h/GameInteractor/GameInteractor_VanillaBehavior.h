@@ -562,14 +562,6 @@ typedef enum {
     // true
     // ```
     // #### `args`
-    // - `*FileSelectState`
-    VB_FILE_SELECT_ROTATE_TO_NAME_ENTRY,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
     // - `*ItemId`
     // - `s32` (slot)
     // - `s32` (isDpad)
@@ -739,6 +731,22 @@ typedef enum {
     // #### `args`
     // - None
     VB_FD_ALWAYS_WIELD_SWORD,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*FileSelectState`
+    VB_FILE_SELECT_ROTATE_TO_NAME_ENTRY,
+
+    // #### `result`
+    // ```c
+    // this->myPotIndex == 4
+    // ```
+    // #### `args`
+    // - None
+    VB_FIND_ROCK_SIRLOIN,
 
     // #### `result`
     // ```c
