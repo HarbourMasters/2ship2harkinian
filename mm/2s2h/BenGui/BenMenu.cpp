@@ -98,6 +98,12 @@ static const std::vector<const char*> clockTypeOptions = {
     "Text only",  // CLOCK_TYPE_TEXT_BASED
 };
 
+static const std::vector<const char*> fastTransformationOptions = {
+    "Off",              // FAST_TRANSFORM_OFF
+    "On",               // FAST_TRANSFORM_ON
+    "After First Time", // FAST_TRANSFORM_AFTER_FIRST
+};
+
 static const std::vector<const char*> textureFilteringOptions = {
     "Three-Point", // Fast::FILTER_THREE_POINT,
     "Linear",      // Fast::FILTER_LINEAR
@@ -1465,9 +1471,11 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Blast Mask has Powder Keg Force", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.BlastMaskKeg")
         .Options(CheckboxOptions().Tooltip("Blast Mask can also destroy objects only the Powder Keg can."));
-    AddWidget(path, "Fast Transformation", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Fast Transformation", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Masks.FastTransformation")
-        .Options(CheckboxOptions().Tooltip("Removes the delay when using transformation masks."));
+        .Options(ComboboxOptions()
+                     .Tooltip("Removes the delay when using transformation masks.")
+                     .ComboVec(&fastTransformationOptions));
     AddWidget(path, "3DS Style Mask Equipping", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.3DSMaskEquip")
         .Options(CheckboxOptions().Tooltip("Allows equipping masks while in other forms, returning you to human form "
