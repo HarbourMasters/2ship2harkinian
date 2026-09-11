@@ -4,10 +4,6 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 
-extern "C" {
-#include "overlays/actors/ovl_En_Jgame_Tsn/z_en_jgame_tsn.h"
-}
-
 static constexpr s32 TARGET_CVAR_DEFAULT = 20;
 #define TARGET_CVAR_NAME "gEnhancements.Minigames.FishermanJumpingGame.TargetScore"
 #define TARGET_CVAR CVarGetInteger(TARGET_CVAR_NAME, TARGET_CVAR_DEFAULT)
