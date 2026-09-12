@@ -24,7 +24,7 @@ static bool ShouldWinJumpingGame() {
 
 static void ModifyTargetScore(u16* textId, bool* loadFromMessageTable) {
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-    CustomMessage::Replace(&entry.msg, "20 or", std::to_string(TARGET_CVAR) + " or");
+    CustomMessage::Replace(&entry.msg, "\x0120", "%r" + std::to_string(TARGET_CVAR));
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }
