@@ -62,6 +62,12 @@ enum GoronRaceDifficultyOptions {
     GORON_RACE_DIFFICULTY_SKIP,
 };
 
+enum TorchTimeLimitOptions {
+    TORCH_TIME_LIMIT_NORMAL,
+    TORCH_TIME_LIMIT_DOUBLE,
+    TORCH_TIME_LIMIT_INFINITY,
+};
+
 enum TreasureChestShopMazeOptions {
     TREASURE_CHEST_SHOP_MAZE_OFF,
     TREASURE_CHEST_SHOP_MAZE_FULL_HEIGHT,

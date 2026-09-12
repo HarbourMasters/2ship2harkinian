@@ -725,6 +725,14 @@ typedef enum {
 
     // #### `result`
     // ```c
+    // gSaveContext.minigameScore < 20
+    // ```
+    // #### `args`
+    // - None
+    VB_FAIL_FISHERMAN_JUMPING_GAME,
+
+    // #### `result`
+    // ```c
     // (gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] == ITEM_NONE) && (play->envCtx.sceneTimeSpeed != 0)
     // ```
     // #### `args`
@@ -1293,6 +1301,22 @@ typedef enum {
     // - `*s32`
     // - `*bool`
     VB_JS_OVERRIDE_MASK_CHECK,
+
+    // #### `result`
+    // ```c
+    // gSaveContext.timerCurTimes[TIMER_ID_MINIGAME_2] == SECONDS_TO_TIMER(0)
+    // ```
+    // #### `args`
+    // - None
+    VB_JUMPING_GAME_END,
+
+    // #### `result`
+    // ```c
+    // this->unk_2FC > 100
+    // ```
+    // #### `args`
+    // - `s32` (torch burn time)
+    VB_JUMPING_GAME_TORCH_RUN_OUT,
 
     // #### `result`
     // ```c
