@@ -13,6 +13,12 @@ enum TimeStopOptions {
     TIME_STOP_TEMPLES_DUNGEONS,
 };
 
+enum FastTransformationOptions {
+    FAST_TRANSFORM_OFF,
+    FAST_TRANSFORM_ON,
+    FAST_TRANSFORM_AFTER_FIRST,
+};
+
 enum ClockTypeOptions {
     CLOCK_TYPE_ORIGINAL,
     CLOCK_TYPE_3DS,
