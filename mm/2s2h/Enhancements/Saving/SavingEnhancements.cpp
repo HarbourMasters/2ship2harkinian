@@ -189,6 +189,11 @@ void LoadRespawnDataAndClearStates(s16 fileNum) {
         (scene == ENTR_SCENE_GREAT_BAY_COAST || scene == ENTR_SCENE_ZORA_CAPE)) {
         gSaveContext.nextCutsceneIndex = 0xFFF0;
     }
+
+    if (GameInteractor_Should(VB_TERMINA_FIELD_BE_EMPTY, INV_CONTENT(ITEM_OCARINA_OF_TIME) != ITEM_OCARINA_OF_TIME) &&
+        scene == ENTR_SCENE_TERMINA_FIELD && gSaveContext.save.entrance != ENTRANCE(TERMINA_FIELD, 10)) {
+        gSaveContext.nextCutsceneIndex = 0xFFF4;
+    }
 }
 
 /*
