@@ -235,6 +235,14 @@ void Rando::ActorBehavior::InitEnJsBehavior() {
     COND_ID_HOOK(OnSceneInit, SCENE_SOUGEN, IS_RANDO, [](s8 sceneId, s8 spawnNum) { EnJs_SpawnResetNpc(-15000); });
     COND_ID_HOOK(OnSceneInit, SCENE_OKUJOU, IS_RANDO, [](s8 sceneId, s8 spawnNum) { EnJs_SpawnResetNpc(7000); });
 
+    // Need to disable this for spawning on the Clock Tower roof
+    COND_VB_SHOULD(VB_ENABLE_OBJECT_DEPENDENCY, IS_RANDO, {
+        ObjectId objectId = (ObjectId)va_arg(args, int);
+        if (objectId == OBJECT_OB) {
+            *should = false;
+        }
+    });
+
     COND_ID_HOOK(OnActorInit, ACTOR_EN_JS, IS_RANDO, [](Actor* actor) {
         if (actor->draw == EnJs_Draw_LinkMask) {
             ((EnJs*)actor)->actionFunc = EnJs_PromptForDialog;
