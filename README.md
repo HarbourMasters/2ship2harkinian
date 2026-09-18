@@ -5,7 +5,7 @@
 
 ## Disclaimer
 
-This project is **not affiliated with, endorsed by, or related to** the repository at https://github.com/2ship2harkinian/2ship2harkinian. That repository is not maintained by us, and we are not responsible for its contents, builds, or any releases distributed from it. The official 2 Ship 2 Harkinian source code and releases are published at https://github.com/HarbourMasters/2Ship2Harkinian.
+This project is **not affiliated with, endorsed by, or related to** the other 2ship repositories. Those repositories are not maintained by us, and we are not responsible for its contents, builds, or any releases distributed from it. The official 2 Ship 2 Harkinian source code and releases are published at https://github.com/HarbourMasters/2Ship2Harkinian.
 
 ## Discord
 
