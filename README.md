@@ -1,15 +1,9 @@
-[comment]: <> (Todo: Make Light Mode Image)
-[comment]: <> (Todo: Make Dark Mode Image)
-
-# 2 Ship 2 Harkinian
-
-## Disclaimer
-
-This project is **not affiliated with, endorsed by, or related to** the other 2ship repositories. Those repositories are not maintained by us, and we are not responsible for its contents, builds, or any releases distributed from it. The official 2 Ship 2 Harkinian source code and releases are published at https://github.com/HarbourMasters/2Ship2Harkinian.
+![2 Ship 2 Harkinian](docs/2shiptitle.darkmode.png#gh-dark-mode-only)
+![2 Ship 2 Harkinian](docs/2shiptitle.lightmode.png#gh-light-mode-only)
 
 ## Discord
 
-Official Discord: https://discord.com/invite/shipofharkinian
+* [Discord](https://discord.com/invite/harbourmasters)
 
 If you're having any trouble after reading through this `README`, feel free ask for help in the 2 Ship 2 Harkinian Support text channels. Please keep in mind that we do not condone piracy.
 
