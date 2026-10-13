@@ -2599,7 +2599,7 @@ typedef enum {
 
     // #### `result`
     // ```c
-    // false
+    // this->unk152 > 0
     // ```
     // #### `args`
     // - `*EnItem00`

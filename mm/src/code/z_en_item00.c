@@ -496,11 +496,8 @@ void EnItem00_Update(Actor* thisx, PlayState* play) {
     s32 getItemId = GI_NONE;
     s32 params;
 
-    if (this->unk152 > 0) {
+    if (GameInteractor_Should(VB_UPDATE_ITEM00, this->unk152 > 0, this)) {
         this->unk152--;
-        if ((GameInteractor_Should(VB_UPDATE_ITEM00, false, this))) {
-            this->unk152++;
-        }
     }
 
     if ((this->unk152 > 0) && (this->unk152 <= 40) && (this->unk14C <= 0)) {
