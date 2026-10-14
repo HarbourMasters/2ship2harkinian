@@ -1,6 +1,5 @@
 ﻿<Root>
     <!-- Dependencies -->
-    <ExternalFile XmlPath="objects/gameplay_dangeon_keep.xml" OutPath="assets/objects/gameplay_dangeon_keep/"/>
 
     <ExternalFile XmlPath="objects/gameplay_dangeon_keep.xml" OutPath="assets/objects/gameplay_dangeon_keep/"/>
     <File Name="object_syokudai" Segment="6">
