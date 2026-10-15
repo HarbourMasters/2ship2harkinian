@@ -8,7 +8,10 @@
 void RegisterNoDropDespawning() {
     // Stop dropped items from despawning after a set amount of time
     COND_VB_SHOULD(VB_UPDATE_ITEM00, CVAR, { 
-        *should = false;
+        EnItem00* itemActor = va_arg(args, EnItem00*);
+        if (itemActor->unk14C <= 0) {
+            *should = false;
+        }
     });
 }
 
