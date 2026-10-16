@@ -1198,11 +1198,11 @@ void BenMenu::AddEnhancements() {
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active; })
         .Options(CheckboxOptions().DefaultValue(false).Tooltip("Allows to perform Spin Attack with Mouse."
                                                                "Requires precise enough circular movement."));
-    AddWidget(path, "Great Fairy Sword B-Button Attack", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Equipment.GreatFairySwordBButton")
+    AddWidget(path, "Active Item on B", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Equipment.ActiveItemOnB")
         .Options(CheckboxOptions().Tooltip(
-            "When the Great Fairy's Sword is held, pressing B attacks with it instead of drawing "
-            "your equipped sword. The sword can still be put away with A as normal."));
+            "Press B to use the item currently held by Link (Bow, Hookshot, Great Fairy's Sword and Deku Stick). "
+            "Second press on item unequips it."));
     AddWidget(path, "Invert Zora Swim Y Axis", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.InvertZoraSwimY")
         .Options(CheckboxOptions().DefaultValue(true).Tooltip(
