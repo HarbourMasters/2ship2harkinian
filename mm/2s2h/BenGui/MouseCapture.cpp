@@ -86,8 +86,18 @@ void HandleKaleidoCapture(PauseContext* pauseCtx) {
             break;
         }
     }
+
     if (prev != gameState.inKaleido) {
         Mouse_UpdateCaptureByState();
+
+        // makes cursor invisible when entering kaleido
+        if (gameState.inKaleido) {
+            auto wnd = Ship::Context::GetRawInstance()->GetWindow();
+            bool inBenMenu = wnd->GetGui()->GetMenuOrMenubarVisible();
+            if (!wnd->ShouldForceCursorVisibility() && !inBenMenu) {
+                wnd->SetCursorVisibility(false);
+            }
+        }
     }
 }
 
