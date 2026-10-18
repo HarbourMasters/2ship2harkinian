@@ -52,7 +52,7 @@ gEponaSkel:
   type: MM:SKELETON
   offset: 0xA480
   symbol: gEponaSkel
-  limb_type: Standard
+  limb_type: Skin
   skel_type: Normal
 
 gEponaTLUT:

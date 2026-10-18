@@ -11,50 +11,50 @@
   external_files:
     - GC_US/objects/gameplay_keep.yml
 
-object_iknv_obj_Colheader_0117C8:
+gIkanaCaveSpringWaterCol:
   type: MM:COLLISION
   offset: 0x117C8
-  symbol: object_iknv_obj_Colheader_0117C8
+  symbol: gIkanaCaveSpringWaterCol
 
 object_iknv_obj_Colheader_0119D4:
   type: MM:COLLISION
   offset: 0x119D4
   symbol: object_iknv_obj_Colheader_0119D4
 
-object_iknv_obj_Colheader_012788:
+gIkanaStreamCol:
   type: MM:COLLISION
   offset: 0x12788
-  symbol: object_iknv_obj_Colheader_012788
+  symbol: gIkanaStreamCol
 
 object_iknv_obj_Colheader_012CA4:
   type: MM:COLLISION
   offset: 0x12CA4
   symbol: object_iknv_obj_Colheader_012CA4
 
-object_iknv_obj_DL_00DB60:
+gIkanaCaveFogDL:
   type: GFX
   offset: 0xDB60
-  symbol: object_iknv_obj_DL_00DB60
+  symbol: gIkanaCaveFogDL
 
-object_iknv_obj_DL_00DDD8:
+gIkanaCaveCursedDL:
   type: GFX
   offset: 0xDDD8
-  symbol: object_iknv_obj_DL_00DDD8
+  symbol: gIkanaCaveCursedDL
 
 object_iknv_obj_DL_010D90:
   type: GFX
   offset: 0x10D90
   symbol: object_iknv_obj_DL_010D90
 
-object_iknv_obj_DL_010D98:
+gIkanaCavePurifiedDL:
   type: GFX
   offset: 0x10D98
-  symbol: object_iknv_obj_DL_010D98
+  symbol: gIkanaCavePurifiedDL
 
-object_iknv_obj_DL_0115E0:
+gIkanaCaveSpringWaterDL:
   type: GFX
   offset: 0x115E0
-  symbol: object_iknv_obj_DL_0115E0
+  symbol: gIkanaCaveSpringWaterDL
 
 object_iknv_obj_DL_011788:
   type: GFX
@@ -171,10 +171,10 @@ object_iknv_obj_DL_0126D0:
   offset: 0x126D0
   symbol: object_iknv_obj_DL_0126D0
 
-object_iknv_obj_DL_012700:
+gIkanaStreamDL:
   type: GFX
   offset: 0x12700
-  symbol: object_iknv_obj_DL_012700
+  symbol: gIkanaStreamDL
 
 object_iknv_obj_DL_012880:
   type: GFX
@@ -201,25 +201,25 @@ object_iknv_obj_DL_013058:
   offset: 0x13058
   symbol: object_iknv_obj_DL_013058
 
-object_iknv_obj_Matanimheader_00F1C0:
+gIkanaCaveInteriorTexAnim:
   type: MM:TEXTURE_ANIMATION
   offset: 0xF1C0
-  symbol: object_iknv_obj_Matanimheader_00F1C0
+  symbol: gIkanaCaveInteriorTexAnim
 
 object_iknv_obj_Matanimheader_0113E0:
   type: MM:TEXTURE_ANIMATION
   offset: 0x113E0
   symbol: object_iknv_obj_Matanimheader_0113E0
 
-object_iknv_obj_Matanimheader_0117A0:
+gIkanaCaveSpringWaterTexAnim:
   type: MM:TEXTURE_ANIMATION
   offset: 0x117A0
-  symbol: object_iknv_obj_Matanimheader_0117A0
+  symbol: gIkanaCaveSpringWaterTexAnim
 
-object_iknv_obj_Matanimheader_012728:
+gIkanaStreamTexAnim:
   type: MM:TEXTURE_ANIMATION
   offset: 0x12728
-  symbol: object_iknv_obj_Matanimheader_012728
+  symbol: gIkanaStreamTexAnim
 
 object_iknv_obj_TLUT_000000:
   type: TEXTURE
@@ -441,16 +441,16 @@ object_iknv_objVtx_00D8A0:
   zero_flag: true
   null_cross_file: true
 
-object_iknv_obj_Matanimheader_00F1C0TexScrollParams_00F1B0:
+gIkanaCaveInteriorTexAnimTexScrollParams_00F1B0:
   type: BLOB
   offset: 0x00F1B0
-  symbol: object_iknv_obj_Matanimheader_00F1C0TexScrollParams_00F1B0
+  symbol: gIkanaCaveInteriorTexAnimTexScrollParams_00F1B0
   size: 0
 
-object_iknv_obj_Matanimheader_00F1C0TexScrollParams_00F1B8:
+gIkanaCaveInteriorTexAnimTexScrollParams_00F1B8:
   type: BLOB
   offset: 0x00F1B8
-  symbol: object_iknv_obj_Matanimheader_00F1C0TexScrollParams_00F1B8
+  symbol: gIkanaCaveInteriorTexAnimTexScrollParams_00F1B8
   size: 0
 
 object_iknv_objVtx_00F1D0:
@@ -471,16 +471,16 @@ object_iknv_objVtx_0113F0:
   zero_flag: true
   null_cross_file: true
 
-object_iknv_obj_Matanimheader_0117A0TexScrollParams_011790:
+gIkanaCaveSpringWaterTexAnimTexScrollParams_011790:
   type: BLOB
   offset: 0x011790
-  symbol: object_iknv_obj_Matanimheader_0117A0TexScrollParams_011790
+  symbol: gIkanaCaveSpringWaterTexAnimTexScrollParams_011790
   size: 0
 
-object_iknv_obj_Matanimheader_0117A0TexScrollParams_011798:
+gIkanaCaveSpringWaterTexAnimTexScrollParams_011798:
   type: BLOB
   offset: 0x011798
-  symbol: object_iknv_obj_Matanimheader_0117A0TexScrollParams_011798
+  symbol: gIkanaCaveSpringWaterTexAnimTexScrollParams_011798
   size: 0
 
 object_iknv_objVtx_011800:
@@ -591,22 +591,22 @@ object_iknv_objVtx_011E60:
   zero_flag: true
   null_cross_file: true
 
-object_iknv_obj_Matanimheader_012728TexScrollParams_012710:
+gIkanaStreamTexAnimTexScrollParams_012710:
   type: BLOB
   offset: 0x012710
-  symbol: object_iknv_obj_Matanimheader_012728TexScrollParams_012710
+  symbol: gIkanaStreamTexAnimTexScrollParams_012710
   size: 0
 
-object_iknv_obj_Matanimheader_012728TexScrollParams_012718:
+gIkanaStreamTexAnimTexScrollParams_012718:
   type: BLOB
   offset: 0x012718
-  symbol: object_iknv_obj_Matanimheader_012728TexScrollParams_012718
+  symbol: gIkanaStreamTexAnimTexScrollParams_012718
   size: 0
 
-object_iknv_obj_Matanimheader_012728TexScrollParams_012720:
+gIkanaStreamTexAnimTexScrollParams_012720:
   type: BLOB
   offset: 0x012720
-  symbol: object_iknv_obj_Matanimheader_012728TexScrollParams_012720
+  symbol: gIkanaStreamTexAnimTexScrollParams_012720
   size: 0
 
 object_iknv_objVtx_0127C0:

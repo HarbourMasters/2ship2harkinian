@@ -31,20 +31,20 @@ object_pr_Anim_0021E8:
   offset: 0x21E8
   symbol: object_pr_Anim_0021E8
 
-object_pr_Anim_003904:
+gSkullFishDieAnim:
   type: OOT:ANIMATION
   offset: 0x3904
-  symbol: object_pr_Anim_003904
+  symbol: gSkullFishDieAnim
 
-object_pr_Anim_004274:
+gSkullFishAttackAnim:
   type: OOT:ANIMATION
   offset: 0x4274
-  symbol: object_pr_Anim_004274
+  symbol: gSkullFishAttackAnim
 
-object_pr_Anim_004340:
+gSkullFishSwimAnim:
   type: OOT:ANIMATION
   offset: 0x4340
-  symbol: object_pr_Anim_004340
+  symbol: gSkullFishSwimAnim
 
 object_pr_DL_000F30:
   type: GFX
@@ -126,25 +126,25 @@ object_pr_DL_002FF0:
   offset: 0x2FF0
   symbol: object_pr_DL_002FF0
 
-object_pr_DL_003AB0:
+gSkullFishBodyDL:
   type: GFX
   offset: 0x3AB0
-  symbol: object_pr_DL_003AB0
+  symbol: gSkullFishBodyDL
 
-object_pr_DL_003B50:
+gSkullFishTailDL:
   type: GFX
   offset: 0x3B50
-  symbol: object_pr_DL_003B50
+  symbol: gSkullFishTailDL
 
-object_pr_DL_003C08:
+gSkullFishSkullDL:
   type: GFX
   offset: 0x3C08
-  symbol: object_pr_DL_003C08
+  symbol: gSkullFishSkullDL
 
-object_pr_DL_003D10:
+gSkullFishJawDL:
   type: GFX
   offset: 0x3D10
-  symbol: object_pr_DL_003D10
+  symbol: gSkullFishJawDL
 
 object_pr_Matanimheader_001DB0:
   type: MM:TEXTURE_ANIMATION
@@ -158,10 +158,10 @@ object_pr_Skel_0038B8:
   limb_type: Standard
   skel_type: Flex
 
-object_pr_Skel_004188:
+gSkullFishSkel:
   type: MM:SKELETON
   offset: 0x4188
-  symbol: object_pr_Skel_004188
+  symbol: gSkullFishSkel
   limb_type: Standard
   skel_type: Flex
 
@@ -219,28 +219,28 @@ object_pr_Standardlimb_003888:
   symbol: object_pr_Standardlimb_003888
   limb_type: Standard
 
-object_pr_Standardlimb_004148:
+gSkullFishBodyLimb:
   type: OOT:LIMB
   offset: 0x4148
-  symbol: object_pr_Standardlimb_004148
+  symbol: gSkullFishBodyLimb
   limb_type: Standard
 
-object_pr_Standardlimb_004154:
+gSkullFishSkullLimb:
   type: OOT:LIMB
   offset: 0x4154
-  symbol: object_pr_Standardlimb_004154
+  symbol: gSkullFishSkullLimb
   limb_type: Standard
 
-object_pr_Standardlimb_004160:
+gSkullFishJawLimb:
   type: OOT:LIMB
   offset: 0x4160
-  symbol: object_pr_Standardlimb_004160
+  symbol: gSkullFishJawLimb
   limb_type: Standard
 
-object_pr_Standardlimb_00416C:
+gSkullFishTailLimb:
   type: OOT:LIMB
   offset: 0x416C
-  symbol: object_pr_Standardlimb_00416C
+  symbol: gSkullFishTailLimb
   limb_type: Standard
 
 object_pr_Tex_001608:
@@ -323,42 +323,42 @@ object_pr_Tex_0037A8:
   width: 8
   height: 8
 
-object_pr_Tex_003DA8:
+gSkullFishBodyRibTex:
   type: TEXTURE
   offset: 0x3DA8
-  symbol: object_pr_Tex_003DA8
+  symbol: gSkullFishBodyRibTex
   format: RGBA16
   width: 8
   height: 16
 
-object_pr_Tex_003EA8:
+gSkullFishTailTex:
   type: TEXTURE
   offset: 0x3EA8
-  symbol: object_pr_Tex_003EA8
+  symbol: gSkullFishTailTex
   format: RGBA16
   width: 8
   height: 16
 
-object_pr_Tex_003FA8:
+gSkullFishEyeSocketTex:
   type: TEXTURE
   offset: 0x3FA8
-  symbol: object_pr_Tex_003FA8
+  symbol: gSkullFishEyeSocketTex
   format: RGBA16
   width: 8
   height: 8
 
-object_pr_Tex_004028:
+gSkullFishJawTex:
   type: TEXTURE
   offset: 0x4028
-  symbol: object_pr_Tex_004028
+  symbol: gSkullFishJawTex
   format: RGBA16
   width: 8
   height: 16
 
-object_pr_Tex_004128:
+gSkullFishGlowingEyesTex:
   type: TEXTURE
   offset: 0x4128
-  symbol: object_pr_Tex_004128
+  symbol: gSkullFishGlowingEyesTex
   format: RGBA16
   width: 4
   height: 4
@@ -556,8 +556,8 @@ object_prVtx_003A70:
   zero_flag: true
   null_cross_file: true
 
-object_pr_Skel_004188Limbs:
+gSkullFishSkelLimbs:
   type: BLOB
   offset: 0x4178
-  symbol: object_pr_Skel_004188Limbs
+  symbol: gSkullFishSkelLimbs
   size: 0

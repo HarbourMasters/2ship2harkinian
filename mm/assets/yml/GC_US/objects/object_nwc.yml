@@ -160,8 +160,8 @@ object_nwc_Tex_001A40:
   offset: 0x1A40
   symbol: object_nwc_Tex_001A40
   format: IA16
-  width: 8
-  height: 16
+  width: 16
+  height: 8
 
 
 object_nwcVtx_000000:

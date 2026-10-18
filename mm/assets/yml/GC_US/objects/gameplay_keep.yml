@@ -7378,7 +7378,7 @@ gameplay_keep_Skel_014560:
   type: MM:SKELETON
   offset: 0x145B0
   symbol: gameplay_keep_Skel_014560
-  limb_type: Standard
+  limb_type: LOD
   skel_type: Normal
 
 gameplay_keep_Skel_02AF58:
@@ -7636,26 +7636,26 @@ gameplay_keep_Standardlimb_052738:
   symbol: gameplay_keep_Standardlimb_052738
   limb_type: Standard
 
-gameplay_keep_Tex_00C830:
+gHilite1Tex:
   type: TEXTURE
   offset: 0xC830
-  symbol: gameplay_keep_Tex_00C830
+  symbol: gHilite1Tex
   format: RGBA16
   width: 16
   height: 16
 
-gameplay_keep_Tex_00CA30:
+gHilite2Tex:
   type: TEXTURE
   offset: 0xCA30
-  symbol: gameplay_keep_Tex_00CA30
+  symbol: gHilite2Tex
   format: RGBA16
   width: 16
   height: 16
 
-gameplay_keep_Tex_00CA30_Overflow:
+gHilite2Tex_Overflow:
   type: TEXTURE
   offset: 0xCA2E
-  symbol: gameplay_keep_Tex_00CA30_Overflow
+  symbol: gHilite2Tex_Overflow
   format: RGBA16
   width: 32
   height: 32
@@ -7780,10 +7780,10 @@ gameplay_keep_Tex_02CAB0:
   width: 16
   height: 16
 
-gameplay_keep_Tex_02CB30:
+gUnknownCircle4Tex:
   type: TEXTURE
   offset: 0x2CB80
-  symbol: gameplay_keep_Tex_02CB30
+  symbol: gUnknownCircle4Tex
   format: I8
   width: 16
   height: 16
@@ -7844,12 +7844,12 @@ gameplay_keep_Tex_0357B0:
   width: 32
   height: 64
 
-gameplay_keep_Tex_035FB0:
+gEffFleckTex:
   type: TEXTURE
   offset: 0x36000
-  symbol: gameplay_keep_Tex_035FB0
-  format: IA8
-  width: 32
+  symbol: gEffFleckTex
+  format: I4
+  width: 64
   height: 64
 
 gameplay_keep_Tex_0443B0:

@@ -11,30 +11,30 @@
   external_files:
     - GC_US/objects/gameplay_keep.yml
 
-object_js_Anim_00016C:
+gSwordmasterFlailingAnim:
   type: OOT:ANIMATION
   offset: 0x16C
-  symbol: object_js_Anim_00016C
+  symbol: gSwordmasterFlailingAnim
 
-object_js_Anim_0003DC:
+gSwordmasterStopFlailingAnim:
   type: OOT:ANIMATION
   offset: 0x3DC
-  symbol: object_js_Anim_0003DC
+  symbol: gSwordmasterStopFlailingAnim
 
-object_js_Anim_000AD4:
+gSwordmasterCoweringAnim:
   type: OOT:ANIMATION
   offset: 0xAD4
-  symbol: object_js_Anim_000AD4
+  symbol: gSwordmasterCoweringAnim
 
-object_js_Anim_000C7C:
+gSwordmasterSlappingKneeAnim:
   type: OOT:ANIMATION
   offset: 0xC7C
-  symbol: object_js_Anim_000C7C
+  symbol: gSwordmasterSlappingKneeAnim
 
-object_js_Anim_000F4C:
+gSwordmasterDefaultAnim:
   type: OOT:ANIMATION
   offset: 0xF4C
-  symbol: object_js_Anim_000F4C
+  symbol: gSwordmasterDefaultAnim
 
 object_js_Colheader_0069E8:
   type: MM:COLLISION
@@ -96,10 +96,10 @@ object_js_DL_0055B0:
   offset: 0x55B0
   symbol: object_js_DL_0055B0
 
-object_js_Skel_006990:
+gSwordmasterSkel:
   type: MM:SKELETON
   offset: 0x6990
-  symbol: object_js_Skel_006990
+  symbol: gSwordmasterSkel
   limb_type: Standard
   skel_type: Flex
 
@@ -363,8 +363,8 @@ object_jsVtx_003C20:
   zero_flag: true
   null_cross_file: true
 
-object_js_Skel_006990Limbs:
+gSwordmasterSkelLimbs:
   type: BLOB
   offset: 0x6960
-  symbol: object_js_Skel_006990Limbs
+  symbol: gSwordmasterSkelLimbs
   size: 0

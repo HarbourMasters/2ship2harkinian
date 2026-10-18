@@ -11,30 +11,30 @@
   external_files:
     - GC_US/objects/gameplay_keep.yml
 
-object_astr_obj_Colheader_002498:
+gAstralObservatoryBombWallCol:
   type: MM:COLLISION
   offset: 0x2498
-  symbol: object_astr_obj_Colheader_002498
+  symbol: gAstralObservatoryBombWallCol
 
 object_astr_obj_DL_002170:
   type: GFX
   offset: 0x2170
   symbol: object_astr_obj_DL_002170
 
-object_astr_obj_DL_002178:
+gAstralObservatoryBombWallFragmentDL:
   type: GFX
   offset: 0x2178
-  symbol: object_astr_obj_DL_002178
+  symbol: gAstralObservatoryBombWallFragmentDL
 
-object_astr_obj_DL_0022E0:
+gAstralObservatoryBombWallCrackDL:
   type: GFX
   offset: 0x22E0
-  symbol: object_astr_obj_DL_0022E0
+  symbol: gAstralObservatoryBombWallCrackDL
 
-object_astr_obj_DL_002380:
+gAstralObservatoryBombWallDL:
   type: GFX
   offset: 0x2380
-  symbol: object_astr_obj_DL_002380
+  symbol: gAstralObservatoryBombWallDL
 
 object_astr_obj_TLUT_000000:
   type: TEXTURE

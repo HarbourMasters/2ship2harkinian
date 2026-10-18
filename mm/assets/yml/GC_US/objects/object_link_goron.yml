@@ -305,7 +305,7 @@ gLinkGoronSkel:
   type: MM:SKELETON
   offset: 0x17A84
   symbol: gLinkGoronSkel
-  limb_type: Standard
+  limb_type: LOD
   skel_type: Flex
 
 gLinkGoronSkinTLUT:

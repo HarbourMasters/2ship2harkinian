@@ -11,45 +11,45 @@
   external_files:
     - N64_US/objects/gameplay_keep.yml
 
-object_fz_DL_001130:
+gFreezardBodyIntactDL:
   type: GFX
   offset: 0x1130
-  symbol: object_fz_DL_001130
+  symbol: gFreezardBodyIntactDL
 
-object_fz_DL_0021A0:
+gFreezardBodyHornBrokenDL:
   type: GFX
   offset: 0x21A0
-  symbol: object_fz_DL_0021A0
+  symbol: gFreezardBodyHornBrokenDL
 
-object_fz_DL_002CA0:
+gFreezardBodyHeadBrokenDL:
   type: GFX
   offset: 0x2CA0
-  symbol: object_fz_DL_002CA0
+  symbol: gFreezardBodyHeadBrokenDL
 
-object_fz_DL_0030A0:
+gFreezardSteamStartDL:
   type: GFX
   offset: 0x30A0
-  symbol: object_fz_DL_0030A0
+  symbol: gFreezardSteamStartDL
 
-object_fz_DL_003158:
+gFreezardSteamDL:
   type: GFX
   offset: 0x3158
-  symbol: object_fz_DL_003158
+  symbol: gFreezardSteamDL
 
-object_fz_DL_003260:
+gFreezardIceSpikeDL:
   type: GFX
   offset: 0x3260
-  symbol: object_fz_DL_003260
+  symbol: gFreezardIceSpikeDL
 
-object_fz_DL_0033F0:
+gFreezardIceChunkDL:
   type: GFX
   offset: 0x33F0
-  symbol: object_fz_DL_0033F0
+  symbol: gFreezardIceChunkDL
 
-object_fz_Tex_002E70:
+gFreezardSteamTex:
   type: TEXTURE
   offset: 0x2E70
-  symbol: object_fz_Tex_002E70
+  symbol: gFreezardSteamTex
   format: I4
   width: 32
   height: 32

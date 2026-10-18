@@ -11,50 +11,50 @@
   external_files:
     - N64_US/objects/gameplay_keep.yml
 
-object_maruta_DL_002220:
+gPracticeLogBottomLeftBigChunkDL:
   type: GFX
   offset: 0x2220
-  symbol: object_maruta_DL_002220
+  symbol: gPracticeLogBottomLeftBigChunkDL
 
-object_maruta_DL_0023D0:
+gPracticeLogBottomRightBigChunkDL:
   type: GFX
   offset: 0x23D0
-  symbol: object_maruta_DL_0023D0
+  symbol: gPracticeLogBottomRightBigChunkDL
 
-object_maruta_DL_002568:
+gPracticeLogBottomLeftCornerChunkDL:
   type: GFX
   offset: 0x2568
-  symbol: object_maruta_DL_002568
+  symbol: gPracticeLogBottomLeftCornerChunkDL
 
-object_maruta_DL_002660:
+gPracticeLogBottomRightCornerChunkDL:
   type: GFX
   offset: 0x2660
-  symbol: object_maruta_DL_002660
+  symbol: gPracticeLogBottomRightCornerChunkDL
 
-object_maruta_DL_002758:
+gPracticeLogTopLeftCornerChunkDL:
   type: GFX
   offset: 0x2758
-  symbol: object_maruta_DL_002758
+  symbol: gPracticeLogTopLeftCornerChunkDL
 
-object_maruta_DL_002850:
+gPracticeLogTopRightCornerChunkDL:
   type: GFX
   offset: 0x2850
-  symbol: object_maruta_DL_002850
+  symbol: gPracticeLogTopRightCornerChunkDL
 
-object_maruta_DL_002948:
+gPracticeLogTopLeftBigChunkDL:
   type: GFX
   offset: 0x2948
-  symbol: object_maruta_DL_002948
+  symbol: gPracticeLogTopLeftBigChunkDL
 
-object_maruta_DL_002AE0:
+gPracticeLogTopRightBigChunkDL:
   type: GFX
   offset: 0x2AE0
-  symbol: object_maruta_DL_002AE0
+  symbol: gPracticeLogTopRightBigChunkDL
 
-object_maruta_DL_002EC0:
+gPracticeLogWholeDL:
   type: GFX
   offset: 0x2EC0
-  symbol: object_maruta_DL_002EC0
+  symbol: gPracticeLogWholeDL
 
 object_maruta_Tex_000000:
   type: TEXTURE

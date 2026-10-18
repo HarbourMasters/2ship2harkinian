@@ -837,34 +837,34 @@ object_in_Matanimheader_001C30ColorParams_001C20:
   symbol: object_in_Matanimheader_001C30ColorParams_001C20
   size: 0
 
-object_inTLUT_003260:
+object_in_TLUT_003260:
   type: TEXTURE
   offset: 0x003260
-  symbol: object_inTLUT_003260
+  symbol: object_in_TLUT_003260
   format: RGBA16
-  width: 16
-  height: 16
+  width: 252
+  height: 1
 
-object_inTLUT_003458:
+object_in_TLUT_003458:
   type: TEXTURE
   offset: 0x003458
-  symbol: object_inTLUT_003458
+  symbol: object_in_TLUT_003458
   format: RGBA16
-  width: 16
-  height: 16
+  width: 100
+  height: 1
 
-object_inTex_003560:
+object_in_Tex_003560:
   type: TEXTURE
   offset: 0x003560
-  symbol: object_inTex_003560
+  symbol: object_in_Tex_003560
   format: CI8
   width: 8
   height: 8
 
-object_inTex_0035A0:
+object_in_Tex_0035A0:
   type: TEXTURE
   offset: 0x0035A0
-  symbol: object_inTex_0035A0
+  symbol: object_in_Tex_0035A0
   format: CI8
   width: 8
   height: 8

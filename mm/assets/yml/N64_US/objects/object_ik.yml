@@ -52,8 +52,8 @@ gIronKnuckleArmorTLUT:
   offset: 0x12FA0
   symbol: gIronKnuckleArmorTLUT
   format: RGBA16
-  width: 120
-  height: 1
+  width: 8
+  height: 15
 
 gIronKnuckleAxeDL:
   type: GFX
@@ -85,8 +85,8 @@ gIronKnuckleAxeTLUT:
   offset: 0x11030
   symbol: gIronKnuckleAxeTLUT
   format: RGBA16
-  width: 183
-  height: 1
+  width: 8
+  height: 23
 
 gIronKnuckleBackHitAnim:
   type: OOT:ANIMATION

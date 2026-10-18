@@ -16,110 +16,110 @@ gBomberIdleAnim:
   offset: 0x64B8
   symbol: gBomberIdleAnim
 
-object_cs_Anim_001708:
+gBomberJumpAnim:
   type: OOT:ANIMATION
   offset: 0x1708
-  symbol: object_cs_Anim_001708
+  symbol: gBomberJumpAnim
 
-object_cs_Anim_001A1C:
+gBomberHoldCuccoAnim:
   type: OOT:ANIMATION
   offset: 0x1A1C
-  symbol: object_cs_Anim_001A1C
+  symbol: gBomberHoldCuccoAnim
 
-object_cs_Anim_002044:
+gBomberBlowgunAnim:
   type: OOT:ANIMATION
   offset: 0x2044
-  symbol: object_cs_Anim_002044
+  symbol: gBomberBlowgunAnim
 
-object_cs_Anim_0026B0:
+gBomberSaluteAnim:
   type: OOT:ANIMATION
   offset: 0x26B0
-  symbol: object_cs_Anim_0026B0
+  symbol: gBomberSaluteAnim
 
-object_cs_Anim_002930:
+gBomberClimbAnim:
   type: OOT:ANIMATION
   offset: 0x2930
-  symbol: object_cs_Anim_002930
+  symbol: gBomberClimbAnim
 
-object_cs_Anim_0031C4:
+gBomberLookAroundAnim:
   type: OOT:ANIMATION
   offset: 0x31C4
-  symbol: object_cs_Anim_0031C4
+  symbol: gBomberLookAroundAnim
 
-object_cs_Anim_00349C:
+gBomberSurpriseAnim:
   type: OOT:ANIMATION
   offset: 0x349C
-  symbol: object_cs_Anim_00349C
+  symbol: gBomberSurpriseAnim
 
-object_cs_Anim_0036B0:
+gBomberRunAnim:
   type: OOT:ANIMATION
   offset: 0x36B0
-  symbol: object_cs_Anim_0036B0
+  symbol: gBomberRunAnim
 
-object_cs_Anim_003EE4:
+gBomberTurnAroundAnim:
   type: OOT:ANIMATION
   offset: 0x3EE4
-  symbol: object_cs_Anim_003EE4
+  symbol: gBomberTurnAroundAnim
 
-object_cs_Anim_00433C:
+gBomberTalkShowingNumberAnim:
   type: OOT:ANIMATION
   offset: 0x433C
-  symbol: object_cs_Anim_00433C
+  symbol: gBomberTalkShowingNumberAnim
 
-object_cs_Anim_00478C:
+gBomberShowNumberAnim:
   type: OOT:ANIMATION
   offset: 0x478C
-  symbol: object_cs_Anim_00478C
+  symbol: gBomberShowNumberAnim
 
-object_cs_Anim_004960:
+gBomberHideUnderBoxAnim:
   type: OOT:ANIMATION
   offset: 0x4960
-  symbol: object_cs_Anim_004960
+  symbol: gBomberHideUnderBoxAnim
 
-object_cs_Anim_004C1C:
+gBomberSitAnim:
   type: OOT:ANIMATION
   offset: 0x4C1C
-  symbol: object_cs_Anim_004C1C
+  symbol: gBomberSitAnim
 
-object_cs_Anim_005128:
+gBomberDazedAnim:
   type: OOT:ANIMATION
   offset: 0x5128
-  symbol: object_cs_Anim_005128
+  symbol: gBomberDazedAnim
 
-object_cs_Anim_0053F4:
+gBomberTalkHandsOnHipsAnim:
   type: OOT:ANIMATION
   offset: 0x53F4
-  symbol: object_cs_Anim_0053F4
+  symbol: gBomberTalkHandsOnHipsAnim
 
-object_cs_Anim_0057C8:
+gBomberTalkNormalAnim:
   type: OOT:ANIMATION
   offset: 0x57C8
-  symbol: object_cs_Anim_0057C8
+  symbol: gBomberTalkNormalAnim
 
-object_cs_Anim_005DC4:
+gBomberArmSwipeAnim:
   type: OOT:ANIMATION
   offset: 0x5DC4
-  symbol: object_cs_Anim_005DC4
+  symbol: gBomberArmSwipeAnim
 
-object_cs_Anim_0060E8:
+gBomberTauntAnim:
   type: OOT:ANIMATION
   offset: 0x60E8
-  symbol: object_cs_Anim_0060E8
+  symbol: gBomberTauntAnim
 
-object_cs_Anim_00FAF4:
+gBomberHandsOnHipsAnim:
   type: OOT:ANIMATION
   offset: 0xFAF4
-  symbol: object_cs_Anim_00FAF4
+  symbol: gBomberHandsOnHipsAnim
 
-object_cs_Anim_01007C:
+gBomberWalkAnim:
   type: OOT:ANIMATION
   offset: 0x1007C
-  symbol: object_cs_Anim_01007C
+  symbol: gBomberWalkAnim
 
-object_cs_Anim_010B68:
+gBomberCaughtAnim:
   type: OOT:ANIMATION
   offset: 0x10B68
-  symbol: object_cs_Anim_010B68
+  symbol: gBomberCaughtAnim
 
 object_cs_Blob_00BBE0:
   type: BLOB
@@ -233,10 +233,10 @@ object_cs_Matanimheader_00F6D4:
   offset: 0xF6D4
   symbol: object_cs_Matanimheader_00F6D4
 
-object_cs_Skel_00F82C:
+gBomberSkel:
   type: MM:SKELETON
   offset: 0xF82C
-  symbol: object_cs_Skel_00F82C
+  symbol: gBomberSkel
   limb_type: Standard
   skel_type: Flex
 
@@ -496,34 +496,34 @@ object_cs_Tex_00C220:
   width: 16
   height: 16
 
-object_cs_Tex_00C520:
+gBomberEyeOpenTex:
   type: TEXTURE
   offset: 0xC520
-  symbol: object_cs_Tex_00C520
+  symbol: gBomberEyeOpenTex
   format: RGBA16
   width: 32
   height: 32
 
-object_cs_Tex_00CD20:
+gBomberEyeHalfTex:
   type: TEXTURE
   offset: 0xCD20
-  symbol: object_cs_Tex_00CD20
+  symbol: gBomberEyeHalfTex
   format: RGBA16
   width: 32
   height: 32
 
-object_cs_Tex_00D520:
+gBomberEyeClosedTex:
   type: TEXTURE
   offset: 0xD520
-  symbol: object_cs_Tex_00D520
+  symbol: gBomberEyeClosedTex
   format: RGBA16
   width: 32
   height: 32
 
-object_cs_Tex_00DD20:
+gBomberNumber4Tex:
   type: TEXTURE
   offset: 0xDD20
-  symbol: object_cs_Tex_00DD20
+  symbol: gBomberNumber4Tex
   format: I8
   width: 32
   height: 32
@@ -536,42 +536,42 @@ object_cs_Tex_00E120:
   width: 16
   height: 16
 
-object_cs_Tex_00E220:
+gBomberWhiteShirtBackTex:
   type: TEXTURE
   offset: 0xE220
-  symbol: object_cs_Tex_00E220
+  symbol: gBomberWhiteShirtBackTex
   format: I8
   width: 32
   height: 32
 
-object_cs_Tex_00E620:
+gBomberNumber1Tex:
   type: TEXTURE
   offset: 0xE620
-  symbol: object_cs_Tex_00E620
+  symbol: gBomberNumber1Tex
   format: I8
   width: 32
   height: 32
 
-object_cs_Tex_00EA20:
+gBomberNumber2Tex:
   type: TEXTURE
   offset: 0xEA20
-  symbol: object_cs_Tex_00EA20
+  symbol: gBomberNumber2Tex
   format: I8
   width: 32
   height: 32
 
-object_cs_Tex_00EE20:
+gBomberNumber3Tex:
   type: TEXTURE
   offset: 0xEE20
-  symbol: object_cs_Tex_00EE20
+  symbol: gBomberNumber3Tex
   format: I8
   width: 32
   height: 32
 
-object_cs_Tex_00F220:
+gBomberNumber5Tex:
   type: TEXTURE
   offset: 0xF220
-  symbol: object_cs_Tex_00F220
+  symbol: gBomberNumber5Tex
   format: I8
   width: 32
   height: 32
@@ -774,8 +774,8 @@ object_cs_Matanimheader_00F6D4ColorParams_00F6C4:
   symbol: object_cs_Matanimheader_00F6D4ColorParams_00F6C4
   size: 0
 
-object_cs_Skel_00F82CLimbs:
+gBomberSkelLimbs:
   type: BLOB
   offset: 0xF7DC
-  symbol: object_cs_Skel_00F82CLimbs
+  symbol: gBomberSkelLimbs
   size: 0

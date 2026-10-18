@@ -415,7 +415,7 @@ gKafeiSkel:
   type: MM:SKELETON
   offset: 0xF7EC
   symbol: gKafeiSkel
-  limb_type: Standard
+  limb_type: LOD
   skel_type: Flex
 
 gKafeiSkinTex:

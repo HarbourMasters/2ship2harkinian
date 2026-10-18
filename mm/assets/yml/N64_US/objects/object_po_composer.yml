@@ -187,108 +187,108 @@ gPoeComposerUpperBodyLimb:
   symbol: gPoeComposerUpperBodyLimb
   limb_type: Standard
 
-object_po_composer_DL_004600:
+gPoeComposerSoulDL:
   type: GFX
   offset: 0x4600
-  symbol: object_po_composer_DL_004600
+  symbol: gPoeComposerSoulDL
 
-object_po_composer_DL_006D80:
+gPoeComposerBatonDL:
   type: GFX
   offset: 0x6D80
-  symbol: object_po_composer_DL_006D80
+  symbol: gPoeComposerBatonDL
 
-object_po_composer_Tex_007E80:
+gPoeComposerArmTex:
   type: TEXTURE
   offset: 0x7E80
-  symbol: object_po_composer_Tex_007E80
+  symbol: gPoeComposerArmTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_008080:
+gPoeComposerLanternBaseTex:
   type: TEXTURE
   offset: 0x8080
-  symbol: object_po_composer_Tex_008080
+  symbol: gPoeComposerLanternBaseTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_008280:
+gPoeComposerCoatTex:
   type: TEXTURE
   offset: 0x8280
-  symbol: object_po_composer_Tex_008280
+  symbol: gPoeComposerCoatTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_008480:
+gPoeComposerLanternGlassTex:
   type: TEXTURE
   offset: 0x8480
-  symbol: object_po_composer_Tex_008480
+  symbol: gPoeComposerLanternGlassTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_008680:
+gPoeComposerClothPaternTex:
   type: TEXTURE
   offset: 0x8680
-  symbol: object_po_composer_Tex_008680
+  symbol: gPoeComposerClothPaternTex
   format: RGBA16
   width: 16
   height: 32
 
-object_po_composer_Tex_008A80:
+gPoeComposerEyeTex:
   type: TEXTURE
   offset: 0x8A80
-  symbol: object_po_composer_Tex_008A80
+  symbol: gPoeComposerEyeTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_008C80:
+gPoeComposerSharpHairCurlTex:
   type: TEXTURE
   offset: 0x8C80
-  symbol: object_po_composer_Tex_008C80
+  symbol: gPoeComposerSharpHairCurlTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_008E80:
+gPoeComposerMoustacheTex:
   type: TEXTURE
   offset: 0x8E80
-  symbol: object_po_composer_Tex_008E80
+  symbol: gPoeComposerMoustacheTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_009080:
+gPoeComposerHatEmblemSharpTex:
   type: TEXTURE
   offset: 0x9080
-  symbol: object_po_composer_Tex_009080
+  symbol: gPoeComposerHatEmblemSharpTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_009280:
+gPoeComposerHatEmblemFlatTex:
   type: TEXTURE
   offset: 0x9280
-  symbol: object_po_composer_Tex_009280
+  symbol: gPoeComposerHatEmblemFlatTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_009480:
+gPoeComposerCharedBodyTex:
   type: TEXTURE
   offset: 0x9480
-  symbol: object_po_composer_Tex_009480
+  symbol: gPoeComposerCharedBodyTex
   format: RGBA16
   width: 16
   height: 16
 
-object_po_composer_Tex_009680:
+gPoeComposerBroachTex:
   type: TEXTURE
   offset: 0x9680
-  symbol: object_po_composer_Tex_009680
+  symbol: gPoeComposerBroachTex
   format: RGBA16
   width: 16
   height: 16

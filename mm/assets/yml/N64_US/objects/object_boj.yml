@@ -678,13 +678,13 @@ object_bojVtx_008180:
   zero_flag: true
   null_cross_file: true
 
-object_bojTLUT_009848:
+object_boj_TLUT_009848:
   type: TEXTURE
   offset: 0x009848
-  symbol: object_bojTLUT_009848
+  symbol: object_boj_TLUT_009848
   format: RGBA16
-  width: 16
-  height: 16
+  width: 252
+  height: 1
 
 object_bojVtx_00A000:
   type: MM:ARRAY

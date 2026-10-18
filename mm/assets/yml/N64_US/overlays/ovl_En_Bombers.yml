@@ -6,13 +6,13 @@
   external_files:
     - N64_US/objects/gameplay_keep.yml
 
-ovl_En_Bombers_DL_12C8:
+gBomberRedBandanaDL:
   type: GFX
   offset: 0x12C8
-  symbol: ovl_En_Bombers_DL_12C8
+  symbol: gBomberRedBandanaDL
 
-ovl_En_Bombers_DL_12D8:
+gBomberBlueBandanaDL:
   type: GFX
   offset: 0x12D8
-  symbol: ovl_En_Bombers_DL_12D8
+  symbol: gBomberBlueBandanaDL
 

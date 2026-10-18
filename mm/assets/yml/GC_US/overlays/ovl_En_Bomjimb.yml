@@ -6,13 +6,13 @@
   external_files:
     - GC_US/objects/gameplay_keep.yml
 
-gEnBomjimb_D_80C03240:
+gBomberCatchRedBandanaDL:
   type: GFX
   offset: 0x23A0
-  symbol: gEnBomjimb_D_80C03240
+  symbol: gBomberCatchRedBandanaDL
 
-gEnBomjimb_D_80C03250:
+gBomberCatchBlueBandanaDL:
   type: GFX
   offset: 0x23B0
-  symbol: gEnBomjimb_D_80C03250
+  symbol: gBomberCatchBlueBandanaDL
 

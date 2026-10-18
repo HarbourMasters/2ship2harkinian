@@ -6,13 +6,13 @@
   external_files:
     - N64_US/objects/gameplay_keep.yml
 
-D_801AEF88:
+gActorSetupXluDL:
   type: GFX
   offset: 0x1094C8
-  symbol: D_801AEF88
+  symbol: gActorSetupXluDL
 
-D_801AEFA0:
+gActorSetupOpaDL:
   type: GFX
   offset: 0x1094E0
-  symbol: D_801AEFA0
+  symbol: gActorSetupOpaDL
 

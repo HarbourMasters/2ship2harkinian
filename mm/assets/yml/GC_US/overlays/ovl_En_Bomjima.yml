@@ -6,13 +6,13 @@
   external_files:
     - GC_US/objects/gameplay_keep.yml
 
-gEnBomjima_D_80C00B08:
+gBomberJimRedBandanaDL:
   type: GFX
   offset: 0x2998
-  symbol: gEnBomjima_D_80C00B08
+  symbol: gBomberJimRedBandanaDL
 
-gEnBomjima_D_80C00B18:
+gBomberJimBlueBandanaDL:
   type: GFX
   offset: 0x29A8
-  symbol: gEnBomjima_D_80C00B18
+  symbol: gBomberJimBlueBandanaDL
 

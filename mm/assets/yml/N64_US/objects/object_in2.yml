@@ -310,10 +310,10 @@ object_in2_TLUT_004E28:
   width: 16
   height: 16
 
-object_in2_Tex_004C28:
+object_in2_TLUT_004C28:
   type: TEXTURE
   offset: 0x4C28
-  symbol: object_in2_Tex_004C28
+  symbol: object_in2_TLUT_004C28
   format: RGBA16
   width: 16
   height: 16

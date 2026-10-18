@@ -121,9 +121,10 @@ gGerudoPurpleGlaiveGuardTex:
   type: TEXTURE
   offset: 0x57E8
   symbol: gGerudoPurpleGlaiveGuardTex
-  format: I8
+  format: CI8
   width: 8
   height: 8
+  tlut: 0x5178
 
 gGerudoPurpleGlaiveHaftShoeSoleTex:
   type: TEXTURE

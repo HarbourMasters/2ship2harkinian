@@ -287,10 +287,10 @@ object_rz_TLUT_00B450:
   width: 16
   height: 16
 
-object_rz_Tex_00B650:
+object_rz_TLUT_00B650:
   type: TEXTURE
   offset: 0xB650
-  symbol: object_rz_Tex_00B650
+  symbol: object_rz_TLUT_00B650
   format: RGBA16
   width: 16
   height: 16
