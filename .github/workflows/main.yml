@@ -62,7 +62,7 @@ jobs:
         sudo cp -av /usr/local/lib/libSDL* /lib/x86_64-linux-gnu/
     - name: Install latest tinyxml2
       run: |
-        sudo apt-get remove libtinyxml2-dev
+        sudo apt-get remove -y libtinyxml2-dev
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         if [ ! -d "deps/tinyxml2-10.0.0" ]; then
           wget https://github.com/leethomason/tinyxml2/archive/refs/tags/10.0.0.tar.gz
@@ -185,7 +185,7 @@ jobs:
         sudo cp -av /usr/local/lib/libSDL* /lib/x86_64-linux-gnu/
     - name: Install latest tinyxml2
       run: |
-        sudo apt-get remove libtinyxml2-dev
+        sudo apt-get remove -y libtinyxml2-dev
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         if [ ! -d "deps/tinyxml2-10.0.0" ]; then
           wget https://github.com/leethomason/tinyxml2/archive/refs/tags/10.0.0.tar.gz
