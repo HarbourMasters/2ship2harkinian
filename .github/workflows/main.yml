@@ -239,7 +239,7 @@ jobs:
       run: |
         test "$(getconf GNU_LIBC_VERSION)" = "glibc 2.35"
         ./2ship.appimage --appimage-extract > /dev/null
-        /lib64/ld-linux-x86-64.so.2 --list squashfs-root/usr/bin/2ship
+        /lib64/ld-linux-x86-64.so.2 --list "$(readlink -f squashfs-root/AppRun)"
     - name: Upload build
       uses: actions/upload-artifact@v7
       with:
