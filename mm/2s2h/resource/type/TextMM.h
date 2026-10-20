@@ -26,6 +26,8 @@ class TextMM : public Ship::Resource<MessageEntryMM> {
   public:
     using Resource::Resource;
 
+    static constexpr size_t HeaderSize = 11;
+
     TextMM() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
     }
 
