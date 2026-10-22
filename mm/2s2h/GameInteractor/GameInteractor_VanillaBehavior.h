@@ -532,6 +532,22 @@ typedef enum {
     // - `*Actor`
     // - `*u8` (type)
     VB_DRAW_DAMAGE_EFFECT,
+    
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*ObjEtcetera`
+    VB_DRAW_ETCETERA_ANIMATED,
+
+    // #### `result`
+    // ```c
+    // true
+    // ```
+    // #### `args`
+    // - `*ObjEtcetera`
+    VB_DRAW_ETCETERA_IDLE,
 
     // #### `result`
     // ```c
@@ -632,22 +648,6 @@ typedef enum {
     // #### `args`
     // - `*EnSlime`
     VB_DRAW_SLIME_RANDO_ITEM,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - `*ObjEtcetera`
-    VB_DRAW_ETCETERA_IDLE,
-
-    // #### `result`
-    // ```c
-    // true
-    // ```
-    // #### `args`
-    // - `*ObjEtcetera`
-    VB_DRAW_ETCETERA_ANIMATED,
 
     // #### `result`
     // #### In `Item_DropCollectible`:

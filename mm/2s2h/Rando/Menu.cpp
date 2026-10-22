@@ -767,7 +767,7 @@ static void DrawCheckPoolTab() {
                       "Maps sold by Tingle are checks, with randomized prices.");
     CheckPoolCheckbox("Cows", RO_SHUFFLE_COWS, RCTYPE_COW, "Playing Epona's Song to a cow is a check.");
     CheckPoolCheckbox("Deku Flowers", RO_SHUFFLE_DEKU_FLOWERS, RCTYPE_DEKU_FLOWER,
-                      "Launching out of a deku flower is a check.");
+                      "Launching out of a Deku flower is a check.");
     UIWidgets::EndCard();
 
     UIWidgets::BeginCard("checkPoolCreatures");
