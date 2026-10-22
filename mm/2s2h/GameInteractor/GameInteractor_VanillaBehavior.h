@@ -532,7 +532,7 @@ typedef enum {
     // - `*Actor`
     // - `*u8` (type)
     VB_DRAW_DAMAGE_EFFECT,
-    
+
     // #### `result`
     // ```c
     // true
