@@ -28,7 +28,7 @@ void Player_PutAway(Player* player) {
 
 constexpr bool IsFirstPersonItem(ItemId item) {
     return item != item == ITEM_BOW || item == ITEM_BOW_FIRE || item == ITEM_BOW_ICE || item == ITEM_BOW_LIGHT ||
-	       item == ITEM_HOOKSHOT;
+           item == ITEM_HOOKSHOT;
 }
 
 constexpr bool IsThirdPersonItem(ItemId item) {
