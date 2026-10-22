@@ -27,16 +27,16 @@ void Player_PutAway(Player* player) {
 }
 
 constexpr bool IsFirstPersonItem(ItemId item) {
-    return item != ITEM_NONE && (item == ITEM_BOW || item == ITEM_BOW_FIRE || item == ITEM_BOW_ICE ||
-                                 item == ITEM_BOW_LIGHT || item == ITEM_HOOKSHOT);
+    return item != item == ITEM_BOW || item == ITEM_BOW_FIRE || item == ITEM_BOW_ICE || item == ITEM_BOW_LIGHT ||
+	       item == ITEM_HOOKSHOT;
 }
 
 constexpr bool IsThirdPersonItem(ItemId item) {
-    return item != ITEM_NONE && (item == ITEM_DEKU_STICK || item == ITEM_SWORD_GREAT_FAIRY);
+    return item == ITEM_DEKU_STICK || item == ITEM_SWORD_GREAT_FAIRY;
 }
 
 constexpr bool IsItemInScope(ItemId item) {
-    return item != ITEM_NONE && (IsFirstPersonItem(item) || IsThirdPersonItem(item));
+    return IsFirstPersonItem(item) || IsThirdPersonItem(item);
 }
 
 constexpr bool PlayerHoldsItem(Player* player) {
@@ -86,6 +86,8 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
     if (player->transformation != PLAYER_FORM_HUMAN) {
         return;
     }
+
+    // Player is wearing a mask that changes the B button action
     if (player->currentMask == PLAYER_MASK_BLAST || player->currentMask == PLAYER_MASK_BREMEN ||
         player->currentMask == PLAYER_MASK_KAMARO) {
         return;
@@ -142,7 +144,6 @@ void RestoreBButtonItem() {
     if (!mBButtonState.frameOverridden) {
         return;
     }
-    // assert(mBButtonState.stored != ITEM_NONE);
     auto* item = &BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
 
     if (*item != mBButtonState.override && !IsItemInScope((ItemId)*item)) {
