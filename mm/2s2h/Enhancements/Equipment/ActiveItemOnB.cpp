@@ -88,8 +88,6 @@ static void HandleGetItemOnButton(bool* should, EquipSlot slot, ItemId* pressedI
     }
 
     // Player is wearing a mask that changes the B button action
-
-    // Player is wearing a mask that changes the B button action
     if (player->currentMask == PLAYER_MASK_BLAST || player->currentMask == PLAYER_MASK_BREMEN ||
         player->currentMask == PLAYER_MASK_KAMARO) {
         return;
