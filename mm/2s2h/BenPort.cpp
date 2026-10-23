@@ -2341,3 +2341,20 @@ extern "C" bool Ship_HandleConsoleCrashAsReset() {
 
     return true;
 }
+
+extern "C" void Controller_GetGyroDelta(float* pitch, float* yaw) {
+    *pitch = 0.0f;
+    *yaw = 0.0f;
+    if (Ship::Context::GetRawInstance() == nullptr || Ship::Context::GetRawInstance()->GetControlDeck() == nullptr) {
+        return;
+    }
+    auto controller = Ship::Context::GetRawInstance()->GetControlDeck()->GetControllerByPort(0);
+    if (controller == nullptr || controller->GetGyro() == nullptr) {
+        return;
+    }
+    auto mapping = controller->GetGyro()->GetGyroMapping();
+    if (mapping == nullptr) {
+        return;
+    }
+    mapping->UpdatePad(*pitch, *yaw);
+}
